@@ -474,34 +474,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   } */
   private initializeNextButtonState(): void {
-    // Combine the necessary observables to derive the final state of the Next button
     this.isButtonEnabled$ = combineLatest([
-        this.selectedOptionService.isAnsweredSubject.pipe(
-            startWith(false), 
-            distinctUntilChanged()
-        ),
-        this.quizStateService.isLoading$.pipe(
-            startWith(true), 
-            map(loading => !loading),
-            distinctUntilChanged()
-        ),
-        this.quizStateService.isNavigating$.pipe(
-            startWith(false), 
-            map(navigating => !navigating),
-            distinctUntilChanged()
-        )
+        this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
+        this.quizStateService.isLoading$.pipe(map(loading => !loading), distinctUntilChanged()),
+        this.quizStateService.isNavigating$.pipe(map(navigating => !navigating), distinctUntilChanged())
     ]).pipe(
-        map(([isAnswered, isLoaded, isIdle]) => {
-            console.log('Evaluating Next button state:', { isAnswered, isLoaded, isIdle });
-            return isAnswered && isLoaded && isIdle;
-        }),
-        distinctUntilChanged(),
+        map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
+        distinctUntilChanged(), 
         shareReplay(1)
     );
 
-    // Subscription to apply button state immediately whenever it updates
+    // Immediately set the button state when the answer is selected
     this.isButtonEnabled$.subscribe(isEnabled => {
-        console.log('Next button final enabled state:', isEnabled);
+        console.log('Next button state set to:', isEnabled);
         this.updateAndSyncNextButtonState(isEnabled);
     });
   }
@@ -660,6 +645,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.ngZone.run(() => {
       setTimeout(() => {
+        this.evaluateNextButtonState(); 
         this.updateAndSyncNextButtonState(checked);
         this.cdRef.detectChanges();
       }, 300);
@@ -1396,7 +1382,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.question = currentQuestion;
 
     // Filter correct answers
-    const correctAnswerOptions = (currentQuestion.options || []).filter((option: Option) => option.correct);
+    const correctAnswerOptions = currentQuestion.options.filter((option: Option) => option.correct);
 
     if (correctAnswerOptions.length === 0) {
       console.error(
