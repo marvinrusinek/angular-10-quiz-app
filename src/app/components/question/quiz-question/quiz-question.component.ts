@@ -646,28 +646,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.setQuestionFirst(index);
   }
 
-  async loadQuizData(): Promise<void> {
+  async loadQuizData(): Promise<boolean> {
     try {
-        const quiz = await firstValueFrom(
-            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-        ) as Quiz;
-
-        if (quiz && quiz.questions && quiz.questions.length > 0) {
-            this.quiz = quiz;
-            this.questions = quiz.questions; // Ensure questions are directly assigned here
-            this.currentQuestion = this.questions[this.currentQuestionIndex];
-            console.log('Quiz data loaded successfully:', quiz);
-        } else if (quiz && (!quiz.questions || quiz.questions.length === 0)) {
-            console.error('Quiz has no questions.');
-            this.questions = []; // Set questions to an empty array to avoid undefined errors
-        } else {
-            console.error('Quiz data is unavailable.');
-        }
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+      ) as Quiz;
+  
+      if (quiz && quiz.questions && quiz.questions.length > 0) {
+        this.quiz = quiz;
+        this.questions = quiz.questions; // Ensure questions are directly assigned here
+        this.currentQuestion = this.questions[this.currentQuestionIndex];
+        console.log('Quiz data loaded successfully:', quiz);
+        return true; // Indicate successful load
+      } else if (quiz && (!quiz.questions || quiz.questions.length === 0)) {
+        console.error('Quiz has no questions.');
+        this.questions = []; // Set questions to an empty array to avoid undefined errors
+        return false; // Indicate failure due to missing questions
+      } else {
+        console.error('Quiz data is unavailable.');
+        return false; // Indicate failure due to missing quiz data
+      }
     } catch (error) {
-        console.error('Error loading quiz data:', error);
-        this.questions = []; // Ensure questions are set to an empty array on error
+      console.error('Error loading quiz data:', error);
+      this.questions = []; // Ensure questions are set to an empty array on error
+      return false; // Indicate failure due to an error
     }
   }
+  
 
   
   private handleRouteChanges(): void {
