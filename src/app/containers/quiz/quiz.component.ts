@@ -343,7 +343,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('Display Variables:', this.displayVariables);
   }
 
-  private async handleVisibilityChange(): Promise<void> {
+  /* private async handleVisibilityChange(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     try {
       const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
@@ -360,7 +360,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('Error retrieving total questions count:', error);
     }
+  } */
+  private async handleVisibilityChange(): Promise<void> {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    try { 
+      // Ensure questions are loaded
+        if (!Array.isArray(this.questions) || this.questions.length === 0) {
+            console.warn('Questions not loaded, calling loadQuizData...');
+            await this.loadQuizData(); // Ensure loading before proceeding
+        }
+
+        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+
+        if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
+            this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
+        } else {
+            console.warn('Invalid or out-of-range question index on visibility change.');
+        }
+    } catch (error) {
+        console.error('Error retrieving total questions count:', error);
+    }
   }
+
 
   async loadQuestionContents(): Promise<void> {
     try {
@@ -879,7 +900,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  initializeRouteParams(): void {
+  /* initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
 
@@ -897,6 +918,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Handle all other questions through a general update display function
         this.updateQuestionDisplay(adjustedIndex);
       }
+    });
+  } */
+  initializeRouteParams(): void {
+    this.activatedRoute.params.subscribe(async (params) => {
+        this.quizId = params['quizId'];
+
+        // Correctly handle the case where 'questionIndex' might be 0 or undefined
+        const routeQuestionIndex =
+            params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+
+        // Adjust for zero-based indexing
+        const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+
+        if (!Array.isArray(this.questions) || this.questions.length === 0) {
+            console.warn('Questions not loaded, calling loadQuizData...');
+            await this.loadQuizData(); // Ensure questions are loaded before proceeding
+        }
+
+        if (adjustedIndex === 0) {
+            // Call the special initialization function for the first question
+            this.initializeFirstQuestion();
+        } else {
+            // Handle all other questions through a general update display function
+            this.updateQuestionDisplay(adjustedIndex);
+        }
     });
   }
 
