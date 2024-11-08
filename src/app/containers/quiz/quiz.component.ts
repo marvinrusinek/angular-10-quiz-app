@@ -851,21 +851,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async loadQuizData(): Promise<void> {
     try {
-      const quiz = (await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-      )) as Quiz;
-      if (quiz) {
-        this.quiz = quiz;
-        if (quiz.questions && quiz.questions.length > 0) {
-          this.currentQuestion = quiz.questions[this.questionIndex - 1];
+        const quiz = await firstValueFrom(
+            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+        ) as Quiz;
+
+        if (quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0) {
+            this.quiz = quiz;
+            this.questions = quiz.questions; // Populate this.questions
+            this.currentQuestion = this.questions[this.questionIndex - 1];
+            console.log('Quiz and questions loaded successfully.');
         } else {
-          console.error('Quiz has no questions.');
+            console.error('Quiz has no questions or data is missing.');
+            throw new Error('Quiz data is incomplete or questions are missing.');
         }
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
     } catch (error) {
-      console.error('Error loading quiz data:', error);
+        console.error('Error loading quiz data:', error);
+        throw error; // Reject if there's an error loading data
     }
   }
 
@@ -924,20 +925,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.activatedRoute.params.subscribe(async (params) => {
         this.quizId = params['quizId'];
 
-        // Correctly handle the case where 'questionIndex' might be 0 or undefined
         const routeQuestionIndex =
             params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
-
-        // Adjust for zero-based indexing
         const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
-        // Wait until questions are loaded without using retries
         if (!Array.isArray(this.questions) || this.questions.length === 0) {
-            console.warn('Questions not loaded, waiting for loadQuizData...');
-            await this.waitForQuestionsToLoad();
+            console.warn('Questions not loaded, calling loadQuizData...');
+            await this.loadQuizData(); // Await loading of questions
         }
 
-        // Ensure questions are loaded before continuing
         if (Array.isArray(this.questions) && this.questions.length > 0) {
             if (adjustedIndex === 0) {
                 this.initializeFirstQuestion();
@@ -945,10 +941,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 this.updateQuestionDisplay(adjustedIndex);
             }
         } else {
-            console.error('Questions failed to load after waiting.');
+            console.error('Questions failed to load after loadQuizData call.');
         }
     });
   }
+
 
   // Utility function to wait for questions to load
   private async waitForQuestionsToLoad(): Promise<void> {
