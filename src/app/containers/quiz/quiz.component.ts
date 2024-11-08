@@ -932,12 +932,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
         const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
-        if (!Array.isArray(this.questions) || this.questions.length === 0) {
+        // Check if quiz data is loaded; if not, load it
+        if (!this.isQuizLoaded) {
             console.warn('Questions not loaded, calling loadQuizData...');
             await this.loadQuizData(); // Await loading of questions
         }
 
-        if (Array.isArray(this.questions) && this.questions.length > 0) {
+        // Proceed only if questions are loaded
+        if (this.isQuizLoaded && Array.isArray(this.questions) && this.questions.length > 0) {
             if (adjustedIndex === 0) {
                 this.initializeFirstQuestion();
             } else {
@@ -948,6 +950,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     });
   }
+
 
 
   // Utility function to wait for questions to load
