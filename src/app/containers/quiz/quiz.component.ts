@@ -278,96 +278,45 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  /* async ngOnInit(): Promise<void> {
-    this.initializeDisplayVariables();
-
-    this.activatedRoute.paramMap.subscribe((params) => {
-      const quizId = params.get('quizId');
-      if (quizId) {
-        this.quizId = quizId;
-        this.initializeQuizBasedOnRouteParams();
-      } else {
-        console.error('Quiz ID is not provided in the route');
-      }
-    });
-
-    this.progressBarService.progress$.subscribe((progressValue) => {
-      this.progressPercentage.next(progressValue); // Update the BehaviorSubject
-    });    
-    this.progressBarService.setProgress(0);
-
-    this.subscribeToOptionSelection();
-
-    this.initializeNextButtonState(); // Initialize button state observables
-    this.initializeTooltip(); // Set up tooltip logic
-    this.resetOptionState(); // Ensure no lingering selection state
-    this.loadQuestionContents(); // Load the first question's contents
-    // Reset the answered state initially
-    this.selectedOptionService.setAnswered(false);
-
-    this.quizService.nextExplanationText$.subscribe((text) => {
-      this.explanationToDisplay = text;
-      console.log('Updated explanation text:', text); // Debug log
-    });
-
-    // Move resetQuestionState here
-    this.resetQuestionState();
-
-    this.subscribeToSelectionMessage();
-
-    // Initialize route parameters and subscribe to updates
-    this.initializeRouteParameters();
-
-    // Resolve and fetch quiz data
-    this.initializeQuizData();
-
-    // Initialize and shuffle questions
-    this.initializeQuestions();
-
-    // Fetch and display the current question
-    this.initializeCurrentQuestion();
-
-    this.checkIfAnswerSelected(true);
-  } */
   async ngOnInit(): Promise<void> {
     try {
-        // Initialize any display-related or independent variables
-        this.initializeDisplayVariables();
-        this.progressBarService.progress$.subscribe((progressValue) => {
-            this.progressPercentage.next(progressValue); 
-        });
-        this.progressBarService.setProgress(0);
-        this.subscribeToOptionSelection();
-        this.initializeNextButtonState();
-        this.initializeTooltip();
-        this.resetOptionState();
-        this.selectedOptionService.setAnswered(false);
-        this.resetQuestionState();
-        this.subscribeToSelectionMessage();
+      // Initialize any display-related or independent variables
+      this.initializeDisplayVariables();
+      this.progressBarService.progress$.subscribe((progressValue) => {
+        this.progressPercentage.next(progressValue); 
+      });
+      this.progressBarService.setProgress(0);
+      this.subscribeToOptionSelection();
+      this.initializeNextButtonState();
+      this.initializeTooltip();
+      this.resetOptionState();
+      this.selectedOptionService.setAnswered(false);
+      this.resetQuestionState();
+      this.subscribeToSelectionMessage();
         
-        // Set up route parameters independently from data loading
-        this.activatedRoute.paramMap.subscribe((params) => {
-            const quizId = params.get('quizId');
-            if (quizId) {
-                this.quizId = quizId;
-            } else {
-                console.error('Quiz ID is not provided in the route');
-            }
-        });
+      // Set up route parameters independently from data loading
+      this.activatedRoute.paramMap.subscribe((params) => {
+        const quizId = params.get('quizId');
+        if (quizId) {
+          this.quizId = quizId;
+        } else {
+          console.error('Quiz ID is not provided in the route');
+        }
+      });
 
-        // Fetch quiz data and only then initialize dependent logic
-        await this.loadQuizData(); // Ensures questions are loaded
-        this.initializeQuizBasedOnRouteParams();
-        this.initializeRouteParameters();
-        this.initializeQuizData();
-        this.initializeQuestions();
-        this.initializeCurrentQuestion();
+      // Fetch quiz data and only then initialize dependent logic
+      await this.loadQuizData(); // Ensures questions are loaded
+      this.initializeQuizBasedOnRouteParams();
+      this.initializeRouteParameters();
+      this.initializeQuizData();
+      this.initializeQuestions();
+      this.initializeCurrentQuestion();
 
-        // Additional setup and initial display check
-        this.checkIfAnswerSelected(true);
-        console.log('QuizComponent initialized successfully');
+      // Additional setup and initial display check
+      this.checkIfAnswerSelected(true);
+      console.log('QuizComponent initialized successfully');
     } catch (error) {
-        console.error('Error during ngOnInit:', error);
+      console.error('Error during ngOnInit:', error);
     }
   }
 
