@@ -1919,10 +1919,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationTextService.explanationText$.next('');
   }
 
-  updateQuestionDisplay(questionIndex: number): void {
-    if (!Array.isArray(this.questions) || this.questions.length === 0) {
-      console.warn('Questions array is not initialized or empty...');
-      return;
+  async updateQuestionDisplay(questionIndex: number): Promise<void> {
+    // Ensure questions array is loaded
+    while (!Array.isArray(this.questions) || this.questions.length === 0) {
+      console.warn('Questions array is not initialized or empty. Loading questions...');
+      await this.loadQuizData(); // Ensure questions are loaded
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before rechecking
     }
   
     if (questionIndex >= 0 && questionIndex < this.questions.length) {
