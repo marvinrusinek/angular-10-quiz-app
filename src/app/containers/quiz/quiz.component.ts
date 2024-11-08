@@ -952,9 +952,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // Utility function to wait for questions to load
   private async waitForQuestionsToLoad(): Promise<void> {
-      while (!Array.isArray(this.questions) || this.questions.length === 0) {
-          await new Promise(resolve => setTimeout(resolve, 100)); // Check every 100ms
-      }
+    while (!Array.isArray(this.questions) || this.questions.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); // Check every 100ms
+    }
   }
 
   /**** Initialize route parameters and subscribe to updates ****/
