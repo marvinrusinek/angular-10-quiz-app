@@ -1637,47 +1637,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('Option clicked:', event); 
-  
-    // Prevent further action if option is missing or input handling is locked
+
+    // Prevent action if option is missing or handling is locked
     if (!event?.option || event.option.optionId === undefined) return;
-    if (this.isOptionSelected) {
+
+    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+
+    // Lock input for single-answer questions
+    if (!isMultipleAnswer && this.isOptionSelected) {
       console.warn('Click locked, skipping.');
       return;
     }
-  
-    this.isOptionSelected = true; // Lock input handling temporarily
-  
+
+    this.isOptionSelected = true; // Temporarily lock to prevent multiple rapid clicks
+
     try {
       await this.ngZone.run(async () => {
         console.log('Inside ngZone after click:', event);
-  
-        // Delay to ensure UI stability
+
+        // Small delay for UI stability
         await new Promise((resolve) => requestAnimationFrame(resolve));
-  
+
         const { option, index = -1, checked = false } = event || {};
-  
+
         console.log(`Processing option: ${option.optionId} at index: ${index}`);
-  
-        // Handle index validation and option selection
+
         if (typeof index !== 'number' || index < 0) {
           console.error(`Invalid index: ${index}`);
           return;
         }
-  
+
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
-        this.selectedOptionService.setAnswered(true);
 
-        // Show explanation only if it hasn't been displayed yet
         if (!this.explanationLocked) {
-          this.explanationLocked = true; // Lock further changes
+          this.explanationLocked = true;
           await this.fetchAndSetExplanationText(this.currentQuestionIndex);
         }
-  
-        // Call the parent class's onOptionClicked if needed
+
+        // Parent class handling and option state management
         await super.onOptionClicked(event);
-  
-        // Additional logic for handling the click
         this.resetExplanation();
         this.toggleOptionState(option, index);
         this.emitOptionSelected(option, index);
@@ -1688,25 +1687,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         await this.processSelectedOption(option, index, checked);
         await this.finalizeSelection(option, index);
-  
+
+        // Unlock for multiple-answer questions
+        if (isMultipleAnswer) {
+          this.isOptionSelected = false;
+        }
+
         console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges(); // Ensure the UI reflects changes
+        this.cdRef.detectChanges();
       });
     } catch (error) {
       console.error('Error during option click:', error);
     } finally {
-      // Reset the lock after click processing completes
-      setTimeout(() => (this.isOptionSelected = false), 300); // Cooldown period
-      // Ensure UI stabilization and final updates
-      requestAnimationFrame(() => {
+      // Cooldown period to allow UI refresh
+      setTimeout(() => {
+        this.isOptionSelected = false;
         this.updateExplanationText(this.currentQuestionIndex);
         this.cdRef.detectChanges();
-      });
+      }, 300);
+
       this.finalizeLoadingState();
-      this.cdRef.detectChanges();
     }
   }
-  
   
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
