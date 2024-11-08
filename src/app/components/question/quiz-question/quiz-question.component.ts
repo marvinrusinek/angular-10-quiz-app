@@ -654,26 +654,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (quiz && quiz.questions && quiz.questions.length > 0) {
         this.quiz = quiz;
-        this.questions = quiz.questions; // Ensure questions are directly assigned here
-        this.currentQuestion = this.questions[this.currentQuestionIndex];
+        this.questions = quiz.questions;
+        this.currentQuestion = this.questions[this.currentQuestionIndex]; // Ensure `currentQuestion` is properly set
         console.log('Quiz data loaded successfully:', quiz);
-        return true; // Indicate successful load
-      } else if (quiz && (!quiz.questions || quiz.questions.length === 0)) {
-        console.error('Quiz has no questions.');
-        this.questions = []; // Set questions to an empty array to avoid undefined errors
-        return false; // Indicate failure due to missing questions
+        return true;
       } else {
-        console.error('Quiz data is unavailable.');
-        return false; // Indicate failure due to missing quiz data
+        console.error('Quiz data is unavailable or has no questions.');
+        this.questions = [];
+        return false;
       }
     } catch (error) {
       console.error('Error loading quiz data:', error);
-      this.questions = []; // Ensure questions are set to an empty array on error
-      return false; // Indicate failure due to an error
+      this.questions = [];
+      return false;
     }
   }
-  
-
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
