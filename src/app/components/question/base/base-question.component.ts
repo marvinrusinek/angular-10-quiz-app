@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Option } from '../../../shared/models/Option.model';
@@ -229,7 +230,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  protected subscribeToQuestionChanges(): void {
+  /* protected subscribeToQuestionChanges(): void {
     if (this.quizStateService) {
       if (this.quizStateService.currentQuestion$) {
         this.currentQuestionSubscription =
@@ -254,6 +255,41 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         'quizStateService is undefined. Make sure it is properly injected and initialized.'
       );
     }
+  } */
+  protected subscribeToQuestionChanges(): void {
+    if (!this.quizStateService) {
+        console.warn(
+            'quizStateService is undefined. Make sure it is properly injected and initialized.'
+        );
+        return;
+    }
+
+    const currentQuestion$ = this.quizStateService.currentQuestion$;
+
+    if (!currentQuestion$) {
+        console.warn('currentQuestion$ is undefined in quizStateService');
+        return;
+    }
+
+    // Subscribe to `currentQuestion$` with filtering to skip undefined values
+    this.currentQuestionSubscription = currentQuestion$.pipe(
+        filter((currentQuestion) => {
+            const isDefined = currentQuestion !== undefined;
+            if (!isDefined) {
+                console.warn('Received undefined currentQuestion');
+            }
+            return isDefined;
+        })
+    ).subscribe({
+        next: (currentQuestion) => {
+            this.question = currentQuestion;
+            console.log('Current question received:', currentQuestion); // Debugging log
+            this.initializeOptions();
+        },
+        error: (err) => {
+            console.error('Error subscribing to currentQuestion:', err);
+        },
+    });
   }
 
   protected abstract loadDynamicComponent(): void;
