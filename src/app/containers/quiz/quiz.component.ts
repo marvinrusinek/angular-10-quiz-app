@@ -279,55 +279,67 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
-    this.initializeDisplayVariables();
+    try {
+        // Load quiz data first to ensure questions and settings are available before proceeding
+        await this.loadQuizData(); // This line ensures quiz data is loaded first
 
-    this.activatedRoute.paramMap.subscribe((params) => {
-      const quizId = params.get('quizId');
-      if (quizId) {
-        this.quizId = quizId;
-        this.initializeQuizBasedOnRouteParams();
-      } else {
-        console.error('Quiz ID is not provided in the route');
-      }
-    });
+        // Initialize display-related variables
+        this.initializeDisplayVariables();
 
-    this.progressBarService.progress$.subscribe((progressValue) => {
-      this.progressPercentage.next(progressValue); // Update the BehaviorSubject
-    });    
-    this.progressBarService.setProgress(0);
+        // Set up route parameters
+        this.activatedRoute.paramMap.subscribe((params) => {
+            const quizId = params.get('quizId');
+            if (quizId) {
+                this.quizId = quizId;
+                this.initializeQuizBasedOnRouteParams();
+            } else {
+                console.error('Quiz ID is not provided in the route');
+            }
+        });
 
-    this.subscribeToOptionSelection();
+        // Subscribe to progress updates and initialize progress bar
+        this.progressBarService.progress$.subscribe((progressValue) => {
+            this.progressPercentage.next(progressValue);
+        });
+        this.progressBarService.setProgress(0);
 
-    this.initializeNextButtonState(); // Initialize button state observables
-    this.initializeTooltip(); // Set up tooltip logic
-    this.resetOptionState(); // Ensure no lingering selection state
-    this.loadQuestionContents(); // Load the first question's contents
-    // Reset the answered state initially
-    this.selectedOptionService.setAnswered(false);
+        // Subscribe to option selection and initialize button state observables
+        this.subscribeToOptionSelection();
+        this.initializeNextButtonState();
 
-    this.quizService.nextExplanationText$.subscribe((text) => {
-      this.explanationToDisplay = text;
-      console.log('Updated explanation text:', text); // Debug log
-    });
+        // Initialize tooltip logic and reset any lingering selection state
+        this.initializeTooltip();
+        this.resetOptionState();
 
-    // Move resetQuestionState here
-    this.resetQuestionState();
+        // Load the first question's contents and reset the answered state
+        this.loadQuestionContents();
+        this.selectedOptionService.setAnswered(false);
 
-    this.subscribeToSelectionMessage();
+        // Subscribe to explanation text updates
+        this.quizService.nextExplanationText$.subscribe((text) => {
+            this.explanationToDisplay = text;
+            console.log('Updated explanation text:', text);
+        });
 
-    // Initialize route parameters and subscribe to updates
-    this.initializeRouteParameters();
+        // Reset question state and subscribe to selection messages
+        this.resetQuestionState();
+        this.subscribeToSelectionMessage();
 
-    // Resolve and fetch quiz data
-    this.initializeQuizData();
+        // Initialize route parameters and subscribe to updates
+        this.initializeRouteParameters();
 
-    // Initialize and shuffle questions
-    this.initializeQuestions();
+        // Initialize quiz data, questions, and the current question display
+        this.initializeQuizData();
+        this.initializeQuestions();
+        this.initializeCurrentQuestion();
 
-    // Fetch and display the current question
-    this.initializeCurrentQuestion();
+        // Perform initial check if an answer has been selected
+        this.checkIfAnswerSelected(true);
 
-    this.checkIfAnswerSelected(true);
+        console.log('QuizComponent initialized successfully');
+    } catch (error) {
+        console.error('Error during ngOnInit:', error);
+    }
   }
 
   ngAfterViewInit(): void {
