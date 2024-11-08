@@ -9,6 +9,7 @@ import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuestionState } from '../../../shared/models/QuestionState.model';
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
