@@ -97,6 +97,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedAnswerField: number;
   selectionMessage: string;
   selectionMessage$: Observable<string>;
+  private isQuizLoaded = false; // Tracks if the quiz data has been loaded
   isAnswered = false;
   correctAnswers: any[] = [];
   nextExplanationText = '';
@@ -857,8 +858,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         if (quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0) {
             this.quiz = quiz;
-            this.questions = quiz.questions; // Populate this.questions
+            this.questions = quiz.questions;
             this.currentQuestion = this.questions[this.questionIndex - 1];
+            this.isQuizLoaded = true; // Set flag to true once data is loaded
             console.log('Quiz and questions loaded successfully.');
         } else {
             console.error('Quiz has no questions or data is missing.');
@@ -866,7 +868,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     } catch (error) {
         console.error('Error loading quiz data:', error);
-        throw error; // Reject if there's an error loading data
+        this.isQuizLoaded = false;
+        throw error;
     }
   }
 
