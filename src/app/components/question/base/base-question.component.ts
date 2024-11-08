@@ -230,32 +230,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  /* protected subscribeToQuestionChanges(): void {
-    if (this.quizStateService) {
-      if (this.quizStateService.currentQuestion$) {
-        this.currentQuestionSubscription =
-          this.quizStateService.currentQuestion$.subscribe({
-            next: (currentQuestion) => {
-              if (currentQuestion) {
-                this.question = currentQuestion;
-                this.initializeOptions();
-              } else {
-                console.warn('Received undefined currentQuestion');
-              }
-            },
-            error: (err) => {
-              console.error('Error subscribing to currentQuestion:', err);
-            },
-          });
-      } else {
-        console.warn('currentQuestion$ is undefined in quizStateService');
-      }
-    } else {
-      console.warn(
-        'quizStateService is undefined. Make sure it is properly injected and initialized.'
-      );
-    }
-  } */
   protected subscribeToQuestionChanges(): void {
     if (!this.quizStateService) {
       console.warn('quizStateService is undefined. Make sure it is properly injected and initialized.');
