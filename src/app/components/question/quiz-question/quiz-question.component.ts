@@ -1250,16 +1250,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private initializeData(): void {
     if (!this.question) {
       console.warn('Question is not defined.');
-      return; // Exit early if `this.question` is undefined
+      return;
     }
 
     this.data = {
       questionText: this.question.questionText,
       explanationText: this.question.explanation || 'No explanation available',
-      correctAnswersText: this.quizService.getCorrectAnswersAsString() || '', // Fallback if empty
-      options: this.options || [] // Fallback if `this.options` is undefined
+      correctAnswersText: this.quizService.getCorrectAnswersAsString() || '',
+      options: this.options || []
     };
-    console.log('Data initialized:', this.data); // Debugging log
+    console.log('Data initialized:', this.data);
   }
 
   private async initializeQuiz(): Promise<void> {
