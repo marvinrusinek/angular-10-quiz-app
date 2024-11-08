@@ -256,7 +256,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       next: (currentQuestion) => {
         this.question = currentQuestion;
         console.log('Current question received:', currentQuestion); // Debugging log
-        this.initializeOptions();
+        this.initializeOptions(); // Initialize options if needed
       },
       error: (err) => {
         console.error('Error subscribing to currentQuestion:', err);
