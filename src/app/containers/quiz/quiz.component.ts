@@ -931,19 +931,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Adjust for zero-based indexing
         const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
+        // Wait until questions are loaded without using retries
         if (!Array.isArray(this.questions) || this.questions.length === 0) {
-            console.warn('Questions not loaded, calling loadQuizData...');
-            await this.loadQuizData(); // Ensure questions are loaded before proceeding
+            console.warn('Questions not loaded, waiting for loadQuizData...');
+            await this.waitForQuestionsToLoad();
         }
 
-        if (adjustedIndex === 0) {
-            // Call the special initialization function for the first question
-            this.initializeFirstQuestion();
+        // Ensure questions are loaded before continuing
+        if (Array.isArray(this.questions) && this.questions.length > 0) {
+            if (adjustedIndex === 0) {
+                this.initializeFirstQuestion();
+            } else {
+                this.updateQuestionDisplay(adjustedIndex);
+            }
         } else {
-            // Handle all other questions through a general update display function
-            this.updateQuestionDisplay(adjustedIndex);
+            console.error('Questions failed to load after waiting.');
         }
     });
+  }
+
+  // Utility function to wait for questions to load
+  private async waitForQuestionsToLoad(): Promise<void> {
+      while (!Array.isArray(this.questions) || this.questions.length === 0) {
+          await new Promise(resolve => setTimeout(resolve, 100)); // Check every 100ms
+      }
   }
 
   /**** Initialize route parameters and subscribe to updates ****/
