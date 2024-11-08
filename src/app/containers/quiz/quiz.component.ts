@@ -36,7 +36,7 @@ import { SharedVisibilityService } from '../../shared/services/shared-visibility
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
-type AnimationState = 'animationStarted' | 'none';
+type AnimationState = 'animationStarted' | 'none'; 
 
 @Component({
   selector: 'codelab-quiz-component',
