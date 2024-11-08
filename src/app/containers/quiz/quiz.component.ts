@@ -443,7 +443,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
   }
 
-  private initializeNextButtonState(): void {
+  /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         startWith(false), // Initialize with 'false'
@@ -472,6 +472,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('Final state of Next button:', isEnabled);
       this.updateAndSyncNextButtonState(isEnabled);
     });
+  } */
+  private initializeNextButtonState(): void {
+    // Combine the necessary observables to derive the final state of the Next button
+    this.isButtonEnabled$ = combineLatest([
+        this.selectedOptionService.isAnsweredSubject.pipe(
+            startWith(false), 
+            distinctUntilChanged()
+        ),
+        this.quizStateService.isLoading$.pipe(
+            startWith(true), 
+            map(loading => !loading),
+            distinctUntilChanged()
+        ),
+        this.quizStateService.isNavigating$.pipe(
+            startWith(false), 
+            map(navigating => !navigating),
+            distinctUntilChanged()
+        )
+    ]).pipe(
+        map(([isAnswered, isLoaded, isIdle]) => {
+            console.log('Evaluating Next button state:', { isAnswered, isLoaded, isIdle });
+            return isAnswered && isLoaded && isIdle;
+        }),
+        distinctUntilChanged(),
+        shareReplay(1)
+    );
+
+    // Subscription to apply button state immediately whenever it updates
+    this.isButtonEnabled$.subscribe(isEnabled => {
+        console.log('Next button final enabled state:', isEnabled);
+        this.updateAndSyncNextButtonState(isEnabled);
+    });
   }
   
   private evaluateNextButtonState(): boolean {
@@ -484,7 +516,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return isAnswered && isLoading && isNavigating;
   }
 
-  private updateAndSyncNextButtonState(isEnabled: boolean): void {
+  /* private updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
       this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled); // Emit the new state
@@ -498,6 +530,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   
     // Sync the tooltip observable if needed
+    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
+  } */
+  private updateAndSyncNextButtonState(isEnabled: boolean): void {
+    this.ngZone.run(() => {
+        this.isNextButtonEnabled = isEnabled;
+        this.isButtonEnabledSubject.next(isEnabled);
+        
+        // Update button style based on enabled state
+        this.nextButtonStyle = {
+            opacity: isEnabled ? '1' : '0.5',
+            'pointer-events': isEnabled ? 'auto' : 'none'
+        };
+        
+        this.cdRef.markForCheck();
+    });
+
+    // Update tooltip observable to ensure synchronization
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   }
 
