@@ -646,44 +646,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.setQuestionFirst(index);
   }
 
-  private async loadQuizData(): Promise<boolean> {
-    // Retrieve quizId if it hasn’t been set yet
-    if (!this.quizId) {
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      if (!this.quizId) {
-        console.error('Quiz ID is missing');
-        return false;
-      }
-    }
-  
+  async loadQuizData(): Promise<void> {
     try {
-      // Fetch and process questions
-      const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
-  
-      if (questions && questions.length > 0) {
-        this.questions = questions;
-        this.questionsArray = questions;
-        console.log('Questions successfully loaded:', this.questionsArray);
-  
-        // Get the active quiz after questions are loaded
-        this.quiz = this.quizService.getActiveQuiz();
-        if (!this.quiz) {
-          console.error('Failed to get the active quiz');
-          return false;
+        const quiz = await firstValueFrom(
+            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+        ) as Quiz;
+
+        if (quiz && quiz.questions && quiz.questions.length > 0) {
+            this.quiz = quiz;
+            this.questions = quiz.questions; // Ensure questions are directly assigned here
+            this.currentQuestion = this.questions[this.currentQuestionIndex];
+            console.log('Quiz data loaded successfully:', quiz);
+        } else if (quiz && (!quiz.questions || quiz.questions.length === 0)) {
+            console.error('Quiz has no questions.');
+            this.questions = []; // Set questions to an empty array to avoid undefined errors
+        } else {
+            console.error('Quiz data is unavailable.');
         }
-  
-        // Emit that questions are now loaded after all checks are passed
-        this.quizService.setQuestionsLoaded(true);
-        return true;  // Indicate successful data loading
-      } else {
-        console.error('No questions loaded.');
-        return false;
-      }
     } catch (error) {
-      console.error('Error loading questions:', error);
-      return false;
+        console.error('Error loading quiz data:', error);
+        this.questions = []; // Ensure questions are set to an empty array on error
     }
   }
+
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
