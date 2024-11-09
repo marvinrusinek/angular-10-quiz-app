@@ -646,26 +646,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.setQuestionFirst(index);
   }
 
-  async loadQuizData(): Promise<boolean> {
-    try {
-      const quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-      ) as Quiz;
+  private async loadQuizData(): Promise<boolean> {
+    // Retrieve quizId if it hasn’t been set yet
+    if (!this.quizId) {
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+      if (!this.quizId) {
+        console.error('Quiz ID is missing');
+        return false;
+      }
+    }
   
-      if (quiz && quiz.questions && quiz.questions.length > 0) {
-        this.quiz = quiz;
-        this.questions = quiz.questions;
-        this.currentQuestion = this.questions[this.currentQuestionIndex]; // Ensure `currentQuestion` is properly set
-        console.log('Quiz data loaded successfully:', quiz);
-        return true;
+    try {
+      // Fetch and process questions
+      const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
+  
+      if (questions && questions.length > 0) {
+        this.questions = questions;
+        this.questionsArray = questions;
+        console.log('Questions successfully loaded:', this.questionsArray);
+  
+        // Get the active quiz after questions are loaded
+        this.quiz = this.quizService.getActiveQuiz();
+        if (!this.quiz) {
+          console.error('Failed to get the active quiz');
+          return false;
+        }
+  
+        // Emit that questions are now loaded after all checks are passed
+        this.quizService.setQuestionsLoaded(true);
+        return true;  // Indicate successful data loading
       } else {
-        console.error('Quiz data is unavailable or has no questions.');
-        this.questions = [];
+        console.error('No questions loaded.');
         return false;
       }
     } catch (error) {
-      console.error('Error loading quiz data:', error);
-      this.questions = [];
+      console.error('Error loading questions:', error);
       return false;
     }
   }
