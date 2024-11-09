@@ -2096,6 +2096,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
+    // Reset `questionTextLoaded` to `false` before loading a new question
+    this.questionTextLoaded = false;
+
     // Ensure questions array is loaded
     while (!Array.isArray(this.questions) || this.questions.length === 0) {
       console.warn('Questions array is not initialized or empty. Loading questions...');
@@ -2110,6 +2113,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
+
+      // Set `questionTextLoaded` to `true` once the question and options are set
+      this.questionTextLoaded = true;
     } else {
       console.warn(`Invalid question index: ${questionIndex}.`);
     }
