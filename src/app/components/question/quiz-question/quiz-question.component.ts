@@ -1162,26 +1162,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
-    // Check if quiz data is already marked as loaded
+    // Return true immediately if already loaded
     if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
       return true;
     }
   
-    console.warn('Questions not loaded, calling loadQuizData...');
+    console.warn('Questions not loaded, attempting to load...');
     
-    // Attempt to load quiz data
-    const loadedSuccessfully = await this.loadQuizData();
-    
-    // Update the isQuizLoaded flag based on whether loading was successful
-    if (loadedSuccessfully && this.questions && this.questions.length > 0) {
-      this.isQuizLoaded = true;
-      console.log('Questions loaded successfully.');
-      return true;
-    } else {
-      console.error('Failed to load questions or questions array is still empty after loading.');
-      this.isQuizLoaded = false;
-      return false;
-    }
+    // Attempt loading if not already loaded
+    return await this.loadQuizData();
   }  
 
   private async handleExplanationDisplay(): Promise<void> {
