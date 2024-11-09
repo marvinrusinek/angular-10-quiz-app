@@ -896,7 +896,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   } */
-  async loadQuizData(): Promise<boolean> {
+  private async loadQuizData(): Promise<boolean> {
     if (this.isQuizLoaded) {
       console.log('Quiz data already loaded, skipping load.');
       return true; // Prevent reloading if already loaded
@@ -911,6 +911,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quiz = quiz;
             this.questions = quiz.questions;
             this.currentQuestion = this.questions[this.currentQuestionIndex];
+            this.isQuizLoaded = true; // Mark as loaded here to avoid future reloads
             console.log('Quiz data loaded successfully:', quiz);
             
             this.isQuizLoaded = true; // Set as loaded after success
@@ -918,11 +919,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         } else {
             console.error('Quiz has no questions or quiz data is unavailable.');
             this.questions = []; // Set questions to an empty array to avoid undefined errors
+            this.isQuizLoaded = false;
             return false;
         }
     } catch (error) {
         console.error('Error loading quiz data:', error);
         this.questions = []; // Ensure questions are set to an empty array on error
+        this.isQuizLoaded = false;
         return false;
     }
   }
