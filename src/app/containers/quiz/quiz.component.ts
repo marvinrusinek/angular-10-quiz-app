@@ -927,7 +927,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
   } */
-  async initializeRouteParams(): Promise<void> {
+  /* async initializeRouteParams(): Promise<void> {
     // Ensure questions are loaded before processing route parameters
     if (!this.isQuizLoaded) {
         console.warn('Questions not loaded, calling loadQuizData...');
@@ -957,6 +957,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('Questions failed to load after loadQuizData call.');
         }
     });
+  } */
+  async initializeRouteParams(): Promise<void> {
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) return; // Exit if loading failed
+
+    this.activatedRoute.params.subscribe((params) => {
+        this.quizId = params['quizId'];
+        const routeQuestionIndex =
+            params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+        const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+
+        if (Array.isArray(this.questions) && this.questions.length > 0) {
+            if (adjustedIndex === 0) {
+                this.initializeFirstQuestion();
+            } else {
+                this.updateQuestionDisplay(adjustedIndex);
+            }
+        } else {
+            console.error('Questions failed to load before route parameter processing.');
+        }
+    });
+  }
+
+
+  private async ensureQuestionsLoaded(): Promise<boolean> {
+    if (this.isQuizLoaded) {
+        return true; // If already loaded, skip loading again
+    }
+    console.warn('Questions not loaded, calling loadQuizData...');
+    const loadedSuccessfully = await this.loadQuizData();
+    
+    if (!loadedSuccessfully) {
+        console.error('Questions failed to load after loadQuizData call.');
+        return false;
+    }
+    return true;
   }
 
   // Utility function to wait for questions to load
