@@ -83,6 +83,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionForm: FormGroup = new FormGroup({});
   questionRenderComplete = new EventEmitter<void>();
   questionTextLoaded = false;
+  private isLoadingInProgress = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -1194,19 +1195,29 @@ async onVisibilityChange(): Promise<void> {
   }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
-    // Check if questions are already loaded
+    // If already loading, wait until it's complete
+    if (this.isLoadingInProgress) {
+      console.log('Waiting for ongoing loading process...');
+      while (this.isLoadingInProgress) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return this.isQuizLoaded;
+    }
+    
+    // If questions are already loaded, return immediately
     if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
       return true;
     }
 
-    // If not loaded, attempt loading
+    // Begin loading process
     console.warn('Questions not loaded, attempting to load...');
+    this.isLoadingInProgress = true;
     const loadedSuccessfully = await this.loadQuizData();
+    this.isLoadingInProgress = false; // Mark loading as complete
 
-    // Update `isQuizLoaded` status based on the outcome of loading
+    // Set `isQuizLoaded` based on the load success
     this.isQuizLoaded = loadedSuccessfully && this.questions && this.questions.length > 0;
-  
-    // Log an error if questions still aren’t loaded
+
     if (!this.isQuizLoaded) {
       console.error('Failed to load questions.');
     }
