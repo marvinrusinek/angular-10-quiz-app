@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  /* async ngOnInit(): Promise<void> { 
+  async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -328,55 +328,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-  } */
-  async ngOnInit(): Promise<void> {
-    // Load quiz data and verify it's available
-    const loaded = await this.loadQuizData();
-    if (!loaded) {
-        console.error('Quiz data failed to load. Stopping initialization.');
-        return;
-    }
-    console.log('Quiz data verified. Proceeding with component initialization.');
-
-    // Existing setup routines without reordering
-    this.initializeDisplayVariables();
-    this.activatedRoute.paramMap.subscribe((params) => {
-        const quizId = params.get('quizId');
-        if (quizId) {
-            this.quizId = quizId;
-            this.initializeQuizBasedOnRouteParams();
-        } else {
-            console.error('Quiz ID is not provided in the route');
-        }
-    });
-
-    this.progressBarService.progress$.subscribe((progressValue) => {
-        this.progressPercentage.next(progressValue);
-    });
-    this.progressBarService.setProgress(0);
-
-    this.subscribeToOptionSelection();
-    this.initializeNextButtonState();
-    this.initializeTooltip();
-    this.resetOptionState();
-    this.loadQuestionContents();
-    this.selectedOptionService.setAnswered(false);
-
-    this.quizService.nextExplanationText$.subscribe((text) => {
-        this.explanationToDisplay = text;
-        console.log('Updated explanation text:', text);
-    });
-
-    this.resetQuestionState();
-    this.subscribeToSelectionMessage();
-    this.initializeRouteParameters(); // Avoid async dependency
-    this.initializeQuizData();
-    this.initializeQuestions();
-    this.initializeCurrentQuestion();
-    this.checkIfAnswerSelected(true);
   }
-
-
 
 
   ngAfterViewInit(): void {
