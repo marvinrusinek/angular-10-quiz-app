@@ -983,14 +983,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isQuizLoaded) {
-        return true; // If already loaded, skip loading again
+      return true; // If already loaded, skip loading again
     }
     console.warn('Questions not loaded, calling loadQuizData...');
     const loadedSuccessfully = await this.loadQuizData();
     
     if (!loadedSuccessfully) {
-        console.error('Questions failed to load after loadQuizData call.');
-        return false;
+      console.error('Questions failed to load after loadQuizData call.');
+      return false;
     }
     return true;
   }
