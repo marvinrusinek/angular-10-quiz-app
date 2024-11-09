@@ -1194,16 +1194,25 @@ async onVisibilityChange(): Promise<void> {
   }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
-    // Return true immediately if already loaded
+    // Check if questions are already loaded
     if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
       return true;
     }
-  
+
+    // If not loaded, attempt loading
     console.warn('Questions not loaded, attempting to load...');
-    
-    // Attempt loading if not already loaded
-    return await this.loadQuizData();
-  }  
+    const loadedSuccessfully = await this.loadQuizData();
+
+    // Update `isQuizLoaded` status based on the outcome of loading
+    this.isQuizLoaded = loadedSuccessfully && this.questions && this.questions.length > 0;
+  
+    // Log an error if questions still aren’t loaded
+    if (!this.isQuizLoaded) {
+      console.error('Failed to load questions.');
+    }
+
+    return this.isQuizLoaded;
+  }
 
   private async handleExplanationDisplay(): Promise<void> {
     if (this.isAnswered) {
