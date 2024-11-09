@@ -328,7 +328,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-  }
+  }  
+
 
 
   ngAfterViewInit(): void {
