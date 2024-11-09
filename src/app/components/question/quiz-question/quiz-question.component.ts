@@ -2967,47 +2967,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.explanationToDisplay;
   }
 
-  /* public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
 
     // Clear any previous explanation state
     this.resetExplanationText();
 
     try {
-      // Load questions if `questionsArray` is empty or undefined
+      // Ensure questions array is loaded
       if (!this.questionsArray || this.questionsArray.length === 0) {
         console.warn('Questions array is not loaded or empty. Loading questions...');
         const loadedSuccessfully = await this.loadQuizData();
 
-        // Check if loading was successful
+        // If loading failed, exit early with an error message
         if (!loadedSuccessfully || !this.questionsArray || this.questionsArray.length === 0) {
           console.error('Failed to load questions. Aborting explanation fetch.');
-          return; // Exit early if loading failed
+          return;
         }
       }
 
-      // Check if the question at the given index exists in the array
+      // Check if the specified question index is valid in the array
       if (!this.questionsArray[questionIndex]) {
         console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
         return;
       }
 
-      // Ensure question data is fully loaded before proceeding
+      // Ensure question data is fully loaded before fetching explanation
       await this.ensureQuestionIsFullyLoaded(questionIndex);
 
-      // Verify that the question text is loaded before fetching explanation
-      if (!this.isQuestionTextDisplayed(questionIndex)) {
-        console.log(`Waiting for question text to be displayed for question ${questionIndex}`);
-        await this.waitForQuestionTextDisplay();
-      }
-
+      // Prepare and fetch explanation text using observable
       const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
         debounceTime(100) // Smooth out updates
       );
 
       explanation$.subscribe({
         next: (explanationText: string) => {
-          // Ensure question is answered before showing explanation
+          // Display explanation if the question is answered
           if (this.isQuestionAnswered(questionIndex)) {
             this.currentQuestionIndex = questionIndex;
 
@@ -3034,69 +3029,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`Error fetching explanation for question ${questionIndex}:`, error);
       this.handleExplanationError(questionIndex);
     }
-  } */
-  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
-    console.log(`Fetching explanation for question ${questionIndex}`);
-
-    // Clear any previous explanation state
-    this.resetExplanationText();
-
-    try {
-        // Step 1: Ensure questions array is loaded
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.warn('Questions array is not loaded or empty. Loading questions...');
-            const loadedSuccessfully = await this.loadQuizData();
-
-            // If loading failed, exit early with an error message
-            if (!loadedSuccessfully || !this.questionsArray || this.questionsArray.length === 0) {
-                console.error('Failed to load questions. Aborting explanation fetch.');
-                return;
-            }
-        }
-
-        // Step 2: Check if the specified question index is valid in the array
-        if (!this.questionsArray[questionIndex]) {
-            console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
-            return;
-        }
-
-        // Step 3: Ensure question data is fully loaded before fetching explanation
-        await this.ensureQuestionIsFullyLoaded(questionIndex);
-
-        // Step 4: Prepare and fetch explanation text using observable
-        const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
-            debounceTime(100) // Smooth out updates
-        );
-
-        explanation$.subscribe({
-            next: (explanationText: string) => {
-                // Display explanation if the question is answered
-                if (this.isQuestionAnswered(questionIndex)) {
-                    this.currentQuestionIndex = questionIndex;
-
-                    if (this.currentQuestionIndex === questionIndex) {
-                        this.explanationToDisplay = explanationText || 'No explanation available';
-                        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-
-                        // Emit events to update the UI
-                        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-                        console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
-                    } else {
-                        console.warn('Question index mismatch after update. Skipping explanation update.');
-                    }
-                } else {
-                    console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
-                }
-            },
-            error: (error) => {
-                console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-                this.handleExplanationError(questionIndex);
-            }
-        });
-    } catch (error) {
-        console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-        this.handleExplanationError(questionIndex);
-    }
   }
   
   // Check if question text is displayed by returning the flag
@@ -3109,26 +3041,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.questionTextLoaded = true;
   }
 
-  // Wait until question text is confirmed as displayed
-  /* private async waitForQuestionTextDisplay(): Promise<void> {
-    const maxWaitTime = 3000; // Maximum wait time in ms
-    const checkInterval = 100; // Interval between checks in ms
-    let waitedTime = 0;
-
-    return new Promise<void>((resolve, reject) => {
-      const interval = setInterval(() => {
-        if (this.isQuestionTextDisplayed()) {
-          clearInterval(interval);
-          resolve(); // Resolve once question text is displayed
-        } else if (waitedTime >= maxWaitTime) {
-          clearInterval(interval);
-          console.warn('Timed out waiting for question text to display');
-          reject(new Error('Timed out waiting for question text to display'));
-        }
-        waitedTime += checkInterval;
-      }, checkInterval);
-    });
-  } */
   private async waitForQuestionTextDisplay(): Promise<void> {
     const intervalMs = 100; // Frequency to check for question text display
     const timeoutMs = 3000; // Overall timeout to prevent excessive waiting
