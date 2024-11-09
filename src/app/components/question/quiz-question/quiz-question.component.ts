@@ -1150,11 +1150,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return true;
     }
     console.warn('Questions not loaded, calling loadQuizData...');
-    const loadedSuccessfully = await this.loadQuizData();
 
+    const loadedSuccessfully = await this.loadQuizData();
     if (loadedSuccessfully) {
       this.isQuizLoaded = true;
     }
+    
     return loadedSuccessfully;
   }
 
