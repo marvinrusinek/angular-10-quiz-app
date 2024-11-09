@@ -2996,7 +2996,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await this.ensureQuestionIsFullyLoaded(questionIndex);
 
       // Verify that the question text is loaded before fetching explanation
-      if (!this.isQuestionTextDisplayed(questionIndex)) {
+      if (!this.isQuestionTextDisplayed()) {
         console.log(`Waiting for question text to be displayed for question ${questionIndex}`);
         await this.waitForQuestionTextDisplay();
       }
