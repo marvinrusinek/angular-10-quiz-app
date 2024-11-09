@@ -332,6 +332,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
 
 
+
   ngAfterViewInit(): void {
     // Ensure variables are set before calling this method
     this.initializeDisplayVariables();
