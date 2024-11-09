@@ -687,44 +687,44 @@ async onVisibilityChange(): Promise<void> {
     this.setQuestionFirst(index);
   }
 
-  private async loadQuizData(): Promise<boolean> { 
-    // Retrieve quizId if it hasn’t been set yet
-    if (!this.quizId) {
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      if (!this.quizId) {
-        console.error('Quiz ID is missing');
-        return false;
-      }
-    }
-  
+  private async loadQuizData(): Promise<boolean> {
     try {
-      // Fetch and process questions
-      const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
-    
-      if (questions && questions.length > 0) {
-        this.questions = questions;
-        this.questionsArray = questions;
-        console.log('Questions successfully loaded:', this.questionsArray);
-    
-        // Get the active quiz after questions are loaded
-        this.quiz = this.quizService.getActiveQuiz();
-        if (!this.quiz) {
-          console.error('Failed to get the active quiz');
-          return false;
+        if (!this.quizId) {
+            this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+            if (!this.quizId) {
+                console.error('Quiz ID is missing');
+                return false;
+            }
         }
-    
-        // Emit that questions are now loaded after all checks are passed
-        this.quizService.setQuestionsLoaded(true);
-        return true;  // Indicate successful data loading
-      } else {
-        console.error('No questions loaded.');
-        return false;
-      }
+
+        // Fetch and process questions
+        const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
+        if (questions && questions.length > 0) {
+            this.questions = questions;
+            this.questionsArray = questions;
+            console.log('Questions successfully loaded:', this.questionsArray);
+
+            // Get the active quiz after questions are loaded
+            this.quiz = this.quizService.getActiveQuiz();
+            if (!this.quiz) {
+                console.error('Failed to get the active quiz');
+                return false;
+            }
+
+            // Mark quiz as loaded and emit
+            this.isQuizLoaded = true;
+            this.quizService.setQuestionsLoaded(true);
+            return true;  // Indicate successful data loading
+        } else {
+            console.error('No questions loaded.');
+            return false;
+        }
     } catch (error) {
-      console.error('Error loading questions:', error);
-      return false;
+        console.error('Error loading questions:', error);
+        return false;
     }
   }
+
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -1195,34 +1195,28 @@ async onVisibilityChange(): Promise<void> {
   }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
-    // If already loading, wait until it's complete
     if (this.isLoadingInProgress) {
-      console.log('Waiting for ongoing loading process...');
-      while (this.isLoadingInProgress) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      return this.isQuizLoaded;
-    }
-    
-    // If questions are already loaded, return immediately
-    if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
-      return true;
+        console.log('Waiting for ongoing loading process...');
+        while (this.isLoadingInProgress) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        return this.isQuizLoaded;
     }
 
-    // Begin loading process
+    if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
+        return true;
+    }
+
     console.warn('Questions not loaded, attempting to load...');
     this.isLoadingInProgress = true;
     const loadedSuccessfully = await this.loadQuizData();
-    this.isLoadingInProgress = false; // Mark loading as complete
+    this.isLoadingInProgress = false;
 
-    // Set `isQuizLoaded` based on the load success
-    this.isQuizLoaded = loadedSuccessfully && this.questions && this.questions.length > 0;
-
-    if (!this.isQuizLoaded) {
-      console.error('Failed to load questions.');
+    if (!loadedSuccessfully) {
+        console.error('Failed to load questions.');
     }
 
-    return this.isQuizLoaded;
+    return loadedSuccessfully;
   }
 
   private async handleExplanationDisplay(): Promise<void> {
