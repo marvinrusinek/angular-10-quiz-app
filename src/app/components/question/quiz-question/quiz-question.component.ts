@@ -3030,33 +3030,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.handleExplanationError(questionIndex);
     }
   }
-  
-  // Check if question text is displayed by returning the flag
-  private isQuestionTextDisplayed(): boolean {
-    return this.questionTextLoaded;
-  }
-
-  // Method to mark question text as displayed, to be called once text is loaded
-  private markQuestionTextAsDisplayed(): void {
-    this.questionTextLoaded = true;
-  }
-
-  private async waitForQuestionTextDisplay(): Promise<void> {
-    const intervalMs = 100; // Frequency to check for question text display
-    const timeoutMs = 3000; // Overall timeout to prevent excessive waiting
-    let elapsedTime = 0;
-  
-    // Simple wait loop until question text is confirmed displayed or timeout is reached
-    while (!this.isQuestionTextDisplayed()) {
-      if (elapsedTime >= timeoutMs) {
-        throw new Error("Timed out waiting for question text to display");
-      }
-      await new Promise(resolve => setTimeout(resolve, intervalMs));
-      elapsedTime += intervalMs;
-    }
-  
-    console.log("Question text is now displayed.");
-  }  
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
