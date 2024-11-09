@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  /* async ngOnInit(): Promise<void> { 
+  async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     // Initialize route parameters and subscribe to updates
@@ -328,51 +328,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-  } */
-  async ngOnInit(): Promise<void> { 
-    // Step 1: Set up any basic initializations
-    this.initializeDisplayVariables();
-    this.progressBarService.setProgress(0);
-
-    // Step 2: Wait until questions are fully loaded
-    const questionsLoaded = await this.ensureQuestionsLoaded();
-    if (!questionsLoaded) {
-        console.error('Quiz initialization aborted due to loading failure.');
-        return; // Stop if loading fails
-    }
-
-    // Step 3: Proceed with setting up route parameters after questions are loaded
-    this.initializeRouteParams();
-
-    // Step 4: Set up subscriptions and other initialization logic
-    this.setupProgressBar();
-    this.initializeAdditionalServices();
-
-    console.log('Quiz Component Initialized Successfully');
   }
 
   private setupProgressBar(): void {
     this.progressBarService.progress$.subscribe((progressValue) => {
         this.progressPercentage.next(progressValue); 
     });
-}
-
-private initializeAdditionalServices(): void {
-    this.subscribeToOptionSelection();
-    this.initializeNextButtonState();
-    this.initializeTooltip();
-    this.resetOptionState();
-    this.loadQuestionContents();
-    this.selectedOptionService.setAnswered(false);
-
-    this.quizService.nextExplanationText$.subscribe((text) => {
-        this.explanationToDisplay = text;
-    });
-
-    this.resetQuestionState();
-    this.subscribeToSelectionMessage();
   }
 
+  private initializeAdditionalServices(): void {
+      this.subscribeToOptionSelection();
+      this.initializeNextButtonState();
+      this.initializeTooltip();
+      this.resetOptionState();
+      this.loadQuestionContents();
+      this.selectedOptionService.setAnswered(false);
+
+      this.quizService.nextExplanationText$.subscribe((text) => {
+          this.explanationToDisplay = text;
+      });
+
+      this.resetQuestionState();
+      this.subscribeToSelectionMessage();
+  }
 
   ngAfterViewInit(): void {
     // Ensure variables are set before calling this method
@@ -1030,7 +1008,7 @@ private initializeAdditionalServices(): void {
         }
     });
   } */
-  async initializeRouteParams(): Promise<void> {
+  /* async initializeRouteParams(): Promise<void> {
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return; // Exit if loading failed
 
@@ -1050,7 +1028,7 @@ private initializeAdditionalServices(): void {
             console.error('Questions failed to load before route parameter processing.');
         }
     });
-  }
+  } */
 
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
