@@ -1196,15 +1196,15 @@ async onVisibilityChange(): Promise<void> {
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
-        console.log('Waiting for ongoing loading process...');
-        while (this.isLoadingInProgress) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        return this.isQuizLoaded;
+      console.log('Waiting for ongoing loading process...');
+      while (this.isLoadingInProgress) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return this.isQuizLoaded;
     }
 
     if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
-        return true;
+      return true;
     }
 
     console.warn('Questions not loaded, attempting to load...');
@@ -1213,7 +1213,7 @@ async onVisibilityChange(): Promise<void> {
     this.isLoadingInProgress = false;
 
     if (!loadedSuccessfully) {
-        console.error('Failed to load questions.');
+      console.error('Failed to load questions.');
     }
 
     return loadedSuccessfully;
