@@ -310,7 +310,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     const isHidden = document.hidden;
     if (isHidden) {
@@ -331,7 +331,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
       }
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
+    const isHidden = document.hidden;
+    if (isHidden) {
+      if (this.currentQuestion) {
+        this.saveQuizState();
+      } else {
+        console.log("Skipping saveQuizState as currentQuestion is not initialized.");
+      }
+    } else {
+      if (!this.isQuizLoaded) {
+        const questionsLoaded = await this.ensureQuestionsLoaded();
+        if (!questionsLoaded) {
+          console.error('Failed to load questions on visibility change.');
+          return;
+        }
+      }
+      this.ngZone.run(() => this.handleQuizRestore());
+    }
   }
+
 
   // Helper method for validating question structure
   private isValidQuestion(question: any): boolean {
