@@ -1029,7 +1029,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     });
   } */
+  private async initializeRouteParams(): Promise<void> {
+    // Ensure questions are loaded before processing route parameters
+    const loadedSuccessfully = await this.loadQuizData();
+    if (!loadedSuccessfully) {
+        console.error('Aborting route param initialization due to failed quiz load.');
+        return; // Stop if loading fails
+    }
 
+    // Now handle route parameters only if questions are loaded
+    this.activatedRoute.params.subscribe((params) => {
+        this.quizId = params['quizId'];
+        
+        // Determine and adjust the question index from route parameters
+        const routeQuestionIndex =
+            params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+        const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+
+        // Ensure questions are available before updating the display
+        if (Array.isArray(this.questions) && this.questions.length > 0) {
+            if (adjustedIndex === 0) {
+                this.initializeFirstQuestion();
+            } else {
+                this.updateQuestionDisplay(adjustedIndex);
+            }
+        } else {
+            console.error('Questions failed to load before route parameter processing.');
+        }
+    });
+  }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isQuizLoaded) {
