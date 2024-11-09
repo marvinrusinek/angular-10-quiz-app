@@ -1137,14 +1137,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Check if the current question index is valid
     if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
-      // Use QuizService to get the current question
-      const questionData = this.quizService.getQuestionByIndex(this.currentQuestionIndex);
-      if (questionData) {
-        this.currentQuestion = questionData;
-        this.optionsToDisplay = questionData.options;
-        return true;
-      } else {
-        console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+      // Retrieve question data from QuizService using async/await
+      try {
+        const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+        if (questionData) {
+          this.currentQuestion = questionData;
+          this.optionsToDisplay = questionData.options;
+          return true;
+        } else {
+          console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+          return false;
+        }
+      } catch (error) {
+        console.error('Error fetching question data:', error);
         return false;
       }
     } else {
