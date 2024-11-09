@@ -3047,7 +3047,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Wait until question text is confirmed as displayed
-  private async waitForQuestionTextDisplay(): Promise<void> {
+  /* private async waitForQuestionTextDisplay(): Promise<void> {
     const maxWaitTime = 3000; // Maximum wait time in ms
     const checkInterval = 100; // Interval between checks in ms
     let waitedTime = 0;
@@ -3065,7 +3065,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         waitedTime += checkInterval;
       }, checkInterval);
     });
-  }
+  } */
+  private async waitForQuestionTextDisplay(): Promise<void> {
+    const intervalMs = 100; // Frequency to check for question text display
+    const timeoutMs = 3000; // Overall timeout to prevent excessive waiting
+    let elapsedTime = 0;
+  
+    // Simple wait loop until question text is confirmed displayed or timeout is reached
+    while (!this.isQuestionTextDisplayed()) {
+      if (elapsedTime >= timeoutMs) {
+        throw new Error("Timed out waiting for question text to display");
+      }
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+      elapsedTime += intervalMs;
+    }
+  
+    console.log("Question text is now displayed.");
+  }  
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
