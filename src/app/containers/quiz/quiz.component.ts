@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  async ngOnInit(): Promise<void> { 
+  /* async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     // Initialize route parameters and subscribe to updates
@@ -328,7 +328,51 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+  } */
+  async ngOnInit(): Promise<void> { 
+    // Step 1: Set up any basic initializations
+    this.initializeDisplayVariables();
+    this.progressBarService.setProgress(0);
+
+    // Step 2: Wait until questions are fully loaded
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) {
+        console.error('Quiz initialization aborted due to loading failure.');
+        return; // Stop if loading fails
+    }
+
+    // Step 3: Proceed with setting up route parameters after questions are loaded
+    this.initializeRouteParams();
+
+    // Step 4: Set up subscriptions and other initialization logic
+    this.setupProgressBar();
+    this.initializeAdditionalServices();
+
+    console.log('Quiz Component Initialized Successfully');
   }
+
+  private setupProgressBar(): void {
+    this.progressBarService.progress$.subscribe((progressValue) => {
+        this.progressPercentage.next(progressValue); 
+    });
+}
+
+private initializeAdditionalServices(): void {
+    this.subscribeToOptionSelection();
+    this.initializeNextButtonState();
+    this.initializeTooltip();
+    this.resetOptionState();
+    this.loadQuestionContents();
+    this.selectedOptionService.setAnswered(false);
+
+    this.quizService.nextExplanationText$.subscribe((text) => {
+        this.explanationToDisplay = text;
+    });
+
+    this.resetQuestionState();
+    this.subscribeToSelectionMessage();
+  }
+
 
   ngAfterViewInit(): void {
     // Ensure variables are set before calling this method
@@ -874,6 +918,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   async loadQuizData(): Promise<boolean> {
+    if (this.isQuizLoaded) {
+      console.log('Quiz data already loaded, skipping load.');
+      return true; // Prevent reloading if already loaded
+    }
+
     try {
         const quiz = await firstValueFrom(
             this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
@@ -1004,31 +1053,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
 
-  /* private async ensureQuestionsLoaded(): Promise<boolean> {
-    if (this.isQuizLoaded) {
-      return true; // If already loaded, skip loading again
-    }
-    console.warn('Questions not loaded, calling loadQuizData...');
-    const loadedSuccessfully = await this.loadQuizData();
-    
-    if (!loadedSuccessfully) {
-      console.error('Questions failed to load after loadQuizData call.');
-      return false;
-    }
-    return true;
-  } */
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isQuizLoaded) {
-        return true; // If already loaded, skip loading again
+        return true; // Skip loading if already loaded
     }
-    console.warn('Questions not loaded, calling loadQuizData...');
+    console.log('Questions not loaded, calling loadQuizData...');
     const loadedSuccessfully = await this.loadQuizData();
-    
-    if (!loadedSuccessfully) {
-        console.error('Questions failed to load after loadQuizData call.');
-        return false;
-    }
-    return true;
+    return loadedSuccessfully;
   }
 
   // Utility function to wait for questions to load
