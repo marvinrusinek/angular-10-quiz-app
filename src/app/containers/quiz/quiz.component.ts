@@ -880,19 +880,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quiz = quiz;
             this.questions = quiz.questions;
             this.currentQuestion = this.questions[this.currentQuestionIndex];
-            this.isQuizLoaded = true; // Mark as loaded
+            this.isQuizLoaded = true; // Mark as loaded only on success
             console.log('Quiz data loaded successfully:', quiz);
             return true;
         } else {
             console.error('Quiz has no questions or data unavailable.');
             this.questions = [];
-            this.isQuizLoaded = false; // Mark as not loaded
+            this.isQuizLoaded = false;
             return false;
         }
     } catch (error) {
         console.error('Error loading quiz data:', error);
         this.questions = [];
-        this.isQuizLoaded = false; // Mark as not loaded on error
+        this.isQuizLoaded = false; // Set to false on error
         return false;
     }
   }
@@ -948,27 +948,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
   } */
-  initializeRouteParams(): void {
-    this.activatedRoute.params.subscribe(async (params) => {
+  async initializeRouteParams(): Promise<void> {
+    // Ensure questions are loaded before processing route parameters
+    if (!this.isQuizLoaded) {
+        console.warn('Questions not loaded, calling loadQuizData...');
+        const loadedSuccessfully = await this.loadQuizData();
+
+        if (!loadedSuccessfully) {
+            console.error('Questions failed to load after loadQuizData call.');
+            return; // Exit if loading failed
+        }
+    }
+
+    // Now handle route parameters only if questions are loaded
+    this.activatedRoute.params.subscribe((params) => {
         this.quizId = params['quizId'];
 
         const routeQuestionIndex =
             params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
         const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
-        // Load quiz data and check if successful
-        if (!this.isQuizLoaded) {
-            console.warn('Questions not loaded, calling loadQuizData...');
-            const loadedSuccessfully = await this.loadQuizData();
-
-            if (!loadedSuccessfully) {
-                console.error('Questions failed to load after loadQuizData call.');
-                return; // Stop further execution if loading failed
-            }
-        }
-
-        // Proceed if questions are loaded successfully
-        if (this.isQuizLoaded && Array.isArray(this.questions) && this.questions.length > 0) {
+        if (Array.isArray(this.questions) && this.questions.length > 0) {
             if (adjustedIndex === 0) {
                 this.initializeFirstQuestion();
             } else {
