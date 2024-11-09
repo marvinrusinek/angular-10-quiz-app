@@ -852,7 +852,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  async loadQuizData(): Promise<boolean> {
+  /* async loadQuizData(): Promise<boolean> {
     try {
       const quiz = await firstValueFrom(
         this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
@@ -873,6 +873,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error loading quiz data:', error);
       this.questions = []; 
       return false;
+    }
+  } */
+  async loadQuizData(): Promise<boolean> {
+    try {
+        const quiz = await firstValueFrom(
+            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+        ) as Quiz;
+
+        if (quiz && quiz.questions && quiz.questions.length > 0) {
+            this.quiz = quiz;
+            this.questions = quiz.questions;
+            this.currentQuestion = this.questions[this.currentQuestionIndex];
+            console.log('Quiz data loaded successfully:', quiz);
+            
+            this.isQuizLoaded = true; // Set as loaded after success
+            return true;
+        } else {
+            console.error('Quiz has no questions or quiz data is unavailable.');
+            this.questions = []; // Set questions to an empty array to avoid undefined errors
+            return false;
+        }
+    } catch (error) {
+        console.error('Error loading quiz data:', error);
+        this.questions = []; // Ensure questions are set to an empty array on error
+        return false;
     }
   }
 
@@ -981,7 +1006,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
 
-  private async ensureQuestionsLoaded(): Promise<boolean> {
+  /* private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isQuizLoaded) {
       return true; // If already loaded, skip loading again
     }
@@ -991,6 +1016,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!loadedSuccessfully) {
       console.error('Questions failed to load after loadQuizData call.');
       return false;
+    }
+    return true;
+  } */
+  private async ensureQuestionsLoaded(): Promise<boolean> {
+    if (this.isQuizLoaded) {
+        return true; // If already loaded, skip loading again
+    }
+    console.warn('Questions not loaded, calling loadQuizData...');
+    const loadedSuccessfully = await this.loadQuizData();
+    
+    if (!loadedSuccessfully) {
+        console.error('Questions failed to load after loadQuizData call.');
+        return false;
     }
     return true;
   }
