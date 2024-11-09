@@ -121,6 +121,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   isLoadingQuestions = false;
   isFirstQuestion = true;
   isPaused = false;
+  isQuizLoaded = false;
   lastMessage = '';
   private initialized = false;
   shouldDisplayAnswers = false;
@@ -331,7 +332,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     }
   }
-
 
   // Helper method for validating question structure
   private isValidQuestion(question: any): boolean {
@@ -1127,6 +1127,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
     }
+  }
+
+  // Method to ensure loading of the correct current question
+  private async loadCurrentQuestion(): Promise<boolean> {
+    // Ensure questions are loaded
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) return false;
+
+    // Verify and update the current question text and options
+    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
+      this.updateQuestionDisplay(this.currentQuestionIndex);
+      return true;
+    } else {
+      console.error(`Invalid question index: ${this.currentQuestionIndex}`);
+      return false;
+    }
+  }
+
+  private async ensureQuestionsLoaded(): Promise<boolean> {
+    if (this.isQuizLoaded) {
+      return true;
+    }
+    console.warn('Questions not loaded, calling loadQuizData...');
+    const loadedSuccessfully = await this.loadQuizData();
+
+    if (loadedSuccessfully) {
+      this.isQuizLoaded = true;
+    }
+    return loadedSuccessfully;
   }
 
   private async handleExplanationDisplay(): Promise<void> {
