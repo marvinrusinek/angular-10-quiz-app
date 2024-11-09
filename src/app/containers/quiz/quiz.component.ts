@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     this.activatedRoute.paramMap.subscribe((params) => {
