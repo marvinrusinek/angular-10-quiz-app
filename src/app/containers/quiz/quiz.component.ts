@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  async ngOnInit(): Promise<void> { 
+  /* async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -327,6 +327,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
+    this.checkIfAnswerSelected(true);
+  } */
+  async ngOnInit(): Promise<void> {
+    // Load quiz data and verify it's available
+    const loaded = await this.loadQuizData();
+    if (!loaded) {
+        console.error('Quiz data failed to load. Stopping initialization.');
+        return;
+    }
+    console.log('Quiz data verified. Proceeding with component initialization.');
+
+    // Existing setup routines without reordering
+    this.initializeDisplayVariables();
+    this.activatedRoute.paramMap.subscribe((params) => {
+        const quizId = params.get('quizId');
+        if (quizId) {
+            this.quizId = quizId;
+            this.initializeQuizBasedOnRouteParams();
+        } else {
+            console.error('Quiz ID is not provided in the route');
+        }
+    });
+
+    this.progressBarService.progress$.subscribe((progressValue) => {
+        this.progressPercentage.next(progressValue);
+    });
+    this.progressBarService.setProgress(0);
+
+    this.subscribeToOptionSelection();
+    this.initializeNextButtonState();
+    this.initializeTooltip();
+    this.resetOptionState();
+    this.loadQuestionContents();
+    this.selectedOptionService.setAnswered(false);
+
+    this.quizService.nextExplanationText$.subscribe((text) => {
+        this.explanationToDisplay = text;
+        console.log('Updated explanation text:', text);
+    });
+
+    this.resetQuestionState();
+    this.subscribeToSelectionMessage();
+    this.initializeRouteParameters(); // Avoid async dependency
+    this.initializeQuizData();
+    this.initializeQuestions();
+    this.initializeCurrentQuestion();
     this.checkIfAnswerSelected(true);
   }
 
@@ -872,7 +918,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error loading quiz data:', error);
     }
   } */
-  async loadQuizData(): Promise<boolean> {
+  /* async loadQuizData(): Promise<boolean> {
     try {
         const quiz = await firstValueFrom(
             this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
@@ -897,7 +943,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isQuizLoaded = false; // Set to false on error
         return false;
     }
+  } */
+  async loadQuizData(): Promise<boolean> {
+    try {
+        const quiz = await firstValueFrom(
+            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+        ) as Quiz;
+
+        if (quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0) {
+            this.quiz = quiz;
+            this.questions = quiz.questions;
+            this.currentQuestion = this.questions[this.currentQuestionIndex];
+            console.log('Quiz data loaded with questions.');
+            return true;
+        } else {
+            console.error('Quiz has no questions or data is unavailable.');
+            this.questions = []; 
+            return false;
+        }
+    } catch (error) {
+        console.error('Error loading quiz data:', error);
+        this.questions = []; 
+        return false;
+    }
   }
+
 
   private subscribeRouterAndInit(): void {
     this.routerSubscription = this.activatedRoute.data.subscribe((data) => {
