@@ -310,7 +310,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  onVisibilityChange = (): void => {
+  async onVisibilityChange(): Promise<void> {
     const isHidden = document.hidden;
     if (isHidden) {
       // Call saveQuizState only if currentQuestion is initialized
@@ -321,10 +321,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     } else {
       // Restore only the quiz data without changing display mode
-      this.restoreQuizState();
+      await this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
+
+      // Ensure the question text and options are current
+      const questionLoaded = await this.loadCurrentQuestion();
+      if (!questionLoaded) {
+        console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
+      }
     }
   }
+
 
   // Helper method for validating question structure
   private isValidQuestion(question: any): boolean {
