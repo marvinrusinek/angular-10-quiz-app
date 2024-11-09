@@ -3048,7 +3048,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Wait until question text is confirmed as displayed
   private async waitForQuestionTextDisplay(): Promise<void> {
-    const maxWaitTime = 3000; // Maximum wait time in ms (adjust if needed)
+    const maxWaitTime = 3000; // Maximum wait time in ms
     const checkInterval = 100; // Interval between checks in ms
     let waitedTime = 0;
 
