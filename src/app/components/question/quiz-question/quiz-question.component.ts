@@ -689,42 +689,41 @@ async onVisibilityChange(): Promise<void> {
 
   private async loadQuizData(): Promise<boolean> {
     try {
+      if (!this.quizId) {
+        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
         if (!this.quizId) {
-            this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-            if (!this.quizId) {
-                console.error('Quiz ID is missing');
-                return false;
-            }
+          console.error('Quiz ID is missing');
+          return false;
+        }
+      }
+
+      // Fetch and process questions
+      const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
+      if (questions && questions.length > 0) {
+        this.questions = questions;
+        this.questionsArray = questions;
+        console.log('Questions successfully loaded:', this.questionsArray);
+
+        // Get the active quiz after questions are loaded
+        this.quiz = this.quizService.getActiveQuiz();
+        if (!this.quiz) {
+          console.error('Failed to get the active quiz');
+          return false;
         }
 
-        // Fetch and process questions
-        const questions = await this.fetchAndProcessQuizQuestions(this.quizId);
-        if (questions && questions.length > 0) {
-            this.questions = questions;
-            this.questionsArray = questions;
-            console.log('Questions successfully loaded:', this.questionsArray);
-
-            // Get the active quiz after questions are loaded
-            this.quiz = this.quizService.getActiveQuiz();
-            if (!this.quiz) {
-                console.error('Failed to get the active quiz');
-                return false;
-            }
-
-            // Mark quiz as loaded and emit
-            this.isQuizLoaded = true;
-            this.quizService.setQuestionsLoaded(true);
-            return true;  // Indicate successful data loading
-        } else {
-            console.error('No questions loaded.');
-            return false;
-        }
-    } catch (error) {
-        console.error('Error loading questions:', error);
+        // Mark quiz as loaded and emit
+        this.isQuizLoaded = true;
+        this.quizService.setQuestionsLoaded(true);
+        return true;  // Indicate successful data loading
+      } else {
+        console.error('No questions loaded.');
         return false;
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error);
+      return false;
     }
   }
-
   
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
