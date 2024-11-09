@@ -82,6 +82,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionsObservableSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
   questionRenderComplete = new EventEmitter<void>();
+  questionTextLoaded = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -2973,62 +2974,98 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.resetExplanationText();
 
     try {
-        // Load questions if `questionsArray` is empty or undefined
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.warn('Questions array is not loaded or empty. Loading questions...');
-            const loadedSuccessfully = await this.loadQuizData();
+      // Load questions if `questionsArray` is empty or undefined
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('Questions array is not loaded or empty. Loading questions...');
+        const loadedSuccessfully = await this.loadQuizData();
 
-            // Check if loading was successful
-            if (!loadedSuccessfully || !this.questionsArray || this.questionsArray.length === 0) {
-                console.error('Failed to load questions. Aborting explanation fetch.');
-                return; // Exit early if loading failed
-            }
+        // Check if loading was successful
+        if (!loadedSuccessfully || !this.questionsArray || this.questionsArray.length === 0) {
+          console.error('Failed to load questions. Aborting explanation fetch.');
+          return; // Exit early if loading failed
         }
+      }
 
-        // Check if the question at the given index exists in the array
-        if (!this.questionsArray[questionIndex]) {
-            console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
-            return;
-        }
+      // Check if the question at the given index exists in the array
+      if (!this.questionsArray[questionIndex]) {
+        console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
+        return;
+      }
 
-        // Ensure question data is fully loaded before proceeding
-        await this.ensureQuestionIsFullyLoaded(questionIndex);
+      // Ensure question data is fully loaded before proceeding
+      await this.ensureQuestionIsFullyLoaded(questionIndex);
 
-        const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
-            debounceTime(100) // Smooth out updates
-        );
+      // Verify that the question text is loaded before fetching explanation
+      if (!this.isQuestionTextDisplayed(questionIndex)) {
+        console.log(`Waiting for question text to be displayed for question ${questionIndex}`);
+        await this.waitForQuestionTextDisplay();
+      }
 
-        explanation$.subscribe({
-            next: (explanationText: string) => {
-                // Ensure question is answered before showing explanation
-                if (this.isQuestionAnswered(questionIndex)) {
-                    this.currentQuestionIndex = questionIndex;
+      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+        debounceTime(100) // Smooth out updates
+      );
 
-                    if (this.currentQuestionIndex === questionIndex) {
-                        this.explanationToDisplay = explanationText || 'No explanation available';
-                        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+      explanation$.subscribe({
+        next: (explanationText: string) => {
+          // Ensure question is answered before showing explanation
+          if (this.isQuestionAnswered(questionIndex)) {
+            this.currentQuestionIndex = questionIndex;
 
-                        // Emit events to update the UI
-                        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-                        console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
-                    } else {
-                        console.warn('Question index mismatch after update. Skipping explanation update.');
-                    }
-                } else {
-                    console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
-                }
-            },
-            error: (error) => {
-                console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-                this.handleExplanationError(questionIndex);
+            if (this.currentQuestionIndex === questionIndex) {
+              this.explanationToDisplay = explanationText || 'No explanation available';
+              this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+
+              // Emit events to update the UI
+              this.explanationToDisplayChange.emit(this.explanationToDisplay);
+              console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+            } else {
+              console.warn('Question index mismatch after update. Skipping explanation update.');
             }
-        });
+          } else {
+            console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
+          }
+        },
+        error: (error) => {
+          console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+          this.handleExplanationError(questionIndex);
+        }
+      });
     } catch (error) {
-        console.error(`Error fetching explanation for question ${questionIndex}:`, error);
-        this.handleExplanationError(questionIndex);
+      console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+      this.handleExplanationError(questionIndex);
     }
   }
 
+  // Check if question text is displayed by returning the flag
+  private isQuestionTextDisplayed(): boolean {
+    return this.questionTextLoaded;
+  }
+
+  // Method to mark question text as displayed, to be called once text is loaded
+  private markQuestionTextAsDisplayed(): void {
+    this.questionTextLoaded = true;
+  }
+
+  // Wait until question text is confirmed as displayed
+  private async waitForQuestionTextDisplay(): Promise<void> {
+    const maxWaitTime = 3000; // Maximum wait time in ms (adjust if needed)
+    const checkInterval = 100; // Interval between checks in ms
+    let waitedTime = 0;
+
+    return new Promise<void>((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (this.isQuestionTextDisplayed()) {
+          clearInterval(interval);
+          resolve(); // Resolve once question text is displayed
+        } else if (waitedTime >= maxWaitTime) {
+          clearInterval(interval);
+          console.warn('Timed out waiting for question text to display');
+          reject(new Error('Timed out waiting for question text to display'));
+        }
+        waitedTime += checkInterval;
+      }, checkInterval);
+    });
+  }
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
