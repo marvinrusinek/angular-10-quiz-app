@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  async ngOnInit(): Promise<void> { 
+  /* async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -328,7 +328,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-  }  
+  } */
+  async ngOnInit(): Promise<void> {
+    this.initializeDisplayVariables();
+
+    // Set a loading flag for questions
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) {
+        console.error('Quiz initialization aborted due to loading failure.');
+        return; // Stop further initialization if loading fails
+    }
+
+    // Initialize route parameters only after questions are loaded
+    this.initializeRouteParameters();
+
+    // Fetch quiz ID from route parameters
+    this.activatedRoute.paramMap.subscribe((params) => {
+        const quizId = params.get('quizId');
+        if (quizId) {
+            this.quizId = quizId;
+            this.initializeQuizBasedOnRouteParams();
+        } else {
+            console.error('Quiz ID is not provided in the route');
+        }
+    });
+
+    this.progressBarService.progress$.subscribe((progressValue) => {
+        this.progressPercentage.next(progressValue); // Update the BehaviorSubject
+    });
+    this.progressBarService.setProgress(0);
+
+    this.subscribeToOptionSelection();
+
+    // Initialize the next button state
+    this.initializeNextButtonState(); // Initialize button state observables
+    this.initializeTooltip(); // Set up tooltip logic
+    this.resetOptionState(); // Ensure no lingering selection state
+    this.loadQuestionContents(); // Load the first question's contents
+    // Reset the answered state initially
+    this.selectedOptionService.setAnswered(false);
+
+    this.quizService.nextExplanationText$.subscribe((text) => {
+        this.explanationToDisplay = text;
+        console.log('Updated explanation text:', text); // Debug log
+    });
+
+    // Move resetQuestionState here
+    this.resetQuestionState();
+
+    this.subscribeToSelectionMessage();
+
+    // Resolve and fetch quiz data
+    this.initializeQuizData();
+
+    // Initialize and shuffle questions
+    this.initializeQuestions();
+
+    // Fetch and display the current question
+    this.initializeCurrentQuestion();
+
+    this.checkIfAnswerSelected(true);
+  }
+
 
 
 
