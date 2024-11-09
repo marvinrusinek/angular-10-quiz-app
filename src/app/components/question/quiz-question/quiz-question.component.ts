@@ -310,7 +310,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     const isHidden = document.hidden;
     if (isHidden) {
@@ -331,7 +331,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
       }
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+async onVisibilityChange(): Promise<void> {
+    const isHidden = document.hidden;
+  
+    if (isHidden) {
+        // Save quiz state only if the current question is initialized
+        if (this.currentQuestion) {
+            this.saveQuizState();
+        } else {
+            console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
+        }
+    } else {
+        // Restore the quiz state
+        await this.restoreQuizState();
+        
+        // Run change detection for UI updates
+        this.ngZone.run(() => this.handleQuizRestore());
+
+        // Check if the question has loaded properly before attempting to load it again
+        if (!this.isQuizLoaded || !this.currentQuestion || !this.optionsToDisplay) {
+            console.log("Attempting to reload question and options...");
+            const questionLoaded = await this.loadCurrentQuestion();
+
+            if (!questionLoaded) {
+                console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
+            }
+        } else {
+            console.log("Question and options are already loaded, skipping reload.");
+        }
+    }
   }
+
 
   // Helper method for validating question structure
   private isValidQuestion(question: any): boolean {
