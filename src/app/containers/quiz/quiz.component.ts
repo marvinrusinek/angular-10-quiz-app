@@ -903,30 +903,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     try {
-        const quiz = await firstValueFrom(
-            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-        ) as Quiz;
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
+      ) as Quiz;
 
-        if (quiz && quiz.questions && quiz.questions.length > 0) {
-            this.quiz = quiz;
-            this.questions = quiz.questions;
-            this.currentQuestion = this.questions[this.currentQuestionIndex];
-            this.isQuizLoaded = true; // Mark as loaded here to avoid future reloads
-            console.log('Quiz data loaded successfully:', quiz);
+      if (quiz && quiz.questions && quiz.questions.length > 0) {
+        this.quiz = quiz;
+        this.questions = quiz.questions;
+        this.currentQuestion = this.questions[this.currentQuestionIndex];
+        this.isQuizLoaded = true; // Mark as loaded here to avoid future reloads
+        console.log('Quiz data loaded successfully:', quiz);
             
-            this.isQuizLoaded = true; // Set as loaded after success
-            return true;
-        } else {
-            console.error('Quiz has no questions or quiz data is unavailable.');
-            this.questions = []; // Set questions to an empty array to avoid undefined errors
-            this.isQuizLoaded = false;
-            return false;
-        }
-    } catch (error) {
-        console.error('Error loading quiz data:', error);
-        this.questions = []; // Ensure questions are set to an empty array on error
+        this.isQuizLoaded = true; // Set as loaded after success
+        return true;
+      } else {
+        console.error('Quiz has no questions or quiz data is unavailable.');
+        this.questions = []; // Set questions to an empty array to avoid undefined errors
         this.isQuizLoaded = false;
         return false;
+      }
+    } catch (error) {
+      console.error('Error loading quiz data:', error);
+      this.questions = []; // Ensure questions are set to an empty array on error
+      this.isQuizLoaded = false;
+      return false;
     }
   }
 
