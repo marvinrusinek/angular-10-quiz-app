@@ -1135,10 +1135,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return false;
 
-    // Verify and update the current question text and options
+    // Check if the current question index is valid
     if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
-      this.updateQuestionDisplay(this.currentQuestionIndex);
-      return true;
+      // Use QuizService to get the current question
+      const questionData = this.quizService.getQuestionByIndex(this.currentQuestionIndex);
+      if (questionData) {
+        this.currentQuestion = questionData;
+        this.optionsToDisplay = questionData.options;
+        return true;
+      } else {
+        console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+        return false;
+      }
     } else {
       console.error(`Invalid question index: ${this.currentQuestionIndex}`);
       return false;
@@ -1155,7 +1163,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (loadedSuccessfully) {
       this.isQuizLoaded = true;
     }
-    
+
     return loadedSuccessfully;
   }
 
