@@ -278,7 +278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  /* async ngOnInit(): Promise<void> { 
+  async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
 
     this.activatedRoute.paramMap.subscribe((params) => {
@@ -328,50 +328,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
-  } */
-  
-  async ngOnInit(): Promise<void> {
-    try {
-        // Load quiz data first
-        const loadedSuccessfully = await this.loadQuizData();
-        if (!loadedSuccessfully) {
-            console.error('Quiz data failed to load; initialization halted.');
-            return;
-        }
-
-        // Initialize route params after loading data
-        this.initializeRouteParams();
-
-        // Continue with component initializations
-        this.initializeDisplayVariables();
-        this.subscribeToOptionSelection();
-        this.initializeNextButtonState();
-        this.initializeTooltip();
-        this.resetOptionState();
-        this.loadQuestionContents();
-        this.selectedOptionService.setAnswered(false);
-        
-        this.quizService.nextExplanationText$.subscribe((text) => {
-            this.explanationToDisplay = text;
-            console.log('Updated explanation text:', text); 
-        });
-
-        this.resetQuestionState();
-        this.subscribeToSelectionMessage();
-        this.initializeQuizData();
-        this.initializeQuestions();
-        this.initializeCurrentQuestion();
-        this.checkIfAnswerSelected(true);
-
-        // Progress tracking setup
-        this.progressBarService.progress$.subscribe((progressValue) => {
-            this.progressPercentage.next(progressValue); 
-        });
-        this.progressBarService.setProgress(0);
-
-    } catch (error) {
-        console.error('Error during ngOnInit initialization:', error);
-    }
   }
 
 
@@ -915,7 +871,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error loading quiz data:', error);
     }
   } */
-  /* async loadQuizData(): Promise<boolean> {
+  async loadQuizData(): Promise<boolean> {
     try {
         const quiz = await firstValueFrom(
             this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
@@ -939,29 +895,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questions = [];
         this.isQuizLoaded = false; // Set to false on error
         return false;
-    }
-  } */
-  async loadQuizData(): Promise<boolean> {
-    try {
-        const quiz = await firstValueFrom(
-            this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-        ) as Quiz;
-
-        if (quiz && quiz.questions && quiz.questions.length > 0) {
-            this.quiz = quiz;
-            this.questions = quiz.questions;
-            this.currentQuestion = this.questions[this.currentQuestionIndex];
-            console.log('Quiz data loaded successfully:', quiz);
-            return true; // Indicate successful loading
-        } else {
-            console.error('Quiz has no questions or data unavailable.');
-            this.questions = []; 
-            return false;
-        }
-    } catch (error) {
-        console.error('Error loading quiz data:', error);
-        this.questions = []; 
-        return false; // Indicate failure to load
     }
   }
 
