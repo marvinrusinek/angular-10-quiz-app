@@ -132,6 +132,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
   displayVariables: { question: string; explanation: string };
+  questionTextLoaded = false;
 
   private isLoading = false;
   private isQuizDataLoaded = false;
@@ -2104,6 +2105,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     if (questionIndex >= 0 && questionIndex < this.questions.length) {
       const selectedQuestion = this.questions[questionIndex];
+
+      this.questionTextLoaded = false; // Reset to false before updating
+
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
     } else {
