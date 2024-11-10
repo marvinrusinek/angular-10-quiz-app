@@ -666,7 +666,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
     
     // Load the question data
-    this.loadCurrentQuestion();
+    // this.loadCurrentQuestion();
+
+    // Load the question data, then render display based on `isAnswered`
+    this.loadCurrentQuestion().then(() => {
+      this.renderDisplay();
+    });
   }
 
   private renderDisplay(): void {
