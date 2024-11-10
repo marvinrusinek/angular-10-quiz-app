@@ -399,7 +399,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.setFinalDisplay();  // Determine final display once data is fully loaded
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -424,7 +424,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.setFinalDisplay();  // Ensure the correct content displays
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore question index and answered state from storage
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set `displayExplanation` based on the initial restored answer state and lock it
+    this.displayExplanation = this.isAnswered;
+
+    console.log(`Locked state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Load the current question data, then enforce display based on locked state
+    this.loadCurrentQuestion().then(() => {
+        this.enforceLockedDisplay();  // Display the final content
+    });
   }
+
+  private enforceLockedDisplay(): void {
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Displaying locked explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Displaying locked question text for Question ${this.currentQuestionIndex}`);
+    }
+  }
+
 
   private setFinalDisplay(): void {
     // Ensure displayExplanation controls the final display content
