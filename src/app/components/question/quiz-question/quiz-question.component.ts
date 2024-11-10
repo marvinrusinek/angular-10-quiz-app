@@ -316,37 +316,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  /* @HostListener('window:visibilitychange', [])
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
       // When visibility is restored, re-apply the display based on `isAnswered`
       this.renderDisplay();
       console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
+  }
+  /* @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (!document.hidden) {
+      if (this.isAnswered) {
+        this.showExplanationText(); // Direct display of explanation text without further checks
+        console.log(`Explanation text displayed on visibility restoration for answered question.`);
+      } else {
+        this.showQuestionText();
+        console.log(`Question text displayed on visibility restoration for unanswered question.`);
+      }
+    }
   } */
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-      if (!document.hidden) {
-          if (this.isAnswered) {
-              this.showExplanationText(); // Direct display of explanation text without further checks
-              console.log(`Explanation text displayed on visibility restoration for answered question.`);
-          } else {
-              this.showQuestionText();
-              console.log(`Question text displayed on visibility restoration for unanswered question.`);
-          }
-      }
+    if (document.hidden) {
+      // Save the quiz state when navigating away from the tab
+      this.saveQuizState();
+      console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
+    } else {
+      // Restore the quiz state and reapply the display when returning to the tab
+      this.restoreQuizState();
+    }
   } */
-  @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-      if (document.hidden) {
-          // Save the quiz state when navigating away from the tab
-          this.saveQuizState();
-          console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-      } else {
-          // Restore the quiz state and reapply the display when returning to the tab
-          this.restoreQuizState();
-      }
-  }
 
 
 
