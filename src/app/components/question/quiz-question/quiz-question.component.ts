@@ -3063,7 +3063,7 @@ async onVisibilityChange(): Promise<void> {
     return this.explanationToDisplay;
   }
 
-  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+  /* public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
 
     // Clear any previous explanation state
@@ -3125,7 +3125,60 @@ async onVisibilityChange(): Promise<void> {
       console.error(`Error fetching explanation for question ${questionIndex}:`, error);
       this.handleExplanationError(questionIndex);
     }
+  } */
+  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+    console.log(`Fetching explanation for question ${questionIndex}`);
+  
+    // Clear any previous explanation state
+    this.resetExplanationText();
+  
+    try {
+      // Ensure the questions array is loaded only once, without retries
+      const questionsLoaded = await this.ensureQuestionsLoaded();
+      
+      // Exit early if loading was unsuccessful
+      if (!questionsLoaded || !this.questionsArray || this.questionsArray.length === 0) {
+        console.error('Failed to load questions or questions array is empty. Aborting explanation fetch.');
+        return;
+      }
+  
+      // Check if the specified question index is valid in the array
+      if (!this.questionsArray[questionIndex]) {
+        console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
+        return;
+      }
+  
+      // Ensure question data is fully loaded before fetching explanation
+      await this.ensureQuestionIsFullyLoaded(questionIndex);
+  
+      // Prepare and fetch explanation text using observable
+      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+        debounceTime(100) // Smooth out updates
+      );
+  
+      explanation$.subscribe({
+        next: (explanationText: string) => {
+          if (this.isQuestionAnswered(questionIndex)) {
+            this.currentQuestionIndex = questionIndex;
+            this.explanationToDisplay = explanationText || 'No explanation available';
+            this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+          } else {
+            console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
+          }
+        },
+        error: (error) => {
+          console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+          this.handleExplanationError(questionIndex);
+        }
+      });
+    } catch (error) {
+      console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+      this.handleExplanationError(questionIndex);
+    }
   }
+  
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
