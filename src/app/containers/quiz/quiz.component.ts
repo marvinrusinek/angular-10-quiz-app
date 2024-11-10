@@ -898,106 +898,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.loadAndSetupQuestion(this.currentQuestionIndex);
     });
   }
-
-  /* initializeRouteParams(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-
-      // Correctly handle the case where 'questionIndex' might be 0 or undefined
-      const routeQuestionIndex =
-        params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
-
-      // Adjust for zero-based indexing
-      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
-
-      if (adjustedIndex === 0) {
-        // Call the special initialization function for the first question
-        this.initializeFirstQuestion();
-      } else {
-        // Handle all other questions through a general update display function
-        this.updateQuestionDisplay(adjustedIndex);
-      }
-    });
-  } */
-  /* async initializeRouteParams(): Promise<void> {
-    // Ensure questions are loaded before processing route parameters
-    if (!this.isQuizLoaded) {
-        console.warn('Questions not loaded, calling loadQuizData...');
-        const loadedSuccessfully = await this.loadQuizData();
-
-        if (!loadedSuccessfully) {
-            console.error('Questions failed to load after loadQuizData call.');
-            return; // Exit if loading failed
-        }
-    }
-
-    // Now handle route parameters only if questions are loaded
-    this.activatedRoute.params.subscribe((params) => {
-        this.quizId = params['quizId'];
-
-        const routeQuestionIndex =
-            params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
-        const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
-
-        if (Array.isArray(this.questions) && this.questions.length > 0) {
-            if (adjustedIndex === 0) {
-                this.initializeFirstQuestion();
-            } else {
-                this.updateQuestionDisplay(adjustedIndex);
-            }
-        } else {
-            console.error('Questions failed to load after loadQuizData call.');
-        }
-    });
-  } */
-  /* async initializeRouteParams(): Promise<void> {
-    const questionsLoaded = await this.ensureQuestionsLoaded();
-    if (!questionsLoaded) return; // Exit if loading failed
-
-    this.activatedRoute.params.subscribe((params) => {
-        this.quizId = params['quizId'];
-        const routeQuestionIndex =
-            params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
-        const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
-
-        if (Array.isArray(this.questions) && this.questions.length > 0) {
-            if (adjustedIndex === 0) {
-                this.initializeFirstQuestion();
-            } else {
-                this.updateQuestionDisplay(adjustedIndex);
-            }
-        } else {
-            console.error('Questions failed to load before route parameter processing.');
-        }
-    });
-  } */
+  
   private async initializeRouteParams(): Promise<void> {
     // Ensure questions are loaded before processing route parameters
     const loadedSuccessfully = await this.loadQuizData();
     if (!loadedSuccessfully) {
-        console.error('Aborting route param initialization due to failed quiz load.');
-        return; // Stop if loading fails
+      console.error('Aborting route param initialization due to failed quiz load.');
+      return; // Stop if loading fails
     }
 
     // Now handle route parameters only if questions are loaded
     this.activatedRoute.params.subscribe((params) => {
-        this.quizId = params['quizId'];
+      this.quizId = params['quizId'];
         
-        // Determine and adjust the question index from route parameters
-        const routeQuestionIndex =
-            params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
-        const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+      // Determine and adjust the question index from route parameters
+      const routeQuestionIndex =
+        params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
 
-        // Ensure questions are available before updating the display
-        if (Array.isArray(this.questions) && this.questions.length > 0) {
-            if (adjustedIndex === 0) {
-                this.initializeFirstQuestion();
-            } else {
-                this.updateQuestionDisplay(adjustedIndex);
-            }
+      // Ensure questions are available before updating the display
+      if (Array.isArray(this.questions) && this.questions.length > 0) {
+        if (adjustedIndex === 0) {
+          this.initializeFirstQuestion();
         } else {
-            console.error('Questions failed to load before route parameter processing.');
+          this.updateQuestionDisplay(adjustedIndex);
         }
+      } else {
+        console.error('Questions failed to load before route parameter processing.');
+      }
     });
   }
 
