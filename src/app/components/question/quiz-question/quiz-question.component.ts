@@ -825,22 +825,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const displayModeLocked = sessionStorage.getItem('displayModeLocked');
 
     if (!storedIndex && !storedIsAnswered) {
-        console.info('No saved state – starting with the default question.');
-        this.loadQuestion();
-        return;
+      console.info('No saved state – starting with the default question.');
+      this.loadQuestion();
+      return;
     }
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered === 'true';
+    // this.isAnswered = storedIsAnswered === 'true';
+    this.isAnswered = this.displayMode === "explanation"; // Set `isAnswered` based on session storage display mode
     this.explanationDisplayLocked = this.isAnswered;
 
     // this.applyDisplayState();
-    if (this.explanationDisplayLocked) {
+    // if (this.explanationDisplayLocked) {
+    if (this.displayMode === "explanation") {
       this.showExplanationText();
       console.log(`Explanation text restored for answered question`);
     } else {
-        this.showQuestionText();
-        console.log(`Question text restored for unanswered question`);
+      this.showQuestionText();
+      console.log(`Question text restored for unanswered question`);
     }
   }
 
