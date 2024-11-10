@@ -1166,7 +1166,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return true;
     }
 
-    console.warn('Questions not loaded, attempting to load...');
     this.isLoadingInProgress = true;
     const loadedSuccessfully = await this.loadQuizData();
     this.isLoadingInProgress = false;
