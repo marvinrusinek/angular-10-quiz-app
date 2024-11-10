@@ -518,7 +518,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.updateAndSyncNextButtonState(isEnabled);
     });
   } */
-  private initializeNextButtonState(): void {
+  /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
         this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
         this.quizStateService.isLoading$.pipe(map(loading => !loading), distinctUntilChanged()),
@@ -534,7 +534,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('Next button state set to:', isEnabled);
         this.updateAndSyncNextButtonState(isEnabled);
     });
+  } */
+  private initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+        this.selectedOptionService.isAnsweredSubject.pipe(
+            distinctUntilChanged(),
+            tap(isAnswered => console.log('isAnswered:', isAnswered))
+        ),
+        this.quizStateService.isLoading$.pipe(
+            map(loading => !loading),
+            distinctUntilChanged(),
+            tap(isLoaded => console.log('isLoading:', isLoaded))
+        ),
+        this.quizStateService.isNavigating$.pipe(
+            map(navigating => !navigating),
+            distinctUntilChanged(),
+            tap(isIdle => console.log('isNavigating:', isIdle))
+        )
+    ]).pipe(
+        map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
+        distinctUntilChanged(),
+        shareReplay(1)
+    );
+
+    this.isButtonEnabled$.subscribe(isEnabled => {
+        console.log('Next button state set to:', isEnabled);
+        this.updateAndSyncNextButtonState(isEnabled);
+    });
   }
+
   
   private evaluateNextButtonState(): boolean {
     this.resetOptionState(); // Reset before checking next button state
