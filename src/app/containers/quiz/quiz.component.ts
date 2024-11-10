@@ -498,18 +498,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-        this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
-        this.quizStateService.isLoading$.pipe(map(loading => !loading), distinctUntilChanged()),
-        this.quizStateService.isNavigating$.pipe(map(navigating => !navigating), distinctUntilChanged())
+      this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
+      this.quizStateService.isLoading$.pipe(map(loading => !loading), distinctUntilChanged()),
+      this.quizStateService.isNavigating$.pipe(map(navigating => !navigating), distinctUntilChanged())
     ]).pipe(
-        map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
-        distinctUntilChanged(),
-        shareReplay(1)
+      map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
+      distinctUntilChanged(),
+      shareReplay(1)
     );
 
     this.isButtonEnabled$.subscribe(isEnabled => {
-        console.log('Next button state set to:', isEnabled);
-        this.updateAndSyncNextButtonState(isEnabled);
+      console.log('Next button state set to:', isEnabled);
+      this.updateAndSyncNextButtonState(isEnabled);
     });
   }
   
