@@ -493,15 +493,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Restore isAnswered and set displayExplanation based on isAnswered
+        // Restore `isAnswered` and set `displayExplanation` only for the current question
         this.isAnswered = storedIsAnswered === 'true';
-        this.displayExplanation = this.isAnswered;
+        this.displayExplanation = this.isAnswered && this.currentQuestionIndex === +storedIndex;
 
-        console.log(`Restored currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
+        console.log(`Restored currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
 
         // Set the display mode based on the restored state
         this.setDisplayMode(this.isAnswered);
-        
+
         // Load the correct question display based on the restored state
         this.loadCurrentQuestion();
     } else {
@@ -518,6 +518,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   }
+
 
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
@@ -1201,7 +1202,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Method to ensure loading of the correct current question
-  private async loadCurrentQuestion(): Promise<boolean> {
+  /* private async loadCurrentQuestion(): Promise<boolean> {
     // Ensure questions are loaded
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return false;
@@ -1225,6 +1226,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       console.error(`Invalid question index: ${this.currentQuestionIndex}`);
       return false;
+    }
+  } */
+  private async loadCurrentQuestion(): Promise<boolean> {
+    // Ensure questions are loaded
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) return false;
+
+    // Check if the current question index is valid
+    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
+        try {
+            const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+            if (questionData) {
+                this.currentQuestion = questionData;
+                this.optionsToDisplay = questionData.options;
+
+                // Display explanation if the question has been answered
+                if (this.isAnswered && this.displayExplanation) {
+                    this.showExplanationText();
+                    console.log(`Displaying explanation for Question ${this.currentQuestionIndex}`);
+                } else {
+                    this.showQuestionText();
+                    console.log(`Displaying question text for Question ${this.currentQuestionIndex}`);
+                }
+
+                return true;
+            } else {
+                console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error fetching question data:', error);
+            return false;
+        }
+    } else {
+        console.error(`Invalid question index: ${this.currentQuestionIndex}`);
+        return false;
     }
   }
 
