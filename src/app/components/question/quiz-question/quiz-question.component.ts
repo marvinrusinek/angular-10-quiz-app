@@ -312,23 +312,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    const isHidden = document.hidden;
-
-    if (isHidden) {
-      // Save the current state
-      this.savedDisplayExplanation = this.displayExplanation;
-    } else {
-      // Restore the state
-      if (this.savedDisplayExplanation !== undefined) {
-        this.displayExplanation = this.savedDisplayExplanation;
-        this.currentMode = this.displayExplanation ? 'explanation' : 'question';
-        this.displayMode$.next(this.currentMode);
-      }
-      this.ngZone.run(() => this.handleQuizRestore());
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     const isHidden = document.hidden;
