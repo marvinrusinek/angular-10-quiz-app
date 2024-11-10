@@ -414,8 +414,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await this.restoreQuizState();
       this.ngZone.run(() => this.handleQuizRestore());
 
-      // No need to reload the question or explanation
-      // The UI state should already reflect the restored state
+      // Update the UI based on the restored state
+      if (this.displayExplanation) {
+        // If the explanation was visible, ensure it's displayed
+        this.showExplanationText();
+      } else {
+        // If the question was visible, ensure it's displayed
+        this.showQuestionText();
+      }
     }
   }
 
