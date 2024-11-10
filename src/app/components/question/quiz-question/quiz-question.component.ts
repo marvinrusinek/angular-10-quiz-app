@@ -377,54 +377,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Restore Quiz State with Stabilizing Logic
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    if (!storedIndex && !storedIsAnswered) {
-      console.info('No saved state – starting with default question.');
-      this.loadQuestion();  // Load initial question
-      return;
-    }
-
-    // Restore current question index and answered state from storage
-    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered === 'true';
-    this.displayExplanation = this.isAnswered;  // Set displayExplanation based on isAnswered
-
-    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
-
-    // Load question data, then update display based on final state
-    this.loadCurrentQuestion().then(() => {
-      this.setFinalDisplay();  // Determine final display once data is fully loaded
-    });
-  } */
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered');
-
-    if (!storedIndex && !storedIsAnswered) {
-        console.info('No saved state – starting with default question.');
-        this.loadQuestion();
-        return;
-    }
-
-    // Restore question index and answered state
-    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered === 'true';
-
-    // Only set displayExplanation if the question has been answered
-    if (this.isAnswered) {
-        this.displayExplanation = true;
-    }
-
-    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
-
-    // Load question data, then update display based on final state
-    this.loadCurrentQuestion().then(() => {
-        this.setFinalDisplay();  // Ensure the correct content displays
-    });
-  } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
