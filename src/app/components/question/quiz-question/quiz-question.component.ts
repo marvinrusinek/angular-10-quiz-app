@@ -453,83 +453,82 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const isNewSession = !storedIndex && !storedQuestion && !storedOptions && !storedIsAnswered;
 
     if (isNewSession) {
-        console.info('No saved state found – starting with default question.');
-        this.loadQuestion();  // Loads the initial question for a new session
-        return;
+      console.info('No saved state found – starting with default question.');
+      this.loadQuestion();  // Loads the initial question for a new session
+      return;
     }
 
     // Check if all parts of the state are available
     if (storedIndex && storedQuestion && storedOptions && storedIsAnswered) {
-        this.currentQuestionIndex = +storedIndex;
+      this.currentQuestionIndex = +storedIndex;
 
-        try {
-            const parsedQuestion = JSON.parse(storedQuestion);
-            if (
-                parsedQuestion &&
-                'questionText' in parsedQuestion &&
-                Array.isArray(parsedQuestion.options) &&
-                parsedQuestion.options.every(option => option && 'text' in option)
-            ) {
-                this.currentQuestion = parsedQuestion;
-            } else {
-                throw new Error('Incomplete or invalid question structure');
-            }
-        } catch (error) {
-            console.warn('Failed to restore a valid question. Loading default question.');
-            this.loadQuestion();
-            return;
-        }
-
-        try {
-            const parsedOptions = JSON.parse(storedOptions);
-            if (Array.isArray(parsedOptions) && parsedOptions.every(option => option && 'text' in option)) {
-                this.optionsToDisplay = parsedOptions;
-            } else {
-                throw new Error('Incomplete or invalid options structure');
-            }
-        } catch (error) {
-            console.warn('Failed to restore valid options. Loading default question.');
-            this.loadQuestion();
-            return;
-        }
-
-        // Only restore if isAnswered hasn't been set by user interaction
-        if (storedIsAnswered && this.isAnswered === undefined) {
-          this.isAnswered = storedIsAnswered === 'true';
-          this.selectedOptionService.setAnswered(this.isAnswered);
-          this.displayExplanation = this.isAnswered; 
+      try {
+        const parsedQuestion = JSON.parse(storedQuestion);
+        if (
+          parsedQuestion &&
+          'questionText' in parsedQuestion &&
+          Array.isArray(parsedQuestion.options) &&
+          parsedQuestion.options.every(option => option && 'text' in option)
+        ) {
+          this.currentQuestion = parsedQuestion;
         } else {
-          this.displayExplanation = false;  // Default to question text if no state found
+          throw new Error('Incomplete or invalid question structure');
         }
-        console.log(`Restored isAnswered state: ${this.isAnswered}`);
-
-        // Set the display mode based on the restored state
-        this.setDisplayMode(this.isAnswered);
-        
-        // Ensure explanation text only applies to the current question
-        if (!this.isAnswered) {
-            this.displayExplanation = false;
-        } else {
-            this.displayExplanation = true;
-        }
-
-        // Load the correct question display based on the restored state
-        this.loadCurrentQuestion();
-    } else {
-        // Log an incomplete state warning only once per session
-        if (!sessionStorage.getItem('incompleteStateLogged')) {
-            console.warn('Stored state is incomplete, loading default question', {
-                currentQuestionIndex: !!storedIndex,
-                currentQuestion: !!storedQuestion,
-                optionsToDisplay: !!storedOptions,
-                isAnswered: !!storedIsAnswered
-            });
-            sessionStorage.setItem('incompleteStateLogged', 'true');
-        }
+      } catch (error) {
+        console.warn('Failed to restore a valid question. Loading default question.');
         this.loadQuestion();
+        return;
+      }
+
+      try {
+        const parsedOptions = JSON.parse(storedOptions);
+        if (Array.isArray(parsedOptions) && parsedOptions.every(option => option && 'text' in option)) {
+          this.optionsToDisplay = parsedOptions;
+        } else {
+          throw new Error('Incomplete or invalid options structure');
+        }
+      } catch (error) {
+        console.warn('Failed to restore valid options. Loading default question.');
+        this.loadQuestion();
+        return;
+      }
+
+      // Only restore if isAnswered hasn't been set by user interaction
+      if (storedIsAnswered && this.isAnswered === undefined) {
+        this.isAnswered = storedIsAnswered === 'true';
+        this.selectedOptionService.setAnswered(this.isAnswered);
+        this.displayExplanation = this.isAnswered; 
+      } else {
+        this.displayExplanation = false;  // Default to question text if no state found
+      }
+      console.log(`Restored isAnswered state: ${this.isAnswered}`);
+
+      // Set the display mode based on the restored state
+      this.setDisplayMode(this.isAnswered);
+        
+      // Ensure explanation text only applies to the current question
+      if (!this.isAnswered) {
+        this.displayExplanation = false;
+      } else {
+        this.displayExplanation = true;
+      }
+
+      // Load the correct question display based on the restored state
+      this.loadCurrentQuestion();
+    } else {
+      // Log an incomplete state warning only once per session
+      if (!sessionStorage.getItem('incompleteStateLogged')) {
+        console.warn('Stored state is incomplete, loading default question', {
+          currentQuestionIndex: !!storedIndex,
+          currentQuestion: !!storedQuestion,
+          optionsToDisplay: !!storedOptions,
+          isAnswered: !!storedIsAnswered
+        });
+        sessionStorage.setItem('incompleteStateLogged', 'true');
+        }
+      this.loadQuestion();
     }
   }
-
 
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
