@@ -411,69 +411,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
-
-  private updateDisplayBasedOnState(): void {
-    // Decide final display based on `displayExplanation` and `isAnswered`
-    if (this.displayExplanation) {
-        this.showExplanationText();
-        console.log(`Final display: explanation for Question ${this.currentQuestionIndex}`);
-    } else {
-        this.showQuestionText();
-        console.log(`Final display: question text for Question ${this.currentQuestionIndex}`);
-    }
-  }
-
-  private forceFinalDisplay(): void {
-    if (this.isRestoringState) {
-        if (this.displayExplanation) {
-            this.showExplanationText();
-            console.log(`Force final display of explanation for Question ${this.currentQuestionIndex}`);
-        } else {
-            this.showQuestionText();
-            console.log(`Force final display of question text for Question ${this.currentQuestionIndex}`);
-        }
-    }
-  }
-
-  private forceImmediateDisplay(): void {
-    if (this.displayExplanation) {
-        this.showExplanationText();
-        console.log(`Immediate display of explanation for Question ${this.currentQuestionIndex}`);
-    } else {
-        this.showQuestionText();
-        console.log(`Immediate display of question text for Question ${this.currentQuestionIndex}`);
-    }
-  }
-
-
-  private renderContentDirectly(): void {
-    if (this.displayExplanation) {
-        this.showExplanationText();
-        console.log(`Directly rendering explanation for Question ${this.currentQuestionIndex}`);
-    } else {
-        this.showQuestionText();
-        console.log(`Directly rendering question text for Question ${this.currentQuestionIndex}`);
-    }
-  }
-
-  private forceDisplayRefresh(): void {
-    // Debounce to avoid quick toggling
-    setTimeout(() => {
-        if (this.displayExplanation) {
-            this.showExplanationText();
-            console.log(`Force displaying explanation for Question ${this.currentQuestionIndex}`);
-        } else {
-            this.showQuestionText();
-            console.log(`Force displaying question text for Question ${this.currentQuestionIndex}`);
-        }
-    }, 50); // Adjust delay as needed
-  }
-
-
-
-
-
   // Handle quiz restoration
   private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
