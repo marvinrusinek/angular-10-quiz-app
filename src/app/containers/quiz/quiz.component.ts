@@ -591,48 +591,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('logEvent called with:', event);
   }
 
-  /* onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): void {
-    if (!isUserAction) {
-      console.log('Skipping processing as this is not a user action');
-      return;
-    }
-
-    const { option, checked } = event;
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.updateMultipleAnswerSelection(option, checked);
-    }
-
-    const isOptionSelected = this.isAnyOptionSelected();
-    this.selectedOptionService.setOptionSelected(isOptionSelected);
-    this.selectedOptionService.isAnsweredSubject.next(true);
-    this.selectedOptionService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(isOptionSelected);
-
-    // Set isAnswered to true since an option has been selected
-    this.isAnswered = true;
-    sessionStorage.setItem('isAnswered', 'true');
-
-    console.log('After option selection:', {
-      selectedOptions: this.selectedOptions,
-      isNextButtonEnabled: isOptionSelected,
-    });
-
-    this.ngZone.run(() => {
-      setTimeout(() => {
-        this.evaluateNextButtonState(); 
-        this.updateAndSyncNextButtonState(checked);
-        this.cdRef.detectChanges();
-      }, 300);
-    });    
-
-    this.cdRef.detectChanges();
-    this.refreshTooltip();
-  } */
   onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
@@ -650,7 +608,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     const isOptionSelected = this.isAnyOptionSelected();
-    this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);  // Ensure it triggers
+    this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);
   
     console.log('Option selected, isOptionSelected:', isOptionSelected);
 
