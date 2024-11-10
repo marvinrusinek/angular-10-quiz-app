@@ -331,28 +331,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.checkIfAnswerSelected(true);
   }
 
-  private setupProgressBar(): void {
-    this.progressBarService.progress$.subscribe((progressValue) => {
-        this.progressPercentage.next(progressValue); 
-    });
-  }
-
-  private initializeAdditionalServices(): void {
-      this.subscribeToOptionSelection();
-      this.initializeNextButtonState();
-      this.initializeTooltip();
-      this.resetOptionState();
-      this.loadQuestionContents();
-      this.selectedOptionService.setAnswered(false);
-
-      this.quizService.nextExplanationText$.subscribe((text) => {
-          this.explanationToDisplay = text;
-      });
-
-      this.resetQuestionState();
-      this.subscribeToSelectionMessage();
-  }
-
   ngAfterViewInit(): void {
     // Ensure variables are set before calling this method
     this.initializeDisplayVariables();
@@ -503,8 +481,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     const isLoading = !this.quizStateService.isLoadingSubject.value;
     const isNavigating = !this.quizStateService.isNavigatingSubject.value;
+
+    const shouldEnable = isAnswered && isLoading && isNavigating;
+
+    // Update isButtonEnabled$ directly
+    this.isButtonEnabledSubject.next(shouldEnable);
   
-    return isAnswered && isLoading && isNavigating;
+    return shouldEnable;
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
@@ -608,7 +591,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('logEvent called with:', event);
   }
 
-  onOptionSelected(
+  /* onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): void {
@@ -649,8 +632,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.cdRef.detectChanges();
     this.refreshTooltip();
+  } */
+  onOptionSelected(
+    event: { option: SelectedOption; index: number; checked: boolean },
+    isUserAction: boolean = true
+  ): void {
+    if (!isUserAction) {
+      return;
+    }
+  
+    const { option, checked } = event;
+  
+    // Update selected options based on the question type
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = checked ? [option] : [];
+    } else {
+      this.updateMultipleAnswerSelection(option, checked);
+    }
+  
+    const isOptionSelected = this.isAnyOptionSelected();
+    this.selectedOptionService.setOptionSelected(isOptionSelected);
+    this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);  // Ensure this updates
+  
+    this.evaluateNextButtonState();
   }
-
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
