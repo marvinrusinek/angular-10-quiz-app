@@ -335,7 +335,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ngZone.run(() => this.handleQuizRestore());
     }
   }
-
   
   private saveQuizState(): void {
     try {
@@ -444,41 +443,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Handle quiz restoration
-  /* private async handleQuizRestore(): Promise<void> {
-    if (!(await this.ensureQuizIdExists())) {
-      console.error('Unable to retrieve Quiz ID, cannot fetch questions');
-      return;
-    }
-
-    try {
-      await this.loadQuizData();
-
-      // Force mode based on answered state
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-      const intendedMode: 'question' | 'explanation' = isAnswered ? 'explanation' : 'question';
-
-      if (this.currentMode !== intendedMode || !this.displayMode$.getValue()) {
-        this.currentMode = intendedMode;
-        this.displayMode$.next(intendedMode);
-
-        // Forcefully lock to question mode if unanswered
-        if (intendedMode === 'question') {
-          this.showQuestionText();
-          console.log(`Locked to question text for Question ${this.currentQuestionIndex}`);
-        } else {
-          // Show explanation only if it's necessary and marked as answered
-          this.showExplanationText();
-          console.log(`Locked to explanation text for Question ${this.currentQuestionIndex}`);
-        }
-      } else {
-        console.log(`Display mode already set correctly for Question ${this.currentQuestionIndex}.`);
-      }
-
-      await this.updateSelectionMessageForCurrentQuestion();
-    } catch (error) {
-      console.error('Error in handleQuizRestore:', error);
-    }
-  } */
   private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
       console.error('Unable to retrieve Quiz ID, cannot fetch questions');
