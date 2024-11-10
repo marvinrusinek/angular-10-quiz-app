@@ -828,21 +828,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
-
-
   private renderDisplay(): void {
     if (this.isAnswered) {
-        this.showExplanationText();
-        console.log(`Displaying explanation based on current answer state`);
+      this.showExplanationText();
+      console.log(`Displaying explanation based on current answer state`);
     } else {
-        this.showQuestionText();
-        console.log(`Displaying question text based on current answer state`);
+      this.showQuestionText();
+      console.log(`Displaying question text based on current answer state`);
     }
+    this.cdRef.detectChanges();
   }
-
-
-
 
   private displayExplanationLock(isAnswered: boolean): void {
       if (!this.displayExplanationLocked) {
