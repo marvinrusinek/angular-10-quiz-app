@@ -573,7 +573,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.applyLockedDisplay();  // Lock display based on `displayExplanation`
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -600,6 +600,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.renderLockedDisplay();
      });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    // Start with the default question if no state exists
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with the default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore question index and answer state
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set `displayExplanation` and lock it based on `isAnswered`
+    if (!this.displayExplanationLocked) {
+        this.displayExplanation = this.isAnswered;
+        this.displayExplanationLocked = true;  // Lock to prevent any changes
+    }
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}, locked: ${this.displayExplanationLocked}`);
+    
+    // Load question data, then enforce the locked display
+    this.loadCurrentQuestion().then(() => {
+        this.enforceLockedDisplay();
+    });
+  }
+
+  private enforceLockedDisplay(): void {
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Locked display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Locked display: question text for Question ${this.currentQuestionIndex}`);
+    }
   }
 
   private renderLockedDisplay(): void {
