@@ -84,6 +84,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionRenderComplete = new EventEmitter<void>();
   questionTextLoaded = false;
   private isLoadingInProgress = false;
+  savedDisplayExplanation = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -398,7 +399,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     const isHidden = document.hidden;
 
@@ -425,7 +426,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.cdRef.detectChanges();
       });
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    const isHidden = document.hidden;
+
+    if (isHidden) {
+      // Save the current state
+      this.savedDisplayExplanation = this.displayExplanation;
+    } else {
+      // Restore the state
+      if (this.savedDisplayExplanation !== undefined) {
+        this.displayExplanation = this.savedDisplayExplanation;
+        this.currentMode = this.displayExplanation ? 'explanation' : 'question';
+        this.displayMode$.next(this.currentMode);
+      }
+      this.ngZone.run(() => this.handleQuizRestore());
+    }
   }
+
 
 
   // Helper method for validating question structure
@@ -545,7 +564,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Handle quiz restoration
-  private async handleQuizRestore(): Promise<void> {
+  /* private async handleQuizRestore(): Promise<void> {
     if (!(await this.ensureQuizIdExists())) {
       console.error('Unable to retrieve Quiz ID, cannot fetch questions');
       return;
@@ -579,7 +598,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error in handleQuizRestore:', error);
     }
+  } */
+  private async handleQuizRestore(): Promise<void> {
+    if (!(await this.ensureQuizIdExists())) {
+      console.error('Unable to retrieve Quiz ID, cannot fetch questions');
+      return;
+    }
+  
+    try {
+      await this.loadQuizData();
+  
+      // Use displayExplanation to determine the intended mode
+      const intendedMode: 'question' | 'explanation' = this.displayExplanation ? 'explanation' : 'question';
+  
+      if (this.currentMode !== intendedMode || !this.displayMode$.getValue()) {
+        this.currentMode = intendedMode;
+        this.displayMode$.next(intendedMode);
+  
+        if (intendedMode === 'question') {
+          // No need to call showQuestionText() here
+          console.log(`Locked to question text for Question ${this.currentQuestionIndex}`);
+        } else {
+          // No need to call showExplanationText() here
+          console.log(`Locked to explanation text for Question ${this.currentQuestionIndex}`);
+        }
+      } else {
+        console.log(`Display mode already set correctly for Question ${this.currentQuestionIndex}.`);
+      }
+  
+      await this.updateSelectionMessageForCurrentQuestion();
+    } catch (error) {
+      console.error('Error in handleQuizRestore:', error);
+    }
   }
+  
 
   private setDisplayMode(isAnswered: boolean): void {
     this.displayMode = isAnswered ? 'explanation' : 'question';
