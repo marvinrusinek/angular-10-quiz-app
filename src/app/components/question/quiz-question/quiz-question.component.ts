@@ -412,7 +412,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       // Restore the quiz state without changing the UI
       await this.restoreQuizState();
-      this.ngZone.run(() => this.handleQuizRestore());
+      // this.ngZone.run(() => this.handleQuizRestore());
+      // Run change detection
+      this.ngZone.run(() => {
+        this.handleQuizRestore();
+        this.cdRef.detectChanges();
+      });
 
       // Update the UI based on the restored state
       /* if (this.displayExplanation) {
