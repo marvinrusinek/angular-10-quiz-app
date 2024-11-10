@@ -320,47 +320,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Listen for the visibility change event
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    const isHidden = document.hidden;
-
-    if (isHidden) {
-      // Save the current state
-      if (this.currentQuestion) {
-        this.saveQuizState();
-        this.selectedOptionService.saveState();
-      } else {
-        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
-      }
-    } else {
-      // Restore the state
-      this.restoreQuizState();
-      this.selectedOptionService.restoreState();
-
-      // Update display mode based on the restored displayExplanation
-      this.currentMode = this.displayExplanation ? 'explanation' : 'question';
-      this.displayMode$.next(this.currentMode);
-      
-      // Handle any additional restoration logic
-      this.ngZone.run(() => this.handleQuizRestore());
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
     if (!document.hidden) {
       // When visibility is restored, re-apply the display based on `isAnswered`
       this.renderDisplay();
       console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (!document.hidden) {
-      if (this.explanationDisplayLocked) {
-        this.showExplanationText();
-        console.log(`Persisted explanation text on visibility restoration`);
-      } else {
-        this.showQuestionText();
-        console.log(`Persisted question text on visibility restoration`);
-      }
     }
   } */
   @HostListener('window:visibilitychange', [])
@@ -376,47 +339,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   }
 
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-      if (!document.hidden) {
-          // If the question is answered, ensure explanation text displays on visibility change
-          if (this.isAnswered) {
-              this.showExplanationText();
-              console.log(`Ensuring explanation text is displayed after returning for answered question`);
-          } else {
-              this.renderDisplay();  // Display question or explanation based on current state
-              console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-          }
-      }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-      if (!document.hidden) {
-          if (this.isAnswered) {
-              this.showExplanationText();
-              console.log(`Restoring explanation text on visibility change for answered question`);
-          } else {
-              this.showQuestionText();
-              console.log(`Restoring question text on visibility change for unanswered question`);
-          }
-      }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-      if (!document.hidden) {
-          // Check `isAnswered` and set display directly without toggling
-          if (this.isAnswered) {
-              this.showExplanationText();
-              console.log(`Displaying explanation text on visibility restoration for answered question`);
-          } else {
-              this.showQuestionText();
-              console.log(`Displaying question text on visibility restoration for unanswered question`);
-          }
-      }
-  } */
 
-  
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
       // Save current question index
       if (this.currentQuestionIndex !== undefined) {
@@ -452,7 +376,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('Error saving quiz state:', error);
     }
+  } */
+  private saveQuizState(): void {
+    try {
+        // Save current question index
+        if (this.currentQuestionIndex !== undefined) {
+            sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
+        }
+
+        // Save current question if valid
+        if (this.currentQuestion && typeof this.currentQuestion === 'object' && 'questionText' in this.currentQuestion) {
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+        } else {
+            console.warn('Invalid currentQuestion, removing from storage');
+            sessionStorage.removeItem('currentQuestion');
+        }
+
+        // Save options if valid
+        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option => option && 'text' in option)) {
+            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
+        } else {
+            console.warn('Invalid options, removing from storage');
+            sessionStorage.removeItem('optionsToDisplay');
+        }
+
+        // Save isAnswered
+        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
+
+        // Save displayMode based on isAnswered
+        const displayMode = this.isAnswered ? 'explanation' : 'question';
+        sessionStorage.setItem('displayMode', displayMode);
+
+        console.log('State saved:', {
+            currentQuestionIndex: sessionStorage.getItem('currentQuestionIndex'),
+            currentQuestion: sessionStorage.getItem('currentQuestion'),
+            optionsToDisplay: sessionStorage.getItem('optionsToDisplay'),
+            isAnswered: sessionStorage.getItem('isAnswered'),
+            displayMode: sessionStorage.getItem('displayMode')
+        });
+    } catch (error) {
+        console.error('Error saving quiz state:', error);
+    }
   }
+
   
   // Restore Quiz State with Stabilizing Logic
   /* private restoreQuizState(): void {
