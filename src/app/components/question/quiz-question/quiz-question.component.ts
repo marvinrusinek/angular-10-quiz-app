@@ -326,7 +326,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
           if (this.isAnswered) {
@@ -337,7 +337,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               console.log(`Question text displayed on visibility restoration for unanswered question.`);
           }
       }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (document.hidden) {
+          // Save the quiz state when navigating away from the tab
+          this.saveQuizState();
+          console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
+      } else {
+          // Restore the quiz state and reapply the display when returning to the tab
+          this.restoreQuizState();
+      }
   }
+
 
 
   /* private saveQuizState(): void {
@@ -820,7 +832,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Question text restored for unanswered question`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const displayMode = sessionStorage.getItem(`displayMode_${storedIndex}`) || 'question';
@@ -835,7 +847,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showQuestionText();
       console.log(`Question text restored for question ${this.currentQuestionIndex}`);
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const displayMode = sessionStorage.getItem('displayMode');
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+
+    // Set the correct display based on the restored displayMode
+    if (displayMode === 'explanation') {
+        this.showExplanationText();
+        console.log(`Restored explanation display for answered question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Restored question display for unanswered question ${this.currentQuestionIndex}`);
+    }
+
+    // Apply the display
+    this.renderDisplay();
   }
+
 
   private applyDisplayState(): void {
     if (this.isAnswered) {
