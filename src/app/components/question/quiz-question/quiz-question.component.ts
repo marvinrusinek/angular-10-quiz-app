@@ -209,6 +209,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Call the parent class's ngOnInit method
       super.ngOnInit();
 
+      this.restoreQuizState();
+
       // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
 
