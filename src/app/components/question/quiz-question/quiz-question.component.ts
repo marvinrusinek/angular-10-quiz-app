@@ -399,7 +399,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.updateFinalDisplay();  // Render the final content based on isAnswered
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -421,6 +421,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
       this.updateFinalDisplay();  // Enforce the correct display based on `isAnswered`
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    // Start with the default question if there's no saved state
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore question index and answered state
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set displayExplanation only based on `isAnswered` once
+    this.displayExplanation = this.isAnswered;
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Load question data and set final display
+    this.loadCurrentQuestion().then(() => {
+        this.setLockedDisplay();  // Force display without further re-evaluation
+    });
+  }
+
+  private setLockedDisplay(): void {
+    // Use locked `displayExplanation` to set the final display
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Locked display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Locked display: question text for Question ${this.currentQuestionIndex}`);
+    }
   }
 
   // Handle quiz restoration
