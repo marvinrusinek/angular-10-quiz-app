@@ -629,7 +629,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.enforceLockedDisplay();
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -648,7 +648,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     
     // Load question data to apply display based on locked state
     this.loadCurrentQuestion();
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore the question index and answer state
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
+    
+    // Load the question data
+    this.loadCurrentQuestion();
   }
+
+  private renderDisplay(): void {
+    if (this.isAnswered) {
+        this.showExplanationText();
+        console.log(`Displaying explanation based on current answer state`);
+    } else {
+        this.showQuestionText();
+        console.log(`Displaying question text based on current answer state`);
+    }
+  }
+
+
 
 
   private displayExplanationLock(isAnswered: boolean): void {
