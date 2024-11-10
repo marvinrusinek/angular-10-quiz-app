@@ -461,16 +461,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
     this.isAnswered = storedIsAnswered === 'true';
 
-    // Set displayExplanation and lock it if it's a multiple-answer question
+    // Lock `displayExplanation` strictly based on `isAnswered`
     this.displayExplanation = this.isAnswered;
-    this.displayLocked = this.isAnswered && this.currentQuestion?.type === QuestionType.MultipleAnswer;
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
 
-    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}, displayLocked: ${this.displayLocked}`);
-
-    // Load question data and enforce display based on locked state
+    // Load question data, then force-render the final display
     this.loadCurrentQuestion().then(() => {
-        this.applyFinalDisplayWithLock();  // Apply display without re-evaluation
+        this.renderFinalDisplay();  // Lock the display content
     });
+  }
+
+  private renderFinalDisplay(): void {
+    // Freeze displayExplanation and display content without re-evaluation
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Final locked display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Final locked display: question text for Question ${this.currentQuestionIndex}`);
+    }
   }
 
   private applyFinalDisplayWithLock(): void {
