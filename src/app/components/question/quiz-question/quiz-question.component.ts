@@ -341,14 +341,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ngZone.run(() => this.handleQuizRestore());
     }
   } */
-  /* @HostListener('window:visibilitychange', [])
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-      if (!document.hidden) {
-          // When visibility is restored, re-apply the display based on `isAnswered`
-          this.renderDisplay();
-          console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-      }
-  } */
+    if (!document.hidden) {
+      // When visibility is restored, re-apply the display based on `isAnswered`
+      this.renderDisplay();
+      console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
+    }
+  }
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
@@ -374,7 +374,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
       }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
           // Check `isAnswered` and set display directly without toggling
@@ -386,7 +386,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               console.log(`Displaying question text on visibility restoration for unanswered question`);
           }
       }
-}
+  } */
 
   
   private saveQuizState(): void {
