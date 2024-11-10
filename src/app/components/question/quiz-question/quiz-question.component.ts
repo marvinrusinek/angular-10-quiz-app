@@ -867,18 +867,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.renderDisplay();
   }
 
-
-  private applyDisplayState(): void {
-    if (this.isAnswered) {
-        this.showExplanationText();
-        console.log(`One-time application: displaying explanation text for answered question.`);
-    } else {
-        this.showQuestionText();
-        console.log(`One-time application: displaying question text for unanswered question.`);
-    }
-  }
-
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.isAnswered && !this.displayLocked) {
       this.showExplanationText();
       this.displayLocked = true; // Lock the display to explanation text
@@ -887,6 +876,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showQuestionText();
       this.displayLocked = false; // Unlock if the question is unanswered
       console.log(`Question text displayed for unanswered question`);
+    }
+  } */
+  private renderDisplay(): void {
+    const displayMode = sessionStorage.getItem('displayMode');
+
+    if (displayMode === 'explanation') {
+      this.showExplanationText();
+      console.log(`Explanation text displayed from renderDisplay for answered question.`);
+    } else {
+      this.showQuestionText();
+      console.log(`Question text displayed from renderDisplay for unanswered question.`);
     }
   }
 
