@@ -416,8 +416,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (this.displayExplanation) {
         this.displayExplanation = true;
       }
-      this.ngZone.run(() => this.handleQuizRestore());
-      this.cdRef.detectChanges();
+      // this.ngZone.run(() => this.handleQuizRestore());
+      // this.cdRef.detectChanges();
+      this.ngZone.run(() => {
+        console.log('Before handleQuizRestore, displayExplanation:', this.displayExplanation);
+        this.handleQuizRestore();
+        console.log('After handleQuizRestore, displayExplanation:', this.displayExplanation);
+        this.cdRef.detectChanges();
+      });
     }
   }
 
