@@ -447,7 +447,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
   }
 
-  private initializeNextButtonState(): void {
+  /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         distinctUntilChanged(),
@@ -473,7 +473,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('Next button state set to:', isEnabled);
       this.updateAndSyncNextButtonState(isEnabled);
     });
+  } */
+  private initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isAnsweredSubject,
+      this.quizStateService.isLoading$.pipe(map(loading => !loading)),
+      this.quizStateService.isNavigating$.pipe(map(navigating => !navigating))
+    ]).pipe(
+      map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
+      distinctUntilChanged(),
+      shareReplay(1)
+    );
+  
+    // Subscribe to log button state changes
+    this.isButtonEnabled$.subscribe(isEnabled => {
+      console.log('Next button enabled:', isEnabled);
+      this.updateAndSyncNextButtonState(isEnabled);
+    });
   }
+  
   
   private evaluateNextButtonState(): boolean {
     // this.resetOptionState(); // Reset before checking next button state
