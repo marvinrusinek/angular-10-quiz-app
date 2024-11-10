@@ -657,7 +657,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion();  // Load data
     this.renderContentDirectly();  // Force content display based on state
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -680,6 +680,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.forceImmediateDisplay();
     });
+  } */
+  private isRestoringState: boolean = false;
+
+private restoreQuizState(): void {
+    this.isRestoringState = true;  // Start state restoration
+
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        this.isRestoringState = false;  // End restoration
+        return;
+    }
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+    this.displayExplanation = this.isAnswered;
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Load question data then finalize display once loading is complete
+    this.loadCurrentQuestion().then(() => {
+        this.forceFinalDisplay();
+        this.isRestoringState = false;  // End restoration
+    });
+  }
+
+  private forceFinalDisplay(): void {
+    if (this.isRestoringState) {
+        if (this.displayExplanation) {
+            this.showExplanationText();
+            console.log(`Force final display of explanation for Question ${this.currentQuestionIndex}`);
+        } else {
+            this.showQuestionText();
+            console.log(`Force final display of question text for Question ${this.currentQuestionIndex}`);
+        }
+    }
   }
 
   private forceImmediateDisplay(): void {
