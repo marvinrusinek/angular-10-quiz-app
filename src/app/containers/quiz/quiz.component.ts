@@ -493,7 +493,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
       this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
+      this.isButtonEnabledSubject.next(isEnabled); // Sync observable state
         
       // Update button style based on enabled state
       this.nextButtonStyle = {
