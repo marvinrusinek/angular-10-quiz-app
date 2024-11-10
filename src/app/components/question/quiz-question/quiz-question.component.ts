@@ -207,6 +207,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Call the parent class's ngOnInit method
       super.ngOnInit();
 
+      this.restoreQuizState();
+
       // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
 
@@ -360,7 +362,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
       }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
           if (this.isAnswered) {
@@ -371,9 +373,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               console.log(`Restoring question text on visibility change for unanswered question`);
           }
       }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (!document.hidden) {
+          // Show explanation text if answered, otherwise show question text
+          if (this.isAnswered) {
+              this.showExplanationText();
+              console.log(`Visibility restored - showing explanation for answered question`);
+          } else {
+              this.showQuestionText();
+              console.log(`Visibility restored - showing question text for unanswered question`);
+          }
+      }
   }
-
-
   
   private saveQuizState(): void {
     try {
@@ -684,7 +697,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Load question data to apply display based on locked state
     this.loadCurrentQuestion();
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -707,6 +720,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
       this.renderDisplay();
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with the default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    console.log(`State restored - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
   }
 
   private renderDisplay(): void {
