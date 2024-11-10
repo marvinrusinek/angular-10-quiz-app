@@ -415,13 +415,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ngZone.run(() => this.handleQuizRestore());
 
       // Update the UI based on the restored state
-      if (this.displayExplanation) {
+      /* if (this.displayExplanation) {
         // If the explanation was visible, ensure it's displayed
         this.showExplanationText();
       } else {
         // If the question was visible, ensure it's displayed
         this.showQuestionText();
-      }
+      } */
+
+      // Ensure change detection runs to update the UI
+      this.cdRef.detectChanges();
     }
   }
 
