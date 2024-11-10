@@ -444,17 +444,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Load question data, then directly enforce the final display
     this.loadCurrentQuestion().then(() => {
-        this.directlySetFinalDisplay();  // Render the final content based on `isAnswered`
+      this.updateFinalDisplay();  // Render the final content based on isAnswered
     });
   }
 
-  private directlySetFinalDisplay(): void {
+  private updateFinalDisplay(): void {
     if (this.displayExplanation) {
-        this.showExplanationText();
-        console.log(`Displaying locked explanation for Question ${this.currentQuestionIndex}`);
+      this.showExplanationText();
+      console.log(`Displaying locked explanation for Question ${this.currentQuestionIndex}`);
     } else {
-        this.showQuestionText();
-        console.log(`Displaying locked question text for Question ${this.currentQuestionIndex}`);
+      this.showQuestionText();
+      console.log(`Displaying locked question text for Question ${this.currentQuestionIndex}`);
     }
   }
 
