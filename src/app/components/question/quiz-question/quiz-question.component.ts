@@ -314,7 +314,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     const isHidden = document.hidden;
 
@@ -338,7 +338,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Handle any additional restoration logic
       this.ngZone.run(() => this.handleQuizRestore());
     }
+  } */
+  /* @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (!document.hidden) {
+          // When visibility is restored, re-apply the display based on `isAnswered`
+          this.renderDisplay();
+          console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
+      }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (!document.hidden) {
+          // If the question is answered, ensure explanation text displays on visibility change
+          if (this.isAnswered) {
+              this.showExplanationText();
+              console.log(`Ensuring explanation text is displayed after returning for answered question`);
+          } else {
+              this.renderDisplay();  // Display question or explanation based on current state
+              console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
+          }
+      }
   }
+
   
   private saveQuizState(): void {
     try {
