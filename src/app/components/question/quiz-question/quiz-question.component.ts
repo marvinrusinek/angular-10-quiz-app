@@ -3159,7 +3159,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.handleExplanationError(questionIndex);
     }
   } */
-  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+  /* public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
   
     // Clear any previous explanation state
@@ -3209,6 +3209,58 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error(`Error fetching explanation for question ${questionIndex}:`, error);
       this.handleExplanationError(questionIndex);
+    }
+  } */
+  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+    console.log(`Fetching explanation for question ${questionIndex}`);
+    this.resetExplanationText();
+
+    try {
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+            console.warn('Questions array is not loaded or empty. Loading questions...');
+            const loadedSuccessfully = await this.loadQuizData();
+
+            if (!loadedSuccessfully || !this.questionsArray || this.questionsArray.length === 0) {
+                console.error('Failed to load questions. Aborting explanation fetch.');
+                return;
+            }
+        }
+
+        if (!this.questionsArray[questionIndex]) {
+            console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
+            return;
+        }
+
+        await this.ensureQuestionIsFullyLoaded(questionIndex);
+
+        const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+            debounceTime(100)
+        );
+
+        explanation$.subscribe({
+            next: (explanationText: string) => {
+                if (this.isQuestionAnswered(questionIndex)) {
+                    this.currentQuestionIndex = questionIndex;
+
+                    if (this.currentQuestionIndex === questionIndex) {
+                        this.explanationToDisplay = explanationText || 'No explanation available';
+                        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+                        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+
+                        // Enable the Next button automatically when explanation is displayed
+                        this.selectedOptionService.setAnswered(true);
+                        console.log(`Next button enabled for question ${questionIndex}`);
+                    }
+                }
+            },
+            error: (error) => {
+                console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+                this.handleExplanationError(questionIndex);
+            }
+        });
+    } catch (error) {
+        console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+        this.handleExplanationError(questionIndex);
     }
   }
   
