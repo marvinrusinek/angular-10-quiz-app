@@ -347,7 +347,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
       }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
           // If the question is answered, ensure explanation text displays on visibility change
@@ -359,7 +359,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
           }
       }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (!document.hidden) {
+          if (this.isAnswered) {
+              this.showExplanationText();
+              console.log(`Restoring explanation text on visibility change for answered question`);
+          } else {
+              this.showQuestionText();
+              console.log(`Restoring question text on visibility change for unanswered question`);
+          }
+      }
   }
+
 
   
   private saveQuizState(): void {
