@@ -591,7 +591,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('logEvent called with:', event);
   }
 
-  /* onOptionSelected(
+  onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): void {
@@ -632,29 +632,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.cdRef.detectChanges();
     this.refreshTooltip();
-  } */
-  onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): void {
-    if (!isUserAction) {
-      return;
-    }
-  
-    const { option, checked } = event;
-  
-    // Update selected options based on the question type
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.updateMultipleAnswerSelection(option, checked);
-    }
-  
-    const isOptionSelected = this.isAnyOptionSelected();
-    this.selectedOptionService.setOptionSelected(isOptionSelected);
-    this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);  // Ensure this updates
-  
-    this.evaluateNextButtonState();
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
