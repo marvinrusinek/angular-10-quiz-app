@@ -328,6 +328,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Restore the state
       this.restoreQuizState();
       this.selectedOptionService.restoreState();
+      this.finalizeDisplayLock();
 
       // Update display mode based on the restored displayExplanation
       this.currentMode = this.displayExplanation ? 'explanation' : 'question';
@@ -336,6 +337,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Handle any additional restoration logic
       this.ngZone.run(() => this.handleQuizRestore());
     }
+  }
+
+  // Final lock on display mode to prevent display switching
+  private finalizeDisplayLock(): void {
+    this.ngZone.run(() => {
+        if (this.displayExplanation) {
+            this.showExplanationText();
+        } else {
+            this.showQuestionText();
+        }
+    });
   }
   
   private saveQuizState(): void {
