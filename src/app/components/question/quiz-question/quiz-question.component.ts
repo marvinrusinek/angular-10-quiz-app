@@ -333,8 +333,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     }
   } */
-  @HostListener('window:visibilitychange', [])
-async onVisibilityChange(): Promise<void> {
+  /* @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
     const isHidden = document.hidden;
   
     if (isHidden) {
@@ -363,8 +363,41 @@ async onVisibilityChange(): Promise<void> {
             console.log("Question and options are already loaded, skipping reload.");
         }
     }
-  }
+  } */
+  @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
+    const isHidden = document.hidden;
 
+    if (isHidden) {
+      // Save state only if the current question is initialized
+      if (this.currentQuestion) {
+        this.saveQuizState();
+      } else {
+        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
+      }
+    } else {
+      // Restore only the quiz data without changing display mode
+      await this.restoreQuizState();
+      this.ngZone.run(() => this.handleQuizRestore());
+
+      // Ensure the question text and options are current
+      const questionLoaded = await this.loadCurrentQuestion();
+      if (!questionLoaded) {
+        console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
+        return;
+      }
+
+      // Fetch and set explanation text if the question is marked as answered
+      if (this.isQuestionAnswered(this.currentQuestionIndex)) {
+        await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+        console.log(`Explanation text refreshed for question ${this.currentQuestionIndex}`);
+      } else {
+        // If unanswered, display the question text
+        this.showQuestionText();
+        console.log(`Question text reloaded for question ${this.currentQuestionIndex}`);
+      }
+    }
+  }
 
   // Helper method for validating question structure
   private isValidQuestion(question: any): boolean {
