@@ -443,7 +443,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedQuestion = sessionStorage.getItem('currentQuestion');
     const storedOptions = sessionStorage.getItem('optionsToDisplay');
@@ -517,7 +517,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
         this.loadQuestion();
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    // Check if no stored state is found (new session)
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state found – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore current question index and answered state if available
+    if (storedIndex) {
+        this.currentQuestionIndex = +storedIndex;
+    }
+    if (storedIsAnswered) {
+        this.isAnswered = storedIsAnswered === 'true';
+    }
+    
+    // Set displayExplanation to reflect whether the question was answered
+    this.displayExplanation = this.isAnswered;
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Set display mode based on the restored state and reload question content
+    this.setDisplayMode(this.isAnswered);
+    this.loadCurrentQuestion();  // Reloads current question or explanation as needed
   }
+
 
 
   // Handle quiz restoration
@@ -1229,11 +1258,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private async loadCurrentQuestion(): Promise<boolean> {
-    // Ensure questions are loaded
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return false;
 
-    // Check if the current question index is valid
     if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
         try {
             const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
@@ -1241,8 +1268,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 this.currentQuestion = questionData;
                 this.optionsToDisplay = questionData.options;
 
-                // Display explanation if the question has been answered
-                if (this.isAnswered && this.displayExplanation) {
+                // Check if the current question is answered and display appropriate text
+                if (this.displayExplanation) {
                     this.showExplanationText();
                     console.log(`Displaying explanation for Question ${this.currentQuestionIndex}`);
                 } else {
@@ -1264,6 +1291,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return false;
     }
   }
+
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
