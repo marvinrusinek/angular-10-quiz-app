@@ -363,7 +363,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     }
   } */
-  /* @HostListener('window:visibilitychange', [])
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
           if (this.isAnswered) {
@@ -374,25 +374,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               console.log(`Question text displayed on visibility restoration for unanswered question.`);
           }
       }
-  } */
-  @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-      if (!document.hidden) {
-          const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-          if (displayMode === 'explanation') {
-              this.showExplanationText();
-              console.log(`Explanation text re-displayed from sessionStorage for question ${this.currentQuestionIndex}`);
-          } else {
-              this.showQuestionText();
-              console.log(`Question text re-displayed from sessionStorage for question ${this.currentQuestionIndex}`);
-          }
-      }
   }
-
-
-
-
-
 
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
