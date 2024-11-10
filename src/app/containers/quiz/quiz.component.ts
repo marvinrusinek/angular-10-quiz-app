@@ -469,7 +469,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
   }
 
-  /* private initializeNextButtonState(): void {
+  private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(
         distinctUntilChanged(),
@@ -485,22 +485,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         distinctUntilChanged(),
         tap(isIdle => console.log('isNavigating:', isIdle))
       )
-    ]).pipe(
-      map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
-      distinctUntilChanged(),
-      shareReplay(1)
-    );
-
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('Next button state set to:', isEnabled);
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
-  } */
-  private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
-      this.quizStateService.isLoading$.pipe(map(loading => !loading), distinctUntilChanged()),
-      this.quizStateService.isNavigating$.pipe(map(navigating => !navigating), distinctUntilChanged())
     ]).pipe(
       map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
       distinctUntilChanged(),
