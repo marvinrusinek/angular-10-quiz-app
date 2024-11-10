@@ -364,7 +364,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     const isHidden = document.hidden;
 
@@ -397,7 +397,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text reloaded for question ${this.currentQuestionIndex}`);
       }
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
+    const isHidden = document.hidden;
+
+    if (isHidden) {
+      // Save state only if the current question is initialized
+      if (this.currentQuestion) {
+        this.saveQuizState();
+      } else {
+        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
+      }
+    } else {
+      // Restore the quiz state without changing the UI
+      await this.restoreQuizState();
+      this.ngZone.run(() => this.handleQuizRestore());
+
+      // No need to reload the question or explanation
+      // The UI state should already reflect the restored state
+    }
   }
+
 
   // Helper method for validating question structure
   private isValidQuestion(question: any): boolean {
