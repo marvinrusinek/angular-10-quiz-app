@@ -608,8 +608,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     const isOptionSelected = this.isAnyOptionSelected();
-    this.quizStateService.setAnswerSelected(isOptionSelected);  // Set answer state and lock display
     this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);
+    this.quizStateService.setAnswerSelected(isOptionSelected);  // Set answer state and lock display
   
     console.log('Option selected, isOptionSelected:', isOptionSelected);
 
