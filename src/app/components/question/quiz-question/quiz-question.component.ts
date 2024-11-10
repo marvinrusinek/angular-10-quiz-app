@@ -707,7 +707,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.isRestoringState = false;  // End restoration
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     this.isRestoringState = true;  // Indicate restoration is in progress
 
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
@@ -732,7 +732,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.updateDisplayBasedOnState();
       this.isRestoringState = false;  // Reset flag after final display is set
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();  // Load initial question
+        return;
+    }
+
+    // Restore current question index and answered state from storage
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+    this.displayExplanation = this.isAnswered;  // Set displayExplanation based on isAnswered
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Load question data, then update display based on final state
+    this.loadCurrentQuestion().then(() => {
+      this.setFinalDisplay();  // Determine final display once data is fully loaded
+    });
   }
+
+  private setFinalDisplay(): void {
+    // Ensure displayExplanation controls the final display content
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Final display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Final display: question text for Question ${this.currentQuestionIndex}`);
+    }
+  }
+
+
 
   private updateDisplayBasedOnState(): void {
     // Decide final display based on `displayExplanation` and `isAnswered`
