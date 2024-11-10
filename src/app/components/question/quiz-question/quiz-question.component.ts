@@ -377,7 +377,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Restore Quiz State with Stabilizing Logic
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -397,6 +397,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Load question data, then directly enforce the final display
     this.loadCurrentQuestion().then(() => {
       this.updateFinalDisplay();  // Render the final content based on isAnswered
+    });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore question index and answered state
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Lock `displayExplanation` based on `isAnswered`
+    this.displayExplanation = this.isAnswered;
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Load question data, then enforce the locked display
+    this.loadCurrentQuestion().then(() => {
+      this.applyFinalDisplay();  // Enforce the correct display based on `isAnswered`
     });
   }
 
