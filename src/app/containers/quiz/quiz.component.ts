@@ -514,7 +514,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private evaluateNextButtonState(): boolean {
-    this.resetOptionState(); // Reset before checking next button state
+    // this.resetOptionState(); // Reset before checking next button state
 
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     const isLoading = !this.quizStateService.isLoadingSubject.value;

@@ -33,7 +33,7 @@ export class SelectedOptionService {
   }
 
   get isNextButtonEnabled$(): Observable<boolean> {
-      return this.isNextButtonEnabledSubject.asObservable();
+    return this.isNextButtonEnabledSubject.asObservable();
   }
 
   constructor(
@@ -45,6 +45,19 @@ export class SelectedOptionService {
   /* get currentSelectedState(): boolean {
     return this.isOptionSelectedSubject.getValue();
   } */
+
+  saveState(): void {
+    localStorage.setItem('isAnswered', JSON.stringify(this.isAnsweredSubject.value));
+  }
+
+  restoreState(): void {
+    const savedIsAnswered = localStorage.getItem('isAnswered');
+    if (savedIsAnswered !== null) {
+      const isAnswered = JSON.parse(savedIsAnswered);
+      console.log('Restoring isAnswered:', isAnswered);
+      this.isAnsweredSubject.next(isAnswered);
+    }
+  }
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
