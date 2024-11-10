@@ -2011,29 +2011,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.setAnsweredState(true);
   }
 
-  /* private async finalizeOptionSelection(option: SelectedOption, index: number, questionState: QuestionState): Promise<void> {
-    const currentQuestion = await this.fetchAndProcessCurrentQuestion();
-    if (!currentQuestion) {
-      console.error('Could not retrieve the current question.');
-      return;
-    }
-    this.selectOption(currentQuestion, option, index);
-
-    this.updateSelectionMessage(questionState.isAnswered);
-    await this.updateSelectionMessageBasedOnCurrentState(questionState.isAnswered);
-
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      questionState.isAnswered
-    );
-
-    this.selectionMessageService.updateSelectionMessage(newMessage);
-
-    this.processCurrentQuestionState(currentQuestion, option, index);
-
-    await this.handleCorrectnessAndTimer();
-  } */
   private async finalizeOptionSelection(
     option: SelectedOption,
     index: number,
