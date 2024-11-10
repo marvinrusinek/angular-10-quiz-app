@@ -33,6 +33,7 @@ export class QuizStateService {
   private quizStates: { [quizId: string]: Map<number, QuestionState> } = {};
 
   private quizQuestionCreated = false;
+  public displayExplanationLocked = false;
 
   loadingSubject = new BehaviorSubject<boolean>(false);
   loading$: Observable<boolean> = this.loadingSubject.asObservable();
@@ -285,8 +286,17 @@ export class QuizStateService {
     this.answeredSubject.next(isAnswered);
   }
 
-  setAnswerSelected(isSelected: boolean): void {
-    this.answeredSubject.next(isSelected);
+  // Method to set isAnswered and lock displayExplanation
+  setAnswerSelected(isAnswered: boolean): void {
+    this.answeredSubject.next(isAnswered);
+
+    if (isAnswered && !this.displayExplanationLocked) {
+      this.displayExplanationLocked = true;
+    }
+  }
+
+  resetDisplayLock(): void {
+    this.displayExplanationLocked = false; // Reset for new questions
   }
 
   startLoading(): void {
