@@ -320,12 +320,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Save the current state
       if (this.currentQuestion) {
         this.saveQuizState();
+        this.selectedOptionService.saveState();
       } else {
         console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
       }
     } else {
       // Restore the state
       this.restoreQuizState();
+      this.selectedOptionService.restoreState();
 
       // Update display mode based on the restored displayExplanation
       this.currentMode = this.displayExplanation ? 'explanation' : 'question';
