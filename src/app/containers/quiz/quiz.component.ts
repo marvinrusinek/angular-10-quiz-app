@@ -616,7 +616,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.evaluateNextButtonState();
   }
   
-  
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
       this.selectedOptions.push(option);
