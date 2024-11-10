@@ -387,7 +387,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error saving quiz state:', error);
     }
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
         // Save current question index
         if (this.currentQuestionIndex !== undefined) {
@@ -427,6 +427,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
         console.error('Error saving quiz state:', error);
     }
+  } */
+  private saveQuizState(): void {
+    sessionStorage.setItem('currentQuestionIndex', String(this.currentQuestionIndex));
+    sessionStorage.setItem('isAnswered', String(this.isAnswered));
+    sessionStorage.setItem('displayMode', this.isAnswered ? 'explanation' : 'question');
+    console.log('Quiz state saved with display mode:', sessionStorage.getItem('displayMode'));
   }
 
   
@@ -846,7 +852,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Question text restored for question ${this.currentQuestionIndex}`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const displayMode = sessionStorage.getItem('displayMode');
@@ -865,7 +871,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Apply the display
     this.renderDisplay();
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+
+    // Call renderDisplay to apply the correct display mode from sessionStorage
+    this.renderDisplay();
+    console.log(`State restored and display mode applied for question ${this.currentQuestionIndex}`);
   }
+
 
   /* private renderDisplay(): void {
     if (this.isAnswered && !this.displayLocked) {
