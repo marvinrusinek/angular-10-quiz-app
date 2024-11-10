@@ -497,6 +497,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (storedIsAnswered && this.isAnswered === undefined) {
           this.isAnswered = storedIsAnswered === 'true';
           this.selectedOptionService.setAnswered(this.isAnswered);
+          this.displayExplanation = this.isAnswered; 
+        } else {
+          this.displayExplanation = false;  // Default to question text if no state found
         }
         console.log(`Restored isAnswered state: ${this.isAnswered}`);
 
