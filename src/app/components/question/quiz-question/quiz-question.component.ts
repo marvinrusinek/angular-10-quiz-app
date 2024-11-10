@@ -1107,7 +1107,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
       console.log('Waiting for ongoing loading process...');
