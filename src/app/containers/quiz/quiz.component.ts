@@ -623,6 +623,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       this.updateMultipleAnswerSelection(option, checked);
     }
+
+    this.isAnswered = true;
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, "explanation");
   
     const isOptionSelected = this.isAnyOptionSelected();
     this.isAnswered = isOptionSelected;
