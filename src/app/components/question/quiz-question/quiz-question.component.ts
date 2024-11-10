@@ -377,16 +377,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
-          // Show explanation text if answered, otherwise show question text
+          // Check `isAnswered` and set display directly without toggling
           if (this.isAnswered) {
               this.showExplanationText();
-              console.log(`Visibility restored - showing explanation for answered question`);
+              console.log(`Displaying explanation text on visibility restoration for answered question`);
           } else {
               this.showQuestionText();
-              console.log(`Visibility restored - showing question text for unanswered question`);
+              console.log(`Displaying question text on visibility restoration for unanswered question`);
           }
       }
-  }
+}
+
   
   private saveQuizState(): void {
     try {
@@ -783,7 +784,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Restored: question text for unanswered question`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -799,7 +800,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = storedIsAnswered === 'true';
 
     console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+    const displayModeLocked = sessionStorage.getItem('displayModeLocked');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with the default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    this.applyDisplayState();
   }
+
+  private applyDisplayState(): void {
+    if (this.isAnswered) {
+        this.showExplanationText();
+        console.log(`One-time application: displaying explanation text for answered question.`);
+    } else {
+        this.showQuestionText();
+        console.log(`One-time application: displaying question text for unanswered question.`);
+    }
+  }
+
 
 
 
