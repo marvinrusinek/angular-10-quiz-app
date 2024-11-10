@@ -383,9 +383,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Default to the first question if there is no stored state
     if (!storedIndex && !storedIsAnswered) {
-        console.info('No saved state – starting with the first question.');
-        this.loadQuestion();
-        return;
+      console.info('No saved state – starting with the first question.');
+      this.loadQuestion();
+      return;
     }
 
     // Restore only the necessary state variables
@@ -398,28 +398,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
       this.updateFinalDisplay();  // Render the final content based on isAnswered
     });
-  }
-
-  private updateFinalDisplay(): void {
-    if (this.displayExplanation) {
-      this.showExplanationText();
-      console.log(`Displaying locked explanation for Question ${this.currentQuestionIndex}`);
-    } else {
-      this.showQuestionText();
-      console.log(`Displaying locked question text for Question ${this.currentQuestionIndex}`);
-    }
-  }
-
-
-  private setFinalDisplay(): void {
-    // Ensure displayExplanation controls the final display content
-    if (this.displayExplanation) {
-      this.showExplanationText();
-      console.log(`Final display: explanation for Question ${this.currentQuestionIndex}`);
-    } else {
-      this.showQuestionText();
-      console.log(`Final display: question text for Question ${this.currentQuestionIndex}`);
-    }
   }
 
   // Handle quiz restoration
@@ -455,16 +433,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error in handleQuizRestore:', error);
     }
   }
-  
 
-  private setDisplayMode(isAnswered: boolean): void {
-    this.displayMode = isAnswered ? 'explanation' : 'question';
-    if (this.displayMode === 'explanation') {
+  private updateFinalDisplay(): void {
+    if (this.displayExplanation) {
       this.showExplanationText();
+      console.log(`Displaying locked explanation for Question ${this.currentQuestionIndex}`);
     } else {
       this.showQuestionText();
+      console.log(`Displaying locked question text for Question ${this.currentQuestionIndex}`);
     }
-    console.log(`Display mode set to: ${this.displayMode}`);
   }
   
   // Method to initialize `displayMode$` and control the display reactively
@@ -476,7 +453,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Reactive display mode update to: ${mode}`);
         if (!this.isRestoringState) { // Skip during restoration
           this.displayMode$.next(mode);
-          this.applyDisplayModeDirectly(mode);
+          this.applyDisplayMode(mode);
         }
       }),
       catchError(error => {
@@ -487,7 +464,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Helper function to enforce the display mode directly
-  private applyDisplayModeDirectly(mode: 'question' | 'explanation'): void {
+  private applyDisplayMode(mode: 'question' | 'explanation'): void {
     if (mode === 'question') {
       this.showQuestionText();
       console.log('Display mode set to question');
