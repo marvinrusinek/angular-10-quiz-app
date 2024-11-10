@@ -330,10 +330,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update display mode based on the restored displayExplanation
       this.currentMode = this.displayExplanation ? 'explanation' : 'question';
       this.displayMode$.next(this.currentMode);
-
-      // Ensure Angular updates the view
-      this.cdRef.detectChanges();
-
+      
       // Handle any additional restoration logic
       this.ngZone.run(() => this.handleQuizRestore());
     }
