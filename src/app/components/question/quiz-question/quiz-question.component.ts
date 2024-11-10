@@ -493,8 +493,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
         }
 
-        // Restore isAnswered state
-        this.isAnswered = storedIsAnswered === 'true';
+        // Only restore if isAnswered hasn't been set by user interaction
+        if (storedIsAnswered && this.isAnswered === undefined) {
+          this.isAnswered = storedIsAnswered === 'true';
+          this.selectedOptionService.setAnswered(this.isAnswered);
+        }
         console.log(`Restored isAnswered state: ${this.isAnswered}`);
 
         // Set the display mode based on the restored state
