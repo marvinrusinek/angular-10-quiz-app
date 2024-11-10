@@ -351,7 +351,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
       if (this.explanationDisplayLocked) {
@@ -362,7 +362,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Persisted question text on visibility restoration`);
       }
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      if (!document.hidden) {
+          if (this.isAnswered) {
+              this.showExplanationText(); // Direct display of explanation text without further checks
+              console.log(`Explanation text displayed on visibility restoration for answered question.`);
+          } else {
+              this.showQuestionText();
+              console.log(`Question text displayed on visibility restoration for unanswered question.`);
+          }
+      }
   }
+
 
 
 
@@ -819,7 +832,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
     const displayModeLocked = sessionStorage.getItem('displayModeLocked');
@@ -843,6 +856,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       this.showQuestionText();
       console.log(`Question text restored for unanswered question`);
+    }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+
+    if (this.isAnswered) {
+        this.showExplanationText(); // Direct explanation display if question is answered
+        console.log(`Explanation text restored for answered question ${this.currentQuestionIndex}.`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text restored for unanswered question ${this.currentQuestionIndex}.`);
     }
   }
 
