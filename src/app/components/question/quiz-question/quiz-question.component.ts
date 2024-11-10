@@ -546,7 +546,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.setDisplayMode(this.isAnswered);
     this.loadCurrentQuestion();  // Reloads current question or explanation as needed
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -569,7 +569,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Set display mode based on the restored state and reload the correct question content
     this.setDisplayMode(this.isAnswered);
     this.loadCurrentQuestion();  // Loads current question or explanation as needed
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    // Handle new session case with no stored data
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state found – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore question index and answered state if they are available
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set displayExplanation to only show explanation if the current question is answered
+    this.displayExplanation = this.isAnswered;
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Set display mode and force a refresh of the correct question display
+    this.setDisplayMode(this.isAnswered);
+    this.forceDisplayRefresh(); // Force display based on final state
   }
+
+  private forceDisplayRefresh(): void {
+    // Debounce to avoid quick toggling
+    setTimeout(() => {
+        if (this.displayExplanation) {
+            this.showExplanationText();
+            console.log(`Force displaying explanation for Question ${this.currentQuestionIndex}`);
+        } else {
+            this.showQuestionText();
+            console.log(`Force displaying question text for Question ${this.currentQuestionIndex}`);
+        }
+    }, 50); // Adjust delay as needed
+  }
+
 
 
 
