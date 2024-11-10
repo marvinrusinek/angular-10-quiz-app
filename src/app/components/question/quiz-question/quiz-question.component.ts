@@ -447,7 +447,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.setLockedDisplay();  // Force display without further re-evaluation
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -469,6 +469,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.renderFinalDisplay();  // Lock the display content
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore state based on saved data
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Check if explanation should be displayed and respect the display lock
+    if (this.isAnswered && !this.quizStateService.displayExplanationLocked) {
+        this.displayExplanation = true;
+        this.quizStateService.displayExplanationLocked = true;  // Lock to prevent toggling
+    } else if (!this.isAnswered) {
+        this.displayExplanation = false;
+    }
+
+    console.log(`Restored state - displayExplanation: ${this.displayExplanation}, displayExplanationLocked: ${this.quizStateService.displayExplanationLocked}`);
+    this.loadCurrentQuestion().then(() => {
+        this.applyFinalDisplayState();
+    });
+  }
+
+  private applyFinalDisplayState(): void {
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Final display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Final display: question text for Question ${this.currentQuestionIndex}`);
+    }
   }
 
   private renderFinalDisplay(): void {
