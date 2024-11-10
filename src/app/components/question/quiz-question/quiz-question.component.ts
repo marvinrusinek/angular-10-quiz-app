@@ -419,7 +419,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Load question data, then enforce the locked display
     this.loadCurrentQuestion().then(() => {
-      this.applyFinalDisplay();  // Enforce the correct display based on `isAnswered`
+      this.updateFinalDisplay();  // Enforce the correct display based on `isAnswered`
     });
   }
 
