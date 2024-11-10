@@ -471,7 +471,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.renderFinalDisplay();  // Lock the display content
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -497,6 +497,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.applyFinalDisplayState();
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore state from saved data
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set `displayExplanation` only if not already locked
+    if (this.isAnswered && !this.displayExplanationLocked) {
+        this.displayExplanation = true;
+        this.displayExplanationLocked = true;  // Lock display state permanently
+    } else if (!this.isAnswered) {
+        this.displayExplanation = false;
+    }
+
+    console.log(`Restored state - displayExplanation: ${this.displayExplanation}, displayExplanationLocked: ${this.displayExplanationLocked}`);
+    
+    // Load question data and enforce display based on locked state
+    this.loadCurrentQuestion().then(() => {
+        this.applyLockedDisplay();
+    });
+  }
+
+  private applyLockedDisplay(): void {
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Final locked display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Final locked display: question text for Question ${this.currentQuestionIndex}`);
+    }
   }
 
   private applyFinalDisplayState(): void {
