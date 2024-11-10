@@ -429,28 +429,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
+    // Default to the first question if there is no stored state
     if (!storedIndex && !storedIsAnswered) {
-        console.info('No saved state – starting with default question.');
+        console.info('No saved state – starting with the first question.');
         this.loadQuestion();
         return;
     }
 
-    // Restore question index and answered state from storage
+    // Restore only the necessary state variables
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
     this.isAnswered = storedIsAnswered === 'true';
 
-    // Set `displayExplanation` based on the initial restored answer state and lock it
-    this.displayExplanation = this.isAnswered;
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
 
-    console.log(`Locked state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
-
-    // Load the current question data, then enforce display based on locked state
+    // Load question data, then directly enforce the final display
     this.loadCurrentQuestion().then(() => {
-        this.enforceLockedDisplay();  // Display the final content
+        this.directlySetFinalDisplay();  // Render the final content based on `isAnswered`
     });
   }
 
-  private enforceLockedDisplay(): void {
+  private directlySetFinalDisplay(): void {
     if (this.displayExplanation) {
         this.showExplanationText();
         console.log(`Displaying locked explanation for Question ${this.currentQuestionIndex}`);
