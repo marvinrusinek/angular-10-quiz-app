@@ -601,7 +601,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.renderLockedDisplay();
      });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -628,6 +628,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.enforceLockedDisplay();
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with the default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set displayExplanation using the one-time lock
+    this.displayExplanationLock(this.isAnswered);
+    console.log(`Restored state - displayExplanationLocked: ${this.displayExplanationLocked}`);
+    
+    // Load question data to apply display based on locked state
+    this.loadCurrentQuestion();
+  }
+
+
+  private displayExplanationLock(isAnswered: boolean): void {
+      if (!this.displayExplanationLocked) {
+          this.displayExplanation = isAnswered;
+          this.displayExplanationLocked = true;  // Permanently lock displayExplanation
+          this.applyLockedDisplay();  // Render content once based on the locked state
+      }
   }
 
   private enforceLockedDisplay(): void {
