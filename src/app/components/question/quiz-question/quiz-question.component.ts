@@ -861,16 +861,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const displayMode = sessionStorage.getItem(`displayMode_${storedIndex}`) || 'question';
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered;
+    // this.isAnswered = storedIsAnswered;
 
-    if (this.isAnswered) {
-        this.showExplanationText(); // Direct explanation display if question is answered
-        console.log(`Explanation text restored for answered question ${this.currentQuestionIndex}.`);
+    if (displayMode === 'explanation') {
+      this.showExplanationText();
+      console.log(`Explanation text restored from sessionStorage for question ${this.currentQuestionIndex}`);
     } else {
-        this.showQuestionText();
-        console.log(`Question text restored for unanswered question ${this.currentQuestionIndex}.`);
+      this.showQuestionText();
+      console.log(`Question text restored for question ${this.currentQuestionIndex}`);
     }
   }
 
