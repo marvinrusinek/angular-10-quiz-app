@@ -85,7 +85,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionTextLoaded = false;
   private isLoadingInProgress = false;
   savedDisplayExplanation = false;
-  private displayLocked: boolean = false;
+  private displayLocked = false;
+  private displayExplanationLocked = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -130,7 +131,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   shouldDisplayAnswers = false;
   feedbackText = '';
   displayExplanation = false;
-  private displayExplanationLocked = false;
+  private explanationDisplayLocked = false;
+  private isExplanationLocked = false;
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
@@ -341,14 +343,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ngZone.run(() => this.handleQuizRestore());
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
       // When visibility is restored, re-apply the display based on `isAnswered`
       this.renderDisplay();
       console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (!document.hidden) {
+      if (this.explanationDisplayLocked) {
+        this.showExplanationText();
+        console.log(`Persisted explanation text on visibility restoration`);
+      } else {
+        this.showQuestionText();
+        console.log(`Persisted question text on visibility restoration`);
+      }
+    }
   }
+
+
+
+
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       if (!document.hidden) {
@@ -814,8 +832,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
     this.isAnswered = storedIsAnswered === 'true';
+    this.explanationDisplayLocked = this.isAnswered;
 
-    this.applyDisplayState();
+    // this.applyDisplayState();
+    if (this.explanationDisplayLocked) {
+      this.showExplanationText();
+      console.log(`Explanation text restored for answered question`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text restored for unanswered question`);
+    }
   }
 
   private applyDisplayState(): void {
@@ -829,14 +855,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private renderDisplay(): void {
-    if (this.isAnswered) {
+    if (this.isAnswered && !this.displayLocked) {
       this.showExplanationText();
-      console.log(`Displaying explanation based on current answer state`);
-    } else {
+      this.displayLocked = true; // Lock the display to explanation text
+      console.log(`Explanation text locked for display`);
+    } else if (!this.isAnswered) {
       this.showQuestionText();
-      console.log(`Displaying question text based on current answer state`);
+      this.displayLocked = false; // Unlock if the question is unanswered
+      console.log(`Question text displayed for unanswered question`);
     }
-    this.cdRef.detectChanges();
   }
 
   private displayExplanationLock(isAnswered: boolean): void {
