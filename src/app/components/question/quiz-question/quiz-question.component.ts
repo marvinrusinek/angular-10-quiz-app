@@ -518,7 +518,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.loadQuestion();
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -545,7 +545,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Set display mode based on the restored state and reload question content
     this.setDisplayMode(this.isAnswered);
     this.loadCurrentQuestion();  // Reloads current question or explanation as needed
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    // Check for a new session without stored state
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state found – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore the current question index and answered state if available
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Lock displayExplanation to match only the current question index
+    this.displayExplanation = this.isAnswered;
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Set display mode based on the restored state and reload the correct question content
+    this.setDisplayMode(this.isAnswered);
+    this.loadCurrentQuestion();  // Loads current question or explanation as needed
   }
+
 
 
 
@@ -1257,7 +1282,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return false;
     }
   } */
-  private async loadCurrentQuestion(): Promise<boolean> {
+  /* private async loadCurrentQuestion(): Promise<boolean> {
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return false;
 
@@ -1290,7 +1315,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error(`Invalid question index: ${this.currentQuestionIndex}`);
         return false;
     }
+  } */
+  private async loadCurrentQuestion(): Promise<boolean> {
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) return false;
+
+    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
+        try {
+            const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+            if (questionData) {
+                this.currentQuestion = questionData;
+                this.optionsToDisplay = questionData.options;
+
+                // Apply explanation only to the current question based on displayExplanation
+                if (this.displayExplanation && this.currentQuestionIndex === +this.currentQuestionIndex) {
+                    this.showExplanationText();
+                    console.log(`Displaying explanation for Question ${this.currentQuestionIndex}`);
+                } else {
+                    this.showQuestionText();
+                    console.log(`Displaying question text for Question ${this.currentQuestionIndex}`);
+                }
+
+                return true;
+            } else {
+                console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error fetching question data:', error);
+            return false;
+        }
+    } else {
+        console.error(`Invalid question index: ${this.currentQuestionIndex}`);
+        return false;
+    }
   }
+
 
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
