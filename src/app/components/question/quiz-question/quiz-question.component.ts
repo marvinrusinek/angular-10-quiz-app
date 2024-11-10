@@ -594,7 +594,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.setDisplayMode(this.isAnswered);
     this.forceDisplayRefresh(); // Force display based on final state
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -613,6 +613,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
 
     // Call to load current question display based on restored state
+    this.loadCurrentQuestion();
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state found – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore the question index and answered state
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+    this.displayExplanation = this.isAnswered;
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}`);
+
+    // Immediately load the correct question content based on restored state
     this.loadCurrentQuestion();
   }
 
@@ -1410,7 +1430,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return false;
     }
   } */
-  private async loadCurrentQuestion(): Promise<boolean> {
+  /* private async loadCurrentQuestion(): Promise<boolean> {
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return false;
 
@@ -1443,7 +1463,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error(`Invalid question index: ${this.currentQuestionIndex}`);
         return false;
     }
+  } */
+  private async loadCurrentQuestion(): Promise<boolean> {
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) return false;
+
+    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
+        try {
+            const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+            if (questionData) {
+                this.currentQuestion = questionData;
+                this.optionsToDisplay = questionData.options;
+
+                // Use a single conditional to enforce display
+                if (this.displayExplanation) {
+                    this.showExplanationText();
+                    console.log(`Displaying explanation for Question ${this.currentQuestionIndex}`);
+                } else {
+                    this.showQuestionText();
+                    console.log(`Displaying question text for Question ${this.currentQuestionIndex}`);
+                }
+
+                return true;
+            } else {
+                console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error fetching question data:', error);
+            return false;
+        }
+    } else {
+        console.error(`Invalid question index: ${this.currentQuestionIndex}`);
+        return false;
+    }
   }
+
 
 
 
