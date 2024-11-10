@@ -736,7 +736,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log(`State restored - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}`);
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -760,7 +760,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showQuestionText();
         console.log(`Locked display to question text for unanswered question`);
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+    const storedDisplayExplanation = sessionStorage.getItem('displayExplanation') === 'true';
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with the default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    if (storedDisplayExplanation) {
+        this.showExplanationText();
+        console.log(`Restored: explanation text for answered question`);
+    } else {
+        this.showQuestionText();
+        console.log(`Restored: question text for unanswered question`);
+    }
   }
+
 
   private renderDisplay(): void {
     if (this.isAnswered) {
