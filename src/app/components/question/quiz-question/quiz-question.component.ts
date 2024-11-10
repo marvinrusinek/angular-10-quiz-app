@@ -130,6 +130,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   shouldDisplayAnswers = false;
   feedbackText = '';
   displayExplanation = false;
+  private displayExplanationLocked = false;
   private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
