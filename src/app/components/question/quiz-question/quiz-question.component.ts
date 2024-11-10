@@ -313,121 +313,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   // Listen for the visibility change event
   /* @HostListener('window:visibilitychange', [])
-  async onVisibilityChange(): Promise<void> {
-    const isHidden = document.hidden;
-    if (isHidden) {
-      // Call saveQuizState only if currentQuestion is initialized
-      if (this.currentQuestion) {
-        this.saveQuizState();
-      } else {
-        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
-      }
-    } else {
-      // Restore only the quiz data without changing display mode
-      await this.restoreQuizState();
-      this.ngZone.run(() => this.handleQuizRestore());
-
-      // Ensure the question text and options are current
-      const questionLoaded = await this.loadCurrentQuestion();
-      if (!questionLoaded) {
-        console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
-      }
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  async onVisibilityChange(): Promise<void> {
-    const isHidden = document.hidden;
-  
-    if (isHidden) {
-        // Save quiz state only if the current question is initialized
-        if (this.currentQuestion) {
-            this.saveQuizState();
-        } else {
-            console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
-        }
-    } else {
-        // Restore the quiz state
-        await this.restoreQuizState();
-        
-        // Run change detection for UI updates
-        this.ngZone.run(() => this.handleQuizRestore());
-
-        // Check if the question has loaded properly before attempting to load it again
-        if (!this.isQuizLoaded || !this.currentQuestion || !this.optionsToDisplay) {
-            console.log("Attempting to reload question and options...");
-            const questionLoaded = await this.loadCurrentQuestion();
-
-            if (!questionLoaded) {
-                console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
-            }
-        } else {
-            console.log("Question and options are already loaded, skipping reload.");
-        }
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  async onVisibilityChange(): Promise<void> {
-    const isHidden = document.hidden;
-
-    if (isHidden) {
-      // Save state only if the current question is initialized
-      if (this.currentQuestion) {
-        this.saveQuizState();
-      } else {
-        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
-      }
-    } else {
-      // Restore only the quiz data without changing display mode
-      await this.restoreQuizState();
-      this.ngZone.run(() => this.handleQuizRestore());
-
-      // Ensure the question text and options are current
-      const questionLoaded = await this.loadCurrentQuestion();
-      if (!questionLoaded) {
-        console.error(`Failed to load question at index: ${this.currentQuestionIndex}`);
-        return;
-      }
-
-      // Fetch and set explanation text if the question is marked as answered
-      if (this.isQuestionAnswered(this.currentQuestionIndex)) {
-        await this.fetchAndSetExplanationText(this.currentQuestionIndex);
-        console.log(`Explanation text refreshed for question ${this.currentQuestionIndex}`);
-      } else {
-        // If unanswered, display the question text
-        this.showQuestionText();
-        console.log(`Question text reloaded for question ${this.currentQuestionIndex}`);
-      }
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  async onVisibilityChange(): Promise<void> {
-    const isHidden = document.hidden;
-
-    if (isHidden) {
-      // Save state only if the current question is initialized
-      if (this.currentQuestion) {
-        this.saveQuizState();
-      } else {
-        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
-      }
-    } else {
-      // Restore the quiz state without changing the UI
-      await this.restoreQuizState();
-      // Force displayExplanation to true if it was true before
-      if (this.displayExplanation) {
-        this.displayExplanation = true;
-      }
-      // this.ngZone.run(() => this.handleQuizRestore());
-      // this.cdRef.detectChanges();
-      this.ngZone.run(() => {
-        console.log('Before handleQuizRestore, displayExplanation:', this.displayExplanation);
-        this.handleQuizRestore();
-        console.log('After handleQuizRestore, displayExplanation:', this.displayExplanation);
-        this.cdRef.detectChanges();
-      });
-    }
-  } */
-  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     const isHidden = document.hidden;
 
@@ -443,19 +328,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
       this.ngZone.run(() => this.handleQuizRestore());
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    const isHidden = document.hidden;
+
+    if (isHidden) {
+      // Save the current state
+      if (this.currentQuestion) {
+        this.saveQuizState();
+      } else {
+        console.log("Skipping saveQuizState as currentQuestion is not yet initialized.");
+      }
+    } else {
+      // Restore the state
+      this.restoreQuizState();
+
+      // Update display mode based on the restored displayExplanation
+      this.currentMode = this.displayExplanation ? 'explanation' : 'question';
+      this.displayMode$.next(this.currentMode);
+
+      // Ensure Angular updates the view
+      this.cdRef.detectChanges();
+
+      // Handle any additional restoration logic
+      this.ngZone.run(() => this.handleQuizRestore());
+    }
   }
 
-
-
-  // Helper method for validating question structure
-  private isValidQuestion(question: any): boolean {
-    return question &&
-      typeof question === 'object' &&
-      typeof question.questionText === 'string' &&
-      Array.isArray(question.options) &&
-      question.options.length > 0 &&
-      question.options.every(option => option && typeof option === 'object' && 'text' in option);
-  }
   
   private saveQuizState(): void {
     try {
