@@ -681,7 +681,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.forceImmediateDisplay();
     });
   } */
-  private isRestoringState: boolean = false;
 
   /* private restoreQuizState(): void {
     this.isRestoringState = true;  // Start state restoration
@@ -730,11 +729,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Load the question data, then update display based on state once loading completes
     this.loadCurrentQuestion().then(() => {
-        this.updateDisplayBasedOnState();
-        this.isRestoringState = false;  // Reset flag after final display is set
+      this.updateDisplayBasedOnState();
+      this.isRestoringState = false;  // Reset flag after final display is set
     });
   }
 
+  private updateDisplayBasedOnState(): void {
+    // Decide final display based on `displayExplanation` and `isAnswered`
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Final display: explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Final display: question text for Question ${this.currentQuestionIndex}`);
+    }
+  }
 
   private forceFinalDisplay(): void {
     if (this.isRestoringState) {
