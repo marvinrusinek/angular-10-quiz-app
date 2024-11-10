@@ -834,29 +834,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  /* async loadQuizData(): Promise<boolean> {
-    try {
-      const quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
-      ) as Quiz;
-
-      if (quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0) {
-        this.quiz = quiz;
-        this.questions = quiz.questions;
-        this.currentQuestion = this.questions[this.currentQuestionIndex];
-        console.log('Quiz data loaded with questions.');
-        return true;
-      } else {
-        console.error('Quiz has no questions or data is unavailable.');
-        this.questions = []; 
-        return false;
-      }
-    } catch (error) {
-      console.error('Error loading quiz data:', error);
-      this.questions = []; 
-      return false;
-    }
-  } */
   private async loadQuizData(): Promise<boolean> {
     if (this.isQuizLoaded) {
       console.log('Quiz data already loaded, skipping load.');
