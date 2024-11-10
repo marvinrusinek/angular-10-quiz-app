@@ -85,6 +85,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionTextLoaded = false;
   private isLoadingInProgress = false;
   savedDisplayExplanation = false;
+  private displayLocked: boolean = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -422,7 +423,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.updateFinalDisplay();  // Enforce the correct display based on `isAnswered`
     });
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered');
 
@@ -445,6 +446,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.loadCurrentQuestion().then(() => {
         this.setLockedDisplay();  // Force display without further re-evaluation
     });
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered');
+
+    if (!storedIndex && !storedIsAnswered) {
+        console.info('No saved state – starting with default question.');
+        this.loadQuestion();
+        return;
+    }
+
+    // Restore the current question index and answered state
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered === 'true';
+
+    // Set displayExplanation and lock it if it's a multiple-answer question
+    this.displayExplanation = this.isAnswered;
+    this.displayLocked = this.isAnswered && this.currentQuestion?.type === QuestionType.MultipleAnswer;
+
+    console.log(`Restored state - currentQuestionIndex: ${this.currentQuestionIndex}, isAnswered: ${this.isAnswered}, displayExplanation: ${this.displayExplanation}, displayLocked: ${this.displayLocked}`);
+
+    // Load question data and enforce display based on locked state
+    this.loadCurrentQuestion().then(() => {
+        this.applyFinalDisplayWithLock();  // Apply display without re-evaluation
+    });
+  }
+
+  private applyFinalDisplayWithLock(): void {
+    // If display is locked, do not toggle displayExplanation
+    if (this.displayLocked) {
+        console.log(`Display is locked for Question ${this.currentQuestionIndex}, not toggling.`);
+        return;
+    }
+
+    // Set display based on `displayExplanation`
+    if (this.displayExplanation) {
+        this.showExplanationText();
+        console.log(`Displaying explanation for Question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Displaying question text for Question ${this.currentQuestionIndex}`);
+    }
   }
 
   private setLockedDisplay(): void {
