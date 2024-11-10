@@ -367,45 +367,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('Display Variables:', this.displayVariables);
   }
 
-  /* private async handleVisibilityChange(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    try {
-      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
-  
-      if (
-        typeof currentIndex === 'number' &&
-        currentIndex >= 0 &&
-        currentIndex < totalQuestions
-      ) {
-        this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
-      } else {
-        console.warn('Invalid or out-of-range question index on visibility change.');
-      }
-    } catch (error) {
-      console.error('Error retrieving total questions count:', error);
-    }
-  } */
   private async handleVisibilityChange(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     try { 
       // Ensure questions are loaded
         if (!Array.isArray(this.questions) || this.questions.length === 0) {
-            console.warn('Questions not loaded, calling loadQuizData...');
-            await this.loadQuizData(); // Ensure loading before proceeding
+          console.warn('Questions not loaded, calling loadQuizData...');
+          await this.loadQuizData(); // Ensure loading before proceeding
         }
 
         const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
 
         if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
-            this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
+          this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
         } else {
-            console.warn('Invalid or out-of-range question index on visibility change.');
+          console.warn('Invalid or out-of-range question index on visibility change.');
         }
     } catch (error) {
-        console.error('Error retrieving total questions count:', error);
+      console.error('Error retrieving total questions count:', error);
     }
   }
-
 
   async loadQuestionContents(): Promise<void> {
     try {
