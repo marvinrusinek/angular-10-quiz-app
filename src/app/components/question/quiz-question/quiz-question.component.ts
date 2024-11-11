@@ -1817,7 +1817,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.updateExplanationDisplay(false);
     }
   }
-  
+
   private async fetchExplanationAndFeedbackText(): Promise<void> {
     try {
       // Simulate async operation if needed
