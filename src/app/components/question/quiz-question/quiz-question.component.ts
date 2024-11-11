@@ -2252,78 +2252,80 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
+): Promise<void> {
     console.log('Option clicked:', event); 
 
-    // Prevent action if option is missing or handling is locked
     if (!event?.option || event.option.optionId === undefined) return;
 
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
 
     // Lock input for single-answer questions
     if (!isMultipleAnswer && this.isOptionSelected) {
-      console.warn('Click locked, skipping.');
-      return;
+        console.warn('Click locked, skipping.');
+        return;
     }
 
-    this.isOptionSelected = true; // Temporarily lock to prevent multiple rapid clicks
+    this.isOptionSelected = true;
+    this.isAnswered = true;
+    this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
+    this.showExplanationText(); // Display explanation text immediately
+    this.saveQuizState(); // Save the current state to session storage
 
     try {
-      await this.ngZone.run(async () => {
-        console.log('Inside ngZone after click:', event);
+        await this.ngZone.run(async () => {
+            console.log('Inside ngZone after click:', event);
 
-        // Small delay for UI stability
-        await new Promise((resolve) => requestAnimationFrame(resolve));
+            // Small delay for UI stability
+            await new Promise((resolve) => requestAnimationFrame(resolve));
 
-        const { option, index = -1, checked = false } = event || {};
+            const { option, index = -1, checked = false } = event || {};
 
-        console.log(`Processing option: ${option.optionId} at index: ${index}`);
+            if (typeof index !== 'number' || index < 0) {
+                console.error(`Invalid index: ${index}`);
+                return;
+            }
 
-        if (typeof index !== 'number' || index < 0) {
-          console.error(`Invalid index: ${index}`);
-          return;
-        }
+            // Handle selected option states
+            this.selectedOptionService.setOptionSelected(true);
+            this.selectedOptionService.isAnsweredSubject.next(true);
 
-        this.selectedOptionService.setOptionSelected(true);
-        this.selectedOptionService.isAnsweredSubject.next(true);
+            if (!this.explanationLocked) {
+                this.explanationLocked = true;
+                await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+            }
 
-        if (!this.explanationLocked) {
-          this.explanationLocked = true;
-          await this.fetchAndSetExplanationText(this.currentQuestionIndex);
-        }
+            // Parent class handling and additional state management
+            await super.onOptionClicked(event);
+            this.resetExplanation();
+            this.toggleOptionState(option, index);
+            this.emitOptionSelected(option, index);
 
-        // Parent class handling and option state management
-        await super.onOptionClicked(event);
-        this.resetExplanation();
-        this.toggleOptionState(option, index);
-        this.emitOptionSelected(option, index);
+            this.startLoading();
+            this.handleMultipleAnswerQuestion(option);
+            this.markQuestionAsAnswered();
 
-        this.startLoading();
-        this.handleMultipleAnswerQuestion(option);
-        this.markQuestionAsAnswered();
+            await this.processSelectedOption(option, index, checked);
+            await this.finalizeSelection(option, index);
 
-        await this.processSelectedOption(option, index, checked);
-        await this.finalizeSelection(option, index);
+            // Unlock for multiple-answer questions
+            if (isMultipleAnswer) {
+                this.isOptionSelected = false;
+            }
 
-        // Unlock for multiple-answer questions
-        if (isMultipleAnswer) {
-          this.isOptionSelected = false;
-        }
-
-        console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges();
-      });
+            console.log('Option processed. Applying changes.');
+            this.cdRef.detectChanges();
+        });
     } catch (error) {
-      console.error('Error during option click:', error);
+        console.error('Error during option click:', error);
     } finally {
-      // Cooldown period to allow UI refresh
-      setTimeout(() => {
-        this.isOptionSelected = false;
-        this.updateExplanationText(this.currentQuestionIndex);
-        this.cdRef.detectChanges();
-      }, 300);
+        // Cooldown period to allow UI refresh
+        setTimeout(() => {
+            this.isOptionSelected = false;
+            this.updateExplanationText(this.currentQuestionIndex);
+            this.cdRef.detectChanges();
+        }, 300);
 
-      this.finalizeLoadingState();
+        this.finalizeLoadingState();
     }
   }
   
