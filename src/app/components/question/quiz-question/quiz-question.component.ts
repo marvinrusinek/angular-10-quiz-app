@@ -909,42 +909,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text restored for question ${this.currentQuestionIndex}`);
     }
   } */
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
-    const storedDisplayExplanationLocked = sessionStorage.getItem('displayExplanationLocked') === 'true';
-
-    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered;
-    this.displayExplanationLocked = storedDisplayExplanationLocked;
-
-    // Only show explanation if displayExplanationLocked is true
-    if (this.displayExplanationLocked) {
-        this.showExplanationText();
-        console.log(`Restored explanation display for answered question ${this.currentQuestionIndex}`);
-    } else {
-        this.showQuestionText();
-        console.log(`Restored question display for unanswered question ${this.currentQuestionIndex}`);
-    }
-  } */
-  /* private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
-    const storedDisplayExplanationLocked = sessionStorage.getItem('displayExplanationLocked') === 'true';
-
-    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered;
-    this.displayExplanationLocked = storedDisplayExplanationLocked;
-
-    // Only show explanation if displayExplanationLocked is true
-    if (this.displayExplanationLocked) {
-        this.showExplanationText();
-        console.log(`Restored explanation display for answered question ${this.currentQuestionIndex}`);
-    } else {
-        this.showQuestionText();
-        console.log(`Restored question display for unanswered question ${this.currentQuestionIndex}`);
-    }
-  } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
@@ -954,7 +918,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = storedIsAnswered;
     this.displayExplanationLocked = storedDisplayExplanationLocked;
 
-    // Default to question text unless displayExplanationLocked is true
+    // Only show explanation if displayExplanationLocked is true
     if (this.displayExplanationLocked) {
         this.showExplanationText();
         console.log(`Restored explanation display for answered question ${this.currentQuestionIndex}`);
