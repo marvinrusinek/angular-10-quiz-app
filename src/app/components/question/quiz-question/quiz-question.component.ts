@@ -433,7 +433,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private saveQuizState(): void {
     sessionStorage.setItem('currentQuestionIndex', String(this.currentQuestionIndex));
     sessionStorage.setItem('isAnswered', String(this.isAnswered));
-    sessionStorage.setItem('displayExplanationLocked', String(this.displayExplanationLocked));
     sessionStorage.setItem('displayMode', this.isAnswered ? 'explanation' : 'question');
     console.log('Quiz state saved with display mode:', sessionStorage.getItem('displayMode'));
   }
@@ -922,6 +921,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Restored question display for unanswered question ${this.currentQuestionIndex}`);
     }
   }
+
 
 
 
