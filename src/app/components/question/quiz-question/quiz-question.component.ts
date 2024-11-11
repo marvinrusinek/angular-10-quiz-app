@@ -874,7 +874,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Apply the display
     this.renderDisplay();
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
 
@@ -884,7 +884,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Call renderDisplay to apply the correct display mode from sessionStorage
     this.renderDisplay();
     console.log(`State restored and display mode applied for question ${this.currentQuestionIndex}`);
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const storedDisplayExplanationLocked = sessionStorage.getItem('displayExplanationLocked') === 'true';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+    this.displayExplanationLocked = storedDisplayExplanationLocked; // Restore the explanation lock state
+
+    // Display based on the lock
+    if (this.displayExplanationLocked) {
+        this.showExplanationText();
+        console.log(`Explanation text restored for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text restored for question ${this.currentQuestionIndex}`);
+    }
   }
+
 
 
   /* private renderDisplay(): void {
