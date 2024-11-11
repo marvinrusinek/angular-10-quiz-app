@@ -209,7 +209,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Call the parent class's ngOnInit method
       super.ngOnInit();
 
-      this.restoreQuizState();
+      // this.restoreQuizState();
 
       // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
@@ -880,7 +880,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Apply the display
     this.renderDisplay();
   } */
-  /* private restoreQuizState(): void {
+  private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
 
@@ -890,7 +890,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Call renderDisplay to apply the correct display mode from sessionStorage
     this.renderDisplay();
     console.log(`State restored and display mode applied for question ${this.currentQuestionIndex}`);
-  } */
+  }
   /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
