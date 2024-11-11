@@ -909,7 +909,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text restored for question ${this.currentQuestionIndex}`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedDisplayExplanationLocked = sessionStorage.getItem('displayExplanationLocked') === 'true';
@@ -925,6 +925,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
         this.showQuestionText();
         console.log(`Restored question display for unanswered question ${this.currentQuestionIndex}`);
+    }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const displayMode = sessionStorage.getItem('displayMode') || 'question';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = displayMode === 'explanation';
+
+    // Display based on the saved displayMode in sessionStorage
+    if (displayMode === 'explanation') {
+        this.showExplanationText();
+        console.log(`Restored explanation display for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Restored question display for question ${this.currentQuestionIndex}`);
     }
   }
 
@@ -2295,7 +2311,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
-): Promise<void> {
+  ): Promise<void> {
     console.log('Option clicked:', event); 
 
     if (!event?.option || event.option.optionId === undefined) return;
@@ -2312,6 +2328,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = true;
     this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
+    sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
     this.saveQuizState(); // Save the current state to session storage
 
     try {
