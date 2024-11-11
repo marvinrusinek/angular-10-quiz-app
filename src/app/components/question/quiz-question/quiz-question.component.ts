@@ -1818,43 +1818,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-  async getFeedbackText(currentQuestion: QuizQuestion): Promise<string> {
-    const correctOptions = currentQuestion.options.filter(
-      (option) => option.correct
-    );
-    return this.quizService.setCorrectMessage(
-      correctOptions,
-      this.optionsToDisplay
-    );
-  }
-
-  async prepareAndSetFeedbackText(question: QuizQuestion): Promise<string> {
-    if (!question) {
-      throw new Error('No question provided for feedback text.');
-    }
-
-    const correctOptions = question.options.filter((option) => option.correct);
-    return this.quizService.setCorrectMessage(
-      correctOptions,
-      this.optionsToDisplay
-    );
-  }
-
-  async prepareFeedbackText(question: QuizQuestion): Promise<string> {
-    try {
-      const correctOptions = question.options.filter(
-        (option) => option.correct
-      );
-      return this.quizService.setCorrectMessage(
-        correctOptions,
-        this.optionsToDisplay
-      );
-    } catch (error) {
-      console.error('Error in preparing feedback text:', error);
-      return 'Error generating feedback.';
-    }
-  }
-
   private async fetchExplanationAndFeedbackText(): Promise<void> {
     try {
       // Simulate async operation if needed
