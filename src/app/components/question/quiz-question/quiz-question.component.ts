@@ -355,10 +355,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (document.hidden) {
       this.saveQuizState();
       console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-    } 
-    //else {
-    //  this.restoreQuizState();
-    //}
+    } else {
+      this.restoreQuizState();
+    }
   }
   
 
