@@ -211,8 +211,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    this.displayState.mode = "question";
-    
+    this.displayState.mode = "question"; // Enforce question mode on load
+    this.displayState.answered = false;  // Ensure no answer state by default
+
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
@@ -1089,7 +1090,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text displayed by default for unanswered question.`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     // Enforce question text display by default unless the user has interacted
     if (this.hasUserInteracted && this.displayState.answered && this.displayState.mode === 'explanation') {
         this.showExplanationText();
@@ -1097,6 +1098,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
         this.showQuestionText();
         console.log(`Question text displayed by default for unanswered or un-interacted question.`);
+    }
+  } */
+  private renderDisplay(): void {
+    if (this.displayState.answered && this.displayState.mode === 'explanation') {
+        this.showExplanationText();
+        console.log(`Explanation text displayed for question ${this.currentQuestionIndex}.`);
+    } else {
+        this.showQuestionText();
+        console.log(`Defaulted to question text for question ${this.currentQuestionIndex}.`);
     }
   }
 
