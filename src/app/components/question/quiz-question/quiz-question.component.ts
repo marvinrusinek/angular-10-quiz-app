@@ -980,15 +980,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
     this.isAnswered = storedIsAnswered;
-    this.displayMode = storedDisplayMode; // Default to "question" unless explicitly "explanation"
+    this.displayMode = storedDisplayMode; // Defaults to "question"
 
+    // Directly apply display based on `displayMode`
     if (this.displayMode === "explanation") {
         this.showExplanationText();
     } else {
         this.showQuestionText();
     }
-    console.log(`Restored display for question ${this.  currentQuestionIndex} as: ${this.displayMode}`);
+    console.log(`Restored display for question ${this.currentQuestionIndex} as ${this.displayMode}`);
   }
+
 
 
   /* private renderDisplay(): void {
