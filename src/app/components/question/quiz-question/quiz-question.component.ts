@@ -1005,7 +1005,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log(`Restored state for question ${this.currentQuestionIndex} - displayMode: ${this.displayMode}`);
   } */
-  /* private restoreQuizState(): void {
+  private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
@@ -1015,15 +1015,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.shouldShowExplanation = storedShouldShowExplanation;
 
     console.log(`Restored state for question ${this.currentQuestionIndex}`);
-  } */
-  private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
-
-    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered;
-
-    console.log(`Restored state for question ${this.currentQuestionIndex} - isAnswered: ${this.isAnswered}`);
   }
 
 
