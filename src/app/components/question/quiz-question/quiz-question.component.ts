@@ -147,6 +147,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private isRestoringState = false;
   private restoreInProgress = false;
   private currentMode: 'question' | 'explanation' = 'question';
+  private displayState = {
+    mode: 'question' as 'question' | 'explanation',
+    answered: false
+  };
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -1055,13 +1059,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Question text displayed from renderDisplay for unanswered question.`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.displayMode === 'explanation' && this.isAnswered) {
         this.showExplanationText();
         console.log(`Explanation displayed for answered question.`);
     } else {
         this.showQuestionText();
         console.log(`Question text displayed for unanswered question.`);
+    }
+  } */
+  private renderDisplay(): void {
+    if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+        this.showExplanationText();
+        console.log(`Explanation text displayed based on displayState.`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text displayed based on displayState.`);
     }
   }
 
@@ -2385,6 +2398,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
+    this.displayState.answered = true;
+    this.displayState.mode = "explanation";
     this.displayMode = "explanation";
     // sessionStorage.setItem('displayMode', 'explanation'); // Save to session
     //this.shouldShowExplanation = true; // Lock explanation display upon selection
