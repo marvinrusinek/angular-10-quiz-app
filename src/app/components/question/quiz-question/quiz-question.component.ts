@@ -995,12 +995,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
-    const storedDisplayMode = sessionStorage.getItem('displayMode');
+    const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
     const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
     this.isAnswered = storedIsAnswered;
-    this.displayMode = storedDisplayMode || 'question';
+    this.displayMode = storedDisplayMode; // Casted to expected type
     this.shouldShowExplanation = storedShouldShowExplanation;
 
     console.log(`Restored state for question ${this.currentQuestionIndex} - displayMode: ${this.displayMode}`);
