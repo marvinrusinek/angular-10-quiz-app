@@ -975,12 +975,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
+    const storedDisplayMode = sessionStorage.getItem('displayMode') as 'question' | 'explanation';
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.displayMode = storedDisplayMode;
+    this.displayMode = storedDisplayMode || 'question'; // Default to question
 
-    // Display based on locked displayMode
     if (this.displayMode === "explanation") {
         this.showExplanationText();
     } else {
