@@ -989,6 +989,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Restored display for question ${this.currentQuestionIndex} as ${this.displayMode}`);
   }
 
+  private setDisplayMode(mode: 'question' | 'explanation'): void {
+    this.displayMode = mode;
+    sessionStorage.setItem('displayMode', mode);
+    console.log(`Display mode set to: ${mode} for question ${this.currentQuestionIndex}`);
+  }
+
   /* private renderDisplay(): void {
     if (this.isAnswered && !this.displayLocked) {
       this.showExplanationText();
@@ -2332,7 +2338,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
-    this.displayMode = "explanation";
+    this.setDisplayMode("explanation"); // Lock to explanation display upon selection
     this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
     sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
