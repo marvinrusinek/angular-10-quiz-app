@@ -153,6 +153,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: false
   };
   private displayLock: 'question' | 'explanation' = 'question';
+  private modeLocked = false;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -2441,16 +2442,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     this.isOptionSelected = true;
-    this.isAnswered = true;
-    this.hasUserInteracted = true;
-    this.displayState.answered = true;
-    this.displayState.mode = "explanation";
-    this.displayLock = "explanation"; // Lock to explanation mode after selection
+
+    // Only proceed if mode is not already locked
+    if (!this.modeLocked) {
+      this.isAnswered = true;
+      this.hasUserInteracted = true;
+      this.displayState.answered = true;
+      this.displayState.mode = "explanation";
+      this.displayLock = "explanation"; // Lock to explanation mode after selection
+      this.showExplanationText(); // Display explanation text immediately
+      this.saveQuizState(); // Save the current state to session storage
+      console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
+    }
     // this.displayMode = "explanation";
     // sessionStorage.setItem('displayMode', 'explanation'); // Save to session
     //this.shouldShowExplanation = true; // Lock explanation display upon selection
     // this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
-    this.showExplanationText(); // Display explanation text immediately
     // this.saveQuizState(); // Save the current state to session storage
 
     try {
