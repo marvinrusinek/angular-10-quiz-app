@@ -87,6 +87,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   savedDisplayExplanation = false;
   private displayLocked = false;
   private displayExplanationLocked = false;
+  shouldShowExplanation = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -445,6 +446,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     sessionStorage.setItem('displayExplanationLocked', String(this.displayExplanationLocked));
     // sessionStorage.setItem('displayMode', this.isAnswered ? 'explanation' : 'question');
     sessionStorage.setItem('displayMode', this.displayMode);
+    sessionStorage.setItem('shouldShowExplanation', String(this.shouldShowExplanation));
     console.log('Quiz state saved with display mode:', sessionStorage.getItem('displayMode'));
     console.log('Quiz state saved:', {
       currentQuestionIndex: this.currentQuestionIndex,
@@ -975,17 +977,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedDisplayMode = sessionStorage.getItem('displayMode') as 'question' | 'explanation';
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.displayMode = storedDisplayMode || 'question'; // Default to question
+    this.isAnswered = storedIsAnswered;
+    this.shouldShowExplanation = storedShouldShowExplanation;
 
-    if (this.displayMode === "explanation") {
+    if (this.shouldShowExplanation) {
         this.showExplanationText();
+        console.log(`Restored explanation display for question ${this.currentQuestionIndex}`);
     } else {
         this.showQuestionText();
+        console.log(`Restored question display for question ${this.currentQuestionIndex}`);
     }
-    console.log(`Restored display for question ${this.currentQuestionIndex} as ${this.displayMode}`);
   }
 
   private setDisplayMode(mode: 'question' | 'explanation'): void {
@@ -2337,7 +2342,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
-    this.setDisplayMode("explanation"); // Lock to explanation display upon selection
+    this.shouldShowExplanation = true; // Lock explanation display upon selection
     this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
     sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
