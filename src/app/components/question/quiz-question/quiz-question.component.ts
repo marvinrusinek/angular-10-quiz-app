@@ -1058,7 +1058,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private renderDisplay(): void {
     if (this.displayMode === 'explanation' && this.isAnswered) {
         this.showExplanationText();
-        console.log(`Explanation text displayed for answered question.`);
+        console.log(`Explanation displayed for answered question.`);
     } else {
         this.showQuestionText();
         console.log(`Question text displayed for unanswered question.`);
