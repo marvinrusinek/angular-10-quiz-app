@@ -1136,7 +1136,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.displayState.mode === 'explanation' && this.displayState.answered) {
         this.showExplanationText();
         console.log(`[renderDisplay] Explanation text displayed for question ${this.currentQuestionIndex}`);
@@ -1144,8 +1144,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showQuestionText();
         console.log(`[renderDisplay] Question text displayed by default for question ${this.currentQuestionIndex}`);
     }
+  } */
+  private renderDisplay(): void {
+    if (this.forceQuestionDisplay) {
+        this.showQuestionText();
+        console.log(`[renderDisplay] Enforcing question text for question ${this.currentQuestionIndex} (default display)`);
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+        this.showExplanationText();
+        console.log(`[renderDisplay] Explanation text displayed for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`[renderDisplay] Question text displayed by default for question ${this.currentQuestionIndex}`);
+    }
   }
-
 
   private displayExplanationLock(isAnswered: boolean): void {
       if (!this.displayExplanationLocked) {
@@ -1885,6 +1896,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.feedbackText = '';
+
+    this.forceQuestionDisplay = true; // Reset to enforce question text by default
+    this.displayState.mode = "question"; // Set initial mode to question
+    this.displayState.answered = false;  // Mark as unanswered
+    this.renderDisplay();                // Render initial display
+    console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
   
     try {
       // Ensure a valid quiz ID is available
