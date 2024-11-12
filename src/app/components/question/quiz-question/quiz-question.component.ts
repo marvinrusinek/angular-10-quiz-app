@@ -1068,13 +1068,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text displayed for unanswered question.`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.displayState.mode === 'explanation' && this.displayState.answered) {
         this.showExplanationText();
         console.log(`Explanation text displayed based on displayState.`);
     } else {
         this.showQuestionText();
         console.log(`Question text displayed based on displayState.`);
+    }
+  } */
+  private renderDisplay(): void {
+    if (this.displayState.answered && this.displayState.mode === 'explanation') {
+        this.showExplanationText();
+        console.log(`Explanation text displayed based on displayState.`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text displayed by default for unanswered question.`);
     }
   }
 
