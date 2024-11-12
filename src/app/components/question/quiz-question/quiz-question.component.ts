@@ -978,9 +978,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.displayMode = storedDisplayMode; // Strictly apply stored display mode
+    this.displayMode = storedDisplayMode;
 
-    // Display directly based on displayMode
+    // Display based on locked displayMode
     if (this.displayMode === "explanation") {
         this.showExplanationText();
     } else {
