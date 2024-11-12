@@ -2400,7 +2400,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = true;
     this.displayState.answered = true;
     this.displayState.mode = "explanation";
-    this.displayMode = "explanation";
+    // this.displayMode = "explanation";
     // sessionStorage.setItem('displayMode', 'explanation'); // Save to session
     //this.shouldShowExplanation = true; // Lock explanation display upon selection
     // this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
