@@ -992,7 +992,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Restored question display for question ${this.currentQuestionIndex}`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
@@ -1004,7 +1004,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.shouldShowExplanation = storedShouldShowExplanation;
 
     console.log(`Restored state for question ${this.currentQuestionIndex} - displayMode: ${this.displayMode}`);
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+    this.shouldShowExplanation = storedShouldShowExplanation;
+
+    console.log(`Restored state for question ${this.currentQuestionIndex}`);
   }
+
 
 
   private setDisplayMode(mode: 'question' | 'explanation'): void {
@@ -2356,11 +2368,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
-    this.displayMode = "explanation";
     this.shouldShowExplanation = true; // Lock explanation display upon selection
-    this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
+    // this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
-    sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
+    // sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
     this.saveQuizState(); // Save the current state to session storage
 
     try {
