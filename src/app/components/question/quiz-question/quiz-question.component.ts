@@ -975,7 +975,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Restored question display for question ${this.currentQuestionIndex}`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
@@ -991,7 +991,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showQuestionText();
         console.log(`Restored question display for question ${this.currentQuestionIndex}`);
     }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const storedDisplayMode = sessionStorage.getItem('displayMode');
+    const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+    this.displayMode = storedDisplayMode || 'question';
+    this.shouldShowExplanation = storedShouldShowExplanation;
+
+    console.log(`Restored state for question ${this.currentQuestionIndex} - displayMode: ${this.displayMode}`);
   }
+
 
   private setDisplayMode(mode: 'question' | 'explanation'): void {
     this.displayMode = mode;
@@ -2342,6 +2356,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
+    this.displayMode = "explanation";
     this.shouldShowExplanation = true; // Lock explanation display upon selection
     this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
