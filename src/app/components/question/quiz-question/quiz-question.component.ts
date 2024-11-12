@@ -215,6 +215,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayState.mode = "question"; // Enforce question mode on load
     this.displayState.answered = false;  // Ensure no answer state by default
     this.displayLock = "question"; // Lock to question mode initially
+    this.renderDisplay();
 
     try {
       // Call the parent class's ngOnInit method
@@ -331,11 +332,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (!document.hidden) {
+    //if (!document.hidden) {
       // When visibility is restored, re-apply the display based on `isAnswered`
-      this.renderDisplay();
-      console.log(`Re-applied display on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-    }
+    //  this.renderDisplay();
+    //  console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
+    //}
   }
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
