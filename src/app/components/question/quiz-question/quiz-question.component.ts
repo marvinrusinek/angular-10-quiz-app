@@ -351,12 +351,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-      if (document.hidden) {
-          this.saveQuizState();
-          console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-      } else {
-          this.restoreQuizState();
-      }
+    if (document.hidden) {
+      this.saveQuizState();
+      console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
+    } else {
+      this.restoreQuizState();
+    }
   }
   
 
