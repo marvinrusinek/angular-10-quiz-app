@@ -1036,7 +1036,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Question text displayed for unanswered question`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     const displayMode = sessionStorage.getItem('displayMode');
 
     if (displayMode === 'explanation') {
@@ -1046,7 +1046,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showQuestionText();
       console.log(`Question text displayed from renderDisplay for unanswered question.`);
     }
+  } */
+  private renderDisplay(): void {
+    const displayMode = sessionStorage.getItem('displayMode');
+
+    if (this.isAnswered && displayMode === 'explanation') {
+        this.showExplanationText();
+        console.log(`Explanation text displayed for answered question.`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text displayed for unanswered question.`);
+    }
   }
+
 
   private displayExplanationLock(isAnswered: boolean): void {
       if (!this.displayExplanationLocked) {
@@ -2369,11 +2381,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
     this.isAnswered = true;
     this.displayMode = "explanation";
+    sessionStorage.setItem('displayMode', 'explanation'); // Save to session
     //this.shouldShowExplanation = true; // Lock explanation display upon selection
     // this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
-    // sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
-    this.saveQuizState(); // Save the current state to session storage
+    // this.saveQuizState(); // Save the current state to session storage
 
     try {
       await this.ngZone.run(async () => {
