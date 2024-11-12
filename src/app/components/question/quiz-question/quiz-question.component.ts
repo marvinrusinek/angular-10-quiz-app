@@ -211,6 +211,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    this.displayState.mode = "question";
+    
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
