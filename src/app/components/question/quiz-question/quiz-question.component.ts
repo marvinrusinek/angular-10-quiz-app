@@ -152,6 +152,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     mode: 'question' as 'question' | 'explanation',
     answered: false
   };
+  private displayLock: 'question' | 'explanation' = 'question';
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -213,6 +214,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngOnInit(): Promise<void> {
     this.displayState.mode = "question"; // Enforce question mode on load
     this.displayState.answered = false;  // Ensure no answer state by default
+    this.displayLock = "question"; // Lock to question mode initially
 
     try {
       // Call the parent class's ngOnInit method
@@ -1100,13 +1102,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text displayed by default for unanswered or un-interacted question.`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.displayState.answered && this.displayState.mode === 'explanation') {
         this.showExplanationText();
         console.log(`Explanation text displayed for question ${this.currentQuestionIndex}.`);
     } else {
         this.showQuestionText();
         console.log(`Defaulted to question text for question ${this.currentQuestionIndex}.`);
+    }
+  } */
+  private renderDisplay(): void {
+    if (this.displayLock === 'explanation' && this.displayState.answered) {
+        this.showExplanationText();
+        console.log(`[renderDisplay] Locked to explanation text for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`[renderDisplay] Locked to question text for question ${this.currentQuestionIndex}`);
     }
   }
 
@@ -2433,6 +2444,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.hasUserInteracted = true;
     this.displayState.answered = true;
     this.displayState.mode = "explanation";
+    this.displayLock = "explanation"; // Lock to explanation mode after selection
     // this.displayMode = "explanation";
     // sessionStorage.setItem('displayMode', 'explanation'); // Save to session
     //this.shouldShowExplanation = true; // Lock explanation display upon selection
