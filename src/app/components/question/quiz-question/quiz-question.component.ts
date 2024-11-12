@@ -88,6 +88,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayLocked = false;
   private displayExplanationLocked = false;
   shouldShowExplanation = false;
+  private hasUserInteracted = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -1077,13 +1078,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Question text displayed based on displayState.`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.displayState.answered && this.displayState.mode === 'explanation') {
         this.showExplanationText();
         console.log(`Explanation text displayed based on displayState.`);
     } else {
         this.showQuestionText();
         console.log(`Question text displayed by default for unanswered question.`);
+    }
+  } */
+  private renderDisplay(): void {
+    // Enforce question text display by default unless the user has interacted
+    if (this.hasUserInteracted && this.displayState.answered && this.displayState.mode === 'explanation') {
+        this.showExplanationText();
+        console.log(`Explanation text displayed based on displayState and user interaction.`);
+    } else {
+        this.showQuestionText();
+        console.log(`Question text displayed by default for unanswered or un-interacted question.`);
     }
   }
 
@@ -2407,6 +2418,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
+    this.hasUserInteracted = true;
     this.displayState.answered = true;
     this.displayState.mode = "explanation";
     // this.displayMode = "explanation";
