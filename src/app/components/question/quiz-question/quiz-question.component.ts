@@ -333,100 +333,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
   }
-
-  /* private saveQuizState(): void {
-    try {
-      // Save current question index
-      if (this.currentQuestionIndex !== undefined) {
-        sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
-      }
-        
-      // Save current question if it is valid
-      if (this.currentQuestion && typeof this.currentQuestion === 'object' && 'questionText' in this.currentQuestion) {
-        sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
-      } else {
-        console.warn('Invalid currentQuestion, removing from storage');
-        sessionStorage.removeItem('currentQuestion');
-      }
-
-      // Save options if valid
-      if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option => option && 'text' in option)) {
-        sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
-      } else {
-        console.warn('Invalid options, removing from storage');
-        sessionStorage.removeItem('optionsToDisplay');
-      }
-
-      // Save isAnswered
-      sessionStorage.setItem('isAnswered', this.isAnswered.toString());
-
-      // Confirm data saved
-      console.log('State saved:', {
-        currentQuestionIndex: sessionStorage.getItem('currentQuestionIndex'),
-        currentQuestion: sessionStorage.getItem('currentQuestion'),
-        optionsToDisplay: sessionStorage.getItem('optionsToDisplay'),
-        isAnswered: sessionStorage.getItem('isAnswered')
-      });
-    } catch (error) {
-      console.error('Error saving quiz state:', error);
-    }
-  } */
-  /* private saveQuizState(): void {
-    try {
-        // Save current question index
-        if (this.currentQuestionIndex !== undefined) {
-            sessionStorage.setItem('currentQuestionIndex', this.currentQuestionIndex.toString());
-        }
-
-        // Save current question if valid
-        if (this.currentQuestion && typeof this.currentQuestion === 'object' && 'questionText' in this.currentQuestion) {
-            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
-        } else {
-            console.warn('Invalid currentQuestion, removing from storage');
-            sessionStorage.removeItem('currentQuestion');
-        }
-
-        // Save options if valid
-        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.every(option => option && 'text' in option)) {
-            sessionStorage.setItem('optionsToDisplay', JSON.stringify(this.optionsToDisplay));
-        } else {
-            console.warn('Invalid options, removing from storage');
-            sessionStorage.removeItem('optionsToDisplay');
-        }
-
-        // Save isAnswered
-        sessionStorage.setItem('isAnswered', this.isAnswered.toString());
-
-        // Save displayMode based on isAnswered
-        const displayMode = this.isAnswered ? 'explanation' : 'question';
-        sessionStorage.setItem('displayMode', displayMode);
-
-        console.log('State saved:', {
-            currentQuestionIndex: sessionStorage.getItem('currentQuestionIndex'),
-            currentQuestion: sessionStorage.getItem('currentQuestion'),
-            optionsToDisplay: sessionStorage.getItem('optionsToDisplay'),
-            isAnswered: sessionStorage.getItem('isAnswered'),
-            displayMode: sessionStorage.getItem('displayMode')
-        });
-    } catch (error) {
-        console.error('Error saving quiz state:', error);
-    }
-  } */
-  private saveQuizState(): void {
-    sessionStorage.setItem('currentQuestionIndex', String(this.currentQuestionIndex));
-    sessionStorage.setItem('isAnswered', String(this.isAnswered));
-    sessionStorage.setItem('displayExplanationLocked', String(this.displayExplanationLocked));
-    // sessionStorage.setItem('displayMode', this.isAnswered ? 'explanation' : 'question');
-    sessionStorage.setItem('displayMode', this.displayMode);
-    sessionStorage.setItem('shouldShowExplanation', String(this.shouldShowExplanation));
-    console.log('Quiz state saved with display mode:', sessionStorage.getItem('displayMode'));
-    console.log('Quiz state saved:', {
-      currentQuestionIndex: this.currentQuestionIndex,
-      isAnswered: this.isAnswered,
-      displayExplanationLocked: this.displayExplanationLocked,
-    });
-  }
-
   
   // Restore Quiz State with Stabilizing Logic
   /* private restoreQuizState(): void {
@@ -2200,14 +2106,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.displayState.answered = true;
       this.displayState.mode = "explanation"; // Set mode to explanation
       this.showExplanationText(); // Display explanation text immediately
-      this.saveQuizState(); // Save the current state to session storage
       console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
     }
-    // this.displayMode = "explanation";
-    // sessionStorage.setItem('displayMode', 'explanation'); // Save to session
-    //this.shouldShowExplanation = true; // Lock explanation display upon selection
-    // this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
-    // this.saveQuizState(); // Save the current state to session storage
 
     try {
       await this.ngZone.run(async () => {
