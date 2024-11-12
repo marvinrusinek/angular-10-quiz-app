@@ -138,7 +138,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   shouldRenderComponent = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
-  private displayMode: 'question' | 'explanation' = 'question';
+  displayMode: 'question' | 'explanation' = 'question';
   private displayMode$: BehaviorSubject<"question" | "explanation"> = new BehaviorSubject("question");
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
@@ -443,7 +443,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     sessionStorage.setItem('currentQuestionIndex', String(this.currentQuestionIndex));
     sessionStorage.setItem('isAnswered', String(this.isAnswered));
     sessionStorage.setItem('displayExplanationLocked', String(this.displayExplanationLocked));
-    sessionStorage.setItem('displayMode', this.isAnswered ? 'explanation' : 'question');
+    // sessionStorage.setItem('displayMode', this.isAnswered ? 'explanation' : 'question');
+    sessionStorage.setItem('displayMode', this.displayMode);
     console.log('Quiz state saved with display mode:', sessionStorage.getItem('displayMode'));
     console.log('Quiz state saved:', {
       currentQuestionIndex: this.currentQuestionIndex,
@@ -936,7 +937,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Restored question display for unanswered question ${this.currentQuestionIndex}`);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedDisplayExplanationLocked = sessionStorage.getItem('displayExplanationLocked') === 'true';
@@ -953,9 +954,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showQuestionText();
         console.log(`Restored question display for question ${this.currentQuestionIndex}`);
     }
+  } */
+  /* private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+    this.displayMode = storedDisplayMode; // Type-safe assignment with default to "question"
+
+    // Display based on the locked displayMode
+    if (this.displayMode === "explanation") {
+        this.showExplanationText();
+        console.log(`Restored explanation display for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`Restored question display for question ${this.currentQuestionIndex}`);
+    }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
+    const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
+
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+    this.displayMode = storedDisplayMode; // Default to "question" unless explicitly "explanation"
+
+    if (this.displayMode === "explanation") {
+        this.showExplanationText();
+    } else {
+        this.showQuestionText();
+    }
+    console.log(`Restored display for question ${this.  currentQuestionIndex} as: ${this.displayMode}`);
   }
-
-
 
 
   /* private renderDisplay(): void {
@@ -2301,6 +2334,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.isAnswered = true;
+    this.displayMode = "explanation";
     this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
     sessionStorage.setItem('displayMode', 'explanation'); // Lock display mode to explanation
