@@ -1048,17 +1048,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private renderDisplay(): void {
-    const displayMode = sessionStorage.getItem('displayMode');
+    const storedDisplayMode = sessionStorage.getItem('displayMode');
 
-    if (this.isAnswered && displayMode === 'explanation') {
+    if (storedDisplayMode === 'explanation' && this.isAnswered) {
         this.showExplanationText();
-        console.log(`Explanation text displayed for answered question.`);
+        console.log(`Explanation text displayed from renderDisplay for answered question.`);
     } else {
         this.showQuestionText();
-        console.log(`Question text displayed for unanswered question.`);
+        console.log(`Question text displayed from renderDisplay for unanswered question.`);
     }
   }
-
 
   private displayExplanationLock(isAnswered: boolean): void {
       if (!this.displayExplanationLocked) {
