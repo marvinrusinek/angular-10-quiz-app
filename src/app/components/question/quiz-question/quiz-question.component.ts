@@ -982,7 +982,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = storedIsAnswered;
     this.displayMode = storedDisplayMode; // Defaults to "question"
 
-    // Directly apply display based on `displayMode`
     if (this.displayMode === "explanation") {
         this.showExplanationText();
     } else {
