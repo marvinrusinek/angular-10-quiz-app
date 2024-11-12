@@ -975,13 +975,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedDisplayMode = (sessionStorage.getItem('displayMode') as 'question' | 'explanation') || 'question';
 
     this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered;
-    this.displayMode = storedDisplayMode; // Defaults to "question"
+    this.displayMode = storedDisplayMode; // Strictly apply stored display mode
 
+    // Display directly based on displayMode
     if (this.displayMode === "explanation") {
         this.showExplanationText();
     } else {
@@ -989,8 +988,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
     console.log(`Restored display for question ${this.currentQuestionIndex} as ${this.displayMode}`);
   }
-
-
 
   /* private renderDisplay(): void {
     if (this.isAnswered && !this.displayLocked) {
