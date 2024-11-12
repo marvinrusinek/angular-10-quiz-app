@@ -214,16 +214,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    this.displayState.mode = "question"; // Enforce question mode on load
-    this.displayState.answered = false;  // Ensure no answer state by default
-    this.displayLock = "question"; // Lock to question mode initially
-    this.renderDisplay();
-
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
-
-      // this.restoreQuizState();
 
       // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
@@ -340,40 +333,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
   }
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (!document.hidden) {
-      if (this.isAnswered) {
-        this.showExplanationText(); // Direct display of explanation text without further checks
-        console.log(`Explanation text displayed on visibility restoration for answered question.`);
-      } else {
-        this.showQuestionText();
-        console.log(`Question text displayed on visibility restoration for unanswered question.`);
-      }
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (document.hidden) {
-      // Save the quiz state when navigating away from the tab
-      this.saveQuizState();
-      console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-    } else {
-      // Restore the quiz state and reapply the display when returning to the tab
-      this.restoreQuizState();
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (document.hidden) {
-      this.saveQuizState();
-      console.log(`State saved on visibility change - currentQuestionIndex: ${this.currentQuestionIndex}`);
-    } else {
-      this.restoreQuizState();
-    }
-  } */
-  
-
 
   /* private saveQuizState(): void {
     try {
