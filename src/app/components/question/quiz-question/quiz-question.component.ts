@@ -1113,13 +1113,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`Defaulted to question text for question ${this.currentQuestionIndex}.`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.displayLock === 'explanation' && this.displayState.answered) {
         this.showExplanationText();
         console.log(`[renderDisplay] Locked to explanation text for question ${this.currentQuestionIndex}`);
     } else {
         this.showQuestionText();
         console.log(`[renderDisplay] Locked to question text for question ${this.currentQuestionIndex}`);
+    }
+  } */
+  private renderDisplay(): void {
+    if (this.modeLocked) {
+        if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+            this.showExplanationText();
+            console.log(`[renderDisplay] Explanation locked for question ${this.currentQuestionIndex}`);
+        }
+    } else {
+        if (this.displayState.mode === 'question') {
+            this.showQuestionText();
+            console.log(`[renderDisplay] Question text displayed by default for question ${this.currentQuestionIndex}`);
+        }
     }
   }
 
