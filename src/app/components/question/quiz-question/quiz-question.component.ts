@@ -333,11 +333,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    //if (!document.hidden) {
+    if (!document.hidden) {
       // When visibility is restored, re-apply the display based on `isAnswered`
-    //  this.renderDisplay();
-    //  console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
-    //}
+      this.renderDisplay();
+      console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
+    }
   }
   /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
@@ -1122,7 +1122,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`[renderDisplay] Locked to question text for question ${this.currentQuestionIndex}`);
     }
   } */
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.modeLocked) {
         if (this.displayState.mode === 'explanation' && this.displayState.answered) {
             this.showExplanationText();
@@ -1134,7 +1134,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.log(`[renderDisplay] Question text displayed by default for question ${this.currentQuestionIndex}`);
         }
     }
+  } */
+  private renderDisplay(): void {
+    if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+        this.showExplanationText();
+        console.log(`[renderDisplay] Explanation text displayed for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`[renderDisplay] Question text displayed by default for question ${this.currentQuestionIndex}`);
+    }
   }
+
 
   private displayExplanationLock(isAnswered: boolean): void {
       if (!this.displayExplanationLocked) {
