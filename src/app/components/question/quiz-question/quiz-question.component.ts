@@ -1005,7 +1005,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log(`Restored state for question ${this.currentQuestionIndex} - displayMode: ${this.displayMode}`);
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     const storedIndex = sessionStorage.getItem('currentQuestionIndex');
     const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
     const storedShouldShowExplanation = sessionStorage.getItem('shouldShowExplanation') === 'true';
@@ -1015,8 +1015,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.shouldShowExplanation = storedShouldShowExplanation;
 
     console.log(`Restored state for question ${this.currentQuestionIndex}`);
-  }
+  } */
+  private restoreQuizState(): void {
+    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
+    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
 
+    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
+    this.isAnswered = storedIsAnswered;
+
+    console.log(`Restored state for question ${this.currentQuestionIndex}`);
+  }
 
 
   private setDisplayMode(mode: 'question' | 'explanation'): void {
@@ -1048,14 +1056,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   private renderDisplay(): void {
-    const storedDisplayMode = sessionStorage.getItem('displayMode');
-
-    if (storedDisplayMode === 'explanation' && this.isAnswered) {
+    if (this.displayMode === 'explanation' && this.isAnswered) {
         this.showExplanationText();
-        console.log(`Explanation text displayed from renderDisplay for answered question.`);
+        console.log(`Explanation text displayed for answered question.`);
     } else {
         this.showQuestionText();
-        console.log(`Question text displayed from renderDisplay for unanswered question.`);
+        console.log(`Question text displayed for unanswered question.`);
     }
   }
 
@@ -2380,7 +2386,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
     this.isAnswered = true;
     this.displayMode = "explanation";
-    sessionStorage.setItem('displayMode', 'explanation'); // Save to session
+    // sessionStorage.setItem('displayMode', 'explanation'); // Save to session
     //this.shouldShowExplanation = true; // Lock explanation display upon selection
     // this.displayExplanationLocked = true; // Lock explanation display to prevent toggling
     this.showExplanationText(); // Display explanation text immediately
