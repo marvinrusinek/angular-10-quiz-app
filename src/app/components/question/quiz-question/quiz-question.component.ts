@@ -154,6 +154,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   };
   private displayLock: 'question' | 'explanation' = 'question';
   private modeLocked = false;
+  private forceQuestionDisplay = true;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -2466,13 +2467,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
 
-    // Only proceed if mode is not already locked
-    if (!this.modeLocked) {
+    // Only proceed if forceQuestionDisplay is not yet disabled
+    if (this.forceQuestionDisplay) {
       this.isAnswered = true;
-      this.hasUserInteracted = true;
+      this.forceQuestionDisplay = false; // Disable force question mode after selection
       this.displayState.answered = true;
-      this.displayState.mode = "explanation";
-      this.displayLock = "explanation"; // Lock to explanation mode after selection
+      this.displayState.mode = "explanation"; // Set mode to explanation
       this.showExplanationText(); // Display explanation text immediately
       this.saveQuizState(); // Save the current state to session storage
       console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
