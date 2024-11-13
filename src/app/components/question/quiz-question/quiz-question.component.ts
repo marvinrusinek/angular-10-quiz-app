@@ -1530,8 +1530,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    console.log('Option clicked:', event);
-
     if (!event?.option || event.option.optionId === undefined) return;
 
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
