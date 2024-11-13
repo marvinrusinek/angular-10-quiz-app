@@ -145,6 +145,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: false
   };
   private forceQuestionDisplay = true;
+  currentExplanationText: string = '';
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
