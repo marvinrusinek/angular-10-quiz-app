@@ -1486,10 +1486,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(
+  public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    console.log('Option clicked:', event); 
+    console.log('Option clicked:', event);
 
     if (!event?.option || event.option.optionId === undefined) return;
 
@@ -1502,181 +1502,96 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     this.isOptionSelected = true;
-
-    // Only proceed if forceQuestionDisplay is not yet disabled
-    if (this.forceQuestionDisplay) {
-      this.isAnswered = true;
-      this.forceQuestionDisplay = false; // Disable force question mode after selection
-      this.displayState.answered = true;
-      this.displayState.mode = "explanation"; // Set mode to explanation
-      this.showExplanationText(); // Display explanation text immediately
-      console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
-    }
+    this.handleInitialSelection(event);
 
     try {
       await this.ngZone.run(async () => {
         console.log('Inside ngZone after click:', event);
 
-        // Small delay for UI stability
-        await new Promise((resolve) => requestAnimationFrame(resolve));
+        await this.applyUIStabilityDelay();
+        const { option, index, checked } = event;
 
-        const { option, index = -1, checked = false } = event || {};
+        if (!this.isValidIndex(index)) return;
 
-        if (typeof index !== 'number' || index < 0) {
-          console.error(`Invalid index: ${index}`);
-          return;
-        }
-
-        // Handle selected option states
-        this.selectedOptionService.setOptionSelected(true);
-        this.selectedOptionService.isAnsweredSubject.next(true);
-
-        if (!this.explanationLocked) {
-          this.explanationLocked = true;
-          await this.fetchAndSetExplanationText(this.currentQuestionIndex);
-        }
-
-        // Parent class handling and additional state management
-        await super.onOptionClicked(event);
-        this.resetExplanation();
-        this.toggleOptionState(option, index);
-        this.emitOptionSelected(option, index);
-
-        this.startLoading();
-        this.handleMultipleAnswerQuestion(option);
-        this.markQuestionAsAnswered();
-
-        await this.processSelectedOption(option, index, checked);
-        await this.finalizeSelection(option, index);
-
-        // Unlock for multiple-answer questions
-        if (isMultipleAnswer) {
-          this.isOptionSelected = false;
-        }
-
-        console.log('Option processed. Applying changes.');
-        this.cdRef.detectChanges();
+        this.updateSelectionState(option, index, checked);
+        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
       });
     } catch (error) {
       console.error('Error during option click:', error);
     } finally {
-      // Cooldown period to allow UI refresh
-      setTimeout(() => {
-        this.isOptionSelected = false;
-        this.updateExplanationText(this.currentQuestionIndex);
-        this.cdRef.detectChanges();
-      }, 300);
-      this.finalizeLoadingState();
-    }
-  } */
-
-  public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    console.log('Option clicked:', event);
-
-    if (!event?.option || event.option.optionId === undefined) return;
-
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-
-    // Lock input for single-answer questions
-    if (!isMultipleAnswer && this.isOptionSelected) {
-        console.warn('Click locked, skipping.');
-        return;
-    }
-
-    this.isOptionSelected = true;
-    this.handleInitialSelection(event);
-
-    try {
-        await this.ngZone.run(async () => {
-            console.log('Inside ngZone after click:', event);
-
-            await this.applyUIStabilityDelay();
-            const { option, index, checked } = event;
-
-            if (!this.isValidIndex(index)) return;
-
-            this.updateSelectionState(option, index, checked);
-            this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-        });
-    } catch (error) {
-        console.error('Error during option click:', error);
-    } finally {
-        this.applyCooldownAndFinalize();
+      this.applyCooldownAndFinalize();
     }
   }
 
   private handleInitialSelection(event: { option: SelectedOption | null; index: number; checked: boolean }): void {
-      if (this.forceQuestionDisplay) {
-          this.isAnswered = true;
-          this.forceQuestionDisplay = false;
-          this.displayState.answered = true;
-          this.displayState.mode = "explanation";
-          this.showExplanationText();
-          console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
-      }
+    if (this.forceQuestionDisplay) {
+      this.isAnswered = true;
+      this.forceQuestionDisplay = false;
+      this.displayState.answered = true;
+      this.displayState.mode = "explanation";
+      this.showExplanationText();
+      console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
+    }
   }
 
   private async applyUIStabilityDelay(): Promise<void> {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
   }
 
   private isValidIndex(index: number): boolean {
-      if (typeof index !== 'number' || index < 0) {
-          console.error(`Invalid index: ${index}`);
-          return false;
-      }
-      return true;
+    if (typeof index !== 'number' || index < 0) {
+      console.error(`Invalid index: ${index}`);
+      return false;
+    }
+    return true;
   }
 
   private updateSelectionState(option: SelectedOption, index: number, checked: boolean): void {
-      this.selectedOptionService.setOptionSelected(true);
-      this.selectedOptionService.isAnsweredSubject.next(true);
+    this.selectedOptionService.setOptionSelected(true);
+    this.selectedOptionService.isAnsweredSubject.next(true);
 
-      if (!this.explanationLocked) {
-          this.explanationLocked = true;
-          this.fetchAndSetExplanationText(this.currentQuestionIndex);
-      }
+    if (!this.explanationLocked) {
+      this.explanationLocked = true;
+      this.fetchAndSetExplanationText(this.currentQuestionIndex);
+    }
 
-      this.resetExplanation();
-      this.toggleOptionState(option, index);
-      this.emitOptionSelected(option, index);
+    this.resetExplanation();
+    this.toggleOptionState(option, index);
+    this.emitOptionSelected(option, index);
   }
 
   private async performOptionProcessing(
-      option: SelectedOption,
-      index: number,
-      checked: boolean,
-      isMultipleAnswer: boolean
+    option: SelectedOption,
+    index: number,
+    checked: boolean,
+    isMultipleAnswer: boolean
   ): Promise<void> {
-      await super.onOptionClicked({ option, index, checked });
-      this.startLoading();
-      this.handleMultipleAnswerQuestion(option);
-      this.markQuestionAsAnswered();
+    await super.onOptionClicked({ option, index, checked });
+    this.startLoading();
+    this.handleMultipleAnswerQuestion(option);
+    this.markQuestionAsAnswered();
 
-      await this.processSelectedOption(option, index, checked);
-      await this.finalizeSelection(option, index);
+    await this.processSelectedOption(option, index, checked);
+    await this.finalizeSelection(option, index);
 
-      // Unlock for multiple-answer questions
-      if (isMultipleAnswer) {
-          this.isOptionSelected = false;
-      }
+    // Unlock for multiple-answer questions
+    if (isMultipleAnswer) {
+      this.isOptionSelected = false;
+    }
 
-      console.log('Option processed. Applying changes.');
-      this.cdRef.detectChanges();
+    console.log('Option processed. Applying changes.');
+    this.cdRef.detectChanges();
   }
 
   private applyCooldownAndFinalize(): void {
-      setTimeout(() => {
-          this.isOptionSelected = false;
-          this.updateExplanationText(this.currentQuestionIndex);
-          this.cdRef.detectChanges();
-      }, 300);
+    setTimeout(() => {
+      this.isOptionSelected = false;
+      this.updateExplanationText(this.currentQuestionIndex);
+      this.cdRef.detectChanges();
+    }, 300);
 
-      this.finalizeLoadingState();
+    this.finalizeLoadingState();
   }
-
   
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
