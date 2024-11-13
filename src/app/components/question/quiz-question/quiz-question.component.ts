@@ -321,7 +321,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     if (this.forceQuestionDisplay) {
       this.showQuestionText();
     } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
@@ -329,8 +329,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       this.showQuestionText();
     }
+  } */
+  private renderDisplay(): void {
+    if (this.forceQuestionDisplay) {
+        this.showQuestionText();
+        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+        this.showExplanationText(this.currentExplanationText); // Use the correct explanation text
+        console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
+    } else {
+        this.showQuestionText();
+        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+    }
   }
-  
+
+  private saveQuizState(): void {
+    // Store the explanation state or text
+    sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
+  }
+
+  private restoreQuizState(): void {
+    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
+    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+  }
+
+
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
     this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
