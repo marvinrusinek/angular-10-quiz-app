@@ -2144,7 +2144,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           );
           this.explanationToDisplay = explanationText ?? 'No explanation available';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          console.log(`Displayed explanation for question ${this.currentQuestionIndex}:`, explanationText);
           this.cdRef.markForCheck(); // Ensure UI reflects changes
         } catch (error) {
           console.error('Error fetching explanation:', error);
