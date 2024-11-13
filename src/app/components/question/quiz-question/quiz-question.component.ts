@@ -328,9 +328,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
-      // When visibility is restored, re-apply the display based on `isAnswered`
       this.renderDisplay();
-      console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
   }
 
