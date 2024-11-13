@@ -342,10 +342,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     this.cdRef.detectChanges();
   }
 
-  private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
-    return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
-  }
-
   protected setCurrentQuestion(question: QuizQuestion): void {
     if (this.quizStateService) {
       this.quizStateService.setCurrentQuestion(question);

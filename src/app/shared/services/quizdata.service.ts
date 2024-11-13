@@ -282,6 +282,10 @@ export class QuizDataService implements OnDestroy {
     this.questionType = question.type;
   }
 
+  private mapQuestionType(type: QuestionType): 'single' | 'multiple' {
+    return type === QuestionType.MultipleAnswer ? 'multiple' : 'single';
+  }
+
   submitQuiz(quiz: Quiz): Observable<any> {
     const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
     return this.http.post(submitUrl, quiz).pipe(
