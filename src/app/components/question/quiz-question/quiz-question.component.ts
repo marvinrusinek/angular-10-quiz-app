@@ -85,10 +85,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionTextLoaded = false;
   private isLoadingInProgress = false;
   savedDisplayExplanation = false;
-  private displayLocked = false;
-  private displayExplanationLocked = false;
   shouldShowExplanation = false;
-  private hasUserInteracted = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -133,9 +130,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   shouldDisplayAnswers = false;
   feedbackText = '';
   displayExplanation = false;
-  private explanationDisplayLocked = false;
-  private isExplanationLocked = false;
-  private tabVisible = true;
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
   explanationLocked = false; // flag to lock explanation
@@ -146,14 +140,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
   private isRestoringState = false;
-  private restoreInProgress = false;
-  private currentMode: 'question' | 'explanation' = 'question';
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
     answered: false
   };
-  private displayLock: 'question' | 'explanation' = 'question';
-  private modeLocked = false;
   private forceQuestionDisplay = true;
 
   explanationTextSubject = new BehaviorSubject<string>('');
