@@ -224,6 +224,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Call initializeQuiz to ensure the quiz is fully set up
       await this.initializeQuiz();
+      this.restoreQuizState();
 
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
@@ -1554,6 +1555,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         this.updateSelectionState(option, index, checked);
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+        this.saveQuizState();
       });
     } catch (error) {
       console.error('Error during option click:', error);
