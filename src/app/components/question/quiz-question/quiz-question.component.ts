@@ -763,7 +763,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async showExplanationText(): Promise<void> {
+  /* private async showExplanationText(): Promise<void> {
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
       console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
       return;
@@ -785,6 +785,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     } catch (error) {
       console.error('Error fetching explanation text:', error);
+      this.resetExplanationText(); // Reset explanation on error
+    }
+  } */
+  private showExplanationText(explanationText: string): void {
+    if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
+      console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
+      return;
+    }
+
+    try {
+      if (this.shouldDisplayExplanation) {
+        console.log('Displaying explanation text.');
+        this.explanationToDisplay = explanationText || 'Explanation unavailable';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+        console.log('Explanation successfully displayed:', this.explanationToDisplay);
+      } else {
+        console.log('Skipping explanation display as it is not intended.');
+        this.resetExplanationText(); // Clears explanation text and updates UI
+        this.shouldDisplayExplanation = false; // Reset flag after display decision
+      }
+    } catch (error) {
+      console.error('Error displaying explanation text:', error);
       this.resetExplanationText(); // Reset explanation on error
     }
   }
