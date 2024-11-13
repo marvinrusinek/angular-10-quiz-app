@@ -237,8 +237,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.setupSubscriptions();
       this.subscribeToNavigationFlags();
       this.subscribeToTotalQuestions();
-  
-      console.log('QuizQuestionComponent initialized successfully');
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
