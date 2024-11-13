@@ -1538,8 +1538,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Lock input for single-answer questions
     if (!isMultipleAnswer && this.isOptionSelected) {
-      console.warn('Click locked, skipping.');
-      return;
+      return; // Skip further processing if an option is already selected
     }
 
     this.isOptionSelected = true;
