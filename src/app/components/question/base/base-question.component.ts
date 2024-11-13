@@ -19,10 +19,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 })
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
-  @ViewChild('dynamicAnswerContainer', {
-    read: ViewContainerRef,
-    static: false
-  })
+  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{
@@ -45,9 +42,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   sharedOptionConfig: SharedOptionConfig;
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
-  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    false
-  );
+  multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   questionForm: FormGroup;
   selectedOption!: SelectedOption;
   selectedOptionId: number | null = null;
