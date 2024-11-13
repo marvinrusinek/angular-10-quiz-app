@@ -1544,8 +1544,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
       await this.ngZone.run(async () => {
-        console.log('Inside ngZone after click:', event);
-
         await this.applyUIStabilityDelay();
         const { option, index, checked } = event;
 
