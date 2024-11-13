@@ -239,7 +239,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Setup for visibility and routing
       this.setupVisibilitySubscription();
-      this.addVisibilityChangeListener();
       this.initializeRouteListener();
   
       // Additional subscriptions and state tracking
@@ -400,16 +399,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
       });
-  }
-
-  private addVisibilityChangeListener(): void {
-    document.addEventListener('visibilitychange', () => {
-      this.tabVisible = !document.hidden;
-      if (this.tabVisible) {
-        console.log('Tab is visible again. Re-checking state...');
-        this.recheckSelectionState();
-      }
-    });
   }
 
   private initializeRouteListener(): void {
@@ -701,19 +690,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   
     document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  }
-
-  recheckSelectionState(): void {
-    // Recheck the state of the selected options to ensure everything is correct
-    if (this.isAnswerSelected()) {
-      console.log(
-        'Answer was already selected. Ensuring the Next button is enabled.'
-      );
-      this.selectedOptionService.isAnsweredSubject.next(true);
-    } else {
-      console.log('No answer selected. Waiting for user interaction.');
-      this.selectedOptionService.isAnsweredSubject.next(false);
-    }
   }
 
   isAnswerSelected(): boolean {
@@ -1605,8 +1581,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the feedback display state for this option
     this.showFeedbackForOption[option.optionId] = option.selected;
     console.log('Updated feedback display state:', this.showFeedbackForOption);
-  
-    this.selectedOptionService.isAnsweredSubject.next(true);
     console.log(`Option state toggled:`, { option, index });
   }
   
