@@ -333,17 +333,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`Re-applied display on visibility change //- currentQuestionIndex: ${this.currentQuestionIndex}`);
     }
   }
-  
-  // Restore Quiz State with Stabilizing Logic
-  private restoreQuizState(): void {
-    const storedIndex = sessionStorage.getItem('currentQuestionIndex');
-    const storedIsAnswered = sessionStorage.getItem('isAnswered') === 'true';
-
-    this.currentQuestionIndex = storedIndex ? +storedIndex : this.currentQuestionIndex;
-    this.isAnswered = storedIsAnswered;
-
-    console.log(`Restored state for question ${this.currentQuestionIndex}`);
-  }
 
   private renderDisplay(): void {
     if (this.forceQuestionDisplay) {
