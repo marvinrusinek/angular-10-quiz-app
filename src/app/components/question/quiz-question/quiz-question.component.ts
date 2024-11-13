@@ -790,7 +790,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.resetExplanationText(); // Reset explanation on error
     }
   } */
-  private showExplanationText(explanationText: string): void {
+  private showExplanationText(explanationText?: string): void {
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
       console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
       return;
