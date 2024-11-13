@@ -332,14 +332,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   private renderDisplay(): void {
     if (this.forceQuestionDisplay) {
-        this.showQuestionText();
-        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+      this.showQuestionText();
+      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
-        this.showExplanationText(this.currentExplanationText); // Use the correct explanation text
-        console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
+      this.showExplanationText(this.currentExplanationText); // Use the correct explanation text
+      console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
-        this.showQuestionText();
-        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+      this.showQuestionText();
+      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
   }
 
