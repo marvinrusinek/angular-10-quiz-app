@@ -24,7 +24,6 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
   @Output() optionSelected = new EventEmitter<{ option: Option, index: number, checked: boolean }>();
   @Output() optionChanged = new EventEmitter<Option>();
@@ -232,11 +231,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         element[key] = attributes[key];
       }
     }
-  }
-
-  onQuestionChange(question: QuizQuestion): void {
-    this.quizStateService.setCurrentQuestion(question);
-    this.questionAnswered.emit(question);
   }
 
   getOptionDisplayText(option: Option, idx: number): string {

@@ -385,10 +385,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  onQuestionChange(question: QuizQuestion): void {
-    this.questionAnswered.emit(question);
-  }
-
   // Function to set up shared visibility subscription
   private setupVisibilitySubscription(): void {
     this.sharedVisibilitySubscription = this.sharedVisibilityService.pageVisibility$
