@@ -517,8 +517,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const optionBinding = this.optionBindings[index];
     optionBinding.isSelected = option.selected;
     this.showIconForOption[optionId] = option.selected;
-  
-    console.log(`Handled selection for optionId ${optionId}`);
   }
 
   private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
