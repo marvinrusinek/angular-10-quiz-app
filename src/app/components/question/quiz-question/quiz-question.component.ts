@@ -465,8 +465,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('questionsLoaded$ emitted:', loaded);
         
         if (loaded) {
-          console.log('Questions are loaded. Handling route changes...');
-          
           // Handle route changes after questions are loaded
           this.handleRouteChanges();
 
