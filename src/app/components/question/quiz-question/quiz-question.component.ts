@@ -715,13 +715,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
       if (this.shouldDisplayExplanation) {
-        console.log('Displaying explanation text.');
         this.explanationToDisplay = explanationText || 'Explanation unavailable';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
         console.log('Explanation successfully displayed:', this.explanationToDisplay);
       } else {
-        console.log('Skipping explanation display as it is not intended.');
         this.resetExplanationText(); // Clears explanation text and updates UI
         this.shouldDisplayExplanation = false; // Reset flag after display decision
       }
