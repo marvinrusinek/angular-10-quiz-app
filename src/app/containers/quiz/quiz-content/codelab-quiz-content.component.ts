@@ -643,15 +643,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading question data');
       })
     );
-
-    this.combinedText$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: text => {
-        console.log('Combined Text for Display:', text);
-      },
-      error: err => console.error('Error in combinedText$ subscription:', err)
-    });
   }
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
