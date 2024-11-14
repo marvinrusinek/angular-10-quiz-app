@@ -2708,9 +2708,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.question = null;
     this.optionsToDisplay = [];
   
-    // Log the reset action for debugging purposes
-    console.log('QuizComponent - resetUI called');
-  
     // Reset the quiz question component if it exists
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.resetFeedback();
