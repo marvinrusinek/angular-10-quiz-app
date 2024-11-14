@@ -322,15 +322,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* private renderDisplay(): void {
-    if (this.forceQuestionDisplay) {
-      this.showQuestionText();
-    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
-      this.showExplanationText();
-    } else {
-      this.showQuestionText();
-    }
-  } */
   private renderDisplay(): void {
     if (this.forceQuestionDisplay) {
       this.showQuestionText();
