@@ -602,10 +602,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  logEvent(event: any) {
-    console.log('logEvent called with:', event);
-  }
-
   onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
