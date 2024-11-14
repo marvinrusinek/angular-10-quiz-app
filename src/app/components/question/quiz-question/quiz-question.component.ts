@@ -142,6 +142,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: false
   };
   private forceQuestionDisplay = true;
+  private readyForExplanationDisplay = false;
   currentExplanationText = '';
 
   explanationTextSubject = new BehaviorSubject<string>('');
@@ -323,7 +324,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.forceQuestionDisplay) {
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
-    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered && this.readyForExplanationDisplay) {
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
@@ -874,6 +875,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
+    this.readyForExplanationDisplay = false;
     this.renderDisplay();                // Render initial display
     console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
   
@@ -1456,6 +1458,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
 
     try {
       await this.ngZone.run(async () => {
