@@ -321,13 +321,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private renderDisplay(): void {
     if (this.forceQuestionDisplay) {
-      this.showQuestionText();
+      this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
-      this.showExplanationText(this.currentExplanationText); // Use the correct explanation text
+      this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
-      this.showQuestionText();
+      this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
   }
@@ -367,10 +367,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Helper function to enforce the display mode directly
   private applyDisplayMode(mode: 'question' | 'explanation'): void {
     if (mode === 'question') {
-      this.showQuestionText();
+      this.ensureQuestionTextDisplay();
       console.log('Display mode set to question');
     } else if (mode === 'explanation') {
-      this.showExplanationText();
+      this.ensureExplanationTextDisplay();
       console.log('Display mode set to explanation');
     }
   }
@@ -715,19 +715,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
    // Helper methods
-  private showQuestionText(): void {
+  private ensureQuestionTextDisplay(): void {
     if (this.displayMode$.value !== 'question') {
       console.log('Blocked: Attempted to show question in incorrect mode.');
       return;
     }
 
-    console.log('Executing showQuestionText:', {
-      isAnswered: this.isAnswered,
-      shouldDisplayExplanation: this.shouldDisplayExplanation,
-    });
-
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
-      console.log('Displaying question text and clearing explanation.');
+      // Displaying question text and clearing explanation
       this.resetExplanationText(); // Resets explanation text and updates UI
       this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
@@ -735,32 +730,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* private async showExplanationText(): Promise<void> {
-    if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
-      console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
-      return;
-    }
-
-    try {
-      if (this.shouldDisplayExplanation) {
-        console.log('Displaying explanation text.');
-        this.explanationToDisplay = await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-        ) || 'Explanation unavailable';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
-        console.log('Explanation successfully displayed:', this.explanationToDisplay);
-      } else {
-        console.log('Skipping explanation display as it is not intended.');
-        this.resetExplanationText(); // Clears explanation text and updates UI
-        this.shouldDisplayExplanation = false; // Reset flag after display decision
-      }
-    } catch (error) {
-      console.error('Error fetching explanation text:', error);
-      this.resetExplanationText(); // Reset explanation on error
-    }
-  } */
-  private showExplanationText(explanationText?: string): void {
+  private ensureExplanationTextDisplay(explanationText?: string): void {
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
       console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
       return;
@@ -802,9 +772,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Update display based on current mode
       if (mode === 'question') {
-        this.showQuestionText();
+        this.ensureQuestionTextDisplay();
       } else if (mode === 'explanation') {
-        this.showExplanationText();
+        this.ensureExplanationTextDisplay();
       }
     });
   }
@@ -1536,7 +1506,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.forceQuestionDisplay = false;
       this.displayState.answered = true;
       this.displayState.mode = "explanation";
-      this.showExplanationText();
+      this.ensureExplanationTextDisplay();
       console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
     }
   }
