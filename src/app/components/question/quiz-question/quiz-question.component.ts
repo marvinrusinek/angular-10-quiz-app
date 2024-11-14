@@ -1653,8 +1653,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number,
     checked: boolean
   ): Promise<void> {
-    console.log(`Handling option processing and feedback for question ${this.currentQuestionIndex}, option ${index}`);
-  
     try {
       const event = { option, index, checked };
       await super.onOptionClicked(event);
