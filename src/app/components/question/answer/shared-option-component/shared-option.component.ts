@@ -425,7 +425,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const clonedOption = { ...option };
   
     // Safely access optionId, or fallback to index
-    const optionId = this.getSafeOptionId(clonedOption, index);
+    const optionId = this.quizService.getSafeOptionId(clonedOption, index);
     if (optionId === undefined) {
       console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
       return;
@@ -455,18 +455,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     // Safely call option click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-  }
-
-  private getSafeOptionId(option: SelectedOption, index: number): number | undefined {
-    console.log('Accessing optionId for:', option);
-    
-    // Ensure optionId exists and is a number
-    if (option && typeof option.optionId === 'number') {
-      return option.optionId;
-    }
-  
-    console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
-    return index;
   }
 
   private async safeCallOptionClickHandlers(
