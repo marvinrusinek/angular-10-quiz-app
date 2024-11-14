@@ -420,7 +420,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Assign the fetched question and options to the component state
       this.currentQuestion = data.question;
       this.options = data.options;
-      console.log('Loaded question contents:', data);
   
       // Set the current question in the QuizService
       this.quizService.setCurrentQuestion(questionIndex);
