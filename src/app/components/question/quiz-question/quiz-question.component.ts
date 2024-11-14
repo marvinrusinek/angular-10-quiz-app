@@ -480,9 +480,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private initializeFirstQuestion(): void {
     // Retrieve the question index from the route parameters and parse it as a number
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-    
-    // Log for debugging purposes
-    console.log(`Initializing the first question with index: ${index}`);
 
     // Set the initial question and load options
     this.setQuestionFirst(index);
