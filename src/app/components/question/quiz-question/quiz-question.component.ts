@@ -490,12 +490,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async loadQuizData(): Promise<boolean> {
     try {
-      if (!this.quizId) {
-        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        if (!this.quizId) {
-          console.error('Quiz ID is missing');
-          return false;
-        }
+      // Ensure quizId is available
+      const quizIdExists = await this.quizService.ensureQuizIdExists();
+      if (!quizIdExists) {
+        console.error('Quiz ID is missing');
+        return false;
       }
 
       // Fetch and process questions
