@@ -641,7 +641,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showExplanationChange.emit(false);  // Hide explanation initially
     this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.resetExplanationText();
-    console.log('Explanation display reset.');
   }
   
   private setExplanationText(question: QuizQuestion): void {
