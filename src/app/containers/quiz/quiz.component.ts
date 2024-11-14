@@ -644,7 +644,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== option.optionId);
     }
-  }  
+  }
 
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
