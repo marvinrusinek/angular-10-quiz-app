@@ -1913,6 +1913,14 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  // Ensure quiz ID exists, retrieving it if necessary
+  private async ensureQuizIdExists(): Promise<boolean> {
+    if (!this.quizId) {
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+    }
+    return !!this.quizId;
+  }
+
   resetUserSelection(): void {
     this.selectedOption$.next('');
   }
