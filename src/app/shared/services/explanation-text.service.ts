@@ -146,7 +146,6 @@ export class ExplanationTextService {
 
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation);
-    console.log('Formatted explanation for question index:', questionIndex, ':', formattedExplanation);
 
     this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
