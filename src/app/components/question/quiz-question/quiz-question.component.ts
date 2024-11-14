@@ -82,10 +82,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionsObservableSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
   questionRenderComplete = new EventEmitter<void>();
-  questionTextLoaded = false;
-  private isLoadingInProgress = false;
-  savedDisplayExplanation = false;
-  shouldShowExplanation = false;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -121,6 +117,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
   isLoading = true;
+  private isLoadingInProgress = false;
   isLoadingQuestions = false;
   isFirstQuestion = true;
   isPaused = false;
@@ -145,7 +142,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: false
   };
   private forceQuestionDisplay = true;
-  currentExplanationText: string = '';
+  currentExplanationText = '';
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
