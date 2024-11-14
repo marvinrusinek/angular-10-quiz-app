@@ -264,12 +264,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   public async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
     const { option, index, checked } = event;
 
-    console.log('BaseQuestionComponent: onOptionClicked called with:', {
-      option,
-      index,
-      checked,
-    });
-  
     // Ensure the selected option is updated
     this.updateSelectedOption(index);
   
