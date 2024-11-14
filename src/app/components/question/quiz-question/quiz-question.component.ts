@@ -872,9 +872,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.optionsToDisplay = [];
     this.feedbackText = '';
 
+    this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
-    this.displayState.mode = "question"; // Set initial mode to question
-    this.displayState.answered = false;  // Mark as unanswered
     this.renderDisplay();                // Render initial display
     console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
   
@@ -1456,6 +1455,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
     this.handleInitialSelection(event);
+    this.forceQuestionDisplay = false;
 
     try {
       await this.ngZone.run(async () => {
