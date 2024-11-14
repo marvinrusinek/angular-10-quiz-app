@@ -753,8 +753,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       return feedbackBinding;
     });
-  
-    console.log('Completed feedback bindings initialization:', this.feedbackBindings);
   }
   
   // Helper method to return default FeedbackProps
