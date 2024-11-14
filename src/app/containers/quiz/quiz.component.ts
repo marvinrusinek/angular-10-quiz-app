@@ -661,7 +661,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private resetQuestionState(): void {
-    console.log('Resetting question state');
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
     this.isNextButtonEnabled = false;
@@ -679,14 +678,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizStateService.setAnswered(false);
     this.quizStateService.setLoading(false);
-
-    console.log('Question state reset:', {
-      selectedOptions: this.selectedOptions,
-      isNextButtonEnabled: this.isNextButtonEnabled,
-      currentQuestionAnswered: this.currentQuestionAnswered,
-      isButtonEnabled: this.isButtonEnabled,
-    });
-
     this.cdRef.detectChanges();
   }
 
