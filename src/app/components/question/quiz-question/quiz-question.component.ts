@@ -643,23 +643,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.resetExplanationText();
   }
   
-  private setExplanationText(question: QuizQuestion): void {
-    console.log('Calling setExplanationText() for question:', question.questionText);
-
-    const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
-    const formattedExplanation = this.explanationTextService.formatExplanation(
-      question,
-      correctOptionIndices,
-      this.quizId
-    );
-  
-    console.log('Setting explanation:', formattedExplanation);
- 
-    this.quizService.setNextExplanationText(formattedExplanation);
-    this.explanationToDisplayChange.emit(formattedExplanation);
-    this.showExplanationChange.emit(true);  // Show the explanation
-  }
-  
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
       console.log('Reset feedback triggered');
