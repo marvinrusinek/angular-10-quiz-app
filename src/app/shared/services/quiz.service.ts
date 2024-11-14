@@ -462,7 +462,7 @@ export class QuizService implements OnDestroy {
     }));
   }
 
-  private getSafeOptionId(option: SelectedOption, index: number): number | undefined {
+  getSafeOptionId(option: SelectedOption, index: number): number | undefined {
     console.log('Accessing optionId for:', option);
     
     // Ensure optionId exists and is a number
