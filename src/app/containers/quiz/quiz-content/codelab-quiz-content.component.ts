@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -23,6 +23,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -142,10 +143,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
     // Subscribe to displayState$ and update the QQC display
     this.displayState$.subscribe((state) => {
-      if (state.mode === 'explanation' && state.answered) {
-        this.quizQuestionComponent.ensureExplanationTextDisplay();
+      if (this.quizQuestionComponent) {
+        if (state.mode === 'explanation' && state.answered) {
+          this.quizQuestionComponent.ensureExplanationTextDisplay();
+        } else {
+          this.quizQuestionComponent.ensureQuestionTextDisplay();
+        }
       } else {
-        this.quizQuestionComponent.ensureQuestionTextDisplay();
+        console.error('QuizQuestionComponent is not yet initialized.');
       }
     });
   }
