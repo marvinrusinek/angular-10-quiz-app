@@ -171,6 +171,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   currentQuestionAnswered = false;
 
+  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
+    mode: 'question',
+    answered: false,
+  });
+  displayState$ = this.displayStateSubject.asObservable();
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -2518,6 +2524,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Update the progress percentage based on the new current question index
     this.updateProgressPercentage();
+  }
+
+  private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
+    this.displayStateSubject.next({ mode, answered });
   }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
