@@ -821,23 +821,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.correctAnswersTextSource.pipe(
         startWith(''),
         distinctUntilChanged()
-      ),
-      this.displayState$.pipe(
-        startWith({ mode: 'question', answered: false }),
-        distinctUntilChanged()
       )
     ]).pipe(
-      map(([currentQuestion, formattedExplanation, shouldDisplayExplanation, questionIndex, correctAnswersText, displayState]) => {
-        if (!currentQuestion || !displayState) {
+      map(([currentQuestion, formattedExplanation, shouldDisplayExplanation, questionIndex, correctAnswersText]) => {
+        if (!currentQuestion) {
           return 'No question or explanation available.';
         }
   
-        if (displayState.mode === 'explanation' && displayState.answered) {
+        if (shouldDisplayExplanation) {
           return formattedExplanation || 'Explanation unavailable.';
         }
   
         let displayText = currentQuestion.questionText || 'No question text available.';
-        if (displayState.mode === 'question' && correctAnswersText) {
+        if (correctAnswersText) {
           displayText += ` ${correctAnswersText}`;
         }
   
@@ -849,7 +845,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading question or explanation text.');
       })
     );
-  }  
+  }
+  
 
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
