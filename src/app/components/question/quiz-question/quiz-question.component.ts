@@ -51,6 +51,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
+  @Output() displayStateChange = new EventEmitter<{ mode: 'question' | 'explanation'; answered: boolean }>();
   @Input() data: {
     questionText: string,
     explanationText?: string,
@@ -1485,6 +1486,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = true;
     this.displayState.answered = true;
     this.displayState.mode = "explanation";
+    this.displayStateChange.emit({ mode: 'explanation', answered: true }); // Notify QuizComponent
 
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
