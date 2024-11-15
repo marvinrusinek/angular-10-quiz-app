@@ -149,14 +149,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupDisplayStateSubscription();
   } */
   ngAfterViewInit(): void {
-    this.waitForContentAvailable().then(() => {
-      this.retryInitializeQuizQuestionComponent().then((initialized) => {
-        if (initialized) {
-          this.setupDisplayStateSubscription();
-        }
-      });
+    console.log('ngAfterViewInit called.');
+    
+    this.retryInitializeQuizQuestionComponent().then((initialized) => {
+      if (initialized) {
+        this.setupDisplayStateSubscription();
+      } else {
+        console.error('Failed to initialize QuizQuestionComponent after retries.');
+      }
     });
   }
+  
   
 
   ngAfterViewChecked(): void {
@@ -187,6 +190,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private async retryInitializeQuizQuestionComponent(maxRetries = 10, delayMs = 200): Promise<boolean> {
     let retries = 0;
+  
     while (!this.quizQuestionComponent && retries < maxRetries) {
       console.warn(`QuizQuestionComponent not initialized yet. Retrying... (${retries + 1}/${maxRetries})`);
       retries++;
@@ -201,6 +205,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       return false;
     }
   }
+  
 
   private async waitForContentAvailable(): Promise<void> {
     while (!this.isContentAvailable || !this.quizComponentData) {
