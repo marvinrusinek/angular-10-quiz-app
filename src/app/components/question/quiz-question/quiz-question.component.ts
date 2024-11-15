@@ -1132,6 +1132,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       : this.data?.options;
   }
 
+  getDisplayMode(): Observable<'question' | 'explanation'> {
+    return this.displayMode$.pipe(distinctUntilChanged());
+  }
+
   // logging undefined...
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
@@ -1477,8 +1481,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
 
-    // Update display state when an option is clicked
-    this.updateDisplayStateBeforeProcessing();
+    // Update display state for explanation mode
+    this.isAnswered = true;
+    this.displayState.answered = true;
+    this.displayState.mode = "explanation";
 
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
