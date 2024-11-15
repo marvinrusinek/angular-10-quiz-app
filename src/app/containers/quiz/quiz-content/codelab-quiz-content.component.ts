@@ -149,18 +149,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupDisplayStateSubscription();
   } */
   ngAfterViewInit(): void {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-    } else {
-      console.warn('QuizQuestionComponent not initialized in ngAfterViewInit.');
-    }
-    
-    this.retryInitializeQuizQuestionComponent().then((initialized) => {
-      if (initialized) {
-        this.setupDisplayStateSubscription();
-      }
+    this.waitForContentAvailable().then(() => {
+      this.retryInitializeQuizQuestionComponent().then((initialized) => {
+        if (initialized) {
+          this.setupDisplayStateSubscription();
+        }
+      });
     });
   }
+  
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
@@ -188,10 +185,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   }
 
-  private async retryInitializeQuizQuestionComponent(maxRetries = 5, delayMs = 100): Promise<boolean> {
+  private async retryInitializeQuizQuestionComponent(maxRetries = 10, delayMs = 200): Promise<boolean> {
     let retries = 0;
     while (!this.quizQuestionComponent && retries < maxRetries) {
-      console.warn('QuizQuestionComponent not initialized yet. Retrying...');
+      console.warn(`QuizQuestionComponent not initialized yet. Retrying... (${retries + 1}/${maxRetries})`);
       retries++;
       await new Promise(resolve => setTimeout(resolve, delayMs));
     }
@@ -204,6 +201,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       return false;
     }
   }
+
+  private async waitForContentAvailable(): Promise<void> {
+    while (!this.isContentAvailable || !this.quizComponentData) {
+      console.warn('Content not available yet. Waiting...');
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    console.log('Content is now available.');
+  }
+  
+  
   
 
   private setupDisplayStateSubscription(): void {
