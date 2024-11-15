@@ -804,51 +804,46 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.combinedText$ = combineLatest([
       this.quizStateService.currentQuestion$.pipe(
         startWith(null),
-        distinctUntilChanged(),
-        tap(currentQuestion => console.log('Current Question:', currentQuestion))
+        distinctUntilChanged()
       ),
       this.explanationTextService.formattedExplanation$.pipe(
         startWith(''),
-        distinctUntilChanged(),
-        tap(explanation => console.log('Formatted Explanation:', explanation))
+        distinctUntilChanged()
       ),
       this.explanationTextService.shouldDisplayExplanation$.pipe(
         startWith(false),
-        distinctUntilChanged(),
-        tap(shouldDisplay => console.log('Should Display Explanation:', shouldDisplay))
+        distinctUntilChanged()
       ),
       this.quizStateService.currentQuestionIndex$.pipe(
         startWith(0),
-        distinctUntilChanged(),
-        tap(index => console.log('Current Question Index:', index))
+        distinctUntilChanged()
       ),
       this.correctAnswersTextSource.pipe(
         startWith(''),
-        distinctUntilChanged(),
-        tap(correctAnswersText => console.log('Correct Answers Text:', correctAnswersText))
+        distinctUntilChanged()
+      ),
+      this.displayState$.pipe(
+        startWith({ mode: 'question', answered: false }),
+        distinctUntilChanged()
       )
     ]).pipe(
-      map(([currentQuestion, formattedExplanation, shouldDisplayExplanation, questionIndex, correctAnswersText]) => {
-        let displayText = '';
+      map(([currentQuestion, formattedExplanation, shouldDisplayExplanation, questionIndex, correctAnswersText, displayState]) => {
+        if (!currentQuestion || !displayState) {
+          return 'No question or explanation available.';
+        }
   
-        if (shouldDisplayExplanation && formattedExplanation) {
-          displayText = formattedExplanation;
-          console.log('Explanation text will be displayed.');
-        } else if (currentQuestion?.questionText) {
-          displayText = currentQuestion.questionText;
-          if (correctAnswersText) {
-            displayText += ` ${correctAnswersText}`;
-          }
-          console.log('Question text will be displayed.');
-        } else {
-          displayText = 'No question or explanation available.';
-          console.warn('Fallback: No question or explanation found.');
+        if (displayState.mode === 'explanation' && displayState.answered) {
+          return formattedExplanation || 'Explanation unavailable.';
+        }
+  
+        let displayText = currentQuestion.questionText || 'No question text available.';
+        if (displayState.mode === 'question' && correctAnswersText) {
+          displayText += ` ${correctAnswersText}`;
         }
   
         return displayText.trim();
       }),
       distinctUntilChanged(),
-      startWith(''),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading question or explanation text.');
