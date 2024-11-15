@@ -326,7 +326,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.forceQuestionDisplay || this.isExplanationLocked) {
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
-    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered && !this.isExplanationLocked) {
       this.setExplanationText();
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
@@ -892,6 +892,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
     this.readyForExplanationDisplay = false;
     this.isExplanationReady = false; // Prevent explanation until allowed
+    this.isExplanationLocked = true; // Block explanation display until user interaction
+    this.currentExplanationText = '';
     // this.renderDisplay();                // Render initial display
     // this.renderQuestionTextOnly(); // Render question text only by default
     this.ensureQuestionTextDisplay();
