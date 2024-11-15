@@ -333,6 +333,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private renderQuestionTextOnly(): void {
+    this.ensureQuestionTextDisplay();
+    console.log(`[renderQuestionTextOnly] Displaying question text exclusively for question ${this.currentQuestionIndex}`);
+  }
+
+  private renderExplanationTextOnly(): void {
+    if (this.displayState.mode === 'explanation' && this.displayState.answered && this.readyForExplanationDisplay) {
+      this.ensureExplanationTextDisplay(this.currentExplanationText);
+      console.log(`[renderExplanationTextOnly] Displaying explanation text for question ${this.currentQuestionIndex}`);
+    }
+  }
+
   private saveQuizState(): void {
     // Store the explanation state or text
     sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
@@ -876,7 +888,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
     this.readyForExplanationDisplay = false;
-    this.renderDisplay();                // Render initial display
+    // this.renderDisplay();                // Render initial display
+    this.renderQuestionTextOnly(); // Render question text only by default
     console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
   
     try {
@@ -1459,6 +1472,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
     this.readyForExplanationDisplay = true;
+    await this.renderDisplay();
 
     try {
       await this.ngZone.run(async () => {
