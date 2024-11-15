@@ -20,7 +20,7 @@
         <!--[displayVariables]="displayVariables"-->
         <ng-content></ng-content>
 
-        <ng-container *ngIf="optionsToDisplay">
+        <ng-container *ngIf="optionsToDisplay; else loadingPlaceholder">
           <codelab-quiz-question
             *ngIf="isContentAvailable"
             [quizData]="quizComponentData"
@@ -29,6 +29,11 @@
             (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           ></codelab-quiz-question>
         </ng-container>
+        <ng-template #loadingPlaceholder>
+          <div class="loading-state">
+            Loading quiz content...
+          </div>
+        </ng-template>
       </ng-container>
       <ng-template #noQuestion>
         <p>No question available.</p>
