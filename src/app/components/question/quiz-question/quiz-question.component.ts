@@ -1470,9 +1470,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!event?.option || event.option.optionId === undefined) return;
 
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-    if (!isMultipleAnswer && this.isOptionSelected) return;
+    // Lock input for single-answer questions
+    if (!isMultipleAnswer && this.isOptionSelected) {
+      return; // Skip further processing if an option is already selected
+    }
 
     this.isOptionSelected = true;
+
+    // Update display state when an option is clicked
+    this.updateDisplayStateBeforeProcessing();
+
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
     this.readyForExplanationDisplay = true;
@@ -1496,6 +1503,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.applyCooldownAndFinalize();
     }
+  }
+
+  // Function to update display state before processing the option click
+  private updateDisplayStateBeforeProcessing(): void {
+    this.isAnswered = true;
+    this.displayState.answered = true;
+    this.displayState.mode = "explanation"; // Lock to explanation mode
+    console.log(`[onOptionClicked] Updated display state to explanation for question ${this.currentQuestionIndex}`);
   }
 
   private handleInitialSelection(event: { option: SelectedOption | null; index: number; checked: boolean }): void {
