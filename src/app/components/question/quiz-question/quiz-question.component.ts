@@ -2799,12 +2799,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async setExplanationText(): Promise<void> {
     if (!this.isExplanationLocked) { // Ensure explanation is unlocked
-        this.currentExplanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-        this.showExplanationText(this.currentExplanationText);
-        this.cdRef.detectChanges(); // Apply changes explicitly
-        console.log(`Explanation text set and displayed for question ${this.currentQuestionIndex}`);
+      this.currentExplanationText = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+      );
+      this.ensureExplanationTextDisplay(this.currentExplanationText);
+      this.cdRef.detectChanges(); // Apply changes explicitly
+      console.log(`Explanation text set and displayed for question ${this.currentQuestionIndex}`);
     } else {
-        console.log('Explanation display is locked; skipping setting explanation text.');
+      console.log('Explanation display is locked; skipping setting explanation text.');
     }
   }
 
