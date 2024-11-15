@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -22,7 +22,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
   @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
@@ -139,19 +139,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
+  }
 
-    // Subscribe to displayState$ and update the QQC display
-    this.displayState$.subscribe((state) => {
-      if (this.quizQuestionComponent) {
-        if (state.mode === 'explanation' && state.answered) {
-          this.quizQuestionComponent.ensureExplanationTextDisplay();
-        } else {
-          this.quizQuestionComponent.ensureQuestionTextDisplay();
-        }
-      } else {
-        console.error('QuizQuestionComponent is not yet initialized.');
-      }
-    });
+  ngAfterViewInit(): void {
+    // Ensure display state subscription is set up after QuizQuestionComponent is initialized
+    this.setupDisplayStateSubscription();
   }
 
   ngAfterViewChecked(): void {
@@ -168,6 +160,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.correctAnswersDisplaySubject.complete();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+  }
+
+  private setupDisplayStateSubscription(): void {
+    this.displayState$.subscribe((state) => {
+      if (this.quizQuestionComponent) {
+        if (state.mode === 'explanation' && state.answered) {
+          this.quizQuestionComponent.ensureExplanationTextDisplay();
+        } else {
+          this.quizQuestionComponent.ensureQuestionTextDisplay();
+        }
+      } else {
+        console.error('QuizQuestionComponent is not yet initialized.');
+      }
+    });
   }
 
   private initializeExplanationTextObservable(): void {
