@@ -144,6 +144,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private forceQuestionDisplay = true;
   private readyForExplanationDisplay = false;
   private isExplanationReady = false;
+  private isExplanationLocked = true;
   currentExplanationText = '';
 
   explanationTextSubject = new BehaviorSubject<string>('');
@@ -321,12 +322,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async renderDisplay(): Promise<void> {
-    if (this.forceQuestionDisplay) {
+  private renderDisplay(): void {
+    if (this.forceQuestionDisplay || this.isExplanationLocked) {
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
-    } else if (this.displayState.mode === 'explanation' && this.displayState.answered && this.readyForExplanationDisplay) {
-      await new Promise(resolve => setTimeout(resolve, 300)); 
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered && !this.isExplanationLocked) {
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
@@ -893,7 +893,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isExplanationReady = false; // Prevent explanation until allowed
     // this.renderDisplay();                // Render initial display
     // this.renderQuestionTextOnly(); // Render question text only by default
-    this.renderDisplay();
+    this.ensureQuestionTextDisplay();
+    this.cdRef.detectChanges();
     console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
   
     try {
@@ -1477,7 +1478,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.forceQuestionDisplay = false;
     this.readyForExplanationDisplay = true;
     this.isExplanationReady = true; // Allow explanation to display
-    await this.renderDisplay();
+    this.isExplanationLocked = false; // Unlock explanation display
+    this.renderDisplay();
 
     try {
       await this.ngZone.run(async () => {
