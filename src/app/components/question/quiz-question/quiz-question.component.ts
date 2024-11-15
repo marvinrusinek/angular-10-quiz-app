@@ -148,6 +148,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private isExplanationLocked = true;
   currentExplanationText = '';
 
+  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
+    mode: 'question',
+    answered: false,
+  });
+  displayState$ = this.displayStateSubject.asObservable();
+
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
 
@@ -1482,6 +1488,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.isOptionSelected = true;
 
+    // Update the display state to explanation mode
+    this.updateDisplayState('explanation', true);
+
     // Update display state for explanation mode
     this.isAnswered = true;
     this.displayState.answered = true;
@@ -1511,6 +1520,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.applyCooldownAndFinalize();
     }
+  }
+
+  private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
+    // Log the state update for debugging
+    console.log('Updating display state:', { mode, answered });
+
+    // Emit the new state to the subject
+    this.displayStateSubject.next({ mode, answered });
   }
 
   private handleInitialSelection(event: { option: SelectedOption | null; index: number; checked: boolean }): void {
