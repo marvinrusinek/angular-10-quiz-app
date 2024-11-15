@@ -147,12 +147,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private isExplanationLocked = true;
   currentExplanationText = '';
 
-  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
-    mode: 'question',
-    answered: false
-  });
-  displayState$ = this.displayStateSubject.asObservable();
-
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
 
@@ -1491,7 +1485,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = true;
     this.displayState.answered = true;
     this.displayState.mode = "explanation";
-    this.updateDisplayState('explanation', true); // Update display state
 
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
