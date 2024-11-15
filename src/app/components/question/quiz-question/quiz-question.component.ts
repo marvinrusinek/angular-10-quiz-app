@@ -143,6 +143,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   };
   private forceQuestionDisplay = true;
   private readyForExplanationDisplay = false;
+  private isExplanationReady = false;
   currentExplanationText = '';
 
   explanationTextSubject = new BehaviorSubject<string>('');
@@ -320,11 +321,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private renderDisplay(): void {
+  private async renderDisplay(): Promise<void> {
     if (this.forceQuestionDisplay) {
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (this.displayState.mode === 'explanation' && this.displayState.answered && this.readyForExplanationDisplay) {
+      await new Promise(resolve => setTimeout(resolve, 300)); 
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
@@ -888,8 +890,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
     this.readyForExplanationDisplay = false;
+    this.isExplanationReady = false; // Prevent explanation until allowed
     // this.renderDisplay();                // Render initial display
-    this.renderQuestionTextOnly(); // Render question text only by default
+    // this.renderQuestionTextOnly(); // Render question text only by default
+    this.renderDisplay();
     console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
   
     try {
@@ -1472,6 +1476,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
     this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true; // Allow explanation to display
     await this.renderDisplay();
 
     try {
