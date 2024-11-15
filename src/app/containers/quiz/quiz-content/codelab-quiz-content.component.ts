@@ -144,7 +144,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngAfterViewInit(): void {
-    this.retryInitializeQuizQuestionComponent();
+    this.initializeQuizQuestionComponent();
     this.setupDisplayStateSubscription();
   }
 
@@ -164,6 +164,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
+  private initializeQuizQuestionComponent(): void {
+    if (this.quizQuestionComponent) {
+      this.isQuizQuestionComponentInitialized.next(true);
+      console.log('QuizQuestionComponent initialized successfully.');
+    } else {
+      console.warn('QuizQuestionComponent not found. Retrying initialization...');
+      this.retryInitializeQuizQuestionComponent();
+    }
+  }
+
   private retryInitializeQuizQuestionComponent(): void {
     const maxRetries = 10;
     const intervalMs = 100; // Retry every 100ms
@@ -174,11 +184,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       .subscribe(() => {
         if (this.quizQuestionComponent) {
           this.isQuizQuestionComponentInitialized.next(true);
-          console.log('QuizQuestionComponent initialized successfully.');
+          console.log('QuizQuestionComponent initialized successfully after retry.');
           this.destroy$.next(); // Stop further retries
         } else if (++attempts >= maxRetries) {
           console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-          this.destroy$.next(); // Stop further retries
+          this.isQuizQuestionComponentInitialized.next(false); // Set a failure state
+          this.destroy$.next();
         }
       });
   }
