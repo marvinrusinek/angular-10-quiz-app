@@ -326,7 +326,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.forceQuestionDisplay || this.isExplanationLocked) {
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
-    } else if (this.displayState.mode === 'explanation' && this.displayState.answered && !this.isExplanationLocked) {
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
@@ -2795,6 +2795,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     return this.explanationToDisplay;
+  }
+
+  private async setExplanationText(): Promise<void> {
+    if (!this.isExplanationLocked) { // Ensure explanation is unlocked
+        this.currentExplanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        this.showExplanationText(this.currentExplanationText);
+        this.cdRef.detectChanges(); // Apply changes explicitly
+        console.log(`Explanation text set and displayed for question ${this.currentQuestionIndex}`);
+    } else {
+        console.log('Explanation display is locked; skipping setting explanation text.');
+    }
   }
 
   public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
