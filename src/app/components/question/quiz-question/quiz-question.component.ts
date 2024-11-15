@@ -709,7 +709,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
    // Helper methods
-  private ensureQuestionTextDisplay(): void {
+   public ensureQuestionTextDisplay(): void {
     if (this.displayMode$.value !== 'question') {
       console.log('Blocked: Attempted to show question in incorrect mode.');
       return;
@@ -724,7 +724,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private ensureExplanationTextDisplay(explanationText?: string): void {
+  public ensureExplanationTextDisplay(explanationText?: string): void {
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
       console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
       return;
@@ -1511,10 +1511,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.applyCooldownAndFinalize();
     }
-  }
-
-  private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
-    this.displayStateSubject.next({ mode, answered });
   }
 
   private handleInitialSelection(event: { option: SelectedOption | null; index: number; checked: boolean }): void {

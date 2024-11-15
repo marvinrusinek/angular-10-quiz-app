@@ -139,6 +139,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
+
+    // Subscribe to displayState$ and update the QQC display
+    this.displayState$.subscribe((state) => {
+      if (state.mode === 'explanation' && state.answered) {
+        this.quizQuestionComponent.ensureExplanationTextDisplay();
+      } else {
+        this.quizQuestionComponent.ensureQuestionTextDisplay();
+      }
+    });
   }
 
   ngAfterViewChecked(): void {
