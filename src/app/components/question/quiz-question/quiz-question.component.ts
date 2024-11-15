@@ -1470,8 +1470,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!event?.option || event.option.optionId === undefined) return;
 
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-
-    // Lock input for single-answer questions
     if (!isMultipleAnswer && this.isOptionSelected) return;
 
     this.isOptionSelected = true;
