@@ -14,6 +14,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
+import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 @Component({
   selector: 'codelab-quiz-content',
@@ -33,6 +34,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   @Input() options$: Observable<Option[]>;
   @Input() quizId = '';
   @Input() correctAnswersText = '';
+  @Input() quizQuestionComponent!: QuizQuestionComponent; // Reference to QQC
+  @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
   shouldDisplayCorrectAnswers = false;
   private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
