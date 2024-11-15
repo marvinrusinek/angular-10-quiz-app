@@ -799,7 +799,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }  
 
-  /* private setupCombinedTextObservable(): void {
+  private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
@@ -815,8 +815,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('');
       })
     );
-  } */
-  private setupCombinedTextObservable(): void {
+  }
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.quizStateService.currentQuestion$.pipe(
         startWith(null),
@@ -861,7 +861,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading question or explanation text.');
       })
     );
-  }
+  } */
   
 
   private determineTextToDisplay(
