@@ -1,6 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, interval, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -144,15 +144,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngAfterViewInit(): void {
-    // Ensure the QuizQuestionComponent is initialized
-    setTimeout(() => {
-      if (this.quizQuestionComponent) {
-        this.isQuizQuestionComponentInitialized.next(true);
-        this.setupDisplayStateSubscription();
-      } else {
-        console.error('QuizQuestionComponent is still not initialized after timeout.');
-      }
-    }, 0); // Delayed to the next microtask
+    this.retryInitializeQuizQuestionComponent();
+    this.setupDisplayStateSubscription();
   }
 
   ngAfterViewChecked(): void {
@@ -171,23 +164,39 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
+  private retryInitializeQuizQuestionComponent(): void {
+    const maxRetries = 10;
+    const intervalMs = 100; // Retry every 100ms
+    let attempts = 0;
+
+    interval(intervalMs)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.quizQuestionComponent) {
+          this.isQuizQuestionComponentInitialized.next(true);
+          console.log('QuizQuestionComponent initialized successfully.');
+          this.destroy$.next(); // Stop further retries
+        } else if (++attempts >= maxRetries) {
+          console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
+          this.destroy$.next(); // Stop further retries
+        }
+      });
+  }
+
   private setupDisplayStateSubscription(): void {
     combineLatest([this.displayState$, this.isQuizQuestionComponentInitialized])
-      .pipe(
-        distinctUntilChanged(),
-        tap(([state, isInitialized]) => {
-          if (isInitialized) {
-            if (state.mode === 'explanation' && state.answered) {
-              this.quizQuestionComponent!.ensureExplanationTextDisplay();
-            } else {
-              this.quizQuestionComponent!.ensureQuestionTextDisplay();
-            }
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([state, isInitialized]) => {
+        if (isInitialized && this.quizQuestionComponent) {
+          if (state.mode === 'explanation' && state.answered) {
+            this.quizQuestionComponent.ensureExplanationTextDisplay();
           } else {
-            console.warn('QuizQuestionComponent is not ready. Skipping display update.');
+            this.quizQuestionComponent.ensureQuestionTextDisplay();
           }
-        })
-      )
-      .subscribe();
+        } else {
+          console.warn('QuizQuestionComponent is not ready. Skipping display update.');
+        }
+      });
   }
 
   private initializeExplanationTextObservable(): void {
