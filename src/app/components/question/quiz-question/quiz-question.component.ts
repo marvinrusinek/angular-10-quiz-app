@@ -327,6 +327,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+      this.setExplanationText();
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
       console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
