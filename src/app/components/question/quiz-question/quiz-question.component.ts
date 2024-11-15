@@ -147,6 +147,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private isExplanationLocked = true;
   currentExplanationText = '';
 
+  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
+    mode: 'question',
+    answered: false
+  });
+  displayState$ = this.displayStateSubject.asObservable();
+
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
 
