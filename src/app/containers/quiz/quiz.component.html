@@ -14,6 +14,7 @@
         <codelab-quiz-content
           [questionToDisplay]="questionToDisplay"
           [explanationToDisplay]="explanationToDisplay"
+          [displayState$]="displayState$"
         >
         </codelab-quiz-content>
         <!--[displayVariables]="displayVariables"-->
@@ -25,6 +26,7 @@
             [quizData]="quizComponentData"
             (answer)="selectedAnswer($event)"
             (optionSelected)="onOptionSelected($event)"
+            (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           ></codelab-quiz-question>
         </ng-container>
       </ng-container>
