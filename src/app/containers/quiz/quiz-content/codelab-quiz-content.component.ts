@@ -150,11 +150,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   } */
   ngAfterViewInit(): void {
     if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent initialized successfully in ngAfterViewInit.');
+      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
     } else {
-      console.warn('QuizQuestionComponent not initialized yet. Retrying...');
-      this.retryInitializeQuizQuestionComponent();
+      console.warn('QuizQuestionComponent not initialized in ngAfterViewInit.');
     }
+    
+    this.retryInitializeQuizQuestionComponent().then((initialized) => {
+      if (initialized) {
+        this.setupDisplayStateSubscription();
+      }
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -183,19 +188,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   }
 
-  private retryInitializeQuizQuestionComponent(): void {
-    let attempts = 0;
-    const maxAttempts = 10;
-    const interval = setInterval(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized after retry.');
-        clearInterval(interval);
-      } else if (attempts++ >= maxAttempts) {
-        console.error('Failed to initialize QuizQuestionComponent after retries.');
-        clearInterval(interval);
-      }
-    }, 200);
+  private async retryInitializeQuizQuestionComponent(maxRetries = 5, delayMs = 100): Promise<boolean> {
+    let retries = 0;
+    while (!this.quizQuestionComponent && retries < maxRetries) {
+      console.warn('QuizQuestionComponent not initialized yet. Retrying...');
+      retries++;
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent successfully initialized.');
+      return true;
+    } else {
+      console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
+      return false;
+    }
   }
+  
 
   private setupDisplayStateSubscription(): void {
     combineLatest([this.displayState$, this.isQuizQuestionComponentInitialized])
