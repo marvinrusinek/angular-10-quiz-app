@@ -1491,6 +1491,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isAnswered = true;
     this.displayState.answered = true;
     this.displayState.mode = "explanation";
+    this.updateDisplayState('explanation', true); // Update display state
 
     this.handleInitialSelection(event);
     this.forceQuestionDisplay = false;
@@ -1517,12 +1518,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  // Function to update display state before processing the option click
-  private updateDisplayStateBeforeProcessing(): void {
-    this.isAnswered = true;
-    this.displayState.answered = true;
-    this.displayState.mode = "explanation"; // Lock to explanation mode
-    console.log(`[onOptionClicked] Updated display state to explanation for question ${this.currentQuestionIndex}`);
+  private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
+    this.displayStateSubject.next({ mode, answered });
   }
 
   private handleInitialSelection(event: { option: SelectedOption | null; index: number; checked: boolean }): void {
