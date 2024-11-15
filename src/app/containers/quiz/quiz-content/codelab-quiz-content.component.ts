@@ -23,7 +23,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
-  @ViewChild(QuizQuestionComponent) quizQuestionComponent!: QuizQuestionComponent;
+  @ViewChild(QuizQuestionComponent) quizQuestionComponent?: QuizQuestionComponent;
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -85,6 +85,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false); // Use BehaviorSubject
 
+  private isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
+
   combinedText$: Observable<string>;
   textToDisplay = '';
 
@@ -142,8 +144,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngAfterViewInit(): void {
-    // Ensure display state subscription is set up after QuizQuestionComponent is initialized
-    this.setupDisplayStateSubscription();
+    // Ensure the QuizQuestionComponent is initialized
+    setTimeout(() => {
+      if (this.quizQuestionComponent) {
+        this.isQuizQuestionComponentInitialized.next(true);
+        this.setupDisplayStateSubscription();
+      } else {
+        console.error('QuizQuestionComponent is still not initialized after timeout.');
+      }
+    }, 0); // Delayed to the next microtask
   }
 
   ngAfterViewChecked(): void {
@@ -163,17 +172,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private setupDisplayStateSubscription(): void {
-    this.displayState$.subscribe((state) => {
-      if (this.quizQuestionComponent) {
-        if (state.mode === 'explanation' && state.answered) {
-          this.quizQuestionComponent.ensureExplanationTextDisplay();
-        } else {
-          this.quizQuestionComponent.ensureQuestionTextDisplay();
-        }
-      } else {
-        console.error('QuizQuestionComponent is not yet initialized.');
-      }
-    });
+    combineLatest([this.displayState$, this.isQuizQuestionComponentInitialized])
+      .pipe(
+        distinctUntilChanged(),
+        tap(([state, isInitialized]) => {
+          if (isInitialized) {
+            if (state.mode === 'explanation' && state.answered) {
+              this.quizQuestionComponent!.ensureExplanationTextDisplay();
+            } else {
+              this.quizQuestionComponent!.ensureQuestionTextDisplay();
+            }
+          } else {
+            console.warn('QuizQuestionComponent is not ready. Skipping display update.');
+          }
+        })
+      )
+      .subscribe();
   }
 
   private initializeExplanationTextObservable(): void {
