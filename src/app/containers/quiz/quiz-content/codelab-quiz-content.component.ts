@@ -167,7 +167,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }
     });
   } */
-  ngAfterViewInit(): void {
+  /* (): void {
     setTimeout(() => {
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
@@ -176,6 +176,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
       }
     }, 0); // Delays execution until the view stabilizes
+  } */
+  ngAfterViewInit(): void {
+    if (!this.quizQuestionComponent) {
+      console.warn('QuizQuestionComponent not initialized in ngAfterViewInit. Retrying...');
+      this.retryInitializeQuizQuestionComponent();
+    } else {
+      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
+      this.setupDisplayStateSubscription();
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -221,18 +230,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
     return false;
   } */
-  private async retryInitializeQuizQuestionComponent(maxRetries = 10, delayMs = 200): Promise<boolean> {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  private retryInitializeQuizQuestionComponent(retries: number = 5, delay: number = 500): void {
+    let attempts = 0;
+    const retryInterval = setInterval(() => {
       if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized successfully.');
-        return true;
+        console.log('QuizQuestionComponent initialized on retry:', this.quizQuestionComponent);
+        this.setupDisplayStateSubscription();
+        clearInterval(retryInterval);
+      } else if (attempts >= retries) {
+        console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
+        clearInterval(retryInterval);
+      } else {
+        console.warn(`Retrying QuizQuestionComponent initialization (${attempts + 1}/${retries})...`);
+        attempts++;
       }
-      console.warn(`QuizQuestionComponent not initialized. Retrying (${attempt}/${maxRetries})...`);
-      await new Promise(resolve => setTimeout(resolve, delayMs));
-    }
-  
-    console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-    return false;
+    }, delay);
   }
   
   
