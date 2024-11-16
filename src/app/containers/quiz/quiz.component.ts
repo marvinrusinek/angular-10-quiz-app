@@ -2372,8 +2372,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Re-enable the next button
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
-
-        console.log('Successfully navigated to the next question.');
       } else {
         console.log('End of quiz reached. Navigating to results.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -2419,7 +2417,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.loadQuestionContents();
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-      console.log('Successfully navigated to the previous question.');
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
