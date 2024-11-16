@@ -288,20 +288,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isLoading$ = this.quizStateService.isLoading$;
       this.isAnswered$ = this.quizStateService.isAnswered$;
 
-      this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
-        map(([question, options]) => {
-          console.log('isContentAvailable$ check:', { question, options });
-          return !!question && options?.length > 0;
-        }),
-        distinctUntilChanged(),
-        catchError((error) => {
-          console.error('Error in isContentAvailable$:', error);
-          return of(false);
-        }),
-        startWith(false)
-      );
-      
-
       this.cdRef.detectChanges();
     });
   }
@@ -356,6 +342,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+
+    this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
+      map(([question, options]) => {
+        console.log('isContentAvailable$ check:', { question, options });
+        return !!question && options?.length > 0;
+      }),
+      distinctUntilChanged(),
+      catchError((error) => {
+        console.error('Error in isContentAvailable$:', error);
+        return of(false);
+      }),
+      startWith(false)
+    );
   }
 
   ngAfterViewInit(): void {
