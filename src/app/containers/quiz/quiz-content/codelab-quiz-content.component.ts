@@ -259,30 +259,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   } */
   ngAfterViewInit(): void {
-    let retries = 0;
-    const maxRetries = 10; // Adjust as needed
-    const retryInterval = 200; // Retry every 200ms
-  
-    const retryInitialization = setInterval(() => {
-      retries++;
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized successfully.');
-        clearInterval(retryInitialization);
-  
-        // Set up your subscriptions or logic
-        this.setupDisplayStateSubscription();
-      } else if (retries >= maxRetries) {
-        console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-        clearInterval(retryInitialization);
-      } else {
-        console.warn(`QuizQuestionComponent not initialized. Retrying... (${retries}/${maxRetries})`);
-      }
-    }, retryInterval);
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent initialized.');
+      this.setupDisplayStateSubscription();
+    } else {
+      console.warn('QuizQuestionComponent is not yet available.');
+    }
   }
-  
-  
-  
-  
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
