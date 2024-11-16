@@ -1389,6 +1389,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Subscribe to current options
     this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
+      if (!options || options.length === 0) {
+        console.error('No options received. Ensure data flow is correct.');
+        return;
+      }
+      
       const currentQuestion: QuizQuestion = {
         questionText: this.data.questionText,
         options: options.map(option => ({
