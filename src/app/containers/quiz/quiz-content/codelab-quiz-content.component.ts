@@ -171,14 +171,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     setTimeout(() => {
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-        this.setupDisplayStateSubscription();
+        this.setupDisplayStateSubscription(); // Initialize subscriptions after component is ready
       } else {
         console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
       }
-    }, 0);
+    }, 0); // Delays execution until the view stabilizes
   }
-  
-  
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
