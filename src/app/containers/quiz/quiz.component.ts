@@ -76,7 +76,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionType: string;
   currentOptions: Option[] = [];
-  options$: Observable<Option[]>;
+  // options$: Observable<Option[]>;
+  options$: Observable<Option[]> = this.quizService.options$.pipe(startWith([]));
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
@@ -178,6 +179,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     answered: false,
   });
   displayState$ = this.displayStateSubject.asObservable();
+
+  public isContentAvailable$: Observable<boolean> = combineLatest([
+    this.currentQuestion$,
+    this.options$
+  ]).pipe(
+    map(([question, options]) => !!question && options.length > 0)
+  );
 
   constructor(
     private quizService: QuizService,
