@@ -25,7 +25,8 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
 export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
   // @ViewChild(QuizQuestionComponent, { static: false })
   // quizQuestionComponent!: QuizQuestionComponent;
-  @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent | null = null;
+  // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent | null = null;
+  @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent | undefined;
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -167,16 +168,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   } */
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit called.');
     if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is available in ngAfterViewInit:', this.quizQuestionComponent);
+      console.log('QuizQuestionComponent is initialized:', this.quizQuestionComponent);
+      this.setupDisplayStateSubscription();
     } else {
-      console.warn('QuizQuestionComponent is not available in ngAfterViewInit.');
+      console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
     }
   }
-  
-  
-  
   
 
   ngAfterViewChecked(): void {
