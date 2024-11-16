@@ -135,6 +135,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private isLoading = false;
   private isQuizDataLoaded = false;
+  hasLoadingError = false;
 
   isOptionSelected = false;
   private isCurrentQuestionAnswered = false;
