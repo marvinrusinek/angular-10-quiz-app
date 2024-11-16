@@ -20,7 +20,7 @@
         <!--[displayVariables]="displayVariables"-->
         <ng-content></ng-content>
 
-        <!--<ng-container *ngIf="isContentAvailable; else loadingPlaceholder">
+        <ng-container *ngIf="isContentAvailable; else noQuestion">
           <codelab-quiz-question
             #quizQuestionComponent
             [quizData]="quizComponentData"
@@ -29,38 +29,20 @@
             (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           ></codelab-quiz-question>
         </ng-container>
-        <ng-template #loadingPlaceholder>
-          <span class="loading-state">
-            Loading quiz content...
-          </span>
+
+        <ng-template #noQuestion>
+          <ng-container *ngIf="!hasLoadingError; else errorTemplate">
+            <span class="loading-state">
+              Loading quiz content...
+            </span>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #errorTemplate>
+          <p>Error loading question. Please try again.</p>
         </ng-template>
       </ng-container>
-      <ng-template #noQuestion>
-        <p>No question available.</p>
-      </ng-template>-->
-      <ng-container *ngIf="isContentAvailable; else noQuestion">
-        <codelab-quiz-question
-          #quizQuestionComponent
-          [quizData]="quizComponentData"
-          (answer)="selectedAnswer($event)"
-          (optionSelected)="onOptionSelected($event)"
-          (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
-        ></codelab-quiz-question>
-      </ng-container>
-
-      <ng-template #noQuestion>
-        <ng-container *ngIf="!hasLoadingError; else errorTemplate">
-          <span class="loading-state">
-            Loading quiz content...
-          </span>
-        </ng-container>
-      </ng-template>
-
-      <ng-template #errorTemplate>
-        <p>Error loading question. Please try again.</p>
-      </ng-template>
-    </ng-container>
-  </mat-card-content>
+    </mat-card-content>
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- instructions message -->
