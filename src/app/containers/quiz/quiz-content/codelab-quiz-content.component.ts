@@ -186,7 +186,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.setupDisplayStateSubscription();
     }
   } */
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     if (this.quizQuestionComponent) {
       console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
       this.isQuizQuestionComponentInitialized.next(true); // Mark as initialized
@@ -195,7 +195,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.warn('QuizQuestionComponent not initialized in ngAfterViewInit.');
       this.retryInitializeQuizQuestionComponent(); // Attempt retry if necessary
     }
+  } */
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit: Checking QuizQuestionComponent initialization...');
+    this.retryInitializeQuizQuestionComponent()
+      .then((initialized) => {
+        if (initialized) {
+          console.log('QuizQuestionComponent initialization successful.');
+          this.setupDisplayStateSubscription();
+        }
+      })
+      .catch(() => {
+        console.error('QuizQuestionComponent could not be initialized.');
+      });
   }
+  
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
@@ -240,30 +254,27 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
     return false;
   } */
-  private async retryInitializeQuizQuestionComponent(): Promise<void> {
-    const retryLimit = 10;
-    const retryInterval = 100;
+  private retryInitializeQuizQuestionComponent(): Promise<boolean> {
     let retries = 0;
+    const maxRetries = 10;
+    const retryInterval = 300; // Retry every 300ms
   
-    const intervalId = setInterval(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent successfully initialized after retries:', retries);
-        this.isQuizQuestionComponentInitialized.next(true); // Update initialization status
-        this.setupDisplayStateSubscription(); // Subscribe only after successful initialization
-        clearInterval(intervalId); // Stop further retries
-      } else {
-        retries++;
-        console.warn(`QuizQuestionComponent not initialized yet. Retrying... (${retries}/${retryLimit})`);
-        if (retries >= retryLimit) {
+    return new Promise<boolean>((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (this.quizQuestionComponent) {
+          console.log('QuizQuestionComponent successfully initialized:', this.quizQuestionComponent);
+          clearInterval(interval);
+          resolve(true);
+        } else if (++retries >= maxRetries) {
           console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-          clearInterval(intervalId); // Stop retries
+          clearInterval(interval);
+          reject(false);
+        } else {
+          console.warn(`Retrying to initialize QuizQuestionComponent (${retries}/${maxRetries})...`);
         }
-      }
-    }, retryInterval);
-  }
-  
-  
-  
+      }, retryInterval);
+    });
+  }  
 
   /* private async waitForContentAvailable(): Promise<void> {
     while (!this.isContentAvailable || !this.quizComponentData) {
