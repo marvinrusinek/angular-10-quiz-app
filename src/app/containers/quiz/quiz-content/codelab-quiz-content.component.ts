@@ -229,7 +229,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
     setTimeout(() => clearInterval(retryInterval), 2000); // Stop retrying after 2 seconds
   } */
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     let retries = 0;
     const maxRetries = 10;
     const retryInterval = 200; // Retry every 200ms
@@ -247,7 +247,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.warn(`QuizQuestionComponent not ready. Retrying... (${retries}/${maxRetries})`);
       }
     }, retryInterval);
+  } */
+  ngAfterViewInit(): void {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
+      this.setupDisplayStateSubscription();
+    } else {
+      console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
+    }
   }
+  
   
 
   ngAfterViewChecked(): void {
