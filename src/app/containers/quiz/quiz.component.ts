@@ -159,6 +159,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isNextButtonEnabled = false;
   isOptionSelected$: Observable<boolean>;
   nextButtonStyle: { [key: string]: string } = {};
+  isContentInitialized = false;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -720,12 +721,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // Public getter methods for determining UI state based on current quiz and question data.
   public get isContentAvailable(): boolean {
-    const isAvailable = !!this.currentQuestion && this.options?.length > 0;
+    this.isContentInitialized = !!this.currentQuestion && this.options?.length > 0;
     console.log('isContentAvailable:', isAvailable, {
       currentQuestion: this.currentQuestion,
       optionsLength: this.options?.length,
     });
-    return isAvailable;
+    return isContentInitialized;
   }  
 
   public get shouldDisplayContent(): boolean {
