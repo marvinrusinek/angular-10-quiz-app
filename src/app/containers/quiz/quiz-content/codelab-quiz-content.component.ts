@@ -23,9 +23,6 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
-  // @ViewChild(QuizQuestionComponent, { static: false })
-  // quizQuestionComponent!: QuizQuestionComponent;
-  // @ViewChild(QuizQuestionComponent, { static: false }) quizQuestionComponent: QuizQuestionComponent | null = null;
   @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent | undefined;
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
