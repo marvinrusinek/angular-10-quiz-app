@@ -150,15 +150,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   } */
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit called.');
-    
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is available in ngAfterViewInit.');
+    } else {
+      console.warn('QuizQuestionComponent is not available in ngAfterViewInit.');
+    }
+  
     this.retryInitializeQuizQuestionComponent().then((initialized) => {
       if (initialized) {
+        console.log('QuizQuestionComponent is initialized successfully.');
         this.setupDisplayStateSubscription();
       } else {
-        console.error('Failed to initialize QuizQuestionComponent after retries.');
+        console.error('QuizQuestionComponent could not be initialized after retries.');
       }
     });
   }
+  
   
   
 
@@ -198,22 +205,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   
     if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent successfully initialized.');
+      console.log('QuizQuestionComponent successfully initialized after retries.');
       return true;
-    } else {
-      console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-      return false;
     }
+  
+    console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
+    return false;
   }
   
+  
 
-  private async waitForContentAvailable(): Promise<void> {
+  /* private async waitForContentAvailable(): Promise<void> {
     while (!this.isContentAvailable || !this.quizComponentData) {
       console.warn('Content not available yet. Waiting...');
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     console.log('Content is now available.');
-  }
+  } */
   
   
   
