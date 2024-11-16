@@ -23,7 +23,8 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
-  @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent | undefined;
+  @ViewChild('quizQuestionComponent', { static: false })
+  quizQuestionComponent!: QuizQuestionComponent | undefined;
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -240,7 +241,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         clearInterval(retryInitialization);
         this.setupDisplayStateSubscription();
       } else if (retries >= maxRetries) {
-        console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
+        console.error('Failed to initialize QuizQuestionComponent after maximum retries.....');
         clearInterval(retryInitialization);
       } else {
         console.warn(`QuizQuestionComponent not ready. Retrying... (${retries}/${maxRetries})`);
