@@ -73,11 +73,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion | null = null;
-  currentQuestion$!: Observable<QuizQuestion | null>;
+  // currentQuestion$!: Observable<QuizQuestion | null>;
+  currentQuestion$: Observable<QuizQuestion | null> = this.quizStateService.currentQuestion$.pipe(startWith(null));
+  //public currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionType: string;
   currentOptions: Option[] = [];
   // options$: Observable<Option[]>;
-  options$: Observable<Option[]> = this.quizService.options$.pipe(startWith([]));
+  // options$: Observable<Option[]> = this.quizService.options$.pipe(startWith([]));
+  public options$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
@@ -179,13 +182,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     answered: false,
   });
   displayState$ = this.displayStateSubject.asObservable();
-
-  public isContentAvailable$: Observable<boolean> = combineLatest([
-    this.currentQuestion$,
-    this.options$
-  ]).pipe(
-    map(([question, options]) => !!question && options.length > 0)
-  );
+  public isContentAvailable$: Observable<boolean>;
 
   constructor(
     private quizService: QuizService,
@@ -259,7 +256,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
       this.isCurrentQuestionAnswered = isSelected;
-    });    
+    });
   }
 
   @HostListener('window:focus', ['$event'])
@@ -290,6 +287,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.isLoading$ = this.quizStateService.isLoading$;
       this.isAnswered$ = this.quizStateService.isAnswered$;
+
+      this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
+        map(([question, options]) => !!question && options.length > 0),
+        distinctUntilChanged(), // Prevent unnecessary UI updates
+        catchError(error => {
+          console.error('Error in isContentAvailable$:', error);
+          return of(false);
+        }),
+        startWith(false)
+      );
+
       this.cdRef.detectChanges();
     });
   }
