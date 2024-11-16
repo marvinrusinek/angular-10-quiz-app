@@ -721,9 +721,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // Public getter methods for determining UI state based on current quiz and question data.
   public get isContentAvailable(): boolean {
-    this.isContentInitialized = !!this.currentQuestion && this.options?.length > 0;
-    return this.isContentInitialized;
-  }  
+    const isAvailable = !!this.currentQuestion && this.options?.length > 0;
+    return isAvailable;
+  }
+  
 
   public get shouldDisplayContent(): boolean {
     return !!this.data?.questionText && !!this.questionToDisplay;
