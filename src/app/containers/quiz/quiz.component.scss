@@ -3,6 +3,16 @@
 mat-card {
   height: auto !important;
 
+  .loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+    font-size: 16px;
+  }  
+
   mat-card-footer {
     display: block;
     clear: left;
