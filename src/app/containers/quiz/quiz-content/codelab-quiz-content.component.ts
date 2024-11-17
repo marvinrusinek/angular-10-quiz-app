@@ -183,7 +183,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       startWith(false) // Start with `false` to indicate loading
     ); */
 
-    this.isContentAvailable$ = (this.combineCurrentQuestionAndOptions?.() || of({ currentQuestion: null, currentOptions: [] }))
+
+    this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
+      map(({ currentQuestion, currentOptions }) => {
+        const isAvailable = !!currentQuestion && currentOptions.length > 0;
+        console.log('isContentAvailable$: ', isAvailable, {
+          currentQuestion,
+          currentOptions
+        });
+        return isAvailable;
+      }),
+      distinctUntilChanged(),
+      catchError((error) => {
+        console.error('Error in isContentAvailable$:', error);
+        return of(false); // Fallback to `false` in case of errors
+      }),
+      startWith(false)
+    );
+    
+    /* this.isContentAvailable$ = (this.combineCurrentQuestionAndOptions?.() || of({ currentQuestion: null, currentOptions: [] }))
       .pipe(
         map(({ currentQuestion, currentOptions }) => {
           const isAvailable = !!currentQuestion && currentOptions.length > 0;
@@ -196,7 +214,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           return of(false); // Fallback to `false` in case of errors
         }),
         startWith(false) // Default to `false` initially
-      );
+      ); */
 
     /* this.isContentAvailable$.subscribe((isAvailable) => {
       if (isAvailable) {
@@ -934,7 +952,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  private combineCurrentQuestionAndOptions(): Observable<{
+  /* private combineCurrentQuestionAndOptions(): Observable<{
     currentQuestion: QuizQuestion | null;
     currentOptions: Option[];
   }> {
@@ -958,7 +976,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of({ currentQuestion: null, currentOptions: [] });
       })
     );
-  }  
+  } */
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+    return combineLatest([
+      this.quizService.getCurrentQuestion(),
+      this.quizService.getCurrentOptions(this.currentQuestionIndexValue)
+    ]).pipe(
+      map(([currentQuestion, currentOptions]) => {
+        console.log('combineCurrentQuestionAndOptions - currentQuestion:', currentQuestion);
+        console.log('combineCurrentQuestionAndOptions - currentOptions:', currentOptions);
+        return { currentQuestion, currentOptions };
+      }),
+      catchError((error) => {
+        console.error('Error in combineCurrentQuestionAndOptions:', error);
+        return of({ currentQuestion: null, currentOptions: [] });
+      })
+    );
+  }
+  
 
   private calculateCombinedQuestionData(
     currentQuizData: CombinedQuestionDataType,
