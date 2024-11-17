@@ -127,9 +127,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }
     });
 
+    this.quizService.getCurrentQuestion().subscribe((question) => {
+      console.log('Updating currentQuestion$', question);
+      this.currentQuestion$.next(question || null); // Fallback to null if undefined
+    });
+  
+    this.quizService.getCurrentOptions(this.currentQuestionIndexValue).subscribe((options) => {
+      console.log('Updating options$', options);
+      this.currentOptions$.next(options || []); // Fallback to empty array if options is null
+    });
+
     this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
-      this.options$,
+      this.currentOptions$
     ]).pipe(
       map(([question, options]) => !!question && options.length > 0),
       distinctUntilChanged(),
