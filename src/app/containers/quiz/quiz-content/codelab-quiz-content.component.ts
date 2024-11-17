@@ -194,7 +194,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
                 'QuizQuestionComponent is still not available after delay.'
               );
             }
-          }, 300); // Adjust the delay as necessary
+          }, 300);
         }
       } else {
         console.warn('Content is not yet ready. Waiting...');
