@@ -92,6 +92,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   combinedText$: Observable<string>;
   textToDisplay = '';
 
+  public isContentAvailable$: Observable<boolean>;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -124,11 +126,32 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.log('Explanation is not displayed, current correct answers text:', this.correctAnswersTextSource.getValue());
       }
     });
+
+    this.isContentAvailable$ = combineLatest([
+      this.currentQuestion$,
+      this.options$,
+    ]).pipe(
+      map(([question, options]) => !!question && options.length > 0),
+      distinctUntilChanged(),
+      catchError(error => {
+        console.error('Error in isContentAvailable$:', error);
+        return of(false);
+      })
+    );
   }
 
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    this.isContentAvailable$.subscribe((isAvailable) => {
+      if (isAvailable) {
+        console.log('Content is ready. Proceeding with QuizQuestionComponent.');
+        this.setupDisplayStateSubscription();
+      } else {
+        console.warn('Content is not yet ready. Waiting...');
+      }
+    });
 
     // Initialize quizId
     this.quizService.initializeQuizId();
@@ -267,12 +290,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   } */
   ngAfterViewInit(): void {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent initialized.');
-      this.setupDisplayStateSubscription();
-    } else {
-      console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Ensure it is properly rendered.');
-    }
+    setTimeout(() => {
+      if (this.quizQuestionComponent) {
+        console.log('QuizQuestionComponent initialized.');
+        this.setupDisplayStateSubscription();
+      } else {
+        console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Ensure it is properly rendered.');
+      }
+    }, 0); // Delays execution until after the current event loop
   }
   
 
