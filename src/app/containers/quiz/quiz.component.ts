@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, from, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
@@ -1579,7 +1579,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************* Fetch and display the current question ***************/
-  initializeQuestionStreams(): void {
+  /* initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
@@ -1606,7 +1606,78 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const nextOptions$ = this.quizService.getNextOptions(
       this.currentQuestionIndex
     );
+  } */
+  initializeQuestionStreams(): void {
+    // Initialize questions stream with error handling and logging
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      tap((questions) => {
+        if (!questions || questions.length === 0) {
+          console.warn('No questions fetched for the quiz.');
+        } else {
+          console.log('Questions fetched:', questions);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error fetching questions:', error);
+        return of([]); // Fallback to empty array
+      })
+    );
+  
+    this.questions$.subscribe((questions) => {
+      if (questions && questions.length > 0) {
+        console.log('Initializing question states...');
+        this.currentQuestionIndex = 0;
+  
+        // Reset and set initial state for each question
+        for (const [index, question] of questions.entries()) {
+          const defaultState: QuestionState =
+            this.quizStateService.createDefaultQuestionState();
+          this.quizStateService.setQuestionState(
+            this.quizId,
+            index,
+            defaultState
+          );
+        }
+      } else {
+        console.warn('Questions array is empty.');
+      }
+    });
+  
+    // Prepare next question and options observables
+    this.prepareNextStreams();
   }
+  
+  prepareNextStreams(): void {
+    // Get the next question from the service and emit it to the subject
+    from(this.quizService.getNextQuestion(this.currentQuestionIndex)).pipe(
+      tap((nextQuestion) => {
+        console.log('Next question emitted:', nextQuestion);
+        this.quizService.currentQuestionSubject.next(nextQuestion); // Emit the next question
+      }),
+      catchError((error) => {
+        console.error('Error fetching next question:', error);
+        this.quizService.currentQuestionSubject.next(null); // Emit null on error
+        return of(null); // Return fallback
+      })
+    ).subscribe();
+  
+    // Get the next options from the service and emit them to the subject
+    from(this.quizService.getNextOptions(this.currentQuestionIndex)).pipe(
+      tap((nextOptions) => {
+        console.log('Next options emitted:', nextOptions);
+        this.quizService.currentOptionsSubject.next(nextOptions); // Emit the next options
+      }),
+      catchError((error) => {
+        console.error('Error fetching next options:', error);
+        this.quizService.currentOptionsSubject.next([]); // Emit an empty array on error
+        return of([]); // Return fallback
+      })
+    ).subscribe();
+  }
+  
+  
+   
+  
 
   // Function to load all questions for the current quiz
   private loadQuizQuestionsForCurrentQuiz(): void {
