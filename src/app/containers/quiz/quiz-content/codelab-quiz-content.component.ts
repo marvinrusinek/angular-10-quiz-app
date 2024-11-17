@@ -132,6 +132,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+    
 
     /* this.quizService.getCurrentQuestion().subscribe((question) => {
       console.log('Updating currentQuestion$', question);
@@ -155,6 +156,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of(false);
       })
     ); */
+
+
     this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
       map(([question, options]) => {
         const isAvailable = !!question && options.length > 0;
@@ -235,137 +238,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupCorrectAnswersTextDisplay();
   }
 
-  /* ngAfterViewInit(): void {
-    this.initializeQuizQuestionComponent();
-    this.setupDisplayStateSubscription();
-  } */
-  /* ngAfterViewInit(): void {
-    console.log('ngAfterViewInit called.');
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is available in ngAfterViewInit.');
-    } else {
-      console.warn('QuizQuestionComponent is not available in ngAfterViewInit.');
-    }
-  
-    this.retryInitializeQuizQuestionComponent().then((initialized) => {
-      if (initialized) {
-        console.log('QuizQuestionComponent is initialized successfully.');
-        this.setupDisplayStateSubscription();
-      } else {
-        console.error('QuizQuestionComponent could not be initialized after retries.');
-      }
-    });
-  } */
-  /* (): void {
-    setTimeout(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-        this.setupDisplayStateSubscription(); // Initialize subscriptions after component is ready
-      } else {
-        console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
-      }
-    }, 0); // Delays execution until the view stabilizes
-  } */
-  /* ngAfterViewInit(): void {
-    if (!this.quizQuestionComponent) {
-      console.warn('QuizQuestionComponent not initialized in ngAfterViewInit. Retrying...');
-      this.retryInitializeQuizQuestionComponent();
-    } else {
-      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-      this.setupDisplayStateSubscription();
-    }
-  } */
-  /* ngAfterViewInit(): void {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-      this.isQuizQuestionComponentInitialized.next(true); // Mark as initialized
-      this.setupDisplayStateSubscription(); // Set up display state subscription
-    } else {
-      console.warn('QuizQuestionComponent not initialized in ngAfterViewInit.');
-      this.retryInitializeQuizQuestionComponent(); // Attempt retry if necessary
-    }
-  } */
-  /* ngAfterViewInit(): void {
-    console.log('ngAfterViewInit: Checking QuizQuestionComponent initialization...');
-    this.retryInitializeQuizQuestionComponent()
-      .then((initialized) => {
-        if (initialized) {
-          console.log('QuizQuestionComponent initialization successful.');
-          this.setupDisplayStateSubscription();
-        }
-      })
-      .catch(() => {
-        console.error('QuizQuestionComponent could not be initialized.');
-      });
-  } */
-  /* ngAfterViewInit(): void {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-      this.setupDisplayStateSubscription();
-    } else {
-      console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
-    }
-  } */
-  /* ngAfterViewInit(): void {
-    const retryInterval = setInterval(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-        clearInterval(retryInterval);
-        this.setupDisplayStateSubscription();
-      } else {
-        console.warn('QuizQuestionComponent not ready. Retrying...');
-      }
-    }, 100);
-  
-    setTimeout(() => clearInterval(retryInterval), 2000); // Stop retrying after 2 seconds
-  } */
-  /* ngAfterViewInit(): void {
-    let retries = 0;
-    const maxRetries = 10;
-    const retryInterval = 200; // Retry every 200ms
-  
-    const retryInitialization = setInterval(() => {
-      retries++;
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-        clearInterval(retryInitialization);
-        this.setupDisplayStateSubscription();
-      } else if (retries >= maxRetries) {
-        console.error('Failed to initialize QuizQuestionComponent after maximum retries.....');
-        clearInterval(retryInitialization);
-      } else {
-        console.warn(`QuizQuestionComponent not ready. Retrying... (${retries}/${maxRetries})`);
-      }
-    }, retryInterval);
-  } */
-  /* ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-        this.setupDisplayStateSubscription();
-      } else {
-        console.error('QuizQuestionComponent is not initialized in ngAfterViewInit.');
-      }
-    });
-  } */
-  /* ngAfterViewInit(): void {
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent initialized.');
-      this.setupDisplayStateSubscription();
-    } else {
-      console.warn('QuizQuestionComponent is not yet available.');
-    }
-  } */
-  /* ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized.');
-        this.setupDisplayStateSubscription();
-      } else {
-        console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Ensure it is properly rendered.');
-      }
-    }, 0); // Delays execution until after the current event loop
-  } */
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit triggered');
     if (this.quizQuestionComponent) {
@@ -376,8 +248,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   }
   
-  
-
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
       this.questionRendered.next(false);
