@@ -182,7 +182,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     answered: false,
   });
   displayState$ = this.displayStateSubject.asObservable();
-  public isContentAvailable$: Observable<boolean>;
+ 
+  public isContentAvailable$: Observable<boolean> = combineLatest([
+    this.currentQuestion$,
+    this.options$,
+  ]).pipe(
+    map(([question, options]) => !!question && options.length > 0),
+    distinctUntilChanged()
+  );
 
   constructor(
     private quizService: QuizService,
@@ -343,15 +350,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.checkIfAnswerSelected(true);
 
-    this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
+    /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
       tap((options) => console.log('options$ emitted:::::', options)),
       catchError((error) => {
         console.error('Error in options$:', error);
         return of([]); // Fallback to empty array
       })
-    );
+    ); */
 
-    this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
+    /* this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
       map(([question, options]) => {
         console.log('isContentAvailable$ check:', { question, options });
         return !!question && options?.length > 0;
@@ -362,7 +369,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return of(false);
       }),
       startWith(false)
-    );
+    ); */
   }
 
   ngAfterViewInit(): void {
