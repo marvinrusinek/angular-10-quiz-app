@@ -1,6 +1,6 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, interval, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -25,6 +25,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
 export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
+  @Output() isContentAvailableChange = new EventEmitter<boolean>();
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() explanationToDisplay: string;
@@ -132,15 +133,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.quizService.getCurrentQuestion().subscribe((question) => {
+    /* this.quizService.getCurrentQuestion().subscribe((question) => {
       console.log('Updating currentQuestion$', question);
       this.currentQuestion$.next(question || null);
     });
   
     this.quizService.getCurrentOptions(this.currentQuestionIndexValue).subscribe((options) => {
       console.log('Updating options$', options);
-      this.currentOptions$.next(options || []);
-    });
+      this.options$.next(options || []);
+    }); */
+
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -153,16 +155,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of(false);
       })
     ); */
-    this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
+    this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
       map(([question, options]) => {
         const isAvailable = !!question && options.length > 0;
-        console.log('isContentAvailable$ check:', isAvailable, {
+        console.log('isContentAvailable$ emitted:', isAvailable, {
           question,
           options,
         });
         return isAvailable;
       }),
-      distinctUntilChanged(),
+      distinctUntilChanged(), // Emit only when the value changes
       catchError((error) => {
         console.error('Error in isContentAvailable$:', error);
         return of(false);
@@ -179,7 +181,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.warn('Content is not yet ready. Waiting...');
       }
     }); */
-    this.isContentAvailable$.subscribe((isAvailable) => {
+    /* this.isContentAvailable$.subscribe((isAvailable) => {
       if (isAvailable) {
         console.log('Content is ready. Checking for QuizQuestionComponent.');
         if (this.quizQuestionComponent) {
@@ -201,8 +203,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       } else {
         console.warn('Content is not yet ready. Waiting...');
       }
+    }); */
+    this.isContentAvailable$.pipe(distinctUntilChanged()).subscribe((isAvailable) => {
+      if (isAvailable) {
+        if (this.quizQuestionComponent) {
+          console.log('QuizQuestionComponent is ready.');
+          this.setupDisplayStateSubscription();
+        } else {
+          console.warn('QuizQuestionComponent not ready yet.');
+        }
+      } else if (!this.quizQuestionComponent) {
+        console.warn('Content is not yet available, and QuizQuestionComponent is not ready.');
+      }
     });
     
+    
+    this.emitContentAvailableState(); // Start emitting the content availability state
 
     // Initialize quizId
     this.quizService.initializeQuizId();
@@ -340,7 +356,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.warn('QuizQuestionComponent is not yet available.');
     }
   } */
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     setTimeout(() => {
       if (this.quizQuestionComponent) {
         console.log('QuizQuestionComponent initialized.');
@@ -349,7 +365,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Ensure it is properly rendered.');
       }
     }, 0); // Delays execution until after the current event loop
+  } */
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit triggered');
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent is ready:', this.quizQuestionComponent);
+      this.setupDisplayStateSubscription();
+    } else {
+      console.warn('QuizQuestionComponent is not available in ngAfterViewInit.');
+    }
   }
+  
   
 
   ngAfterViewChecked(): void {
@@ -366,6 +392,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.correctAnswersDisplaySubject.complete();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+  }
+
+  private emitContentAvailableState(): void {
+    this.isContentAvailable$.subscribe({
+      next: (isAvailable) => {
+        console.log('Emitting isContentAvailableChange:', isAvailable);
+        this.isContentAvailableChange.emit(isAvailable);
+      },
+      error: (error) => console.error('Error in isContentAvailable$:', error),
+    });
   }
 
   /* private initializeQuizQuestionComponent(): void {
