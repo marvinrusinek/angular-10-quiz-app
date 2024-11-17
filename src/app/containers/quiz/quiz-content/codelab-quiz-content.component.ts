@@ -126,18 +126,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.log('Explanation is not displayed, current correct answers text:', this.correctAnswersTextSource.getValue());
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.isExplanationDisplayed = false;
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
 
     this.quizService.getCurrentQuestion().subscribe((question) => {
       console.log('Updating currentQuestion$', question);
-      this.currentQuestion$.next(question || null); // Fallback to null if undefined
+      this.currentQuestion$.next(question || null);
     });
   
     this.quizService.getCurrentOptions(this.currentQuestionIndexValue).subscribe((options) => {
       console.log('Updating options$', options);
-      this.currentOptions$.next(options || []); // Fallback to empty array if options is null
+      this.currentOptions$.next(options || []);
     });
 
-    this.isContentAvailable$ = combineLatest([
+    /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
       this.currentOptions$
     ]).pipe(
@@ -147,12 +152,22 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.error('Error in isContentAvailable$:', error);
         return of(false);
       })
+    ); */
+    this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
+      map(([question, options]) => {
+        const isAvailable = !!question && options.length > 0;
+        console.log('isContentAvailable$ check:', isAvailable, {
+          question,
+          options,
+        });
+        return isAvailable;
+      }),
+      distinctUntilChanged(),
+      catchError((error) => {
+        console.error('Error in isContentAvailable$:', error);
+        return of(false);
+      })
     );
-  }
-
-  ngOnInit(): void {
-    this.isExplanationDisplayed = false;
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
 
     /* this.isContentAvailable$.subscribe((isAvailable) => {
       if (isAvailable) {
