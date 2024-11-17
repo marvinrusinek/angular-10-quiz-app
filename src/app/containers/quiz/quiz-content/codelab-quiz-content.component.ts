@@ -183,20 +183,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       startWith(false) // Start with `false` to indicate loading
     ); */
 
-    this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
-      map(({ currentQuestion, currentOptions }) => {
-        const isAvailable = !!currentQuestion && currentOptions.length > 0;
-        console.log('isContentAvailable$: ', isAvailable, { currentQuestion, currentOptions });
-        return isAvailable;
-      }),
-      distinctUntilChanged(), // Prevent unnecessary emissions
-      catchError(error => {
-        console.error('Error in isContentAvailable$: ', error);
-        return of(false); // Fallback to `false` in case of errors
-      }),
-      startWith(false) // Default to `false` initially
-    );
-    
+    this.isContentAvailable$ = (this.combineCurrentQuestionAndOptions?.() || of({ currentQuestion: null, currentOptions: [] }))
+      .pipe(
+        map(({ currentQuestion, currentOptions }) => {
+          const isAvailable = !!currentQuestion && currentOptions.length > 0;
+          console.log('isContentAvailable$: ', isAvailable, { currentQuestion, currentOptions });
+          return isAvailable;
+        }),
+        distinctUntilChanged(), // Prevent unnecessary emissions
+        catchError(error => {
+          console.error('Error in isContentAvailable$: ', error);
+          return of(false); // Fallback to `false` in case of errors
+        }),
+        startWith(false) // Default to `false` initially
+      );
 
     /* this.isContentAvailable$.subscribe((isAvailable) => {
       if (isAvailable) {
