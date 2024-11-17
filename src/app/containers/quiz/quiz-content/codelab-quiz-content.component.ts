@@ -166,8 +166,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       catchError((error) => {
         console.error('Error in isContentAvailable$:', error);
         return of(false);
-      })
+      }),
+      startWith(false) // Start with `false` to indicate loading
     );
+    
 
     /* this.isContentAvailable$.subscribe((isAvailable) => {
       if (isAvailable) {
