@@ -78,9 +78,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   //public currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionType: string;
   currentOptions: Option[] = [];
-  // options$: Observable<Option[]>;
+  options$: Observable<Option[]>;
   // options$: Observable<Option[]> = this.quizService.options$.pipe(startWith([]));
-  public options$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  // public options$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
@@ -342,6 +342,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeCurrentQuestion();
 
     this.checkIfAnswerSelected(true);
+
+    this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
+      tap((options) => console.log('options$ emitted:', options)),
+      catchError((error) => {
+        console.error('Error in options$:', error);
+        return of([]); // Fallback to empty array
+      })
+    );
 
     this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
       map(([question, options]) => {
