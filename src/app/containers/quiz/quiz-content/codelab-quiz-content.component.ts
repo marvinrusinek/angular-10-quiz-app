@@ -393,15 +393,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
-
+  
   private emitContentAvailableState(): void {
-    this.isContentAvailable$.subscribe({
-      next: (isAvailable) => {
-        console.log('Emitting isContentAvailableChange:', isAvailable);
-        this.isContentAvailableChange.emit(isAvailable);
-      },
-      error: (error) => console.error('Error in isContentAvailable$:', error),
-    });
+    this.isContentAvailable$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (isAvailable: boolean) => {
+          console.log('Emitting isContentAvailableChange:', isAvailable);
+          this.isContentAvailableChange.emit(isAvailable);
+        },
+        error: (error) => console.error('Error in isContentAvailable$:', error),
+      });
   }
 
   /* private initializeQuizQuestionComponent(): void {
