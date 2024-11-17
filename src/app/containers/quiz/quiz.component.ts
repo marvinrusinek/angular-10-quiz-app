@@ -78,7 +78,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   //public currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionType: string;
   currentOptions: Option[] = [];
-  options$: Observable<Option[]>;
+  // options$: Observable<Option[]>;
   // options$: Observable<Option[]> = this.quizService.options$.pipe(startWith([]));
   // public options$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentQuiz: Quiz;
@@ -182,6 +182,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     answered: false,
   });
   displayState$ = this.displayStateSubject.asObservable();
+
+  public options$: Observable<Option[]> = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
+    catchError(error => {
+      console.error('Error fetching options:', error);
+      return of([]); // Fallback to an empty array
+    })
+  );
  
   public isContentAvailable$: Observable<boolean> = combineLatest([
     this.currentQuestion$,
