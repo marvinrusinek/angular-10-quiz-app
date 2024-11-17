@@ -344,7 +344,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.checkIfAnswerSelected(true);
 
     this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
-      tap((options) => console.log('options$ emitted:', options)),
+      tap((options) => console.log('options$ emitted:::::', options)),
       catchError((error) => {
         console.error('Error in options$:', error);
         return of([]); // Fallback to empty array
