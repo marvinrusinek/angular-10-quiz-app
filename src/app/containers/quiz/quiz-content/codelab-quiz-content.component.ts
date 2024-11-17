@@ -401,7 +401,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         next: (isAvailable: boolean) => {
           console.log('Emitting isContentAvailableChange:', isAvailable);
           this.isContentAvailableChange.emit(isAvailable);
-          this.quizDataService.updateContentAvailableState(isAvailable);
+         // this.quizDataService.updateContentAvailableState(isAvailable);
         },
         error: (error) => console.error('Error in isContentAvailable$:', error),
       });
