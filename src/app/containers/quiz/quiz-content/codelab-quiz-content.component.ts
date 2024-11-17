@@ -132,14 +132,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-    this.currentQuestion$.subscribe((question) => {
-      console.log('currentQuestion$ emitted::>>', question);
-    });
-    
-    this.currentOptions$.subscribe((options) => {
-      console.log('currentOptions$ emitted::>>', options);
-    });
     
 
     /* this.quizService.getCurrentQuestion().subscribe((question) => {
@@ -166,7 +158,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ); */
 
 
-    this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
+    this.currentQuestion$.subscribe((question) => {
+      console.log('currentQuestion$ emitted::>>', question);
+    });
+    
+    this.quizService.options$.subscribe((options) => {
+      console.log('currentOptions$ emitted::>>', options);
+    });
+
+    /* this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
       map(([question, options]) => {
         const isAvailable = !!question && options.length > 0;
         console.log('isContentAvailable$ emitted:', isAvailable, {
@@ -181,6 +181,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of(false);
       }),
       startWith(false) // Start with `false` to indicate loading
+    ); */
+
+    this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
+      map(({ currentQuestion, currentOptions }) => {
+        const isAvailable = !!currentQuestion && currentOptions.length > 0;
+        console.log('isContentAvailable$: ', isAvailable, { currentQuestion, currentOptions });
+        return isAvailable;
+      }),
+      distinctUntilChanged(), // Prevent unnecessary emissions
+      catchError(error => {
+        console.error('Error in isContentAvailable$: ', error);
+        return of(false); // Fallback to `false` in case of errors
+      }),
+      startWith(false) // Default to `false` initially
     );
     
 
@@ -920,35 +934,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+  private combineCurrentQuestionAndOptions(): Observable<{
+    currentQuestion: QuizQuestion | null;
+    currentOptions: Option[];
+  }> {
     const question$ = this.quizService.getCurrentQuestion().pipe(
-      map(value => value ?? null), // Default to `null` if value is `undefined`
-      distinctUntilChanged(),
-      tap(value => console.log('Emission in question$: ', value)) // Add log here to see actual values emitted
+      map((value) => value ?? null),
+      distinctUntilChanged()
     );
-
+  
     const options$ = this.quizService.getCurrentOptions(this.currentQuestionIndexValue).pipe(
-      map(value => Array.isArray(value) ? value : []), // Default to empty array if value is not an array or `undefined`
-      distinctUntilChanged(),
-      tap(value => console.log('Emission in options$: ', value)) // Add log here to see actual values emitted
+      map((value) => (Array.isArray(value) ? value : [])),
+      distinctUntilChanged()
     );
-
+  
     return combineLatest([question$, options$]).pipe(
-      map(([currentQuestion, currentOptions]) => {
-        console.log('Emission in combineLatest - currentQuestion:', currentQuestion);
-        console.log('Emission in combineLatest - currentOptions:', currentOptions);
-        
-        return {
-          currentQuestion,
-          currentOptions
-        };
-      }),
-      catchError(error => {
+      map(([currentQuestion, currentOptions]) => ({
+        currentQuestion,
+        currentOptions,
+      })),
+      catchError((error) => {
         console.error('Error combining current question and options:', error);
         return of({ currentQuestion: null, currentOptions: [] });
       })
     );
-  }
+  }  
 
   private calculateCombinedQuestionData(
     currentQuizData: CombinedQuestionDataType,
