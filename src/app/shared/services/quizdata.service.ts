@@ -26,6 +26,9 @@ export class QuizDataService implements OnDestroy {
   private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
+  private isContentAvailableSubject = new BehaviorSubject<boolean>(false);
+  public isContentAvailable$: Observable<boolean> = this.isContentAvailableSubject.asObservable();
+
   constructor(private http: HttpClient) {
     this.loadQuizzesData();
   }
@@ -110,6 +113,11 @@ export class QuizDataService implements OnDestroy {
         return of(null as Quiz);
       })
     );
+  }
+
+  updateContentAvailableState(isAvailable: boolean): void {
+    console.log('Updating isContentAvailable$ in QuizService:', isAvailable);
+    this.isContentAvailableSubject.next(isAvailable);
   }
   
   private handleError(error: any): Observable<never> {
