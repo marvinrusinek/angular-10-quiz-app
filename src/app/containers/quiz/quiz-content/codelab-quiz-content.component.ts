@@ -154,14 +154,38 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.isContentAvailable$.subscribe((isAvailable) => {
+    /* this.isContentAvailable$.subscribe((isAvailable) => {
       if (isAvailable) {
         console.log('Content is ready. Proceeding with QuizQuestionComponent.');
         this.setupDisplayStateSubscription();
       } else {
         console.warn('Content is not yet ready. Waiting...');
       }
+    }); */
+    this.isContentAvailable$.subscribe((isAvailable) => {
+      if (isAvailable) {
+        console.log('Content is ready. Checking for QuizQuestionComponent.');
+        if (this.quizQuestionComponent) {
+          console.log('QuizQuestionComponent is available. Proceeding.');
+          this.setupDisplayStateSubscription();
+        } else {
+          console.warn('QuizQuestionComponent is not available. Delaying setup.');
+          setTimeout(() => {
+            if (this.quizQuestionComponent) {
+              console.log('QuizQuestionComponent is now available. Proceeding.');
+              this.setupDisplayStateSubscription();
+            } else {
+              console.error(
+                'QuizQuestionComponent is still not available after delay.'
+              );
+            }
+          }, 300); // Adjust the delay as necessary
+        }
+      } else {
+        console.warn('Content is not yet ready. Waiting...');
+      }
     });
+    
 
     // Initialize quizId
     this.quizService.initializeQuizId();
