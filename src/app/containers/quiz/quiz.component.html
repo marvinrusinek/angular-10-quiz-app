@@ -20,7 +20,7 @@
         <!--[displayVariables]="displayVariables"-->
         <ng-content></ng-content>
         <!--; else noQuestion -->
-        <ng-container *ngIf="isContentAvailable">
+        <ng-container *ngIf="isContentAvailable$ | async">
           <codelab-quiz-question
             #quizQuestionComponent
             [quizData]="quizComponentData"
