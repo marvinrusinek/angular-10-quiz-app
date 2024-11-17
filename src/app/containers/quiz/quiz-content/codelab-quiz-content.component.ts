@@ -187,7 +187,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       .pipe(
         map(({ currentQuestion, currentOptions }) => {
           const isAvailable = !!currentQuestion && currentOptions.length > 0;
-          console.log('isContentAvailable$: ', isAvailable, { currentQuestion, currentOptions });
+          console.log('isContentAvailable$:::>>> ', isAvailable, { currentQuestion, currentOptions });
           return isAvailable;
         }),
         distinctUntilChanged(), // Prevent unnecessary emissions

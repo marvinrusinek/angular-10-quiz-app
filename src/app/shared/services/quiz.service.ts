@@ -582,18 +582,30 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
-      filter((questions) => questions.length > 0), // Wait until questions are available
+      filter((questions) => {
+        const isValid = questions.length > 0;
+        console.log('questions$ emitted:', questions, 'Is valid:', isValid);
+        return isValid; // Wait until questions are available
+      }),
       take(1), // Take only the first emission
       map((questions: QuizQuestion[]) => {
+        console.log(`Requested index: ${index}`);
+        console.log(`Available questions count: ${questions.length}`);
+  
         if (index < 0 || index >= questions.length) {
-          console.warn(`Index ${index} is out of bounds. Total questions: ${questions.length}`);
-          return null;
+          console.warn(
+            `Index ${index} is out of bounds. Total questions available: ${questions.length}`
+          );
+          return null; // Return null for out-of-bounds index
         }
-        return questions[index];
+  
+        const selectedQuestion = questions[index];
+        console.log('Fetched question:', selectedQuestion);
+        return selectedQuestion;
       }),
       catchError((error: Error) => {
         console.error('Error fetching question by index:', error);
-        return of(null);
+        return of(null); // Fallback to null on error
       })
     );
   }  
@@ -889,7 +901,7 @@ export class QuizService implements OnDestroy {
         return of([]); // Return an empty array on error
       })
     );
-  }  
+  }
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
