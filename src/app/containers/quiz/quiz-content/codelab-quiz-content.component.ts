@@ -132,6 +132,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    this.currentQuestion$.subscribe((question) => {
+      console.log('currentQuestion$ emitted::>>', question);
+    });
+    
+    this.currentOptions$.subscribe((options) => {
+      console.log('currentOptions$ emitted::>>', options);
+    });
     
 
     /* this.quizService.getCurrentQuestion().subscribe((question) => {
