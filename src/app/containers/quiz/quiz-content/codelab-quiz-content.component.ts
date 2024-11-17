@@ -258,14 +258,23 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }
     });
   } */
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     if (this.quizQuestionComponent) {
       console.log('QuizQuestionComponent initialized.');
       this.setupDisplayStateSubscription();
     } else {
       console.warn('QuizQuestionComponent is not yet available.');
     }
+  } */
+  ngAfterViewInit(): void {
+    if (this.quizQuestionComponent) {
+      console.log('QuizQuestionComponent initialized.');
+      this.setupDisplayStateSubscription();
+    } else {
+      console.warn('QuizQuestionComponent is not available in ngAfterViewInit. Ensure it is properly rendered.');
+    }
   }
+  
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
