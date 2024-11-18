@@ -824,19 +824,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
     this.combinedQuestionData$ = combineLatest([
       currentQuizAndOptions$.pipe(
-        map(value => value ?? {}), // Default to an empty object if value is `undefined`
+        map(value => (value ? value : {} as CombinedQuestionDataType)),
         distinctUntilChanged()
       ),
       this.numberOfCorrectAnswers$.pipe(
-        map(value => value ?? 0), // Default to `0` if value is `undefined`
+        map(value => value ?? 0),
         distinctUntilChanged()
       ),
       this.isExplanationTextDisplayed$.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        map(value => value ?? false),
         distinctUntilChanged()
       ),
       this.formattedExplanation$.pipe(
-        map(value => value ?? ''), // Default to an empty string if value is `undefined`
+        map(value => value ?? ''),
         distinctUntilChanged()
       )
     ]).pipe(
