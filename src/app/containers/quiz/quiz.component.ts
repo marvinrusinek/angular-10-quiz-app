@@ -274,9 +274,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
 
     
-    /* this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
+    this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
       console.log('isContentAvailable$ in QuizComponent:::>>>', isAvailable)
-    ); */
+    );
     this.isContentAvailable$ = this.quizDataService.isContentAvailable$;
   }
 
