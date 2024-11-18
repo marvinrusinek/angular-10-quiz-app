@@ -56,7 +56,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     await this.initializeAnswerConfig();
     this.initializeSharedOptionConfig();
 
-    this.quizService.getCurrentQuestion().subscribe((currentQuestion: QuizQuestion) => {
+    this.quizService.getCurrentQuestion(this.quizService.currentQuestionIndex).subscribe((currentQuestion: QuizQuestion) => {
       const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
       this.type = isMultipleAnswer ? 'multiple' : 'single';
     });
@@ -114,7 +114,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
 
     // Get the current question and determine the component to load
-    this.quizService.getCurrentQuestion().subscribe((currentQuestion: QuizQuestion) => {
+    this.quizService.getCurrentQuestion(this.quizService.currentQuestionIndex).subscribe((currentQuestion: QuizQuestion) => {
       const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
       console.log('Is Multiple Answer:', isMultipleAnswer);
 
