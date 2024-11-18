@@ -340,6 +340,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.isLoadingSubject.next(false); // Reset loading state
     this.quizStateService.isNavigatingSubject.next(false); // Reset navigating state
 
+    console.log('Initial state after restart:', {
+      isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+      isLoading: this.quizStateService.isLoadingSubject.value,
+      isNavigating: this.quizStateService.isNavigatingSubject.value,
+    });
+
     this.initializeNextButtonState(); // Initialize button state observables
     this.initializeTooltip(); // Set up tooltip logic
     this.resetOptionState(); // Ensure no lingering selection state
