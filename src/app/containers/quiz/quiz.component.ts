@@ -1579,7 +1579,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************* Fetch and display the current question ***************/
-  /* initializeQuestionStreams(): void {
+  initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
@@ -1606,8 +1606,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const nextOptions$ = this.quizService.getNextOptions(
       this.currentQuestionIndex
     );
-  } */
-  initializeQuestionStreams(): void {
+  }
+  /* initializeQuestionStreams(): void {
     // Initialize questions stream with error handling and logging
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       tap((questions) => {
@@ -1645,9 +1645,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Prepare next question and options observables
     this.prepareNextStreams();
-  }
+  } */
   
-  prepareNextStreams(): void {
+  /* prepareNextStreams(): void {
     // Get the next question from the service and emit it to the subject
     from(this.quizService.getNextQuestion(this.currentQuestionIndex)).pipe(
       tap((nextQuestion) => {
@@ -1673,11 +1673,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return of([]); // Return fallback
       })
     ).subscribe();
-  }
-  
-  
-   
-  
+  } */
 
   // Function to load all questions for the current quiz
   private loadQuizQuestionsForCurrentQuiz(): void {
