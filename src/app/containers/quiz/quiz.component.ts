@@ -1582,6 +1582,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+  
+    this.questions$.subscribe((questions) => {
+      if (questions && questions.length > 0) {
+        this.currentQuestionIndex = 0;
+  
+        // Reset and set initial state for each question
+        questions.forEach((question, index) => {
+          const defaultState: QuestionState = this.quizStateService.createDefaultQuestionState();
+          this.quizStateService.setQuestionState(this.quizId, index, defaultState);
+        });
+  
+        // Set initial question and options
+        this.currentQuestion = questions[this.currentQuestionIndex];
+        this.options = this.currentQuestion.options;
+  
+        console.log('Questions loaded:', questions);
+        console.log('Current question:', this.currentQuestion);
+        console.log('Options:', this.options);
+  
+        // Fetch next question and options
+        this.quizService.getNextQuestion(this.currentQuestionIndex).then((nextQuestion) => {
+          if (nextQuestion) {
+            console.log('Next question:', nextQuestion);
+          } else {
+            console.warn('No next question available.');
+          }
+        }).catch((error) => {
+          console.error('Error fetching next question:', error);
+        });
+  
+        this.quizService.getNextOptions(this.currentQuestionIndex).then((nextOptions) => {
+          if (nextOptions) {
+            console.log('Next options:', nextOptions);
+          } else {
+            console.warn('No next options available.');
+          }
+        }).catch((error) => {
+          console.error('Error fetching next options:', error);
+        });
+      } else {
+        console.warn('No questions available for this quiz.');
+        this.currentQuestion = null;
+        this.options = [];
+      }
+    });
+  }
+  
+  
+  /* initializeQuestionStreams(): void {
+    // Initialize questions stream
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
     this.questions$.subscribe((questions) => {
       if (questions) {
@@ -1606,7 +1657,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const nextOptions$ = this.quizService.getNextOptions(
       this.currentQuestionIndex
     );
-  }
+  } */
   /* initializeQuestionStreams(): void {
     // Initialize questions stream with error handling and logging
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
