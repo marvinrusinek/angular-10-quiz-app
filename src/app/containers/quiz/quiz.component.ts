@@ -336,7 +336,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.subscribeToOptionSelection();
 
-    this.handleNavigationToQuestion();
+    this.handleNavigationToQuestion(this.currentQuestionIndex);
 
     this.initializeNextButtonState(); // Initialize button state observables
     this.initializeTooltip(); // Set up tooltip logic
@@ -504,7 +504,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private handleNavigationToQuestion(questionIndex: number): void {
-    this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
+    this.quizService.getCurrentQuestion().subscribe((question) => {
       console.log(`Navigated to question ${questionIndex}:`, question);
   
       // Reset state for the new question
