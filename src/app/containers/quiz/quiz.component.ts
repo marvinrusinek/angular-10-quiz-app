@@ -546,7 +546,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  
   private evaluateNextButtonState(): boolean {
     // this.resetOptionState(); // Reset before checking next button state
 
@@ -557,7 +556,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const shouldEnable = isAnswered && isLoading && isNavigating;
 
     // Update isButtonEnabled$ directly
-    this.isButtonEnabledSubject.next(shouldEnable);
+    this.ngZone.run(() => {
+      this.isButtonEnabledSubject.next(shouldEnable); // Sync observable state
+      this.isNextButtonEnabled = shouldEnable;
+    });    
   
     return shouldEnable;
   }
