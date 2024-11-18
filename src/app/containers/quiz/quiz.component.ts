@@ -506,19 +506,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private handleNavigationToQuestion(questionIndex: number): void {
     this.quizService.getCurrentQuestion().subscribe((question) => {
       console.log(`Navigated to question ${questionIndex}:`, question);
-  
+
       // Reset state for the new question
       this.selectedOptionService.isAnsweredSubject.next(false);
+
+      // Log the updated state
       console.log('State reset for new question:', {
         isAnswered: this.selectedOptionService.isAnsweredSubject.value,
         isLoading: this.quizStateService.isLoadingSubject.value,
         isNavigating: this.quizStateService.isNavigatingSubject.value,
       });
-  
+
       // Ensure button state is re-evaluated
       this.evaluateNextButtonState();
     });
-  }  
+  }
 
   /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
