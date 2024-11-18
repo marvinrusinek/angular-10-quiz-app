@@ -336,6 +336,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.subscribeToOptionSelection();
 
+    this.selectedOptionService.isAnsweredSubject.next(false); // Reset state
+    this.quizStateService.isLoadingSubject.next(false); // Reset loading state
+    this.quizStateService.isNavigatingSubject.next(false); // Reset navigating state
+
     this.initializeNextButtonState(); // Initialize button state observables
     this.initializeTooltip(); // Set up tooltip logic
     this.resetOptionState(); // Ensure no lingering selection state
