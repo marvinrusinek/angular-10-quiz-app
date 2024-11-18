@@ -566,7 +566,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.updateAndSyncNextButtonState(isEnabled);
     });
   } */
-  private initializeNextButtonState(): void {
+  /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
       this.quizStateService.isLoadingSubject.pipe(
@@ -590,6 +590,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Subscribe to log button state changes
     this.isButtonEnabled$.subscribe((isEnabled) => {
       console.log('Next button enabled state:', isEnabled);
+      this.updateAndSyncNextButtonState(isEnabled);
+    });
+  } */
+  private initializeNextButtonState(): void {
+    this.isButtonEnabled$ = combineLatest([
+      this.selectedOptionService.isAnsweredSubject.asObservable(),
+      this.quizStateService.isLoadingSubject.asObservable().pipe(map((loading) => !loading)),
+      this.quizStateService.isNavigatingSubject.asObservable().pipe(map((navigating) => !navigating)),
+    ]).pipe(
+      map(([isAnswered, isLoaded, isIdle]) => {
+        const shouldEnable = isAnswered && isLoaded && isIdle;
+        console.log('Next button state:', { isAnswered, isLoaded, isIdle, shouldEnable });
+        return shouldEnable;
+      }),
+      distinctUntilChanged(),
+      shareReplay(1)
+    );
+  
+    this.isButtonEnabled$.subscribe((isEnabled) => {
+      console.log('Next button enabled:', isEnabled);
       this.updateAndSyncNextButtonState(isEnabled);
     });
   }
