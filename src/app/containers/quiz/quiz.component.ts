@@ -336,15 +336,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.subscribeToOptionSelection();
 
-    this.selectedOptionService.isAnsweredSubject.next(false); // Reset state
-    this.quizStateService.isLoadingSubject.next(false); // Reset loading state
-    this.quizStateService.isNavigatingSubject.next(false); // Reset navigating state
-
-    console.log('Initial state after restart:', {
-      isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-      isLoading: this.quizStateService.isLoadingSubject.value,
-      isNavigating: this.quizStateService.isNavigatingSubject.value,
-    });
+    this.handleNavigationToQuestion();
 
     this.initializeNextButtonState(); // Initialize button state observables
     this.initializeTooltip(); // Set up tooltip logic
@@ -510,6 +502,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
   }
+
+  private handleNavigationToQuestion(questionIndex: number): void {
+    this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
+      console.log(`Navigated to question ${questionIndex}:`, question);
+  
+      // Reset state for the new question
+      this.selectedOptionService.isAnsweredSubject.next(false);
+      console.log('State reset for new question:', {
+        isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+        isLoading: this.quizStateService.isLoadingSubject.value,
+        isNavigating: this.quizStateService.isNavigatingSubject.value,
+      });
+  
+      // Ensure button state is re-evaluated
+      this.evaluateNextButtonState();
+    });
+  }  
 
   /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
