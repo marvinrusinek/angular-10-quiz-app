@@ -623,20 +623,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private evaluateNextButtonState(): boolean {
-    // this.resetOptionState(); // Reset before checking next button state
-
+    // Retrieve current state for button evaluation
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     const isLoading = !this.quizStateService.isLoadingSubject.value;
     const isNavigating = !this.quizStateService.isNavigatingSubject.value;
 
+    // Determine if the next button should be enabled
     const shouldEnable = isAnswered && isLoading && isNavigating;
-    this.isButtonEnabledSubject.next(shouldEnable); // Sync observable state
-    this.isNextButtonEnabled = shouldEnable;
 
+    // Log the state dependencies and the resulting evaluation
+    console.log('Evaluating next button state:', {
+        isAnswered,
+        isLoading,
+        isNavigating,
+        shouldEnable
+    });
+
+    // Update observable state and UI synchronization
+    this.isButtonEnabledSubject.next(shouldEnable); 
+    this.isNextButtonEnabled = shouldEnable;
     this.updateAndSyncNextButtonState(shouldEnable);
-    
+
+    // Return the final state for further usage if needed
+    console.log('Next button state updated:', { shouldEnable });
     return shouldEnable;
-  }
+}
+
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
