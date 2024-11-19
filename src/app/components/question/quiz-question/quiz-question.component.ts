@@ -1494,7 +1494,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(
+  public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     if (!event?.option || event.option.optionId === undefined) return;
@@ -1542,76 +1542,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.updateSelectionState(option, index, checked);
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
         this.saveQuizState();
-      });
-    } catch (error) {
-      console.error('Error during option click:', error);
-    } finally {
-      this.applyCooldownAndFinalize();
-    }
-  } */
-  public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    if (!event?.option || event.option.optionId === undefined) return;
-  
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-  
-    // Lock input for single-answer questions if an option is already selected
-    if (!isMultipleAnswer && this.isOptionSelected) {
-      console.warn('Single-answer question: Option already selected. Skipping further processing.');
-      return;
-    }
-  
-    this.isOptionSelected = true;
-  
-    try {
-      // State updates for display mode
-      this.updateDisplayState('explanation', true);
-  
-      // Update local display state
-      this.isAnswered = true;
-      this.displayState = { mode: 'explanation', answered: true };
-  
-      console.log('Updated display state:', this.displayState);
-  
-      // Notify QuizComponent of the state change
-      this.displayStateChange.emit(this.displayState);
-  
-      this.renderDisplay();
-  
-      // Delay for UI stability
-      await this.ngZone.run(async () => {
-        await this.applyUIStabilityDelay();
-  
-        const { option, index, checked } = event;
-  
-        if (!this.isValidIndex(index)) {
-          console.warn(`Invalid index: ${index}. Aborting further processing.`);
-          return;
-        }
-  
-        // Mark question as answered
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('isAnswered updated to true.');
-  
-        // Update selection state
-        this.updateSelectionState(option, index, checked);
-  
-        console.log('Updated selection state:', {
-          option,
-          index,
-          checked,
-        });
-  
-        // Perform additional option processing
-        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-  
-        // Save the quiz state
-        this.saveQuizState();
-  
-        // Re-evaluate Next button state
-        const isNextButtonEnabled = this.evaluateNextButtonState();
-        console.log('Next button state evaluated:', isNextButtonEnabled);
       });
     } catch (error) {
       console.error('Error during option click:', error);
