@@ -405,11 +405,40 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
     
-  private updateAnsweredState(): void {
+  /* private updateAnsweredState(): void {
     const hasSelectedOptions = Array.from(this.selectedOptionsMap.values()).some(options => options.length > 0);
     console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
+  } */
+  private updateAnsweredState(
+    options: Option[],
+    questionType: QuestionType
+  ): void {
+    if (!Array.isArray(options)) {
+      console.error('Invalid options provided:', options);
+      this.setAnsweredState(false);
+      return;
+    }
+  
+    if (questionType === QuestionType.MultipleAnswer) {
+      // For multiple-answer questions, all required correct options must be selected
+      const allRequiredSelected = options.every((opt) => !opt.correct || opt.selected);
+      console.log('SelectedOptionService: State for multiple-answer question:', {
+        allRequiredSelected,
+        options,
+      });
+      this.setAnsweredState(allRequiredSelected);
+    } else {
+      // For single-answer questions, any selection means the question is answered
+      const hasSelectedOptions = options.some((opt) => opt.selected);
+      console.log('SelectedOptionService: State for single-answer question:', {
+        hasSelectedOptions,
+        options,
+      });
+      this.setAnsweredState(hasSelectedOptions);
+    }
   }
+  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
