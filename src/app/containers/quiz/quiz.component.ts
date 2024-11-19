@@ -393,6 +393,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeDisplayVariables();
   }
 
+  public onAnsweredChange(isAnswered: boolean): void {
+    console.log('Answered state updated:', isAnswered);
+    this.selectedOptionService.isAnsweredSubject.next(isAnswered);
+    this.evaluateNextButtonState();
+  }
+
   initializeDisplayVariables(): void {
     this.displayVariables = {
       question: this.questionToDisplay || 'No question available',
