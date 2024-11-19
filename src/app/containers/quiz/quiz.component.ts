@@ -632,20 +632,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
-      this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled); // Sync observable state
-        
-      // Update button style based on enabled state
-      this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none'
-      };
-        
-      this.cdRef.markForCheck();
+        console.log('Updating Next button state:', isEnabled);
+
+        // Update the internal state of the Next button
+        this.isNextButtonEnabled = isEnabled;
+        this.isButtonEnabledSubject.next(isEnabled); // Sync the observable state
+
+        console.log('Next button internal state updated:', {
+            isNextButtonEnabled: this.isNextButtonEnabled,
+            isButtonEnabledSubject: this.isButtonEnabledSubject.value,
+        });
+
+        // Update the button's style based on its enabled state
+        this.nextButtonStyle = {
+            opacity: isEnabled ? '1' : '0.5',
+            'pointer-events': isEnabled ? 'auto' : 'none',
+        };
+
+        console.log('Next button style updated:', this.nextButtonStyle);
+
+        // Trigger change detection to ensure the UI reflects the state
+        this.cdRef.markForCheck();
     });
 
-    // Update tooltip observable to ensure synchronization
+    // Synchronize the tooltip state to reflect button changes
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
+    console.log('Next button tooltip synchronized.');
   }
 
   // Tooltip for next button
