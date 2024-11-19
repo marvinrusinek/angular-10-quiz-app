@@ -1506,6 +1506,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     this.isOptionSelected = true;
+    
+    this.selectedOptionService.isAnsweredSubject.next(true);
   
     // Update the display state to explanation mode
     this.updateDisplayState('explanation', true); // Update state centrally
