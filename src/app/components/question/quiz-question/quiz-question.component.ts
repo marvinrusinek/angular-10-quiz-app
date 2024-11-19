@@ -1509,7 +1509,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
     
     // Update the answered state
-    this.selectedOptionService.isAnsweredSubject.next(true);
+    this.selectedOptionService.isAnsweredSubject.next(true); // Signal answered state
     this.answeredChange.emit(true);
 
     console.log('Option clicked, isAnsweredSubject updated:', {
