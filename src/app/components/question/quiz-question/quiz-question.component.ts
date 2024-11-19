@@ -1597,6 +1597,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           isLoading: this.quizStateService.isLoadingSubject.value,
           isNavigating: this.quizStateService.isNavigatingSubject.value,
         });
+
+        // Emit answered state to QuizComponent
+        this.displayStateChange.emit({ mode: 'explanation', answered: true });
   
         // Update selection state
         this.updateSelectionState(option, index, checked);
