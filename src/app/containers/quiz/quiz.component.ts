@@ -632,6 +632,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const shouldEnable = isAnswered && isLoading && isNavigating;
     this.isButtonEnabledSubject.next(shouldEnable); // Sync observable state
     this.isNextButtonEnabled = shouldEnable;
+
+    this.updateAndSyncNextButtonState(shouldEnable);
     
     return shouldEnable;
   }
