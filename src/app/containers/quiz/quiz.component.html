@@ -28,6 +28,7 @@
             (answer)="selectedAnswer($event)"
             (optionSelected)="onOptionSelected($event)"
             (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
+            (answeredChange)="onAnsweredChange($event)"
           ></codelab-quiz-question>
         </ng-container>
 
