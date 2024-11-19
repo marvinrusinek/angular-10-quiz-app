@@ -1515,8 +1515,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Emit display state change to notify QuizComponent
     this.displayStateChange.emit({
       mode: 'explanation',
-      answered: true,
+      answered: true
     });
+    console.log('Emitting displayStateChange:', { mode: 'explanation', answered: true });
   
     console.log('Display state updated to explanation mode:', this.displayState);
   
