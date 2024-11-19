@@ -393,7 +393,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
   
 
-  private setupDisplayStateSubscription(): void {
+  /* private setupDisplayStateSubscription(): void {
     combineLatest([this.displayState$, this.isQuizQuestionComponentInitialized])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([state, isInitialized]) => {
@@ -411,6 +411,39 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           }
         } else {
           console.warn('QuizQuestionComponent not ready. Skipping display update.');
+        }
+      });
+  }  */
+  private setupDisplayStateSubscription(): void {
+    combineLatest([
+      this.displayState$.pipe(distinctUntilChanged()), // Ensure state changes trigger updates
+      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged()) // Check initialization status
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([state, isInitialized]) => {
+        if (isInitialized) {
+          if (this.quizQuestionComponent) {
+            if (state.mode === 'explanation' && state.answered) {
+              console.log('Displaying explanation text.', {
+                mode: state.mode,
+                answered: state.answered
+              });
+              this.quizQuestionComponent.ensureExplanationTextDisplay();
+            } else {
+              console.log('Displaying question text.', {
+                mode: state.mode,
+                answered: state.answered
+              });
+              this.quizQuestionComponent.ensureQuestionTextDisplay();
+            }
+          } else {
+            console.error('QuizQuestionComponent is unexpectedly null during display update.');
+          }
+        } else {
+          console.warn('QuizQuestionComponent not ready. Skipping display update.', {
+            state,
+            isInitialized
+          });
         }
       });
   }  
