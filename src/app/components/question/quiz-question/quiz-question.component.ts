@@ -1494,7 +1494,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     if (!event?.option || event.option.optionId === undefined) return;
@@ -1548,8 +1548,71 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.applyCooldownAndFinalize();
     }
-  }
+  } */
+  public override async onOptionClicked(
+    event: { option: SelectedOption | null; index: number; checked: boolean }
+  ): Promise<void> {
+    if (!event?.option || event.option.optionId === undefined) return;
   
+    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+    // Lock input for single-answer questions
+    if (!isMultipleAnswer && this.isOptionSelected) {
+      return; // Skip further processing if an option is already selected
+    }
+  
+    this.isOptionSelected = true;
+  
+    // Update the display state to explanation mode
+    this.updateDisplayState('explanation', true); // Update state centrally
+    this.displayState.answered = true;
+    this.displayState.mode = 'explanation';
+  
+    // Emit display state change to notify QuizComponent
+    this.displayStateChange.emit({
+      mode: 'explanation',
+      answered: true,
+    });
+  
+    console.log('Display state updated to explanation mode:', this.displayState);
+  
+    this.handleInitialSelection(event);
+    this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true; // Allow explanation to display
+    this.isExplanationLocked = false; // Unlock explanation display
+    this.renderDisplay();
+  
+    try {
+      await this.ngZone.run(async () => {
+        await this.applyUIStabilityDelay();
+        const { option, index, checked } = event;
+  
+        if (!this.isValidIndex(index)) return;
+  
+        // Mark the question as answered
+        this.selectedOptionService.isAnsweredSubject.next(true);
+  
+        console.log('State after option clicked:', {
+          isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+          isLoading: this.quizStateService.isLoadingSubject.value,
+          isNavigating: this.quizStateService.isNavigatingSubject.value,
+        });
+  
+        // Update selection state
+        this.updateSelectionState(option, index, checked);
+  
+        // Perform additional option processing
+        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+  
+        // Save the current quiz state
+        this.saveQuizState();
+      });
+    } catch (error) {
+      console.error('Error during option click:', error);
+    } finally {
+      this.applyCooldownAndFinalize(); // Finalize and reset any cooldowns
+    }
+  }  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
