@@ -595,22 +595,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.asObservable(),
-      this.quizStateService.isLoadingSubject.asObservable().pipe(map((loading) => !loading)),
-      this.quizStateService.isNavigatingSubject.asObservable().pipe(map((navigating) => !navigating)),
+        this.selectedOptionService.isAnsweredSubject.asObservable(),
+        this.quizStateService.isLoading$.pipe(map((loading) => !loading)),
+        this.quizStateService.isNavigating$.pipe(map((navigating) => !navigating))
     ]).pipe(
-      map(([isAnswered, isLoaded, isIdle]) => {
-        const shouldEnable = isAnswered && isLoaded && isIdle;
-        console.log('Next button state:', { isAnswered, isLoaded, isIdle, shouldEnable });
-        return shouldEnable;
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
+        map(([isAnswered, isLoaded, isIdle]) => {
+            console.log('Next button state dependencies:', {
+                isAnswered,
+                isLoaded,
+                isIdle,
+            });
+            return isAnswered && isLoaded && isIdle;
+        }),
+        distinctUntilChanged(),
+        shareReplay(1)
     );
-  
+
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      console.log('Next button enabled:', isEnabled);
-      this.updateAndSyncNextButtonState(isEnabled);
+        console.log('Next button enabled state:', isEnabled);
+        this.updateAndSyncNextButtonState(isEnabled);
     });
   }
   
@@ -622,13 +625,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isNavigating = !this.quizStateService.isNavigatingSubject.value;
 
     const shouldEnable = isAnswered && isLoading && isNavigating;
-
-    // Update isButtonEnabled$ directly
-    this.ngZone.run(() => {
-      this.isButtonEnabledSubject.next(shouldEnable); // Sync observable state
-      this.isNextButtonEnabled = shouldEnable;
-    });    
-  
+    this.isButtonEnabledSubject.next(shouldEnable); // Sync observable state
+    
     return shouldEnable;
   }
 
