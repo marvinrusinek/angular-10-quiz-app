@@ -2669,6 +2669,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     this.displayStateSubject.next({ mode, answered });
+    console.log('Updated display state:', { mode, answered });
+  
+    if (answered) {
+      console.log('Evaluating next button state after display state change.');
+      this.evaluateNextButtonState();
+    }
   }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
