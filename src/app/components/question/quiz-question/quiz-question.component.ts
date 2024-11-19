@@ -38,6 +38,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
+  @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion,
     selectedOptions: Option[]
