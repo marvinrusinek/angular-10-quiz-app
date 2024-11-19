@@ -1495,6 +1495,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
+  private updateAnsweredState(): void {
+    // Check if the current question type is set
+    if (!this.currentQuestion?.type) {
+      console.warn('QuizQuestionComponent: Question type is not set.');
+      this.selectedOptionService.setAnsweredState(false); // Default to unanswered
+      return;
+    }
+  
+    // Determine if the question is a multiple-answer or single-answer
+    const isMultipleAnswer = this.currentQuestion.type === QuestionType.MultipleAnswer;
+  
+    // Get the selected options
+    const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values());
+  
+    // Determine if the question is answered
+    let isAnswered = false;
+  
+    if (isMultipleAnswer) {
+      // For multiple-answer questions, check if all required options are selected
+      isAnswered = selectedOptions.every((options) =>
+        options.every((opt) => !opt.correct || opt.selected)
+      );
+    } else {
+      // For single-answer questions, check if any option is selected
+      isAnswered = selectedOptions.some((options) =>
+        options.some((opt) => opt.selected)
+      );
+    }
+  
+    // Update the answered state in the service
+    this.selectedOptionService.setAnsweredState(isAnswered);
+  
+    // Log for debugging
+    console.log('QuizQuestionComponent: Updated answered state:', {
+      isMultipleAnswer,
+      selectedOptions,
+      isAnswered,
+    });
+  }  
+
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
@@ -1558,6 +1598,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Update selection state
         this.updateSelectionState(option, index, checked);
+
+        // Call updateAnsweredState after option selection
+        this.updateAnsweredState();
   
         // Perform additional option processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
