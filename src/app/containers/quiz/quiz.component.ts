@@ -517,8 +517,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         isNavigating: this.quizStateService.isNavigatingSubject.value,
       });
 
-      // Ensure button state is re-evaluated
-      this.evaluateNextButtonState();
+      this.evaluateNextButtonState(); // Ensure button state is re-evaluated
     });
   }
 
