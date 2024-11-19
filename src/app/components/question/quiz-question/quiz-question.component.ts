@@ -1494,61 +1494,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    if (!event?.option || event.option.optionId === undefined) return;
-
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-    // Lock input for single-answer questions
-    if (!isMultipleAnswer && this.isOptionSelected) {
-      return; // Skip further processing if an option is already selected
-    }
-
-    this.isOptionSelected = true;
-
-    // Update the display state to explanation mode
-    this.updateDisplayState('explanation', true);
-
-    // Update display state for explanation mode
-    this.isAnswered = true;
-    this.displayState.answered = true;
-    this.displayState.mode = "explanation";
-    this.displayStateChange.emit({ mode: 'explanation', answered: true }); // Notify QuizComponent
-
-    this.handleInitialSelection(event);
-    this.forceQuestionDisplay = false;
-    this.readyForExplanationDisplay = true;
-    this.isExplanationReady = true; // Allow explanation to display
-    this.isExplanationLocked = false; // Unlock explanation display
-    this.renderDisplay();
-
-    try {
-      await this.ngZone.run(async () => {
-        await this.applyUIStabilityDelay();
-        const { option, index, checked } = event;
-
-        if (!this.isValidIndex(index)) return;
-
-        // Mark as answered
-        this.selectedOptionService.isAnsweredSubject.next(true);
-
-        console.log('State after option clicked:', {
-          isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-          isLoading: this.quizStateService.isLoadingSubject.value,
-          isNavigating: this.quizStateService.isNavigatingSubject.value,
-        });
-
-        this.updateSelectionState(option, index, checked);
-        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-        this.saveQuizState();
-      });
-    } catch (error) {
-      console.error('Error during option click:', error);
-    } finally {
-      this.applyCooldownAndFinalize();
-    }
-  } */
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
