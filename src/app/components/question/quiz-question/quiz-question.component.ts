@@ -349,18 +349,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private renderQuestionTextOnly(): void {
-    this.ensureQuestionTextDisplay();
-    console.log(`[renderQuestionTextOnly] Displaying question text exclusively for question ${this.currentQuestionIndex}`);
-  }
-
-  private renderExplanationTextOnly(): void {
-    if (this.displayState.mode === 'explanation' && this.displayState.answered && this.readyForExplanationDisplay) {
-      this.ensureExplanationTextDisplay(this.currentExplanationText);
-      console.log(`[renderExplanationTextOnly] Displaying explanation text for question ${this.currentQuestionIndex}`);
-    }
-  }
-
   private saveQuizState(): void {
     // Store the explanation state or text
     sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
@@ -372,7 +360,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
     this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   }
-
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
@@ -900,8 +887,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isExplanationReady = false; // Prevent explanation until allowed
     this.isExplanationLocked = true; // Block explanation display until user interaction
     this.currentExplanationText = '';
-    // this.renderDisplay();                // Render initial display
-    // this.renderQuestionTextOnly(); // Render question text only by default
     this.ensureQuestionTextDisplay();
     this.cdRef.detectChanges();
     console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
