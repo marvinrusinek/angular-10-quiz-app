@@ -408,7 +408,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
@@ -427,6 +427,42 @@ export class SelectedOptionService {
       currentQuestionType: this.currentQuestionType,
       selectedOptions,
       isAnswered,
+    });
+  } */
+  updateAnsweredState(): void {
+    // Retrieve selected options from the map
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+
+    // Ensure `currentQuestionType` is defined
+    if (!this.currentQuestionType) {
+        console.warn('Question type is not set. Defaulting to unanswered state.');
+        this.setAnsweredState(false);
+        return;
+    }
+
+    let isAnswered = false;
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+        // Handle multiple-answer questions
+        const allCorrectSelected = selectedOptions.every((option) =>
+            option.correct ? option.selected : !option.selected
+        );
+
+        // A multiple-answer question is answered if at least one correct option is selected
+        isAnswered = allCorrectSelected && selectedOptions.some((option) => option.selected);
+    } else {
+        // Handle single-answer questions
+        isAnswered = selectedOptions.some((option) => option.selected);
+    }
+
+    // Update the answered state
+    this.setAnsweredState(isAnswered);
+
+    // Debugging logs
+    console.log('updateAnsweredState: Answered state updated:', {
+        currentQuestionType: this.currentQuestionType,
+        selectedOptions,
+        isAnswered,
     });
   }
 
