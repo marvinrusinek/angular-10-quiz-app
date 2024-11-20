@@ -1522,7 +1522,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update the display state to explanation mode
     this.updateDisplayState('explanation', true);
-    this.displayStateChange.emit({ mode: 'explanation', answered: true });
+    this.displayStateChange.emit({ 
+      mode: 'explanation', 
+      answered: this.selectedOptionService.isAnsweredSubject.value
+    });
   
     console.log('Display state updated to explanation mode:', this.displayState);
   
