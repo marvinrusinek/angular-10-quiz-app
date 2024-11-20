@@ -334,18 +334,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const currentState = this.displayStateSubject.getValue();
 
     if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
-      // Default to displaying question text if certain flags are set
-      this.ensureQuestionTextDisplay();
-      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+        // Default to displaying question text if certain flags are set
+        this.ensureQuestionTextDisplay();
+        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (currentState.mode === 'explanation' && currentState.answered) {
-      // Display explanation text only if mode is 'explanation' and the question is answered
-      this.setExplanationText(); // Set the explanation text before displaying
-      this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
-      console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
+        // Display explanation text only if mode is 'explanation' and the question is answered
+        this.setExplanationText(); // Set the explanation text before displaying
+        this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
+        console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
-      // Fallback to displaying question text in all other cases
-      this.ensureQuestionTextDisplay();
-      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+        // Fallback to displaying question text in all other cases
+        this.ensureQuestionTextDisplay();
+        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
   }
 
@@ -649,6 +649,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.optionsToDisplay = question.options || []; // Safely set options if available
     this.quizService.setCorrectOptions(this.optionsToDisplay);
   }
+  
+  // Helper method to clear explanation
   
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
@@ -1483,8 +1485,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Option clicked, isAnsweredSubject updated:', { isAnswered });
   
     // Update the display state to explanation mode
-    this.updateDisplayState('explanation', true);
-    this.displayStateChange.emit({ mode: 'explanation', answered: true });
+    this.updateDisplayState('explanation', this.selectedOptionService.isAnsweredSubject.value);
+
+    console.log('Option clicked:::', {
+      optionId: event.option.optionId,
+      isAnswered: this.selectedOptionService.isAnsweredSubject.value
+    });
+
+    this.displayStateChange.emit({ 
+      mode: 'explanation', 
+      answered: this.selectedOptionService.isAnsweredSubject.value
+    });
   
     console.log('Display state updated to explanation mode:', this.displayState);
   
@@ -1515,7 +1526,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Additional option processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-
+  
         // Save the quiz state
         this.saveQuizState();
   
@@ -2775,7 +2786,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Helper method to clear explanation
-  private resetExplanation(): void {
+  resetExplanation(): void {
     // Reset all explanation-related states and emit necessary events
     this.displayExplanation = false; // Hide explanation display
     this.explanationToDisplay = ''; // Clear explanation text
@@ -2862,7 +2873,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Fetching explanation for question ${questionIndex}`);
   
     // Clear any previous explanation state
-    this.resetExplanationText();
+    this.resetExplanation();
   
     try {
       // Ensure the questions array is loaded only once, without retries
