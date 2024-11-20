@@ -516,6 +516,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Reset state for the new question
       this.selectedOptionService.isAnsweredSubject.next(false);
 
+      // Reset and update answered state
+      this.selectedOptionService.updateAnsweredState();
+
       // Log the updated state
       console.log('State reset for new question:', {
         isAnswered: this.selectedOptionService.isAnsweredSubject.value,
