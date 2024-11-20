@@ -161,6 +161,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isNextButtonEnabled = false;
   isOptionSelected$: Observable<boolean>;
   nextButtonStyle: { [key: string]: string } = {};
+  isContentAvailable$: Observable<boolean>;
   isContentInitialized = false;
 
   shouldDisplayCorrectAnswers = false;
@@ -180,14 +181,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     answered: false,
   });
   displayState$ = this.displayStateSubject.asObservable();
- 
-  public isContentAvailable$: Observable<boolean> = combineLatest([
-    this.currentQuestion$,
-    this.options$
-  ]).pipe(
-    map(([question, options]) => !!question && options.length > 0),
-    distinctUntilChanged()
-  );
 
   constructor(
     private quizService: QuizService,
@@ -220,6 +213,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
 
     this.options$ = this.getOptions(this.currentQuestionIndex);
+    this.isContentAvailable$ = this.getContentAvailability();
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
 
@@ -1911,6 +1905,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Error fetching options:', error);
         return of([]); // Fallback to an empty array
       })
+    );
+  }
+
+  getContentAvailability(): Observable<boolean> {
+    return combineLatest([
+      this.currentQuestion$, // Ensure this is initialized
+      this.options$
+    ]).pipe(
+      map(([question, options]) => !!question && options.length > 0),
+      distinctUntilChanged()
     );
   }
 
