@@ -408,7 +408,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
@@ -428,7 +428,33 @@ export class SelectedOptionService {
       selectedOptions,
       isAnswered,
     });
-  }   
+  } */
+  updateAnsweredState(): void {
+    // Flatten all selected options from the map
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    // Ensure the current question type is set
+    if (!this.currentQuestionType) {
+      console.warn('SelectedOptionService: Question type is not set. Defaulting to unanswered state.');
+      this.setAnsweredState(false);
+      return;
+    }
+  
+    // Determine if the question is answered based on the question type
+    const isAnswered = this.currentQuestionType === QuestionType.MultipleAnswer
+      ? selectedOptions.every((option) => !option.correct || option.selected)
+      : selectedOptions.some((option) => option.selected);
+  
+    // Update the answered state
+    this.setAnsweredState(isAnswered);
+  
+    // Debugging logs
+    console.log('SelectedOptionService: Updated answered state:', {
+      currentQuestionType: this.currentQuestionType,
+      selectedOptions,
+      isAnswered,
+    });
+  }  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
