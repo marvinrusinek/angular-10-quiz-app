@@ -414,34 +414,26 @@ export class SelectedOptionService {
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   } */
   updateAnsweredState(): void {
-    if (!this.currentQuestionType) {
-      console.warn('SelectedOptionService: Question type is not set.');
-      this.setAnsweredState(false);
-      return;
-    }
-  
-    // Get all selected options for the current question
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-      // Multiple-answer: Ensure all correct options are selected
+      // Multiple-answer logic
       isAnswered = selectedOptions.every((option) => option.selected === option.correct);
     } else {
-      // Single-answer: Ensure at least one option is selected
+      // Single-answer logic
       isAnswered = selectedOptions.some((option) => option.selected);
     }
   
-    // Update the answered state
     this.setAnsweredState(isAnswered);
   
-    // Log for debugging
+    // Debugging logs
     console.log('SelectedOptionService: Updated answered state:', {
       currentQuestionType: this.currentQuestionType,
       selectedOptions,
       isAnswered,
     });
-  }  
+  }   
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
