@@ -511,30 +511,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private handleNavigationToQuestion(questionIndex: number): void {
     console.log('Navigating to question:', questionIndex);
-
+  
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
-        next: (question) => {
-            console.log(`Fetched question ${questionIndex}:`, question);
-
-            // Reset state for the new question
-            this.resetOptionState();
-            this.isOptionSelected = false;
-
-            // Update the answered state for the current question
-            this.selectedOptionService.updateAnsweredState();
-
-            console.log('State after navigation reset:', {
-                isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-                isLoading: this.quizStateService.isLoadingSubject.value,
-                isNavigating: this.quizStateService.isNavigatingSubject.value,
-            });
-
-            // Re-evaluate and sync the Next button state
-            this.evaluateNextButtonState();
-        },
-        error: (error) => {
-            console.error(`Error fetching question ${questionIndex}:`, error);
-        }
+      next: (question) => {
+        console.log(`Fetched question ${questionIndex}:`, question);
+  
+        // Reset state for the new question
+        this.resetOptionState();
+        this.isOptionSelected = false;
+  
+        // Update question type for the current question
+        this.selectedOptionService.currentQuestionType = question?.type || null;
+  
+        // Update answered state for the current question
+        this.selectedOptionService.updateAnsweredState();
+  
+        console.log('State after navigation reset:', {
+          isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+          isLoading: this.quizStateService.isLoadingSubject.value,
+          isNavigating: this.quizStateService.isNavigatingSubject.value,
+        });
+  
+        // Re-evaluate Next button state
+        this.evaluateNextButtonState();
+      },
+      error: (error) => {
+        console.error(`Error fetching question ${questionIndex}:`, error);
+      },
     });
   }
 
