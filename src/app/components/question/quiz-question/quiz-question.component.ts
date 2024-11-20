@@ -693,7 +693,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
       // Displaying question text and clearing explanation
-      this.resetExplanationText(); // Resets explanation text and updates UI
+      this.resetExplanation(); // Resets explanation text and updates UI
       this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
       console.log('Skipping question text display since explanation display is intended.');
