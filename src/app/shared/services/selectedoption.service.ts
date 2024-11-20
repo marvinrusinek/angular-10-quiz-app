@@ -454,7 +454,7 @@ export class SelectedOptionService {
         isAnswered,
     });
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     console.log('Selected options for updateAnsweredState:', selectedOptions);
 
@@ -476,7 +476,34 @@ export class SelectedOptionService {
 
     this.setAnsweredState(isAnswered);
     console.log('Updated answered state:', { currentQuestionType: this.currentQuestionType, isAnswered });
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+    console.log('Selected options for updateAnsweredState:', selectedOptions);
+
+    let isAnswered = false;
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+        // Mark as answered if at least one option is selected
+        isAnswered = selectedOptions.some((option) => option.selected);
+
+        console.log('Multiple-answer question isAnswered state:', { isAnswered });
+    } else {
+        // For single-answer, ensure at least one option is selected
+        isAnswered = selectedOptions.some((option) => option.selected);
+        console.log('Single-answer question isAnswered state:', { isAnswered });
+    }
+
+    this.setAnsweredState(isAnswered);
+
+    // Debugging logs
+    console.log('Updated answered state:', {
+        currentQuestionType: this.currentQuestionType,
+        selectedOptions,
+        isAnswered,
+    });
   }
+
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
