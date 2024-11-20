@@ -349,6 +349,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private saveQuizState(): void {
+    // Store the explanation state or text
+    sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
+  }
+
   private restoreQuizState(): void {
     this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
     const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
@@ -1509,6 +1515,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Additional option processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+
+        // Save the quiz state
+        this.saveQuizState();
   
         console.log('Option processing completed for:', { option, index, checked });
       });
