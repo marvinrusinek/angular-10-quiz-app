@@ -456,8 +456,6 @@ export class SelectedOptionService {
     });
   }
 
-
-
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
