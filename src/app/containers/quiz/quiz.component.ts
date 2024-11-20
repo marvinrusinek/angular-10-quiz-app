@@ -192,7 +192,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
  
   public isContentAvailable$: Observable<boolean> = combineLatest([
     this.currentQuestion$,
-    this.options$,
+    this.options$
   ]).pipe(
     map(([question, options]) => !!question && options.length > 0),
     distinctUntilChanged()
