@@ -232,6 +232,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Call initializeQuiz to ensure the quiz is fully set up
       await this.initializeQuiz();
+      this.restoreQuizState();
 
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
@@ -324,6 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
+      this.restoreQuizState(); // Restore state when returning to the tab
       this.renderDisplay();    // Ensure display reflects current state
     }
   }
@@ -345,6 +347,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ensureQuestionTextDisplay();
       console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
+  }
+
+  private restoreQuizState(): void {
+    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
+    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   }
 
   // Method to initialize `displayMode$` and control the display reactively
