@@ -29,7 +29,7 @@ export class SelectedOptionService {
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
-  private currentQuestionType: QuestionType | null = null;
+  currentQuestionType: QuestionType | null = null;
 
   set isNextButtonEnabled(value: boolean) {
     this.isNextButtonEnabledSubject.next(value);
