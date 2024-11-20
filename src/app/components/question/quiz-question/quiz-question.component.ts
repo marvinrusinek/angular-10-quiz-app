@@ -1498,9 +1498,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateAnsweredState(): void {
     // Ensure the current question type is set
     if (!this.currentQuestion?.type) {
-        console.warn('QuizQuestionComponent: Question type is not set.');
-        this.selectedOptionService.setAnsweredState(false); // Default to unanswered
-        return;
+      console.warn('QuizQuestionComponent: Question type is not set.');
+      this.selectedOptionService.setAnsweredState(false); // Default to unanswered
+      return;
     }
 
     // Determine if the question is a multiple-answer or single-answer
@@ -1514,15 +1514,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Determine answered state based on question type
     if (isMultipleAnswer) {
-        // For multiple-answer questions, verify if all correct options are selected
-        isAnswered = selectedOptions.every((options) =>
-            options.every((opt) => opt.correct ? opt.selected : true)
-        );
+      // For multiple-answer questions, verify if all correct options are selected
+      isAnswered = selectedOptions.every((options) =>
+        options.every((opt) => opt.correct ? opt.selected : true)
+      );
     } else {
-        // For single-answer questions, verify if any option is selected
-        isAnswered = selectedOptions.some((options) =>
-            options.some((opt) => opt.selected)
-        );
+      // For single-answer questions, verify if any option is selected
+      isAnswered = selectedOptions.some((options) =>
+        options.some((opt) => opt.selected)
+      );
     }
 
     // Update the answered state in the service
@@ -1530,10 +1530,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Log state for debugging
     console.log('QuizQuestionComponent: Answered state updated:', {
-        questionType: this.currentQuestion.type,
-        isMultipleAnswer,
-        selectedOptions,
-        isAnswered,
+      questionType: this.currentQuestion.type,
+      isMultipleAnswer,
+      selectedOptions,
+      isAnswered,
     });
   }
 
