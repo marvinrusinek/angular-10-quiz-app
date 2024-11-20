@@ -509,7 +509,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
   }
 
-  private handleNavigationToQuestion(questionIndex: number): void {
+  /* private handleNavigationToQuestion(questionIndex: number): void {
     console.log('Navigating to question:', questionIndex);
   
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
@@ -538,6 +538,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       error: (error) => {
         console.error(`Error fetching question ${questionIndex}:`, error);
       },
+    });
+  } */
+  private handleNavigationToQuestion(questionIndex: number): void {
+    console.log('Navigating to question:', questionIndex);
+
+    this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
+        console.log(`Fetched question ${questionIndex}:`, question);
+
+        // Reset state for the new question
+        this.selectedOptionService.isAnsweredSubject.next(false);
+
+        // Ensure selected options are cleared
+        this.selectedOptionService.clearSelectedOptionsForQuestion();
+
+        // Update the answered state for the new question
+        this.selectedOptionService.updateAnsweredState();
+
+        console.log('State after navigation reset:', {
+            isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+            isLoading: this.quizStateService.isLoadingSubject.value,
+            isNavigating: this.quizStateService.isNavigatingSubject.value,
+        });
+
+        // Re-evaluate the Next button state
+        this.evaluateNextButtonState();
     });
   }
 
