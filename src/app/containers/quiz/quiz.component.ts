@@ -797,6 +797,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const displayExplanation = this.isAnswered;
     sessionStorage.setItem('displayExplanation', String(displayExplanation));
 
+    // Update answered state via the service
+    this.selectedOptionService.updateAnsweredState();
+
     // Immediately evaluate Next button state
     this.evaluateNextButtonState();
   }
