@@ -73,14 +73,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion | null = null;
-  // currentQuestion$!: Observable<QuizQuestion | null>;
-  currentQuestion$: Observable<QuizQuestion | null> = this.quizStateService.currentQuestion$.pipe(startWith(null));
-  //public currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: Observable<QuizQuestion | null> = 
+    this.quizStateService.currentQuestion$.pipe(startWith(null));
   currentQuestionType: string;
   currentOptions: Option[] = [];
-  // options$: Observable<Option[]>;
-  // options$: Observable<Option[]> = this.quizService.options$.pipe(startWith([]));
-  // public options$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+
+  options$: Observable<Option[]> = 
+    this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
+      catchError(error => {
+        console.error('Error fetching options:', error);
+        return of([]); // Fallback to an empty array
+      })
+    );
+
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
@@ -182,13 +187,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     answered: false,
   });
   displayState$ = this.displayStateSubject.asObservable();
-
-  public options$: Observable<Option[]> = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
-    catchError(error => {
-      console.error('Error fetching options:', error);
-      return of([]); // Fallback to an empty array
-    })
-  );
  
   public isContentAvailable$: Observable<boolean> = combineLatest([
     this.currentQuestion$,
