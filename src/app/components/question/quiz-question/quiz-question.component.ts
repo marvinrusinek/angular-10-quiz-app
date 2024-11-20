@@ -1495,48 +1495,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  private updateAnsweredState(): void {
-    // Ensure the current question type is set
-    if (!this.currentQuestion?.type) {
-      console.warn('QuizQuestionComponent: Question type is not set.');
-      this.selectedOptionService.setAnsweredState(false); // Default to unanswered
-      return;
-    }
-
-    // Determine if the question is a multiple-answer or single-answer
-    const isMultipleAnswer = this.currentQuestion.type === QuestionType.MultipleAnswer;
-
-    // Get all selected options from the service
-    const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values());
-
-    // Initialize answered state as false
-    let isAnswered = false;
-
-    // Determine answered state based on question type
-    if (isMultipleAnswer) {
-      // For multiple-answer questions, verify if all correct options are selected
-      isAnswered = selectedOptions.every((options) =>
-        options.every((opt) => opt.correct ? opt.selected : true)
-      );
-    } else {
-      // For single-answer questions, verify if any option is selected
-      isAnswered = selectedOptions.some((options) =>
-        options.some((opt) => opt.selected)
-      );
-    }
-
-    // Update the answered state in the service
-    this.selectedOptionService.setAnsweredState(isAnswered);
-
-    // Log state for debugging
-    console.log('QuizQuestionComponent: Answered state updated:', {
-      questionType: this.currentQuestion.type,
-      isMultipleAnswer,
-      selectedOptions,
-      isAnswered,
-    });
-  }
-
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {

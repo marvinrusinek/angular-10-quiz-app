@@ -413,27 +413,31 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   } */
-  public updateAnsweredState(): void {
+  public updateAnsweredState(currentQuestionType: QuestionType): void {
+    const isMultipleAnswer = currentQuestionType === QuestionType.MultipleAnswer;
     const selectedOptions = Array.from(this.selectedOptionsMap.values());
-  
+
     let isAnswered = false;
-    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+
+    if (isMultipleAnswer) {
       isAnswered = selectedOptions.every((options) =>
-        options.every((opt) => !opt.correct || opt.selected)
+        options.every((opt) => opt.correct ? opt.selected : true)
       );
     } else {
       isAnswered = selectedOptions.some((options) =>
         options.some((opt) => opt.selected)
       );
     }
-  
-    console.log('updateAnsweredState - Details:', {
+
+    this.setAnsweredState(isAnswered);
+
+    console.log('SelectedOptionService: Updated answered state:', {
+      isMultipleAnswer,
       selectedOptions,
       isAnswered,
     });
-  
-    this.setAnsweredState(isAnswered);
-  }   
+  }
+
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
