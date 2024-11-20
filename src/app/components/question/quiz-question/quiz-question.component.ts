@@ -232,7 +232,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Call initializeQuiz to ensure the quiz is fully set up
       await this.initializeQuiz();
-      this.restoreQuizState();
+      // this.restoreQuizState();
 
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
@@ -325,7 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
-      this.restoreQuizState(); // Restore state when returning to the tab
+      // this.restoreQuizState(); // Restore state when returning to the tab
       this.renderDisplay();    // Ensure display reflects current state
     }
   }
