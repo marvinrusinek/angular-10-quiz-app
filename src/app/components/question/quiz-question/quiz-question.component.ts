@@ -1535,7 +1535,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }  
 
-  public override async onOptionClicked(
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     if (!event?.option || event.option.optionId === undefined) return;
@@ -1613,7 +1613,79 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.applyCooldownAndFinalize(); // Finalize and reset any cooldowns
     }
-  }  
+  } */
+  public override async onOptionClicked(
+    event: { option: SelectedOption | null; index: number; checked: boolean }
+  ): Promise<void> {
+    if (!event?.option || event.option.optionId === undefined) return;
+  
+    console.log('Option clicked:', { event });
+  
+    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+  
+    // Lock input for single-answer questions
+    if (!isMultipleAnswer && this.isOptionSelected) {
+      console.log('Single-answer question: Option already selected. Skipping.');
+      return;
+    }
+  
+    // Mark the option as selected
+    this.isOptionSelected = true;
+  
+    // Update the answered state centrally
+    this.updateAnsweredState();
+  
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
+    this.selectedOptionService.isAnsweredSubject.next(true); // Signal answered state
+    console.log('Option clicked, isAnsweredSubject updated:', { isAnswered });
+  
+    // Update the display state to explanation mode
+    this.updateDisplayState('explanation', true);
+    this.displayStateChange.emit({ mode: 'explanation', answered: true });
+  
+    console.log('Display state updated to explanation mode:', this.displayState);
+  
+    // Handle the initial option selection logic
+    this.handleInitialSelection(event);
+  
+    // Update flags for display rendering
+    this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true;
+    this.isExplanationLocked = false;
+  
+    // Render the updated display
+    this.renderDisplay();
+  
+    try {
+      await this.ngZone.run(async () => {
+        await this.applyUIStabilityDelay();
+  
+        const { option, index, checked } = event;
+        if (!this.isValidIndex(index)) {
+          console.warn('Invalid index for option selection:', { index });
+          return;
+        }
+  
+        // Update the selection state for the option
+        this.updateSelectionState(option, index, checked);
+  
+        // Additional option processing
+        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+  
+        // Save the quiz state
+        this.saveQuizState();
+  
+        console.log('Option processing completed for:', { option, index, checked });
+      });
+    } catch (error) {
+      console.error('Error during option click:', error);
+    } finally {
+      // Finalize and reset any cooldowns
+      this.applyCooldownAndFinalize();
+    }
+  }
+  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
