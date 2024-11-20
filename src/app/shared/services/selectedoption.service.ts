@@ -429,7 +429,7 @@ export class SelectedOptionService {
       isAnswered,
     });
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
 
@@ -453,6 +453,29 @@ export class SelectedOptionService {
         selectedOptions,
         isAnswered,
     });
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+    console.log('Selected options for updateAnsweredState:', selectedOptions);
+
+    let isAnswered = false;
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      const allCorrectSelected = selectedOptions.every((option) =>
+        option.correct ? option.selected : !option.selected
+      );
+      const hasAnySelected = selectedOptions.some((option) => option.selected);
+
+      isAnswered = allCorrectSelected && hasAnySelected;
+
+      console.log('Multiple-answer state:', { allCorrectSelected, hasAnySelected, isAnswered });
+    } else {
+      isAnswered = selectedOptions.some((option) => option.selected);
+      console.log('Single-answer state:', { isAnswered });
+    }
+
+    this.setAnsweredState(isAnswered);
+    console.log('Updated answered state:', { currentQuestionType: this.currentQuestionType, isAnswered });
   }
 
   setAnswered(isAnswered: boolean): void {
