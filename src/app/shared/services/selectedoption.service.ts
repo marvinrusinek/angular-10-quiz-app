@@ -413,30 +413,49 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   } */
-  public updateAnsweredState(currentQuestionType: QuestionType): void {
+  public updateAnsweredState(): void {
+    // Get the current question type from the service (ensure it's stored in the service or accessible globally)
+    const currentQuestionType = this.currentQuestionType;
+
+    if (!currentQuestionType) {
+      console.warn('SelectedOptionService: Current question type is not set.');
+      this.setAnsweredState(false); // Default to unanswered
+      return;
+    }
+
+    // Determine if the question is a multiple-answer or single-answer
     const isMultipleAnswer = currentQuestionType === QuestionType.MultipleAnswer;
+
+    // Retrieve selected options from the map
     const selectedOptions = Array.from(this.selectedOptionsMap.values());
 
+    // Determine if the question is answered
     let isAnswered = false;
 
     if (isMultipleAnswer) {
+      // For multiple-answer questions, check if all required options are selected
       isAnswered = selectedOptions.every((options) =>
         options.every((opt) => opt.correct ? opt.selected : true)
       );
     } else {
+      // For single-answer questions, check if any option is selected
       isAnswered = selectedOptions.some((options) =>
         options.some((opt) => opt.selected)
       );
     }
 
+    // Update the answered state in the service
     this.setAnsweredState(isAnswered);
 
+    // Log for debugging
     console.log('SelectedOptionService: Updated answered state:', {
+      currentQuestionType,
       isMultipleAnswer,
       selectedOptions,
-      isAnswered,
+      isAnswered
     });
   }
+
 
 
   setAnswered(isAnswered: boolean): void {
