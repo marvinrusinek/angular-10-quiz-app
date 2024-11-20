@@ -516,7 +516,7 @@ export class SelectedOptionService {
         isAnswered,
     });
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
@@ -535,7 +535,31 @@ export class SelectedOptionService {
       selectedOptions,
       isAnswered,
     });
-  }  
+  } */
+  public updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+
+    let isAnswered = false;
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+        // Multiple-answer logic: Ensure all correct options are selected
+        isAnswered = selectedOptions.every((option) => 
+            (!option.correct && !option.selected) || (option.correct && option.selected)
+        );
+    } else {
+        // Single-answer logic: Check if any option is selected
+        isAnswered = selectedOptions.some((option) => option.selected);
+    }
+
+    // Emit the updated answered state
+    this.setAnsweredState(isAnswered);
+
+    console.log('Updated answered state:', {
+        currentQuestionType: this.currentQuestionType,
+        selectedOptions,
+        isAnswered,
+    });
+  }
 
 
   setAnswered(isAnswered: boolean): void {
