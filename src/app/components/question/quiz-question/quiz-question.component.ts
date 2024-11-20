@@ -347,11 +347,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private renderQuestionTextOnly(): void {
-    this.ensureQuestionTextDisplay();
-    console.log(`[renderQuestionTextOnly] Displaying question text exclusively for question ${this.currentQuestionIndex}`);
-  }
-
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
     this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
