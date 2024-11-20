@@ -413,39 +413,30 @@ export class SelectedOptionService {
     console.log('SelectedOptionService: Calculated hasSelectedOptions:', hasSelectedOptions);
     hasSelectedOptions ? this.setAnsweredState(true) : this.setAnsweredState(false);
   } */
-  private updateAnsweredState(): void {
-    const selectedOptionsMap = Array.from(this.selectedOptionsMap.values());
-  
-    // Determine if the question is a multiple-answer or single-answer
+  public updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values());
     const isMultipleAnswer = this.currentQuestionType === QuestionType.MultipleAnswer;
   
-    // Check if the question is answered
     let isAnswered = false;
   
     if (isMultipleAnswer) {
-      // For multiple-answer questions, check if all required options are selected
-      isAnswered = selectedOptionsMap.every((options) =>
+      isAnswered = selectedOptions.every((options) =>
         options.every((opt) => !opt.correct || opt.selected)
       );
     } else {
-      // For single-answer questions, check if any option is selected
-      isAnswered = selectedOptionsMap.some((options) =>
+      isAnswered = selectedOptions.some((options) =>
         options.some((opt) => opt.selected)
       );
     }
   
-    // Emit the new state
     this.setAnsweredState(isAnswered);
   
-    // Log for debugging
-    console.log('SelectedOptionService: Updated answered state:', {
+    console.log('SelectedOptionService: Answered state updated:', {
       isMultipleAnswer,
-      selectedOptionsMap,
+      selectedOptions,
       isAnswered,
     });
-  }
-  
-  
+  }  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
