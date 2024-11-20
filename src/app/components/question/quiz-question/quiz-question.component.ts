@@ -736,7 +736,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
       // Displaying question text and clearing explanation
-      this.resetExplanationText(); // Resets explanation text and updates UI
+      this.resetExplanation(); // Resets explanation text and updates UI
       this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
       console.log('Skipping question text display since explanation display is intended.');
@@ -756,12 +756,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showExplanationChange.emit(true);
         console.log('Explanation successfully displayed:', this.explanationToDisplay);
       } else {
-        this.resetExplanationText(); // Clears explanation text and updates UI
+        this.resetExplanation(); // Clears explanation text and updates UI
         this.shouldDisplayExplanation = false; // Reset flag after display decision
       }
     } catch (error) {
       console.error('Error displaying explanation text:', error);
-      this.resetExplanationText(); // Reset explanation on error
+      this.resetExplanation(); // Reset explanation on error
     }
   }
 
@@ -2902,7 +2902,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Fetching explanation for question ${questionIndex}`);
   
     // Clear any previous explanation state
-    this.resetExplanationText();
+    this.resetExplanation();
   
     try {
       // Ensure the questions array is loaded only once, without retries
