@@ -77,14 +77,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.currentQuestion$.pipe(startWith(null));
   currentQuestionType: string;
   currentOptions: Option[] = [];
-
-  options$: Observable<Option[]> = 
-    this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
-      catchError(error => {
-        console.error('Error fetching options:', error);
-        return of([]); // Fallback to an empty array
-      })
-    );
+  options$: Observable<Option[]> = this.getOptions(this.currentQuestionIndex);
 
   currentQuiz: Quiz;
   routeSubscription: Subscription;
@@ -1908,6 +1901,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error fetching question and options:', error);
       return null;
     }
+  }
+
+  getOptions(index: number): Observable<Option[]> {
+    return this.quizService.getCurrentOptions(index).pipe(
+      catchError(error => {
+        console.error('Error fetching options:', error);
+        return of([]); // Fallback to an empty array
+      })
+    );
   }
 
   private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
