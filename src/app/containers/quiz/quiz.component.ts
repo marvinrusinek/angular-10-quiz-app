@@ -77,7 +77,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.currentQuestion$.pipe(startWith(null));
   currentQuestionType: string;
   currentOptions: Option[] = [];
-  options$: Observable<Option[]> = this.getOptions(this.currentQuestionIndex);
+  options$: Observable<Option[]>;
 
   currentQuiz: Quiz;
   routeSubscription: Subscription;
@@ -218,6 +218,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.handleVisibilityChange(); // Call the logic to reload question display
       }
     });
+
+    this.options$ = this.getOptions(this.currentQuestionIndex);
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
 
