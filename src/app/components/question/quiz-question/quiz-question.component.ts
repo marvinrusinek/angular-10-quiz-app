@@ -1523,7 +1523,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the display state to explanation mode
     this.updateDisplayState('explanation', true);
 
-    console.log('Option clicked:', {
+    console.log('Option clicked:::', {
       optionId: event.option.optionId,
       isAnswered: this.selectedOptionService.isAnsweredSubject.value
     });
