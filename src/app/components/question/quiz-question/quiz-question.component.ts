@@ -636,15 +636,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.setCorrectOptions(this.optionsToDisplay);
   }
   
-  // Helper method to clear explanation
-  private resetExplanationText(): void {
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');  // Clear explanation text
-    this.showExplanationChange.emit(false);  // Hide explanation initially
-    this.explanationTextService.updateFormattedExplanation('');
-    this.explanationTextService.resetExplanationText();
-  }
-  
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
       console.log('Reset feedback triggered');
@@ -2766,6 +2757,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  // Helper method to clear explanation
   private resetExplanation(): void {
     // Reset all explanation-related states and emit necessary events
     this.displayExplanation = false; // Hide explanation display
