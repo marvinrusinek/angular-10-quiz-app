@@ -408,7 +408,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  /* updateAnsweredState(): void {
+  updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
@@ -422,42 +422,6 @@ export class SelectedOptionService {
   
     this.setAnsweredState(isAnswered);
   
-    // Debugging logs
-    console.log('SelectedOptionService: Updated answered state:', {
-      currentQuestionType: this.currentQuestionType,
-      selectedOptions,
-      isAnswered,
-    });
-  } */
-  updateAnsweredState(): void {
-    // Retrieve all selected options
-    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
-
-    // Guard clause for undefined question type
-    if (!this.currentQuestionType) {
-      console.warn('Question type is not set. Marking as unanswered.');
-      this.setAnsweredState(false); // Default to unanswered
-      return;
-    }
-
-    let isAnswered = false;
-
-    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-      // For multiple-answer questions, ensure all correct options are selected
-      const allCorrectSelected = selectedOptions.every(option =>
-        option.correct ? option.selected : !option.selected
-      );
-
-      // Consider multiple-answer question answered only if at least one option is selected
-      isAnswered = allCorrectSelected && selectedOptions.some(option => option.selected);
-    } else {
-      // For single-answer questions, check if any option is selected
-      isAnswered = selectedOptions.some(option => option.selected);
-    }
-
-    // Update the answered state in the service
-    this.setAnsweredState(isAnswered);
-
     // Debugging logs
     console.log('SelectedOptionService: Updated answered state:', {
       currentQuestionType: this.currentQuestionType,
