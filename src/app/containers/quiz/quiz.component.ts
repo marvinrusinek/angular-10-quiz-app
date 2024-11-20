@@ -550,7 +550,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.selectedOptionService.isAnsweredSubject.next(false);
 
         // Ensure selected options are cleared
-        this.selectedOptionService.clearSelectedOptionsForQuestion();
+        this.selectedOptionService.clearSelectedOption();
 
         // Update the answered state for the new question
         this.selectedOptionService.updateAnsweredState();
