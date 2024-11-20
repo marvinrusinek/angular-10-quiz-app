@@ -328,38 +328,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* private renderDisplay(): void {
-    if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
-      this.ensureQuestionTextDisplay();
-      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
-    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
-      this.setExplanationText();
-      this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
-      console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
-    } else {
-      this.ensureQuestionTextDisplay();
-      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
-    }
-  } */
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
 
     if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
-        // Default to displaying question text if certain flags are set
-        this.ensureQuestionTextDisplay();
-        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+      // Default to displaying question text if certain flags are set
+      this.ensureQuestionTextDisplay();
+      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (currentState.mode === 'explanation' && currentState.answered) {
-        // Display explanation text only if mode is 'explanation' and the question is answered
-        this.setExplanationText(); // Set the explanation text before displaying
-        this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
-        console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
+      // Display explanation text only if mode is 'explanation' and the question is answered
+      this.setExplanationText(); // Set the explanation text before displaying
+      this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
+      console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
     } else {
-        // Fallback to displaying question text in all other cases
-        this.ensureQuestionTextDisplay();
-        console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+      // Fallback to displaying question text in all other cases
+      this.ensureQuestionTextDisplay();
+      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
   }
-
 
   private renderQuestionTextOnly(): void {
     this.ensureQuestionTextDisplay();
