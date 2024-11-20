@@ -1496,44 +1496,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateAnsweredState(): void {
-    // Check if the current question type is set
+    // Ensure the current question type is set
     if (!this.currentQuestion?.type) {
-      console.warn('QuizQuestionComponent: Question type is not set.');
-      this.selectedOptionService.setAnsweredState(false); // Default to unanswered
-      return;
+        console.warn('QuizQuestionComponent: Question type is not set.');
+        this.selectedOptionService.setAnsweredState(false); // Default to unanswered
+        return;
     }
-  
+
     // Determine if the question is a multiple-answer or single-answer
     const isMultipleAnswer = this.currentQuestion.type === QuestionType.MultipleAnswer;
-  
-    // Get the selected options
+
+    // Get all selected options from the service
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values());
-  
-    // Determine if the question is answered
+
+    // Initialize answered state as false
     let isAnswered = false;
-  
+
+    // Determine answered state based on question type
     if (isMultipleAnswer) {
-      // For multiple-answer questions, check if all required options are selected
-      isAnswered = selectedOptions.every((options) =>
-        options.every((opt) => !opt.correct || opt.selected)
-      );
+        // For multiple-answer questions, verify if all correct options are selected
+        isAnswered = selectedOptions.every((options) =>
+            options.every((opt) => opt.correct ? opt.selected : true)
+        );
     } else {
-      // For single-answer questions, check if any option is selected
-      isAnswered = selectedOptions.some((options) =>
-        options.some((opt) => opt.selected)
-      );
+        // For single-answer questions, verify if any option is selected
+        isAnswered = selectedOptions.some((options) =>
+            options.some((opt) => opt.selected)
+        );
     }
-  
+
     // Update the answered state in the service
     this.selectedOptionService.setAnsweredState(isAnswered);
-  
-    // Log for debugging
-    console.log('QuizQuestionComponent: Updated answered state:', {
-      isMultipleAnswer,
-      selectedOptions,
-      isAnswered,
+
+    // Log state for debugging
+    console.log('QuizQuestionComponent: Answered state updated:', {
+        questionType: this.currentQuestion.type,
+        isMultipleAnswer,
+        selectedOptions,
+        isAnswered,
     });
-  }  
+  }
 
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
