@@ -512,23 +512,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private handleNavigationToQuestion(questionIndex: number): void {
     console.log('Navigating to question:', questionIndex);
 
-    this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
-        console.log(`Fetched question ${questionIndex}:`, question);
+    this.quizService.getCurrentQuestion(questionIndex).subscribe({
+        next: (question) => {
+            console.log(`Fetched question ${questionIndex}:`, question);
 
-        // Reset state for the new question
-        this.selectedOptionService.isAnsweredSubject.next(false);
+            // Reset state for the new question
+            this.resetOptionState();
+            this.isOptionSelected = false;
 
-        // Update the answered state based on the current question
-        this.selectedOptionService.updateAnsweredState();
+            // Update the answered state for the current question
+            this.selectedOptionService.updateAnsweredState();
 
-        console.log('State after navigation reset:', {
-            isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-            isLoading: this.quizStateService.isLoadingSubject.value,
-            isNavigating: this.quizStateService.isNavigatingSubject.value,
-        });
+            console.log('State after navigation reset:', {
+                isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+                isLoading: this.quizStateService.isLoadingSubject.value,
+                isNavigating: this.quizStateService.isNavigatingSubject.value,
+            });
 
-        // Re-evaluate the Next button state
-        this.evaluateNextButtonState();
+            // Re-evaluate and sync the Next button state
+            this.evaluateNextButtonState();
+        },
+        error: (error) => {
+            console.error(`Error fetching question ${questionIndex}:`, error);
+        }
     });
   }
 
@@ -2529,7 +2535,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }    
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
       firstValueFrom(this.quizStateService.isNavigating$),
@@ -2591,6 +2597,65 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const finalButtonState = this.isAnyOptionSelected();
       this.updateAndSyncNextButtonState(finalButtonState);
       this.cdRef.detectChanges();
+    }
+  } */
+  async advanceToNextQuestion(): Promise<void> {
+    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+    ]);
+
+    if (isLoading || isNavigating || !isEnabled) {
+        console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
+        return;
+    }
+
+    this.isNavigating = true;
+
+    try {
+        this.quizStateService.setLoading(true);
+        this.quizStateService.setNavigating(true);
+
+        if (this.currentQuestionIndex < this.totalQuestions - 1) {
+            // Increment question index
+            this.currentQuestionIndex++;
+            console.log('Navigating to question index:', this.currentQuestionIndex);
+
+            // Reset option state for the new question
+            this.resetOptionState();
+            this.isOptionSelected = false;
+            this.selectedOptionService.isAnsweredSubject.next(false);
+
+            // Load and prepare the next question
+            await this.loadQuestionContents();
+            await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+            // Reset question-specific states
+            this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+            this.quizQuestionComponent?.resetExplanation();
+
+            // Evaluate and sync the Next button state
+            const shouldEnableNextButton = this.isAnyOptionSelected();
+            this.updateAndSyncNextButtonState(shouldEnableNextButton);
+
+        } else {
+            console.log('End of quiz reached. Navigating to results.');
+            await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        }
+    } catch (error) {
+        console.error('Error during navigation:', error);
+    } finally {
+        // Ensure the states are reset properly
+        this.isNavigating = false;
+        this.quizStateService.setNavigating(false);
+        this.quizStateService.setLoading(false);
+
+        // Sync the Next button state again to reflect the final state
+        const finalButtonState = this.isAnyOptionSelected();
+        this.updateAndSyncNextButtonState(finalButtonState);
+
+        this.cdRef.detectChanges();
     }
   }
   
