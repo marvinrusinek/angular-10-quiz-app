@@ -2815,7 +2815,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Helper method to clear explanation
-  private resetExplanation(): void {
+  resetExplanation(): void {
     // Reset all explanation-related states and emit necessary events
     this.displayExplanation = false; // Hide explanation display
     this.explanationToDisplay = ''; // Clear explanation text
