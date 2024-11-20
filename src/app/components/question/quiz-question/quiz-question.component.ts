@@ -232,7 +232,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Call initializeQuiz to ensure the quiz is fully set up
       await this.initializeQuiz();
-      this.restoreQuizState();
 
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
@@ -325,11 +324,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
-      this.restoreQuizState(); // Restore state when returning to the tab
       this.renderDisplay();    // Ensure display reflects current state
     }
   }
 
+  /* private renderDisplay(): void {
+    if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
+      this.ensureQuestionTextDisplay();
+      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+    } else if (this.displayState.mode === 'explanation' && this.displayState.answered) {
+      this.setExplanationText();
+      this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
+      console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
+    } else {
+      this.ensureQuestionTextDisplay();
+      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
+    }
+  } */
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
 
@@ -349,16 +360,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private saveQuizState(): void {
-    // Store the explanation state or text
-    sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
-  }
 
-  private restoreQuizState(): void {
-    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
-    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+  private renderQuestionTextOnly(): void {
+    this.ensureQuestionTextDisplay();
+    console.log(`[renderQuestionTextOnly] Displaying question text exclusively for question ${this.currentQuestionIndex}`);
   }
 
   // Method to initialize `displayMode$` and control the display reactively
@@ -651,6 +656,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Helper method to clear explanation
+  private resetExplanationText(): void {
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange.emit('');  // Clear explanation text
+    this.showExplanationChange.emit(false);  // Hide explanation initially
+    this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.resetExplanationText();
+  }
   
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
@@ -709,7 +721,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (!this.isAnswered || !this.shouldDisplayExplanation) {
       // Displaying question text and clearing explanation
-      this.resetExplanation(); // Resets explanation text and updates UI
+      this.resetExplanationText(); // Resets explanation text and updates UI
       this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
       console.log('Skipping question text display since explanation display is intended.');
@@ -729,12 +741,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showExplanationChange.emit(true);
         console.log('Explanation successfully displayed:', this.explanationToDisplay);
       } else {
-        this.resetExplanation(); // Clears explanation text and updates UI
+        this.resetExplanationText(); // Clears explanation text and updates UI
         this.shouldDisplayExplanation = false; // Reset flag after display decision
       }
     } catch (error) {
       console.error('Error displaying explanation text:', error);
-      this.resetExplanation(); // Reset explanation on error
+      this.resetExplanationText(); // Reset explanation on error
     }
   }
 
@@ -1485,17 +1497,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Option clicked, isAnsweredSubject updated:', { isAnswered });
   
     // Update the display state to explanation mode
-    this.updateDisplayState('explanation', this.selectedOptionService.isAnsweredSubject.value);
-
-    console.log('Option clicked:::', {
-      optionId: event.option.optionId,
-      isAnswered: this.selectedOptionService.isAnsweredSubject.value
-    });
-
-    this.displayStateChange.emit({ 
-      mode: 'explanation', 
-      answered: this.selectedOptionService.isAnsweredSubject.value
-    });
+    this.updateDisplayState('explanation', true);
+    this.displayStateChange.emit({ mode: 'explanation', answered: true });
   
     console.log('Display state updated to explanation mode:', this.displayState);
   
@@ -1526,9 +1529,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Additional option processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-  
-        // Save the quiz state
-        this.saveQuizState();
   
         console.log('Option processing completed for:', { option, index, checked });
       });
@@ -2785,22 +2785,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  // Helper method to clear explanation
-  resetExplanation(): void {
-    // Reset all explanation-related states and emit necessary events
-    this.displayExplanation = false; // Hide explanation display
-    this.explanationToDisplay = ''; // Clear explanation text
-    
-    // Emit updates to parent components or services
-    this.explanationToDisplayChange.emit(''); // Notify components about cleared text
-    this.showExplanationChange.emit(false); // Notify components to hide explanation
-    
-    // Update the ExplanationTextService with cleared values
+  private resetExplanation(): void {
+    this.displayExplanation = false;
+    this.explanationToDisplay = '';
     this.explanationTextService.updateFormattedExplanation('');
-    this.explanationTextService.resetExplanationText();
     this.explanationTextService.setShouldDisplayExplanation(false);
-  
-    console.log('Explanation has been reset.');
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
@@ -2873,7 +2864,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`Fetching explanation for question ${questionIndex}`);
   
     // Clear any previous explanation state
-    this.resetExplanation();
+    this.resetExplanationText();
   
     try {
       // Ensure the questions array is loaded only once, without retries
