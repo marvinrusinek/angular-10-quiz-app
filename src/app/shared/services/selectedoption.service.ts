@@ -239,10 +239,23 @@ export class SelectedOptionService {
   }
 
   clearSelectedOption(): void {
-    this.selectedOption = null;
-    this.selectedOptionSubject.next(null);
+    console.log('Clearing selected option.');
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+        // Clear all selected options for multiple-answer questions
+        this.selectedOptionsMap.clear();
+    } else {
+        // Clear the single selected option for single-answer questions
+        this.selectedOption = null;
+        this.selectedOptionSubject.next(null);
+    }
+
+    // Clear feedback and reset answered state
     this.showFeedbackForOptionSubject.next({});
     this.resetAnsweredState();
+
+    // Debugging logs
+    console.log('Selected options cleared. Answered state reset.');
   }
 
   clearOptions(): void {
