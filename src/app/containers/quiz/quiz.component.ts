@@ -638,6 +638,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Determine if the next button should be enabled
     const shouldEnable = isAnswered && isLoading && isNavigating;
 
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      console.log('Debugging: Forcing next button enable for multiple-answer question.');
+      return true; // Temporarily bypass the logic for multiple-answer questions
+    }
+
     // Log the individual state dependencies and the final evaluation
     console.log('Evaluating next button state:', {
         isAnswered,
