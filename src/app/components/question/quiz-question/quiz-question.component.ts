@@ -1547,7 +1547,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     this.isOptionSelected = true;
-    this.selectedOptionService.updateAnsweredState();
+    
+    // Call updateAnsweredState after option selection
+    this.updateAnsweredState();
     
     // Update the answered state
     this.selectedOptionService.isAnsweredSubject.next(true); // Signal answered state
