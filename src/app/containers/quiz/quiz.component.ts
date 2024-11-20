@@ -510,23 +510,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private handleNavigationToQuestion(questionIndex: number): void {
+    console.log('Navigating to question:', questionIndex);
+
     this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
-      console.log(`Navigated to question ${questionIndex}:`, question);
+        console.log(`Fetched question ${questionIndex}:`, question);
 
-      // Reset state for the new question
-      this.selectedOptionService.isAnsweredSubject.next(false);
+        // Reset state for the new question
+        this.selectedOptionService.isAnsweredSubject.next(false);
 
-      // Reset and update answered state
-      this.selectedOptionService.updateAnsweredState();
+        // Update the answered state based on the current question
+        this.selectedOptionService.updateAnsweredState();
 
-      // Log the updated state
-      console.log('State reset for new question:', {
-        isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-        isLoading: this.quizStateService.isLoadingSubject.value,
-        isNavigating: this.quizStateService.isNavigatingSubject.value,
-      });
+        console.log('State after navigation reset:', {
+            isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+            isLoading: this.quizStateService.isLoadingSubject.value,
+            isNavigating: this.quizStateService.isNavigatingSubject.value,
+        });
 
-      this.evaluateNextButtonState(); // Ensure button state is re-evaluated
+        // Re-evaluate the Next button state
+        this.evaluateNextButtonState();
     });
   }
 
@@ -603,20 +605,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-        this.selectedOptionService.isAnsweredSubject.asObservable().pipe(startWith(false)), // Default to false
-        this.quizStateService.isLoading$.pipe(map((loading) => !loading), startWith(true)), // Assume loading initially
-        this.quizStateService.isNavigating$.pipe(map((navigating) => !navigating), startWith(true)) // Assume idle initially
+        this.selectedOptionService.isAnsweredSubject.asObservable().pipe(
+            startWith(false) // Default to false (no option selected)
+        ),
+        this.quizStateService.isLoading$.pipe(
+            map((loading) => !loading), // Emit true when not loading
+            startWith(false) // Assume loading initially
+        ),
+        this.quizStateService.isNavigating$.pipe(
+            map((navigating) => !navigating), // Emit true when not navigating
+            startWith(false) // Assume navigating initially
+        ),
     ]).pipe(
         map(([isAnswered, isLoaded, isIdle]) => {
             console.log('Next button state dependencies:', {
-                isAnswered,  // True if an option is selected
-                isLoaded,    // True if not loading
-                isIdle,      // True if not navigating
+                isAnswered, // True if an option is selected
+                isLoaded,   // True if not loading
+                isIdle,     // True if not navigating
             });
             return isAnswered && isLoaded && isIdle;
         }),
         distinctUntilChanged(),
-        shareReplay(1)
+        shareReplay(1) // Ensure multiple subscribers get the latest value
     );
 
     this.isButtonEnabled$.subscribe((isEnabled) => {
