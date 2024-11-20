@@ -408,7 +408,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  /* updateAnsweredState(): void {
+  updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
@@ -422,33 +422,6 @@ export class SelectedOptionService {
   
     this.setAnsweredState(isAnswered);
   
-    // Debugging logs
-    console.log('SelectedOptionService: Updated answered state:', {
-      currentQuestionType: this.currentQuestionType,
-      selectedOptions,
-      isAnswered,
-    });
-  } */
-  updateAnsweredState(): void {
-    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
-    let isAnswered = false;
-
-    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-      // Multiple-answer logic: Check if all correct options are selected
-      const allCorrectSelected = selectedOptions.every(option =>
-        option.correct ? option.selected : !option.selected
-      );
-      isAnswered = allCorrectSelected && selectedOptions.length > 0;
-    } else if (this.currentQuestionType === QuestionType.SingleAnswer) {
-      // Single-answer logic: Check if any option is selected
-      isAnswered = selectedOptions.some(option => option.selected);
-    } else {
-      console.warn('SelectedOptionService: Question type is undefined.');
-      isAnswered = false; // Default to unanswered if the question type isn't set
-    }
-
-    this.setAnsweredState(isAnswered);
-
     // Debugging logs
     console.log('SelectedOptionService: Updated answered state:', {
       currentQuestionType: this.currentQuestionType,
