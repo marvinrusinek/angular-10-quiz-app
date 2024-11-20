@@ -713,12 +713,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.showExplanationChange.emit(true);
         console.log('Explanation successfully displayed:', this.explanationToDisplay);
       } else {
-        this.resetExplanationText(); // Clears explanation text and updates UI
+        this.resetExplanation(); // Clears explanation text and updates UI
         this.shouldDisplayExplanation = false; // Reset flag after display decision
       }
     } catch (error) {
       console.error('Error displaying explanation text:', error);
-      this.resetExplanationText(); // Reset explanation on error
+      this.resetExplanation(); // Reset explanation on error
     }
   }
 
