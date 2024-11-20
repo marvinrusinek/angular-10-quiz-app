@@ -678,13 +678,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Helper method to clear explanation
-  private resetExplanationText(): void {
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');  // Clear explanation text
-    this.showExplanationChange.emit(false);  // Hide explanation initially
-    this.explanationTextService.updateFormattedExplanation('');
-    this.explanationTextService.resetExplanationText();
-  }
   
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
@@ -2821,13 +2814,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  // Helper method to clear explanation
   private resetExplanation(): void {
-    this.displayExplanation = false;
-    this.explanationToDisplay = '';
+    // Reset all explanation-related states and emit necessary events
+    this.displayExplanation = false; // Hide explanation display
+    this.explanationToDisplay = ''; // Clear explanation text
+    
+    // Emit updates to parent components or services
+    this.explanationToDisplayChange.emit(''); // Notify components about cleared text
+    this.showExplanationChange.emit(false); // Notify components to hide explanation
+    
+    // Update the ExplanationTextService with cleared values
     this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.resetExplanationText();
     this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
+  
+    console.log('Explanation has been reset.');
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
