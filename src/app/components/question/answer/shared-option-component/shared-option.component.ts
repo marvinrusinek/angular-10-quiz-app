@@ -287,9 +287,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         // Immediate state updates
         this.selectedOptionService.setOptionSelected(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
-
-        // Update answered state in SelectedOptionService
-        this.selectedOptionService.updateAnsweredState();
   
         // Check if the option state changes correctly
         if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
