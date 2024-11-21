@@ -139,16 +139,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
   private isRestoringState = false;
-  private displayState = {
-    mode: 'question' as 'question' | 'explanation',
-    answered: false
-  };
   private forceQuestionDisplay = true;
   private isExplanationReady = false;
   private isExplanationLocked = true;
   readyForExplanationDisplay = false;
   currentExplanationText = '';
 
+  private displayState = {
+    mode: 'question' as 'question' | 'explanation',
+    answered: false
+  };
   private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
     mode: 'question',
     answered: false,
