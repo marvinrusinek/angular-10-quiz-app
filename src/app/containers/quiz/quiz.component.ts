@@ -274,6 +274,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
+    // Restore question state
+    await this.restoreQuestionState();
+
     try {
       console.log('Tab focus event triggered. Restoring question state...');
       
