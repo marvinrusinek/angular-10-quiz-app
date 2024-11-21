@@ -1528,7 +1528,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
   
         // Save the quiz state
-        this.saveQuizState();
+        // this.saveQuizState();
   
         console.log('Option processing completed for:', { option, index, checked });
       });
