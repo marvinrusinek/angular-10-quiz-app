@@ -533,107 +533,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-
-  /* private initializeNextButtonState(): void {
+  private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.pipe(
-        distinctUntilChanged(),
-        tap(isAnswered => console.log('isAnswered:', isAnswered))
+      this.selectedOptionService.isAnsweredSubject.asObservable().pipe(
+        startWith(false) // Default to false (no option selected)
       ),
       this.quizStateService.isLoading$.pipe(
-        map(loading => !loading),
-        distinctUntilChanged(),
-        tap(isLoaded => console.log('isLoading:', isLoaded))
+        map((loading) => !loading), // Emit true when not loading
+        startWith(false) // Assume loading initially
       ),
       this.quizStateService.isNavigating$.pipe(
-        map(navigating => !navigating),
-        distinctUntilChanged(),
-        tap(isIdle => console.log('isNavigating:', isIdle))
-      )
-    ]).pipe(
-      map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
-      distinctUntilChanged(),
-      shareReplay(1)
-    );
-
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('Next button state set to:', isEnabled);
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
-  } */
-  /* private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject,
-      this.quizStateService.isLoading$.pipe(map(loading => !loading)),
-      this.quizStateService.isNavigating$.pipe(map(navigating => !navigating))
-    ]).pipe(
-      map(([isAnswered, isLoaded, isIdle]) => isAnswered && isLoaded && isIdle),
-      distinctUntilChanged(),
-      shareReplay(1)
-    );
-  
-    // Subscribe to log button state changes
-    this.isButtonEnabled$.subscribe(isEnabled => {
-      console.log('Next button enabled:', isEnabled);
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
-  } */
-  /* private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.pipe(distinctUntilChanged()),
-      this.quizStateService.isLoadingSubject.pipe(
-        distinctUntilChanged(),
-        map((loading) => !loading)
-      ),
-      this.quizStateService.isNavigatingSubject.pipe(
-        distinctUntilChanged(),
-        map((navigating) => !navigating)
+        map((navigating) => !navigating), // Emit true when not navigating
+        startWith(false) // Assume navigating initially
       ),
     ]).pipe(
       map(([isAnswered, isLoaded, isIdle]) => {
-        const shouldEnable = isAnswered && isLoaded && isIdle;
-        console.log('Next button state calculated:', { isAnswered, isLoaded, isIdle, shouldEnable });
-        return shouldEnable;
+        console.log('Next button state dependencies:', {
+          isAnswered, // True if an option is selected
+          isLoaded,   // True if not loading
+          isIdle,     // True if not navigating
+        });
+        return isAnswered && isLoaded && isIdle;
       }),
       distinctUntilChanged(),
-      shareReplay(1)
-    );
-  
-    // Subscribe to log button state changes
-    this.isButtonEnabled$.subscribe((isEnabled) => {
-      console.log('Next button enabled state:', isEnabled);
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
-  } */
-  private initializeNextButtonState(): void {
-    this.isButtonEnabled$ = combineLatest([
-        this.selectedOptionService.isAnsweredSubject.asObservable().pipe(
-            startWith(false) // Default to false (no option selected)
-        ),
-        this.quizStateService.isLoading$.pipe(
-            map((loading) => !loading), // Emit true when not loading
-            startWith(false) // Assume loading initially
-        ),
-        this.quizStateService.isNavigating$.pipe(
-            map((navigating) => !navigating), // Emit true when not navigating
-            startWith(false) // Assume navigating initially
-        ),
-    ]).pipe(
-        map(([isAnswered, isLoaded, isIdle]) => {
-            console.log('Next button state dependencies:', {
-                isAnswered, // True if an option is selected
-                isLoaded,   // True if not loading
-                isIdle,     // True if not navigating
-            });
-            return isAnswered && isLoaded && isIdle;
-        }),
-        distinctUntilChanged(),
-        shareReplay(1) // Ensure multiple subscribers get the latest value
+      shareReplay(1) // Ensure multiple subscribers get the latest value
     );
 
     this.isButtonEnabled$.subscribe((isEnabled) => {
-        console.log('Next button enabled state:', isEnabled);
-        this.updateAndSyncNextButtonState(isEnabled);
+      console.log('Next button enabled state:', isEnabled);
+      this.updateAndSyncNextButtonState(isEnabled);
     });
   }
   
