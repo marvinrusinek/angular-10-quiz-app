@@ -831,6 +831,15 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
+  setCurrentQuestionType(type: QuestionType): void {
+    this.currentQuestionType = type;
+    console.log('QuizService: Updated currentQuestionType:', this.currentQuestionType);
+  }
+  
+  getCurrentQuestionType(): QuestionType | null {
+    return this.currentQuestionType;
+  }
+
   // Sets the current question and the next question along with an explanation text.
   setCurrentQuestionAndNext(
     nextQuestion: QuizQuestion | null,
