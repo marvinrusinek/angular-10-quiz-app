@@ -495,20 +495,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private handleNavigationToQuestion(questionIndex: number): void {
+    console.log(`Navigating to question: ${questionIndex}`);
+
     this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
-      console.log(`Navigating to question ${questionIndex}:`, question);
+      console.log(`Fetched question ${questionIndex}:`, question);
   
+      // Reset currentQuestionType
       if (question) {
-        this.quizService.setCurrentQuestionType(question.type); // Ensure type is set
+        this.quizService.setCurrentQuestionType(question.type); // Ensure question type is set
+      } else {
+        console.warn('No question data available for the given index.');
       }
   
       // Reset state for the new question
       this.selectedOptionService.isAnsweredSubject.next(false);
   
-      // Ensure selected options are cleared
+      // Clear previous selections and reset answered state
       this.selectedOptionService.clearSelectedOption();
-  
-      // Recalculate the answered state
       this.selectedOptionService.updateAnsweredState();
   
       console.log('State reset after navigation:', {
