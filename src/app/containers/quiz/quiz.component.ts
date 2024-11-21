@@ -398,18 +398,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     try { 
       // Ensure questions are loaded
-        if (!Array.isArray(this.questions) || this.questions.length === 0) {
-          console.warn('Questions not loaded, calling loadQuizData...');
-          await this.loadQuizData(); // Ensure loading before proceeding
-        }
+      if (!Array.isArray(this.questions) || this.questions.length === 0) {
+        console.warn('Questions not loaded, calling loadQuizData...');
+        await this.loadQuizData(); // Ensure loading before proceeding
+      }
 
-        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
 
-        if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
-          this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
-        } else {
-          console.warn('Invalid or out-of-range question index on visibility change.');
-        }
+      if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
+        this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
+      } else {
+        console.warn('Invalid or out-of-range question index on visibility change.');
+      }
     } catch (error) {
       console.error('Error retrieving total questions count:', error);
     }
