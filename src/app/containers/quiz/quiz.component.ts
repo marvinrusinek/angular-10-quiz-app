@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin,lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -61,7 +61,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
-  formControl: FormControl;
   quiz: Quiz;
   quizData: QuizData[];
   quizComponentData: QuizComponentData;
