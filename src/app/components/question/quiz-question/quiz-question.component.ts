@@ -232,6 +232,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Call initializeQuiz to ensure the quiz is fully set up
       await this.initializeQuiz();
+      this.restoreQuizState();
 
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
@@ -251,7 +252,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-  
+
     // Load the initial question and options immediately
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     const question = this.questionsArray[index];
@@ -324,6 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
+      this.restoreQuizState(); // Restore state when returning to the tab
       this.renderDisplay();    // Ensure display reflects current state
     }
   }
@@ -345,6 +347,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.ensureQuestionTextDisplay();
         console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
+  }
+
+  private saveQuizState(): void {
+    // Store the explanation state or text
+    sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
+  }
+
+  private restoreQuizState(): void {
+    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
+    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   }
 
   // Method to initialize `displayMode$` and control the display reactively
@@ -1512,6 +1526,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Additional option processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+
+        // Save the quiz state
+        this.saveQuizState();
   
         console.log('Option processing completed for:', { option, index, checked });
       });
