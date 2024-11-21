@@ -32,6 +32,8 @@ export class QuizStateService {
   questionStates: Map<number, QuestionState> = new Map();
   private quizStates: { [quizId: string]: Map<number, QuestionState> } = {};
 
+  private restoreStateSubject = new Subject<void>();
+
   private quizQuestionCreated = false;
   public displayExplanationLocked = false;
 
