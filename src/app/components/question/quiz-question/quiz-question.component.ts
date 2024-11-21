@@ -347,18 +347,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private saveQuizState(): void {
-    // Store the explanation state or text
-    sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
-  }
-
-  private restoreQuizState(): void {
-    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
-    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-  }
-
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
     this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
