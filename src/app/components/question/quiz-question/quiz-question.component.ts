@@ -146,6 +146,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private forceQuestionDisplay = true;
   private isExplanationReady = false;
   private isExplanationLocked = true;
+  orivate readyForExplanationDisplay = false;
   currentExplanationText = '';
 
   private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
