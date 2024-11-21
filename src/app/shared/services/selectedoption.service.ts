@@ -606,7 +606,7 @@ export class SelectedOptionService {
         isAnswered,
     });
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     let isAnswered = false;
   
@@ -632,8 +632,28 @@ export class SelectedOptionService {
       selectedOptions,
       isAnswered,
     });
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    let isAnswered = false;
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      isAnswered = selectedOptions.every((option) => option.selected === option.correct);
+    } else {
+      isAnswered = selectedOptions.some((option) => option.selected);
+    }
+  
+    this.setAnsweredState(isAnswered);
+  
+    // Debugging logs
+    console.log('updateAnsweredState for multiple-answer question:', {
+      currentQuestionType: this.currentQuestionType,
+      selectedOptions,
+      isAnswered,
+    });
   }
-
+  
+ 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
