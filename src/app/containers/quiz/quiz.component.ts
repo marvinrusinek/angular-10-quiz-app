@@ -267,17 +267,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   @HostListener('window:focus', ['$event'])
   onTabFocus(event: FocusEvent): void {
-    this.ngZone.run(async () => {
-      if (this.isLoading || this.quizStateService.isLoading()) return;
+  this.ngZone.run(async () => {
+    // Prevent execution if loading is already in progress
+    if (this.isLoading || this.quizStateService.isLoading()) {
+      console.warn('Tab focus event ignored: Loading is in progress.');
+      return;
+    }
 
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
+    try {
+      console.log('Tab focus event triggered. Restoring question state...');
+      
+      // Restore the question state first
+      await this.restoreQuestionState();
 
+      // Check if the current question is answered
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      console.log(`Question ${this.currentQuestionIndex} answered state:`, isAnswered);
+
+      // Determine if the question is a multiple-answer question
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
       );
+      console.log(`Question ${this.currentQuestionIndex} is multiple-answer:`, isMultipleAnswer);
 
+      // Update selection message if it has changed
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
@@ -285,18 +298,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         isMultipleAnswer
       );
 
-      if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
+      const currentMessage = this.selectionMessageService.getCurrentMessage();
+      if (currentMessage !== newMessage) {
+        console.log('Selection message updated:', newMessage);
         this.selectionMessageService.selectionMessageSubject.next(newMessage);
       }
-      
-      this.fetchFormattedExplanationText(this.currentQuestionIndex);
 
+      // Fetch and update explanation text
+      await this.fetchFormattedExplanationText(this.currentQuestionIndex);
+
+      // Update observables for loading and answered state
       this.isLoading$ = this.quizStateService.isLoading$;
       this.isAnswered$ = this.quizStateService.isAnswered$;
 
+      // Trigger change detection for UI update
       this.cdRef.detectChanges();
-    });
-  }
+    } catch (error) {
+      console.error('Error during tab focus synchronization:', error);
+    }
+  });
+}
+
 
   async ngOnInit(): Promise<void> { 
     this.initializeDisplayVariables();
