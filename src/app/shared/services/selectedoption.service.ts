@@ -633,7 +633,7 @@ export class SelectedOptionService {
       isAnswered,
     });
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
     let isAnswered = false;
@@ -647,6 +647,34 @@ export class SelectedOptionService {
   
     // Debugging logs
     console.log('updateAnsweredState for multiple-answer question:', {
+      currentQuestionType: this.currentQuestionType,
+      selectedOptions,
+      isAnswered,
+    });
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    let isAnswered = false;
+  
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      // Multiple-answer logic
+      isAnswered = selectedOptions.every(
+        (option) => option.selected === option.correct
+      );
+    } else if (this.currentQuestionType === QuestionType.SingleAnswer) {
+      // Single-answer logic
+      isAnswered = selectedOptions.some((option) => option.selected);
+    } else {
+      console.warn(
+        'SelectedOptionService: currentQuestionType is not set or unknown. Assuming unanswered.'
+      );
+      isAnswered = false;
+    }
+  
+    this.setAnsweredState(isAnswered);
+  
+    console.log('SelectedOptionService: Updated answered state:', {
       currentQuestionType: this.currentQuestionType,
       selectedOptions,
       isAnswered,
