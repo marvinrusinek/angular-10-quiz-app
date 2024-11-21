@@ -325,7 +325,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (!document.hidden) {
-      this.restoreQuizState(); // Restore state when returning to the tab
+      if (document.visibilityState === 'visible') {
+        console.log('Tab became visible. Restoring question state.');
+        this.restoreQuestionState(); // Restore question-specific state
+      }
+  
+      this.restoreQuizState(); // Restore quiz-wide state when returning to the tab
       this.renderDisplay();    // Ensure display reflects current state
     }
   }
