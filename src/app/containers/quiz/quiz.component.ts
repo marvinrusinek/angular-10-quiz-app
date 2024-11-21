@@ -498,12 +498,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`Navigating to question: ${questionIndex}`);
   
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
-      next: (question) => {
+      next: async (question) => {
         console.log(`Fetched question ${questionIndex}:`, question);
   
         // Reset currentQuestionType
         if (question) {
-          this.quizService.setCurrentQuestionType(question.type); // Ensure question type is set
+          this.quizService.setCurrentQuestionType(question.type);
         } else {
           console.warn('No question data available for the given index.');
         }
@@ -514,7 +514,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Clear previous selections and reset answered state
         this.selectedOptionService.clearSelectedOption();
         this.selectedOptionService.updateAnsweredState();
-
+  
         // Restore previously selected options, if any
         await this.restoreSelectionState();
   
@@ -529,9 +529,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       },
       error: (err) => {
         console.error('Error fetching question:', err);
-      }
+      },
     });
   }
+  
 
   /* private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
