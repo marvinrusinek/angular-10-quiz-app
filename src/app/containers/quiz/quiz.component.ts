@@ -494,7 +494,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
   }
 
-  private handleNavigationToQuestion(questionIndex: number): void {
+  private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
     console.log(`Navigating to question: ${questionIndex}`);
   
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
