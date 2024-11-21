@@ -225,6 +225,14 @@ export class QuizStateService {
     this.isNextButtonEnabledSubject.next(enabled);
   }
 
+  notifyRestoreQuestionState(): void {
+    this.restoreStateSubject.next();
+  }
+  
+  onRestoreQuestionState(): Observable<void> {
+    return this.restoreStateSubject.asObservable();
+  }
+
   public isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       if (question && Array.isArray(question.options)) {
