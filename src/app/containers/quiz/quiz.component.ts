@@ -525,7 +525,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       },
     });
   } */
-  private handleNavigationToQuestion(questionIndex: number): void {
+  /* private handleNavigationToQuestion(questionIndex: number): void {
     console.log('Navigating to question:', questionIndex);
 
     this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
@@ -548,6 +548,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Re-evaluate the Next button state
         this.evaluateNextButtonState();
+    });
+  } */
+  private handleNavigationToQuestion(questionIndex: number): void {
+    this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
+      console.log(`Navigating to question ${questionIndex}:`, question);
+  
+      if (question) {
+        this.quizService.setCurrentQuestionType(question.type); // Ensure type is set
+      }
+  
+      // Reset state for the new question
+      this.selectedOptionService.isAnsweredSubject.next(false);
+  
+      // Ensure selected options are cleared
+      this.selectedOptionService.clearSelectedOption();
+  
+      // Recalculate the answered state
+      this.selectedOptionService.updateAnsweredState();
+  
+      console.log('State reset after navigation:', {
+        isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+        isLoading: this.quizStateService.isLoadingSubject.value,
+        isNavigating: this.quizStateService.isNavigatingSubject.value,
+      });
+  
+      // Re-evaluate the Next button state
+      this.evaluateNextButtonState();
     });
   }
 
