@@ -496,32 +496,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private handleNavigationToQuestion(questionIndex: number): void {
     console.log(`Navigating to question: ${questionIndex}`);
-
-    this.quizService.getCurrentQuestion(questionIndex).subscribe((question) => {
-      console.log(`Fetched question ${questionIndex}:`, question);
   
-      // Reset currentQuestionType
-      if (question) {
-        this.quizService.setCurrentQuestionType(question.type); // Ensure question type is set
-      } else {
-        console.warn('No question data available for the given index.');
+    this.quizService.getCurrentQuestion(questionIndex).subscribe({
+      next: (question) => {
+        console.log(`Fetched question ${questionIndex}:`, question);
+  
+        // Reset currentQuestionType
+        if (question) {
+          this.quizService.setCurrentQuestionType(question.type); // Ensure question type is set
+        } else {
+          console.warn('No question data available for the given index.');
+        }
+  
+        // Reset state for the new question
+        this.selectedOptionService.isAnsweredSubject.next(false);
+  
+        // Clear previous selections and reset answered state
+        this.selectedOptionService.clearSelectedOption();
+        this.selectedOptionService.updateAnsweredState();
+  
+        console.log('State reset after navigation:', {
+          isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+          isLoading: this.quizStateService.isLoadingSubject.value,
+          isNavigating: this.quizStateService.isNavigatingSubject.value,
+        });
+  
+        // Re-evaluate the Next button state
+        this.evaluateNextButtonState();
+      },
+      error: (err) => {
+        console.error('Error fetching question:', err);
       }
-  
-      // Reset state for the new question
-      this.selectedOptionService.isAnsweredSubject.next(false);
-  
-      // Clear previous selections and reset answered state
-      this.selectedOptionService.clearSelectedOption();
-      this.selectedOptionService.updateAnsweredState();
-  
-      console.log('State reset after navigation:', {
-        isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-        isLoading: this.quizStateService.isLoadingSubject.value,
-        isNavigating: this.quizStateService.isNavigatingSubject.value,
-      });
-  
-      // Re-evaluate the Next button state
-      this.evaluateNextButtonState();
     });
   }
 
