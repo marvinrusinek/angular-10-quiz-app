@@ -483,6 +483,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  private restoreQuestionState(): void {
+    console.log('Restoring question state for currentQuestionIndex:', this.currentQuestionIndex);
+  
+    this.quizService.getCurrentQuestion(this.currentQuestionIndex).subscribe({
+      next: (question) => {
+        if (question) {
+          console.log(`Restored question:`, question);
+          this.quizService.setCurrentQuestionType(question.type); // Restore question type
+          this.updateQuestionDisplay(this.currentQuestionIndex);
+        } else {
+          console.warn('Failed to restore question state: Question not found.');
+        }
+      },
+      error: (error) => {
+        console.error('Error restoring question state:', error);
+      },
+    });
+  }
+
   private async restoreSelectionState(): Promise<void> {
     const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
   
