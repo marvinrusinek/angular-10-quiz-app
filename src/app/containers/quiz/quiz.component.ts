@@ -148,7 +148,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isNavigatedByUrl = false;
   private navigationAbortController: AbortController | null = null;
   private debounceNavigation = false;
-  private debounceClick = false;
 
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
   nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
@@ -178,7 +177,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
     mode: 'question',
-    answered: false,
+    answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
 
