@@ -559,11 +559,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.warn('No question data available for the given index.');
         }
   
-        // Reset state for the new question
-        this.selectedOptionService.isAnsweredSubject.next(false);
-  
-        // Clear previous selections and reset answered state
+        // Reset answered state and options for the new question
         this.selectedOptionService.clearSelectedOption();
+        this.selectedOptionService.isAnsweredSubject.next(false);
         this.selectedOptionService.updateAnsweredState();
   
         // Restore previously selected options, if any
