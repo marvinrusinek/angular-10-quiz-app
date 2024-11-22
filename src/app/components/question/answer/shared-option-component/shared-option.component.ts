@@ -274,7 +274,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     this.ngZone.run(() => {
       try {
-        // Set the radio/checkbox as checked
+        // Set the radio/checkbox as checked and focus it
         inputElement.checked = true;
         inputElement.focus(); // Ensure the element gains focus
   
@@ -305,6 +305,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
         // Ensure selection state updates are properly finalized
         this.finalizeOptionSelection(optionBinding, checked);
+
+        // Update answered state at the end of the process
+        this.selectedOptionService.updateAnsweredState();
   
         // Add a small timeout to let the browser finish rendering before detecting changes
         requestAnimationFrame(() => {
