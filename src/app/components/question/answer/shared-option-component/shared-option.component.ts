@@ -281,6 +281,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         const selectedOption = optionBinding.option as SelectedOption;
         const checked = inputElement.checked;
         const optionId = this.getOptionId(selectedOption, index);
+
+        this.selectedOptionService.addSelectedOptionIndex(this.quizService.currentQuestionIndex, optionId);
   
         console.log('Before handling option state:', { optionId, checked });
   

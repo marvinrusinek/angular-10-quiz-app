@@ -833,7 +833,7 @@ export class QuizService implements OnDestroy {
 
   setCurrentQuestionType(type: QuestionType): void {
     this.currentQuestionType = type;
-    console.log('QuizService: Updated currentQuestionType:', this.currentQuestionType);
+    console.log('Set current question type:', this.currentQuestionType);
   }
   
   getCurrentQuestionType(): QuestionType | null {
