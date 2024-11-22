@@ -525,9 +525,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
+  
+    // Log feedback configuration
+    console.log('Feedback configuration before update:', {
+      currentFeedbackConfig: this.currentFeedbackConfig,
+      feedbackConfig: this.feedbackConfig,
+    });
+  
     this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
-  }
+  
+    // Update answered state
+    console.log('Updating answered state after displaying feedback.');
+    this.selectedOptionService.updateAnsweredState();
+  
+    // Log updated answered state
+    console.log('Answered state after feedback:', {
+      isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+      selectedOptions: this.selectedOptionService.selectedOptionsMap,
+    });
+  }  
   
   private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
     return {
