@@ -421,7 +421,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
     // Determine if the question is answered
@@ -434,6 +434,29 @@ export class SelectedOptionService {
       isAnswered = selectedOptions.some((option) => option.selected);
     }
   
+    this.setAnsweredState(isAnswered);
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+
+    let isAnswered = false;
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      // Ensure all correct options are selected and no incorrect options are selected
+      const allCorrectSelected = selectedOptions
+        .filter(option => option.correct)
+        .every(option => option.selected);
+
+      const noIncorrectSelected = selectedOptions
+        .filter(option => !option.correct)
+        .every(option => !option.selected);
+
+      isAnswered = allCorrectSelected && noIncorrectSelected;
+    } else {
+      // For single-answer questions, check if any option is selected
+      isAnswered = selectedOptions.some(option => option.selected);
+    }
+
     this.setAnsweredState(isAnswered);
   }
  
