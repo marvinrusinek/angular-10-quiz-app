@@ -143,10 +143,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
+  
   isNavigating = false;
   private isNavigatedByUrl = false;
   private navigationAbortController: AbortController | null = null;
   private debounceNavigation = false;
+  private navigatingToResults = false;
 
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
   nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
@@ -2695,36 +2697,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   advanceToResults(): void {
-    // Reset all quiz-related states
-    if (!this.quizService) {
-      console.warn('QuizService not available.');
+    if (this.navigatingToResults) {
+      console.warn('Navigation to results already in progress.');
       return;
     }
+
+    this.navigatingToResults = true; // Prevent multiple clicks
+
     this.quizService.resetAll();
-  
-    // Stop the timer and capture the elapsed time
-    if (this.timerService) {
-      this.timerService.stopTimer((elapsedTime: number) => {
-        this.elapsedTimeDisplay = elapsedTime;
-      });
-      this.timerService.resetTimer();
-    } else {
-      console.warn('TimerService not available.');
-    }
-  
-    // Check if answers are correct and navigate to results
+
+    this.timerService.stopTimer((elapsedTime: number) => {
+      this.elapsedTimeDisplay = elapsedTime;
+    });
+
+    this.timerService.resetTimer();
+
     if (!this.quizService.quizCompleted) {
       this.quizService.checkIfAnsweredCorrectly()
         .then(() => {
+          console.log('All answers checked, navigating to results...');
           this.quizService.navigateToResults();
         })
         .catch((error) => {
           console.error('Error during checkIfAnsweredCorrectly:', error);
+        })
+        .finally(() => {
+          this.navigatingToResults = false; // Allow navigation again after the process
         });
     } else {
       console.warn('Quiz already marked as completed.');
     }
   }
+
 
   public async advanceAndProcessNextQuestion(): Promise<void> {
     try {
