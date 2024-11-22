@@ -682,7 +682,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       // Page is now visible, so resume updates, reinitialize subscriptions, and refresh explanation text
       this.isPaused = false; // Indicate that updates are no longer paused
-      this.initializeDisplaySubscriptions();
+      // this.initializeDisplaySubscriptions();
       this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
   }
