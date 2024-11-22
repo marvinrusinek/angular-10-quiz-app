@@ -549,9 +549,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
     return {
       ...this.feedbackConfig,
-      selectedOption: option,
-      correctMessage: this.correctMessage ?? 'No correct message available',
-      feedback: option.feedback ?? 'No feedback available',
+      selectedOption: option ?? null,
+      // correctMessage: this.correctMessage ?? 'No correct message available',
+      correctMessage: option?.correct ? this.correctMessage ?? 'Correct answer' : 'Incorrect answer',
+      feedback: option?.feedback ?? 'No feedback available',
       showFeedback: true,
       idx: index
     };
