@@ -1564,9 +1564,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('Option clicked:', { event });
 
-    // Toggle the option's selected state
-    option.selected = !option.selected;
-
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
 
     // Lock input for single-answer questions
