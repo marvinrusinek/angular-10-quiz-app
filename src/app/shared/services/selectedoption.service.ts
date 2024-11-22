@@ -636,20 +636,23 @@ export class SelectedOptionService {
   updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
+    // Determine if the question is answered
     let isAnswered = false;
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      // Check if at least one correct option is selected
       isAnswered = selectedOptions.every((option) => option.selected === option.correct);
     } else {
+      // For single-answer questions, check if any option is selected
       isAnswered = selectedOptions.some((option) => option.selected);
     }
   
     this.setAnsweredState(isAnswered);
   
     // Debugging logs
-    console.log('updateAnsweredState for multiple-answer question:', {
+    console.log('updateAnsweredState after processing selectedOptions:', {
       currentQuestionType: this.currentQuestionType,
       selectedOptions,
-      isAnswered,
+      isAnswered
     });
   }
  
