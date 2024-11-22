@@ -2696,25 +2696,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   advanceToResults(): void {
     // Reset all quiz-related states
+    if (!this.quizService) {
+      console.warn('QuizService not available.');
+      return;
+    }
     this.quizService.resetAll();
   
     // Stop the timer and capture the elapsed time
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-  
-    // Reset the timer for future use
-    this.timerService.resetTimer();
-  
-    // Check if the answers are correct and navigate to results
-    this.quizService.checkIfAnsweredCorrectly()
-      .pipe(takeUntil(this.destroyed$)).toPromise()
-      .then(() => {
-        this.quizService.navigateToResults();
-      })
-      .catch((error) => {
-        console.error('Error during checkIfAnsweredCorrectly:', error);
+    if (this.timerService) {
+      this.timerService.stopTimer((elapsedTime: number) => {
+        this.elapsedTimeDisplay = elapsedTime;
       });
+      this.timerService.resetTimer();
+    } else {
+      console.warn('TimerService not available.');
+    }
+  
+    // Check if answers are correct and navigate to results
+    if (!this.quizService.quizCompleted) {
+      this.quizService.checkIfAnsweredCorrectly()
+        .then(() => {
+          this.quizService.navigateToResults();
+        })
+        .catch((error) => {
+          console.error('Error during checkIfAnsweredCorrectly:', error);
+        });
+    } else {
+      console.warn('Quiz already marked as completed.');
+    }
   }
 
   public async advanceAndProcessNextQuestion(): Promise<void> {
