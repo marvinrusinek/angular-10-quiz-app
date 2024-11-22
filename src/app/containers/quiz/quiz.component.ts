@@ -2571,7 +2571,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.loadQuestionContents();
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
-        // Clear explanations from the previous question if needed
+        // Clear explanations from the previous question
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.resetExplanation();
           this.quizQuestionComponent.explanationToDisplay = '';
