@@ -1494,12 +1494,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     this.selectedOptionService.isAnsweredSubject.next(true); // Signal answered state
     console.log('Option clicked, isAnsweredSubject updated:', { isAnswered });
-
-    console.log('Option clicked:::::::>>>>>>', {
-      selectedOption: event.option,
-      isAnsweredSubject: this.selectedOptionService.isAnsweredSubject.value,
-      selectedOptionsMap: this.selectedOptionService.selectedOptionsMap,
-    });
   
     // Update the display state to explanation mode
     this.updateDisplayState('explanation', this.selectedOptionService.isAnsweredSubject.value);
