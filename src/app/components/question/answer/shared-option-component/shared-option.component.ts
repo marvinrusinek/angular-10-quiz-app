@@ -268,18 +268,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
-    element: MatCheckbox | MatRadioButton
+    inputElement: MatCheckbox | MatRadioButton
   ): void {
     if (!this.isValidOptionBinding(optionBinding)) return;
   
     this.ngZone.run(() => {
       try {
         // Set the radio/checkbox as checked
-        element.checked = true;
-        element.focus(); // Ensure the element gains focus
+        inputElement.checked = true;
+        inputElement.focus(); // Ensure the element gains focus
   
         const selectedOption = optionBinding.option as SelectedOption;
-        const checked = element.checked;
+        const checked = inputElement.checked;
         const optionId = this.getOptionId(selectedOption, index);
   
         console.log('Before handling option state:', { optionId, checked });
@@ -289,16 +289,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.selectedOptionService.isAnsweredSubject.next(true);
   
         // Check if the option state changes correctly
-        if (!this.handleOptionState(optionBinding, optionId, index, checked, element)) return;
+        if (!this.handleOptionState(optionBinding, optionId, index, checked, inputElement)) return;
   
         console.log('Option state handled:', { optionId, checked });
   
         // Set the element's state directly
-        element.checked = checked;
+        inputElement.checked = checked;
   
         // Update feedback and apply attributes immediately
         this.updateFeedbackState(optionId);
-        this.applyOptionAttributes(optionBinding, element);
+        this.applyOptionAttributes(optionBinding, inputElement);
   
         // Emit the event to notify other components of the selection
         this.emitOptionSelectedEvent(optionBinding, index, checked);
