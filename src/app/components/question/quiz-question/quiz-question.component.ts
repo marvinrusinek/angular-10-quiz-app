@@ -1558,8 +1558,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const option = event.option;
 
     if (!option || option.optionId === undefined) {
-        console.warn('No valid option provided in event.');
-        return;
+      console.warn('No valid option provided in event.');
+      return;
     }
 
     console.log('Option clicked:', { event });
@@ -1568,8 +1568,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Lock input for single-answer questions
     if (!isMultipleAnswer && this.isOptionSelected) {
-        console.log('Single-answer question: Option already selected. Skipping.');
-        return;
+      console.log('Single-answer question: Option already selected. Skipping.');
+      return;
     }
 
     // Mark the option as selected
@@ -1577,10 +1577,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Update the selected options map
     const currentOptions =
-        this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
     this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...currentOptions,
-        option,
+      ...currentOptions,
+      option
     ]);
 
     // Update the answered state centrally
@@ -1597,8 +1597,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Emit display state changes
     this.displayStateChange.emit({
-        mode: 'explanation',
-        answered: isAnswered,
+      mode: 'explanation',
+      answered: isAnswered
     });
 
     // Handle initial selection
@@ -1614,35 +1614,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.renderDisplay();
 
     try {
-        await this.ngZone.run(async () => {
-            await this.applyUIStabilityDelay();
+      await this.ngZone.run(async () => {
+        await this.applyUIStabilityDelay();
 
-            const { option, index, checked } = event;
+        const { option, index, checked } = event;
 
-            if (!this.isValidIndex(index)) {
-                console.warn('Invalid index for option selection:', { index });
-                return;
-            }
+        if (!this.isValidIndex(index)) {
+          console.warn('Invalid index for option selection:', { index });
+          return;
+        }
 
-            // Update the selection state
-            this.updateSelectionState(option, index, checked);
+        // Update the selection state
+        this.updateSelectionState(option, index, checked);
 
-            // Perform additional processing
-            this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+        // Perform additional processing
+        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
 
-            // Save quiz state
-            this.saveQuizState();
+        // Save quiz state
+        this.saveQuizState();
 
-            console.log('Option processing completed for:', { option, index, checked });
-        });
+        console.log('Option processing completed for:', { option, index, checked });
+      });
     } catch (error) {
-        console.error('Error during option click:', error);
+      console.error('Error during option click:', error);
     } finally {
-        // Finalize cooldowns
-        this.applyCooldownAndFinalize();
+      // Finalize cooldowns
+      this.applyCooldownAndFinalize();
     }
   }
-  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
