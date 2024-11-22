@@ -1479,8 +1479,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Mark the option as selected
     this.isOptionSelected = true;
   
-    // Update the answered state centrally
+    // Update the selected options map in the service
     this.selectedOptionService.selectedOptionsMap.set(option.id, [option]);
+    
+    // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
   
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
