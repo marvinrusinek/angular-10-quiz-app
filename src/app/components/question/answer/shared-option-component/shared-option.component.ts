@@ -283,18 +283,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         const optionId = this.getOptionId(selectedOption, index);
         const questionIndex = this.quizService.currentQuestionIndex;
 
-        console.log('Before updating option state:', {
-          questionIndex,
-          optionId,
-          selectedOption,
-        });
-
         // Update selected options map
         this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-
-        console.log('Updated selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-  
-        console.log('Before handling option state:', { optionId, checked });
   
         // Immediate state updates
         this.selectedOptionService.setOptionSelected(true);
@@ -302,8 +292,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
         // Check if the option state changes correctly
         if (!this.handleOptionState(optionBinding, optionId, index, checked, inputElement)) return;
-  
-        console.log('Option state handled:', { optionId, checked });
   
         // Set the element's state directly
         inputElement.checked = checked;
