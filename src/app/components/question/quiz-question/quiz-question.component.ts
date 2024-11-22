@@ -2862,7 +2862,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
       );
       this.ensureExplanationTextDisplay(this.currentExplanationText);
-      this.cdRef.detectChanges(); // Apply changes explicitly
       console.log(`Explanation text set and displayed for question ${this.currentQuestionIndex}`);
     } else {
       console.log('Explanation display is locked; skipping setting explanation text.');
