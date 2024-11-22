@@ -139,16 +139,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
   private isRestoringState = false;
-  private forceQuestionDisplay = true;
-  private isExplanationReady = false;
-  private isExplanationLocked = true;
-  readyForExplanationDisplay = false;
-  currentExplanationText = '';
-
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
     answered: false
   };
+  private forceQuestionDisplay = true;
+  private readyForExplanationDisplay = false;
+  private isExplanationReady = false;
+  private isExplanationLocked = true;
+  currentExplanationText = '';
+
   private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
     mode: 'question',
     answered: false,
@@ -232,7 +232,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Call initializeQuiz to ensure the quiz is fully set up
       await this.initializeQuiz();
-      this.restoreQuizState();
+      // this.restoreQuizState();
 
       await this.initializeQuizDataAndRouting();
       this.initializeFirstQuestion();
@@ -252,7 +252,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-
+  
     // Load the initial question and options immediately
     const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     const question = this.questionsArray[index];
@@ -324,12 +324,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      this.restoreQuizState(); // Restore quiz-level state
-      this.renderDisplay();    // Reflect current display state
-      this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
-    } else {
-      console.log('QQC: Tab became hidden.');
+    if (!document.hidden) {
+      // this.restoreQuizState(); // Restore state when returning to the tab
+      this.renderDisplay();    // Ensure display reflects current state
     }
   }
 
@@ -1490,6 +1487,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the display state to explanation mode
     this.updateDisplayState('explanation', this.selectedOptionService.isAnsweredSubject.value);
 
+    console.log('Option clicked:::', {
+      optionId: event.option.optionId,
+      isAnswered: this.selectedOptionService.isAnsweredSubject.value
+    });
+
     this.displayStateChange.emit({ 
       mode: 'explanation', 
       answered: this.selectedOptionService.isAnsweredSubject.value
@@ -1524,7 +1526,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         // Additional option processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-
+  
         // Save the quiz state
         this.saveQuizState();
   
