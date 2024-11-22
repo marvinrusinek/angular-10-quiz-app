@@ -500,7 +500,6 @@ export class SelectedOptionService {
       this.setAnsweredState(anyOptionSelected);
     }
   }
-
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
