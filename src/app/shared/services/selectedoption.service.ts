@@ -551,33 +551,36 @@ export class SelectedOptionService {
   updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
 
-    console.log('Selected Options:', selectedOptions);
-
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+        // Get all correct and incorrect options
         const correctOptions = selectedOptions.filter(option => option.correct);
         const incorrectOptions = selectedOptions.filter(option => !option.correct);
 
-        console.log('Correct Options:', correctOptions);
-        console.log('Incorrect Options:', incorrectOptions);
-
+        // Check if all correct options are selected
         const allCorrectSelected = correctOptions.every(option => option.selected);
+
+        // Check if no incorrect options are selected
         const noIncorrectSelected = incorrectOptions.every(option => !option.selected);
 
+        // Update the answered state only if both conditions are true
+        const isAnswered = allCorrectSelected && noIncorrectSelected;
+        this.setAnsweredState(isAnswered);
+
+        // Debugging logs to verify the state
+        console.log('Correct Options:', correctOptions);
+        console.log('Incorrect Options:', incorrectOptions);
         console.log('All Correct Selected:', allCorrectSelected);
         console.log('No Incorrect Selected:', noIncorrectSelected);
-
-        const isAnswered = allCorrectSelected && noIncorrectSelected;
-
         console.log('isAnswered:', isAnswered);
-
-        this.setAnsweredState(isAnswered);
     } else {
+        // Single-answer questions: check if any option is selected
         const anyOptionSelected = selectedOptions.some(option => option.selected);
-        console.log('Single-answer question, any option selected:', anyOptionSelected);
         this.setAnsweredState(anyOptionSelected);
+
+        // Debugging logs
+        console.log('Single-answer question, any option selected:', anyOptionSelected);
     }
   }
-
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
