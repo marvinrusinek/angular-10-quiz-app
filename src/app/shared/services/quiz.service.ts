@@ -1659,8 +1659,15 @@ export class QuizService implements OnDestroy {
   }
 
   navigateToResults(): void {
+    if (this.quizCompleted) {
+      console.warn('Navigation to results already completed.');
+      return;
+    }
+
     this.quizCompleted = true;
-    this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
+    this.router.navigate([QuizRoutes.RESULTS, this.quizId]).catch((error) => {
+      console.error('Navigation to results failed:', error);
+    });
   }
 
   setIsNavigatingToPrevious(value: boolean): void {
