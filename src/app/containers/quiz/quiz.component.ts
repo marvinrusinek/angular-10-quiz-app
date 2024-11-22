@@ -538,11 +538,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
   
     // Re-apply selected states to options
-    for (const index of selectedOptions) {
-      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, index);
+    for (const optionId of selectedOptions) {
+      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionId);
     }
-  
+
     console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
+  
+    // After restoring, update the answered state
+    this.selectedOptionService.updateAnsweredState();
   }
 
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
