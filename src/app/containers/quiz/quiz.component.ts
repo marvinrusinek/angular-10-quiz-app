@@ -720,7 +720,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private showTooltip(): void {
     if (this.nextButtonTooltip) {
       this.nextButtonTooltip.show(); // Show the tooltip programmatically
-      this.cdRef.detectChanges(); // Ensure Angular picks up the change
     } else {
       console.warn('Tooltip not available');
     }
