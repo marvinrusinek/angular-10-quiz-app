@@ -143,6 +143,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
+  isQuestionDisplayed = false;
   
   isNavigating = false;
   private isNavigatedByUrl = false;
@@ -451,69 +452,71 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async loadQuestionContents(): Promise<void> {
     try {
       this.isLoading = true;
+      this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
-  
+
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
-  
-      // Validate the quizId and questionIndex
-      if (!quizId) throw new Error('No active quiz ID found.');
+
+      // Validate quiz ID and question index
+      if (!quizId) {
+        console.error('Failed to load question: No active quiz ID found.');
+        throw new Error('No active quiz ID found.');
+      }
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
+        console.error(`Invalid question index: ${questionIndex}`);
         throw new Error('Invalid question index.');
       }
 
-      // Clear selection state before loading
+      // Clear selection state
       this.resetOptionState();
-  
-      // Fetch the current question and options as observables
-      const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex);
-      const options$ = this.quizService.getCurrentOptions(questionIndex);
-  
-      // Handle cases where observables are invalid
-      if (!question$ || !options$) {
-        throw new Error('One or more observables are invalid.');
-      }
-  
-      // Use forkJoin and cast the result type explicitly
+
+      // Fetch question and options
       const data = await lastValueFrom(
         forkJoin({
-          question: question$,
-          options: options$,
+          question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+          options: this.quizService.getCurrentOptions(questionIndex),
           // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
           // navigationIcons: this.navigationService.getNavigationIcons(),
           // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
-          // score: this.scoreService.getCurrentScore(),
+          // score: this.scoreService.getCurrentScore()
         }).pipe(
           catchError((error) => {
-            console.error(
-              `Error while fetching question or options: ${error.message}`
-            );
-            return of({ question: null, options: [] }); // Return fallback data if there's an error
+            console.error(`Error fetching question or options: ${error.message}`);
+            return of({ question: null, options: [] });
           })
         )
       ) as { question: QuizQuestion | null; options: Option[] };
-  
-      // Validate that the fetched data is correct
+
+      // Validate fetched data
       if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
         console.warn(`Failed to load valid data for questionIndex ${questionIndex}`);
+        this.currentQuestion = null;
+        this.options = [];
+        this.isQuestionDisplayed = false;
         return;
       }
-  
-      // Assign the fetched question and options to the component state
+
+      // Assign fetched data to the component state
       this.currentQuestion = data.question;
       this.options = data.options;
-  
-      // Set the current question in the QuizService
+
+      // Update current question in the QuizService
       this.quizService.setCurrentQuestion(questionIndex);
-  
-      // Update progress after loading the question and options
+
+      this.isQuestionDisplayed = true;
+
+      // Update progress
       this.updateProgressPercentage();
     } catch (error) {
       console.error('Error loading question contents:', error);
     } finally {
-      // Ensure loading state is cleared even if there was an error
+      // Always clear loading state
       this.isLoading = false;
+      if (!this.isQuestionDisplayed) {
+        console.warn('Question display is disabled due to errors.');
+      }
     }
   }
 
