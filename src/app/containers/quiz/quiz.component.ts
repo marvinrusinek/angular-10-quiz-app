@@ -97,7 +97,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
   selectionMessage$: Observable<string>;
-  private isQuizLoaded = false; // tracks if the quiz data has been loaded
   isAnswered = false;
   correctAnswers: any[] = [];
   nextExplanationText = '';
@@ -135,6 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questionTextLoaded = false;
 
   private isLoading = false;
+  private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
   hasLoadingError = false;
 
