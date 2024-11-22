@@ -459,7 +459,7 @@ export class SelectedOptionService {
 
     this.setAnsweredState(isAnswered);
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
 
     let isAnswered = false;
@@ -479,7 +479,28 @@ export class SelectedOptionService {
     }
 
     this.setAnsweredState(isAnswered);
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      // Filter options into correct and incorrect
+      const correctOptions = selectedOptions.filter(option => option.correct);
+      const incorrectOptions = selectedOptions.filter(option => !option.correct);
+
+      // Ensure all correct options are selected and no incorrect options are selected
+      const allCorrectSelected = correctOptions.every(option => option.selected);
+      const noIncorrectSelected = incorrectOptions.every(option => !option.selected);
+
+      // Update isAnswered state only if both conditions are true
+      this.setAnsweredState(allCorrectSelected && noIncorrectSelected);
+    } else {
+      // For single-answer questions, check if any option is selected
+      const anyOptionSelected = selectedOptions.some(option => option.selected);
+      this.setAnsweredState(anyOptionSelected);
+    }
   }
+
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
