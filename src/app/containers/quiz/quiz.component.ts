@@ -131,11 +131,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
   displayVariables: { question: string; explanation: string };
-  questionTextLoaded = false;
 
   private isLoading = false;
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
+  questionTextLoaded = false;
   hasLoadingError = false;
 
   isOptionSelected = false;
