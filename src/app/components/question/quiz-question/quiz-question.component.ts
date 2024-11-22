@@ -1461,10 +1461,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(
+  /* public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    if (!event?.option || event.option.optionId === undefined) return;
+    const option = event.option;
+
+    if (!option) {
+        console.warn('No option provided in event.');
+        return;
+    }
+
+    if (!option || option.optionId === undefined) return;
   
     console.log('Option clicked:', { event });
   
@@ -1479,8 +1486,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Mark the option as selected
     this.isOptionSelected = true;
   
-    // Update the selected options map in the service
-    // this.selectedOptionService.selectedOptionsMap.set(option.id, [option]);
+    // Ensure the option is correctly updated in the map
+    const currentOptions = this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+    this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
     
     // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
@@ -1542,6 +1550,93 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       // Finalize and reset any cooldowns
       this.applyCooldownAndFinalize();
+    }
+  } */
+  public override async onOptionClicked(
+    event: { option: SelectedOption | null; index: number; checked: boolean }
+): Promise<void> {
+    const option = event.option;
+
+    if (!option || option.optionId === undefined) {
+        console.warn('No valid option provided in event.');
+        return;
+    }
+
+    console.log('Option clicked:', { event });
+
+    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+
+    // Lock input for single-answer questions
+    if (!isMultipleAnswer && this.isOptionSelected) {
+        console.log('Single-answer question: Option already selected. Skipping.');
+        return;
+    }
+
+    // Mark the option as selected
+    this.isOptionSelected = true;
+
+    // Update the selected options map
+    const currentOptions =
+        this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+    this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
+        ...currentOptions,
+        option,
+    ]);
+
+    // Update the answered state centrally
+    this.selectedOptionService.updateAnsweredState();
+
+    // Update the display state
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
+    this.updateDisplayState('explanation', isAnswered);
+
+    console.log('Display state updated to explanation mode:', this.displayState);
+
+    // Emit display state changes
+    this.displayStateChange.emit({
+        mode: 'explanation',
+        answered: isAnswered,
+    });
+
+    // Handle initial selection
+    this.handleInitialSelection(event);
+
+    // Update rendering flags
+    this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true;
+    this.isExplanationLocked = false;
+
+    // Render updated display
+    this.renderDisplay();
+
+    try {
+        await this.ngZone.run(async () => {
+            await this.applyUIStabilityDelay();
+
+            const { option, index, checked } = event;
+
+            if (!this.isValidIndex(index)) {
+                console.warn('Invalid index for option selection:', { index });
+                return;
+            }
+
+            // Update the selection state
+            this.updateSelectionState(option, index, checked);
+
+            // Perform additional processing
+            this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+
+            // Save quiz state
+            this.saveQuizState();
+
+            console.log('Option processing completed for:', { option, index, checked });
+        });
+    } catch (error) {
+        console.error('Error during option click:', error);
+    } finally {
+        // Finalize cooldowns
+        this.applyCooldownAndFinalize();
     }
   }
   
