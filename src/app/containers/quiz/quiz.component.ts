@@ -860,6 +860,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.questionAndOptionsSubscription?.unsubscribe();
     this.optionSelectedSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
+
+    if (this.tooltip) {
+      this.tooltip.disabled = true; // Disable tooltips
+      this.tooltip.hide(); // Hide any active tooltip
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
