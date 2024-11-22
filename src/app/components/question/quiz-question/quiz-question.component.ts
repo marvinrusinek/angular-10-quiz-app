@@ -1589,6 +1589,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
 
+    // Debugging logs
+    console.log('Updated Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+
     // Update the display state
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     this.updateDisplayState('explanation', isAnswered);
