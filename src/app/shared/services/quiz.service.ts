@@ -1658,7 +1658,7 @@ export class QuizService implements OnDestroy {
     return answers;
   }
 
-  navigateToResults() {
+  navigateToResults(): void {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
   }
