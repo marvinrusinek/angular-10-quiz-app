@@ -2708,6 +2708,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Check if the answers are correct and navigate to results
     this.quizService.checkIfAnsweredCorrectly()
+      .pipe(takeUntil(this.destroyed$)) // Prevent execution after component destruction
+      .toPromise()
       .then(() => {
         this.quizService.navigateToResults();
       })
