@@ -324,9 +324,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (!document.hidden) {
-      // this.restoreQuizState(); // Restore state when returning to the tab
-      this.renderDisplay();    // Ensure display reflects current state
+    if (document.visibilityState === 'visible') {
+      this.restoreQuizState(); // Restore quiz-level state
+      this.renderDisplay();    // Reflect current display state
+      this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
+    } else {
+      console.log('QQC: Tab became hidden.');
     }
   }
 
