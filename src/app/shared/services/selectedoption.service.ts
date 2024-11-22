@@ -549,41 +549,35 @@ export class SelectedOptionService {
     }
   } */
   updateAnsweredState(): void {
-    // Gather all selected options from the map
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
 
+    console.log('Selected Options:', selectedOptions);
+
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-        // Filter correct and incorrect options
         const correctOptions = selectedOptions.filter(option => option.correct);
         const incorrectOptions = selectedOptions.filter(option => !option.correct);
 
-        // Check if ALL correct options are selected
-        const allCorrectSelected = correctOptions.every(option => option.selected);
-
-        // Check if NO incorrect options are selected
-        const noIncorrectSelected = incorrectOptions.every(option => !option.selected);
-
-        // Determine if the question is fully answered
-        const isAnswered = allCorrectSelected && noIncorrectSelected;
-
-        // Update the answered state
-        this.setAnsweredState(isAnswered);
-
-        // Debug logs to ensure conditions are correct
         console.log('Correct Options:', correctOptions);
         console.log('Incorrect Options:', incorrectOptions);
+
+        const allCorrectSelected = correctOptions.every(option => option.selected);
+        const noIncorrectSelected = incorrectOptions.every(option => !option.selected);
+
         console.log('All Correct Selected:', allCorrectSelected);
         console.log('No Incorrect Selected:', noIncorrectSelected);
-        console.log('isAnswered:', isAnswered);
-    } else {
-        // Single-answer questions: check if any option is selected
-        const anyOptionSelected = selectedOptions.some(option => option.selected);
-        this.setAnsweredState(anyOptionSelected);
 
-        // Debug logs for single-answer
+        const isAnswered = allCorrectSelected && noIncorrectSelected;
+
+        console.log('isAnswered:', isAnswered);
+
+        this.setAnsweredState(isAnswered);
+    } else {
+        const anyOptionSelected = selectedOptions.some(option => option.selected);
         console.log('Single-answer question, any option selected:', anyOptionSelected);
+        this.setAnsweredState(anyOptionSelected);
     }
   }
+
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
