@@ -23,17 +23,13 @@ export class TimerService {
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
   public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
-  isStart = new BehaviorSubject<number>(0);
-  isStop = new BehaviorSubject<number>(1);
-  isReset = new BehaviorSubject<number>(1);
+  private isStart = new Subject<void>();
+  private isStop = new Subject<void>();
+  private isReset = new Subject<void>();
   timeUpSubject = new Subject<boolean>();
   timeRemainingSubject = new BehaviorSubject<number>(0);
 
   constructor() {
-    this.start$ = this.isStart.asObservable();
-    this.reset$ = this.isReset.asObservable();
-    this.stop$ = this.isStop.asObservable();
-
     this.timer$ = timer(0, 1000).pipe(
       takeUntil(this.stop$),
       tap(() => {
