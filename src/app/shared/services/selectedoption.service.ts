@@ -585,7 +585,7 @@ export class SelectedOptionService {
     this.setAnsweredState(isCorrectSelection);
     console.log('Updated answered state:', { isCorrectSelection, selectedOptions });
   } */
-  updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
+  /* updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
     // If the callback is provided, use it to determine the answered state
@@ -598,7 +598,20 @@ export class SelectedOptionService {
       allCorrectAnswersSelected,
       selectedOptions,
     });
+  } */
+  updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
+  
+    console.log('All correct answers selected:', allCorrectAnswersSelected);
+    this.setAnsweredState(allCorrectAnswersSelected);
+  
+    console.log('isAnsweredSubject before emit:', this.isAnsweredSubject.value);
+    this.isAnsweredSubject.next(allCorrectAnswersSelected);
+    console.log('isAnsweredSubject after emit:', this.isAnsweredSubject.value);
   }
+  
   
  
   setAnswered(isAnswered: boolean): void {
