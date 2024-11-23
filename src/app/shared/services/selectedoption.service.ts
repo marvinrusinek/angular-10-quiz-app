@@ -569,7 +569,7 @@ export class SelectedOptionService {
         console.log('Single-answer question, any option selected:', anyOptionSelected);
     }
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
     if (!selectedOptions.length) {
@@ -584,7 +584,22 @@ export class SelectedOptionService {
     // Determine if the state is "answered"
     this.setAnsweredState(isCorrectSelection);
     console.log('Updated answered state:', { isCorrectSelection, selectedOptions });
+  } */
+  updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    // If the callback is provided, use it to determine the answered state
+    const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
+  
+    // Update the "answered" state
+    this.setAnsweredState(allCorrectAnswersSelected);
+  
+    console.log('Updated answered state:', {
+      allCorrectAnswersSelected,
+      selectedOptions,
+    });
   }
+  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
