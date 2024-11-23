@@ -1700,7 +1700,7 @@ export class QuizService implements OnDestroy {
     this.setSelectedQuiz(selectedQuiz);
   }
 
-  async checkIfAnsweredCorrectly(): Promise<boolean> {
+  /* async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
 
     let foundQuiz: Quiz;
@@ -1750,6 +1750,64 @@ export class QuizService implements OnDestroy {
     } catch (error) {
       console.error('Error determining the correct answer:', error);
       return false;
+    }
+  } */
+  async checkIfAnsweredCorrectly(): Promise<boolean> {
+    console.log('Checking answers:', this.answers);
+
+    // Step 1: Fetch and validate the quiz
+    let foundQuiz: Quiz;
+    try {
+        foundQuiz = await this.fetchAndFindQuiz(this.quizId);
+        if (!foundQuiz) {
+            console.error(`Quiz not found for ID: ${this.quizId}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error fetching quiz:', error);
+        return false;
+    }
+    this.quiz = foundQuiz;
+
+    // Step 2: Validate the current question
+    const isQuestionValid = this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex);
+    if (!isQuestionValid) {
+        console.error(`Invalid question index: ${this.currentQuestionIndex}`);
+        return false;
+    }
+
+    const currentQuestionValue = this.currentQuestion.getValue();
+    if (!currentQuestionValue) {
+        console.error('Current question value is undefined or null.');
+        return false;
+    }
+
+    // Step 3: Validate answers
+    if (!this.answers || this.answers.length === 0) {
+        console.warn('No answers provided for validation.');
+        return false;
+    }
+
+    if (!this.validateAnswers(currentQuestionValue, this.answers)) {
+        console.warn('Answers are invalid or do not match question format.');
+        return false;
+    }
+
+    // Step 4: Determine correctness of answers
+    try {
+        const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, this.answers);
+        const isCorrect = correctAnswerFound.includes(true);
+
+        // Convert answers to an array of option IDs
+        const answerIds = this.answers.map((answer: Option) => answer.optionId);
+
+        // Step 5: Increment score
+        this.incrementScore(answerIds, isCorrect, this.multipleAnswer);
+
+        return isCorrect; // Return the correctness of the answer
+    } catch (error) {
+        console.error('Error determining the correct answer:', error);
+        return false;
     }
   }
 
