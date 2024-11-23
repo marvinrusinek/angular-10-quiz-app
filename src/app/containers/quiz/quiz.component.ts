@@ -273,7 +273,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Subscribe to restoreStateSubject for handling state restoration
     this.quizStateService.onRestoreQuestionState().pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        console.log('Tab focus: Restore state event received. Restoring question state...');
         this.restoreStateAfterFocus();
       },
       error: (err) => console.error('Error during state restoration on tab focus:', err),
@@ -288,9 +287,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
 
-      try {
-        console.log('Restoring state after tab focus...');
-        
+      try {        
         // Restore the question state
         await this.restoreQuestionState();
 
