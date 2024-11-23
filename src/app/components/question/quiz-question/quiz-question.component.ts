@@ -1577,17 +1577,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   
     return result;
-  }  
-  
-  private handleAllCorrectAnswersSelected(): void {
-    // Stop the timer
-    this.timerService.stopTimer();
-  
-    // Enable the Next button
-    this.selectedOptionService.isAnsweredSubject.next(true); // Signal that the question is answered
-  
-    console.log('All correct answers selected. Timer stopped and Next button enabled.');
-  }  
+  }
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
