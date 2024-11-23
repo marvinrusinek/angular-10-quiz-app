@@ -2901,8 +2901,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.resetExplanationText();
     this.explanationTextService.setShouldDisplayExplanation(false);
-  
-    console.log('Explanation has been reset.');
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
