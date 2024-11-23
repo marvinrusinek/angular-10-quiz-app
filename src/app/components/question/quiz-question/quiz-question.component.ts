@@ -1470,6 +1470,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
+
+    // Check if the option is already selected
+    const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
+      .get(option.optionId)
+      ?.some((o) => o.optionId === option.optionId);
+    if (isAlreadySelected) {
+      console.log('Option already selected. Skipping duplicate processing.');
+      return;
+    }
   
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
