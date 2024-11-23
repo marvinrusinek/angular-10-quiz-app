@@ -1498,14 +1498,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-  
-    // Await the result of areAllCorrectAnswersSelected
-    /* const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
-
-    console.log('All correct answers selected:', allCorrectAnswersSelected); */
 
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
+
+    const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
   
     if (allCorrectAnswersSelected) {
       this.timerService.stopTimer(); // Stop the timer
