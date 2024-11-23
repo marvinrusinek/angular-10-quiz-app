@@ -1491,6 +1491,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
 
+    // Check if all correct answers are selected
+    if (this.areAllCorrectAnswersSelected()) {
+      this.handleAllCorrectAnswersSelected();
+    } else {
+      console.log('Not all correct answers selected yet.');
+    }
+
     // Stop the timer if the question is answered correctly and update the display state
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     if (isAnswered) {
@@ -1550,6 +1557,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.applyCooldownAndFinalize();
     }
   }
+
+  private areAllCorrectAnswersSelected(): boolean {
+    const correctOptions = this.currentQuestion?.options.filter((opt) => opt.correct) || [];
+    const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat();
+  
+    // Check if every correct option is selected
+    return correctOptions.every((correctOption) =>
+      selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
+    );
+  }
+  
+  private handleAllCorrectAnswersSelected(): void {
+    // Stop the timer
+    this.timerService.stopTimer();
+  
+    // Enable the Next button
+    this.selectedOptionService.isAnsweredSubject.next(true); // Signal that the question is answered
+  
+    console.log('All correct answers selected. Timer stopped and Next button enabled.');
+  }  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
