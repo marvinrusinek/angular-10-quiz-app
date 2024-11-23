@@ -1565,11 +1565,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const correctOptions = this.currentQuestion?.options.filter((opt) => opt.correct) || [];
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat();
   
-    // Ensure all correct options are selected
-    return correctOptions.every((correctOption) =>
+    const result = correctOptions.every((correctOption) =>
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
-  }
+  
+    console.log('Checking if all correct answers are selected:', {
+      correctOptions,
+      selectedOptions,
+      result,
+    });
+  
+    return result;
+  }  
   
   private handleAllCorrectAnswersSelected(): void {
     // Stop the timer
