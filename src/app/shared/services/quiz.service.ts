@@ -1710,58 +1710,6 @@ export class QuizService implements OnDestroy {
     this.setSelectedQuiz(selectedQuiz);
   }
 
-  /* async checkIfAnsweredCorrectly(): Promise<boolean> {
-    console.log('Answers::', this.answers);
-
-    let foundQuiz: Quiz;
-    try {
-      foundQuiz = await this.fetchAndFindQuiz(this.quizId);
-      if (!foundQuiz) {
-        console.error(`Quiz not found for ID: ${this.quizId}`);
-        return false;
-      }
-    } catch (error) {
-      console.error('Error fetching quiz:', error);
-      return false;
-    }
-    this.quiz = foundQuiz;
-
-    if (
-      !this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex)
-    ) {
-      return false;
-    }
-
-    const currentQuestionValue = this.currentQuestion.getValue();
-    const answers = this.answers;
-
-    // Check if currentQuestionValue and answers are defined and not empty
-    if (!currentQuestionValue || !answers || answers.length === 0) {
-      return false;
-    }
-
-    if (!this.validateAnswers(currentQuestionValue, answers)) {
-      return false;
-    }
-
-    try {
-      const correctAnswerFound = await this.determineCorrectAnswer(
-        currentQuestionValue,
-        this.answers
-      );
-
-      const isCorrect = correctAnswerFound.includes(true);
-
-      // Convert answers to an array of option IDs
-      const answerIds = this.answers.map((answer: Option) => answer.optionId);
-      this.incrementScore(answerIds, isCorrect, this.multipleAnswer); // Update score based on the correctness
-
-      return isCorrect; // Return the result
-    } catch (error) {
-      console.error('Error determining the correct answer:', error);
-      return false;
-    }
-  } */
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     // Fetch and validate the quiz
     let foundQuiz: Quiz;
