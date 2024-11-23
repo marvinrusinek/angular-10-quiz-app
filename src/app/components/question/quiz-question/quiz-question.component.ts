@@ -1615,7 +1615,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return correctOptions.every((correctOption) =>
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
-  }  
+  }
+    
   
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
