@@ -171,7 +171,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.highlightPreference = event.checked;
   }
 
-  onStartQuiz(quizId: string): void {
+  /* onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('Quiz data is not ready.');
       return;
@@ -192,7 +192,48 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .catch(error => {
         console.error('Navigation error:', error);
       });    
+  } */
+  onStartQuiz(quizId: string): void {
+    if (!quizId) {
+        console.error('Quiz data is not ready.');
+        return;
+    }
+
+    // Fetch and log highlight preference
+    const highlightPreference = this.userPreferenceService.getHighlightPreference();
+    console.log('Highlight preference when starting quiz:', highlightPreference);
+
+    // Set feedback mode in UserPreferenceService
+    const feedbackMode = this.isImmediateFeedback ? 'immediate' : 'lenient';
+    this.userPreferenceService.setFeedbackMode(feedbackMode);
+    console.log('Feedback mode set in UserPreferenceService:', feedbackMode);
+
+    // Shuffle questions and answers if the option is enabled
+    if (this.shouldShuffleOptions) {
+        this.quizService.shuffleQuestionsAndAnswers();
+        console.log('Shuffling questions and answers enabled.');
+    }
+
+    // Navigate to the quiz and include preferences in the navigation state
+    this.router
+        .navigate(['/question', quizId, 1], {
+            state: {
+                shouldShuffleOptions: this.shouldShuffleOptions,
+                feedbackMode: feedbackMode,
+            },
+        })
+        .then((success) => {
+            if (success) {
+                console.log('Navigation successful');
+            } else {
+                console.error('Navigation failed');
+            }
+        })
+        .catch((error) => {
+            console.error('Navigation error:', error);
+        });
   }
+
   
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
