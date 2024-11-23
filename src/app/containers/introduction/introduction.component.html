@@ -28,15 +28,11 @@
         <p>
           <strong class="bold-text">{{ selectedQuiz?.summary }}</strong>
         </p>
-        <p>
-          This quiz is composed of
-          <strong class="bold-text">{{
-            selectedQuiz?.questions.length
-          }}</strong>
-          timed multiple-choice
-          {{ questionLabel }}. Beat the clock and match wits with your friends!
+        <p style="text-align: center; font-weight: 700">
+          Test your wits with <strong class="bold-text">{{
+          selectedQuiz?.questions.length
+        }}</strong> timed multiple-choice {{ questionLabel }}! Have fun and share!
         </p>
-        <p style="text-align: center; font-weight: 700">Good luck and have fun with this quiz! Share and enjoy!</p>
       </div>
     </mat-card-content>
 
@@ -52,7 +48,7 @@
       </mat-checkbox>
 
       <!-- Immediate Feedback Checkbox -->
-      <mat-checkbox 
+      <mat-checkbox style="margin-top: -10px"
         formControlName="isImmediateFeedback"
         [checked]="highlightPreference"
         disableRipple="true" capture

@@ -12,8 +12,8 @@ mat-card-header {
   display: flex;
   justify-content: center;
   width: 400px;
-  height: 250px;
-  margin-top: 20px;
+  height: 270px;
+  margin-top: 10px;
   margin: 0 auto;
 }
 
@@ -21,7 +21,6 @@ mat-card-content {
   display: flex;
   justify-content: center;
   flex: 1;
-  overflow-y: auto;
   margin-top: 5px;
 
   span {
@@ -44,7 +43,7 @@ mat-card-actions {
   mat-button {
     display: block;
     margin: 0 auto;
-    margin-top: 15px;
+    margin-top: -5px;
     background: $vivid-blue;
     color: $black;
     width: 180px;
