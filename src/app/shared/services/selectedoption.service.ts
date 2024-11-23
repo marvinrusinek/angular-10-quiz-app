@@ -584,7 +584,7 @@ export class SelectedOptionService {
     // Determine if the state is "answered"
     this.setAnsweredState(isCorrectSelection);
     console.log('Updated answered state:', { isCorrectSelection, selectedOptions });
-  }  
+  }
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
