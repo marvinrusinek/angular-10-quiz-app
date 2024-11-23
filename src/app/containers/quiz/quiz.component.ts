@@ -2444,6 +2444,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
   
       console.log('isAnswered from quizService:', isAnswered);
+
+      // Emit the state to isAnsweredSubject
+      this.selectedOptionService.isAnsweredSubject.next(isAnswered);
+  
+      if (isAnswered) {
+        console.log('All correct answers selected. Enabling Next button.');
+      } else {
+        console.log('Not all correct answers selected yet. Next button disabled.');
+      }
     } catch (error) {
       console.error('Error checking if answer is selected:', error);
     }
