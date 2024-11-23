@@ -1463,97 +1463,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    const option = event.option;
-
-    if (!option) {
-        console.warn('No option provided in event.');
-        return;
-    }
-
-    if (!option || option.optionId === undefined) return;
-  
-    console.log('Option clicked:', { event });
-  
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-  
-    // Lock input for single-answer questions
-    if (!isMultipleAnswer && this.isOptionSelected) {
-      console.log('Single-answer question: Option already selected. Skipping.');
-      return;
-    }
-  
-    // Mark the option as selected
-    this.isOptionSelected = true;
-  
-    // Ensure the option is correctly updated in the map
-    const currentOptions = this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-    this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
-    
-    // Update the answered state centrally
-    this.selectedOptionService.updateAnsweredState();
-  
-    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
-    this.selectedOptionService.isAnsweredSubject.next(true); // Signal answered state
-    console.log('Option clicked, isAnsweredSubject updated:', { isAnswered });
-  
-    // Update the display state to explanation mode
-    this.updateDisplayState('explanation', this.selectedOptionService.isAnsweredSubject.value);
-
-    console.log('Option clicked:::', {
-      optionId: event.option.optionId,
-      isAnswered: this.selectedOptionService.isAnsweredSubject.value
-    });
-
-    this.displayStateChange.emit({ 
-      mode: 'explanation', 
-      answered: this.selectedOptionService.isAnsweredSubject.value
-    });
-  
-    console.log('Display state updated to explanation mode:', this.displayState);
-  
-    // Handle the initial option selection logic
-    this.handleInitialSelection(event);
-  
-    // Update flags for display rendering
-    this.forceQuestionDisplay = false;
-    this.readyForExplanationDisplay = true;
-    this.isExplanationReady = true;
-    this.isExplanationLocked = false;
-  
-    // Render the updated display
-    this.renderDisplay();
-  
-    try {
-      await this.ngZone.run(async () => {
-        await this.applyUIStabilityDelay();
-  
-        const { option, index, checked } = event;
-        if (!this.isValidIndex(index)) {
-          console.warn('Invalid index for option selection:', { index });
-          return;
-        }
-  
-        // Update the selection state for the option
-        this.updateSelectionState(option, index, checked);
-  
-        // Additional option processing
-        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-  
-        // Save the quiz state
-        this.saveQuizState();
-  
-        console.log('Option processing completed for:', { option, index, checked });
-      });
-    } catch (error) {
-      console.error('Error during option click:', error);
-    } finally {
-      // Finalize and reset any cooldowns
-      this.applyCooldownAndFinalize();
-    }
-  } */
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
@@ -1582,14 +1491,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
 
+    // Stop the timer if the question is answered correctly and update the display state
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
+    if (isAnswered) {
+      this.timerService.stopTimer();
+      console.log('Timer stopped as the question is answered correctly.');
+    }
+    this.updateDisplayState('explanation', isAnswered);
+    console.log('Display state updated to explanation mode:', this.displayState);
+
     // Debugging logs
     console.log('Updated Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-
-    // Update the display state
-    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
-    this.updateDisplayState('explanation', isAnswered);
-
-    console.log('Display state updated to explanation mode:', this.displayState);
 
     // Emit display state changes
     this.displayStateChange.emit({
