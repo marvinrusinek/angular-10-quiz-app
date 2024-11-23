@@ -605,11 +605,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       ),
     ]).pipe(
       map(([isAnswered, isLoaded, isIdle]) => {
-        console.log('Next button state dependencies:', {
-          isAnswered, // True if an option is selected
-          isLoaded,   // True if not loading
-          isIdle,     // True if not navigating
-        });
         return isAnswered && isLoaded && isIdle;
       }),
       distinctUntilChanged(),
