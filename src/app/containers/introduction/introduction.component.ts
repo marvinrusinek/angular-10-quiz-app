@@ -211,7 +211,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
     // Shuffle questions and answers if enabled
     if (this.shouldShuffleOptions) {
-      this.quizService.shuffleQuestionsAndAnswers();
+      this.quizService.shuffleQuestionsAndAnswers(quizId);
       console.log('Shuffling questions and answers enabled.');
     }
   
