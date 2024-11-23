@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { BehaviorSubject, EMPTY, of, Subject } from 'rxjs';
 import { catchError, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
@@ -21,6 +22,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  preferencesForm: FormGroup; // Define the FormGroup
   private isCheckedSubject = new BehaviorSubject<boolean>(false);
 
   shuffledQuestions: QuizQuestion[];
@@ -40,9 +42,16 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     private quizDataService: QuizDataService,
     private userPreferenceService: UserPreferenceService, 
     private activatedRoute: ActivatedRoute,
+    private fb: FormBuilder,
     private router: Router,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    // Initialize the form group with default values
+    this.preferencesForm = this.fb.group({
+      shouldShuffleOptions: [false], // Default to unchecked
+      isImmediateFeedback: [false],  // Default to unchecked
+    });
+  }
 
   ngOnInit(): void {
     this.initializeComponent();
