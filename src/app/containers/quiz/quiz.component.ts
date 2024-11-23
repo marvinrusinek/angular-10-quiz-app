@@ -569,13 +569,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Restore previously selected options, if any
         await this.restoreSelectionState();
-  
-        console.log('State reset after navigation:', {
-          isAnswered: this.selectedOptionService.isAnsweredSubject.value,
-          isLoading: this.quizStateService.isLoadingSubject.value,
-          isNavigating: this.quizStateService.isNavigatingSubject.value,
-        });
-  
+
         // Re-evaluate the Next button state
         this.evaluateNextButtonState();
       },
