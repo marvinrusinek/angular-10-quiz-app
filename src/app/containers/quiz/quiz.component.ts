@@ -553,8 +553,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
-    console.log(`Navigating to question: ${questionIndex}`);
-  
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
       next: async (question) => {
         // Reset currentQuestionType
