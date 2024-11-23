@@ -52,7 +52,12 @@
         [checked]="highlightPreference"
         disableRipple="true" capture
         aria-label="Shuffle questions and answers, get immediate feedback">
-        <strong>Shuffle questions and answers,<br />get immediate feedback!</strong>&nbsp;<em>(in progress)</em>
+        <strong>Shuffle questions and answers</strong>
+      </mat-checkbox><br /><br />
+      <mat-checkbox 
+        [checked]="highlightPreference"
+        disableRipple="true" capture>
+        <strong>Enable Immediate Feedback<br>(Next button only for correct answers)</strong>
       </mat-checkbox>
 
       <mat-button
