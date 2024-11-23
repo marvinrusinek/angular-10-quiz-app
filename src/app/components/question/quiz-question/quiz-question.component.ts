@@ -1144,6 +1144,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private initializeQuizQuestion(): void {
+    if (!this.quizStateService || !this.quizService) {
+      console.warn('Required services are not available.');
+      return;
+    }
+    
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
