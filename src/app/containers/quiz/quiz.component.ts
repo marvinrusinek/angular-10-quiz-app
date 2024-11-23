@@ -648,8 +648,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         'pointer-events': isEnabled ? 'auto' : 'none',
       };
 
-      console.log('Next button style updated:', this.nextButtonStyle);
-
       // Trigger change detection to ensure the UI reflects the state
       this.cdRef.markForCheck();
     });
