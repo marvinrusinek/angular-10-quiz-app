@@ -1472,13 +1472,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!option || option.optionId == null) return;
 
     // Check if the option is already selected
-    const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
+    /* const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
       .get(option.optionId)
       ?.some((o) => o.optionId === option.optionId);
     if (isAlreadySelected) {
       console.log('Option already selected. Skipping duplicate processing.');
       return;
-    }
+    } */
   
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
@@ -1604,23 +1604,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const correctOptions = question.options.filter((opt) => opt.correct);
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat();
   
-    // Single-answer questions: Check if any correct option is selected
+    console.log('Correct options:', correctOptions);
+    console.log('Selected options:', selectedOptions);
+  
+    // For single-answer questions, check if any correct option is selected
     if (correctOptions.length === 1) {
-      const isSingleAnswerCorrect = selectedOptions.some(
+      return selectedOptions.some(
         (selectedOption) => selectedOption.optionId === correctOptions[0].optionId
       );
-      console.log('Single-answer check:', { correctOptions, selectedOptions, isSingleAnswerCorrect });
-      return isSingleAnswerCorrect;
     }
   
-    // Multiple-answer questions: Ensure all correct options are selected
-    const areAllCorrectAnswersSelected = correctOptions.every((correctOption) =>
+    // For multiple-answer questions, ensure all correct options are selected
+    return correctOptions.every((correctOption) =>
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
-    console.log('Multiple-answer check:', { correctOptions, selectedOptions, areAllCorrectAnswersSelected });
-  
-    return areAllCorrectAnswersSelected;
-  }
+  }  
   
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
