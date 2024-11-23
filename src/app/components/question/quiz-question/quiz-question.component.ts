@@ -1499,9 +1499,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
-    // Automatically mark the question as answered
-    this.selectedOptionService.updateAnsweredState(() => true);
-
     const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
   
     if (allCorrectAnswersSelected) {
@@ -1511,7 +1508,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       this.selectedOptionService.isAnsweredSubject.next(false); // Keep Next button disabled
       console.log('Not all correct answers selected. Next button remains disabled.');
-    }  
+    }
+
+    // Automatically mark the question as answered
+    this.selectedOptionService.updateAnsweredState(() => true);
   
     // Debugging logs
     console.log('Updated Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
