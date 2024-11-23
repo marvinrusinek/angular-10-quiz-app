@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from, lastValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
@@ -1562,8 +1562,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-  private areAllCorrectAnswersSelected(): boolean {
-    const correctOptions = this.currentQuestion?.options.filter((opt) => opt.correct) || [];
+  private async areAllCorrectAnswersSelected(): Promise<boolean> {
+    const question = await lastValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+  
+    if (!question || !question.options) {
+      console.warn('No question or options found for current index:', this.currentQuestionIndex);
+      return false;
+    }
+  
+    const correctOptions = question.options.filter((opt) => opt.correct);
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat();
   
     const result = correctOptions.every((correctOption) =>
@@ -1578,6 +1585,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return result;
   }
+  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
