@@ -14,9 +14,9 @@ export class TimerService {
   private timer$: Observable<number>;
   private timer: Subscription | null = null;
 
-  start$: Observable<number>;
-  reset$: Observable<number>;
-  stop$: Observable<number>;
+  // start$: Observable<number>;
+  // reset$: Observable<number>;
+  // stop$: Observable<number>;
   // timer: Observable<number>;
 
   // Subjects for broadcasting timer states
@@ -26,6 +26,11 @@ export class TimerService {
   private isStart = new Subject<void>();
   private isStop = new Subject<void>();
   private isReset = new Subject<void>();
+
+  public start$ = this.isStart.asObservable();
+  public stop$ = this.isStop.asObservable();
+  public reset$ = this.isReset.asObservable();
+
   timeUpSubject = new Subject<boolean>();
   timeRemainingSubject = new BehaviorSubject<number>(0);
 
