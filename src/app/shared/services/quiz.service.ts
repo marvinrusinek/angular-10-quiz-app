@@ -464,9 +464,7 @@ export class QuizService implements OnDestroy {
     }));
   }
 
-  getSafeOptionId(option: SelectedOption, index: number): number | undefined {
-    console.log('Accessing optionId for:', option);
-    
+  getSafeOptionId(option: SelectedOption, index: number): number | undefined {    
     // Ensure optionId exists and is a number
     if (option && typeof option.optionId === 'number') {
       return option.optionId;
