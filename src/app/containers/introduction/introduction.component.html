@@ -46,17 +46,22 @@
       </div>
     </mat-card-content>
 
-    <mat-card-actions>
+    <mat-card-actions [formGroup]="preferencesForm">
+      <!-- Shuffle Questions and Answers Checkbox -->
       <mat-checkbox style="font: Aptos"
+        formControlName="shouldShuffleOptions"
         (change)="onCheckboxChange($event)"
         [checked]="highlightPreference"
         disableRipple="true" capture
         aria-label="Shuffle questions and answers, get immediate feedback">
         <strong>Shuffle questions and answers</strong>
       </mat-checkbox>
+
+      <!-- Immediate Feedback Checkbox -->
       <mat-checkbox 
         [checked]="highlightPreference"
-        disableRipple="true" capture>
+        disableRipple="true" capture
+        aria-label="Shuffle Questions and Answers">
         <strong>Enable Immediate Feedback<br>(Next button only for correct answers)</strong>
       </mat-checkbox>
 
@@ -64,11 +69,13 @@
         *ngIf="selectedQuiz"
         type="button"
         mat-raised-button
+        formControlName="isImmediateFeedback"
         routerLinkActive="active"
-        disableRipple="true"
+        disableRipple="true" capture
         name="start quiz"
         class="btn btn-outline-primary"
         (click)="onStartQuiz(selectedQuiz?.quizId)"
+        aria-label="Enable Immediate Feedback (Next button only for correct answers)"
       >
         <span i18n
           ><strong>Start the Quiz!</strong>&nbsp;<mat-icon inline="true"
