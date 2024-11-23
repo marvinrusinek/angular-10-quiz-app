@@ -558,8 +558,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
       next: async (question) => {
-        console.log(`Fetched question ${questionIndex}:`, question);
-  
         // Reset currentQuestionType
         if (question) {
           this.quizService.setCurrentQuestionType(question.type);
