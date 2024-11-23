@@ -19,7 +19,7 @@
     <img
       mat-card-image
       class="quiz-topic-image"
-      [src]="selectedQuiz?.image"
+      [src]="selectedQuiz?.image || 'assets/default-image.jpg'"
       alt="Quiz topic image"
       loading="lazy"
     />
