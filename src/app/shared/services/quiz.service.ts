@@ -1666,7 +1666,7 @@ export class QuizService implements OnDestroy {
       console.log('Questions and answers shuffled for quiz ID:', quizId);
     });
   }
-  
+
 
   navigateToResults(): void {
     if (this.quizCompleted) {
@@ -1763,8 +1763,6 @@ export class QuizService implements OnDestroy {
     }
   } */
   async checkIfAnsweredCorrectly(): Promise<boolean> {
-    console.log('Checking answers:', this.answers);
-
     // Fetch and validate the quiz
     let foundQuiz: Quiz;
     try {
