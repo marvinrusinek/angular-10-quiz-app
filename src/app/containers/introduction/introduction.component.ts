@@ -199,22 +199,22 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Quiz data is not ready.');
       return;
     }
-  
+
     // Log highlight preference
     const highlightPreference = this.userPreferenceService.getHighlightPreference();
     console.log('Highlight preference when starting quiz:', highlightPreference);
-  
+
     // Set feedback mode
     const feedbackMode = this.isImmediateFeedback ? 'immediate' : 'lenient';
     this.userPreferenceService.setFeedbackMode(feedbackMode);
     console.log('Feedback mode set to:', feedbackMode);
-  
+
     // Shuffle questions and answers if enabled
     if (this.shouldShuffleOptions) {
-      this.quizService.shuffleQuestionsAndAnswers(quizId);
-      console.log('Shuffling questions and answers enabled.');
+      this.quizService.shuffleQuestionsAndAnswers(quizId); // Unified shuffle method
+      console.log('Shuffling questions and answers for quiz ID:', quizId);
     }
-  
+
     // Navigate to the quiz with the required preferences
     this.router
       .navigate(['/question', quizId, 1], {
@@ -223,14 +223,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           feedbackMode: feedbackMode,
         },
       })
-      .then(success => {
+      .then((success) => {
         if (success) {
           console.log('Navigation successful');
         } else {
           console.error('Navigation failed');
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Navigation error:', error);
       });
   }
