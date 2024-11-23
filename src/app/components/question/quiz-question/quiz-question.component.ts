@@ -1487,9 +1487,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!currentOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
     }
+
+    console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
   
     // Await the result of areAllCorrectAnswersSelected
     const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
+
+    console.log('All correct answers selected:', allCorrectAnswersSelected);
 
     // Pass the resolved value directly to updateAnsweredState
     this.selectedOptionService.updateAnsweredState(() => allCorrectAnswersSelected);
