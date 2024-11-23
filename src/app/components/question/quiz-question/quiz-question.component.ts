@@ -1508,7 +1508,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
-    this.updateDisplayState('explanation', allCorrectAnswersSelected);
+    this.updateDisplayState('explanation', isAnswered);
     console.log('Display state updated to explanation mode:', this.displayState);
   
     // Emit display state changes
@@ -1559,12 +1559,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-
   private areAllCorrectAnswersSelected(): boolean {
     const correctOptions = this.currentQuestion?.options.filter((opt) => opt.correct) || [];
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat();
   
-    // Check if every correct option is selected
+    // Ensure all correct options are selected
     return correctOptions.every((correctOption) =>
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
