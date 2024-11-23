@@ -643,7 +643,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
       console.error('Attempted to set a null or undefined question in setCurrentQuestion.');
-      console.trace(); // Add stack trace for better debugging context
       this.question = null;
       this.optionsToDisplay = [];
       return; // Exit early to avoid further errors
@@ -651,10 +650,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.question = question;
     this.optionsToDisplay = question.options || []; // Safely set options if available
-    this.quizService.setCorrectOptions(this.optionsToDisplay);
   }
-  
-  // Helper method to clear explanation
   
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
