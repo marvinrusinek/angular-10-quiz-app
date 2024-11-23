@@ -9,9 +9,8 @@
         <mat-card-subtitle i18n>
           <span
             >How well versed are you in
-            {{ selectedQuiz?.milestone }}?
+            {{ selectedQuiz?.milestone }}? Take the quiz and find out!
           </span>
-          <span>Take the quiz and find out!</span>
         </mat-card-subtitle>
       </mat-card-title-group>
     </mat-card-header>
@@ -35,14 +34,9 @@
             selectedQuiz?.questions.length
           }}</strong>
           timed multiple-choice
-          {{ questionLabel }}.
+          {{ questionLabel }}. Beat the clock and match wits with your friends!
         </p>
-        <p>
-          Taking this quiz should solidify your understanding of
-          {{ selectedQuiz?.milestone }}; beat the clock and match wits with your
-          friends!
-        </p>
-        <p>Good luck and have fun with this quiz. Share and enjoy!</p>
+        <p style="text-align: center; font-weight: 700">Good luck and have fun with this quiz! Share and enjoy!</p>
       </div>
     </mat-card-content>
 
@@ -53,8 +47,8 @@
         (change)="onCheckboxChange($event)"
         [checked]="highlightPreference"
         disableRipple="true" capture
-        aria-label="Shuffle questions and answers, get immediate feedback">
-        <strong>Shuffle questions and answers</strong>
+        aria-label="Shuffle questions and answers">
+        Shuffle questions and answers
       </mat-checkbox>
 
       <!-- Immediate Feedback Checkbox -->
@@ -62,8 +56,8 @@
         formControlName="isImmediateFeedback"
         [checked]="highlightPreference"
         disableRipple="true" capture
-        aria-label="Shuffle Questions and Answers">
-        <strong>Enable Immediate Feedback<br />(Next button only for correct answers)</strong>
+        aria-label="Enable Immediate Feedback">
+        Enable Immediate Feedback<br />(Next button only for correct answers)
       </mat-checkbox>
 
       <mat-button
