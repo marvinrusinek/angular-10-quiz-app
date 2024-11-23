@@ -1504,8 +1504,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log('All correct answers selected:', allCorrectAnswersSelected);
 
-    // Pass the resolved value directly to updateAnsweredState
-    this.selectedOptionService.updateAnsweredState(() => allCorrectAnswersSelected);
+    // Automatically mark the question as answered
+    this.selectedOptionService.updateAnsweredState(() => true);
   
     if (allCorrectAnswersSelected) {
       this.timerService.stopTimer(); // Stop the timer
