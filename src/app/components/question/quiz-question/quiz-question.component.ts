@@ -1489,7 +1489,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // Update the answered state centrally
-    this.selectedOptionService.updateAnsweredState();
+    this.selectedOptionService.updateAnsweredState(() =>
+      this.areAllCorrectAnswersSelected()
+    );
 
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
