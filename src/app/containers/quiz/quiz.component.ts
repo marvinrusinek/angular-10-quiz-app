@@ -302,7 +302,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const isMultipleAnswer = await firstValueFrom(
           this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
         );
-        console.log(`Restored question ${this.currentQuestionIndex} is multiple-answer:`, isMultipleAnswer);
 
         // Update selection message if it has changed
         const newMessage = this.selectionMessageService.determineSelectionMessage(
