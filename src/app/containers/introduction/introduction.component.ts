@@ -172,28 +172,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.highlightPreference = event.checked;
   }
 
-  /* onStartQuiz(quizId: string): void {
-    if (!quizId) {
-      console.error('Quiz data is not ready.');
-      return;
-    }
-
-    const highlightPreference = this.userPreferenceService.getHighlightPreference();
-    console.log('Highlight preference when starting quiz:', highlightPreference);
-
-    this.router.navigate(['/question', quizId, 1], { state: { shouldShuffleOptions: this.shouldShuffleOptions } })
-      .then(success => {
-        // console.log('Navigation promise resolved:', success);
-        if (success) {
-          console.log('Navigation successful');
-        } else {
-          console.error('Navigation failed');
-        }
-      })
-      .catch(error => {
-        console.error('Navigation error:', error);
-      });    
-  } */
   onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('Quiz data is not ready.');
