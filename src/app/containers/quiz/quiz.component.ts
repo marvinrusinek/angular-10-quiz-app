@@ -618,7 +618,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private evaluateNextButtonState(): boolean {
     // Reset options state to ensure no residual state interferes
-    console.log('Resetting option state before evaluating next button state.');
     this.resetOptionState();
 
     // Retrieve the current state from the necessary subjects
