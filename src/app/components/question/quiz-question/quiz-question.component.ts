@@ -1490,20 +1490,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
-  
+
     // Check if all correct answers are selected
-    if (this.areAllCorrectAnswersSelected()) {
-      this.handleAllCorrectAnswersSelected(); // Stops the timer and enables the Next button
+    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
+  
+    if (allCorrectAnswersSelected) {
+      this.timerService.stopTimer(); // Stop the timer
+      this.selectedOptionService.isAnsweredSubject.next(true); // Enable the Next button
+      console.log('All correct answers selected. Next button enabled and timer stopped.');
     } else {
-      console.log('Not all correct answers selected yet.');
-    }
+      this.selectedOptionService.isAnsweredSubject.next(false); // Disable the Next button
+      console.log('Not all correct answers selected. Next button remains disabled.');
+    }  
   
     // Debugging logs
     console.log('Updated Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
-    this.updateDisplayState('explanation', isAnswered);
+    this.updateDisplayState('explanation', allCorrectAnswersSelected);
     console.log('Display state updated to explanation mode:', this.displayState);
   
     // Emit display state changes
