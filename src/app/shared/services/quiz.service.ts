@@ -1666,6 +1666,7 @@ export class QuizService implements OnDestroy {
       console.log('Questions and answers shuffled for quiz ID:', quizId);
     });
   }
+  
 
   navigateToResults(): void {
     if (this.quizCompleted) {

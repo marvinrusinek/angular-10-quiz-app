@@ -1554,13 +1554,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
-): Promise<void> {
+  ): Promise<void> {
     const option = event.option;
 
-    if (!option || option.optionId === undefined) {
-      console.warn('No valid option provided in event.');
-      return;
-    }
+    // Exit early if option or optionId is invalid
+    if (!option || option.optionId == null) return;
 
     console.log('Option clicked:', { event });
 
