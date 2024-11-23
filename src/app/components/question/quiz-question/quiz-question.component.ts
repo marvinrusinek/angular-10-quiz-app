@@ -1495,13 +1495,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
+    console.log('All correct answers selected (onOptionClicked):', allCorrectAnswersSelected);
   
     if (allCorrectAnswersSelected) {
       this.timerService.stopTimer(); // Stop the timer
       this.selectedOptionService.isAnsweredSubject.next(true); // Enable the Next button
       console.log('All correct answers selected. Next button enabled and timer stopped.');
     } else {
-      this.selectedOptionService.isAnsweredSubject.next(false); // Disable the Next button
+      this.selectedOptionService.isAnsweredSubject.next(false); // Keep Next button disabled
       console.log('Not all correct answers selected. Next button remains disabled.');
     }  
   
