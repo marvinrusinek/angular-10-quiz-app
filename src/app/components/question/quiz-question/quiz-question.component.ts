@@ -230,11 +230,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.initializeComponent();
       this.initializeComponentState();
 
-      // Call initializeQuiz to ensure the quiz is fully set up
+      // Initialize quiz data and routing
       await this.initializeQuiz();
-      // this.restoreQuizState();
-
       await this.initializeQuizDataAndRouting();
+
+      // Initialize questions
+      this.initializeQuizQuestion();
       this.initializeFirstQuestion();
   
       // Setup for visibility and routing
@@ -1148,7 +1149,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('Required services are not available.');
       return;
     }
-    
+
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
