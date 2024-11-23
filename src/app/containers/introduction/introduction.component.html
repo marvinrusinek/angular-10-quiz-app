@@ -1,91 +1,87 @@
-<ng-container *ngIf="selectedQuiz$ | async as selectedQuiz">
-  <mat-card *ngIf="selectedQuiz; else loading">
-    <mat-card-header>
-      <img mat-card-avatar class="header-image" loading="lazy" />
-      <mat-card-title-group>
-        <mat-card-title i18n>
-          {{ selectedQuiz?.milestone }} Quiz
-        </mat-card-title>
-        <mat-card-subtitle i18n>
-          <span
-            >How well versed are you in
-            {{ selectedQuiz?.milestone }}?
-          </span>
-          <span>Take the quiz and find out!</span>
-        </mat-card-subtitle>
-      </mat-card-title-group>
-    </mat-card-header>
+<ng-container *ngIf="selectedQuiz$ | async as selectedQuiz; else loading">
+<mat-card *ngIf="selectedQuiz.milestone; else loading">
+  <mat-card-header>
+    <img mat-card-avatar class="header-image" loading="lazy" />
+    <mat-card-title-group>
+      <mat-card-title>
+        {{ selectedQuiz?.milestone }} Quiz
+      </mat-card-title>
+      <mat-card-subtitle>
+        <span>
+          How well versed are you in {{ selectedQuiz?.milestone }}?
+        </span>
+        <span>Take the quiz and find out!</span>
+      </mat-card-subtitle>
+    </mat-card-title-group>
+  </mat-card-header>
 
-    <img
-      mat-card-image
-      class="quiz-topic-image"
-      [src]="selectedQuiz?.image"
-      alt="Quiz topic image"
-      loading="lazy"
-    />
+  <img
+    mat-card-image
+    class="quiz-topic-image"
+    [src]="selectedQuiz?.image || 'assets/default-image.jpg'"
+    alt="Quiz topic image"
+    loading="lazy"
+  />
 
-    <mat-card-content>
-      <div class="intro-text" i18n>
-        <p>
-          <strong class="bold-text">{{ selectedQuiz?.summary }}</strong>
-        </p>
-        <p>
-          This quiz is composed of
-          <strong class="bold-text">{{
-            selectedQuiz?.questions.length
-          }}</strong>
-          timed multiple-choice
-          {{ questionLabel }}.
-        </p>
-        <p>
-          Taking this quiz should solidify your understanding of
-          {{ selectedQuiz?.milestone }}; beat the clock and match wits with your
-          friends!
-        </p>
-        <p>Good luck and have fun with this quiz. Share and enjoy!</p>
-      </div>
-    </mat-card-content>
+  <mat-card-content>
+    <div class="intro-text">
+      <p>
+        <strong class="bold-text">{{ selectedQuiz?.summary }}</strong>
+      </p>
+      <p>
+        This quiz is composed of
+        <strong class="bold-text">
+          {{ selectedQuiz?.questions?.length || 0 }}
+        </strong>
+        timed multiple-choice questions.
+      </p>
+      <p>
+        Taking this quiz should solidify your understanding of
+        {{ selectedQuiz?.milestone }}; beat the clock and match wits with your
+        friends!
+      </p>
+      <p>Good luck and have fun with this quiz. Share and enjoy!</p>
+    </div>
+  </mat-card-content>
 
-    <mat-card-actions [formGroup]="preferencesForm">
-      <!-- Shuffle Questions and Answers Checkbox -->
-      <mat-checkbox style="font: Aptos"
-        formControlName="shouldShuffleOptions"
-        (change)="onCheckboxChange($event)"
-        [checked]="highlightPreference"
-        disableRipple="true" capture
-        aria-label="Shuffle questions and answers, get immediate feedback">
-        <strong>Shuffle questions and answers</strong>
-      </mat-checkbox>
+  <mat-card-actions [formGroup]="preferencesForm">
+    <mat-checkbox
+      style="font: Aptos"
+      formControlName="shouldShuffleOptions"
+      disableRipple="true"
+      aria-label="Shuffle questions and answers"
+    >
+      <strong>Shuffle questions and answers</strong>
+    </mat-checkbox>
 
-      <!-- Immediate Feedback Checkbox -->
-      <mat-checkbox 
-        [checked]="highlightPreference"
-        disableRipple="true" capture
-        aria-label="Shuffle Questions and Answers">
-        <strong>Enable Immediate Feedback<br>(Next button only for correct answers)</strong>
-      </mat-checkbox>
+    <mat-checkbox
+      style="font: Aptos"
+      formControlName="isImmediateFeedback"
+      disableRipple="true"
+      aria-label="Enable Immediate Feedback (Next button only for correct answers)"
+    >
+      <strong>Enable Immediate Feedback<br />(Next button only for correct answers)</strong>
+    </mat-checkbox>
 
-      <mat-button
-        *ngIf="selectedQuiz"
-        type="button"
-        mat-raised-button
-        formControlName="isImmediateFeedback"
-        routerLinkActive="active"
-        disableRipple="true" capture
-        name="start quiz"
-        class="btn btn-outline-primary"
-        (click)="onStartQuiz(selectedQuiz?.quizId)"
-        aria-label="Enable Immediate Feedback (Next button only for correct answers)"
-      >
-        <span i18n
-          ><strong>Start the Quiz!</strong>&nbsp;<mat-icon inline="true"
-            >play_arrow</mat-icon
-          ></span
-        >
-      </mat-button>
-    </mat-card-actions>
-  </mat-card>
-  <ng-template #loading>
-    <p>Loading...</p>
-  </ng-template>
+    <button
+      *ngIf="selectedQuiz"
+      type="button"
+      mat-raised-button
+      formControlName="isImmediateFeedback"
+      routerLinkActive="active"
+      disableRipple="true"
+      name="start quiz"
+      class="btn btn-outline-primary"
+      (click)="onStartQuiz(selectedQuiz?.quizId)"
+      aria-label="Enable Immediate Feedback (Next button only for correct answers)"
+    >
+      <span>
+        <strong>Start the Quiz!</strong>&nbsp;<mat-icon inline="true">play_arrow</mat-icon>
+      </span>
+    </button>
+  </mat-card-actions>
+</mat-card>
+<ng-template #loading>
+  <p>Loading...</p>
+</ng-template>
 </ng-container>
