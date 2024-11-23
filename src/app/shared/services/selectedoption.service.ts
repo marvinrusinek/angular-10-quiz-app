@@ -604,13 +604,14 @@ export class SelectedOptionService {
   
     const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
   
-    console.log('All correct answers selected:', allCorrectAnswersSelected);
-    this.setAnsweredState(allCorrectAnswersSelected);
+    console.log('updateAnsweredState: selectedOptions', selectedOptions);
+    console.log('updateAnsweredState: allCorrectAnswersSelected', allCorrectAnswersSelected);
   
-    console.log('isAnsweredSubject before emit:', this.isAnsweredSubject.value);
     this.isAnsweredSubject.next(allCorrectAnswersSelected);
+  
     console.log('isAnsweredSubject after emit:', this.isAnsweredSubject.value);
   }
+  
   
   
  
