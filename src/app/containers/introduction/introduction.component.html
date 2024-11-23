@@ -59,6 +59,7 @@
 
       <!-- Immediate Feedback Checkbox -->
       <mat-checkbox 
+        formControlName="isImmediateFeedback"
         [checked]="highlightPreference"
         disableRipple="true" capture
         aria-label="Shuffle Questions and Answers">
@@ -69,9 +70,8 @@
         *ngIf="selectedQuiz"
         type="button"
         mat-raised-button
-        formControlName="isImmediateFeedback"
         routerLinkActive="active"
-        disableRipple="true" capture
+        disableRipple="true"
         name="start quiz"
         class="btn btn-outline-primary"
         (click)="onStartQuiz(selectedQuiz?.quizId)"
