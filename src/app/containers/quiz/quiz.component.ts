@@ -2195,7 +2195,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
 
           // Check if the first question is answered and update the message
-          await this.checkIfAnswerSelected(true); // Pass true to indicate it's the first question
+          await this.checkIfAnswerSelected();
 
           // Explicitly set the answered state for the first question
           const hasAnswered =
@@ -2437,10 +2437,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return this.quizService.shouldExplanationBeDisplayed();
   }
 
-  private async checkIfAnswerSelected(isFirstQuestion: boolean): Promise<void> {
+  private async checkIfAnswerSelected(): Promise<void> {
     try {
-      console.log('checkIfAnswerSelected called:', { isFirstQuestion });
-  
       const isAnswered = await lastValueFrom(
         this.quizService.isAnswered(this.currentQuestionIndex)
       );
