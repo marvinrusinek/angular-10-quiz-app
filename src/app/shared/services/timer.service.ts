@@ -47,10 +47,7 @@ export class TimerService {
   }
 
   stopTimer(callback?: (elapsedTime: number) => void): void {
-    if (!this.isTimerRunning) {
-      console.warn('Timer is not running, nothing to stop.');
-      return;
-    }
+    if (!this.isTimerRunning) return; // Early return if timer is not running
   
     this.isTimerRunning = false;
   
