@@ -622,14 +622,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return true; // Temporarily bypass the logic for multiple-answer questions
     }
 
-    // Log the individual state dependencies and the final evaluation
-    console.log('Evaluating next button state:', {
-        isAnswered,
-        isLoading,
-        isNavigating,
-        shouldEnable,
-    });
-
     // Sync the observable state for the next button
     this.isButtonEnabledSubject.next(shouldEnable);
 
