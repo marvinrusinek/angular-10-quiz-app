@@ -1893,7 +1893,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const isAnswered$ = this.quizService.isAnswered(questionIndex);
       const isAnswered = await firstValueFrom(isAnswered$);
   
-      console.log(`Question ${questionIndex} answered status:`, isAnswered);
       return isAnswered;
     } catch (error) {
       console.error(`Error determining if question ${questionIndex} is answered:`, error);
