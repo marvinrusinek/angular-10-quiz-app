@@ -543,7 +543,7 @@ export class SelectedOptionService {
         console.log('Single-answer question, any option selected:', anyOptionSelected);
     }
   } */
-  updateAnsweredState(): void {
+  /* updateAnsweredState(): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
 
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
@@ -568,8 +568,23 @@ export class SelectedOptionService {
 
         console.log('Single-answer question, any option selected:', anyOptionSelected);
     }
-  }
-
+  } */
+  updateAnsweredState(): void {
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    if (!selectedOptions.length) {
+      this.setAnsweredState(false); // Nothing selected
+      console.log('No options selected. State not answered.');
+      return;
+    }
+  
+    // Check if all selected options are correct
+    const isCorrectSelection = selectedOptions.every((option) => option.correct);
+  
+    // Determine if the state is "answered"
+    this.setAnsweredState(isCorrectSelection);
+    console.log('Updated answered state:', { isCorrectSelection, selectedOptions });
+  }  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
