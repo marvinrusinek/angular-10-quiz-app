@@ -48,8 +48,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {
     // Initialize the form group with default values
     this.preferencesForm = this.fb.group({
-      shouldShuffleOptions: [false], // Default to unchecked
-      isImmediateFeedback: [false],  // Default to unchecked
+      shouldShuffleOptions: [false],
+      isImmediateFeedback: [false]
     });
   }
 
@@ -186,28 +186,36 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Quiz data is not ready.');
       return;
     }
-
-    // Log highlight preference
-    const highlightPreference = this.userPreferenceService.getHighlightPreference();
-    console.log('Highlight preference when starting quiz:', highlightPreference);
-
-    // Set feedback mode
-    const feedbackMode = this.isImmediateFeedback ? 'immediate' : 'lenient';
+  
+    // Retrieve form values
+    const preferences = this.preferencesForm.value;
+    console.log('Form Preferences:', preferences);
+  
+    // Access individual preferences from the form
+    const shouldShuffleOptions = preferences.shouldShuffleOptions;
+    const isImmediateFeedback = preferences.isImmediateFeedback;
+  
+    // Set feedback mode in UserPreferenceService
+    const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
     this.userPreferenceService.setFeedbackMode(feedbackMode);
-    console.log('Feedback mode set to:', feedbackMode);
-
-    // Shuffle questions and answers if enabled
-    if (this.shouldShuffleOptions) {
+  
+    console.log('Preferences when starting quiz:', {
+      shouldShuffleOptions,
+      feedbackMode
+    });
+  
+    // Shuffle questions if enabled
+    if (shouldShuffleOptions) {
       this.quizService.shuffleQuestionsAndAnswers(quizId); // Unified shuffle method
       console.log('Shuffling questions and answers for quiz ID:', quizId);
     }
-
-    // Navigate to the quiz with the required preferences
+  
+    // Navigate to the quiz with preferences passed via state
     this.router
       .navigate(['/question', quizId, 1], {
         state: {
-          shouldShuffleOptions: this.shouldShuffleOptions,
-          feedbackMode: feedbackMode,
+          shouldShuffleOptions,
+          feedbackMode
         },
       })
       .then((success) => {
@@ -220,7 +228,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .catch((error) => {
         console.error('Navigation error:', error);
       });
-  }
+  }  
   
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
