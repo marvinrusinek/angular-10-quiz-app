@@ -1574,19 +1574,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const correctOptions = question.options.filter((opt) => opt.correct);
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat();
   
-    const result = correctOptions.every((correctOption) =>
+    // Check for single-answer questions
+    if (correctOptions.length === 1) {
+      return selectedOptions.some((selectedOption) => selectedOption.optionId === correctOptions[0].optionId);
+    }
+  
+    // Check for multiple-answer questions
+    return correctOptions.every((correctOption) =>
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
-  
-    console.log('Checking if all correct answers are selected:', {
-      correctOptions,
-      selectedOptions,
-      result,
-    });
-  
-    return result;
-  }
-  
+  }  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
