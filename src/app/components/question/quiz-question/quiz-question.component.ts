@@ -1560,8 +1560,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
 
-    console.log('Option clicked:', { event });
-
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
 
     // Lock input for single-answer questions
@@ -1574,12 +1572,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
 
     // Update the selected options map
-    const currentOptions =
-      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-    this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-      ...currentOptions,
-      option
-    ]);
+    const currentOptions = this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
+      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
+    }
 
     // Update the answered state centrally
     this.selectedOptionService.updateAnsweredState();
