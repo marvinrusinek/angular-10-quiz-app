@@ -1142,24 +1142,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private initializeQuizQuestion(): void {
     if (!this.quizStateService || !this.quizService) {
-      console.warn('Required services are not available. Skipping initialization.');
+      console.warn('Required services are not available.');
       return;
     }
-  
-    // Reset the selected options map
-    this.selectedOptionService.selectedOptionsMap.clear();
-    console.log('Selected Options Map cleared during quiz initialization.');
-  
+
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-  
+
       this.questionsObservableSubscription = this.quizService
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
             for (const quizQuestion of questions) {
               quizQuestion.selectedOptions = null;
-  
+
+              // Check if options exist and are an array before mapping
               if (Array.isArray(quizQuestion.options)) {
                 quizQuestion.options = quizQuestion.options.map(
                   (option, index) => ({
@@ -1169,8 +1166,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 );
               } else {
                 console.error(
-                  `Invalid or missing options for question: ${quizQuestion.questionText}. Options will be initialized as an empty array.`,
-                  quizQuestion.options
+                  `Options are not properly defined for question: ${quizQuestion.questionText}`
                 );
                 quizQuestion.options = []; // Initialize as an empty array to prevent further errors
               }
@@ -1180,6 +1176,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
         .subscribe({
           next: (questions: QuizQuestion[]) => {
+            // Initialize the first question
             if (questions && questions.length > 0) {
               this.selectedOptionService.resetAnsweredState();
               const hasAnswered =
@@ -1193,11 +1190,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             }
           },
           error: (err) => {
-            console.error('Error fetching questions during initialization:', err);
+            console.error('Error fetching questions:', err);
           },
         });
     }
-  }  
+  }
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
@@ -1474,18 +1471,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
 
-    // Ensure the option belongs to the current question
-    if (!this.currentQuestion || !this.currentQuestion.options.some((o) => o.optionId === option.optionId)) {
-      console.warn('Option does not belong to the current question. Ignoring click.');
-      return;
-    }
-
-    // Ensure the option belongs to the current question
-    /* if (!this.currentQuestion || !this.currentQuestion.options.some((o) => o.optionId === option.optionId)) {
-      console.warn('Option does not belong to the current question. Ignoring click.');
-      return;
-    } */
-
     // Check if the option is already selected
     /* const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
       .get(option.optionId)
@@ -1505,51 +1490,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Mark the option as selected
     this.isOptionSelected = true;
-
-    console.log('Before update, Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-
-    // Clean up the map by removing invalid entries
-    for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
-      const isValidKey = typeof key === 'number';
-      const isValidValue =
-        Array.isArray(value) &&
-        value.every(
-          (entry) =>
-            entry &&
-            typeof entry.optionId === 'number' &&
-            typeof entry.text === 'string' &&
-            entry.correct !== undefined
-        );
-
-      if (!isValidKey || !isValidValue) {
-        console.warn(`Removing invalid entry from Selected Options Map: ${key} ->`, value);
-        this.selectedOptionService.selectedOptionsMap.delete(key);
-      }
-    }
-      
-
-    // Log the cleaned map
-    console.log(
-      'Cleaned Selected Options Map:',
-      Array.from(this.selectedOptionService.selectedOptionsMap.entries())
-    );
   
     // Get current options for this optionId
     const currentOptions =
       this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
 
-    // Add the clicked option only if it's valid and not already in the map
-    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
+    // Filter out invalid entries
+    const validOptions = currentOptions.filter((o) => o.optionId != null);
+
+    // Check if the option is already added
+    if (!validOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...currentOptions,
+        ...validOptions,
         option,
       ]);
     }
 
-    console.log(
-      'After update, Selected Options Map:',
-      Array.from(this.selectedOptionService.selectedOptionsMap.entries())
-    );
+    console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
 
