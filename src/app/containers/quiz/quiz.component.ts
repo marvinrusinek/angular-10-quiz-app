@@ -2879,6 +2879,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isLoading = true;
   
     try {
+      console.log('Resetting and starting timer for question:', questionIndex || this.currentQuestionIndex);
       // Reset and start the timer for the new question
       this.timerService.resetTimer();
       this.timerService.startTimer();
