@@ -77,6 +77,7 @@ export class TimerService {
   
     this.isTimerRunning = true;
     this.elapsedTime = 0;
+    this.isStart.next(1); // Emit start signal
   
     if (duration) {
       this.timePerQuestion = duration; // Set the timer duration if provided
