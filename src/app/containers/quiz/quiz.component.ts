@@ -2855,9 +2855,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Debounce navigation to prevent rapid consecutive calls
     this.debounceNavigation = true;
     const debounceTimeout = 300;
-    setTimeout(() => {
-      this.debounceNavigation = false;
-    }, debounceTimeout);
+    setTimeout(() => (this.debounceNavigation = false), debounceTimeout);
   
     // Abort any ongoing navigation operations
     if (this.navigationAbortController) {
