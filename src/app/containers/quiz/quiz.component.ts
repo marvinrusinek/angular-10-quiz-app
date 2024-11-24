@@ -939,38 +939,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async loadQuizData(): Promise<boolean> {
+    // Skip loading if already marked as loaded
     if (this.isQuizLoaded) {
       console.log('Quiz data already loaded, skipping load.');
-      return true; // Prevent reloading if already loaded
+      return true;
     }
-
+  
     try {
+      // Fetch quiz data using quizId
       const quiz = await firstValueFrom(
         this.quizDataService.getQuiz(this.quizId).pipe(takeUntil(this.destroy$))
       ) as Quiz;
-
-      if (quiz && quiz.questions && quiz.questions.length > 0) {
+  
+      // Validate fetched data
+      if (quiz?.questions?.length > 0) {
         this.quiz = quiz;
-        this.questions = quiz.questions || [];
+        this.questions = quiz.questions;
         this.currentQuestion = this.questions[this.currentQuestionIndex];
-        this.isQuizLoaded = true; // Mark as loaded here to avoid future reloads
+        this.isQuizLoaded = true; // Mark as loaded
         console.log('Quiz data loaded successfully:', quiz);
-            
-        this.isQuizLoaded = true; // Set as loaded after success
         return true;
       } else {
         console.error('Quiz has no questions or quiz data is unavailable.');
-        this.questions = []; // Set questions to an empty array to avoid undefined errors
-        this.isQuizLoaded = false;
-        return false;
       }
     } catch (error) {
       console.error('Error loading quiz data:', error);
-      this.questions = []; // Ensure questions are set to an empty array on error
-      this.isQuizLoaded = false;
-      return false;
     }
-  }
+  
+    // Handle failure cases
+    this.questions = []; // Ensure questions are reset to avoid undefined errors
+    this.isQuizLoaded = false; // Mark as not loaded
+    return false;
+  }  
 
   private subscribeRouterAndInit(): void {
     this.routerSubscription = this.activatedRoute.data.subscribe((data) => {
