@@ -1146,6 +1146,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    // Reset the selected options map
+    this.selectedOptionService.selectedOptionsMap.clear();
+
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
