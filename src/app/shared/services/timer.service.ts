@@ -50,30 +50,30 @@ export class TimerService {
 
   stopTimer(callback?: (elapsedTime: number) => void): void {
     if (!this.isTimerRunning) {
-        console.warn("Timer is not running. Nothing to stop.");
-        return;
+      console.warn("Timer is not running. Nothing to stop.");
+      return;
     }
 
     console.log("Stopping timer...");
     this.isTimerRunning = false;
 
     if (this.timer) {
-        try {
-            this.timer.unsubscribe(); // Unsubscribe from the timer observable
-            console.log("Timer unsubscribed and cleared.");
-        } catch (error) {
-            console.error("Error unsubscribing timer:", error);
-        }
-        this.timer = null;
+      try {
+        this.timer.unsubscribe(); // Unsubscribe from the timer observable
+        console.log("Timer unsubscribed and cleared.");
+      } catch (error) {
+        console.error("Error unsubscribing timer:", error);
+      }
+      this.timer = null;
     } else {
-        console.warn("Timer subscription is invalid or already cleared.");
+      console.warn("Timer subscription is invalid or already cleared.");
     }
 
     this.isStop.next(1); // Emit stop signal to observers
 
     if (callback) {
-        console.log("Executing stopTimer callback...");
-        callback(this.elapsedTime); // Pass the elapsed time to the callback
+      console.log("Executing stopTimer callback...");
+      callback(this.elapsedTime); // Pass the elapsed time to the callback
     }
 
     console.log("Timer stopped. Elapsed time:", this.elapsedTime);
@@ -81,8 +81,8 @@ export class TimerService {
   
   startTimer(duration?: number): void {
     if (this.isTimerRunning) {
-        console.warn("Timer is already running.");
-        return;
+      console.warn("Timer is already running.");
+      return;
     }
 
     console.log("Starting timer...");
@@ -91,20 +91,20 @@ export class TimerService {
     this.isStart.next(1);
 
     if (duration) {
-        this.timePerQuestion = duration; // Set the timer duration if provided
+      this.timePerQuestion = duration; // Set the timer duration if provided
     }
 
     this.timer = this.timer$.subscribe({
-        next: () => {
-            this.elapsedTime++;
-            console.log("Elapsed time:", this.elapsedTime);
-            if (this.elapsedTime >= this.timePerQuestion) {
-                this.stopTimer();
-                console.log("Time is up!");
-            }
-        },
-        error: (err) => console.error("Timer error:", err),
-        complete: () => console.log("Timer completed."),
+      next: () => {
+        this.elapsedTime++;
+        console.log("Elapsed time:", this.elapsedTime);
+        if (this.elapsedTime >= this.timePerQuestion) {
+          this.stopTimer();
+          console.log("Time is up!");
+        }
+      },
+      error: (err) => console.error("Timer error:", err),
+      complete: () => console.log("Timer completed."),
     });
   }
 
