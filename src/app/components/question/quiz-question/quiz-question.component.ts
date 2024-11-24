@@ -1471,15 +1471,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
 
-    // Check if the option is already selected
-    /* const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
-      .get(option.optionId)
-      ?.some((o) => o.optionId === option.optionId);
-    if (isAlreadySelected) {
-      console.log('Option already selected. Skipping duplicate processing.');
-      return;
-    } */
-  
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
     // Lock input for single-answer questions
@@ -1495,20 +1486,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const currentOptions =
       this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
 
-    // Filter out invalid entries
-    const validOptions = currentOptions.filter((o) => o.optionId != null);
-
     // Check if the option is already added
-    if (!validOptions.some((o) => o.optionId === option.optionId)) {
+    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...validOptions,
+        ...currentOptions,
         option,
       ]);
     }
 
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
-    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
+    const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
 
     console.log('Are all correct answers selected?', allCorrectAnswersSelected);
   
