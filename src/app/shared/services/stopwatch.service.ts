@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
+import { finalize, first, repeatWhen, scan, shareReplay, skip, switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class StopwatchService {
@@ -12,6 +12,7 @@ export class StopwatchService {
   concat$: Observable<number>;
   timeLeft$!: Observable<number>;
   elapsedTime = 0;
+  isStopwatchRunning = false;
 
   timer: Observable<number>;
   isStart = new BehaviorSubject<number>(1);
@@ -25,7 +26,7 @@ export class StopwatchService {
     this.concat$ = of(null);
   }
 
-  startStopwatch(): Observable<number> {
+  /* startStopwatch(): Observable<number> {
     return this.concat$
       .pipe(
         // Start a new timer sequence whenever `concat$` emits.
@@ -48,6 +49,33 @@ export class StopwatchService {
         // Perform side effects with the current time value.
         tap((value: number) => this.setElapsed(value))
       );
+  } */
+  startStopwatch(): Observable<number> {
+    return this.concat$.pipe(
+      switchMapTo(
+        timer(0, 1000).pipe(
+          // Start counting up only if not already running
+          tap(() => {
+            if (this.isStopwatchRunning) {
+              console.warn('Stopwatch is already running. Skipping restart.');
+              return;
+            }
+            this.isStopwatchRunning = true; // Mark stopwatch as running
+          }),
+          scan((acc: number) => acc + 1, 0), // Increment counter
+          take(this.timePerQuestion), // Stop after reaching time limit
+          finalize(() => {
+            this.isStopwatchRunning = false; // Reset running state on completion
+            console.log('Stopwatch sequence completed.');
+          })
+        )
+      ),
+      takeUntil(this.stop$.pipe(skip(1))), // Stop when stop signal is emitted
+      repeatWhen((completeSubj: Observable<void>) =>
+        completeSubj.pipe(switchMapTo(this.start$.pipe(first()))) // Restart only on start signal
+      ),
+      tap((value: number) => this.setElapsed(value)) // Update elapsed time
+    );
   }
 
   setElapsed(time: number): void {
