@@ -1499,17 +1499,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Are all correct answers selected?', allCorrectAnswersSelected);
   
     if (allCorrectAnswersSelected) {
-      console.log("MY TIMER TEST");
+      console.log('All correct answers selected. Attempting to stop timer...');
       this.timerService.stopTimer((elapsedTime: number) => {
-        this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
-        console.log('Elapsed time recorded:', elapsedTime);
-      }); // Stop the timer
-      this.selectedOptionService.isAnsweredSubject.next(true); // Enable the Next button
-      console.log('All correct answers selected. Next button enabled and timer stopped.');
+          console.log('Timer stopped callback triggered. Elapsed time:', elapsedTime);
+          this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
+      });
+      this.selectedOptionService.isAnsweredSubject.next(true);
+      console.log('Next button enabled.');
     } else {
-      this.selectedOptionService.isAnsweredSubject.next(false); // Keep Next button disabled
-      console.log('Not all correct answers selected. Next button remains disabled.');
+      this.selectedOptionService.isAnsweredSubject.next(false);
+      console.log('Next button remains disabled.');
     }
+  
 
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
