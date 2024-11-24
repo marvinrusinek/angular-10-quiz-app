@@ -1142,24 +1142,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private initializeQuizQuestion(): void {
     if (!this.quizStateService || !this.quizService) {
-      console.warn('Required services are not available.');
+      console.warn('Required services are not available. Skipping initialization.');
       return;
     }
-
+  
     // Reset the selected options map
     this.selectedOptionService.selectedOptionsMap.clear();
-
+    console.log('Selected Options Map cleared during quiz initialization.');
+  
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-
+  
       this.questionsObservableSubscription = this.quizService
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
             for (const quizQuestion of questions) {
               quizQuestion.selectedOptions = null;
-
-              // Check if options exist and are an array before mapping
+  
               if (Array.isArray(quizQuestion.options)) {
                 quizQuestion.options = quizQuestion.options.map(
                   (option, index) => ({
@@ -1169,7 +1169,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 );
               } else {
                 console.error(
-                  `Options are not properly defined for question: ${quizQuestion.questionText}`
+                  `Invalid or missing options for question: ${quizQuestion.questionText}. Options will be initialized as an empty array.`,
+                  quizQuestion.options
                 );
                 quizQuestion.options = []; // Initialize as an empty array to prevent further errors
               }
@@ -1179,7 +1180,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
         .subscribe({
           next: (questions: QuizQuestion[]) => {
-            // Initialize the first question
             if (questions && questions.length > 0) {
               this.selectedOptionService.resetAnsweredState();
               const hasAnswered =
@@ -1193,11 +1193,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             }
           },
           error: (err) => {
-            console.error('Error fetching questions:', err);
+            console.error('Error fetching questions during initialization:', err);
           },
         });
     }
-  }
+  }  
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
