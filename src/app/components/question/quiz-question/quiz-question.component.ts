@@ -1498,24 +1498,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Clean up the map by removing invalid entries
     for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
-      const isValidKey = typeof key === 'number';
+      const isValidKey = typeof key === 'number'; // Key must be a number
       const isValidValue =
         Array.isArray(value) &&
         value.every(
           (entry) =>
             entry &&
-            typeof entry.optionId === 'number' &&
-            typeof entry.text === 'string'
+            typeof entry.optionId === 'number' && // Ensure optionId is a number
+            typeof entry.text === 'string' && // Ensure text is a string
+            entry.correct !== undefined // Ensure the correct field exists
         );
     
       if (!isValidKey || !isValidValue) {
-        console.warn(
-          `Removing invalid entry from Selected Options Map: ${key} ->`,
-          value
-        );
+        console.warn(`Removing invalid entry from Selected Options Map: ${key} ->`, value);
         this.selectedOptionService.selectedOptionsMap.delete(key);
       }
-    }
+    }    
 
     // Log the cleaned map
     console.log(
