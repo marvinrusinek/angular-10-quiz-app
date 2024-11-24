@@ -1492,15 +1492,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
 
     console.log('Before update, Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+
+    // Clean up the map by removing invalid entries
+    for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
+      if (typeof key !== 'number' || !Array.isArray(value)) {
+        console.warn(`Removing invalid entry from Selected Options Map: ${key} -> ${value}`);
+        this.selectedOptionService.selectedOptionsMap.delete(key);
+      }
+    }
   
     // Get current options for this optionId
     const currentOptions =
       this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
 
-    // Filter out invalid entries
+    // Ensure no duplicate entries
     const validOptions = currentOptions.filter((o) => o.optionId != null);
 
-    // Check if the option is already added
+    // Add the clicked option only if it's valid and not already in the map
     if (!validOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
         ...validOptions,
