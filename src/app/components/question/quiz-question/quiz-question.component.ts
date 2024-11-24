@@ -1491,13 +1491,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Mark the option as selected
     this.isOptionSelected = true;
   
-    // Update the selected options map
+    // Get current options for this optionId
     const currentOptions =
       this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
-      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
-    }
 
+    // Filter out invalid entries
+    const validOptions = currentOptions.filter((o) => o.optionId != null);
+
+    // Check if the option is already added
+    if (!validOptions.some((o) => o.optionId === option.optionId)) {
+      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
+        ...validOptions,
+        option,
+      ]);
+    }
 
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
