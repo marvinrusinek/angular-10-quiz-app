@@ -1635,14 +1635,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Filter correct options
     const correctOptions = this.currentQuestion.options.filter((option) => option.correct);
-    console.log(`Correct Options for Question [${this.currentQuestionIndex}]:`, correctOptions);
+    console.log('Correct Options:::>>', JSON.stringify(correctOptions, null, 2));
   
     // Flatten and filter selected options
     const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values())
       .flat()
       .filter((option) => option.optionId != null && option.correct !== undefined); // Filter invalid options
   
-    console.log(`Selected Options for Question [${this.currentQuestionIndex}]:`, selectedOptions);
+    console.log('Selected Options:', JSON.stringify(selectedOptions, null, 2));
   
     // Check if all correct options are selected
     const allSelectedCorrect = correctOptions.every((correctOption) =>
