@@ -1499,11 +1499,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const isValidValue =
         Array.isArray(value) &&
         value.every(
-          (entry) => entry && typeof entry.optionId === 'number' && entry.text
-        ); // Ensure each entry has `optionId` and `text`
+          (entry) =>
+            entry &&
+            typeof entry.optionId === 'number' &&
+            typeof entry.text === 'string'
+        );
     
       if (!isValidKey || !isValidValue) {
-        console.warn(`Removing invalid entry from Selected Options Map: ${key} -> ${value}`);
+        console.warn(
+          `Removing invalid entry from Selected Options Map: ${key} ->`,
+          value
+        );
         this.selectedOptionService.selectedOptionsMap.delete(key);
       }
     }
