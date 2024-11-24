@@ -584,23 +584,17 @@ export class QuizService implements OnDestroy {
     return this.questions$.pipe(
       filter((questions) => {
         const isValid = questions.length > 0;
-        console.log('questions$ emitted:', questions, 'Is valid:', isValid);
         return isValid; // Wait until questions are available
       }),
       take(1), // Take only the first emission
-      map((questions: QuizQuestion[]) => {
-        console.log(`Requested index: ${index}`);
-        console.log(`Available questions count: ${questions.length}`);
-  
+      map((questions: QuizQuestion[]) => { 
         if (index < 0 || index >= questions.length) {
           console.warn(
             `Index ${index} is out of bounds. Total questions available: ${questions.length}`
           );
           return null; // Return null for out-of-bounds index
         }
-  
         const selectedQuestion = questions[index];
-        console.log('Fetched question:', selectedQuestion);
         return selectedQuestion;
       }),
       catchError((error: Error) => {
