@@ -1492,8 +1492,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
   
     // Update the selected options map
-    const currentOptions = this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-    this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
+    const currentOptions =
+      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
+      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
+    }
+
 
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
