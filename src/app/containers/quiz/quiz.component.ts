@@ -2861,7 +2861,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (this.navigationAbortController) {
       this.navigationAbortController.abort();
     }
-  
     // Create a new AbortController for the current navigation
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
@@ -2879,11 +2878,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isLoading = true;
   
     try {
-      console.log('Resetting and starting timer for question:', questionIndex || this.currentQuestionIndex);
-      // Reset and start the timer for the new question
-      this.timerService.resetTimer();
-      this.timerService.startTimer();
-
       // Navigate to the new URL
       await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
   
@@ -2892,6 +2886,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('Navigation aborted.');
         return;
       }
+
+      console.log('Resetting and starting timer for question:', questionIndex || this.currentQuestionIndex);
+      // Reset and start the timer for the new question
+      this.timerService.resetTimer();
+      this.timerService.startTimer();
   
       // Load the question in the quiz component
       if (this.quizQuestionComponent) {

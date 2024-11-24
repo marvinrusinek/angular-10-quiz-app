@@ -329,8 +329,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.restoreQuizState(); // Restore quiz-level state
       this.renderDisplay();    // Reflect current display state
       this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
-    } else {
-      console.log('QQC: Tab became hidden.');
     }
   }
 
