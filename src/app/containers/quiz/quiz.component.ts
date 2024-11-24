@@ -2875,12 +2875,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
   
     this.isLoading = true;
-
-    // Reset and start the timer for the new question
-    this.timerService.resetTimer();
-    this.timerService.startTimer();
   
     try {
+      // Reset and start the timer for the new question
+      this.timerService.resetTimer();
+      this.timerService.startTimer();
+
       // Navigate to the new URL
       await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
   
