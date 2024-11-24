@@ -1588,7 +1588,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
   } */
-  private async areAllCorrectAnswersSelected(): Promise<boolean> {
+  /* private async areAllCorrectAnswersSelected(): Promise<boolean> {
     const question = await lastValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
   
     if (!question || !question.options) {
@@ -1613,7 +1613,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return correctOptions.every((correctOption) =>
       selectedOptions.some((selectedOption) => selectedOption.optionId === correctOption.optionId)
     );
+  } */
+  private areAllCorrectAnswersSelected(): boolean {
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      console.warn('No current question or options available.');
+      return false;
+    }
+  
+    const correctOptions = this.currentQuestion.options.filter(
+      (option) => option.correct
+    );
+    const selectedOptions = Array.from(
+      this.selectedOptionService.selectedOptionsMap.values()
+    ).flat();
+  
+    // Check if all correct options are selected
+    const allSelectedCorrect = correctOptions.every((correctOption) =>
+      selectedOptions.some(
+        (selectedOption) => selectedOption.optionId === correctOption.optionId
+      )
+    );
+  
+    console.log('Checking if all correct answers are selected:', {
+      correctOptions,
+      selectedOptions,
+      allSelectedCorrect,
+    });
+  
+    return allSelectedCorrect;
   }
+  
     
   
 
