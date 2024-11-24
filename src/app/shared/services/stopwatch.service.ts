@@ -78,6 +78,7 @@ export class StopwatchService {
     );
   }
 
+
   setElapsed(time: number): void {
     this.elapsedTime = time;
   }
