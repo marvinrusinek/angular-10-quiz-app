@@ -67,29 +67,11 @@ export class TimerComponent implements OnInit {
    * Sets the current timer type and updates the timeLeft$ observable accordingly.
    * @param type - The type of timer to set (Countdown or Stopwatch).
    */
-  /* setTimerType(type: TimerType): void {
-    if (this.currentTimerType !== type) {
-      this.currentTimerType = type;
-      this.timeLeft$ = this.getTimeObservable(type);
-    }
-  } */
-  /* setTimerType(type: TimerType): void {
-    // Unsubscribe from the current timer to prevent overlap
-    if (this.timeLeft$) {
-      this.timeLeft$.subscribe().unsubscribe(); // Clear any active subscriptions
-    }
-  
-    this.currentTimerType = type;
-  
-    // Reset and initialize the new timer type
-    this.timeLeft$ = this.getTimeObservable(type);
-    console.log(`Timer switched to ${type}`);
-  } */
   setTimerType(type: TimerType): void {
     // Unsubscribe from the current timer to prevent overlap
     if (this.activeTimerSubscription) {
-        this.activeTimerSubscription.unsubscribe(); // Stop any ongoing timer
-        console.log("Previous timer subscription cleared.");
+      this.activeTimerSubscription.unsubscribe(); // Stop any ongoing timer
+      console.log("Previous timer subscription cleared.");
     }
 
     this.currentTimerType = type;
@@ -97,15 +79,15 @@ export class TimerComponent implements OnInit {
     // Reset and initialize the new timer type
     this.timeLeft$ = this.getTimeObservable(type);
     this.activeTimerSubscription = this.timeLeft$.subscribe({
-        next: (timeLeft) => {
-            console.log(`Time left (${type}):`, timeLeft);
-        },
-        error: (err) => {
-            console.error(`Error in ${type} timer:`, err);
-        },
-        complete: () => {
-            console.log(`${type} timer completed.`);
-        },
+      next: (timeLeft) => {
+        console.log(`Time left (${type}):`, timeLeft);
+      },
+      error: (err) => {
+        console.error(`Error in ${type} timer:`, err);
+      },
+      complete: () => {
+        console.log(`${type} timer completed.`);
+      },
     });
 
     console.log(`Timer switched to ${type}`);
