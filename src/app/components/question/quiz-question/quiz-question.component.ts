@@ -1516,7 +1516,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     }
 
-    console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+    console.log('After update, Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
 
