@@ -63,10 +63,6 @@ export class TimerComponent implements OnInit {
     this.setTimerType(this.timerType.Countdown);
   }
 
-  /**
-   * Sets the current timer type and updates the timeLeft$ observable accordingly.
-   * @param type - The type of timer to set (Countdown or Stopwatch).
-   */
   setTimerType(type: TimerType): void {
     // Unsubscribe from the current timer to prevent overlap
     if (this.activeTimerSubscription) {
@@ -93,12 +89,6 @@ export class TimerComponent implements OnInit {
     console.log(`Timer switched to ${type}`);
   }
 
-  /**
-   * Returns the appropriate observable based on the timer type.
-   * @param type - The type of timer (Countdown or Stopwatch).
-   * @returns An observable that emits the time left.
-   * @throws Will throw an error if the timer type is invalid.
-   */
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
       case TimerType.Countdown:
