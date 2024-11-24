@@ -2531,15 +2531,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex++;
         console.log('Navigating to question index:', this.currentQuestionIndex);
 
-        // Reset and start the timer for the new question
-        this.timerService.resetTimer();
-        this.timerService.startTimer();
-
         // Reset the state for the new question
         this.resetOptionState();
         this.isOptionSelected = false;
         this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false);
+
+        // Reset and start the timer for the new question
+        this.timerService.resetTimer();
+        this.timerService.startTimer();
 
         // Prepare the next question
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
