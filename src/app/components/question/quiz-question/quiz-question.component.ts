@@ -1514,7 +1514,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (allCorrectAnswersSelected) {
       console.log("MY TIMER TEST");
-      this.timerService.stopTimer(); // Stop the timer
+      this.timerService.stopTimer((elapsedTime: number) => {
+        this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
+        console.log('Elapsed time recorded:', elapsedTime);
+      }); // Stop the timer
       this.selectedOptionService.isAnsweredSubject.next(true); // Enable the Next button
       console.log('All correct answers selected. Next button enabled and timer stopped.');
     } else {
