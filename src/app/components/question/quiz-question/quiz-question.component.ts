@@ -1490,6 +1490,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Mark the option as selected
     this.isOptionSelected = true;
+
+    console.log('Before update, Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
   
     // Get current options for this optionId
     const currentOptions =
