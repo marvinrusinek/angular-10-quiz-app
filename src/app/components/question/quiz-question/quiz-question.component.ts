@@ -1495,11 +1495,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Clean up the map by removing invalid entries
     for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
-      if (typeof key !== 'number' || !Array.isArray(value)) {
+      const isValidKey = typeof key === 'number';
+      const isValidValue =
+        Array.isArray(value) &&
+        value.every((entry) => entry && typeof entry.optionId === 'number');
+  
+      if (!isValidKey || !isValidValue) {
         console.warn(`Removing invalid entry from Selected Options Map: ${key} -> ${value}`);
         this.selectedOptionService.selectedOptionsMap.delete(key);
       }
     }
+
+    // Log the cleaned map
+    console.log('Cleaned Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
   
     // Get current options for this optionId
     const currentOptions =
@@ -1514,14 +1522,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         ...validOptions,
         option,
       ]);
-    }
-
-    // Explicitly remove invalid map entries
-    for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
-      if (typeof key !== 'number' || !Array.isArray(value)) {
-        console.warn(`Invalid entry detected in Selected Options Map: ${key} -> ${value}`);
-        this.selectedOptionService.selectedOptionsMap.delete(key);
-      }
     }
 
     console.log('After update, Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
