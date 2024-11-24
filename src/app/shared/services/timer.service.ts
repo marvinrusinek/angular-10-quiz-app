@@ -189,7 +189,7 @@ export class TimerService {
     this.stopTimer(); // Ensure the timer is stopped
     this.elapsedTime = 0;
     this.isReset.next(1); // Emit reset signal
-    // this.elapsedTimeSubject.next(0); // Reset elapsed time
+    this.elapsedTimeSubject.next(0); // Reset elapsed time
     console.log('Timer reset.');
   }
 
