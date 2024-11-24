@@ -1633,15 +1633,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return false;
     }
   
-    const correctOptions = this.currentQuestion.options.filter(
-      (option) => option.correct
-    );
+    // Filter correct options
+    const correctOptions = this.currentQuestion.options.filter((option) => option.correct);
+    console.log(`Correct Options for Question [${this.currentQuestionIndex}]:`, correctOptions);
   
-    const selectedOptions = Array.from(
-      this.selectedOptionService.selectedOptionsMap.values()
-    )
+    // Flatten and filter selected options
+    const selectedOptions = Array.from(this.selectedOptionService.selectedOptionsMap.values())
       .flat()
-      .filter((o) => o.optionId != null); // Ensure only valid options are processed
+      .filter((option) => option.optionId != null && option.correct !== undefined); // Filter invalid options
+  
+    console.log(`Selected Options for Question [${this.currentQuestionIndex}]:`, selectedOptions);
   
     // Check if all correct options are selected
     const allSelectedCorrect = correctOptions.every((correctOption) =>
@@ -1652,16 +1653,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       )
     );
   
-    console.log('Correct Options:', correctOptions);
-    console.log('Selected Options:', selectedOptions);
-    console.log('All Selected Correct:', allSelectedCorrect);
+    // Debugging result
+    console.log(`Are all correct options selected for Question [${this.currentQuestionIndex}]?:`, allSelectedCorrect);
   
     return allSelectedCorrect;
   }
-  
-  
-    
-  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
