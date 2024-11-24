@@ -30,15 +30,15 @@ export class TimerService {
   timeRemainingSubject = new BehaviorSubject<number>(0);
 
   constructor() {
+    // Configure the timer observable
     this.timer$ = timer(0, 1000).pipe(
-      takeUntil(this.stop$),
       tap(() => {
         if (this.isTimerRunning) {
           this.elapsedTime++;
-          this.elapsedTimeSubject.next(this.elapsedTime);
-          console.log('Elapsed Time:', this.elapsedTime);
+          console.log('Timer tick:', this.elapsedTime);
         }
-      })
+      }),
+      takeUntil(this.isStop) // Stop the timer when stop signal is emitted
     );
   }
 
