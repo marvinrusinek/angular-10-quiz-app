@@ -1498,6 +1498,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
+
+    console.log('Are all correct answers selected?', allCorrectAnswersSelected);
   
     if (allCorrectAnswersSelected) {
       this.timerService.stopTimer(); // Stop the timer
