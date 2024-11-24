@@ -1480,6 +1480,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    // Ensure the option belongs to the current question
+    /* if (!this.currentQuestion || !this.currentQuestion.options.some((o) => o.optionId === option.optionId)) {
+      console.warn('Option does not belong to the current question. Ignoring click.');
+      return;
+    } */
+
     // Check if the option is already selected
     /* const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
       .get(option.optionId)
@@ -1514,7 +1520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             typeof entry.text === 'string' &&
             entry.correct !== undefined
         );
-  
+
       if (!isValidKey || !isValidValue) {
         console.warn(`Removing invalid entry from Selected Options Map: ${key} ->`, value);
         this.selectedOptionService.selectedOptionsMap.delete(key);
