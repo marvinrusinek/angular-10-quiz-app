@@ -16,7 +16,9 @@ export class TimerService {
 
   // Subjects for broadcasting timer states
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
-  public elapsedTime$ = this.elapsedTimeSubject.asObservable();
+  public elapsedTime$ = this.elapsedTimeSubject.asObservable().pipe(
+    tap((elapsedTime) => console.log("Elapsed time emitted:", elapsedTime))
+  );
 
   private isStart = new Subject<number>();
   private isStop = new Subject<number>();
