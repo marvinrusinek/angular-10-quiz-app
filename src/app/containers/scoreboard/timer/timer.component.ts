@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { concat, Observable } from 'rxjs';
+import { concat, Observable, Subscription } from 'rxjs';
 import { catchError, first, map } from 'rxjs/operators';
 
 import { TimerService } from '../../../shared/services/timer.service';
@@ -28,6 +28,7 @@ export class TimerComponent implements OnInit {
   stop$: Observable<number>;
   concat$: Observable<number>;
   currentTimerType: TimerType;
+  private activeTimerSubscription: Subscription | null = null; // Track active timer subscriptions
 
   constructor(
     private timerService: TimerService,
@@ -72,7 +73,7 @@ export class TimerComponent implements OnInit {
       this.timeLeft$ = this.getTimeObservable(type);
     }
   } */
-  setTimerType(type: TimerType): void {
+  /* setTimerType(type: TimerType): void {
     // Unsubscribe from the current timer to prevent overlap
     if (this.timeLeft$) {
       this.timeLeft$.subscribe().unsubscribe(); // Clear any active subscriptions
@@ -82,6 +83,31 @@ export class TimerComponent implements OnInit {
   
     // Reset and initialize the new timer type
     this.timeLeft$ = this.getTimeObservable(type);
+    console.log(`Timer switched to ${type}`);
+  } */
+  setTimerType(type: TimerType): void {
+    // Unsubscribe from the current timer to prevent overlap
+    if (this.activeTimerSubscription) {
+        this.activeTimerSubscription.unsubscribe(); // Stop any ongoing timer
+        console.log("Previous timer subscription cleared.");
+    }
+
+    this.currentTimerType = type;
+
+    // Reset and initialize the new timer type
+    this.timeLeft$ = this.getTimeObservable(type);
+    this.activeTimerSubscription = this.timeLeft$.subscribe({
+        next: (timeLeft) => {
+            console.log(`Time left (${type}):`, timeLeft);
+        },
+        error: (err) => {
+            console.error(`Error in ${type} timer:`, err);
+        },
+        complete: () => {
+            console.log(`${type} timer completed.`);
+        },
+    });
+
     console.log(`Timer switched to ${type}`);
   }
 
