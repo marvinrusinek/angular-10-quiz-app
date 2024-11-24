@@ -46,38 +46,6 @@ export class TimerService {
     this.timer?.unsubscribe();
   }
 
-  /* stopTimer(callback?: (elapsedTime: number) => void): void {
-    if (!this.isTimerRunning) return; // Early return if timer is not running
-  
-    this.isTimerRunning = false;
-  
-    if (this.timer) {
-      this.timer.unsubscribe(); // Unsubscribe from the timer observable
-      this.timer = null;
-    }
-  
-    this.isStop.next(); // Emit stop signal
-  
-    if (callback) {
-      callback(this.elapsedTime);
-    }
-  
-    console.log('Timer stopped. Elapsed time:', this.elapsedTime);
-  }
-
-  startTimer(): void {
-    if (this.isTimerRunning) {
-      console.warn('Timer is already running.');
-      return;
-    }
-  
-    this.isTimerRunning = true;
-    this.elapsedTime = 0;
-  
-    // Subscribe to the timer observable and store the subscription
-    this.timer = this.timer$.subscribe();
-    console.log('Timer started.');
-  } */
   stopTimer(callback?: (elapsedTime: number) => void): void {
     if (!this.isTimerRunning) return;
     
@@ -137,7 +105,6 @@ export class TimerService {
     this.elapsedTimeSubject.next(0); // Reset elapsed time
     console.log('Timer reset.');
   }
-  
 
   setElapsed(time: number): void {
     this.elapsedTime = time;
