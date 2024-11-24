@@ -56,7 +56,7 @@ export class TimerComponent implements OnInit {
         console.error('Error in concat$', err);
         return [this.timePerQuestion]; // Return fallback time
       })
-    );  
+    );
   
     // Default timer setup
     this.setTimerType(this.timerType.Countdown);
