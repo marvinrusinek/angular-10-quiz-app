@@ -39,7 +39,7 @@ export class TimerComponent implements OnInit {
     this.start$ = this.timerService.start$;
     this.reset$ = this.timerService.reset$;
     this.stop$ = this.timerService.stop$;
-    this.concat$ = concat(
+    /* this.concat$ = concat(
       this.start$.pipe(first(), map(value => +value)),
       this.reset$.pipe(first(), map(value => +value))
     ).pipe(
@@ -47,7 +47,16 @@ export class TimerComponent implements OnInit {
         console.error('Error in concat$', err);
         return [];
       })
-    ) as Observable<number>;
+    ) as Observable<number>; */
+    this.concat$ = concat(
+      this.start$.pipe(first(), map(() => this.timePerQuestion)),
+      this.reset$.pipe(first(), map(() => this.timePerQuestion))
+    ).pipe(
+      catchError(err => {
+        console.error('Error in concat$', err);
+        return [this.timePerQuestion]; // Return fallback time
+      })
+    );  
   
     // Default timer setup
     this.setTimerType(this.timerType.Countdown);
