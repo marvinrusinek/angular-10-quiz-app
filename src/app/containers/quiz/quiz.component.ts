@@ -380,7 +380,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Fetch and display the current question
     this.initializeCurrentQuestion();
 
-    this.checkIfAnswerSelected(true);
+    this.checkIfAnswerSelected();
 
     /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
       tap((options) => console.log('options$ emitted:::::', options)),
