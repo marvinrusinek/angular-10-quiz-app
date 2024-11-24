@@ -1474,6 +1474,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
 
+    // Ensure the option belongs to the current question
+    if (!this.currentQuestion || !this.currentQuestion.options.some((o) => o.optionId === option.optionId)) {
+      console.warn('Option does not belong to the current question. Ignoring click.');
+      return;
+    }
+
     // Check if the option is already selected
     /* const isAlreadySelected = this.selectedOptionService.selectedOptionsMap
       .get(option.optionId)
@@ -1498,22 +1504,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Clean up the map by removing invalid entries
     for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
-      const isValidKey = typeof key === 'number'; // Key must be a number
+      const isValidKey = typeof key === 'number';
       const isValidValue =
         Array.isArray(value) &&
         value.every(
           (entry) =>
             entry &&
-            typeof entry.optionId === 'number' && // Ensure optionId is a number
-            typeof entry.text === 'string' && // Ensure text is a string
-            entry.correct !== undefined // Ensure the correct field exists
+            typeof entry.optionId === 'number' &&
+            typeof entry.text === 'string' &&
+            entry.correct !== undefined
         );
-    
+  
       if (!isValidKey || !isValidValue) {
         console.warn(`Removing invalid entry from Selected Options Map: ${key} ->`, value);
         this.selectedOptionService.selectedOptionsMap.delete(key);
       }
-    }    
+    }
+      
 
     // Log the cleaned map
     console.log(
@@ -1525,13 +1532,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const currentOptions =
       this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
 
-    // Ensure no duplicate entries
-    const validOptions = currentOptions.filter((o) => o.optionId != null);
-
     // Add the clicked option only if it's valid and not already in the map
-    if (!validOptions.some((o) => o.optionId === option.optionId)) {
+    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...validOptions,
+        ...currentOptions,
         option,
       ]);
     }
