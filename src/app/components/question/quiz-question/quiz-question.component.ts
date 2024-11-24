@@ -1508,6 +1508,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ]);
     }
 
+    // Explicitly remove invalid map entries
+    for (const [key, value] of this.selectedOptionService.selectedOptionsMap) {
+      if (typeof key !== 'number' || !Array.isArray(value)) {
+        console.warn(`Invalid entry detected in Selected Options Map: ${key} -> ${value}`);
+        this.selectedOptionService.selectedOptionsMap.delete(key);
+      }
+    }
+
     console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected();
