@@ -95,7 +95,7 @@ export class TimerService {
       console.warn('Timer subscription is not valid or already cleared.');
     }
   
-    this.isStop.next(); // Emit stop signal
+    this.isStop.next(1); // Emit stop signal
   
     if (callback) {
       callback(this.elapsedTime);
@@ -128,7 +128,7 @@ export class TimerService {
   resetTimer(): void {
     this.stopTimer(); // Ensure the timer is stopped
     this.elapsedTime = 0;
-    this.isReset.next(); // Emit reset signal
+    this.isReset.next(1); // Emit reset signal
     this.elapsedTimeSubject.next(0); // Reset elapsed time
     console.log('Timer reset.');
   }
@@ -145,4 +145,3 @@ export class TimerService {
     }
   }
 }
-
