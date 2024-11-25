@@ -68,7 +68,11 @@ export class TimerService {
 
     this.isStop.next(1); // Emit stop signal to observers
 
-    if (callback) callback(this.elapsedTime); // Pass the elapsed time to the callback
+    if (callback) {
+      console.log("Executing stopTimer callback...");
+      callback(this.elapsedTime);
+      console.log("Callback executed. Elapsed time:", this.elapsedTime);
+    }
 
     console.log("Timer stopped. Elapsed time:", this.elapsedTime);
   }
