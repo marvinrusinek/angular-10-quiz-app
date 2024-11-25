@@ -24,7 +24,7 @@ export class CountdownService {
     this.concat$ = of(null);
   }
 
-  /* startCountdown(timePerQuestion: number): Observable<number> {
+  startCountdown(timePerQuestion: number): Observable<number> {
     return this.concat$
       .pipe(
         // Switch to a new countdown timer whenever `concat$` emits.
@@ -45,26 +45,6 @@ export class CountdownService {
         // Update the remaining time.
         tap((remaining: number) => this.setElapsed(remaining))
       );
-  } */
-  startCountdown(timePerQuestion: number): Observable<number> {
-    return this.concat$.pipe(
-      // Switch to a new countdown timer whenever `concat$` emits.
-      switchMapTo(
-        timer(0, 1000).pipe(
-          // Decrease the counter or stop at 0.
-          scan((acc: number, curr: number) => Math.max(0, acc - curr), timePerQuestion),
-          takeWhile((remaining) => remaining > 0) // Stop emitting when 0 is reached
-        )
-      ),
-      // Stop the countdown when `stop$` emits.
-      takeUntil(this.stop$),
-      // Restart the countdown when `start$` emits after the first complete signal.
-      repeatWhen((completeSubj: Observable<void>) =>
-        completeSubj.pipe(switchMapTo(this.start$.pipe(first())))
-      ),
-      // Update the remaining time.
-      tap((remaining: number) => this.setElapsed(remaining))
-    );
   }
 
   setElapsed(time: number): void {
