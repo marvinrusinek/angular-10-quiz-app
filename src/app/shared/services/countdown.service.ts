@@ -27,8 +27,7 @@ export class CountdownService {
   startCountdown(timePerQuestion: number): Observable<number> {
     return timer(0, 1000).pipe(
       scan((acc) => acc - 1, timePerQuestion), // Count down from `timePerQuestion`
-      takeWhile((remaining) => remaining >= 0), // Stop at 0
-      tap((remaining) => console.log("Remaining Time:", remaining)) // Debugging
+      takeWhile((remaining) => remaining >= 0) // Stop at 0
     );
   }
 
