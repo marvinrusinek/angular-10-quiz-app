@@ -2855,6 +2855,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => (this.debounceNavigation = false), debounceTimeout);
+
+    console.log('Resetting and starting timer for question:', questionIndex || this.currentQuestionIndex);
+    // Reset and start the timer for the new question
+    this.timerService.resetTimer();
+    this.timerService.startTimer();
   
     // Abort any ongoing navigation operations
     if (this.navigationAbortController) {
@@ -2885,11 +2890,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('Navigation aborted.');
         return;
       }
-
-      console.log('Resetting and starting timer for question:', questionIndex || this.currentQuestionIndex);
-      // Reset and start the timer for the new question
-      this.timerService.resetTimer();
-      this.timerService.startTimer();
   
       // Load the question in the quiz component
       if (this.quizQuestionComponent) {
