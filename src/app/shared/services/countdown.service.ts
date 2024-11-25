@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap } from 'rxjs/operators';
+import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, takeWhile, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CountdownService {
@@ -11,6 +11,7 @@ export class CountdownService {
   concat$: Observable<number>;
   timeLeft$!: Observable<number>;
   elapsedTime = 0;
+  private isTimerRunning = false;
 
   timer: Observable<number>;
   isStart = new BehaviorSubject<number>(1);
@@ -24,7 +25,7 @@ export class CountdownService {
     this.concat$ = of(null);
   }
 
-  startCountdown(timePerQuestion: number): Observable<number> {
+  /* startCountdown(timePerQuestion: number): Observable<number> {
     return this.concat$
       .pipe(
         // Switch to a new countdown timer whenever `concat$` emits.
@@ -45,7 +46,33 @@ export class CountdownService {
         // Update the remaining time.
         tap((remaining: number) => this.setElapsed(remaining))
       );
+  } */
+  startCountdown(timePerQuestion: number): Observable<number> {
+    this.isTimerRunning = true; // Timer starts
+  
+    return this.concat$.pipe(
+      switchMapTo(
+        timer(0, 1000).pipe(
+          scan((acc: number) => Math.max(0, acc - 1), timePerQuestion),
+          takeWhile((remaining) => remaining > 0 || this.isTimerRunning) // Stop at 0
+        )
+      ),
+      takeUntil(this.stop$),
+      repeatWhen(() => this.start$.pipe(first())),
+      tap((remaining: number) => {
+        this.setElapsed(remaining);
+        console.log("Countdown Remaining Time:", remaining);
+      }),
+      tap({
+        complete: () => {
+          this.isTimerRunning = false; // Timer stops
+          console.log("Timer completed.");
+        },
+      })
+    );
   }
+  
+  
 
   setElapsed(time: number): void {
     this.elapsedTime = time;
