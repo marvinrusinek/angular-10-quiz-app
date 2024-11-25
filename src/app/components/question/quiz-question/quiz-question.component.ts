@@ -1499,10 +1499,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Are all correct answers selected?', allCorrectAnswersSelected);
   
     if (allCorrectAnswersSelected) {
-      console.log('All correct answers selected. Attempting to stop timer...');
+      console.log("All correct answers selected. Stopping timer...");
       this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('Timer stopped callback triggered. Elapsed time:', elapsedTime);
-          this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
+        this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
+        console.log("Elapsed time recorded:", elapsedTime);
       });
       this.selectedOptionService.isAnsweredSubject.next(true);
       console.log('Next button enabled.');
