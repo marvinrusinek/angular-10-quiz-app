@@ -57,7 +57,7 @@ export class TimerService {
     if (this.timer) {
       try {
         this.timer.unsubscribe(); // Unsubscribe from the timer observable
-        console.log("Timer unsubscribed and cleared.");
+        console.log("Timer unsubscribed.");
       } catch (error) {
         console.error("Error unsubscribing timer:", error);
       }
@@ -67,6 +67,7 @@ export class TimerService {
     }
 
     this.isStop.next(1); // Emit stop signal to observers
+    console.log("Stop signal emitted.");
 
     if (callback) {
       console.log("Executing stopTimer callback...");
