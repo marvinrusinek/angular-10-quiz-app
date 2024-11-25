@@ -83,7 +83,7 @@ export class TimerService {
       return;
     }
 
-    console.log("Starting timer...");
+    console.log("Starting timer with duration:", duration);
     this.isTimerRunning = true;
     this.elapsedTime = 0;
     this.isStart.next(1); // Emit start signal
