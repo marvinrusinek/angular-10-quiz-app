@@ -48,31 +48,12 @@ export class CountdownService {
       );
   } */
   startCountdown(timePerQuestion: number): Observable<number> {
-    this.isTimerRunning = true; // Timer starts
-  
-    return this.concat$.pipe(
-      switchMapTo(
-        timer(0, 1000).pipe(
-          scan((acc: number) => Math.max(0, acc - 1), timePerQuestion),
-          takeWhile((remaining) => remaining > 0 || this.isTimerRunning) // Stop at 0
-        )
-      ),
-      takeUntil(this.stop$),
-      repeatWhen(() => this.start$.pipe(first())),
-      tap((remaining: number) => {
-        this.setElapsed(remaining);
-        console.log("Countdown Remaining Time:", remaining);
-      }),
-      tap({
-        complete: () => {
-          this.isTimerRunning = false; // Timer stops
-          console.log("Timer completed.");
-        },
-      })
+    return timer(0, 1000).pipe(
+      scan((acc) => acc - 1, timePerQuestion), // Count down from `timePerQuestion`
+      takeWhile((remaining) => remaining >= 0), // Stop at 0
+      tap((remaining) => console.log("Remaining Time:", remaining)) // Debugging
     );
   }
-  
-  
 
   setElapsed(time: number): void {
     this.elapsedTime = time;
