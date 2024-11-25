@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { concat, Observable, Subscription } from 'rxjs';
 import { catchError, first, map } from 'rxjs/operators';
 
-import { TimerService } from '../../../shared/services/timer.service';
 import { CountdownService } from '../../../shared/services/countdown.service';
 import { StopwatchService } from '../../../shared/services/stopwatch.service';
+import { TimerService } from '../../../shared/services/timer.service';
 
 enum TimerType {
   Countdown = 'countdown',
