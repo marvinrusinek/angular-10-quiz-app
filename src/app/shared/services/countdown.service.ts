@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import { scan, shareReplay, takeWhile, tap } from 'rxjs/operators';
+import { scan, shareReplay, takeWhile } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CountdownService {
