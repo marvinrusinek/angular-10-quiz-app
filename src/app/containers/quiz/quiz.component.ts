@@ -957,7 +957,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questions = quiz.questions;
         this.currentQuestion = this.questions[this.currentQuestionIndex];
         this.isQuizLoaded = true; // Mark as loaded
-        console.log('Quiz data loaded successfully:', quiz);
         return true;
       } else {
         console.error('Quiz has no questions or quiz data is unavailable.');
