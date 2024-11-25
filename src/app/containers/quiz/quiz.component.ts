@@ -2538,7 +2538,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Reset and start the timer for the new question
         this.timerService.resetTimer();
-        this.timerService.startTimer();
+        this.timerService.startTimer(30);
 
         // Prepare the next question
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
