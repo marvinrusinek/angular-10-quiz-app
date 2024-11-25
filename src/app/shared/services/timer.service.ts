@@ -82,23 +82,25 @@ export class TimerService {
     console.log("Starting timer...");
     this.isTimerRunning = true;
     this.elapsedTime = 0;
-    this.isStart.next(1);
+    this.isStart.next(1); // Emit start signal
 
     if (duration) {
       this.timePerQuestion = duration; // Set the timer duration if provided
     }
 
+    // Start timer observable
     this.timer = this.timer$.subscribe({
       next: () => {
         this.elapsedTime++;
-        console.log("Elapsed time:", this.elapsedTime);
-        if (this.elapsedTime >= this.timePerQuestion) {
+        console.log('Elapsed time:', this.elapsedTime);
+  
+        if (this.elapsedTime >= duration) {
           this.stopTimer();
-          console.log("Time is up!");
+          console.log('Time is up!');
         }
       },
-      error: (err) => console.error("Timer error:", err),
-      complete: () => console.log("Timer completed."),
+      error: (err) => console.error('Timer error:', err),
+      complete: () => console.log('Timer completed.'),
     });
   }
 
