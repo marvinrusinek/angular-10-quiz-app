@@ -65,7 +65,7 @@ export class TimerComponent implements OnInit {
 
     // Reset and initialize the new timer type
     this.timeLeft$ = this.getTimeObservable(type);
-    this.activeTimerSubscription = this.timeLeft$.subscribe({
+    /* this.activeTimerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => {
         console.log(`Time left (${type}):`, timeLeft);
       },
@@ -75,7 +75,7 @@ export class TimerComponent implements OnInit {
       complete: () => {
         console.log(`${type} timer completed.`);
       },
-    });
+    }); */
 
     console.log(`Timer switched to ${type}`);
   }
