@@ -84,6 +84,7 @@ export class TimerService {
   }
   
   startTimer(duration: number = this.timePerQuestion): void {
+    console.log("Attempting to start timer...");
     if (this.isTimerRunning) {
       console.warn("Timer is already running.");
       return;
@@ -93,6 +94,7 @@ export class TimerService {
     this.isTimerRunning = true;
     this.elapsedTime = 0;
     this.isStart.next(1); // Emit start signal
+    console.log("Timer started. isTimerRunning:", this.isTimerRunning);
 
     if (duration) {
       this.timePerQuestion = duration; // Set the timer duration if provided
