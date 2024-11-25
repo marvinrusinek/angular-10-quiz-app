@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import { finalize, first, repeatWhen, scan, shareReplay, skip, switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
+import { finalize, scan, shareReplay, skip, switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class StopwatchService {
@@ -26,30 +26,6 @@ export class StopwatchService {
     this.concat$ = of(null);
   }
 
-  /* startStopwatch(): Observable<number> {
-    return this.concat$
-      .pipe(
-        // Start a new timer sequence whenever `concat$` emits.
-        switchMapTo(
-          timer(0, 1000).pipe(
-            // Increment the accumulator to count seconds.
-            scan((acc: number) => acc + 1, 0),
-            // Limit the emissions according to `timePerQuestion`.
-            take(this.timePerQuestion)
-          )
-        ),
-        // Stop the timer when `stop$` emits.
-        takeUntil(this.stop$.pipe(skip(1))),
-        // Repeat when `start$` emits.
-        repeatWhen((completeSubj: Observable<void>) => 
-          completeSubj.pipe(
-            switchMapTo(this.start$.pipe(first()))
-          )
-        ),
-        // Perform side effects with the current time value.
-        tap((value: number) => this.setElapsed(value))
-      );
-  } */
   startStopwatch(): Observable<number> {
     // Stop any existing timer before starting a new one
     this.isStop.next(1); // Emit stop signal to ensure cleanup of previous timers
