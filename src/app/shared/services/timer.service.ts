@@ -81,7 +81,7 @@ export class TimerService {
 
     this.isTimerRunning = true;
     this.elapsedTime = 0; // Reset elapsed time
-    this.isStart.next(1); // Emit start signal
+    this.isStart.next(); // Emit start signal
 
     this.timer$ = timer(0, 1000).pipe(
       tap((elapsedTime) => {
@@ -110,7 +110,10 @@ export class TimerService {
   /** Resets the timer */
   resetTimer(): void {
     console.log("Attempting to reset timer...");
-    this.stopTimer(); // Ensure timer is stopped before resetting
+    if (this.isTimerRunning) {
+      console.log("Timer is running. Stopping before resetting...");
+      this.stopTimer(); // Ensure timer is stopped before resetting
+    }
 
     this.elapsedTime = 0;
     this.isTimerRunning = false;
