@@ -50,13 +50,10 @@ export class TimerComponent implements OnInit {
       })
     ) as Observable<number>;
   
-    // Default timer setup
-    this.setTimerType(this.timerType.Countdown);
-
-    this.timeLeft$.subscribe({
+    /* this.timeLeft$.subscribe({
       next: (timeLeft) => console.log("Displayed time left:", timeLeft),
       error: (err) => console.error("Error updating displayed time left:", err),
-    });
+    }); */
 
     // Log timer reset and stop signals
     this.timerService.reset$.subscribe(() => {
@@ -66,6 +63,9 @@ export class TimerComponent implements OnInit {
     this.timerService.stop$.subscribe(() => {
       console.log("Timer stop signal received in TimerComponent.");
     });
+
+    // Default timer setup
+    this.setTimerType(this.timerType.Countdown);
   }
 
   setTimerType(type: TimerType): void {
