@@ -48,45 +48,6 @@ export class TimerService {
     this.timer?.unsubscribe();
   }
 
-  /* stopTimer(callback?: (elapsedTime: number) => void): void {
-    console.log("Entered stopTimer()");
-    // if (!this.isTimerRunning) return;
-    if (!this.isTimerRunning) {
-      console.warn("Timer is not running. Nothing to stop.");
-      return;
-    }
-
-    console.log("Stopping timer...");
-    this.isTimerRunning = false;
-
-    // if (this.timer) {
-      try {
-        this.timer.unsubscribe(); // Unsubscribe from the timer observable
-        console.log("Timer unsubscribed.");
-      } catch (error) {
-        console.error("Error unsubscribing timer:", error);
-      }
-      this.timer = null;
-    } else {
-      console.warn("Timer subscription is invalid or already cleared.");
-    }
-    if (this.timer) {
-      this.timer.unsubscribe();
-      this.timer = null;
-      console.log("Timer unsubscribed.");
-    }
-
-    this.isStop.next(1); // Emit stop signal to observers
-    console.log("Stop signal emitted.");
-
-    if (callback) {
-      console.log("Executing stopTimer callback...");
-      callback(this.elapsedTime);
-      console.log("Callback executed. Elapsed time:", this.elapsedTime);
-    }
-
-    console.log("Timer stopped. Elapsed time:", this.elapsedTime);
-  } */
   /** Stops the timer */
   stopTimer(callback?: (elapsedTime: number) => void): void {
     console.log("Entered stopTimer()");
@@ -114,76 +75,6 @@ export class TimerService {
     console.log("Timer stopped. Elapsed time:", this.elapsedTime);
   }
 
-  /* startTimer(duration: number = this.timePerQuestion): void { 
-    console.log("Attempting to start timer...");
-    if (this.isTimerRunning) {
-      console.warn("Timer is already running.");
-      return;
-    }
-
-    console.log("Starting timer with duration:", duration);
-    this.isTimerRunning = true;
-    this.elapsedTime = 0;
-    this.isStart.next(1); // Emit start signal
-    console.log("Timer started. isTimerRunning:", this.isTimerRunning);
-
-    if (duration) {
-      this.timePerQuestion = duration; // Set the timer duration if provided
-    }
-
-    // Start timer observable
-    this.timer = this.timer$.subscribe({
-      next: () => {
-        this.elapsedTime++;
-        console.log('Elapsed time:', this.elapsedTime);
-  
-        if (this.elapsedTime >= duration) {
-          this.stopTimer();
-          console.log('Time is up!');
-        }
-      },
-      error: (err) => console.error('Timer error:', err),
-      complete: () => console.log('Timer completed.'),
-    });
-  } */
-  /* startTimer(duration: number = this.timePerQuestion): void {
-    console.log("Attempting to start timer...");
-    
-    // Prevent multiple timers from running
-    if (this.isTimerRunning) {
-      console.warn("Timer is already running.");
-      return;
-    }
-
-    // Initialize timer state
-    this.isTimerRunning = true;
-    this.elapsedTime = 0; // Reset elapsed time
-    this.isStart.next(1); // Emit start signal
-    console.log("Timer started. Duration set to:", duration);
-
-    this.timer$ = timer(0, 1000).pipe(
-      tap((elapsedTime) => {
-        this.elapsedTime = elapsedTime;
-        this.elapsedTimeSubject.next(elapsedTime);
-        console.log("Elapsed time updated:", this.elapsedTime);
-
-        // Stop the timer automatically when duration is reached
-        if (elapsedTime >= duration) {
-          console.log("Time is up!");
-          this.stopTimer();
-        }
-      }),
-      takeUntil(this.stop$), // Stop timer when stop signal is emitted
-      takeUntil(this.reset$) // Reset timer when reset signal is emitted
-    );
-
-    // Subscribe to the timer observable
-    this.timerSubscription = this.timer$.subscribe({
-      next: () => console.log("Timer tick"),
-      error: (err) => console.error("Timer error:", err),
-      complete: () => console.log("Timer completed.")
-    });
-  } */
   /** Starts the timer */
   startTimer(duration: number = this.timePerQuestion): void {
     console.log("Attempting to start timer...");
@@ -219,20 +110,7 @@ export class TimerService {
 
     console.log("Timer started for duration:", duration);
   }
-  
-  /* resetTimer(): void {
-    console.log("Attempting to reset timer...");
-    if (this.isTimerRunning) {
-      console.log("Timer is running. Stopping before resetting...");
-      this.stopTimer();
-    }
 
-    this.elapsedTime = 0; // Reset elapsed time
-    this.isTimerRunning = false; // Ensure timer state is reset
-    this.isReset.next(1); // Emit reset signal
-    this.elapsedTimeSubject.next(0); // Update elapsed time to 0
-    console.log("Timer reset. isTimerRunning:", this.isTimerRunning);
-  } */
   /** Resets the timer */
   resetTimer(): void {
     console.log("Attempting to reset timer...");
