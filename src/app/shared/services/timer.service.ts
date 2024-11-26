@@ -6,27 +6,27 @@ import { takeUntil, tap } from 'rxjs/operators';
 export class TimerService {
   timePerQuestion = 30;
   private elapsedTime = 0;
-  elapsedTimes: number[] = [];
-  completionTime: number;
-  timeLeft = 0;
   isTimerRunning = false;
-  private timer$: Observable<number>;
-  private timer: Subscription | null = null;
-  timerSubscription: Subscription | null = null;
 
   // Subjects for broadcasting timer states
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
-  public elapsedTime$ = this.elapsedTimeSubject.asObservable().pipe(
-    tap((elapsedTime) => console.log("Elapsed time emitted:", elapsedTime))
-  );
+  public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
-  private isStart = new Subject<number>();
-  private isStop = new Subject<number>();
-  private isReset = new Subject<number>();
+  private isStart = new Subject<void>();
+  private isStop = new Subject<void>();
+  private isReset = new Subject<void>();
 
   public start$ = this.isStart.asObservable();
   public stop$ = this.isStop.asObservable();
   public reset$ = this.isReset.asObservable();
+
+  private timer$: ReturnType<typeof timer>;
+  private timerSubscription: Subscription | null = null;
+
+  elapsedTimes: number[] = [];
+  completionTime: number;
+  timeLeft = 0;
+  private timer: Subscription | null = null;
 
   timeUpSubject = new Subject<boolean>();
   timeRemainingSubject = new BehaviorSubject<number>(0);
@@ -48,7 +48,7 @@ export class TimerService {
     this.timer?.unsubscribe();
   }
 
-  stopTimer(callback?: (elapsedTime: number) => void): void {
+  /* stopTimer(callback?: (elapsedTime: number) => void): void {
     console.log("Entered stopTimer()");
     // if (!this.isTimerRunning) return;
     if (!this.isTimerRunning) {
@@ -59,7 +59,7 @@ export class TimerService {
     console.log("Stopping timer...");
     this.isTimerRunning = false;
 
-    /* if (this.timer) {
+    // if (this.timer) {
       try {
         this.timer.unsubscribe(); // Unsubscribe from the timer observable
         console.log("Timer unsubscribed.");
@@ -69,7 +69,7 @@ export class TimerService {
       this.timer = null;
     } else {
       console.warn("Timer subscription is invalid or already cleared.");
-    } */
+    }
     if (this.timer) {
       this.timer.unsubscribe();
       this.timer = null;
@@ -83,6 +83,32 @@ export class TimerService {
       console.log("Executing stopTimer callback...");
       callback(this.elapsedTime);
       console.log("Callback executed. Elapsed time:", this.elapsedTime);
+    }
+
+    console.log("Timer stopped. Elapsed time:", this.elapsedTime);
+  } */
+  /** Stops the timer */
+  stopTimer(callback?: (elapsedTime: number) => void): void {
+    console.log("Entered stopTimer()");
+    if (!this.isTimerRunning) {
+      console.warn("Timer is not running. Nothing to stop.");
+      return;
+    }
+
+    console.log("Stopping timer...");
+    this.isTimerRunning = false;
+
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+      this.timerSubscription = null;
+      console.log("Timer subscription cleared.");
+    }
+
+    this.isStop.next(); // Emit stop signal
+
+    if (callback) {
+      callback(this.elapsedTime);
+      console.log("Elapsed time recorded in callback:", this.elapsedTime);
     }
 
     console.log("Timer stopped. Elapsed time:", this.elapsedTime);
@@ -120,7 +146,7 @@ export class TimerService {
       complete: () => console.log('Timer completed.'),
     });
   } */
-  startTimer(duration: number = this.timePerQuestion): void {
+  /* startTimer(duration: number = this.timePerQuestion): void {
     console.log("Attempting to start timer...");
     
     // Prevent multiple timers from running
@@ -157,9 +183,44 @@ export class TimerService {
       error: (err) => console.error("Timer error:", err),
       complete: () => console.log("Timer completed.")
     });
-  }
+  } */
+  /** Starts the timer */
+  startTimer(duration: number = this.timePerQuestion): void {
+    console.log("Attempting to start timer...");
+    if (this.isTimerRunning) {
+      console.warn("Timer is already running.");
+      return;
+    }
 
-  resetTimer(): void {
+    this.isTimerRunning = true;
+    this.elapsedTime = 0;
+    this.isStart.next(); // Emit start signal
+
+    this.timer$ = timer(0, 1000).pipe(
+      tap((elapsedTime) => {
+        this.elapsedTime = elapsedTime;
+        this.elapsedTimeSubject.next(elapsedTime);
+        console.log("Elapsed time updated:", elapsedTime);
+
+        if (elapsedTime >= duration) {
+          console.log("Time is up!");
+          this.stopTimer();
+        }
+      }),
+      takeUntil(this.isStop), // Stop when stop signal is emitted
+      takeUntil(this.isReset) // Reset when reset signal is emitted
+    );
+
+    this.timerSubscription = this.timer$.subscribe({
+      next: () => console.log("Timer tick"),
+      error: (err) => console.error("Timer error:", err),
+      complete: () => console.log("Timer completed.")
+    });
+
+    console.log("Timer started for duration:", duration);
+  }
+  
+  /* resetTimer(): void {
     console.log("Attempting to reset timer...");
     if (this.isTimerRunning) {
       console.log("Timer is running. Stopping before resetting...");
@@ -171,6 +232,17 @@ export class TimerService {
     this.isReset.next(1); // Emit reset signal
     this.elapsedTimeSubject.next(0); // Update elapsed time to 0
     console.log("Timer reset. isTimerRunning:", this.isTimerRunning);
+  } */
+  /** Resets the timer */
+  resetTimer(): void {
+    console.log("Attempting to reset timer...");
+    this.stopTimer(); // Ensure timer is stopped before resetting
+
+    this.elapsedTime = 0;
+    this.isTimerRunning = false;
+    this.isReset.next(); // Emit reset signal
+    this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
+    console.log("Timer reset.");
   }
 
   setElapsed(time: number): void {
