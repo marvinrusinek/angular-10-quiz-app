@@ -78,6 +78,14 @@ export class TimerComponent implements OnInit {
     }); */
 
     console.log(`Timer switched to ${type}`);
+
+    this.timerService.reset$.subscribe(() => {
+      console.log("Timer reset signal received in TimerComponent.");
+    });
+
+    this.timerService.stop$.subscribe(() => {
+        console.log("Timer stop signal received in TimerComponent.");
+    });
   }
 
   private getTimeObservable(type: TimerType): Observable<number> {
