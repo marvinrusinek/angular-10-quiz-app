@@ -117,13 +117,14 @@ export class TimerService {
 
   resetTimer(): void {
     console.log("Attempting to reset timer...");
-    if (!this.isTimerRunning && this.elapsedTime === 0) {
+    if (!this.isTimerRunning) {
       console.warn("Timer is already reset. Skipping redundant reset.");
-      return;
+      this.stopTimer();
+      // return;
     }
   
     console.log("Timer is running. Stopping before resetting...");
-    this.stopTimer(); // Stop the timer only if it is running
+    // this.stopTimer(); // Stop the timer only if it is running
 
     this.elapsedTime = 0; // Reset elapsed time
     this.isTimerRunning = false; // Ensure timer state is reset
