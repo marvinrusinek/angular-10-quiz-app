@@ -70,10 +70,16 @@ export class TimerComponent implements OnInit {
       console.log("Previous timer subscription cleared.");
     }
 
-    this.currentTimerType = type;
+    if (this.currentTimerType !== type) {
+      this.currentTimerType = type;
+      this.timeLeft$ = this.getTimeObservable(type); // Reset and initialize the new timer type
+      console.log(`Timer switched to ${type}`);
+    }
+
+    // this.currentTimerType = type;
 
     // Reset and initialize the new timer type
-    this.timeLeft$ = this.getTimeObservable(type);
+    /// this.timeLeft$ = this.getTimeObservable(type);
     /* this.activeTimerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => {
         console.log(`Time left (${type}):`, timeLeft);
