@@ -80,22 +80,22 @@ export class TimerService {
     }
 
     this.isTimerRunning = true;
-    this.elapsedTime = 0;
-    this.isStart.next(); // Emit start signal
+    this.elapsedTime = 0; // Reset elapsed time
+    this.isStart.next(1); // Emit start signal
 
     this.timer$ = timer(0, 1000).pipe(
       tap((elapsedTime) => {
         this.elapsedTime = elapsedTime;
-        this.elapsedTimeSubject.next(elapsedTime);
+        // this.elapsedTimeSubject.next(elapsedTime);
         console.log("Elapsed time updated:", elapsedTime);
 
         if (elapsedTime >= duration) {
           console.log("Time is up!");
-          this.stopTimer();
+          this.stopTimer(); // Call stopTimer when time is up
         }
       }),
-      takeUntil(this.isStop), // Stop when stop signal is emitted
-      takeUntil(this.isReset) // Reset when reset signal is emitted
+      takeUntil(this.stop$), // Stop timer when stop signal is emitted
+      takeUntil(this.reset$) // Reset timer when reset signal is emitted
     );
 
     this.timerSubscription = this.timer$.subscribe({
