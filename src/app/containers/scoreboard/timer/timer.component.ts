@@ -53,31 +53,19 @@ export class TimerComponent implements OnInit {
     // Default timer setup
     this.setTimerType(this.timerType.Countdown);
 
-    // Initialize timeLeft$ to display remaining time
+    // Define timeLeft$ once and use it for displaying remaining time
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
       tap((timeLeft) => console.log("Time left updated in TimerComponent:", timeLeft))
     );
 
-    // Subscribe to timeLeft$ for updates
-    this.timeLeft$.subscribe({
-      next: (timeLeft) => console.log("Displayed time left:", timeLeft),
-      error: (err) => console.error("Error updating displayed time left:", err),
-    });
-
-    // Log timer reset events
+    // Log timer reset and stop signals
     this.timerService.reset$.subscribe(() => {
-      console.log("Timer reset signal received in TimerComponent.");
+        console.log("Timer reset signal received in TimerComponent.");
     });
 
-    // Log timer stop events
     this.timerService.stop$.subscribe(() => {
-      console.log("Timer stop signal received in TimerComponent.");
-    });
-
-    // Log elapsed time updates
-    this.timerService.elapsedTime$.subscribe((elapsedTime) => {
-      console.log("Elapsed time updated:", elapsedTime);
+        console.log("Timer stop signal received in TimerComponent.");
     });
   }
 
