@@ -59,7 +59,7 @@ export class TimerService {
     console.log("Stopping timer...");
     this.isTimerRunning = false;
 
-    if (this.timer) {
+    /* if (this.timer) {
       try {
         this.timer.unsubscribe(); // Unsubscribe from the timer observable
         console.log("Timer unsubscribed.");
@@ -69,6 +69,11 @@ export class TimerService {
       this.timer = null;
     } else {
       console.warn("Timer subscription is invalid or already cleared.");
+    } */
+    if (this.timer) {
+      this.timer.unsubscribe();
+      this.timer = null;
+      console.log("Timer unsubscribed.");
     }
 
     this.isStop.next(1); // Emit stop signal to observers
@@ -138,8 +143,8 @@ export class TimerService {
 
         // Stop the timer automatically when duration is reached
         if (elapsedTime >= duration) {
-          this.stopTimer();
           console.log("Time is up!");
+          this.stopTimer();
         }
       }),
       takeUntil(this.stop$), // Stop timer when stop signal is emitted
