@@ -6,6 +6,7 @@ import { takeUntil, tap } from 'rxjs/operators';
 export class TimerService {
   timePerQuestion = 30;
   private elapsedTime = 0;
+  completionTime: number;
   isTimerRunning = false;
 
   // Subjects for broadcasting timer states
@@ -24,12 +25,7 @@ export class TimerService {
   private timerSubscription: Subscription | null = null;
 
   elapsedTimes: number[] = [];
-  completionTime: number;
-  timeLeft = 0;
   private timer: Subscription | null = null;
-
-  timeUpSubject = new Subject<boolean>();
-  timeRemainingSubject = new BehaviorSubject<number>(0);
 
   constructor() {
     // Configure the timer observable
