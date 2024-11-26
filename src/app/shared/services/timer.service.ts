@@ -117,7 +117,7 @@ export class TimerService {
 
   resetTimer(): void {
     console.log("Attempting to reset timer...");
-    if (!this.isTimerRunning) {
+    if (!this.isTimerRunning && this.elapsedTime === 0) {
       console.warn("Timer is already reset. Skipping redundant reset.");
       return;
     }
