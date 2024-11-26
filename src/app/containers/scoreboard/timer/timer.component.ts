@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { concat, Observable, Subscription } from 'rxjs';
-import { catchError, first, map } from 'rxjs/operators';
+import { catchError, first, map, tap } from 'rxjs/operators';
 
 import { CountdownService } from '../../../shared/services/countdown.service';
 import { StopwatchService } from '../../../shared/services/stopwatch.service';
@@ -52,6 +52,28 @@ export class TimerComponent implements OnInit {
   
     // Default timer setup
     this.setTimerType(this.timerType.Countdown);
+
+    this.timeLeft$.subscribe({
+      next: (timeLeft) => console.log("Displayed time left:", timeLeft),
+      error: (err) => console.error("Error updating displayed time left:", err),
+    });
+
+    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+      map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
+      tap((timeLeft) => console.log("Time left updated in TimerComponent:", timeLeft))
+    );
+
+    this.timerService.elapsedTime$.subscribe((elapsedTime) => {
+      console.log("Elapsed time updated:", elapsedTime);
+    });
+
+    this.timerService.reset$.subscribe(() => {
+      console.log("Timer reset signal received in TimerComponent.");
+    });
+
+    this.timerService.stop$.subscribe(() => {
+      console.log("Timer stop signal received in TimerComponent.");
+    });
   }
 
   setTimerType(type: TimerType): void {
@@ -78,18 +100,6 @@ export class TimerComponent implements OnInit {
     }); */
 
     console.log(`Timer switched to ${type}`);
-
-    this.timerService.elapsedTime$.subscribe((elapsedTime) => {
-      console.log("Elapsed time updated:", elapsedTime);
-    });
-
-    this.timerService.reset$.subscribe(() => {
-      console.log("Timer reset signal received in TimerComponent.");
-    });
-
-    this.timerService.stop$.subscribe(() => {
-      console.log("Timer stop signal received in TimerComponent.");
-    });
   }
 
   private getTimeObservable(type: TimerType): Observable<number> {
