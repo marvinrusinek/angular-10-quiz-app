@@ -1510,7 +1510,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectedOptionService.isAnsweredSubject.next(false);
       console.log('Next button remains disabled.');
     }
-  
 
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
