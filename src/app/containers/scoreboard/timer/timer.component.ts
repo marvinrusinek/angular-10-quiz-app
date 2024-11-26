@@ -79,6 +79,10 @@ export class TimerComponent implements OnInit {
 
     console.log(`Timer switched to ${type}`);
 
+    this.timerService.elapsedTime$.subscribe((elapsedTime) => {
+      console.log("Elapsed time updated:", elapsedTime);
+    });
+
     this.timerService.reset$.subscribe(() => {
       console.log("Timer reset signal received in TimerComponent.");
     });
