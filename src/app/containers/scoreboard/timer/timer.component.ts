@@ -69,18 +69,18 @@ export class TimerComponent implements OnInit {
       this.activeTimerSubscription.unsubscribe(); // Stop any ongoing timer
       console.log("Previous timer subscription cleared.");
     }
-
+  
+    // Only update if the timer type has changed
     if (this.currentTimerType !== type) {
-      this.currentTimerType = type;
-      this.timeLeft$ = this.getTimeObservable(type); // Reset and initialize the new timer type
+      this.currentTimerType = type; // Update the current timer type
       console.log(`Timer switched to ${type}`);
     }
-
-    // this.currentTimerType = type;
-
-    // Reset and initialize the new timer type
-    /// this.timeLeft$ = this.getTimeObservable(type);
-    /* this.activeTimerSubscription = this.timeLeft$.subscribe({
+  
+    // Reset and initialize the new timer observable
+    this.timeLeft$ = this.getTimeObservable(type);
+  
+    // Subscribe to the new timer and log the updates
+    this.activeTimerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => {
         console.log(`Time left (${type}):`, timeLeft);
       },
@@ -90,11 +90,9 @@ export class TimerComponent implements OnInit {
       complete: () => {
         console.log(`${type} timer completed.`);
       },
-    }); */
-
-    console.log(`Timer switched to ${type}`);
+    });
   }
-
+  
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
       case TimerType.Countdown:
