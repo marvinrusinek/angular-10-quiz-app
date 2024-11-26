@@ -84,7 +84,7 @@ export class TimerComponent implements OnInit {
     });
 
     this.timerService.stop$.subscribe(() => {
-        console.log("Timer stop signal received in TimerComponent.");
+      console.log("Timer stop signal received in TimerComponent.");
     });
   }
 
