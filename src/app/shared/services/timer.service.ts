@@ -12,7 +12,7 @@ export class TimerService {
   isTimerRunning = false;
   private timer$: Observable<number>;
   private timer: Subscription | null = null;
-  private timerSubscription: Subscription | null = null;
+  timerSubscription: Subscription | null = null;
 
   // Subjects for broadcasting timer states
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
