@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, Subscription, timer } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class TimerService {
@@ -17,9 +17,9 @@ export class TimerService {
   private isStop = new Subject<void>();
   private isReset = new Subject<void>();
 
-  public start$ = this.isStart.asObservable();
-  public stop$ = this.isStop.asObservable();
-  public reset$ = this.isReset.asObservable();
+  public start$: Observable<number>;
+  public stop$: Observable<number>;
+  public reset$: Observable<number>;
 
   private timer$: ReturnType<typeof timer>;
   private timerSubscription: Subscription | null = null;
@@ -28,6 +28,11 @@ export class TimerService {
   private timer: Subscription | null = null;
 
   constructor() {
+    // Map each signal to a `number`, defaulting to the current timePerQuestion
+    this.start$ = this.isStart.asObservable().pipe(map(() => this.timePerQuestion));
+    this.stop$ = this.isStop.asObservable().pipe(map(() => 0)); // Emit 0 on stop
+    this.reset$ = this.isReset.asObservable().pipe(map(() => 0)); // Emit 0 on reset
+
     // Configure the timer observable
     this.timer$ = timer(0, 1000).pipe(
       tap(() => {
