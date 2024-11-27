@@ -5,27 +5,27 @@ import { map, takeUntil, tap } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 30;
-  private elapsedTime = 0;
+  elapsedTime = 0;
   completionTime: number;
+  elapsedTimes: number[] = [];
+
   isTimerRunning = false;
+  private timer$: Observable<number>;
+  private timer: Subscription | null = null;
+  private timerSubscription: Subscription | null = null;
 
-  // Subjects for broadcasting timer states
-  private elapsedTimeSubject = new BehaviorSubject<number>(0);
-  public elapsedTime$ = this.elapsedTimeSubject.asObservable();
-
+  // Signals
   private isStart = new Subject<void>();
   private isStop = new Subject<void>();
   private isReset = new Subject<void>();
 
-  public start$: Observable<number>;
-  public stop$: Observable<number>;
-  public reset$: Observable<number>;
+  public start$ = this.isStart.asObservable();
+  public stop$ = this.isStop.asObservable();
+  public reset$ = this.isReset.asObservable();
 
-  private timer$: ReturnType<typeof timer>;
-  private timerSubscription: Subscription | null = null;
-
-  elapsedTimes: number[] = [];
-  private timer: Subscription | null = null;
+  // Elapsed time observable
+  private elapsedTimeSubject = new BehaviorSubject<number>(0);
+  public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
   constructor() {
     // Map each signal to a `number`, defaulting to the current timePerQuestion
