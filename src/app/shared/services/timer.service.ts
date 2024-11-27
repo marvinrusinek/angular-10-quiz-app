@@ -99,14 +99,14 @@ export class TimerService {
     }
   
     // Reinitialize the stop and reset subjects
-    this.isStop = new Subject<void>();
-    this.isReset = new Subject<void>();
+    // this.isStop = new Subject<void>();
+    // this.isReset = new Subject<void>();
   
     this.isTimerRunning = true;
     this.elapsedTime = 0;
     this.isStart.next(); // Emit start signal
   
-    this.timer$ = timer(0, 1000).pipe(
+    /* this.timer$ = timer(0, 1000).pipe(
       takeUntil(this.isStop),
       takeUntil(this.isReset),
       tap((elapsedTime) => {
@@ -125,7 +125,23 @@ export class TimerService {
       next: () => console.log("Timer tick"),
       error: (err) => console.error("Timer error:", err),
       complete: () => console.log("Timer completed.")
-    });
+    }); */
+    const timer$ = timer(0, 1000).pipe(
+      tap((elapsedTime) => {
+        this.elapsedTime = elapsedTime;
+        this.elapsedTimeSubject.next(elapsedTime);
+        console.log('Elapsed time updated:', elapsedTime);
+
+        if (elapsedTime >= duration) {
+          console.log('Time is up!');
+          this.stopTimer();
+        }
+      }),
+      takeUntil(this.isStop),
+      takeUntil(this.isReset)
+    );
+
+    this.timerSubscription = timer$.subscribe();
   
     console.log("Timer started for duration:", duration);
   }
