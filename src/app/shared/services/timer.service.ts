@@ -120,6 +120,9 @@ export class TimerService {
       this.stopTimer(); // Ensure timer is stopped before resetting
     }
 
+    this.isStop = new Subject<void>();
+    this.isReset = new Subject<void>();
+
     this.elapsedTime = 0;
     this.isTimerRunning = false;
     this.isReset.next(); // Emit reset signal
