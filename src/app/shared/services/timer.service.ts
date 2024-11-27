@@ -66,6 +66,10 @@ export class TimerService {
     }
 
     this.isStop.next(); // Emit stop signal
+    this.isStop.complete(); // Complete the Subject
+
+    // Reinitialize isStop for future timers
+    this.isStop = new Subject<void>();
 
     if (callback) {
       callback(this.elapsedTime);
@@ -84,10 +88,6 @@ export class TimerService {
         console.warn("Timer is already running.");
         return;
     }
-
-    // Reinitialize stop and reset subjects to handle fresh signals
-    this.isStop = new Subject<void>();
-    this.isReset = new Subject<void>();
 
     this.isTimerRunning = true; // Mark the timer as running
     this.elapsedTime = 0; // Reset elapsed time
@@ -135,6 +135,11 @@ export class TimerService {
     this.elapsedTime = 0;
     this.isTimerRunning = false;
     this.isReset.next(); // Emit reset signal
+    this.isReset.complete(); // Complete the Subject
+
+    // Reinitialize isReset for future timers
+    this.isReset = new Subject<void>();
+    
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
     console.log("Timer reset.");
   }
