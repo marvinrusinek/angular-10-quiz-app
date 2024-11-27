@@ -28,6 +28,7 @@ export class TimerService {
   public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
   constructor() {
+    console.log('TimerService initialized.');
     // Map each signal to a `number`, defaulting to the current timePerQuestion
     this.start$ = this.isStart.asObservable().pipe(map(() => this.timePerQuestion));
     this.stop$ = this.isStop.asObservable().pipe(map(() => 0)); // Emit 0 on stop
@@ -99,6 +100,7 @@ export class TimerService {
     this.isTimerRunning = true; // Mark the timer as running
     this.elapsedTime = 0; // Reset elapsed time
     this.isStart.next(); // Emit start signal
+    this.elapsedTimeSubject.next(0); // Reset elapsed time observable
 
     // Create a new timer observable for the specified duration
     this.timer$ = timer(0, 1000).pipe(
@@ -118,11 +120,12 @@ export class TimerService {
     );
 
     // Subscribe to the timer observable
-    this.timerSubscription = this.timer$.subscribe({
+    /* this.timerSubscription = this.timer$.subscribe({
         next: () => console.log("Timer tick"), // Log each tick
         error: (err) => console.error("Timer error:", err), // Handle errors
         complete: () => console.log("Timer completed.") // Handle completion
-    });
+    }); */
+    this.timerSubscription = this.timer$.subscribe();
 
     console.log("Timer started for duration:", duration);
   }
