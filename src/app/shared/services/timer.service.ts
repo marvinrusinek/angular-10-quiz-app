@@ -36,8 +36,12 @@ export class TimerService {
           console.log('Timer tick:', this.elapsedTime);
         }
       }),
-      takeUntil(this.isStop) // Stop the timer when stop signal is emitted
+      takeUntil(this.isStop),
+      takeUntil(this.isReset)
     );
+
+    this.isStop.subscribe(() => console.log("Stop signal received in TimerService."));
+    this.isReset.subscribe(() => console.log("Reset signal received in TimerService."));
   }
 
   ngOnDestroy(): void {
