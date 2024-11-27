@@ -64,20 +64,23 @@ export class TimerService {
 
     console.log("Stopping timer...");
     this.isTimerRunning = false;
-    this.isStop.next(); // Emit stop signal
+    // this.isStop.next(); // Emit stop signal
     console.log('Stop signal emitted.');
     // this.isStop.complete(); // Complete the Subject
 
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
-      this.timerSubscription = null;
       console.log("Timer subscription cleared.");
+      this.timerSubscription = null;
     } else {
       console.warn("No active timer subscription to unsubscribe.");
     }
 
+    // Emit the stop signal
+    this.isStop.next();
+
     // Reinitialize isStop for future timers
-    this.isStop = new Subject<void>();
+    // this.isStop = new Subject<void>();
 
     if (callback) {
       callback(this.elapsedTime);
