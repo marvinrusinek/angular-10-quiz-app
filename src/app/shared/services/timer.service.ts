@@ -5,11 +5,11 @@ import { map, takeUntil, tap } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 30;
-  elapsedTime = 0;
+  private elapsedTime = 0;
   completionTime: number;
   elapsedTimes: number[] = [];
 
-  isTimerRunning = false;
+  private isTimerRunning = false;
   private timer$: Observable<number>;
   private timer: Subscription | null = null;
   private timerSubscription: Subscription | null = null;
