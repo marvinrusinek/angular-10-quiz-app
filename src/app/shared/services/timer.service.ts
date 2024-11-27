@@ -64,8 +64,8 @@ export class TimerService {
 
     console.log("Stopping timer...");
     this.isTimerRunning = false;
-
     this.isStop.next(); // Emit stop signal
+    console.log('Stop signal emitted.');
     // this.isStop.complete(); // Complete the Subject
 
     if (this.timerSubscription) {
@@ -140,8 +140,8 @@ export class TimerService {
       this.stopTimer(); // Ensure timer is stopped before resetting
     } */
 
-    this.isStop = new Subject<void>();
-    this.isReset = new Subject<void>();
+    //this.isStop = new Subject<void>();
+    //this.isReset = new Subject<void>();
 
     this.elapsedTime = 0;
     this.isTimerRunning = false;
