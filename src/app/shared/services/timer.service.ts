@@ -137,13 +137,13 @@ export class TimerService {
       this.stopTimer();
     }
   
-    this.isStop = new Subject<void>();
-    this.isReset = new Subject<void>();
+    this.isStop = new Subject<void>(); // Reinitialize stop subject
+    this.isReset = new Subject<void>(); // Reinitialize reset subject
   
     this.elapsedTime = 0;
-    this.isTimerRunning = false;
-    this.isReset.next(); // Emit reset signal
+    // this.isReset.next(); // Emit reset signal
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
+    this.isTimerRunning = false;
     console.log("Timer reset.");
   }  
 
