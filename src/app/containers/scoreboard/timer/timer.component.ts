@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { concat, Observable, Subscription } from 'rxjs';
+import { concat, Observable, of, Subscription } from 'rxjs';
 import { catchError, first, map, tap } from 'rxjs/operators';
 
 import { CountdownService } from '../../../shared/services/countdown.service';
@@ -40,13 +40,23 @@ export class TimerComponent implements OnInit {
     this.start$ = this.timerService.start$;
     this.reset$ = this.timerService.reset$;
     this.stop$ = this.timerService.stop$;
-    this.concat$ = concat(
+    /* this.concat$ = concat(
       this.start$.pipe(first(), map(value => +value)),
       this.reset$.pipe(first(), map(value => +value))
     ).pipe(
       catchError(err => {
         console.error('Error in concat$', err);
         return [];
+      })
+    ) as Observable<number>; */
+    this.concat$ = concat(
+      this.start$.pipe(first(), map((duration) => duration)), // React to start signals
+      this.reset$.pipe(first(), map(() => 0)), // Reset timer on reset signals
+      this.stop$.pipe(first(), map(() => 0)) // Stop timer on stop signals
+    ).pipe(
+      catchError((err) => {
+        console.error('Error in concat$:', err);
+        return of(0); // Default fallback value
       })
     ) as Observable<number>;
   
