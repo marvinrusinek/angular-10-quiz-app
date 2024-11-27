@@ -64,14 +64,16 @@ export class TimerService {
     console.log("Stopping timer...");
     this.isTimerRunning = false;
 
+    this.isStop.next(); // Emit stop signal
+    // this.isStop.complete(); // Complete the Subject
+
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
       this.timerSubscription = null;
       console.log("Timer subscription cleared.");
+    } else {
+      console.warn("No active timer subscription to unsubscribe.");
     }
-
-    this.isStop.next(); // Emit stop signal
-    this.isStop.complete(); // Complete the Subject
 
     // Reinitialize isStop for future timers
     this.isStop = new Subject<void>();
@@ -129,10 +131,11 @@ export class TimerService {
   /** Resets the timer */
   resetTimer(): void {
     console.log("Attempting to reset timer...");
-    if (this.isTimerRunning) {
+    this.stopTimer();
+    /* if (this.isTimerRunning) {
       console.log("Timer is running. Stopping before resetting...");
       this.stopTimer(); // Ensure timer is stopped before resetting
-    }
+    } */
 
     this.isStop = new Subject<void>();
     this.isReset = new Subject<void>();
@@ -140,10 +143,10 @@ export class TimerService {
     this.elapsedTime = 0;
     this.isTimerRunning = false;
     this.isReset.next(); // Emit reset signal
-    this.isReset.complete(); // Complete the Subject
+    // this.isReset.complete(); // Complete the Subject
 
     // Reinitialize isReset for future timers
-    this.isReset = new Subject<void>();
+    // this.isReset = new Subject<void>();
     
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
     console.log("Timer reset.");
