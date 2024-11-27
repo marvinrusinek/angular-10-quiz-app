@@ -59,6 +59,17 @@ export class TimerComponent implements OnInit {
         return of(0); // Default fallback value
       })
     ) as Observable<number>;
+
+    // React to the elapsed time
+    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+      map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
+      tap((timeLeft) => {
+        console.log("Time left updated in TimerComponent:", timeLeft);
+        if (timeLeft === 0) {
+          console.log("Timer reached zero.");
+        }
+      })
+    );
   
     /* this.timeLeft$.subscribe({
       next: (timeLeft) => console.log("Displayed time left:", timeLeft),
