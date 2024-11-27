@@ -55,7 +55,8 @@ export class TimerService {
   }
 
   /** Stops the timer */
-  stopTimer(callback?: (elapsedTime: number) => void): void {
+  // stopTimer(callback?: (elapsedTime: number) => void): void {
+  stopTimer(): void {
     console.log("Entered stopTimer()");
     if (!this.isTimerRunning) {
       console.warn("Timer is not running. Nothing to stop.");
@@ -82,10 +83,10 @@ export class TimerService {
     // Reinitialize isStop for future timers
     // this.isStop = new Subject<void>();
 
-    if (callback) {
+    /* if (callback) {
       callback(this.elapsedTime);
       console.log("Elapsed time recorded in callback:", this.elapsedTime);
-    }
+    } */
 
     console.log("Timer stopped. Elapsed time:", this.elapsedTime);
   }
