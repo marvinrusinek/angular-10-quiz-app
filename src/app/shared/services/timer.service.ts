@@ -107,6 +107,8 @@ export class TimerService {
     this.isStart.next(); // Emit start signal
   
     this.timer$ = timer(0, 1000).pipe(
+      takeUntil(this.isStop),
+      takeUntil(this.isReset),
       tap((elapsedTime) => {
         this.elapsedTime = elapsedTime;
         this.elapsedTimeSubject.next(elapsedTime);
@@ -114,11 +116,9 @@ export class TimerService {
   
         if (elapsedTime >= duration) {
           console.log("Time is up!");
-          this.stopTimer();
+          this.stopTimer(); // Stop the timer when time is up
         }
-      }),
-      takeUntil(this.isStop),
-      takeUntil(this.isReset)
+      })
     );
   
     this.timerSubscription = this.timer$.subscribe({
