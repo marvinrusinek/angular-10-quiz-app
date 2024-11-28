@@ -157,7 +157,7 @@ export class TimerService {
     }
   
     this.elapsedTime = 0;
-    this.isReset.next(); // Emit reset signal
+    this.isReset.next(0); // Emit reset signal
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
     this.isTimerRunning = false;
     console.log("Timer reset.");
