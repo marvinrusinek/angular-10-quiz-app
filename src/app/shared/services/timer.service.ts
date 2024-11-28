@@ -15,13 +15,13 @@ export class TimerService {
   private timerSubscription: Subscription | null = null;
 
   // Signals
-  private isStart = new Subject<void>();
-  private isStop = new Subject<void>();
-  private isReset = new Subject<void>();
+  private isStart = new Subject<number>();
+  private isStop = new Subject<number>();
+  private isReset = new Subject<number>();
 
-  public start$ = this.isStart.asObservable();
-  public stop$ = this.isStop.asObservable();
-  public reset$ = this.isReset.asObservable();
+  public start$: Observable<number>;
+  public stop$: Observable<number>;
+  public reset$: Observable<number>;
 
   // Elapsed time observable
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
