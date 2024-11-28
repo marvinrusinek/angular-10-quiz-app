@@ -120,13 +120,7 @@ export class TimerService {
           this.stopTimer(); // Stop the timer when time is up
         }
       })
-    );
-  
-    this.timerSubscription = this.timer$.subscribe({
-      next: () => console.log("Timer tick"),
-      error: (err) => console.error("Timer error:", err),
-      complete: () => console.log("Timer completed.")
-    }); */
+    ); */
     const timer$ = timer(0, 1000).pipe(
       tap((tick) => {
         this.elapsedTime = tick;
@@ -143,7 +137,12 @@ export class TimerService {
       finalize(() => console.log('Timer finalized.'))
     );
 
-    this.timerSubscription = timer$.subscribe();
+    // this.timerSubscription = timer$.subscribe();
+    this.timerSubscription = this.timer$.subscribe({
+      next: () => console.log('Timer tick:', this.elapsedTime),
+      error: (err) => console.error('Timer error:', err),
+      complete: () => console.log('Timer completed.')
+    });
   
     console.log("Timer started for duration:", duration);
   }
@@ -157,7 +156,7 @@ export class TimerService {
     }
   
     this.elapsedTime = 0;
-    // this.isReset.next(); // Emit reset signal
+    this.isReset.next(); // Emit reset signal
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
     this.isTimerRunning = false;
     console.log("Timer reset.");
