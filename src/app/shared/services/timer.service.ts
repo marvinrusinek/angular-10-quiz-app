@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { finalize, map, takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class TimerService {
@@ -55,8 +55,7 @@ export class TimerService {
   }
 
   /** Stops the timer */
-  // stopTimer(callback?: (elapsedTime: number) => void): void {
-  stopTimer(): void {
+  stopTimer(callback?: (elapsedTime: number) => void): void {
     console.log("Entered stopTimer()");
     if (!this.isTimerRunning) {
       console.warn("Timer is not running. Nothing to stop.");
@@ -83,10 +82,10 @@ export class TimerService {
     // Reinitialize isStop for future timers
     // this.isStop = new Subject<void>();
 
-    /* if (callback) {
+    if (callback) {
       callback(this.elapsedTime);
       console.log("Elapsed time recorded in callback:", this.elapsedTime);
-    } */
+    }
 
     console.log("Timer stopped. Elapsed time:", this.elapsedTime);
   }
@@ -128,18 +127,19 @@ export class TimerService {
       complete: () => console.log("Timer completed.")
     }); */
     const timer$ = timer(0, 1000).pipe(
-      tap((elapsedTime) => {
-        this.elapsedTime = elapsedTime;
-        this.elapsedTimeSubject.next(elapsedTime);
-        console.log('Elapsed time updated:', elapsedTime);
+      tap((tick) => {
+        this.elapsedTime = tick;
+        this.elapsedTimeSubject.next(this.elapsedTime);
+        console.log('Elapsed time updated:', this.elapsedTime);
 
-        if (elapsedTime >= duration) {
+        // Stop automatically when duration is reached
+        if (tick >= duration) {
           console.log('Time is up!');
           this.stopTimer();
         }
       }),
       takeUntil(this.isStop),
-      takeUntil(this.isReset)
+      finalize(() => console.log('Timer finalized.'))
     );
 
     this.timerSubscription = timer$.subscribe();
