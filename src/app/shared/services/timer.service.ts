@@ -43,7 +43,8 @@ export class TimerService {
           console.log('Elapsed time updated:', this.elapsedTime);
         }
       }),
-      takeUntil(this.isStop),
+      takeUntil(this.isStop), // Stop on stop signal
+      takeUntil(this.isReset), // Stop on reset signal
       finalize(() => console.log('Timer finalized.'))
     );
 
