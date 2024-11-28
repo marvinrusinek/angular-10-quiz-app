@@ -111,7 +111,7 @@ export class TimerComponent implements OnInit {
     this.timeLeft$ = this.getTimeObservable(type);
   
     // Subscribe to the new timer and log the updates
-    this.activeTimerSubscription = this.timeLeft$.subscribe({
+    /* this.activeTimerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => {
         console.log(`Time left (${type}):`, timeLeft);
       },
@@ -121,7 +121,7 @@ export class TimerComponent implements OnInit {
       complete: () => {
         console.log(`${type} timer completed.`);
       },
-    });
+    }); */
   }
   
   private getTimeObservable(type: TimerType): Observable<number> {
