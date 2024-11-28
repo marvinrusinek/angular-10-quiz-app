@@ -77,7 +77,7 @@ export class TimerService {
     }
 
     // Emit the stop signal
-    this.isStop.next();
+    this.isStop.next(0);
 
     // Reinitialize isStop for future timers
     // this.isStop = new Subject<void>();
@@ -104,7 +104,7 @@ export class TimerService {
   
     this.isTimerRunning = true;
     this.elapsedTime = 0;
-    this.isStart.next(); // Emit start signal
+    this.isStart.next(duration); // Emit start signal
   
     /* this.timer$ = timer(0, 1000).pipe(
       takeUntil(this.isStop),
@@ -169,6 +169,11 @@ export class TimerService {
 
   setElapsed(time: number): void {
     this.elapsedTime = time;
+  }
+
+  setDuration(duration: number): void {
+    this.timePerQuestion = duration;
+    console.log('Timer duration set to:', duration);
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
