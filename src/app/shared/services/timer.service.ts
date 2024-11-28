@@ -146,8 +146,6 @@ export class TimerService {
   
     console.log("Timer started for duration:", duration);
   }
-  
-  
 
   /** Resets the timer */
   resetTimer(): void {
@@ -156,9 +154,6 @@ export class TimerService {
       console.log("Timer is running. Stopping before resetting...");
       this.stopTimer();
     }
-  
-    this.isStop = new Subject<void>(); // Reinitialize stop subject
-    this.isReset = new Subject<void>(); // Reinitialize reset subject
   
     this.elapsedTime = 0;
     // this.isReset.next(); // Emit reset signal
