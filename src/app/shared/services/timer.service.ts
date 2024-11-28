@@ -39,11 +39,12 @@ export class TimerService {
       tap(() => {
         if (this.isTimerRunning) {
           this.elapsedTime++;
-          console.log('Timer tick:', this.elapsedTime);
+          this.elapsedTimeSubject.next(this.elapsedTime);
+          console.log('Elapsed time updated:', this.elapsedTime);
         }
       }),
       takeUntil(this.isStop),
-      takeUntil(this.isReset)
+      finalize(() => console.log('Timer finalized.'))
     );
 
     this.isStop.subscribe(() => console.log("Stop signal received in TimerService."));
