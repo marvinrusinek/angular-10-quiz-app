@@ -61,9 +61,12 @@ export class TimerComponent implements OnInit {
     ) as Observable<number>;
 
     // React to the elapsed time
-    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
       tap((timeLeft) => console.log('Time left updated in TimerComponent:', timeLeft))
+    ); */
+    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+      map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime)
     );
 
     /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
