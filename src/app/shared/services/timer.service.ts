@@ -66,20 +66,17 @@ export class TimerService {
 
     console.log("Stopping timer...");
     this.isTimerRunning = false;
-    // this.isStop.next(); // Emit stop signal
+    this.isStop.next(0); // Emit stop signal
     console.log('Stop signal emitted.');
     // this.isStop.complete(); // Complete the Subject
 
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
-      console.log("Timer subscription cleared.");
       this.timerSubscription = null;
+      console.log("Timer subscription cleared.");
     } else {
       console.warn("No active timer subscription to unsubscribe.");
     }
-
-    // Emit the stop signal
-    this.isStop.next(0);
 
     // Reinitialize isStop for future timers
     // this.isStop = new Subject<void>();
@@ -122,7 +119,7 @@ export class TimerService {
         }
       })
     ); */
-    const timer$ = timer(0, 1000).pipe(
+    /* const timer$ = timer(0, 1000).pipe(
       tap((tick) => {
         this.elapsedTime = tick;
         this.elapsedTimeSubject.next(this.elapsedTime);
@@ -136,7 +133,7 @@ export class TimerService {
       }),
       takeUntil(this.isStop),
       finalize(() => console.log('Timer finalized.'))
-    );
+    ); */
 
     // this.timerSubscription = timer$.subscribe();
     this.timerSubscription = this.timer$.subscribe({
@@ -157,9 +154,9 @@ export class TimerService {
     }
   
     this.elapsedTime = 0;
+    this.isTimerRunning = false;
     this.isReset.next(0); // Emit reset signal
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
-    this.isTimerRunning = false;
     console.log("Timer reset.");
   }  
 
