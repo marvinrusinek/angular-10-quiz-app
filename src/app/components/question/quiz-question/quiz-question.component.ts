@@ -1509,7 +1509,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Are all correct answers selected?', allCorrectAnswersSelected); */
   
     // Check if `correct` property exists and its value is true
-    if (Object.prototype.hasOwnProperty.call(option, 'correct')) {
+    if ('correct' in option) {
       console.log('Option has the `correct` property:', option.correct);
   
       if (option.correct === true) {
