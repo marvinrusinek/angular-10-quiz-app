@@ -1573,7 +1573,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-  private async areAllCorrectAnswersSelected(): Promise<boolean> {
+  /* private async areAllCorrectAnswersSelected(): Promise<boolean> {
     // Fetch the current question dynamically
     const question = await lastValueFrom(
       this.quizService.getQuestionByIndex(this.currentQuestionIndex)
@@ -1609,6 +1609,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     console.log('Are all correct options selected?', allSelectedCorrect);
     return allSelectedCorrect;
+  } */
+  private async areAllCorrectAnswersSelected(): Promise<boolean> {
+    // Logic to check if all correct answers are selected
+    // Replace with your specific implementation
+    const correctAnswers = this.currentQuestion.options.filter((o) => o.correct);
+    const selectedOptions = []; // Replace with actual selected options logic
+
+    return correctAnswers.every((correct) =>
+      selectedOptions.some((selected) => selected.optionId === correct.optionId)
+    );
   }
   
 
