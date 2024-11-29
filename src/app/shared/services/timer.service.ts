@@ -9,7 +9,7 @@ export class TimerService {
   completionTime: number;
   elapsedTimes: number[] = [];
 
-  private isTimerRunning = false;
+  isTimerRunning = false;
   private timer$: Observable<number>;
   private timer: Subscription | null = null;
   private timerSubscription: Subscription | null = null;

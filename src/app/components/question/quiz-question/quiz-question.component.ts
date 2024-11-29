@@ -1500,6 +1500,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (allCorrectAnswersSelected) {
       console.log("All correct answers selected. Stopping timer...");
+      const timerStopped = this.timerService.isTimerRunning;
+      this.timerService.stopTimer((elapsedTime: number) => {
+          if (timerStopped) {
+              this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
+              console.log("Elapsed time recorded:", elapsedTime);
+          }
+      });
+
       this.timerService.stopTimer((elapsedTime: number) => {
         this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
         console.log("Elapsed time recorded:", elapsedTime);
