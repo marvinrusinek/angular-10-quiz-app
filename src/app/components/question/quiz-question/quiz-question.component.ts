@@ -1464,6 +1464,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
+    console.log('onOptionClicked triggered:', event);
     const option = event.option;
   
     // Exit early if option or optionId is invalid
