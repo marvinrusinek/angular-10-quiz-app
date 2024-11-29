@@ -101,7 +101,7 @@ export class TimerService {
   
     this.isTimerRunning = true;
     this.elapsedTime = 0;
-    this.isStart.next(duration); // Emit start signal
+    // this.isStart.next(duration); // Emit start signal
   
     /* this.timer$ = timer(0, 1000).pipe(
       takeUntil(this.isStop),
@@ -134,11 +134,11 @@ export class TimerService {
     ); */
 
     // this.timerSubscription = timer$.subscribe();
-    this.timerSubscription = this.timer$.subscribe({
+    /* this.timerSubscription = this.timer$.subscribe({
       next: () => console.log('Timer tick:', this.elapsedTime),
       error: (err) => console.error('Timer error:', err),
       complete: () => console.log('Timer completed.')
-    });
+    }); */
   
     console.log("Timer started for duration:", duration);
   }
