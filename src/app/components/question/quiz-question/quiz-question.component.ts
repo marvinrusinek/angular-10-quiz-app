@@ -1672,12 +1672,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Selected Options:', JSON.stringify(selectedOptions, null, 2));
   
     // Check if all correct options are selected
-    const allSelectedCorrect = correctOptions.every((correctOption) =>
-      selectedOptions.some(
-        (selectedOption) =>
-          selectedOption.optionId === correctOption.optionId &&
-          selectedOption.correct === correctOption.correct
-      )
+    const allSelectedCorrect =
+    correctOptions.length > 0 && // Ensure there are correct options
+    correctOptions.every((correctOption) =>
+        selectedOptions.some(
+            (selectedOption) =>
+                selectedOption.optionId === correctOption.optionId &&
+                selectedOption.correct === correctOption.correct
+        )
     );
   
     console.log('Are all correct options selected?', allSelectedCorrect);
