@@ -874,12 +874,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setAnswered(false);
 
     // Manage the timer lifecycle
-    console.log('Stopping timer...');
-    this.timerService.stopTimer();
-    console.log('Resetting timer...');
-    this.timerService.resetTimer();
-    console.log('Starting timer for new question...');
-    this.timerService.startTimer();
+    this.manageTimer();
   
     // Clear previous data
     this.currentQuestion = null;
@@ -3357,6 +3352,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
     }
   }
+
+  private manageTimer(): void {
+    console.log('Managing timer lifecycle...');
+    
+    this.timerService.stopTimer(); // Stop the existing timer
+    setTimeout(() => {
+      this.timerService.resetTimer(); // Reset after stopping
+      this.timerService.startTimer(); // Start the new timer
+    }, 100); // Ensure proper sequence with a slight delay
+  }  
 
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
