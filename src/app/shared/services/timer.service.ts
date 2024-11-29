@@ -79,9 +79,6 @@ export class TimerService {
       console.warn("No active timer subscription to unsubscribe.");
     }
 
-    // Reinitialize isStop for future timers
-    // this.isStop = new Subject<void>();
-
     if (callback) {
       callback(this.elapsedTime);
       console.log("Elapsed time recorded in callback:", this.elapsedTime);
