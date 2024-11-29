@@ -1498,7 +1498,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
     console.log('Are all correct answers selected?', allCorrectAnswersSelected);
   
-    if (option.correct) {
+    // Check if `correct` property exists and its value is true
+    if (Object.prototype.hasOwnProperty.call(option, 'correct') && option.correct === true) {
       console.log("All correct answers selected. Stopping timer...");
       const timerWasRunning = this.timerService.isTimerRunning;
       console.log('Timer was running:', timerWasRunning);
