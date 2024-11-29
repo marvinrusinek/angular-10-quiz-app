@@ -944,32 +944,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('Quiz data already loaded, skipping load.');
       return true;
     }
-  
+
+    if (!this.quizId) {
+      console.error('Quiz ID is missing. Cannot fetch quiz data.');
+      return false;
+    }
+
     try {
+      console.log('Fetching quiz data for quizId:', this.quizId);
+
       // Fetch quiz data using quizId
       const quiz = await firstValueFrom(
         this.quizDataService.getQuiz(this.quizId).pipe(take(1), takeUntil(this.destroy$))
       ) as Quiz;
-  
+
       // Validate fetched data
-      if (quiz?.questions?.length > 0) {
-        this.quiz = quiz;
-        this.questions = quiz.questions;
-        this.currentQuestion = this.questions[this.currentQuestionIndex];
-        this.isQuizLoaded = true; // Mark as loaded
-        return true;
-      } else {
-        console.error('Quiz has no questions or quiz data is unavailable.');
+      if (!quiz) {
+        console.error('Quiz is null or undefined. Failed to load quiz data.');
+        return false;
       }
+
+      if (!quiz.questions || quiz.questions.length === 0) {
+        console.error('Quiz has no questions or questions array is missing:', quiz);
+        return false;
+      }
+
+      // Assign quiz data
+      this.quiz = quiz;
+      this.questions = quiz.questions;
+      this.currentQuestion = this.questions[this.currentQuestionIndex];
+      this.isQuizLoaded = true;
+
+      console.log('Quiz data loaded successfully:', this.quiz);
+      console.log('Total questions:', this.questions.length);
+      console.log('Current question index:', this.currentQuestionIndex);
+
+      return true;
     } catch (error) {
       console.error('Error loading quiz data:', error);
+      return false;
+    } finally {
+      // Ensure questions are reset on failure
+      if (!this.isQuizLoaded) {
+        console.warn('Quiz loading failed. Resetting questions to an empty array.');
+        this.questions = [];
+      }
     }
-  
-    // Handle failure cases
-    this.questions = []; // Ensure questions are reset to avoid undefined errors
-    this.isQuizLoaded = false; // Mark as not loaded
-    return false;
-  }  
+  }
 
   private subscribeRouterAndInit(): void {
     this.routerSubscription = this.activatedRoute.data.subscribe((data) => {
