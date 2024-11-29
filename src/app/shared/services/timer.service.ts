@@ -67,6 +67,7 @@ export class TimerService {
     console.log("Stopping timer...");
     this.isTimerRunning = false;
     this.isStop.next(0); // Emit stop signal
+    this.isStop = new Subject<number>(); // Reinitialize for future use
     console.log('Stop signal emitted.');
     // this.isStop.complete(); // Complete the Subject
 
