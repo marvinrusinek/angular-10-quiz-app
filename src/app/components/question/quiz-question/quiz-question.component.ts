@@ -1502,23 +1502,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if `correct` property exists and its value is true
     if ('correct' in option) {
       console.log('Option has the `correct` property:', option.correct);
-      const timerWasRunning = this.timerService.isTimerRunning;
-      console.log('Timer was running:', timerWasRunning);
-      
-      // Stop the timer and handle elapsed time
-      this.timerService.stopTimer((elapsedTime: number) => {
-        console.log('Timer callback invoked');
-        if (timerWasRunning) {
-          this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
-          console.log("Elapsed time recorded:", elapsedTime);
-        }
-      });
-      // Mark the question as answered
-      this.selectedOptionService.isAnsweredSubject.next(true);
-      console.log('Next button enabled.');
+  
+      if (option.correct === true) {
+        console.log('Option is correct:', option.correct);
+        const timerWasRunning = this.timerService.isTimerRunning;
+        console.log('Timer was running:', timerWasRunning);
+  
+        this.timerService.stopTimer((elapsedTime: number) => {
+          if (timerWasRunning) {
+            this.timerService.elapsedTimes.push(elapsedTime);
+            console.log('Elapsed time recorded:', elapsedTime);
+          }
+        });
+  
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        console.log('Next button enabled.');
+      } else {
+        console.log('Option is not correct:', option.correct);
+        this.selectedOptionService.isAnsweredSubject.next(false);
+        console.log('Next button remains disabled.');
+      }
     } else {
-      this.selectedOptionService.isAnsweredSubject.next(false);
-      console.log('Next button remains disabled.');
+      console.log('Option does NOT have the `correct` property.');
     }
 
     // Automatically mark the question as answered
