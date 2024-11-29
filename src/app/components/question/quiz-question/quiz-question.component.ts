@@ -3360,6 +3360,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     setTimeout(() => {
       this.timerService.resetTimer(); // Reset after stopping
       this.timerService.startTimer(); // Start the new timer
+      console.log('Timer started for the next question.');
     }, 100); // Ensure proper sequence with a slight delay
   }  
 
