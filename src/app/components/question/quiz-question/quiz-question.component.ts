@@ -1501,9 +1501,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (option.correct === true) {
       console.log("All correct answers selected. Stopping timer...");
       const timerWasRunning = this.timerService.isTimerRunning;
+      console.log('Timer was running:', timerWasRunning);
       
       // Stop the timer and handle elapsed time
       this.timerService.stopTimer((elapsedTime: number) => {
+        console.log('Timer callback invoked');
         if (timerWasRunning) {
           this.timerService.elapsedTimes.push(elapsedTime); // Record elapsed time
           console.log("Elapsed time recorded:", elapsedTime);
