@@ -137,4 +137,16 @@ export class TimerComponent implements OnInit {
         throw new Error(`Invalid timer type: ${type}`);
     }
   }
+
+  startTimer(): void {
+    this.timerService.startTimer();
+  }
+
+  stopTimer(): void {
+    this.timerService.stopTimer();
+  }
+
+  resetTimer(): void {
+    this.timerService.resetTimer();
+  }
 }
