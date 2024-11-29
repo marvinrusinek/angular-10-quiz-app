@@ -1498,9 +1498,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
     console.log('Are all correct answers selected?', allCorrectAnswersSelected);
+
+    // Log full structure of the option
+    console.log('Option full structure:', JSON.stringify(option, null, 2));
+
+    // Log keys explicitly
+    console.log('Option keys:', Object.keys(option));
+    for (const key in option) {
+      console.log(`Key: ${key}, Value: ${option[key]}`);
+    }
   
     // Check if `correct` property exists and its value is true
-    if ('correct' in option) {
+    if (Object.prototype.hasOwnProperty.call(option, 'correct')) {
       console.log('Option has the `correct` property:', option.correct);
   
       if (option.correct === true) {
