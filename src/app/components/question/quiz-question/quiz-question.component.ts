@@ -1470,35 +1470,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
 
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-  
-    // Lock input for single-answer questions
-    if (!isMultipleAnswer && this.isOptionSelected) {
-      console.log('Single-answer question: Option already selected. Skipping.');
-      return;
-    }
-  
-    // Mark the option as selected
-    this.isOptionSelected = true;
-  
-    // Get current options for this optionId
-    const currentOptions =
-      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-
-    // Check if the option is already added
-    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
-      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...currentOptions,
-        option,
-      ]);
-    }
-
-    console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-
-    // Check if all correct answers are selected
-    const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
-    console.log('Are all correct answers selected?', allCorrectAnswersSelected);
-
     // Log full structure of the option
     console.log('Option full structure:', JSON.stringify(option, null, 2));
 
@@ -1507,6 +1478,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     for (const key in option) {
       console.log(`Key: ${key}, Value: ${option[key]}`);
     }
+
+    // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+  
+    // Lock input for single-answer questions
+    /* if (!isMultipleAnswer && this.isOptionSelected) {
+      console.log('Single-answer question: Option already selected. Skipping.');
+      return;
+    } */
+  
+    // Mark the option as selected
+    // this.isOptionSelected = true;
+  
+    // Get current options for this optionId
+    /* const currentOptions =
+      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+
+    // Check if the option is already added
+    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
+      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
+        ...currentOptions,
+        option,
+      ]);
+    } */
+
+    /* console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+
+    // Check if all correct answers are selected
+    const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
+    console.log('Are all correct answers selected?', allCorrectAnswersSelected); */
   
     // Check if `correct` property exists and its value is true
     if (Object.prototype.hasOwnProperty.call(option, 'correct')) {
