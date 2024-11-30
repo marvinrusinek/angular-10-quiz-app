@@ -1522,10 +1522,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if ('correct' in event.option && event.option.correct) {
       console.log('Option has the `correct` property:', option.correct);
   
+      console.log('Option selected::>>', option);
       if (option.correct === true) {
         console.log('Option is correct:', option.correct);
         const timerWasRunning = this.timerService.isTimerRunning;
-        console.log('Timer was running:', timerWasRunning);
+        console.log('Timer was running before stop attempt:', timerWasRunning);
   
         this.timerService.stopTimer((elapsedTime: number) => {
           if (timerWasRunning) {
