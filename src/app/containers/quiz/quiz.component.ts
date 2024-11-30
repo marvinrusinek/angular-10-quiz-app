@@ -3050,7 +3050,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.score = 0;
   
     // Reset the timer
-    this.timerService.stopTimer();
     this.timerService.resetTimer();
 
     // Clear any lingering UI state and force change detection
