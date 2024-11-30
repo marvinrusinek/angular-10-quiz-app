@@ -75,6 +75,7 @@ export class TimerComponent implements OnInit {
       })
     );
 
+    this.resetTimer();
     this.startTimer();
 
     /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
