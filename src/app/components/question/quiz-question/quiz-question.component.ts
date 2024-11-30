@@ -1512,6 +1512,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
     console.log('Are all correct answers selected?', allCorrectAnswersSelected); */
   
+    console.log("IS OPTION CORRECT", option.correct);
+    console.log("IS CORRECT IN OPTION", 'correct' in option);
+
     // Check if `correct` property exists and its value is true
     if ('correct' in option) {
       console.log('Option has the `correct` property:', option.correct);
