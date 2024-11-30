@@ -2558,10 +2558,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false);
 
-        // Reset and start the timer for the new question
-        this.timerService.resetTimer();
-        this.timerService.startTimer(30);
-
         // Prepare the next question
         this.quizService.setCurrentQuestion(this.currentQuestionIndex);
         await this.loadQuestionContents();
@@ -2871,6 +2867,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log("MY NAVIG TO Q TEST");
     if (this.isLoading || this.debounceNavigation) return;
   
     // Debounce navigation to prevent rapid consecutive calls
