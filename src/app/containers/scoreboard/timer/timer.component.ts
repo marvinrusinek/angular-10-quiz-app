@@ -66,8 +66,16 @@ export class TimerComponent implements OnInit {
       tap((timeLeft) => console.log('Time left updated in TimerComponent:', timeLeft))
     ); */
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime)
+      map((elapsedTime) => this.timePerQuestion - elapsedTime),
+      tap((timeLeft) => {
+        if (timeLeft === 0) {
+          console.log('Time is up!');
+          this.timerService.stopTimer();
+        }
+      })
     );
+
+    this.startTimer();
 
     /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
