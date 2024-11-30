@@ -39,7 +39,6 @@ export class TimerService {
         if (this.isTimerRunning) {
           this.elapsedTime++;
           this.elapsedTimeSubject.next(this.elapsedTime);
-          console.log('Elapsed time updated:', this.elapsedTime);
         }
       }),
       takeUntil(this.isStop), // Stops on stop signal
@@ -67,11 +66,7 @@ export class TimerService {
     this.isTimerRunning = true;
     this.elapsedTime = 0;
 
-    this.timerSubscription = this.timer$.subscribe({
-      next: () => console.log('Timer tick:', this.elapsedTime),
-      error: (err) => console.error('Timer error:', err),
-      complete: () => console.log('Timer completed.')
-    });
+    this.timerSubscription = this.timer$.subscribe();
 
     console.log('Timer started for duration:', duration);
   }
