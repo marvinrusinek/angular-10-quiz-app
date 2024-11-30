@@ -15,20 +15,14 @@ enum TimerType {
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimerComponent implements OnInit {
   timerType = TimerType;
   timeLeft$!: Observable<number>;
-  answer = 0;
   timePerQuestion = 30;
-  time$: Observable<number>;
-  start$: Observable<number>;
-  reset$: Observable<number>;
-  stop$: Observable<number>;
-  concat$: Observable<number>;
-  currentTimerType: TimerType;
-  private activeTimerSubscription: Subscription | null = null; // Track active timer subscriptions
+  currentTimerType = TimerType.Countdown;
+  private timerSubscription?: Subscription;
 
   constructor(
     private timerService: TimerService,
@@ -37,105 +31,38 @@ export class TimerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.start$ = this.timerService.start$;
-    this.reset$ = this.timerService.reset$;
-    this.stop$ = this.timerService.stop$;
-    /* this.concat$ = concat(
-      this.start$.pipe(first(), map(value => +value)),
-      this.reset$.pipe(first(), map(value => +value))
-    ).pipe(
-      catchError(err => {
-        console.error('Error in concat$', err);
-        return [];
-      })
-    ) as Observable<number>; */
-    this.concat$ = concat(
-      this.start$.pipe(first(), map((duration) => duration)), // React to start signals
-      this.reset$.pipe(first(), map(() => 0)), // Reset timer on reset signals
-      this.stop$.pipe(first(), map(() => 0)) // Stop timer on stop signals
-    ).pipe(
-      catchError((err) => {
-        console.error('Error in concat$:', err);
-        return of(0); // Default fallback value
-      })
-    ) as Observable<number>;
-
-    // React to the elapsed time
-    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
-      tap((timeLeft) => console.log('Time left updated in TimerComponent:', timeLeft))
-    ); */
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => this.timePerQuestion - elapsedTime),
       tap((timeLeft) => {
-        if (timeLeft === 0) {
+        if (timeLeft <= 0) {
           console.log('Time is up!');
           this.timerService.stopTimer();
         }
       })
     );
 
-    this.resetTimer();
-    this.startTimer();
-
-    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((elapsedTime) => this.timerService.timePerQuestion - elapsedTime),
-      tap((timeLeft) => {
-        console.log("Time left updated in TimerComponent:", timeLeft);
-        if (timeLeft === 0) {
-          console.log("Timer reached zero.");
-        }
-      })
-    ); */
-  
-    /* this.timeLeft$.subscribe({
-      next: (timeLeft) => console.log("Displayed time left:", timeLeft),
-      error: (err) => console.error("Error updating displayed time left:", err),
-    }); */
-
-    // Log timer reset and stop signals
-    this.timerService.reset$.subscribe(() => {
-      console.log("Timer reset signal received in TimerComponent.");
+    this.timerSubscription = this.timeLeft$.subscribe({
+      next: (timeLeft) => console.log('Time left:', timeLeft),
+      error: (err) => console.error('Error in timer:', err),
+      complete: () => console.log('Timer completed.'),
     });
 
-    this.timerService.stop$.subscribe(() => {
-      console.log("Timer stop signal received in TimerComponent.");
-    });
-
-    // Default timer setup
     this.setTimerType(this.timerType.Countdown);
   }
 
+  ngOnDestroy(): void {
+    this.timerSubscription?.unsubscribe();
+    console.log('TimerComponent destroyed and subscription unsubscribed.');
+  }
+
   setTimerType(type: TimerType): void {
-    // Unsubscribe from the current timer to prevent overlap
-    if (this.activeTimerSubscription) {
-      this.activeTimerSubscription.unsubscribe(); // Stop any ongoing timer
-      console.log("Previous timer subscription cleared.");
-    }
-  
-    // Only update if the timer type has changed
     if (this.currentTimerType !== type) {
-      this.currentTimerType = type; // Update the current timer type
+      this.currentTimerType = type;
       console.log(`Timer switched to ${type}`);
     }
-  
-    // Reset and initialize the new timer observable
     this.timeLeft$ = this.getTimeObservable(type);
-  
-    // Subscribe to the new timer and log the updates
-    /* this.activeTimerSubscription = this.timeLeft$.subscribe({
-      next: (timeLeft) => {
-        console.log(`Time left (${type}):`, timeLeft);
-      },
-      error: (err) => {
-        console.error(`Error in ${type} timer:`, err);
-      },
-      complete: () => {
-        console.log(`${type} timer completed.`);
-      },
-    }); */
   }
-  
+
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
       case TimerType.Countdown:
@@ -143,15 +70,24 @@ export class TimerComponent implements OnInit {
       case TimerType.Stopwatch:
         return this.stopwatchService.startStopwatch();
       default:
-        throw new Error(`Invalid timer type: ${type}`);
+        console.error(`Invalid timer type: ${type}`);
+        return of(0);
     }
   }
 
   startTimer(): void {
+    if (this.timerService.isTimerRunning) {
+      console.warn('Timer is already running.');
+      return;
+    }
     this.timerService.startTimer();
   }
 
   stopTimer(): void {
+    if (!this.timerService.isTimerRunning) {
+      console.warn('Timer is not running.');
+      return;
+    }
     this.timerService.stopTimer();
   }
 
