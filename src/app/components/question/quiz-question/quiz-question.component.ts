@@ -914,6 +914,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
+        this.timerService.stopTimer();
         return;
       }
   
