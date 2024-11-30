@@ -9,15 +9,13 @@ export class TimerService {
   completionTime: number;
   elapsedTimes: number[] = [];
 
-  isTimerRunning = false;
+  isTimerRunning = false; // Tracks whether the timer is currently running
   private timer$: Observable<number>;
-  private timer: Subscription | null = null;
   private timerSubscription: Subscription | null = null;
 
   // Signals
-  private isStart = new Subject<number>();
-  private isStop = new Subject<number>();
-  private isReset = new Subject<number>();
+  private isStop = new Subject<void>();
+  private isReset = new Subject<void>();
 
   public start$: Observable<number>;
   public stop$: Observable<number>;
@@ -29,8 +27,9 @@ export class TimerService {
 
   constructor() {
     console.log('TimerService initialized.');
-    // Map each signal to a `number`, defaulting to the current timePerQuestion
-    this.start$ = this.isStart.asObservable().pipe(map(() => this.timePerQuestion));
+
+    // Map signals to appropriate values
+    this.start$ = new BehaviorSubject<number>(this.timePerQuestion).asObservable();
     this.stop$ = this.isStop.asObservable().pipe(map(() => 0)); // Emit 0 on stop
     this.reset$ = this.isReset.asObservable().pipe(map(() => 0)); // Emit 0 on reset
 
@@ -40,97 +39,106 @@ export class TimerService {
         if (this.isTimerRunning) {
           this.elapsedTime++;
           this.elapsedTimeSubject.next(this.elapsedTime);
+          console.log('Elapsed time updated:', this.elapsedTime);
         }
       }),
-      takeUntil(this.isStop), // Stop on stop signal
-      takeUntil(this.isReset), // Stop on reset signal
+      takeUntil(this.isStop), // Stops on stop signal
+      takeUntil(this.isReset), // Stops on reset signal
       finalize(() => console.log('Timer finalized.'))
     );
 
-    this.isStop.subscribe(() => console.log("Stop signal received in TimerService."));
-    this.isReset.subscribe(() => console.log("Reset signal received in TimerService."));
+    // Logging signals
+    this.isStop.subscribe(() => console.log('Stop signal received in TimerService.'));
+    this.isReset.subscribe(() => console.log('Reset signal received in TimerService.'));
   }
 
   ngOnDestroy(): void {
-    this.timer?.unsubscribe();
-  }
-
-  /** Stops the timer */
-  stopTimer(callback?: (elapsedTime: number) => void): void {
-    console.log("Entered stopTimer()");
-    if (!this.isTimerRunning) {
-      console.warn("Timer is not running. Nothing to stop.");
-      return;
-    }
-
-    console.log("Stopping timer...");
-    this.isTimerRunning = false;
-    this.isStop.next(0); // Emit stop signal
-    this.isStop = new Subject<number>(); // Reinitialize for future use
-    console.log('Stop signal emitted.');
-    // this.isStop.complete(); // Complete the Subject
-
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-      this.timerSubscription = null;
-      console.log("Timer subscription cleared.");
-    } else {
-      console.warn("No active timer subscription to unsubscribe.");
-    }
-
-    if (callback) {
-      callback(this.elapsedTime);
-      console.log("Elapsed time recorded in callback:", this.elapsedTime);
-    }
-
-    console.log("Timer stopped. Elapsed time:", this.elapsedTime);
+    this.timerSubscription?.unsubscribe();
   }
 
   /** Starts the timer */
   startTimer(duration: number = this.timePerQuestion): void {
-    console.log("Attempting to start timer...");
+    console.log('Attempting to start timer...');
     if (this.isTimerRunning) {
-      console.warn("Timer is already running.");
+      console.warn('Timer is already running.');
       return;
     }
-  
+
     this.isTimerRunning = true;
     this.elapsedTime = 0;
 
-    this.timerSubscription = this.timer$.subscribe();
-  
-    console.log("Timer started for duration:", duration);
+    this.timerSubscription = this.timer$.subscribe({
+      next: () => console.log('Timer tick:', this.elapsedTime),
+      error: (err) => console.error('Timer error:', err),
+      complete: () => console.log('Timer completed.')
+    });
+
+    console.log('Timer started for duration:', duration);
+  }
+
+  /** Stops the timer */
+  stopTimer(callback?: (elapsedTime: number) => void): void {
+    console.log('Entered stopTimer(). Timer running:', this.isTimerRunning);
+
+    if (!this.isTimerRunning) {
+      console.warn('Timer is not running. Nothing to stop.');
+      return;
+    }
+
+    this.isTimerRunning = false; // Mark the timer as stopped
+    this.isStop.next(); // Signal to stop the timer
+
+    if (this.timerSubscription) {
+      setTimeout(() => {
+        this.timerSubscription?.unsubscribe();
+        this.timerSubscription = null;
+        console.log('Timer subscription cleared.');
+      }, 100); // Ensure stop signal propagates before unsubscribing
+    } else {
+      console.warn('No active timer subscription to unsubscribe.');
+    }
+
+    if (callback) {
+      callback(this.elapsedTime);
+      console.log('Elapsed time recorded in callback:', this.elapsedTime);
+    }
+
+    console.log('Timer stopped successfully.');
   }
 
   /** Resets the timer */
   resetTimer(): void {
-    console.log("Attempting to reset timer...");
+    console.log('Attempting to reset timer...');
     if (this.isTimerRunning) {
-      console.log("Timer is running. Stopping before resetting...");
+      console.log('Timer is running. Stopping before resetting...');
       this.stopTimer();
     }
-  
+
     this.elapsedTime = 0;
     this.isTimerRunning = false;
-    this.isReset.next(0); // Emit reset signal
-    this.isReset = new Subject<number>();
-    this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
-    console.log("Timer reset.");
-  }  
 
+    this.isReset.next(); // Signal to reset
+    this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
+    console.log('Timer reset successfully.');
+  }
+
+  /** Sets a custom elapsed time */
   setElapsed(time: number): void {
     this.elapsedTime = time;
   }
 
+  /** Sets a custom duration for the timer */
   setDuration(duration: number): void {
     this.timePerQuestion = duration;
     console.log('Timer duration set to:', duration);
   }
 
+  /** Calculates the total elapsed time from recorded times */
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
     if (elapsedTimes.length > 0) {
       this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
       return this.completionTime;
     }
+    return 0;
   }
 }
