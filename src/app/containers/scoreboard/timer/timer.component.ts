@@ -59,6 +59,8 @@ export class TimerComponent implements OnInit {
     if (this.currentTimerType !== type) {
       this.currentTimerType = type;
       console.log(`Timer switched to ${type}`);
+    } else {
+      console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
     this.timeLeft$ = this.getTimeObservable(type);
   }
