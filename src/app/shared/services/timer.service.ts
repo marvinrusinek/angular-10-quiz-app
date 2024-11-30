@@ -139,8 +139,6 @@ export class TimerService {
       error: (err) => console.error('Timer error:', err),
       complete: () => console.log('Timer completed.')
     }); */
-
-    this.timerSubscription = this.timer$.subscribe();
   
     console.log("Timer started for duration:", duration);
   }
