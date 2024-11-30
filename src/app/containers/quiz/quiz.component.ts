@@ -2640,17 +2640,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn('Navigation to results already in progress.');
       return;
     }
-
+  
     this.navigatingToResults = true; // Prevent multiple clicks
-
+  
+    // Reset quiz state
     this.quizService.resetAll();
-
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-
-    this.timerService.resetTimer();
-
+  
+    // Stop the timer and record elapsed time
+    if (this.timerService.isTimerRunning) {
+      this.timerService.stopTimer((elapsedTime: number) => {
+        this.elapsedTimeDisplay = elapsedTime;
+        console.log('Elapsed time recorded for results:', elapsedTime);
+      });
+    } else {
+      console.log('Timer was not running, skipping stopTimer.');
+    }
+  
+    // Check if all answers were completed before navigating
     if (!this.quizService.quizCompleted) {
       this.quizService.checkIfAnsweredCorrectly()
         .then(() => {
@@ -2665,8 +2671,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
     } else {
       console.warn('Quiz already marked as completed.');
+      this.navigatingToResults = false;
     }
   }
+  
 
 
   public async advanceAndProcessNextQuestion(): Promise<void> {
