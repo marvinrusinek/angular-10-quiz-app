@@ -47,7 +47,7 @@ export class TimerComponent implements OnInit {
       complete: () => console.log('Timer completed.'),
     });
 
-    this.setTimerType(this.timerType.Countdown);
+    this.setTimerType(this.timerType.Countdown); // Default timer setup
   }
 
   ngOnDestroy(): void {
