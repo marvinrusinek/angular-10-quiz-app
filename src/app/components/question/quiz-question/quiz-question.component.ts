@@ -3355,13 +3355,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private manageTimer(): void {
     console.log('Managing timer lifecycle...');
-    
-    this.timerService.stopTimer(); // Stop the existing timer
+    console.log('Timer running before stop:', this.timerService.isTimerRunning);
+  
+    this.timerService.stopTimer();
+  
     setTimeout(() => {
-      this.timerService.resetTimer(); // Reset after stopping
-      this.timerService.startTimer(); // Start the new timer
-      console.log('Timer started for the next question.');
-    }, 100); // Ensure proper sequence with a slight delay
+      this.timerService.resetTimer();
+      console.log('Timer reset successfully.');
+  
+      this.timerService.startTimer();
+      console.log('Timer started successfully. Timer running:', this.timerService.isTimerRunning);
+    }, 100);
   }  
 
   private handleQuizCompletion(): void {
