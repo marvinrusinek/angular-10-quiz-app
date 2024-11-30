@@ -1958,6 +1958,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Reset the timer for the new question
       this.timerService.resetTimer();
+      this.timerService.startTimer();
     } catch (error) {
       console.error('Error handling new question:', error);
     }
