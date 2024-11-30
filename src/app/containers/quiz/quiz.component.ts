@@ -2956,7 +2956,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Reset the quiz service state
     this.quizService.resetAll();
   
-    // Start the timer with a default duration
+    // Reset and start the timer with a default duration
+    console.log('[resetUI] Resetting and starting timer...');
+    this.timerService.resetTimer();
     this.timerService.startTimer(30);
   
     // Trigger background reset
