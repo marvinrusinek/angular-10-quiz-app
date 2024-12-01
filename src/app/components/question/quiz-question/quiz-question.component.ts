@@ -877,7 +877,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('[loadQuestion] Timer running before manageTimer:', this.timerService.isTimerRunning);
     // this.manageTimer();
     this.timerService.resetTimer();
-    this.timerService.startTimer();
+    this.timerService.startTimer(this.timerService.timePerQuestion, true); // Countdown mode
   
     // Clear previous data
     this.currentQuestion = null;
