@@ -1524,7 +1524,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('Option has the `correct` property:', option.correct);
   
       console.log('Option selected::>>', option);
-      if (option.correct === true) {
+      if (option.correct) {
         console.log('Option is correct:', option.correct);
         const timerWasRunning = this.timerService.isTimerRunning;
         console.log('Timer was running before stop attempt:', timerWasRunning);
@@ -1532,10 +1532,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.timerService.stopTimer((elapsedTime: number) => {
           if (timerWasRunning) {
             this.timerService.elapsedTimes.push(elapsedTime);
-            console.log('Elapsed time recorded:', elapsedTime);
+            console.log(`[onOptionClicked] Elapsed time for the question: ${elapsedTime}`);
           }
         });
-  
+
+        // Update UI state to mark the question as answered
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('Next button enabled.');
       } else {
