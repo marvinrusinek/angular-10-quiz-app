@@ -1520,7 +1520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Check if `correct` property exists and its value is true
     // if ('correct' in event.option && event.option.correct) {
-    if (option.correct) {
+    if (option.correct === true) {
       console.log('Option has the `correct` property:', option.correct);
   
       console.log('Option selected::>>', option);

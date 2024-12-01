@@ -9,9 +9,11 @@ export class TimerService {
   completionTime: number;
   elapsedTimes: number[] = [];
 
-  isTimerRunning = false; // Tracks whether the timer is currently running
   private timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
+
+  isTimerRunning = false; // Tracks whether the timer is currently running
+  isCountdown = true; // Tracks the timer mode (true = countdown, false = stopwatch)
 
   // Signals
   private isStop = new Subject<void>();
@@ -56,7 +58,7 @@ export class TimerService {
   }
 
   /** Starts the timer */
-  startTimer(duration: number = this.timePerQuestion): void {
+  startTimer(duration: number = this.timePerQuestion, isCountdown = true): void {
     console.log('Attempting to start timer...');
     if (this.isTimerRunning) {
       console.warn('Timer is already running.');
@@ -64,9 +66,24 @@ export class TimerService {
     }
 
     this.isTimerRunning = true;
-    this.elapsedTime = 0;
+    this.isCountdown = isCountdown;
+    this.elapsedTime = isCountdown ? 0 : duration;
+    // this.elapsedTime = 0;
 
-    this.timerSubscription = this.timer$.subscribe();
+    // this.timerSubscription = this.timer$.subscribe();
+    this.timerSubscription = this.timer$.subscribe(() => {
+      if (this.isCountdown) {
+        this.elapsedTime++;
+        if (this.elapsedTime >= duration) {
+          console.log('[TimerService] Countdown completed.');
+          this.stopTimer();
+        }
+      } else {
+        this.elapsedTime++;
+      }
+      this.elapsedTimeSubject.next(this.elapsedTime);
+    });
+    console.log(`[TimerService] Timer started in ${isCountdown ? 'countdown' : 'stopwatch'} mode.`);
 
     console.log('Timer started for duration:', duration);
   }
