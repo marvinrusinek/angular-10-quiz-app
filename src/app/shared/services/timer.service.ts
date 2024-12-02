@@ -58,35 +58,37 @@ export class TimerService {
   }
 
   /** Starts the timer */
-  startTimer(duration: number = this.timePerQuestion, isCountdown = true): void {
+  startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
     console.log('Attempting to start timer...');
     if (this.isTimerRunning) {
       console.warn('Timer is already running.');
       return;
     }
-
+  
     this.isTimerRunning = true;
-    this.isCountdown = isCountdown;
-    this.elapsedTime = isCountdown ? 0 : duration;
-    // this.elapsedTime = 0;
-
-    // this.timerSubscription = this.timer$.subscribe();
-    this.timerSubscription = this.timer$.subscribe(() => {
-      if (this.isCountdown) {
-        this.elapsedTime++;
-        if (this.elapsedTime >= duration) {
-          console.log('[TimerService] Countdown completed.');
-          this.stopTimer();
+    this.elapsedTime = 0;
+  
+    // Start the timer with countdown or stopwatch logic
+    this.timerSubscription = this.timer$.pipe(
+      tap(() => {
+        if (isCountdown) {
+          // Countdown mode: Decrement time
+          this.elapsedTime++;
+          const remainingTime = Math.max(duration - this.elapsedTime, 0);
+          this.elapsedTimeSubject.next(remainingTime);
+          if (remainingTime === 0) {
+            console.log('[TimerService] Countdown completed. Stopping timer...');
+            this.stopTimer();
+          }
+        } else {
+          // Stopwatch mode: Increment time
+          this.elapsedTime++;
+          this.elapsedTimeSubject.next(this.elapsedTime);
         }
-      } else {
-        this.elapsedTime++;
-      }
-      this.elapsedTimeSubject.next(this.elapsedTime);
-    });
-    console.log(`[TimerService] Timer started in ${isCountdown ? 'countdown' : 'stopwatch'} mode.`);
-
-    console.log('Timer started for duration:', duration);
-  }
+      })
+    ).subscribe();
+    console.log(`Timer started for ${isCountdown ? 'Countdown' : 'Stopwatch'} mode.`);
+  }  
 
   /** Stops the timer */
   stopTimer(callback?: (elapsedTime: number) => void): void {
