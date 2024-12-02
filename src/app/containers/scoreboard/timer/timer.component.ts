@@ -67,7 +67,7 @@ export class TimerComponent implements OnInit {
       console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
     // this.timeLeft$ = this.getTimeObservable(type);
-    /* this.timeLeft$ = this.getTimeObservable(type).pipe(
+    this.timeLeft$ = this.getTimeObservable(type).pipe(
       map((elapsedTime) => {
         return type === TimerType.Countdown
           ? this.timePerQuestion - elapsedTime
@@ -79,9 +79,7 @@ export class TimerComponent implements OnInit {
           this.timerService.stopTimer();
         }
       })
-    ); */
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
+    );    
   }
 
   private getTimeObservable(type: TimerType): Observable<number> {
