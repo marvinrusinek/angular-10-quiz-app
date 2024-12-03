@@ -59,15 +59,14 @@ export class TimerService {
 
   /** Starts the timer */
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
-    console.log('Attempting to start timer...');
+    console.log(`[TimerService] Starting timer in mode: ${isCountdown ? 'Countdown' : 'Stopwatch'}`);
     if (this.isTimerRunning) {
-      console.warn('Timer is already running.');
+      console.warn('[TimerService] Timer is already running.');
       return;
     }
   
     this.isTimerRunning = true;
     this.elapsedTime = isCountdown ? duration : 0; // Initialize based on mode
-    console.log(`[TimerService] Timer initialized with elapsedTime: ${this.elapsedTime}`);
   
     this.timerSubscription = timer(0, 1000).pipe(
       tap(() => {
@@ -89,7 +88,8 @@ export class TimerService {
     ).subscribe();
   
     console.log(`[TimerService] Timer started in mode: ${isCountdown ? 'Countdown' : 'Stopwatch'}`);
-  }  
+  }
+   
   
   
 
