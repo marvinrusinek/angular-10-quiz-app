@@ -33,9 +33,11 @@ export class TimerComponent implements OnInit {
   ngOnInit(): void {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
-        return this.currentTimerType === TimerType.Countdown
+        const timeLeft = this.currentTimerType === TimerType.Countdown
           ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
-          : elapsedTime; // Stopwatch logic
+          : elapsedTime; // Stopwatch logic;
+        console.log(`[TimerComponent] Time left (${this.currentTimerType}):`, timeLeft);
+        return timeLeft;
       }),
       tap((timeLeft) => {
         if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
