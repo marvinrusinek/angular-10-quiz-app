@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { concat, Observable, of, Subscription } from 'rxjs';
-import { catchError, first, map, tap } from 'rxjs/operators';
+import { Observable, of, Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import { CountdownService } from '../../../shared/services/countdown.service';
 import { StopwatchService } from '../../../shared/services/stopwatch.service';
