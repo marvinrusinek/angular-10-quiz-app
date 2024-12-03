@@ -1520,26 +1520,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Check if `correct` property exists and its value is true
     // if ('correct' in event.option && event.option.correct) {
-    if (option.correct === true) {
-      console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
+    try {
+      if (option.correct === true) {
+        console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
       
-      // Attempt to stop the timer
-      try {
-        this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
-        });
+        try {
+          if (this.timerService.isTimerRunning) {
+            console.log('[onOptionClicked] Timer is running. Stopping it now...');
+            this.timerService.stopTimer((elapsedTime: number) => {
+              console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
+            });
       
-        // Mark the question as answered
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('[onOptionClicked] Next button enabled.');
-      } catch (error) {
-        console.error('[onOptionClicked] Error stopping the timer:', error);
+            this.selectedOptionService.isAnsweredSubject.next(true);
+            console.log('[onOptionClicked] Next button enabled.');
+          } else {
+            console.warn('[onOptionClicked] Timer was not running. No action taken.');
+          }
+        } catch (timerError) {
+          console.error('[onOptionClicked] Error stopping timer:', timerError);
+        }
+      } else {
+        console.log('[onOptionClicked] Incorrect option selected.');
+        this.selectedOptionService.isAnsweredSubject.next(false);
+        console.log('[onOptionClicked] Next button remains disabled.');
       }
-    } else {
-      console.log('[onOptionClicked] Incorrect option selected.');
-      this.selectedOptionService.isAnsweredSubject.next(false);
-      console.log('[onOptionClicked] Next button remains disabled.');
-    }      
+    } catch (error) {
+      console.error('[onOptionClicked] Error in option handling:', error);
+    }   
 
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
