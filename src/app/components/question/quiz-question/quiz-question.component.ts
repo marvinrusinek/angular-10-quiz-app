@@ -1521,31 +1521,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if `correct` property exists and its value is true
     // if ('correct' in event.option && event.option.correct) {
     if (option.correct === true) {
-      console.log('Option has the `correct` property:', option.correct);
-  
-      console.log('Option selected::>>', option);
-      if (option.correct) {
-        console.log('Option is correct:', option.correct);
-        const timerWasRunning = this.timerService.isTimerRunning;
-        console.log('Timer was running before stop attempt:', timerWasRunning);
-  
+      console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
+    
+      // Stop the timer if it's running
+      if (this.timerService.isTimerRunning) {
+        console.log('[onOptionClicked] Timer is running. Stopping it now...');
         this.timerService.stopTimer((elapsedTime: number) => {
-          if (timerWasRunning) {
-            this.timerService.elapsedTimes.push(elapsedTime);
-            console.log(`[onOptionClicked] Elapsed time for the question: ${elapsedTime}`);
-          }
+          console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
         });
-
-        // Update UI state to mark the question as answered
+  
+        // Mark the question as answered
         this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('Next button enabled.');
+        console.log('[onOptionClicked] Next button enabled.');
       } else {
-        console.log('Option is not correct:', option.correct);
-        this.selectedOptionService.isAnsweredSubject.next(false);
-        console.log('Next button remains disabled.');
+        console.warn('[onOptionClicked] Timer was not running. No action taken.');
       }
     } else {
-      console.log('Option does NOT have the `correct` property.');
+      console.log('[onOptionClicked] Incorrect option selected.');
+      this.selectedOptionService.isAnsweredSubject.next(false);
+      console.log('[onOptionClicked] Next button remains disabled.');
     }
 
     // Automatically mark the question as answered
