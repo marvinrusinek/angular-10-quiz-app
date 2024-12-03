@@ -31,15 +31,13 @@ export class TimerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to elapsed time and map to timeLeft$
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         return this.currentTimerType === TimerType.Countdown
-          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
-          : elapsedTime; // Stopwatch logic
+          ? this.timePerQuestion - elapsedTime
+          : elapsedTime;
       }),
       tap((timeLeft) => {
-        console.log('[TimerComponent] Time left:', timeLeft);
         if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
           console.log('[TimerComponent] Time is up!');
           this.timerService.stopTimer();
@@ -47,15 +45,13 @@ export class TimerComponent implements OnInit {
       })
     );
 
-    /* this.timerSubscription = this.timeLeft$.subscribe({
+    this.timerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => console.log('Time left:', timeLeft),
       error: (err) => console.error('Error in timer:', err),
       complete: () => console.log('Timer completed.'),
-    }); */
-    // this.timerSubscription = this.timeLeft$.subscribe();
+    });
 
-    // Ensure default timer setup as Countdown
-    this.setTimerType(this.timerType.Countdown);
+    this.setTimerType(this.timerType.Countdown); // Default timer setup
   }
 
   ngOnDestroy(): void {
@@ -66,11 +62,11 @@ export class TimerComponent implements OnInit {
   setTimerType(type: TimerType): void {
     if (this.currentTimerType !== type) {
       this.currentTimerType = type;
-      console.log(`[TimerComponent] Timer switched to ${type}`);
+      console.log(`Timer switched to ${type}`);
+    } else {
+      console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
-  
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
+    this.timeLeft$ = this.getTimeObservable(type);
   }
 
   private getTimeObservable(type: TimerType): Observable<number> {
@@ -95,7 +91,7 @@ export class TimerComponent implements OnInit {
 
   stopTimer(): void {
     if (!this.timerService.isTimerRunning) {
-      console.warn('Timer is not running.');
+      // console.warn('Timer is not running.');
       return;
     }
     this.timerService.stopTimer();
