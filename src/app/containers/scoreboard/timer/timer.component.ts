@@ -32,17 +32,14 @@ export class TimerComponent implements OnInit {
 
   ngOnInit(): void {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((elapsedTime) => {
-        const timeLeft = this.currentTimerType === TimerType.Countdown
-          ? Math.max(this.timePerQuestion - elapsedTime, 0)
-          : elapsedTime;
+      map((timeLeft) => {
         console.log(`[TimerComponent] Time left (${this.currentTimerType}):`, timeLeft);
-        return timeLeft;
+        return timeLeft; // The timer emits remaining time
       }),
       tap((timeLeft) => {
         if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
-          console.log('[TimerComponent] Time is up!');
-          this.timerService.stopTimer();
+          console.log('[TimerComponent] Time is up! Timer stopped at 0.');
+          // Do not reset or modify the timer automatically
         }
       })
     );
