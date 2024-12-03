@@ -20,21 +20,19 @@ export class TimerService {
   private isReset = new Subject<void>();
 
   public start$: Observable<number>;
-  public stop$: Observable<number>;
-  public reset$: Observable<number>;
 
   // Elapsed time observable
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
   public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
+  // Consolidated stop/reset using BehaviorSubjects
   private stopSubject = new BehaviorSubject<void>(undefined);
+  private resetSubject = new BehaviorSubject<void>(undefined);
+  public stop$ = this.stopSubject.asObservable().pipe(map(() => 0));
+  public reset$ = this.resetSubject.asObservable().pipe(map(() => 0));
 
   constructor() {
     console.log('TimerService initialized.');
-  
-    // Replace `isStop` and `isReset` with BehaviorSubjects
-    this.stop$ = this.stopSubject.asObservable().pipe(map(() => 0)); // Emit 0 on stop
-    this.reset$ = this.resetSubject.asObservable().pipe(map(() => 0)); // Emit 0 on reset
   
     // Configure the timer observable
     this.timer$ = timer(0, 1000).pipe(
