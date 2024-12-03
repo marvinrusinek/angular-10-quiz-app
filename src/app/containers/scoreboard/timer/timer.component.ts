@@ -47,11 +47,12 @@ export class TimerComponent implements OnInit {
       })
     );
 
-    this.timerSubscription = this.timeLeft$.subscribe({
+    /* this.timerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => console.log('Time left:', timeLeft),
       error: (err) => console.error('Error in timer:', err),
       complete: () => console.log('Timer completed.'),
-    });
+    }); */
+    this.timerSubscription = this.timeLeft$.subscribe();
 
     // Ensure default timer setup as Countdown
     this.setTimerType(this.timerType.Countdown);
@@ -66,14 +67,12 @@ export class TimerComponent implements OnInit {
     if (this.currentTimerType !== type) {
       this.currentTimerType = type;
       console.log(`[TimerComponent] Timer switched to ${type}`);
-    } else {
-      console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
   
-    // Reset and start the timer with the correct mode
+    // Reset and start the timer without interfering with quiz data
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
-  }
+  }  
 
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
