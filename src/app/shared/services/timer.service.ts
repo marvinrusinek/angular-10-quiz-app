@@ -27,6 +27,8 @@ export class TimerService {
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
   public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
+  private stopSubject = new BehaviorSubject<void>(undefined);
+
   constructor() {
     console.log('TimerService initialized.');
 
@@ -89,15 +91,15 @@ export class TimerService {
       isTimerRunning: this.isTimerRunning,
       duration,
     });
-  
+
     if (this.isTimerRunning) {
       console.warn('[TimerService] Timer is already running. Start ignored.');
       return;
     }
-  
+
     this.isTimerRunning = true; // Mark timer as running
     this.elapsedTime = 0;
-  
+
     const timer$ = isCountdown
       ? timer(0, 1000).pipe(
           tap((tick) => {
@@ -107,21 +109,23 @@ export class TimerService {
               console.log('[TimerService] Countdown completed.');
               this.stopTimer();
             }
-          })
+          }),
+          takeUntil(this.stopSubject) // Stop timer when stop signal is emitted
         )
       : timer(0, 1000).pipe(
           tap((tick) => {
             this.elapsedTime = tick;
             this.elapsedTimeSubject.next(this.elapsedTime);
-          })
+          }),
+          takeUntil(this.stopSubject) // Stop timer when stop signal is emitted
         );
-  
+
     this.timerSubscription = timer$.subscribe({
       next: () => console.log('[TimerService] Timer tick:', this.elapsedTime),
       error: (err) => console.error('[TimerService] Timer error:', err),
       complete: () => console.log('[TimerService] Timer completed.'),
     });
-  
+
     console.log('[TimerService] Timer started successfully.');
   }
 
@@ -135,10 +139,10 @@ export class TimerService {
     }
 
     this.isTimerRunning = false; // Mark the timer as stopped
-    this.isStop.next(); // Signal to stop the timer
+    this.stopSubject.next(); // Emit stop signal to stop the timer
 
     if (this.timerSubscription) {
-      this.timerSubscription?.unsubscribe();
+      this.timerSubscription.unsubscribe();
       this.timerSubscription = null;
       console.log('Timer subscription cleared.');
     } else {
