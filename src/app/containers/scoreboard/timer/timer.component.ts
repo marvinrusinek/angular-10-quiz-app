@@ -31,6 +31,7 @@ export class TimerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to elapsed time and map to timeLeft$
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         return this.currentTimerType === TimerType.Countdown
@@ -52,9 +53,8 @@ export class TimerComponent implements OnInit {
       complete: () => console.log('Timer completed.'),
     });
 
-    this.setTimerType(this.timerType.Countdown); // Default timer setup
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timePerQuestion, true);
+    // Ensure default timer setup as Countdown
+    this.setTimerType(this.timerType.Countdown);
   }
 
   ngOnDestroy(): void {
@@ -74,7 +74,6 @@ export class TimerComponent implements OnInit {
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
   }
-  
 
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
