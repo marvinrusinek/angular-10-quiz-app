@@ -9,9 +9,6 @@ export class TimerService {
   completionTime: number;
   elapsedTimes: number[] = [];
 
-  private timer$: Observable<number>;
-  private timerSubscription: Subscription | null = null;
-
   isTimerRunning = false; // Tracks whether the timer is currently running
   isCountdown = true; // Tracks the timer mode (true = countdown, false = stopwatch)
 
@@ -21,7 +18,7 @@ export class TimerService {
 
   public start$: Observable<number>;
 
-  // Elapsed time observable
+  // Observables
   private elapsedTimeSubject = new BehaviorSubject<number>(0);
   public elapsedTime$ = this.elapsedTimeSubject.asObservable();
 
@@ -30,6 +27,10 @@ export class TimerService {
   private resetSubject = new BehaviorSubject<void>(undefined);
   public stop$ = this.stopSubject.asObservable().pipe(map(() => 0));
   public reset$ = this.resetSubject.asObservable().pipe(map(() => 0));
+
+  // Timer observable
+  private timer$: Observable<number>;
+  private timerSubscription: Subscription | null = null;
 
   constructor() {
     console.log('TimerService initialized.');
