@@ -45,7 +45,7 @@ export class TimerComponent implements OnInit {
           this.timerService.stopTimer(); // Stop timer but do not reset
         }
       })
-    );  
+    );
 
     this.timerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => console.log('Time left:', timeLeft),
