@@ -872,12 +872,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isLoading = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
-
-    // Manage the timer lifecycle
-    console.log('[loadQuestion] Timer running before manageTimer:', this.timerService.isTimerRunning);
-    // this.manageTimer();
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, true); // Countdown mode
   
     // Clear previous data
     this.currentQuestion = null;
