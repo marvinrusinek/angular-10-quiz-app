@@ -81,8 +81,8 @@ export class TimerService {
                   this.elapsedTimeSubject.next(remainingTime);
 
                   if (remainingTime === 0) {
-                      console.log('[TimerService] Countdown reached 0.');
-                      this.stopTimer(); // Stop when it reaches 0
+                      console.log('[TimerService] Countdown reached 0. Timer stopping...');
+                      this.stopTimer(); // Ensure timer stops when countdown reaches 0
                   }
               }),
               takeUntil(this.stopSubject)
