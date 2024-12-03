@@ -88,21 +88,24 @@ export class TimerComponent implements OnInit {
 
   startTimer(): void {
     if (this.timerService.isTimerRunning) {
-      console.warn('Timer is already running.');
+      console.warn('[TimerComponent] Timer is already running.');
       return;
     }
-    this.timerService.startTimer();
+    console.log('[TimerComponent] Starting timer...');
+    this.timerService.startTimer(this.timePerQuestion, this.currentTimerType === TimerType.Countdown);
   }
 
   stopTimer(): void {
     if (!this.timerService.isTimerRunning) {
-      // console.warn('Timer is not running.');
+      console.warn('[TimerComponent] Timer is not running.');
       return;
     }
+    console.log('[TimerComponent] Stopping timer...');
     this.timerService.stopTimer();
   }
 
   resetTimer(): void {
+    console.log('[TimerComponent] Resetting timer...');
     this.timerService.resetTimer();
   }
 }
