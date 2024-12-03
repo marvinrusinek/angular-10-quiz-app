@@ -58,7 +58,7 @@ export class TimerService {
   }
 
   /** Starts the timer */
-  startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
+  /* startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
     console.log(`[TimerService] Starting timer in mode: ${isCountdown ? 'Countdown' : 'Stopwatch'}`);
     
     if (this.isTimerRunning) {
@@ -83,8 +83,47 @@ export class TimerService {
         }
       })
     ).subscribe();
-  }
+  } */
+  startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
+    console.log('[TimerService] Attempting to start timer. Current state:', {
+      isTimerRunning: this.isTimerRunning,
+      duration,
+    });
   
+    if (this.isTimerRunning) {
+      console.warn('[TimerService] Timer is already running. Start ignored.');
+      return;
+    }
+  
+    this.isTimerRunning = true; // Mark timer as running
+    this.elapsedTime = 0;
+  
+    const timer$ = isCountdown
+      ? timer(0, 1000).pipe(
+          tap((tick) => {
+            this.elapsedTime = tick;
+            this.elapsedTimeSubject.next(this.elapsedTime);
+            if (tick >= duration) {
+              console.log('[TimerService] Countdown completed.');
+              this.stopTimer();
+            }
+          })
+        )
+      : timer(0, 1000).pipe(
+          tap((tick) => {
+            this.elapsedTime = tick;
+            this.elapsedTimeSubject.next(this.elapsedTime);
+          })
+        );
+  
+    this.timerSubscription = timer$.subscribe({
+      next: () => console.log('[TimerService] Timer tick:', this.elapsedTime),
+      error: (err) => console.error('[TimerService] Timer error:', err),
+      complete: () => console.log('[TimerService] Timer completed.'),
+    });
+  
+    console.log('[TimerService] Timer started successfully.');
+  }
 
   /** Stops the timer */
   stopTimer(callback?: (elapsedTime: number) => void): void {
