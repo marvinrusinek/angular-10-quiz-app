@@ -1521,20 +1521,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if `correct` property exists and its value is true
     // if ('correct' in event.option && event.option.correct) {
     if (option.correct === true) {
-      console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
-    
-      // Stop the timer if it's running
-      if (this.timerService.isTimerRunning) {
-        console.log('[onOptionClicked] Timer is running. Stopping it now...');
+      console.log('[onOptionClicked] Correct option selected.');
+      
+      // Attempt to stop the timer
+      try {
         this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
+          console.log('[onOptionClicked] Timer stopped successfully. Elapsed time:', elapsedTime);
         });
-  
+      
         // Mark the question as answered
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('[onOptionClicked] Next button enabled.');
-      } else {
-        console.warn('[onOptionClicked] Timer was not running. No action taken.');
+      } catch (error) {
+        console.error('[onOptionClicked] Error stopping the timer:', error);
       }
     } else {
       console.log('[onOptionClicked] Incorrect option selected.');
