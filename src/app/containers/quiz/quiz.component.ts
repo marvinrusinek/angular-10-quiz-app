@@ -1955,10 +1955,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Handle correct answers text update
       await this.updateCorrectAnswersText(question, this.options);
-  
-      // Reset the timer for the new question
-      this.timerService.resetTimer();
-      this.timerService.startTimer();
     } catch (error) {
       console.error('Error handling new question:', error);
     }
@@ -2955,11 +2951,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Reset the quiz service state
     this.quizService.resetAll();
   
-    // Reset and start the timer with a default duration
-    console.log('[resetUI] Resetting and starting timer...');
-    this.timerService.resetTimer();
-    this.timerService.startTimer(30);
-  
     // Trigger background reset
     this.resetBackgroundService.setShouldResetBackground(true);
   
@@ -3047,9 +3038,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.currentQuestionIndex = 0;
     this.progressPercentage.next(0);
     this.score = 0;
-  
-    // Reset the timer
-    this.timerService.resetTimer();
 
     // Clear any lingering UI state and force change detection
     this.questionToDisplay = '';
