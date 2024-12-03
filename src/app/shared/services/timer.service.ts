@@ -99,11 +99,9 @@ export class TimerService {
     this.isStop.next(); // Signal to stop the timer
 
     if (this.timerSubscription) {
-      setTimeout(() => {
-        this.timerSubscription?.unsubscribe();
-        this.timerSubscription = null;
-        console.log('Timer subscription cleared.');
-      }, 100); // Ensure stop signal propagates before unsubscribing
+      this.timerSubscription?.unsubscribe();
+      this.timerSubscription = null;
+      console.log('Timer subscription cleared.');
     } else {
       console.warn('No active timer subscription to unsubscribe.');
     }
