@@ -66,27 +66,30 @@ export class TimerService {
     }
   
     this.isTimerRunning = true;
-    this.elapsedTime = isCountdown ? duration : 0; // Initialize elapsed time based on mode
+    this.elapsedTime = isCountdown ? duration : 0; // Initialize based on mode
+    console.log(`[TimerService] Timer initialized with elapsedTime: ${this.elapsedTime}`);
   
-    this.timerSubscription = this.timer$.pipe(
+    this.timerSubscription = timer(0, 1000).pipe(
       tap(() => {
         if (isCountdown) {
-          this.elapsedTime--;
+          this.elapsedTime--; // Decrement for countdown
           const remainingTime = Math.max(this.elapsedTime, 0);
           this.elapsedTimeSubject.next(remainingTime);
+          console.log('[TimerService] Countdown tick. Time left:', remainingTime);
           if (remainingTime === 0) {
             console.log('[TimerService] Countdown completed. Stopping timer...');
             this.stopTimer();
           }
         } else {
-          this.elapsedTime++;
+          this.elapsedTime++; // Increment for stopwatch
           this.elapsedTimeSubject.next(this.elapsedTime);
+          console.log('[TimerService] Stopwatch tick. Elapsed time:', this.elapsedTime);
         }
       })
     ).subscribe();
   
-    console.log('Timer started in mode:', isCountdown ? 'Countdown' : 'Stopwatch');
-  }
+    console.log(`[TimerService] Timer started in mode: ${isCountdown ? 'Countdown' : 'Stopwatch'}`);
+  }  
   
   
 
