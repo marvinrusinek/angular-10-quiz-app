@@ -31,12 +31,11 @@ export class TimerService {
 
   constructor() {
     console.log('TimerService initialized.');
-
-    // Map signals to appropriate values
-    this.start$ = new BehaviorSubject<number>(this.timePerQuestion).asObservable();
-    this.stop$ = this.isStop.asObservable().pipe(map(() => 0)); // Emit 0 on stop
-    this.reset$ = this.isReset.asObservable().pipe(map(() => 0)); // Emit 0 on reset
-
+  
+    // Replace `isStop` and `isReset` with BehaviorSubjects
+    this.stop$ = this.stopSubject.asObservable().pipe(map(() => 0)); // Emit 0 on stop
+    this.reset$ = this.resetSubject.asObservable().pipe(map(() => 0)); // Emit 0 on reset
+  
     // Configure the timer observable
     this.timer$ = timer(0, 1000).pipe(
       tap(() => {
@@ -45,14 +44,14 @@ export class TimerService {
           this.elapsedTimeSubject.next(this.elapsedTime);
         }
       }),
-      takeUntil(this.isStop), // Stops on stop signal
-      takeUntil(this.isReset), // Stops on reset signal
+      takeUntil(this.stopSubject), // Stops on stop signal
+      takeUntil(this.resetSubject), // Stops on reset signal
       finalize(() => console.log('Timer finalized.'))
     );
-
-    // Logging signals
-    this.isStop.subscribe(() => console.log('Stop signal received in TimerService.'));
-    this.isReset.subscribe(() => console.log('Reset signal received in TimerService.'));
+  
+    // Logging signals for debugging
+    this.stopSubject.subscribe(() => console.log('Stop signal received in TimerService.'));
+    this.resetSubject.subscribe(() => console.log('Reset signal received in TimerService.'));
   }
 
   ngOnDestroy(): void {
