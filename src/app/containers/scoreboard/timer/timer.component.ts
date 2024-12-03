@@ -70,6 +70,8 @@ export class TimerComponent implements OnInit {
       console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
     this.timeLeft$ = this.getTimeObservable(type);
+    this.timerService.resetTimer();
+    this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
   }
 
   private getTimeObservable(type: TimerType): Observable<number> {
