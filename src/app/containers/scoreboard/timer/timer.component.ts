@@ -34,13 +34,12 @@ export class TimerComponent implements OnInit {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         return this.currentTimerType === TimerType.Countdown
-          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Ensure 0 is the minimum
+          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Ensure timer shows 0 at expiry
           : elapsedTime; // Stopwatch logic
       }),
       tap((timeLeft) => {
-        console.log('[TimerComponent] Time left:', timeLeft);
         if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
-          console.log('[TimerComponent] Time is up!');
+          console.log('[TimerComponent] Timer expired. Showing 0.');
         }
       })
     );
