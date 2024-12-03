@@ -60,32 +60,6 @@ export class TimerService {
   }
 
   /** Starts the timer */
-  /* startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
-    console.log(`[TimerService] Starting timer in mode: ${isCountdown ? 'Countdown' : 'Stopwatch'}`);
-    
-    if (this.isTimerRunning) {
-      console.warn('[TimerService] Timer is already running.');
-      return;
-    }
-  
-    this.isTimerRunning = true;
-    this.elapsedTime = isCountdown ? duration : 0; // Initialize elapsed time
-    this.timerSubscription = timer(0, 1000).pipe(
-      tap(() => {
-        if (isCountdown) {
-          this.elapsedTime--;
-          this.elapsedTimeSubject.next(Math.max(this.elapsedTime, 0)); // Emit remaining time
-          if (this.elapsedTime <= 0) {
-            console.log('[TimerService] Countdown completed. Stopping timer...');
-            this.stopTimer();
-          }
-        } else {
-          this.elapsedTime++;
-          this.elapsedTimeSubject.next(this.elapsedTime); // Emit elapsed time
-        }
-      })
-    ).subscribe();
-  } */
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
     console.log('[TimerService] Attempting to start timer. Current state:', {
       isTimerRunning: this.isTimerRunning,
