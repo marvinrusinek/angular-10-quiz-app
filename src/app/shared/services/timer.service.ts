@@ -73,29 +73,29 @@ export class TimerService {
     this.elapsedTime = 0;
 
     const timer$ = isCountdown
-      ? timer(0, 1000).pipe(
-          tap((tick) => {
-            const remainingTime = duration - tick;
+    ? timer(0, 1000).pipe(
+        tap((tick) => {
+          const remainingTime = duration - tick;
 
-            if (remainingTime <= 0) {
-              console.log('[TimerService] Countdown expired. Emitting 0.');
-              this.elapsedTimeSubject.next(0); // Emit 0 when expired
-              this.stopTimer(); // Stop the timer at 0
-            } else {
-              this.elapsedTimeSubject.next(remainingTime);
-            }
-          }),
-          takeUntil(this.isStop),
-          takeUntil(this.isReset)
-        )
-      : timer(0, 1000).pipe(
-          tap((tick) => {
-            this.elapsedTime = tick;
-            this.elapsedTimeSubject.next(this.elapsedTime);
-          }),
-          takeUntil(this.isStop),
-          takeUntil(this.isReset)
-        );
+          if (remainingTime <= 0) {
+            console.log('[TimerService] Countdown expired. Emitting 0.');
+            this.elapsedTimeSubject.next(0); // Emit 0 when expired
+            this.stopTimer(); // Stop the timer at 0
+          } else {
+            this.elapsedTimeSubject.next(remainingTime);
+          }
+        }),
+        takeUntil(this.isStop),
+        takeUntil(this.isReset)
+      )
+    : timer(0, 1000).pipe(
+        tap((tick) => {
+          this.elapsedTime = tick;
+          this.elapsedTimeSubject.next(this.elapsedTime);
+        }),
+        takeUntil(this.isStop),
+        takeUntil(this.isReset)
+      );
 
     this.timerSubscription = timer$.subscribe({
       next: () => console.log('[TimerService] Timer tick:', this.elapsedTime),
