@@ -34,10 +34,11 @@ export class TimerComponent implements OnInit {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         return this.currentTimerType === TimerType.Countdown
-          ? this.timePerQuestion - elapsedTime
-          : elapsedTime;
+          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown
+          : elapsedTime; // Stopwatch
       }),
       tap((timeLeft) => {
+        console.log('[TimerComponent] Time left:', timeLeft);
         if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
           console.log('[TimerComponent] Time is up!');
           this.timerService.stopTimer();
@@ -52,6 +53,8 @@ export class TimerComponent implements OnInit {
     });
 
     this.setTimerType(this.timerType.Countdown); // Default timer setup
+    this.timerService.resetTimer();
+    this.timerService.startTimer(this.timePerQuestion, true);
   }
 
   ngOnDestroy(): void {
@@ -62,25 +65,16 @@ export class TimerComponent implements OnInit {
   setTimerType(type: TimerType): void {
     if (this.currentTimerType !== type) {
       this.currentTimerType = type;
-      console.log(`Timer switched to ${type}`);
+      console.log(`[TimerComponent] Timer switched to ${type}`);
     } else {
       console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
-    // this.timeLeft$ = this.getTimeObservable(type);
-    this.timeLeft$ = this.getTimeObservable(type).pipe(
-      map((elapsedTime) => {
-        return type === TimerType.Countdown
-          ? this.timePerQuestion - elapsedTime
-          : elapsedTime;
-      }),
-      tap((timeLeft) => {
-        if (type === TimerType.Countdown && timeLeft <= 0) {
-          console.log('[TimerComponent] Time is up!');
-          this.timerService.stopTimer();
-        }
-      })
-    );    
+  
+    // Reset and start the timer with the correct mode
+    this.timerService.resetTimer();
+    this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
   }
+  
 
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
