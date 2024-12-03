@@ -79,8 +79,8 @@ export class TimerService {
   
         if (isCountdown && remainingTime <= 0) {
           console.log('[TimerService] Countdown completed.');
-          this.stopTimer(); // Stop the timer at 0
-          this.elapsedTimeSubject.next(duration); // Ensure it emits 0
+          this.elapsedTimeSubject.next(0); // Emit 0 when the timer expires
+          this.stopTimer(); // Ensure the timer stops at 0
         } else {
           this.elapsedTimeSubject.next(isCountdown ? remainingTime : this.elapsedTime);
         }
