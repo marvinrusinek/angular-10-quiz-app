@@ -35,8 +35,8 @@ export class TimerComponent implements OnInit {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         return this.currentTimerType === TimerType.Countdown
-          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown
-          : elapsedTime; // Stopwatch
+          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
+          : elapsedTime; // Stopwatch logic
       }),
       tap((timeLeft) => {
         console.log('[TimerComponent] Time left:', timeLeft);
@@ -52,7 +52,7 @@ export class TimerComponent implements OnInit {
       error: (err) => console.error('Error in timer:', err),
       complete: () => console.log('Timer completed.'),
     }); */
-    this.timerSubscription = this.timeLeft$.subscribe();
+    // this.timerSubscription = this.timeLeft$.subscribe();
 
     // Ensure default timer setup as Countdown
     this.setTimerType(this.timerType.Countdown);
@@ -69,10 +69,9 @@ export class TimerComponent implements OnInit {
       console.log(`[TimerComponent] Timer switched to ${type}`);
     }
   
-    // Reset and start the timer without interfering with quiz data
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
-  }  
+  }
 
   private getTimeObservable(type: TimerType): Observable<number> {
     switch (type) {
