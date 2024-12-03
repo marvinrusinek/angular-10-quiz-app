@@ -77,9 +77,12 @@ export class TimerService {
     const timer$ = isCountdown
       ? timer(0, 1000).pipe(
           tap((tick) => {
-            this.elapsedTime = tick;
-            this.elapsedTimeSubject.next(this.elapsedTime);
-            if (tick >= duration) {
+            const remainingTime = duration - tick;
+            if (remainingTime > 0) {
+              this.elapsedTime = tick;
+              this.elapsedTimeSubject.next(this.elapsedTime);
+            } else {
+              this.elapsedTimeSubject.next(duration); // Signal the full duration was elapsed
               console.log('[TimerService] Countdown completed.');
               this.stopTimer();
             }
