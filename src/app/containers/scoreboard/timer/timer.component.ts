@@ -34,7 +34,7 @@ export class TimerComponent implements OnInit {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         const timeLeft = this.currentTimerType === TimerType.Countdown
-          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Ensure countdown shows 0
+          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
           : elapsedTime; // Stopwatch logic
         console.log(`[TimerComponent] Time left (${this.currentTimerType}):`, timeLeft);
         return timeLeft;
@@ -45,7 +45,7 @@ export class TimerComponent implements OnInit {
           this.timerService.stopTimer(); // Stop timer but do not reset
         }
       })
-    );
+    );  
 
     this.timerSubscription = this.timeLeft$.subscribe({
       next: (timeLeft) => console.log('Time left:', timeLeft),
