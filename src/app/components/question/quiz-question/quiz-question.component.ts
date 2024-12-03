@@ -1521,12 +1521,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if `correct` property exists and its value is true
     // if ('correct' in event.option && event.option.correct) {
     if (option.correct === true) {
-      console.log('[onOptionClicked] Correct option selected.');
+      console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
       
       // Attempt to stop the timer
       try {
         this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('[onOptionClicked] Timer stopped successfully. Elapsed time:', elapsedTime);
+          console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
         });
       
         // Mark the question as answered
@@ -1539,7 +1539,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[onOptionClicked] Incorrect option selected.');
       this.selectedOptionService.isAnsweredSubject.next(false);
       console.log('[onOptionClicked] Next button remains disabled.');
-    }
+    }      
 
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
