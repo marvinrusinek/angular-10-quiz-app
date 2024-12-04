@@ -95,7 +95,7 @@ export class TimerService {
         takeUntil(this.isStop),
         takeUntil(this.isReset)
       ); */
-    /* const timer$ = isCountdown
+    const timer$ = isCountdown
     ? timer(0, 1000).pipe(
         takeUntil(this.isStop),
         tap((tick) => {
@@ -113,7 +113,7 @@ export class TimerService {
           this.elapsedTime = tick;
           this.elapsedTimeSubject.next(this.elapsedTime);
         })
-      ); */
+      );
 
     this.timerSubscription = this.timer$.subscribe({
       next: () => console.log('[TimerService] Timer tick:', this.elapsedTime),
