@@ -41,13 +41,11 @@ export class TimerService {
         if (this.isTimerRunning) {
           this.elapsedTime++;
           this.elapsedTimeSubject.next(this.elapsedTime);
+          console.log('[TimerService] Timer tick:', this.elapsedTime);
         }
       }),
       takeUntil(this.stopSubject.pipe(tap(() => console.log('[TimerService] stopSubject received.')))),
-      takeUntil(this.resetSubject.pipe(tap(() => console.log('[TimerService] resetSubject received.')))),
-      takeUntil(this.isStop), // Stop the timer on stop signal
-      takeUntil(this.isReset), // Stop the timer on reset signal
-      finalize(() => console.log('Timer finalized.'))
+      finalize(() => console.log('[TimerService] Timer finalized.'))
     );
   
     // Logging signals for debugging
