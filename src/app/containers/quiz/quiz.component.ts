@@ -2871,38 +2871,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    if (this.isLoading || this.debounceNavigation) return;
+    if (this.isLoading || this.debounceNavigation) {
+      console.warn('[navigateToQuestion] Navigation is already in progress or debounced.');
+      return;
+    }
   
     // Debounce navigation to prevent rapid consecutive calls
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => (this.debounceNavigation = false), debounceTimeout);
-
-    console.log('Resetting and starting timer for question:', questionIndex || this.currentQuestionIndex);
-    
-    // Handle the timer lifecycle
-    if (this.timerService.isTimerRunning) {
-      console.log('[navigateToQuestion] Stopping current timer...');
-      this.timerService.stopTimer();
-    }
   
-    console.log('[navigateToQuestion] Resetting and starting timer for new question...');
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, true);
-    console.log('Timer started for question:', questionIndex);
-    console.log("Timer reset and started for the new question.");
+    console.log('Preparing to reset and start timer for question:', questionIndex || this.currentQuestionIndex);
   
     // Abort any ongoing navigation operations
     if (this.navigationAbortController) {
       this.navigationAbortController.abort();
     }
-    // Create a new AbortController for the current navigation
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
   
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      console.warn(`[navigateToQuestion] Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
       return;
     }
   
@@ -2913,12 +2903,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isLoading = true;
   
     try {
+      // Handle the timer lifecycle
+      try {
+        if (this.timerService.isTimerRunning) {
+          console.log('[navigateToQuestion] Stopping current timer...');
+          this.timerService.stopTimer();
+        }
+  
+        console.log('[navigateToQuestion] Resetting timer...');
+        this.timerService.resetTimer();
+  
+        console.log('[navigateToQuestion] Starting timer for new question...');
+        this.timerService.startTimer(this.timerService.timePerQuestion, true);
+        console.log('[navigateToQuestion] Timer successfully reset and started.');
+      } catch (timerError) {
+        console.error('[navigateToQuestion] Timer operation failed:', timerError);
+      }
+  
       // Navigate to the new URL
       await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
   
       // Check if navigation was aborted
       if (signal.aborted) {
-        console.log('Navigation aborted.');
+        console.log('[navigateToQuestion] Navigation aborted.');
         return;
       }
   
@@ -2928,15 +2935,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     } catch (error) {
       if (signal.aborted) {
-        console.log('Navigation was cancelled.');
+        console.log('[navigateToQuestion] Navigation was cancelled.');
       } else {
-        console.error(`Error navigating to URL: ${newUrl}:`, error);
+        console.error(`[navigateToQuestion] Error navigating to URL: ${newUrl}:`, error);
       }
     } finally {
       // Ensure isLoading is reset regardless of success or failure
       this.isLoading = false;
+      console.log('[navigateToQuestion] Navigation process completed.');
     }
   }
+  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
