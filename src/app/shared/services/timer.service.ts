@@ -43,8 +43,8 @@ export class TimerService {
           this.elapsedTimeSubject.next(this.elapsedTime);
         }
       }),
-      takeUntil(this.stopSubject), // Stops on stop signal
-      takeUntil(this.resetSubject), // Stops on reset signal
+      takeUntil(this.stopSubject.pipe(tap(() => console.log('[TimerService] stopSubject received.')))),
+      takeUntil(this.resetSubject.pipe(tap(() => console.log('[TimerService] resetSubject received.')))),
       takeUntil(this.isStop), // Stop the timer on stop signal
       takeUntil(this.isReset), // Stop the timer on reset signal
       finalize(() => console.log('Timer finalized.'))
@@ -138,6 +138,7 @@ export class TimerService {
 
     this.isTimerRunning = false; // Mark the timer as stopped
     this.stopSubject.next(); // Emit stop signal to stop the timer
+    this.isStop.next();
 
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
