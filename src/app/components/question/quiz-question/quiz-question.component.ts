@@ -1518,6 +1518,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[onOptionClicked] Triggered with option:', option);
       
       if (option.correct === true) {
+        console.log("MY CORR OPTION TEST");
         console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
       
         if (this.timerService.isTimerRunning) {

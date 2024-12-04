@@ -45,6 +45,8 @@ export class TimerService {
       }),
       takeUntil(this.stopSubject), // Stops on stop signal
       takeUntil(this.resetSubject), // Stops on reset signal
+      takeUntil(this.isStop), // Stop the timer on stop signal
+      takeUntil(this.isReset), // Stop the timer on reset signal
       finalize(() => console.log('Timer finalized.'))
     );
   
