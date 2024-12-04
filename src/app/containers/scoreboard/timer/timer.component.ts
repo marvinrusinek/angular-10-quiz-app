@@ -63,16 +63,18 @@ export class TimerComponent implements OnInit {
 
   setTimerType(type: TimerType): void {
     if (this.currentTimerType !== type) {
-      this.currentTimerType = type;
-      console.log(`[TimerComponent] Timer switched to: ${type}`);
-      this.timerService.resetTimer();
-      this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
+        this.currentTimerType = type;
+        console.log(`[TimerComponent] Timer switched to: ${type}`);
+        
+        // Reset and start the timer for the new type
+        this.timerService.resetTimer();
+        this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
     } else {
-      console.log(`[TimerComponent] Timer type is already set to: ${type}`);
+        console.log(`[TimerComponent] Timer type is already set to: ${type}`);
     }
+
+    // Update the observable for display purposes
     this.timeLeft$ = this.getTimeObservable(type);
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timePerQuestion, type === TimerType.Countdown);
   }
 
   private getTimeObservable(type: TimerType): Observable<number> {
