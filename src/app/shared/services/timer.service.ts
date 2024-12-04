@@ -44,7 +44,9 @@ export class TimerService {
           console.log('[TimerService] Timer tick:', this.elapsedTime);
         }
       }),
-      takeUntil(this.stopSubject.pipe(tap(() => console.log('[TimerService] stopSubject received.')))),
+      takeUntil(this.stopSubject.pipe(
+        tap(() => console.log('[TimerService] stopSubject triggered, stopping timer.'))
+      )),
       finalize(() => console.log('[TimerService] Timer finalized.'))
     );
   
