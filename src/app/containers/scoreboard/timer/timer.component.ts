@@ -31,48 +31,21 @@ export class TimerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((elapsedTime) => {
-        const timeLeft = this.currentTimerType === TimerType.Countdown
-          ? Math.max(this.timePerQuestion - elapsedTime, 0)
-          : elapsedTime;
-        console.log('[TimerComponent] Time left:', timeLeft);
-        return timeLeft;
-      }),
-      tap((timeLeft) => {
-        if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
-          console.log('[TimerComponent] Time is up! Stopping the timer...');
-          this.timerService.stopTimer();
-        }
-      })
-    ); */
-    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((timeLeft) => {
-        console.log(`[TimerComponent] Time left (${this.currentTimerType}):`, timeLeft);
-        return timeLeft;
-      }),
-      tap((timeLeft) => {
-        if (this.currentTimerType === TimerType.Countdown && timeLeft === 0) {
-          console.log('[TimerComponent] Time expired.');
-        }
-      })
-    ); */
-
     //this.testTimerStop();
 
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
-          const timeLeft = this.currentTimerType === TimerType.Countdown
-              ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
-              : elapsedTime; // Stopwatch logic
-          console.log('[TimerComponent] Time left updated:', timeLeft);
-          return timeLeft;
+        const timeLeft = this.currentTimerType === TimerType.Countdown
+          ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
+          : elapsedTime; // Stopwatch logic
+        console.log('[TimerComponent] Time left updated:', timeLeft);
+        return timeLeft;
       }),
       tap((timeLeft) => {
-          if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
-              console.log('[TimerComponent] Countdown reached 0. Stopping timer...');
-              this.timerService.stopTimer();
-          }
+        if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
+          console.log('[TimerComponent] Countdown reached 0. Stopping timer...');
+          this.timerService.stopTimer();
+        }
       })
     );
 
@@ -99,10 +72,10 @@ export class TimerComponent implements OnInit {
     this.timerService.startTimer(10, true); // Start timer for 10 seconds (Countdown mode)
     
     setTimeout(() => {
-        console.log('[TimerService] Attempting to stop timer at ~3 seconds...');
-        this.timerService.stopTimer((elapsedTime) => {
-            console.log('[TimerService] Timer stopped. Elapsed time:', elapsedTime);
-        });
+      console.log('[TimerService] Attempting to stop timer at ~3 seconds...');
+      this.timerService.stopTimer((elapsedTime) => {
+        console.log('[TimerService] Timer stopped. Elapsed time:', elapsedTime);
+      });
     }, 3000); // Stop the timer after 3 seconds
   }
 
