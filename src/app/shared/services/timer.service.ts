@@ -29,7 +29,7 @@ export class TimerService {
   public reset$ = this.resetSubject.asObservable().pipe(map(() => 0));
 
   // Timer observable
-  private timer$: Observable<number>;
+  timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
 
   constructor() {
@@ -70,53 +70,23 @@ export class TimerService {
 
     this.isTimerRunning = true; // Mark timer as running
     this.elapsedTime = 0;
-
-    /* const timer$ = isCountdown
-    ? timer(0, 1000).pipe(
-        tap((tick) => {
-          const remainingTime = duration - tick;
-
-          if (remainingTime <= 0) {
-            console.log('[TimerService] Countdown expired. Emitting 0.');
-            this.elapsedTimeSubject.next(0); // Emit 0 when expired
-            this.stopTimer(); // Stop the timer at 0
-          } else {
-            this.elapsedTimeSubject.next(remainingTime);
-          }
-        }),
-        takeUntil(this.isStop),
-        takeUntil(this.isReset)
-      )
-    : timer(0, 1000).pipe(
-        tap((tick) => {
-          this.elapsedTime = tick;
-          this.elapsedTimeSubject.next(this.elapsedTime);
-        }),
-        takeUntil(this.isStop),
-        takeUntil(this.isReset)
-      ); */
-      const timer$ = timer(0, 1000).pipe(
-        tap((tick) => {
-          this.elapsedTime = tick;
-          this.elapsedTimeSubject.next(this.elapsedTime);
+    
+    const timer$ = timer(0, 1000).pipe(
+      tap((tick) => {
+        this.elapsedTime = tick;
+        this.elapsedTimeSubject.next(this.elapsedTime);
   
-          if (tick >= duration) {
-            console.log('[TimerService] Time expired. Stopping timer.');
-            this.stopTimer();
-          }
-        }),
-        takeUntil(this.isStop),
-        takeUntil(this.isReset),
-        finalize(() => console.log('[TimerService] Timer finalized.'))
-      );
+        if (tick >= duration) {
+          console.log('[TimerService] Time expired. Stopping timer.');
+          this.stopTimer();
+        }
+      }),
+      takeUntil(this.isStop),
+      takeUntil(this.isReset),
+      finalize(() => console.log('[TimerService] Timer finalized.'))
+    );
 
     this.timerSubscription = timer$.subscribe();
-
-    /* this.timerSubscription = this.timer$.subscribe({
-      next: () => console.log('[TimerService] Timer tick:', this.elapsedTime),
-      error: (err) => console.error('[TimerService] Timer error:', err),
-      complete: () => console.log('[TimerService] Timer completed.'),
-    }); */
 
     console.log('[TimerService] Timer started successfully.');
   }
