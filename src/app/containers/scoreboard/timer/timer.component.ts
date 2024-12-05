@@ -87,18 +87,16 @@ export class TimerComponent implements OnInit {
     console.log('TimerComponent destroyed and subscription unsubscribed.');
   }
 
-  testTimerStop(): void {
-    console.log('[TimerService] Test: Starting and stopping timer...');
-    this.timerService.startTimer(10, true); // Start countdown for 10 seconds
-    console.log('[TimerService] Timer started.');
-
+  testTimerService(): void {
+    console.log('[TimerService] Test: Starting timer for 10 seconds (Countdown)...');
+    this.startTimer(10, true); // Start timer for 10 seconds (Countdown mode)
+    
     setTimeout(() => {
-        console.log('[TimerService] Attempting to stop timer...');
-        this.timerService.stopTimer((elapsedTime) => {
-            console.log('[TimerService] Timer stopped in test. Elapsed time:', elapsedTime);
+        console.log('[TimerService] Attempting to stop timer at ~3 seconds...');
+        this.stopTimer((elapsedTime) => {
+            console.log('[TimerService] Timer stopped. Elapsed time:', elapsedTime);
         });
-        console.log('[TimerService] Timer should now be stopped.');
-    }, 3000); // Stop after 3 seconds
+    }, 3000); // Stop the timer after 3 seconds
   }
 
   setTimerType(type: TimerType): void {
