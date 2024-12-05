@@ -96,20 +96,17 @@ export class TimerService {
         takeUntil(this.isReset)
       ); */
       const timer$ = timer(0, 1000).pipe(
-        takeUntil(this.isStop),
-        takeUntil(this.isReset),
         tap((tick) => {
           this.elapsedTime = tick;
-          const timeLeft = isCountdown ? Math.max(duration - tick, 0) : tick;
+          this.elapsedTimeSubject.next(this.elapsedTime);
   
-          // Emit elapsed or remaining time
-          this.elapsedTimeSubject.next(timeLeft);
-  
-          if (isCountdown && timeLeft === 0) {
-            console.log('[TimerService] Countdown reached zero. Stopping timer.');
+          if (tick >= duration) {
+            console.log('[TimerService] Time expired. Stopping timer.');
             this.stopTimer();
           }
         }),
+        takeUntil(this.isStop),
+        takeUntil(this.isReset),
         finalize(() => console.log('[TimerService] Timer finalized.'))
       );
 
@@ -162,7 +159,7 @@ export class TimerService {
     }
 
     this.elapsedTime = 0;
-    this.isTimerRunning = false;
+    // this.isTimerRunning = false;
 
     this.isReset.next(); // Signal to reset
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
