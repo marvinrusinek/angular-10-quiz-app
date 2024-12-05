@@ -57,6 +57,9 @@ export class TimerComponent implements OnInit {
         }
       })
     ); */
+
+    this.testTimerStop();
+
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => Math.max(this.timerService.timePerQuestion - elapsedTime, 0)),
       tap((timeLeft) => {
@@ -82,6 +85,20 @@ export class TimerComponent implements OnInit {
   ngOnDestroy(): void {
     this.timerSubscription?.unsubscribe();
     console.log('TimerComponent destroyed and subscription unsubscribed.');
+  }
+
+  testTimerStop(): void {
+    console.log('[TimerService] Test: Starting and stopping timer...');
+    this.timerService.startTimer(10, true); // Start countdown for 10 seconds
+    console.log('[TimerService] Timer started.');
+
+    setTimeout(() => {
+        console.log('[TimerService] Attempting to stop timer...');
+        this.timerService.stopTimer((elapsedTime) => {
+            console.log('[TimerService] Timer stopped in test. Elapsed time:', elapsedTime);
+        });
+        console.log('[TimerService] Timer should now be stopped.');
+    }, 3000); // Stop after 3 seconds
   }
 
   setTimerType(type: TimerType): void {
