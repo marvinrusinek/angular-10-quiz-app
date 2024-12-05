@@ -97,13 +97,16 @@ export class TimerService {
       ); */
       const timer$ = timer(0, 1000).pipe(
         takeUntil(this.isStop),
+        takeUntil(this.isReset),
         tap((tick) => {
           this.elapsedTime = tick;
-          this.elapsedTimeSubject.next(
-            isCountdown ? Math.max(duration - tick, 0) : tick
-          );
-          if (isCountdown && tick >= duration) {
-            console.log('[TimerService] Countdown expired.');
+          const timeLeft = isCountdown ? Math.max(duration - tick, 0) : tick;
+  
+          // Emit elapsed or remaining time
+          this.elapsedTimeSubject.next(timeLeft);
+  
+          if (isCountdown && timeLeft === 0) {
+            console.log('[TimerService] Countdown reached zero. Stopping timer.');
             this.stopTimer();
           }
         }),
