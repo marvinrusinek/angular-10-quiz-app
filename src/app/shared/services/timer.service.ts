@@ -96,7 +96,7 @@ export class TimerService {
         takeUntil(this.isReset)
       ); */
       const timer$ = timer(0, 1000).pipe(
-        takeUntil(this.stopSignal),
+        takeUntil(this.isStop),
         tap((tick) => {
           this.elapsedTime = tick;
           this.elapsedTimeSubject.next(
