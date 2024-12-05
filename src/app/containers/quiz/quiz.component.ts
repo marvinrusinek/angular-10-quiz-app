@@ -2910,10 +2910,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       // Handle the timer lifecycle
       try {
-        if (this.timerService.isTimerRunning) {
+        /* if (this.timerService.isTimerRunning) {
           console.log('[navigateToQuestion] Stopping current timer...');
           this.timerService.stopTimer();
-        }
+        } */
   
         console.log('[navigateToQuestion] Resetting timer...');
         this.timerService.resetTimer();
