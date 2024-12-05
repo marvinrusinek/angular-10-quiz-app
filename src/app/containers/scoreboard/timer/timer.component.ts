@@ -46,7 +46,7 @@ export class TimerComponent implements OnInit {
         }
       })
     ); */
-    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((timeLeft) => {
         console.log(`[TimerComponent] Time left (${this.currentTimerType}):`, timeLeft);
         return timeLeft;
@@ -54,6 +54,14 @@ export class TimerComponent implements OnInit {
       tap((timeLeft) => {
         if (this.currentTimerType === TimerType.Countdown && timeLeft === 0) {
           console.log('[TimerComponent] Time expired.');
+        }
+      })
+    ); */
+    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+      map((elapsedTime) => Math.max(this.timerService.timePerQuestion - elapsedTime, 0)),
+      tap((timeLeft) => {
+        if (timeLeft === 0) {
+          console.log('[TimerComponent] Timer reached zero.');
         }
       })
     );
