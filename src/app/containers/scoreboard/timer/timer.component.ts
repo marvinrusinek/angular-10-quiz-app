@@ -31,7 +31,7 @@ export class TimerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+    /* this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
         const timeLeft = this.currentTimerType === TimerType.Countdown
           ? Math.max(this.timePerQuestion - elapsedTime, 0)
@@ -45,6 +45,14 @@ export class TimerComponent implements OnInit {
           this.timerService.stopTimer();
         }
       })
+    ); */
+    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+      tap((timeLeft) => {
+        console.log(`[TimerComponent] Time left (${this.currentTimerType}):`, timeLeft);
+        if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
+          console.log('[TimerComponent] Timer expired.');
+        }
+      })
     );
 
     this.timerSubscription = this.timeLeft$.subscribe({
@@ -54,6 +62,10 @@ export class TimerComponent implements OnInit {
     });
 
     this.setTimerType(this.timerType.Countdown); // Default timer setup
+    
+    // Reset and start the timer for the initial question
+    this.timerService.resetTimer();
+    this.timerService.startTimer(this.timePerQuestion, true);
   }
 
   ngOnDestroy(): void {
