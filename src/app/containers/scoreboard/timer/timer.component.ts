@@ -58,7 +58,7 @@ export class TimerComponent implements OnInit {
       })
     ); */
 
-    // this.testTimerStop();
+    //this.testTimerStop();
 
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
       map((elapsedTime) => {
@@ -96,11 +96,11 @@ export class TimerComponent implements OnInit {
 
   testTimerService(): void {
     console.log('[TimerService] Test: Starting timer for 10 seconds (Countdown)...');
-    this.startTimer(10, true); // Start timer for 10 seconds (Countdown mode)
+    this.timerService.startTimer(10, true); // Start timer for 10 seconds (Countdown mode)
     
     setTimeout(() => {
         console.log('[TimerService] Attempting to stop timer at ~3 seconds...');
-        this.stopTimer((elapsedTime) => {
+        this.timerService.stopTimer((elapsedTime) => {
             console.log('[TimerService] Timer stopped. Elapsed time:', elapsedTime);
         });
     }, 3000); // Stop the timer after 3 seconds
