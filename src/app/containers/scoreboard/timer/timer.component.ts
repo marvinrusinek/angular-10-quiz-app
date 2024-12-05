@@ -58,14 +58,21 @@ export class TimerComponent implements OnInit {
       })
     ); */
 
-    this.testTimerStop();
+    // this.testTimerStop();
 
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
-      map((elapsedTime) => Math.max(this.timerService.timePerQuestion - elapsedTime, 0)),
+      map((elapsedTime) => {
+          const timeLeft = this.currentTimerType === TimerType.Countdown
+              ? Math.max(this.timePerQuestion - elapsedTime, 0) // Countdown logic
+              : elapsedTime; // Stopwatch logic
+          console.log('[TimerComponent] Time left updated:', timeLeft);
+          return timeLeft;
+      }),
       tap((timeLeft) => {
-        if (timeLeft === 0) {
-          console.log('[TimerComponent] Timer reached zero.');
-        }
+          if (this.currentTimerType === TimerType.Countdown && timeLeft <= 0) {
+              console.log('[TimerComponent] Countdown reached 0. Stopping timer...');
+              this.timerService.stopTimer();
+          }
       })
     );
 
