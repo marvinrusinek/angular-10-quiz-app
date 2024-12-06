@@ -2916,9 +2916,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }  
         console.log('[navigateToQuestion] Resetting timer...');
         this.timerService.resetTimer();
+
+        // Determine if we're running a countdown or stopwatch
+        const isCountdown = this.currentTimerType === 'countdown';
   
         console.log('[navigateToQuestion] Starting timer for new question...');
-        this.timerService.startTimer(this.timerService.timePerQuestion, true);
+        this.timerService.startTimer(this.timerService.timePerQuestion, isCountdown);
         console.log('[navigateToQuestion] Timer successfully reset and started.');
       } catch (timerError) {
         console.error('[navigateToQuestion] Timer operation failed:', timerError);
