@@ -3339,21 +3339,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* private manageTimer(): void {
-    console.log('Managing timer lifecycle...');
-    console.log('Timer running before stop:', this.timerService.isTimerRunning);
-  
-    this.timerService.stopTimer();
-  
-    setTimeout(() => {
-      this.timerService.resetTimer();
-      console.log('Timer reset successfully.');
-  
-      this.timerService.startTimer();
-      console.log('Timer started successfully. Timer running:', this.timerService.isTimerRunning);
-    }, 100);
-  } */
-
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
       this.router.navigate(['quiz', 'result']);
