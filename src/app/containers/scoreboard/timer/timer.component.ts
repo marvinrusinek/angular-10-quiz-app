@@ -132,8 +132,15 @@ export class TimerComponent implements OnInit {
 } */
 
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { TimerService } from '../../../shared/services/timer.service';
+
+enum TimerType {
+  Countdown = 'countdown',
+  Stopwatch = 'stopwatch'
+}
 
 @Component({
   selector: 'codelab-scoreboard-timer',
@@ -146,22 +153,39 @@ import { TimerService } from '../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimerComponent implements OnInit, OnDestroy {
-  elapsedTime: number = 0;
-  private timerSubscription?: Subscription;
+  timerType = TimerType;
+  timePerQuestion = 30; // If you need a default duration
+  currentTimerType = TimerType.Countdown;
+
+  timeLeft$!: Observable<number>;
 
   constructor(private timerService: TimerService) {}
 
   ngOnInit(): void {
-    // Subscribe to the elapsed time from TimerService
-    this.timerSubscription = this.timerService.elapsedTime$.subscribe(time => {
-      this.elapsedTime = time;
-      console.log('[TimerComponent] Elapsed time updated:', time);
-    });
+    // Just transform the elapsedTime$ according to currentTimerType
+    this.timeLeft$ = this.timerService.elapsedTime$.pipe(
+      map((elapsedTime) =>
+        this.currentTimerType === TimerType.Countdown
+          ? Math.max(this.timePerQuestion - elapsedTime, 0)
+          : elapsedTime
+      )
+    );
+
+    // Note: No timer control (start/stop/reset) is done here.
+    // The QuizComponent (or another parent) must handle starting and stopping the timer.
   }
 
   ngOnDestroy(): void {
-    // Clean up subscription
-    this.timerSubscription?.unsubscribe();
-    console.log('[TimerComponent] Destroyed and subscription unsubscribed.');
+    // No direct subscription being maintained here since we're using async pipe.
+    // If you had a manual subscription, you would unsubscribe it here.
+  }
+
+  // Optional: If you want to allow changing the display mode from here
+  setTimerType(type: TimerType): void {
+    if (this.currentTimerType !== type) {
+      this.currentTimerType = type;
+      // By changing currentTimerType, the map() above will adjust the displayed time
+      // No need to start/stop/reset timer from here.
+    }
   }
 }
