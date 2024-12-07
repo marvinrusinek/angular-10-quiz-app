@@ -1505,21 +1505,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ]);
     } */
 
-    /* console.log('Selected Options Map after click:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-
-    // Check if all correct answers are selected
-    const allCorrectAnswersSelected = await this.areAllCorrectAnswersSelected();
-    console.log('Are all correct answers selected?', allCorrectAnswersSelected); */
-  
-    console.log("IS OPTION CORRECT", option.correct);
-    console.log("IS CORRECT IN OPTION", 'correct' in option);
-
-    // Check if `correct` property exists and its value is true
-    // if ('correct' in event.option && event.option.correct) {
     try {
       console.log('[onOptionClicked] Triggered with option:', option);
       
-      if (option.correct === true) {
+      // Check if all correct answers are now selected
+      const allCorrectSelected = await this.areAllCorrectAnswersSelected();
+      if (allCorrectSelected) {
         console.log("MY CORR OPTION TEST");
         console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
       
@@ -1602,8 +1593,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-  /* private async areAllCorrectAnswersSelected(): Promise<boolean> {
-    // Fetch the current question dynamically
+  private async areAllCorrectAnswersSelected(): Promise<boolean> {
+    // Fetch the current question by index
     const question = await lastValueFrom(
       this.quizService.getQuestionByIndex(this.currentQuestionIndex)
     );
@@ -1614,9 +1605,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return false;
     }
   
+    // Identify correct options for the current question
     const correctOptions = question.options.filter((o) => o.correct);
     console.log('Correct Options:', JSON.stringify(correctOptions, null, 2));
   
+    // Retrieve the user's selected options from selectedOptionService
     const selectedOptions = Array.from(
       this.selectedOptionService.selectedOptionsMap.values()
     )
@@ -1627,29 +1620,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Check if all correct options are selected
     const allSelectedCorrect =
-    correctOptions.length > 0 && // Ensure there are correct options
-    correctOptions.every((correctOption) =>
+      correctOptions.length > 0 && // Ensure there are correct options
+      correctOptions.every((correctOption) =>
         selectedOptions.some(
-            (selectedOption) =>
-                selectedOption.optionId === correctOption.optionId &&
-                selectedOption.correct === correctOption.correct
+          (selectedOption) =>
+            selectedOption.optionId === correctOption.optionId &&
+            selectedOption.correct === correctOption.correct
         )
-    );
+      );
   
     console.log('Are all correct options selected?', allSelectedCorrect);
     return allSelectedCorrect;
-  } */
-  private async areAllCorrectAnswersSelected(): Promise<boolean> {
-    // Logic to check if all correct answers are selected
-    // Replace with your specific implementation
-    const correctAnswers = this.currentQuestion.options.filter((o) => o.correct);
-    const selectedOptions = []; // Replace with actual selected options logic
-
-    return correctAnswers.every((correct) =>
-      selectedOptions.some((selected) => selected.optionId === correct.optionId)
-    );
-  }
-  
+  }  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
