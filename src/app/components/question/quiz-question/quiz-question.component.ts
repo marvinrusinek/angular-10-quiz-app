@@ -1473,15 +1473,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return;
 
-    // Log full structure of the option
-    // console.log('Option full structure:', JSON.stringify(option, null, 2));
-
-    // Log keys explicitly
-    /* console.log('Option keys:', Object.keys(option));
-    for (const key in option) {
-      console.log(`Key: ${key}, Value: ${option[key]}`);
-    } */
-
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
     // Lock input for single-answer questions
