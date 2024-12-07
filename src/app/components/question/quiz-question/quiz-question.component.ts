@@ -873,7 +873,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
 
-    this.timerService.startTimer();
+    this.timerService.startTimer(this.timerService.timePerQuestion, true);
   
     // Clear previous data
     this.currentQuestion = null;
