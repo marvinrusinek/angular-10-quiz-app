@@ -36,7 +36,7 @@ export class TimerService {
     console.log('TimerService initialized.');
   
     // Configure the timer observable
-    this.timer$ = timer(0, 1000).pipe(
+    /* this.timer$ = timer(0, 1000).pipe(
       tap(() => {
         if (this.isTimerRunning) {
           this.elapsedTime++;
@@ -45,7 +45,7 @@ export class TimerService {
       }),
       takeUntil(this.stopSubject), // Stops on stop signal
       finalize(() => console.log('[TimerService] Timer finalized.'))
-    );
+    ); */
   
     // Logging signals for debugging
     this.stopSubject.subscribe(() => console.log('Stop signal received in TimerService.'));
@@ -133,7 +133,7 @@ export class TimerService {
     }
 
     this.elapsedTime = 0;
-    // this.isTimerRunning = false;
+    this.isTimerRunning = false;
 
     this.isReset.next(); // Signal to reset
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
