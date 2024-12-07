@@ -132,7 +132,7 @@ export class TimerComponent implements OnInit {
 } */
 
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { TimerService } from '../../../shared/services/timer.service';
@@ -144,11 +144,7 @@ enum TimerType {
 
 @Component({
   selector: 'codelab-scoreboard-timer',
-  template: `
-    <div class="timer-display">
-      Elapsed Time: {{ elapsedTime }}
-    </div>
-  `,
+  templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
