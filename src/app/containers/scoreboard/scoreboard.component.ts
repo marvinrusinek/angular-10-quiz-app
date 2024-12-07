@@ -58,7 +58,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
       this.questionNumber = +params.questionIndex;
-      // this.timerService.resetTimer();
+      this.timerService.startTimer();
       return this.quizService.totalQuestions$;
     }
     return of(null);
