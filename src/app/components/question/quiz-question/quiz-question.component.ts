@@ -1497,17 +1497,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } */
 
     try {
-      console.log('[onOptionClicked] Triggered with option:', option);
-      
       // Check if all correct answers are now selected
       const allCorrectSelected = await this.areAllCorrectAnswersSelected();
       
       if (allCorrectSelected) {
-        console.log("MY CORR OPTION TEST");
-        console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
-    
         if (this.timerService.isTimerRunning) {
-          console.log('[onOptionClicked] Timer is running. Stopping it now...');
           this.timerService.stopTimer((elapsedTime: number) => {
             console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
           });
@@ -1519,8 +1513,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.log('[onOptionClicked] Next button enabled.');
         } else {
           console.warn('[onOptionClicked] Timer was not running. No action taken.');
-          // Still emit true here since all correct answers were found,
-          // but the timer was not running for some reason (optional, depends on logic)
           this.answerSelected.emit(true);
         }
       } else {
