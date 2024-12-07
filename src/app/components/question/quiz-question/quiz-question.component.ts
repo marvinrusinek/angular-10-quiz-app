@@ -873,10 +873,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
 
-    if (this.timerService.isTimerRunning) {
-      console.log('[loadQuestion] Stopping previous timer...');
-      this.timerService.stopTimer();
-    }
     this.timerService.startTimer();
   
     // Clear previous data
