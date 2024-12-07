@@ -70,6 +70,10 @@ export class TimerService {
 
     this.isTimerRunning = true; // Mark timer as running
     this.elapsedTime = 0;
+
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+    }
     
     const timer$ = timer(0, 1000).pipe(
       tap((tick) => {
