@@ -1601,7 +1601,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Identify correct options for the current question
     const correctOptions = question.options.filter((o) => o.correct);
-    console.log('Correct Options:', JSON.stringify(correctOptions, null, 2));
   
     // Retrieve the user's selected options from selectedOptionService
     const selectedOptions = Array.from(
@@ -1609,9 +1608,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     )
       .flat()
       .filter((o) => o.optionId != null);
-  
-    console.log('Selected Options:', JSON.stringify(selectedOptions, null, 2));
-  
+    
     // Check if all correct options are selected
     const allSelectedCorrect =
       correctOptions.length > 0 && // Ensure there are correct options
