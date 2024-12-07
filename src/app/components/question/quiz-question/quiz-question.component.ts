@@ -873,6 +873,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
 
+    if (this.timerService.isTimerRunning) {
+      console.log('[loadQuestion] Stopping previous timer...');
+      this.timerService.stopTimer();
+    }
     this.timerService.startTimer();
   
     // Clear previous data
@@ -1510,29 +1514,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
       // Check if all correct answers are now selected
       const allCorrectSelected = await this.areAllCorrectAnswersSelected();
+      
       if (allCorrectSelected) {
         console.log("MY CORR OPTION TEST");
         console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
-      
+    
         if (this.timerService.isTimerRunning) {
           console.log('[onOptionClicked] Timer is running. Stopping it now...');
           this.timerService.stopTimer((elapsedTime: number) => {
             console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
           });
-      
+    
+          // Emit true since all correct answers are selected
+          this.answerSelected.emit(true);
+    
           this.selectedOptionService.isAnsweredSubject.next(true);
           console.log('[onOptionClicked] Next button enabled.');
         } else {
           console.warn('[onOptionClicked] Timer was not running. No action taken.');
+          // Still emit true here since all correct answers were found,
+          // but the timer was not running for some reason (optional, depends on logic)
+          this.answerSelected.emit(true);
         }
       } else {
         console.log('[onOptionClicked] Incorrect option selected.');
+    
+        // Emit false since not all correct answers are selected
+        this.answerSelected.emit(false);
+    
         this.selectedOptionService.isAnsweredSubject.next(false);
         console.log('[onOptionClicked] Next button remains disabled.');
       }
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
-    }  
+    }    
 
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
@@ -2765,13 +2780,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    if (option.correct) {
+    /* if (option.correct) {
       console.log('[selectOption] Correct answer chosen. Stopping timer...');
       this.timerService.stopTimer();
       this.answerSelected.emit(true);
     } else {
       this.answerSelected.emit(false);
-    }    
+    }  */   
 
     const selectedOption = {
       ...option,
