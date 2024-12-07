@@ -1543,7 +1543,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('Single-answer question: Option already selected. Skipping.');
       return true;
     }
-    // this.isOptionSelected = true; // (commented out as in original code)
+    this.isOptionSelected = true;
     return false;
   }
   
