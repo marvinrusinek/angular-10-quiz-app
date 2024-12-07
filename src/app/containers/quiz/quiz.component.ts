@@ -2907,23 +2907,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.isLoading = true;
   
-    try {
-      // Handle the timer lifecycle
-      /* try {
-        if (this.timerService.isTimerRunning) {
-          console.log('[navigateToQuestion] Stopping current timer...');
-          this.timerService.stopTimer();
-        }
-        console.log('[navigateToQuestion] Resetting timer...');
-        // this.timerService.resetTimer();
-  
-        console.log('[navigateToQuestion] Starting timer for new question...');
-        // this.timerService.startTimer(this.timerService.timePerQuestion, true);
-        console.log('[navigateToQuestion] Timer successfully reset and started.');
-      } catch (timerError) {
-        console.error('[navigateToQuestion] Timer operation failed:', timerError);
-      } */
-  
+    try { 
       // Navigate to the new URL
       await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
   
