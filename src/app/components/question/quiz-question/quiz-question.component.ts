@@ -1468,66 +1468,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     console.log('onOptionClicked triggered:', event);
-    const option = event.option;
   
-    // Exit early if option or optionId is invalid
-    if (!option || option.optionId == null) return;
-
+    // 1. Validate the option and early returns
+    if (!this.validateOption(event)) {
+      return;
+    }
+  
+    const option = event.option!;
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
-    // Lock input for single-answer questions
-    /* if (!isMultipleAnswer && this.isOptionSelected) {
-      console.log('Single-answer question: Option already selected. Skipping.');
+    // 2. Handle single-answer lock logic
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) {
       return;
-    } */
+    }
   
-    // Mark the option as selected
-    // this.isOptionSelected = true;
+    // 3. Add the selected option to the selectedOptionsMap
+    this.addOptionToMap(option);
   
-    // Get current options for this optionId
-    /* const currentOptions =
-      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-
-    // Check if the option is already added
-    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
-      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...currentOptions,
-        option,
-      ]);
-    } */
-
     try {
-      // Check if all correct answers are now selected
+      // 4. Check if all correct answers are now selected and handle the outcome
       const allCorrectSelected = await this.areAllCorrectAnswersSelected();
-      
-      if (allCorrectSelected) {
-        if (this.timerService.isTimerRunning) {
-          this.timerService.stopTimer((elapsedTime: number) => {
-            console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
-          });
-    
-          // Emit true since all correct answers are selected
-          this.answerSelected.emit(true);
-    
-          this.selectedOptionService.isAnsweredSubject.next(true);
-          console.log('[onOptionClicked] Next button enabled.');
-        } else {
-          console.warn('[onOptionClicked] Timer was not running. No action taken.');
-          this.answerSelected.emit(true);
-        }
-      } else {
-        console.log('[onOptionClicked] Incorrect option selected.');
-    
-        // Emit false since not all correct answers are selected
-        this.answerSelected.emit(false);
-    
-        this.selectedOptionService.isAnsweredSubject.next(false);
-        console.log('[onOptionClicked] Next button remains disabled.');
-      }
+      await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
-    }    
-
+    }
+  
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
   
@@ -1557,6 +1522,83 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Render updated display
     this.renderDisplay();
   
+    // 5. Handle additional UI updates and processing in a safe ngZone run
+    await this.handleAdditionalProcessing(event, isMultipleAnswer);
+  }
+  
+  // ====================== Helper Functions ======================
+  
+  /** Validates the option and returns false if early return is needed. */
+  private validateOption(event: { option: SelectedOption | null; index: number; checked: boolean }): boolean {
+    const option = event.option;
+    // Exit early if option or optionId is invalid
+    if (!option || option.optionId == null) return false;
+    return true;
+  }
+  
+  /** Handles single-answer lock logic. Returns true if we should return early. */
+  private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
+    // Lock input for single-answer questions
+    if (!isMultipleAnswer && this.isOptionSelected) {
+      console.log('Single-answer question: Option already selected. Skipping.');
+      return true;
+    }
+    // this.isOptionSelected = true; // (commented out as in original code)
+    return false;
+  }
+  
+  /** Adds the selected option to the selectedOptionsMap if not already added. */
+  private addOptionToMap(option: SelectedOption): void {
+    // Get current options for this optionId
+    const currentOptions =
+      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
+  
+    // Check if the option is already added
+    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
+      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
+        ...currentOptions,
+        option,
+      ]);
+    }
+  }
+  
+  /** Handles the outcome after checking if all correct answers are selected. */
+  private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
+    if (allCorrectSelected) {
+      console.log("MY CORR OPTION TEST");
+      console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
+  
+      if (this.timerService.isTimerRunning) {
+        console.log('[onOptionClicked] Timer is running. Stopping it now...');
+        this.timerService.stopTimer((elapsedTime: number) => {
+          console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
+        });
+  
+        // Emit true since all correct answers are selected
+        this.answerSelected.emit(true);
+  
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        console.log('[onOptionClicked] Next button enabled.');
+      } else {
+        console.warn('[onOptionClicked] Timer was not running. No action taken.');
+        this.answerSelected.emit(true);
+      }
+    } else {
+      console.log('[onOptionClicked] Incorrect option selected.');
+  
+      // Emit false since not all correct answers are selected
+      this.answerSelected.emit(false);
+  
+      this.selectedOptionService.isAnsweredSubject.next(false);
+      console.log('[onOptionClicked] Next button remains disabled.');
+    }
+  }
+  
+  /** Handles the additional UI processing inside ngZone run block. */
+  private async handleAdditionalProcessing(
+    event: { option: SelectedOption | null; index: number; checked: boolean },
+    isMultipleAnswer: boolean
+  ): Promise<void> {
     try {
       await this.ngZone.run(async () => {
         await this.applyUIStabilityDelay();
@@ -1585,7 +1627,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Finalize cooldowns
       this.applyCooldownAndFinalize();
     }
-  }
+  }  
   
   private async areAllCorrectAnswersSelected(): Promise<boolean> {
     // Fetch the current question by index
