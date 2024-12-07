@@ -3366,7 +3366,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private manageTimer(): void {
+  /* private manageTimer(): void {
     console.log('Managing timer lifecycle...');
     console.log('Timer running before stop:', this.timerService.isTimerRunning);
   
@@ -3379,7 +3379,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.timerService.startTimer();
       console.log('Timer started successfully. Timer running:', this.timerService.isTimerRunning);
     }, 100);
-  }  
+  } */
 
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
