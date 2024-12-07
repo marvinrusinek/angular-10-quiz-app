@@ -76,7 +76,8 @@ export class TimerService {
         this.elapsedTime = tick;
         this.elapsedTimeSubject.next(this.elapsedTime);
   
-        if (tick >= duration) {
+        // If we are in countdown mode and we've reached the duration, stop automatically
+        if (isCountdown && tick >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
           this.stopTimer();
         }
