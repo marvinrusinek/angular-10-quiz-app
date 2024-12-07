@@ -1467,9 +1467,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    console.log('onOptionClicked triggered:', event);
-  
-    // 1. Validate the option and early returns
+    // Validate the option and early returns
     if (!this.validateOption(event)) {
       return;
     }
@@ -1477,16 +1475,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const option = event.option!;
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
-    // 2. Handle single-answer lock logic
+    // Handle single-answer lock logic
     if (this.handleSingleAnswerLock(isMultipleAnswer)) {
       return;
     }
   
-    // 3. Add the selected option to the selectedOptionsMap
+    // Add the selected option to the selectedOptionsMap
     this.addOptionToMap(option);
   
     try {
-      // 4. Check if all correct answers are now selected and handle the outcome
+      // Check if all correct answers are now selected and handle the outcome
       const allCorrectSelected = await this.areAllCorrectAnswersSelected();
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
@@ -1522,7 +1520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Render updated display
     this.renderDisplay();
   
-    // 5. Handle additional UI updates and processing in a safe ngZone run
+    // Handle additional UI updates and processing in a safe ngZone run
     await this.handleAdditionalProcessing(event, isMultipleAnswer);
   }
   
