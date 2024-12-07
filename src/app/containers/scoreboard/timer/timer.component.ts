@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+/* import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Observable, of, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
@@ -128,5 +128,40 @@ export class TimerComponent implements OnInit {
   resetTimer(): void {
     console.log('[TimerComponent] Resetting timer...');
     this.timerService.resetTimer();
+  }
+} */
+
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { TimerService } from '../../../shared/services/timer.service';
+
+@Component({
+  selector: 'codelab-scoreboard-timer',
+  template: `
+    <div class="timer-display">
+      Elapsed Time: {{ elapsedTime }}
+    </div>
+  `,
+  styleUrls: ['./timer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class TimerComponent implements OnInit, OnDestroy {
+  elapsedTime: number = 0;
+  private timerSubscription?: Subscription;
+
+  constructor(private timerService: TimerService) {}
+
+  ngOnInit(): void {
+    // Subscribe to the elapsed time from TimerService
+    this.timerSubscription = this.timerService.elapsedTime$.subscribe(time => {
+      this.elapsedTime = time;
+      console.log('[TimerComponent] Elapsed time updated:', time);
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    this.timerSubscription?.unsubscribe();
+    console.log('[TimerComponent] Destroyed and subscription unsubscribed.');
   }
 }
