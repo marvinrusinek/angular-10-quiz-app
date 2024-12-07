@@ -1565,11 +1565,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   /** Handles the outcome after checking if all correct answers are selected. */
   private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
     if (allCorrectSelected) {
-      console.log("MY CORR OPTION TEST");
-      console.log('[onOptionClicked] Correct option selected. Attempting to stop timer.');
-  
       if (this.timerService.isTimerRunning) {
-        console.log('[onOptionClicked] Timer is running. Stopping it now...');
         this.timerService.stopTimer((elapsedTime: number) => {
           console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
         });
@@ -1584,8 +1580,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.answerSelected.emit(true);
       }
     } else {
-      console.log('[onOptionClicked] Incorrect option selected.');
-  
       // Emit false since not all correct answers are selected
       this.answerSelected.emit(false);
   
