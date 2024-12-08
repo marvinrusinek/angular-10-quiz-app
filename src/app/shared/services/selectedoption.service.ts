@@ -105,6 +105,32 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
   }
 
+  /** Adds an option to the selectedOptionsMap */
+  addOption(option: SelectedOption): void {
+    const currentOptions = this.selectedOptionsMap.get(option.optionId) || [];
+
+    if (!currentOptions.some(o => o.optionId === option.optionId)) {
+      this.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
+      console.log(`[SelectedOptionService] Option added:`, option);
+    } else {
+      console.log(`[SelectedOptionService] Option already present:`, option);
+    }
+  }
+
+  /** Removes an option from the selectedOptionsMap */
+  removeOption(optionId: number, option: SelectedOption): void {
+    const currentOptions = this.selectedOptionsMap.get(optionId) || [];
+    const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
+
+    if (updatedOptions.length > 0) {
+      this.selectedOptionsMap.set(optionId, updatedOptions);
+    } else {
+      this.selectedOptionsMap.delete(optionId);
+    }
+
+    console.log(`[SelectedOptionService] Option removed:`, option);
+  }
+
   setNextButtonEnabled(enabled: boolean): void {
     this.isNextButtonEnabledSubject.next(enabled);  // Update the button's enabled state
   }  
@@ -312,32 +338,6 @@ export class SelectedOptionService {
         this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
       }
     }
-  }
-
-  /** Adds an option to the selectedOptionsMap */
-  addOption(option: SelectedOption): void {
-    const currentOptions = this.selectedOptionsMap.get(option.optionId) || [];
-
-    if (!currentOptions.some(o => o.optionId === option.optionId)) {
-      this.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
-      console.log(`[SelectedOptionService] Option added:`, option);
-    } else {
-      console.log(`[SelectedOptionService] Option already present:`, option);
-    }
-  }
-
-  /** Removes an option from the selectedOptionsMap */
-  removeOption(optionId: number, option: SelectedOption): void {
-    const currentOptions = this.selectedOptionsMap.get(optionId) || [];
-    const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
-
-    if (updatedOptions.length > 0) {
-      this.selectedOptionsMap.set(optionId, updatedOptions);
-    } else {
-      this.selectedOptionsMap.delete(optionId);
-    }
-
-    console.log(`[SelectedOptionService] Option removed:`, option);
   }
 
   // Method to add or remove a selected option for a question
