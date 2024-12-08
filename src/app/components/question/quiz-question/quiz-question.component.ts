@@ -1466,9 +1466,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     // Validate the option and early returns
-    if (!this.validateOption(event)) {
-      return;
-    }
+    if (!this.validateOption(event)) return;
   
     const option = event.option!;
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
