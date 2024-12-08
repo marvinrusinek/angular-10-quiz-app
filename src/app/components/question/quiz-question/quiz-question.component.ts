@@ -1550,8 +1550,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!currentOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
         ...currentOptions,
-        option,
+        option
       ]);
+    } else {
+      console.log(`[addOptionToMap] Option already present:`, option);
     }
   }
   
