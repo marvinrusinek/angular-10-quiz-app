@@ -314,6 +314,32 @@ export class SelectedOptionService {
     }
   }
 
+  /** Adds an option to the selectedOptionsMap */
+  addOption(option: SelectedOption): void {
+    const currentOptions = this.selectedOptionsMap.get(option.optionId) || [];
+
+    if (!currentOptions.some(o => o.optionId === option.optionId)) {
+      this.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
+      console.log(`[SelectedOptionService] Option added:`, option);
+    } else {
+      console.log(`[SelectedOptionService] Option already present:`, option);
+    }
+  }
+
+  /** Removes an option from the selectedOptionsMap */
+  removeOption(optionId: number, option: SelectedOption): void {
+    const currentOptions = this.selectedOptionsMap.get(optionId) || [];
+    const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
+
+    if (updatedOptions.length > 0) {
+      this.selectedOptionsMap.set(optionId, updatedOptions);
+    } else {
+      this.selectedOptionsMap.delete(optionId);
+    }
+
+    console.log(`[SelectedOptionService] Option removed:`, option);
+  }
+
   // Method to add or remove a selected option for a question
   toggleSelectedOption(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
     console.log('toggleSelectedOption called with', { questionIndex, option });
@@ -614,10 +640,10 @@ export class SelectedOptionService {
   updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
-    // const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
+    const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
 
     // Simply mark the question as answered when any option is selected
-    const isAnswered = selectedOptions.length > 0;
+    const isAnswered = allCorrectAnswersSelected;
   
     console.log('Updating answered state for free navigation:', {
       selectedOptions,
