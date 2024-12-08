@@ -338,7 +338,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
       // Default to displaying question text if certain flags are set
       this.ensureQuestionTextDisplay();
-      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     } else if (currentState.mode === 'explanation' && currentState.answered) {
       // Display explanation text only if mode is 'explanation' and the question is answered
       this.setExplanationText(); // Set the explanation text before displaying
@@ -347,7 +346,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       // Fallback to displaying question text in all other cases
       this.ensureQuestionTextDisplay();
-      console.log(`[renderDisplay] Displaying question text by default for question ${this.currentQuestionIndex}`);
     }
   }
 
