@@ -1568,14 +1568,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('[onOptionClicked] Next button enabled.');
+
+        // Lock further selections if necessary
+        this.isExplanationLocked = true;
       } else {
         console.warn('[onOptionClicked] Timer was not running. No action taken.');
         this.answerSelected.emit(true);
+
+        // Lock further selections if necessary
+        this.isExplanationLocked = true;
       }
     } else {
       // Emit false since not all correct answers are selected
       this.answerSelected.emit(false);
-  
       this.selectedOptionService.isAnsweredSubject.next(false);
       console.log('[onOptionClicked] Next button remains disabled.');
     }
