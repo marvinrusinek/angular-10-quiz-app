@@ -1483,14 +1483,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     try {
       // Check if all correct answers are now selected
-      const allCorrectSelected = await this.areAllCorrectAnswersSelected();
+      const allCorrectSelected = await this.areAllCorrectAnswersSelectedSync();
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
   
     // Automatically mark the question as answered
-    this.selectedOptionService.updateAnsweredState(() => true);
+    // this.selectedOptionService.updateAnsweredState(() => true);
+    this.selectedOptionService.updateAnsweredState(() => {
+      return this.areAllCorrectAnswersSelectedSync();
+    });
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
@@ -1615,7 +1618,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }  
   
-  private async areAllCorrectAnswersSelected(): Promise<boolean> {
+  private async areAllCorrectAnswersSelectedSync(): Promise<boolean> {
     // Fetch the current question by index
     const question = await lastValueFrom(
       this.quizService.getQuestionByIndex(this.currentQuestionIndex)
