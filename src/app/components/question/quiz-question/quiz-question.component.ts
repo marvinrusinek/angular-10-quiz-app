@@ -1481,19 +1481,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Add the selected option to the selectedOptionsMap
     this.addOptionToMap(option);
   
+    let allCorrectSelected = false;
     try {
       // Check if all correct answers are now selected
-      const allCorrectSelected = await this.areAllCorrectAnswersSelectedSync();
+      allCorrectSelected = await this.areAllCorrectAnswersSelectedSync();
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
   
     // Automatically mark the question as answered
-    // this.selectedOptionService.updateAnsweredState(() => true);
-    this.selectedOptionService.updateAnsweredState(() => {
-      return this.areAllCorrectAnswersSelectedSync();
-    });
+    this.selectedOptionService.updateAnsweredState(() => allCorrectSelected);
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
