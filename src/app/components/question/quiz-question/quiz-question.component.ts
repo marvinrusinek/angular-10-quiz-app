@@ -1661,9 +1661,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
-    // Log the state update for debugging
-    console.log('Updating display state:', { mode, answered });
-
     // Emit the new state to the subject
     this.displayStateSubject.next({ mode, answered });
   }
