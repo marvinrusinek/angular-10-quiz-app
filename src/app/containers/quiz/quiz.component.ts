@@ -1,3 +1,4 @@
+
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -753,6 +754,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isOptionSelected = this.isAnyOptionSelected();
     this.isAnswered = isOptionSelected;
     sessionStorage.setItem('isAnswered', String(this.isAnswered));
+
+    if (option.correct) {
+      console.log('Correct answer selected. Stopping timer.');
+      this.timerService.stopTimer();
+    }
 
     this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);
     this.quizStateService.setAnswerSelected(isOptionSelected);  // Set answer state and lock display

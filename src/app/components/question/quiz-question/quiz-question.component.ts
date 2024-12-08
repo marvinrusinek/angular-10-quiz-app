@@ -1466,28 +1466,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     // Validate the option and early returns
-    if (!this.validateOption(event)) return;
+    if (!this.validateOption(event)) {
+      return;
+    }
   
     const option = event.option!;
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
     // Handle single-answer lock logic
-    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) {
+      return;
+    }
   
     // Add the selected option to the selectedOptionsMap
     this.addOptionToMap(option);
   
-    let allCorrectSelected = false;
     try {
-      // Check if all correct answers are now selected
-      allCorrectSelected = await this.areAllCorrectAnswersSelectedSync();
+      // Check if all correct answers are now selected and handle the outcome
+      const allCorrectSelected = await this.areAllCorrectAnswersSelected();
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
   
     // Automatically mark the question as answered
-    this.selectedOptionService.updateAnsweredState(() => allCorrectSelected);
+    this.selectedOptionService.updateAnsweredState(() => true);
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
@@ -1546,10 +1549,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!currentOptions.some((o) => o.optionId === option.optionId)) {
       this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
         ...currentOptions,
-        option
+        option,
       ]);
-    } else {
-      console.log(`[addOptionToMap] Option already present:`, option);
     }
   }
   
@@ -1566,19 +1567,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('[onOptionClicked] Next button enabled.');
-
-        // Lock further selections if necessary
-        this.isExplanationLocked = true;
       } else {
         console.warn('[onOptionClicked] Timer was not running. No action taken.');
         this.answerSelected.emit(true);
-
-        // Lock further selections if necessary
-        this.isExplanationLocked = true;
       }
     } else {
       // Emit false since not all correct answers are selected
       this.answerSelected.emit(false);
+  
       this.selectedOptionService.isAnsweredSubject.next(false);
       console.log('[onOptionClicked] Next button remains disabled.');
     }
@@ -1619,7 +1615,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }  
   
-  private async areAllCorrectAnswersSelectedSync(): Promise<boolean> {
+  private async areAllCorrectAnswersSelected(): Promise<boolean> {
     // Fetch the current question by index
     const question = await lastValueFrom(
       this.quizService.getQuestionByIndex(this.currentQuestionIndex)
@@ -1657,6 +1653,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }  
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
+    // Log the state update for debugging
+    console.log('Updating display state:', { mode, answered });
+
     // Emit the new state to the subject
     this.displayStateSubject.next({ mode, answered });
   }
@@ -2784,6 +2783,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`Invalid optionIndex ${optionIndex}.`);
       return;
     }
+
+    /* if (option.correct) {
+      console.log('[selectOption] Correct answer chosen. Stopping timer...');
+      this.timerService.stopTimer();
+      this.answerSelected.emit(true);
+    } else {
+      this.answerSelected.emit(false);
+    }  */   
 
     const selectedOption = {
       ...option,
