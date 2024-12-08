@@ -1477,20 +1477,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.handleSingleAnswerLock(isMultipleAnswer)) {
       return;
     }
+
+    // Add or remove the selected option using the service
+    if (event.checked) {
+      this.selectedOptionService.addOption(option);
+    } else {
+      this.selectedOptionService.removeOption(option.optionId, option);
+    }
   
-    // Add the selected option to the selectedOptionsMap
-    this.addOptionToMap(option);
-  
+    let allCorrectSelected = false;
+
     try {
       // Check if all correct answers are now selected and handle the outcome
-      const allCorrectSelected = await this.areAllCorrectAnswersSelected();
+      allCorrectSelected = await this.areAllCorrectAnswersSelected();
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
   
     // Automatically mark the question as answered
-    this.selectedOptionService.updateAnsweredState(() => true);
+    this.selectedOptionService.updateAnsweredState(() => allCorrectSelected);
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
@@ -1537,21 +1543,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
     this.isOptionSelected = true;
     return false;
-  }
-  
-  /** Adds the selected option to the selectedOptionsMap if not already added. */
-  private addOptionToMap(option: SelectedOption): void {
-    // Get current options for this optionId
-    const currentOptions =
-      this.selectedOptionService.selectedOptionsMap.get(option.optionId) || [];
-  
-    // Check if the option is already added
-    if (!currentOptions.some((o) => o.optionId === option.optionId)) {
-      this.selectedOptionService.selectedOptionsMap.set(option.optionId, [
-        ...currentOptions,
-        option,
-      ]);
-    }
   }
   
   /** Handles the outcome after checking if all correct answers are selected. */
