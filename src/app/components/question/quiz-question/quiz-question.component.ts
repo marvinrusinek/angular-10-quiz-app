@@ -1474,9 +1474,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
     // Handle single-answer lock logic
-    if (this.handleSingleAnswerLock(isMultipleAnswer)) {
-      return;
-    }
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
     // Add the selected option to the selectedOptionsMap
     this.addOptionToMap(option);
