@@ -1482,7 +1482,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.addOptionToMap(option);
   
     try {
-      // Check if all correct answers are now selected and handle the outcome
+      // Check if all correct answers are now selected
       const allCorrectSelected = await this.areAllCorrectAnswersSelected();
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
