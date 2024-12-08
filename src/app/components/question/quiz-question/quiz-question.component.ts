@@ -1494,13 +1494,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
   
-    // Debugging logs
-    console.log('Updated Selected Options Map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-  
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     this.updateDisplayState('explanation', isAnswered);
-    console.log('Display state updated to explanation mode:', this.displayState);
   
     // Emit display state changes
     this.displayStateChange.emit({
