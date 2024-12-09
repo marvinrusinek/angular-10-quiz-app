@@ -1492,7 +1492,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
       // Check if all correct answers are now selected and handle the outcome
-      allCorrectSelected = await this.areAllCorrectAnswersSelected();
+      allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
       await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
@@ -1604,44 +1604,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Finalize cooldowns
       this.applyCooldownAndFinalize();
     }
-  }  
-  
-  private async areAllCorrectAnswersSelected(): Promise<boolean> {
-    // Fetch the current question by index
-    const question = await lastValueFrom(
-      this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-    );
-  
-    // Ensure the question and its options are available
-    if (!question || !question.options) {
-      console.warn('No question or options found for current index:', this.currentQuestionIndex);
-      return false;
-    }
-  
-    // Identify correct options for the current question
-    const correctOptions = question.options.filter((o) => o.correct);
-  
-    // Retrieve the user's selected options from selectedOptionService
-    const selectedOptions = Array.from(
-      this.selectedOptionService.selectedOptionsMap.values()
-    )
-      .flat()
-      .filter((o) => o.optionId != null);
-    
-    // Check if all correct options are selected
-    const allSelectedCorrect =
-      correctOptions.length > 0 && // Ensure there are correct options
-      correctOptions.every((correctOption) =>
-        selectedOptions.some(
-          (selectedOption) =>
-            selectedOption.optionId === correctOption.optionId &&
-            selectedOption.correct === correctOption.correct
-        )
-      );
-  
-    console.log('Are all correct options selected?', allSelectedCorrect);
-    return allSelectedCorrect;
-  }  
+  }
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
     // Log the state update for debugging
