@@ -1522,7 +1522,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (stopTimer) {
         console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
-        this.stopTimer();
+        this.timerService.stopTimer();
       }
   
     } catch (error) {
