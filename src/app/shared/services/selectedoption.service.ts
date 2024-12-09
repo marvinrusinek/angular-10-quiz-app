@@ -472,7 +472,7 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     // Ensure the question and its options are available
     if (!questionOptions || questionOptions.length === 0) {
       console.warn('No options provided for current question');
@@ -498,6 +498,38 @@ export class SelectedOptionService {
         )
       );
 
+    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allSelectedCorrect);
+    return allSelectedCorrect;
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+    // **Early return if no question options are provided**
+    if (!questionOptions || questionOptions.length === 0) {
+      console.warn('No options provided for current question');
+      return false;
+    }
+  
+    // **Get correct options**
+    const correctOptions = questionOptions.filter((o) => o.correct);
+    
+    // **Early return if no correct options exist**
+    if (correctOptions.length === 0) {
+      console.warn('No correct options for this question');
+      return false;
+    }
+  
+    // **Create a Set of selected option IDs**
+    const selectedOptionIds = new Set(
+      Array.from(this.selectedOptionsMap.values())
+        .flat()
+        .map((o) => o.optionId)
+        .filter((id) => id != null)
+    );
+  
+    // **Check if all correct options are selected**
+    const allSelectedCorrect = correctOptions.every((correctOption) =>
+      selectedOptionIds.has(correctOption.optionId)
+    );
+  
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allSelectedCorrect);
     return allSelectedCorrect;
   }
