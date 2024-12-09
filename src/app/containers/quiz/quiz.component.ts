@@ -583,25 +583,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         startWith(false) // Default to false (no option selected)
       ),
       this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading), // Emit true when not loading
-        startWith(false) // Assume loading initially
+        map((loading) => !loading), // Emit true when NOT loading
+        startWith(true) // **Change to true (assume not loading initially)**
       ),
       this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating), // Emit true when not navigating
-        startWith(false) // Assume navigating initially
+        map((navigating) => !navigating), // Emit true when NOT navigating
+        startWith(true) // **Change to true (assume not navigating initially)**
       ),
     ]).pipe(
       map(([isAnswered, isLoaded, isIdle]) => {
+        console.log('[Next Button State] isAnswered:', isAnswered, 'isLoaded:', isLoaded, 'isIdle:', isIdle);
         return isAnswered && isLoaded && isIdle;
       }),
       distinctUntilChanged(),
       shareReplay(1) // Ensure multiple subscribers get the latest value
     );
-
+  
     this.isButtonEnabled$.subscribe((isEnabled) => {
+      console.log('[Next Button] Enabled:', isEnabled); // 👈 Debug log here
       this.updateAndSyncNextButtonState(isEnabled);
     });
   }
+  
   
   private evaluateNextButtonState(): boolean {
     // Reset options state to ensure no residual state interferes
