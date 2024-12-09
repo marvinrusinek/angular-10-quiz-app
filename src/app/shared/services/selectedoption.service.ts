@@ -502,12 +502,14 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allSelectedCorrect);
     return allSelectedCorrect;
   } */
+  
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     if (!questionOptions || questionOptions.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No options provided for current question');
       return false;
     }
   
+    // **Get all correct option IDs**
     const correctOptionIds = questionOptions
       .filter((o) => o.correct)
       .map((o) => o.optionId);
@@ -517,6 +519,7 @@ export class SelectedOptionService {
       return false;
     }
   
+    // **Get all selected option IDs from selectedOptionsMap**
     const selectedOptionIds = new Set(
       Array.from(this.selectedOptionsMap.values())
         .flat()
@@ -524,17 +527,19 @@ export class SelectedOptionService {
         .filter((id) => id != null)
     );
   
+    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
+  
+    // **Check if all correct options are present in selectedOptionIds**
     const allCorrectOptionsSelected = correctOptionIds.every((correctOptionId) =>
       selectedOptionIds.has(correctOptionId)
     );
   
-    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
-    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
-  }
- 
+  }  
+
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
