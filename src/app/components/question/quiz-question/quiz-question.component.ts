@@ -1497,6 +1497,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Automatically mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => allCorrectSelected);
+
+    this.cdRef.detectChanges();
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
