@@ -2746,14 +2746,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    /* if (option.correct) {
-      console.log('[selectOption] Correct answer chosen. Stopping timer...');
-      this.timerService.stopTimer();
-      this.answerSelected.emit(true);
-    } else {
-      this.answerSelected.emit(false);
-    }  */   
-
     const selectedOption = {
       ...option,
       optionId: optionIndex,
