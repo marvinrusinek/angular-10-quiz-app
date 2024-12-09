@@ -1520,7 +1520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (allCorrectSelected) {
         console.log('[onOptionClicked] All correct answers selected, stopping the timer.');
-        this.stopTimer();
+        this.timerService.stopTimer();
       }
   
     } catch (error) {
