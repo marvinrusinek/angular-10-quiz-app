@@ -349,6 +349,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private updateRenderingFlags(): void {
+    this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true;
+    this.isExplanationLocked = false;
+  }
+
   private saveQuizState(): void {
     // Store the explanation state or text
     sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
@@ -1465,6 +1472,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
+    if (!this.currentQuestion) {
+      console.warn('[onOptionClicked] currentQuestion is null, attempting to load it.');
+      this.currentQuestion = await firstValueFrom(
+        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+      );
+      console.log('[onOptionClicked] currentQuestion loaded:', this.currentQuestion);
+    }
+
+    // Check if currentQuestion still doesn't exist
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      console.error('[onOptionClicked] currentQuestion is still null or missing options.');
+      return; // Exit early
+    }
+    
     // Validate the option and early returns
     if (!this.validateOption(event)) return;
   
@@ -1503,13 +1524,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Handle initial selection
     this.handleInitialSelection(event);
   
-    // Update rendering flags
-    this.forceQuestionDisplay = false;
-    this.readyForExplanationDisplay = true;
-    this.isExplanationReady = true;
-    this.isExplanationLocked = false;
-  
     // Render updated display
+    this.updateRenderingFlags();
     this.renderDisplay();
   
     // Handle additional UI updates and processing in a safe ngZone run
