@@ -510,13 +510,13 @@ export class SelectedOptionService {
   
     console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
   
-    // **Ensure all options have an optionId (fallback to index if missing)**
+    // Ensure all options have an optionId (fallback to index if missing)
     const processedOptions = questionOptions.map((o, index) => {
       o.optionId = o.optionId ?? index; // Use index as fallback optionId (ensures optionId is a number)
       return o;
     });
   
-    // **Get unique correct option IDs**
+    // Get unique correct option IDs
     const correctOptionIds = Array.from(
       new Set(
         processedOptions
