@@ -508,17 +508,17 @@ export class SelectedOptionService {
       return false;
     }
   
-    // **Get all correct option IDs**
+    // Get all correct option IDs (filter out undefined optionIds)
     const correctOptionIds = questionOptions
-      .filter((o) => o.correct)
-      .map((o) => o.optionId);
+    .filter((o) => o.correct && o.optionId != null) // Ensures no undefined optionId
+    .map((o) => o.optionId);
   
     if (correctOptionIds.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
       return false;
     }
   
-    // **Get all selected option IDs from selectedOptionsMap**
+    // Get all selected option IDs from selectedOptionsMap
     const selectedOptionIds = new Set(
       Array.from(this.selectedOptionsMap.values())
         .flat()
@@ -529,7 +529,7 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
   
-    // **Check if all correct options are present in selectedOptionIds**
+    // Check if all correct options are present in selectedOptionIds
     const allCorrectOptionsSelected = correctOptionIds.every((correctOptionId) =>
       selectedOptionIds.has(correctOptionId)
     );
