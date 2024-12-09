@@ -1506,26 +1506,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // **Immediately mark the question as answered**
     this.selectedOptionService.updateAnsweredState(() => true);
   
-    let allCorrectSelected = false;
+    let stopTimer = false;
+  
     try {
-      // **Check if all correct answers are now selected**
       if (isMultipleAnswer) {
         // **For multiple-answer questions, check if all correct answers are selected**
-        allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+        const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onOptionClicked] All correct answers selected (multiple-answer):', allCorrectSelected);
+        stopTimer = allCorrectSelected;
       } else {
         // **For single-answer questions, check if the current option is correct**
-        allCorrectSelected = option.correct; 
-        console.log('[onOptionClicked] Correct option selected (single-answer):', allCorrectSelected);
+        stopTimer = option.correct; 
+        console.log('[onOptionClicked] Correct option selected (single-answer):', stopTimer);
       }
   
-      if (allCorrectSelected) {
-        console.log('[onOptionClicked] All correct answers selected, stopping the timer.');
-        this.timerService.stopTimer();
+      if (stopTimer) {
+        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
+        this.stopTimer();
       }
-  
-      // Optional: Handle the outcome if needed
-      await this.handleCorrectnessOutcome(allCorrectSelected);
   
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
@@ -1548,7 +1546,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // **Handle additional UI updates and processing in a safe ngZone run**
     await this.handleAdditionalProcessing(event, isMultipleAnswer);
   }
-  
   
   // ====================== Helper Functions ======================
   
