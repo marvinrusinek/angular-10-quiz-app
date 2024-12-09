@@ -443,21 +443,32 @@ export class SelectedOptionService {
   }
 
   updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
+    // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
-  
+    
+    // **Mark as answered if any option is selected**
+    const isAnswered = selectedOptions.length > 0;
+
+    // **Check if all correct answers are selected**
     const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
 
-    // Simply mark the question as answered when any option is selected
-    const isAnswered = allCorrectAnswersSelected;
-  
-    console.log('Updating answered state for free navigation:', {
+    // Log for debugging
+    console.log('[updateAnsweredState] Updating answered state:', {
       selectedOptions,
-      isAnswered
+      isAnswered,
+      allCorrectAnswersSelected
     });
-  
+
+    // **Update BehaviorSubject for Next button logic**
     this.isAnsweredSubject.next(isAnswered);
-    console.log('isAnsweredSubject emitted:', isAnswered);
-  }  
+    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
+
+    // **Stop the timer if all correct answers are selected**
+    if (allCorrectAnswersSelected) {
+      console.log('[updateAnsweredState] All correct answers selected — stopping timer');
+      this.stopTimer();
+    }
+  }
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
