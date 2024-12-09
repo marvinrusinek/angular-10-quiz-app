@@ -442,7 +442,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  updateAnsweredState(): void {
+  updateAnsweredState(isAllCorrectSelected?: () => boolean): void {
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
     const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;

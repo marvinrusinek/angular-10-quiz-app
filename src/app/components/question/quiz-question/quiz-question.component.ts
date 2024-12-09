@@ -1485,8 +1485,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectedOptionService.removeOption(option.optionId, option);
     }
   
-    // Immediately mark the question as answered
-    this.selectedOptionService.updateAnsweredState();
+    // Immediately mark the question as answered (Next button should enable)
+    this.selectedOptionService.updateAnsweredState(() => true);
 
     let allCorrectSelected = false;
 
