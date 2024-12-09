@@ -1547,6 +1547,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await this.handleAdditionalProcessing(event, isMultipleAnswer);
   }
   
+  
   // ====================== Helper Functions ======================
   
   /** Validates the option and returns false if early return is needed. */
