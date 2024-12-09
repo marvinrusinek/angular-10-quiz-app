@@ -1509,13 +1509,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     let stopTimer = false;
   
     try {
+      let isAnswered = false;
+
       if (isMultipleAnswer) {
         // **For multiple-answer questions, check if all correct answers are selected**
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onOptionClicked] All correct answers selected (multiple-answer):', allCorrectSelected);
+        isAnswered = allCorrectSelected;
         stopTimer = allCorrectSelected;
       } else {
         // **For single-answer questions, check if the current option is correct**
+        isAnswered = true;
         stopTimer = option.correct; 
         console.log('[onOptionClicked] Correct option selected (single-answer):', stopTimer);
       }
