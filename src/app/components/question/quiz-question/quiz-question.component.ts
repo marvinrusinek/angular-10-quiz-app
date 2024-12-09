@@ -1521,11 +1521,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (allCorrectSelected) {
         console.log('[onOptionClicked] All correct answers selected, stopping the timer.');
-        this.stopTimer();
+        this.timerService.stopTimer();
       }
   
-      // **Optional: Handle the outcome if needed**
-      // await this.handleCorrectnessOutcome(allCorrectSelected);
+      // Optional: Handle the outcome if needed
+      await this.handleCorrectnessOutcome(allCorrectSelected);
   
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
