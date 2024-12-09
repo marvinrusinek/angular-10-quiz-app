@@ -502,7 +502,6 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allSelectedCorrect);
     return allSelectedCorrect;
   } */
-  
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     if (!questionOptions || questionOptions.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No options provided for current question');
@@ -538,7 +537,7 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
-  }  
+  }
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
