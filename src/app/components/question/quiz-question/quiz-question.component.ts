@@ -1528,7 +1528,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
       }
-  
+
+      this.selectedOptionService.updateAnsweredState(() => isAnswered);  
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
