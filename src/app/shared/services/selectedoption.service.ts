@@ -452,7 +452,8 @@ export class SelectedOptionService {
     const isAnswered = selectedOptions.length > 0;
 
     // Check if all correct answers are selected
-    const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
+    // const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
+    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(selectedOptions);
 
     // Log for debugging
     console.log('[updateAnsweredState] Updating answered state:', {
@@ -502,22 +503,22 @@ export class SelectedOptionService {
     return allSelectedCorrect;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
-    // **Early return if no question options are provided**
+    // Return false if no question options are provided
     if (!questionOptions || questionOptions.length === 0) {
       console.warn('No options provided for current question');
       return false;
     }
   
-    // **Get correct options**
+    // Get correct options
     const correctOptions = questionOptions.filter((o) => o.correct);
-    
-    // **Early return if no correct options exist**
+  
+    // Early return if no correct options exist
     if (correctOptions.length === 0) {
       console.warn('No correct options for this question');
       return false;
     }
   
-    // **Create a Set of selected option IDs**
+    // Get all selected options
     const selectedOptionIds = new Set(
       Array.from(this.selectedOptionsMap.values())
         .flat()
@@ -525,13 +526,13 @@ export class SelectedOptionService {
         .filter((id) => id != null)
     );
   
-    // **Check if all correct options are selected**
-    const allSelectedCorrect = correctOptions.every((correctOption) =>
+    // Check if all correct options are selected
+    const allCorrectOptionsSelected = correctOptions.every((correctOption) =>
       selectedOptionIds.has(correctOption.optionId)
     );
   
-    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allSelectedCorrect);
-    return allSelectedCorrect;
+    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
+    return allCorrectOptionsSelected;
   }
  
   setAnswered(isAnswered: boolean): void {
