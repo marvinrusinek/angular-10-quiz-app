@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -28,6 +28,8 @@ export class SelectedOptionService {
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+
+  stopTimer$ = new Subject<void>();
 
   currentQuestionType: QuestionType | null = null;
 
@@ -463,10 +465,10 @@ export class SelectedOptionService {
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
 
-    // **Stop the timer if all correct answers are selected**
+    // **Emit the event to stop the timer**
     if (allCorrectAnswersSelected) {
-      console.log('[updateAnsweredState] All correct answers selected — stopping timer');
-      this.stopTimer();
+      console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
+      this.stopTimer$.next(); // 👈 Emit event to stop timer
     }
   }
  
