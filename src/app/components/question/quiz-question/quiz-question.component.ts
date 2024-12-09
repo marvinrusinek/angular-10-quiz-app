@@ -1486,8 +1486,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // Immediately mark the question as answered (Next button should enable)
-    this.selectedOptionService.updateAnsweredState(() => true);
-    this.cdRef.detectChanges();
+    this.selectedOptionService.updateAnsweredState();
 
     let allCorrectSelected = false;
 
