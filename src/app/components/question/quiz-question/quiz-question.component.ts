@@ -1487,6 +1487,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     let allCorrectSelected = false;
 
+    // Automatically mark the question as answered
+    this.selectedOptionService.updateAnsweredState(() => allCorrectSelected);
+
     try {
       // Check if all correct answers are now selected and handle the outcome
       allCorrectSelected = await this.areAllCorrectAnswersSelected();
@@ -1494,11 +1497,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
-  
-    // Automatically mark the question as answered
-    this.selectedOptionService.updateAnsweredState(() => allCorrectSelected);
-
-    this.cdRef.detectChanges();
   
     // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
