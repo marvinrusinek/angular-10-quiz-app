@@ -512,7 +512,7 @@ export class SelectedOptionService {
   
     // **Ensure all options have an optionId (fallback to index if missing)**
     const processedOptions = questionOptions.map((o, index) => {
-      o.optionId = o.optionId ?? `${index}`; // Use index as fallback optionId
+      o.optionId = o.optionId ?? index; // Use index as fallback optionId (ensures optionId is a number)
       return o;
     });
   
