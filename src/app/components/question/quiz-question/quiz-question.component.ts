@@ -1466,17 +1466,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     // Validate the option and early returns
-    if (!this.validateOption(event)) {
-      return;
-    }
+    if (!this.validateOption(event)) return;
   
     const option = event.option!;
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
     // Handle single-answer lock logic
-    if (this.handleSingleAnswerLock(isMultipleAnswer)) {
-      return;
-    }
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
 
     // Add or remove the selected option using the service
     if (event.checked) {
@@ -1489,7 +1485,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.updateAnsweredState(() => true);
 
     let allCorrectSelected = false;
-
     try {
       // Check if all correct answers are now selected and handle the outcome
       allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
@@ -1503,10 +1498,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.updateDisplayState('explanation', isAnswered);
   
     // Emit display state changes
-    this.displayStateChange.emit({
-      mode: 'explanation',
-      answered: isAnswered
-    });
+    this.displayStateChange.emit({ mode: 'explanation', answered: isAnswered });
   
     // Handle initial selection
     this.handleInitialSelection(event);
