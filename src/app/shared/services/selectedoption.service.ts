@@ -448,10 +448,10 @@ export class SelectedOptionService {
     // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     
-    // **Mark as answered if any option is selected**
+    // Mark as answered if any option is selected
     const isAnswered = selectedOptions.length > 0;
 
-    // **Check if all correct answers are selected**
+    // Check if all correct answers are selected
     const allCorrectAnswersSelected = isAllCorrectSelected ? isAllCorrectSelected() : false;
 
     // Log for debugging
@@ -461,14 +461,14 @@ export class SelectedOptionService {
       allCorrectAnswersSelected
     });
 
-    // **Update BehaviorSubject for Next button logic**
+    // Update BehaviorSubject for Next button logic
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
 
-    // **Emit the event to stop the timer**
+    // Emit the event to stop the timer
     if (allCorrectAnswersSelected) {
       console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
-      this.stopTimer$.next(); // 👈 Emit event to stop timer
+      this.stopTimer$.next();
     }
   }
  
