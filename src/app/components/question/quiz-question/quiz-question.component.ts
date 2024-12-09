@@ -1507,7 +1507,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Check if all correct answers are now selected and handle the outcome
       allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-      await this.handleCorrectnessOutcome(allCorrectSelected);
+      // await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
     }
