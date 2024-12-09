@@ -580,15 +580,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject.asObservable().pipe(
-        startWith(false) // Default to false (no option selected)
+        tap((value) => console.log('[isAnswered] value:', value)), // Debug here
+        startWith(false) // Start with false (no answer selected)
       ),
       this.quizStateService.isLoading$.pipe(
         map((loading) => !loading), // Emit true when NOT loading
-        startWith(true) // **Change to true (assume not loading initially)**
+        tap((value) => console.log('[isLoaded] value:', value)), // Debug here
+        startWith(true) // Assume not loading at the start
       ),
       this.quizStateService.isNavigating$.pipe(
         map((navigating) => !navigating), // Emit true when NOT navigating
-        startWith(true) // **Change to true (assume not navigating initially)**
+        tap((value) => console.log('[isIdle] value:', value)), // Debug here
+        startWith(true) // Assume not navigating at the start
       ),
     ]).pipe(
       map(([isAnswered, isLoaded, isIdle]) => {
@@ -600,11 +603,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   
     this.isButtonEnabled$.subscribe((isEnabled) => {
-      console.log('[Next Button] Enabled:', isEnabled); // 👈 Debug log here
+      console.log('[Next Button] Enabled:', isEnabled); // Log state change
       this.updateAndSyncNextButtonState(isEnabled);
     });
   }
-  
   
   private evaluateNextButtonState(): boolean {
     // Reset options state to ensure no residual state interferes
