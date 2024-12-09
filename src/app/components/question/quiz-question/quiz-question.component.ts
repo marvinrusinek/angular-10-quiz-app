@@ -1473,17 +1473,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
     if (!this.currentQuestion) {
-      console.warn('[onOptionClicked] currentQuestion is null, attempting to load it.');
       this.currentQuestion = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
-      console.log('[onOptionClicked] currentQuestion loaded:', this.currentQuestion);
     }
 
     // Check if currentQuestion still doesn't exist
     if (!this.currentQuestion || !this.currentQuestion.options) {
       console.error('[onOptionClicked] currentQuestion is still null or missing options.');
-      return; // Exit early
+      return;
     }
     
     // Validate the option and early returns
