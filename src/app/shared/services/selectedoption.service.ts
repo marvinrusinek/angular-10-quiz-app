@@ -533,7 +533,7 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
-  }
+  }  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);

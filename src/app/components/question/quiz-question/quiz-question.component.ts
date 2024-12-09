@@ -1508,6 +1508,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     let allCorrectSelected = false;
     try {
+      // **Check if all correct answers are now selected**
       if (isMultipleAnswer) {
         // **For multiple-answer questions, check if all correct answers are selected**
         allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
@@ -1522,6 +1523,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('[onOptionClicked] All correct answers selected, stopping the timer.');
         this.timerService.stopTimer();
       }
+  
+      // Optional: Handle the outcome if needed
+      await this.handleCorrectnessOutcome(allCorrectSelected);
   
     } catch (error) {
       console.error('[onOptionClicked] Error in option handling:', error);
@@ -1544,6 +1548,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // **Handle additional UI updates and processing in a safe ngZone run**
     await this.handleAdditionalProcessing(event, isMultipleAnswer);
   }
+  
   
   // ====================== Helper Functions ======================
   
