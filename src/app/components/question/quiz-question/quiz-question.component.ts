@@ -144,7 +144,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: false
   };
   private forceQuestionDisplay = true;
-  private readyForExplanationDisplay = false;
+  readyForExplanationDisplay = false;
   private isExplanationReady = false;
   private isExplanationLocked = true;
   currentExplanationText = '';
