@@ -510,10 +510,16 @@ export class SelectedOptionService {
   
     console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
   
+    // **Ensure all options have an optionId (fallback to index if missing)**
+    const processedOptions = questionOptions.map((o, index) => {
+      o.optionId = o.optionId ?? `${index}`; // Use index as fallback optionId
+      return o;
+    });
+  
     // **Get unique correct option IDs**
     const correctOptionIds = Array.from(
       new Set(
-        questionOptions
+        processedOptions
           .filter((o) => o.correct && o.optionId != null) // Ensures no undefined optionId
           .map((o) => o.optionId)
       )
@@ -543,7 +549,7 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
-  }
+  }  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
