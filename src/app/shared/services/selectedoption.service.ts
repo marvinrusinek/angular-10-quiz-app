@@ -524,17 +524,16 @@ export class SelectedOptionService {
         .filter((id) => id != null)
     );
   
-    const correctOptionIdsSet = new Set(correctOptionIds);
-    const intersection = [...selectedOptionIds].filter(id => correctOptionIdsSet.has(id));
-    const allCorrectOptionsSelected = intersection.length === correctOptionIds.length;
+    const allCorrectOptionsSelected = correctOptionIds.every((correctOptionId) =>
+      selectedOptionIds.has(correctOptionId)
+    );
   
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
-    console.log('[areAllCorrectAnswersSelected] Intersection of correct and selected options:', intersection);
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
-  }
+  }  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
