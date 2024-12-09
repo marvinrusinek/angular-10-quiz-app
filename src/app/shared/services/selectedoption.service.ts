@@ -503,22 +503,24 @@ export class SelectedOptionService {
     return allSelectedCorrect;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
-    // Return false if no question options are provided
+    // **Return false if no question options are provided**
     if (!questionOptions || questionOptions.length === 0) {
-      console.warn('No options provided for current question');
+      console.warn('[areAllCorrectAnswersSelected] No options provided for current question');
       return false;
     }
   
-    // Get correct options
-    const correctOptions = questionOptions.filter((o) => o.correct);
+    // **Get all correct option IDs**
+    const correctOptionIds = questionOptions
+      .filter((o) => o.correct)
+      .map((o) => o.optionId);
   
-    // Early return if no correct options exist
-    if (correctOptions.length === 0) {
-      console.warn('No correct options for this question');
+    // **Return false if no correct options exist**
+    if (correctOptionIds.length === 0) {
+      console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
       return false;
     }
   
-    // Get all selected options
+    // **Get all selected option IDs**
     const selectedOptionIds = new Set(
       Array.from(this.selectedOptionsMap.values())
         .flat()
@@ -526,12 +528,15 @@ export class SelectedOptionService {
         .filter((id) => id != null)
     );
   
-    // Check if all correct options are selected
-    const allCorrectOptionsSelected = correctOptions.every((correctOption) =>
-      selectedOptionIds.has(correctOption.optionId)
+    // **Check if all correct options are selected**
+    const allCorrectOptionsSelected = correctOptionIds.every((correctOptionId) =>
+      selectedOptionIds.has(correctOptionId)
     );
   
+    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
+  
     return allCorrectOptionsSelected;
   }
  
