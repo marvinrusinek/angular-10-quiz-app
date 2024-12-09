@@ -508,7 +508,7 @@ export class SelectedOptionService {
       return false;
     }
   
-    // Get all correct option IDs (filter out undefined optionIds)
+    // **Get all correct option IDs**
     const correctOptionIds = questionOptions
     .filter((o) => o.correct && o.optionId != null) // Ensures no undefined optionId
     .map((o) => o.optionId);
