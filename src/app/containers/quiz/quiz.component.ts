@@ -294,7 +294,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Check if the current question is answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        console.log(`Restored question ${this.currentQuestionIndex} answered state:`, isAnswered);
 
         // Determine if the question is a multiple-answer question
         const isMultipleAnswer = await firstValueFrom(
