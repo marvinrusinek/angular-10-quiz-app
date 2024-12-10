@@ -1473,12 +1473,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       // Ensure current question is loaded
       if (!this.currentQuestion) {
-        try {
-          this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-        } catch (error) {
-          console.error('[onOptionClicked] Failed to fetch current question:', error);
-          return;
-        }
+        this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+        
+        // 2️⃣ Ensure each option has an optionId (if not provided, use the index)
+        this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
+          ...o,
+          optionId: o.optionId ?? index // Use existing optionId or fallback to index
+        }));
+  
+        // 3️⃣ Log to verify option IDs are set correctly
+        console.log('[Option IDs Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
   
       // Check if currentQuestion is still missing
