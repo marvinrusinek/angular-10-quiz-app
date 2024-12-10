@@ -1503,6 +1503,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Add or remove the selected option using the service
       this.updateOptionSelection(event, option);
+
+      // Check if all correct options are selected
+      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+      console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
+
+      // Stop the timer if all correct answers are selected
+      if (allCorrectSelected) {
+        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
+        this.timerService.stopTimer();
+      }
   
       // Update state and answer tracking
       this.updateAnsweredState();
