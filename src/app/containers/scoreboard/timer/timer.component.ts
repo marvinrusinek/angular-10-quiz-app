@@ -3,8 +3,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { TimerService } from '../../../shared/services/timer.service';
-import { CountdownService } from '../../../shared/services/countdown.service';
-import { StopwatchService } from '../../../shared/services/stopwatch.service';
 
 enum TimerType {
   Countdown = 'countdown',
@@ -24,11 +22,7 @@ export class TimerComponent implements OnInit {
 
   timeLeft$!: Observable<number>;
 
-  constructor(
-    private timerService: TimerService, 
-    private countdownService: CountdownService,
-    private stopwatchService: StopwatchService
-  ) {}
+  constructor(private timerService: TimerService) {}
 
   ngOnInit(): void {
     this.timeLeft$ = this.timerService.elapsedTime$.pipe(
