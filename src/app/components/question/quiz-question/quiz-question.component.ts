@@ -1469,84 +1469,66 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(
-    event: { option: SelectedOption | null; index: number; checked: boolean }
-  ): Promise<void> {
-    // Ensure current question is loaded
-    if (!this.currentQuestion) {
-      this.currentQuestion = await firstValueFrom(
-        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-      );
-    }
-  
-    // Check if currentQuestion still doesn't exist
-    if (!this.currentQuestion || !this.currentQuestion.options) {
-      console.error('[onOptionClicked] currentQuestion is still null or missing options.');
-      return;
-    }
-    
-    // Validate the option and early returns
-    if (!this.validateOption(event)) return;
-  
-    const option = event.option!;
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-    
-    // Handle single-answer lock logic
-    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
-  
-    // Add or remove the selected option using the service
-    if (event.checked) {
-      console.log('[onOptionClicked] Option checked, adding option:', option);
-      this.selectedOptionService.addOption(option);
-    } else {
-      console.log('[onOptionClicked] Option unchecked, removing option:', option);
-      this.selectedOptionService.removeOption(option.optionId, option);
-    }
-  
-    // Immediately mark the question as answered
-    this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
-  
-    let stopTimer = false;
-  
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
-      if (isMultipleAnswer) {
-        // For multiple-answer questions, check if all correct answers are selected
-        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-        console.log('[onOptionClicked] All correct answers selected (multiple-answer):', allCorrectSelected);
-        stopTimer = allCorrectSelected;
-      } else {
-        // For single-answer questions, check if the current option is correct
-        stopTimer = option.correct; 
-        console.log('[onOptionClicked] Correct option selected (single-answer):', stopTimer);
+      // ✅ 1. Ensure current question is loaded
+      if (!this.currentQuestion) {
+        try {
+          this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+        } catch (error) {
+          console.error('[onOptionClicked] Failed to fetch current question:', error);
+          return;
+        }
       }
   
-      if (stopTimer) {
-        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
-        this.timerService.stopTimer();
+      // ✅ 2. Check if currentQuestion is still missing
+      if (!this.currentQuestion || !this.currentQuestion.options) {
+        console.error('[onOptionClicked] currentQuestion is still null or missing options.');
+        return;
       }
   
+      // ✅ 3. Validate the option and ensure event.option exists
+      if (!this.validateOption(event) || !event.option) {
+        console.warn('[onOptionClicked] Option is invalid or missing.');
+        return;
+      }
+  
+      const option = event.option!;
+      const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+  
+      // ✅ 4. Handle single-answer lock logic
+      if (this.handleSingleAnswerLock(isMultipleAnswer)) {
+        return;
+      }
+  
+      // ✅ 5. Add or remove the selected option using the service
+      this.handleOptionSelection(event, option);
+  
+      // ✅ 6. Update state and answer tracking
+      this.updateAnsweredState();
+  
+      // ✅ 7. Handle the logic for stopping the timer
+      this.stopTimerIfApplicable(isMultipleAnswer, option);
+  
+      // ✅ 8. Update the display state to explanation mode
+      this.updateDisplayStateToExplanation();
+  
+      // ✅ 9. Handle initial selection
+      this.handleInitialSelection(event);
+  
+      // ✅ 10. Render display updates asynchronously
+      setTimeout(() => {
+        this.updateRenderingFlags();
+        this.renderDisplay();
+      });
+  
+      // ✅ 11. Handle any additional processing after option is clicked
+      await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
-      console.error('[onOptionClicked] Error in option handling:', error);
+      console.error('[onOptionClicked] Unhandled error:', error);
     }
-    
-    // Update the display state to explanation mode
-    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
-    this.updateDisplayState('explanation', isAnswered);
-    
-    // Emit display state changes
-    this.displayStateChange.emit({ mode: 'explanation', answered: isAnswered });
-    
-    // Handle initial selection
-    this.handleInitialSelection(event);
-    
-    // Render updated display
-    this.updateRenderingFlags();
-    this.renderDisplay();
-    
-    // Handle additional UI updates and processing in a safe ngZone run
-    await this.handleAdditionalProcessing(event, isMultipleAnswer);
   }
-  
+    
   // ====================== Helper Functions ======================
   
   /** Validates the option and returns false if early return is needed. */
@@ -1567,6 +1549,52 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isOptionSelected = true;
     return false;
   }
+
+  // Handles option selection logic to avoid duplicating "add/remove option" logic.
+  private handleOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
+    if (event.checked) {
+      console.log('[handleOptionSelection] Option checked, adding option:', option);
+      this.selectedOptionService.addOption(option);
+    } else {
+      console.log('[handleOptionSelection] Option unchecked, removing option:', option);
+      this.selectedOptionService.removeOption(option.optionId, option);
+    }
+  }
+
+  // Handles logic for when the timer should stop.
+  private stopTimerIfApplicable(isMultipleAnswer: boolean, option: SelectedOption): void {
+    let stopTimer = false;
+  
+    try {
+      if (isMultipleAnswer) {
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+        console.log('[stopTimerIfApplicable] All correct answers selected (multiple-answer):', allCorrectSelected);
+        stopTimer = allCorrectSelected;
+      } else {
+        stopTimer = option.correct;
+        console.log('[stopTimerIfApplicable] Correct option selected (single-answer):', stopTimer);
+      }
+  
+      if (stopTimer) {
+        console.log('[stopTimerIfApplicable] Stopping the timer.');
+        this.timerService.stopTimer();
+      }
+    } catch (error) {
+      console.error('[stopTimerIfApplicable] Error in timer logic:', error);
+    }
+  }
+
+  // Updates the answered state for the question.
+  private updateAnsweredState(): void {
+    this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+  }
+
+  // Updates the display to explanation mode.
+  private updateDisplayStateToExplanation(): void {
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
+    this.updateDisplayState('explanation', isAnswered);
+    this.displayStateChange.emit({ mode: 'explanation', answered: isAnswered });
+  }  
   
   /** Handles the outcome after checking if all correct answers are selected. */
   private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
