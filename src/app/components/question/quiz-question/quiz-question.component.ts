@@ -1508,6 +1508,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Add or remove the selected option using the service
       this.updateOptionSelection(event, option);
 
+      // Ensure selectedOptionsMap is updated before running areAllCorrectAnswersSelected()
+      console.log('[Selected Options] Current state of selectedOptionsMap:', this.selectedOptionsMap);
+
       // Check if all correct options are selected
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
       console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
