@@ -1520,7 +1520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
 
       // Handle the logic for stopping the timer
-      this.stopTimerIfApplicable(isMultipleAnswer, option);
+      // this.stopTimerIfApplicable(isMultipleAnswer, option);
   
       // Update the display state to explanation mode
       this.updateDisplayStateToExplanation();
