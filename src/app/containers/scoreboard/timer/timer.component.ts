@@ -33,12 +33,4 @@ export class TimerComponent implements OnInit {
       )
     );
   }
-
-  setTimerType(type: TimerType): void {
-    if (this.currentTimerType !== type) {
-      this.currentTimerType = type;
-    } else {
-      console.log(`[TimerComponent] Timer type is already set to ${type}`);
-    }
-  }
 }
