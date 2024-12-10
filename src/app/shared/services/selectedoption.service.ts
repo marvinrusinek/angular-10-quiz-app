@@ -30,6 +30,7 @@ export class SelectedOptionService {
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
   stopTimer$ = new Subject<void>();
+  private stopTimerEmitted = false;
 
   currentQuestionType: QuestionType | null = null;
 
@@ -467,10 +468,11 @@ export class SelectedOptionService {
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
   
-    // Emit the event to stop the timer
-    if (allCorrectAnswersSelected) {
+    // Emit the event to stop the timer only once
+    if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
       console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
       this.stopTimer$.next();
+      this.stopTimerEmitted = true; // Prevent future emissions
     }
   }
 
