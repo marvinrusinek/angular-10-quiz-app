@@ -1474,21 +1474,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Ensure current question is loaded
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-        
-        // Ensure each option has an optionId (if not provided, use the index)
+    
+        console.log('[Question Data] Current Question:', this.currentQuestion);
+    
+        if (!this.currentQuestion.options) {
+          console.error('[Check Options] Options are missing!');
+          return;
+        }
+    
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
-          optionId: o.optionId ?? index // Use existing optionId or fallback to index
+          optionId: o.optionId ?? index
         }));
-  
-        // Log to verify option IDs are set correctly
+    
         console.log('[Option IDs Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
-      }
-  
-      // Check if currentQuestion is still missing
-      if (!this.currentQuestion || !this.currentQuestion.options) {
-        console.error('[onOptionClicked] currentQuestion is still null or missing options.');
-        return;
       }
   
       // Validate the option and ensure event.option exists
