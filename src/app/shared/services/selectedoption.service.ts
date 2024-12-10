@@ -473,37 +473,7 @@ export class SelectedOptionService {
       this.stopTimer$.next();
     }
   }
-  
 
-  /* areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
-    // Ensure the question and its options are available
-    if (!questionOptions || questionOptions.length === 0) {
-      console.warn('No options provided for current question');
-      return false;
-    }
-
-    // Identify correct options for the current question
-    const correctOptions = questionOptions.filter((o) => o.correct);
-
-    // Retrieve the user's selected options from selectedOptionService
-    const selectedOptions = Array.from(this.selectedOptionsMap.values())
-      .flat()
-      .filter((o) => o.optionId != null);
-    
-    // Check if all correct options are selected
-    const allSelectedCorrect =
-      correctOptions.length > 0 && // Ensure there are correct options
-      correctOptions.every((correctOption) =>
-        selectedOptions.some(
-          (selectedOption) =>
-            selectedOption.optionId === correctOption.optionId &&
-            selectedOption.correct === correctOption.correct
-        )
-      );
-
-    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allSelectedCorrect);
-    return allSelectedCorrect;
-  } */
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     if (!questionOptions || questionOptions.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No options provided for current question');
