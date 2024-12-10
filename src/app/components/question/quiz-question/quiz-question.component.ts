@@ -1472,29 +1472,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public override async onOptionClicked(
     event: { option: SelectedOption | null; index: number; checked: boolean }
   ): Promise<void> {
-    // **Ensure current question is loaded**
+    // Ensure current question is loaded
     if (!this.currentQuestion) {
       this.currentQuestion = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
     }
   
-    // **Check if currentQuestion still doesn't exist**
+    // Check if currentQuestion still doesn't exist
     if (!this.currentQuestion || !this.currentQuestion.options) {
       console.error('[onOptionClicked] currentQuestion is still null or missing options.');
       return;
     }
     
-    // **Validate the option and early returns**
+    // Validate the option and early returns
     if (!this.validateOption(event)) return;
   
     const option = event.option!;
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
     
-    // **Handle single-answer lock logic**
+    // Handle single-answer lock logic
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
-    // **Add or remove the selected option using the service**
+    // Add or remove the selected option using the service
     if (event.checked) {
       console.log('[onOptionClicked] Option checked, adding option:', option);
       this.selectedOptionService.addOption(option);
@@ -1503,19 +1503,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectedOptionService.removeOption(option.optionId, option);
     }
   
-    // **Immediately mark the question as answered**
+    // Immediately mark the question as answered
     this.selectedOptionService.updateAnsweredState(() => true);
   
     let stopTimer = false;
   
     try {
       if (isMultipleAnswer) {
-        // **For multiple-answer questions, check if all correct answers are selected**
+        // For multiple-answer questions, check if all correct answers are selected
         const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onOptionClicked] All correct answers selected (multiple-answer):', allCorrectSelected);
         stopTimer = allCorrectSelected;
       } else {
-        // **For single-answer questions, check if the current option is correct**
+        // For single-answer questions, check if the current option is correct
         stopTimer = option.correct; 
         console.log('[onOptionClicked] Correct option selected (single-answer):', stopTimer);
       }
@@ -1529,21 +1529,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('[onOptionClicked] Error in option handling:', error);
     }
     
-    // **Update the display state to explanation mode**
+    // Update the display state to explanation mode
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
     this.updateDisplayState('explanation', isAnswered);
     
-    // **Emit display state changes**
+    // Emit display state changes
     this.displayStateChange.emit({ mode: 'explanation', answered: isAnswered });
     
-    // **Handle initial selection**
+    // Handle initial selection
     this.handleInitialSelection(event);
     
-    // **Render updated display**
+    // Render updated display
     this.updateRenderingFlags();
     this.renderDisplay();
     
-    // **Handle additional UI updates and processing in a safe ngZone run**
+    // Handle additional UI updates and processing in a safe ngZone run
     await this.handleAdditionalProcessing(event, isMultipleAnswer);
   }
   
