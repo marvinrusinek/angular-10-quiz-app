@@ -32,31 +32,13 @@ export class TimerService {
   timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
 
-  constructor() {
-    console.log('TimerService initialized.');
-  
-    // Configure the timer observable
-    /* this.timer$ = timer(0, 1000).pipe(
-      tap(() => {
-        if (this.isTimerRunning) {
-          this.elapsedTime++;
-          this.elapsedTimeSubject.next(this.elapsedTime);
-        }
-      }),
-      takeUntil(this.stopSubject), // Stops on stop signal
-      finalize(() => console.log('[TimerService] Timer finalized.'))
-    ); */
-  
-    // Logging signals for debugging
-    this.stopSubject.subscribe(() => console.log('Stop signal received in TimerService.'));
-    this.resetSubject.subscribe(() => console.log('Reset signal received in TimerService.'));
-  }
+  constructor() {}
 
   ngOnDestroy(): void {
     this.timerSubscription?.unsubscribe();
   }
 
-  /** Starts the timer */
+  // Starts the timer
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
     console.log('[TimerService] Attempting to start timer. Current state:', {
       isTimerRunning: this.isTimerRunning,
@@ -95,7 +77,7 @@ export class TimerService {
     console.log('[TimerService] Timer started successfully.');
   }
 
-  /** Stops the timer */
+  // Stops the timer
   stopTimer(callback?: (elapsedTime: number) => void): void {
     console.log('Entered stopTimer(). Timer running:', this.isTimerRunning);
 
@@ -124,7 +106,7 @@ export class TimerService {
     console.log('Timer stopped successfully.');
   }
 
-  /** Resets the timer */
+  // Resets the timer
   resetTimer(): void {
     console.log('Attempting to reset timer...');
     if (this.isTimerRunning) {
@@ -140,18 +122,18 @@ export class TimerService {
     console.log('Timer reset successfully.');
   }
 
-  /** Sets a custom elapsed time */
+  // Sets a custom elapsed time
   setElapsed(time: number): void {
     this.elapsedTime = time;
   }
 
-  /** Sets a custom duration for the timer */
+  // Sets a custom duration for the timer
   setDuration(duration: number): void {
     this.timePerQuestion = duration;
     console.log('Timer duration set to:', duration);
   }
 
-  /** Calculates the total elapsed time from recorded times */
+  // Calculates the total elapsed time from recorded times
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
     if (elapsedTimes.length > 0) {
       this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
