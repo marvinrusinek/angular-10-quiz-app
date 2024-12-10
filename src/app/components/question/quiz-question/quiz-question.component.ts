@@ -1471,7 +1471,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
-      // ✅ 1. Ensure current question is loaded
+      // Ensure current question is loaded
       if (!this.currentQuestion) {
         try {
           this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
@@ -1481,13 +1481,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
-      // ✅ 2. Check if currentQuestion is still missing
+      // Check if currentQuestion is still missing
       if (!this.currentQuestion || !this.currentQuestion.options) {
         console.error('[onOptionClicked] currentQuestion is still null or missing options.');
         return;
       }
   
-      // ✅ 3. Validate the option and ensure event.option exists
+      // Validate the option and ensure event.option exists
       if (!this.validateOption(event) || !event.option) {
         console.warn('[onOptionClicked] Option is invalid or missing.');
         return;
@@ -1496,33 +1496,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const option = event.option!;
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
-      // ✅ 4. Handle single-answer lock logic
+      // Handle single-answer lock logic
       if (this.handleSingleAnswerLock(isMultipleAnswer)) {
         return;
       }
   
-      // ✅ 5. Add or remove the selected option using the service
-      this.handleOptionSelection(event, option);
+      // Add or remove the selected option using the service
+      this.updateOptionSelection(event, option);
   
-      // ✅ 6. Update state and answer tracking
+      // Update state and answer tracking
       this.updateAnsweredState();
   
-      // ✅ 7. Handle the logic for stopping the timer
+      // Handle the logic for stopping the timer
       this.stopTimerIfApplicable(isMultipleAnswer, option);
   
-      // ✅ 8. Update the display state to explanation mode
+      // Update the display state to explanation mode
       this.updateDisplayStateToExplanation();
   
-      // ✅ 9. Handle initial selection
+      // Handle initial selection
       this.handleInitialSelection(event);
   
-      // ✅ 10. Render display updates asynchronously
+      // Render display updates asynchronously
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
       });
   
-      // ✅ 11. Handle any additional processing after option is clicked
+      // Handle any additional processing after option is clicked
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
@@ -1551,7 +1551,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
-  private handleOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
+  private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
     if (event.checked) {
       console.log('[handleOptionSelection] Option checked, adding option:', option);
       this.selectedOptionService.addOption(option);
