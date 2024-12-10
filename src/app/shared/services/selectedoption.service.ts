@@ -444,7 +444,7 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
-  updateAnsweredState(questionOptions: Option[]): void {
+  updateAnsweredState(questionOptions?: Option[]): void {
     // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
     
@@ -452,7 +452,9 @@ export class SelectedOptionService {
     const isAnswered = selectedOptions.length > 0;
   
     // Check if all correct answers are selected
-    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions);
+    const allCorrectAnswersSelected = questionOptions 
+     ? this.areAllCorrectAnswersSelected(questionOptions) 
+     : false;
   
     // Log for debugging
     console.log('[updateAnsweredState] Updating answered state:', {
