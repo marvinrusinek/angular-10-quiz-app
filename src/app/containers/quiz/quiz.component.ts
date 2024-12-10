@@ -760,11 +760,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isAnswered = isOptionSelected;
     sessionStorage.setItem('isAnswered', String(this.isAnswered));
 
-    if (option.correct) {
-      console.log('Correct answer selected. Stopping timer.');
-      this.timerService.stopTimer();
-    }
-
     this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);
     this.quizStateService.setAnswerSelected(isOptionSelected);  // Set answer state and lock display
   
