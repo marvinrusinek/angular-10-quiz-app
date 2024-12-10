@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+/* import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
 import { finalize, scan, shareReplay, skip, switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -46,6 +46,42 @@ export class StopwatchService {
   }
 
   setElapsed(time: number): void {
+    this.elapsedTime = time;
+  }
+} */
+
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
+import { scan, shareReplay, takeUntil, tap, finalize } from 'rxjs/operators';
+
+@Injectable({ providedIn: 'root' })
+export class StopwatchService {
+  private isStop = new BehaviorSubject<void>(void 0);
+  public elapsedTime = 0;
+
+  constructor() {}
+
+  startStopwatch(): Observable<number> {
+    console.log('[StopwatchService] Starting Stopwatch...');
+    
+    // Stop any existing timer before starting a new one
+    this.stopStopwatch();
+
+    return timer(0, 1000).pipe(
+      scan((acc) => acc + 1, 0), // Count up from 0
+      takeUntil(this.isStop.asObservable()), // Stop when isStop emits
+      tap((value: number) => this.setElapsed(value)), // Track elapsed time
+      finalize(() => console.log('[StopwatchService] Stopwatch completed.'))
+    );
+  }
+
+  stopStopwatch(): void {
+    console.log('[StopwatchService] Stopping Stopwatch...');
+    this.isStop.next();
+  }
+
+  setElapsed(time: number): void {
+    console.log('[StopwatchService] Elapsed Time:', time);
     this.elapsedTime = time;
   }
 }
