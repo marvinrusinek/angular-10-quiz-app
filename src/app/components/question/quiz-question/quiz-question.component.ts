@@ -1475,13 +1475,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
         
-        // 2️⃣ Ensure each option has an optionId (if not provided, use the index)
+        // Ensure each option has an optionId (if not provided, use the index)
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
           optionId: o.optionId ?? index // Use existing optionId or fallback to index
         }));
   
-        // 3️⃣ Log to verify option IDs are set correctly
+        // Log to verify option IDs are set correctly
         console.log('[Option IDs Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
   
