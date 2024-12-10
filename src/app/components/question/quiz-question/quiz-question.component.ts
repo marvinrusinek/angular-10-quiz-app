@@ -1511,7 +1511,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       if (isMultipleAnswer) {
         // For multiple-answer questions, check if all correct answers are selected
-        const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onOptionClicked] All correct answers selected (multiple-answer):', allCorrectSelected);
         stopTimer = allCorrectSelected;
       } else {
