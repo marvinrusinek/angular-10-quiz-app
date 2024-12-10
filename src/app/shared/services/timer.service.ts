@@ -127,12 +127,6 @@ export class TimerService {
     this.elapsedTime = time;
   }
 
-  // Sets a custom duration for the timer
-  setDuration(duration: number): void {
-    this.timePerQuestion = duration;
-    console.log('Timer duration set to:', duration);
-  }
-
   // Calculates the total elapsed time from recorded times
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
     if (elapsedTimes.length > 0) {
