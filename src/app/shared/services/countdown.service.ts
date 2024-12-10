@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+/* import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer } from 'rxjs';
 import { scan, shareReplay, takeWhile } from 'rxjs/operators';
 
@@ -34,4 +34,44 @@ export class CountdownService {
   setElapsed(time: number): void {
     this.elapsedTime = time;
   }
+} */
+
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
+import { scan, takeUntil, tap, finalize } from 'rxjs/operators';
+
+@Injectable({ providedIn: 'root' })
+export class CountdownService {
+  private isStop = new BehaviorSubject<void>(void 0);
+  public elapsedTime = 0;
+
+  constructor() {}
+
+  startCountdown(timePerQuestion: number): Observable<number> {
+    console.log('[CountdownService] Starting Countdown from', timePerQuestion, 'seconds.');
+
+    // Stop any existing countdown before starting a new one
+    this.stopCountdown();
+
+    return timer(0, 1000).pipe(
+      scan((acc) => acc - 1, timePerQuestion), // Count down from timePerQuestion
+      takeUntil(this.isStop.asObservable()), // Stop when isStop emits
+      tap((remaining: number) => {
+        console.log('[CountdownService] Time remaining:', remaining);
+        this.setElapsed(timePerQuestion - remaining);
+      }),
+      finalize(() => console.log('[CountdownService] Countdown completed.'))
+    );
+  }
+
+  stopCountdown(): void {
+    console.log('[CountdownService] Stopping Countdown...');
+    this.isStop.next();
+  }
+
+  setElapsed(time: number): void {
+    console.log('[CountdownService] Elapsed Time:', time);
+    this.elapsedTime = time;
+  }
 }
+
