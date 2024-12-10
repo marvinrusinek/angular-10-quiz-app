@@ -1573,6 +1573,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[handleOptionSelection] Option unchecked, removing option:', option);
       this.selectedOptionService.removeOption(option.optionId, option);
     }
+
+    // Log the options in the selectedOptionsMap
+    console.log('[updateOptionSelection] Current selected options:', Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat());
   }
 
   // Handles logic for when the timer should stop.
