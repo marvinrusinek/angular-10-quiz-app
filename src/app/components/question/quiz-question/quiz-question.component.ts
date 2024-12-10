@@ -1477,10 +1477,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     
         console.log('[Question Data] Current Question:', this.currentQuestion);
     
-        if (!this.currentQuestion.options) {
+        /* if (!this.currentQuestion.options) {
           console.error('[Check Options] Options are missing!');
           return;
-        }
+        } */
     
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
