@@ -508,49 +508,33 @@ export class SelectedOptionService {
       return false;
     }
   
-    console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
-  
-    // Ensure all options have an optionId (fallback to index if missing)
-    const processedOptions = questionOptions.map((o, index) => {
-      o.optionId = o.optionId ?? index; // Use index as fallback optionId (ensures optionId is a number)
-      return o;
-    });
-  
-    // Get unique correct option IDs
-    const correctOptionIds = Array.from(
-      new Set(
-        processedOptions
-          .filter((o) => o.correct && o.optionId != null) // Ensures no undefined optionId
-          .map((o) => o.optionId)
-      )
-    );
+    const correctOptionIds = questionOptions
+      .filter((o) => o.correct)
+      .map((o) => o.optionId);
   
     if (correctOptionIds.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
       return false;
     }
   
-    // **Get unique selected option IDs from selectedOptionsMap**
     const selectedOptionIds = new Set(
       Array.from(this.selectedOptionsMap.values())
         .flat()
         .map((o) => o.optionId)
-        .filter((id) => id != null) // Filter out undefined optionIds
+        .filter((id) => id != null)
     );
   
-    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
-    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
-  
-    // **Check if all correct options are present in selectedOptionIds**
     const allCorrectOptionsSelected = correctOptionIds.every((correctOptionId) =>
       selectedOptionIds.has(correctOptionId)
     );
   
+    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
-  }  
-
+  }
+ 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
