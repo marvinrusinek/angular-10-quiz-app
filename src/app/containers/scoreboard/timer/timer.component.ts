@@ -16,7 +16,6 @@ enum TimerType {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimerComponent implements OnInit {
-  timerType = TimerType;
   timePerQuestion = 30;
   currentTimerType = TimerType.Countdown;
 
