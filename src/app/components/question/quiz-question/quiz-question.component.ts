@@ -1504,7 +1504,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // Immediately mark the question as answered
-    this.selectedOptionService.updateAnsweredState(() => true);
+    this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
   
     let stopTimer = false;
   
