@@ -586,7 +586,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.isLoading$.pipe(
         map((loading) => !loading), // Emit true when NOT loading
         tap((value) => console.log('[isLoaded] value:', value)), // Debug here
-        startWith(false) // Assume not loading at the start
+        startWith(true) // Assume not loading at the start
       ),
       this.quizStateService.isNavigating$.pipe(
         map((navigating) => !navigating), // Emit true when NOT navigating
