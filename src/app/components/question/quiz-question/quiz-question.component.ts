@@ -1509,7 +1509,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.updateOptionSelection(event, option);
 
       // Ensure selectedOptionsMap is updated before running areAllCorrectAnswersSelected()
-      console.log('[Selected Options] Current state of selectedOptionsMap:', this.selectedOptionsMap);
+      console.log('[Selected Options] Current state of selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
 
       // Check if all correct options are selected
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
