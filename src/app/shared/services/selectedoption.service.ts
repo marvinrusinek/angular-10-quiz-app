@@ -503,16 +503,10 @@ export class SelectedOptionService {
   
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
-    console.log('[areAllCorrectAnswersSelected] Correct options selected count:', correctOptionsSelectedCount);
-    console.log('[areAllCorrectAnswersSelected] Total correct options count:', correctOptionIds.length);
-  
-    const allCorrectOptionsSelected = correctOptionIds.length > 0 && correctOptionsSelectedCount === correctOptionIds.length;
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
   }
-  
-  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
