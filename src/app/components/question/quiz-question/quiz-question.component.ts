@@ -1474,20 +1474,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Ensure current question is loaded
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-    
-        console.log('[Question Data] Current Question:', this.currentQuestion);
-    
-        /* if (!this.currentQuestion.options) {
-          console.error('[Check Options] Options are missing!');
-          return;
-        } */
-    
+  
+        // 🟢 Step 2: Assign optionId and correct for every option
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
+          correct: o.correct ?? false,
           optionId: o.optionId ?? index
         }));
-    
-        console.log('[Option IDs Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
+  
+        console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
   
       // Validate the option and ensure event.option exists
