@@ -497,18 +497,14 @@ export class SelectedOptionService {
       )
     );
   
-    // Calculate if all correct options have been selected
+    // Check if every correct option is present in the selected options
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
-    const noExtraOptionsSelected = selectedOptionIds.every(id => correctOptionIds.includes(id));
-    const isFullyCorrect = allCorrectOptionsSelected && noExtraOptionsSelected;
-
+    
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
-    console.log('[areAllCorrectAnswersSelected] No extra incorrect options selected:', noExtraOptionsSelected);
-    console.log('[areAllCorrectAnswersSelected] Final result (isFullyCorrect):', isFullyCorrect);
 
-    return isFullyCorrect;
+    return allCorrectOptionsSelected;
   }
  
   setAnswered(isAnswered: boolean): void {
