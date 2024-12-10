@@ -497,7 +497,9 @@ export class SelectedOptionService {
       )
     );
   
-    const correctOptionsSelectedCount = selectedOptionIds.filter(id => correctOptionIds.includes(id)).length;
+    // Check if all correct options are selected and no extra options are selected
+    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id)) 
+    && selectedOptionIds.every(id => correctOptionIds.includes(id)); // No extra incorrect options
   
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
