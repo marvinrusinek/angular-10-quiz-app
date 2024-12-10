@@ -477,7 +477,7 @@ export class SelectedOptionService {
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
   
-    // 🟢 1️⃣ Get the list of correct option IDs
+    // Get the list of correct option IDs
     const correctOptionIds = questionOptions
       .filter((o) => o.correct && o.optionId != null) // Ensure optionId exists and correct === true
       .map((o) => o.optionId);
@@ -487,7 +487,7 @@ export class SelectedOptionService {
       return false; // 🛑 No correct options, so return false
     }
   
-    // 🟢 2️⃣ Get the list of selected option IDs
+    // Get the list of selected option IDs
     const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
