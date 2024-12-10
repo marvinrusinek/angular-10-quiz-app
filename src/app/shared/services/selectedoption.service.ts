@@ -484,7 +484,7 @@ export class SelectedOptionService {
   
     if (correctOptionIds.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
-      return false; // 🛑 No correct options, so return false
+      return false; // No correct options, so return false
     }
   
     // Get the list of selected option IDs
