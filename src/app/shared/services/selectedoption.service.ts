@@ -475,37 +475,42 @@ export class SelectedOptionService {
   }
 
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
-    if (!questionOptions || questionOptions.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No options provided for current question');
-      return false;
-    }
+    console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
   
+    // 🟢 1️⃣ Get the list of correct option IDs
     const correctOptionIds = questionOptions
-      .filter((o) => o.correct)
+      .filter((o) => o.correct && o.optionId != null) // Ensure optionId exists and correct === true
       .map((o) => o.optionId);
   
     if (correctOptionIds.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
-      return false;
+      return false; // 🛑 No correct options, so return false
     }
   
-    const selectedOptionIds = new Set(
-      Array.from(this.selectedOptionsMap.values())
-        .flat()
-        .map((o) => o.optionId)
-        .filter((id) => id != null)
+    // 🟢 2️⃣ Get the list of selected option IDs
+    const selectedOptionIds = Array.from(
+      new Set(
+        Array.from(this.selectedOptionsMap.values())
+          .flat()
+          .map((o) => o.optionId)
+          .filter((id) => id != null)
+      )
     );
   
-    const allCorrectOptionsSelected = correctOptionIds.every((correctOptionId) =>
-      selectedOptionIds.has(correctOptionId)
-    );
+    const correctOptionsSelectedCount = selectedOptionIds.filter(id => correctOptionIds.includes(id)).length;
   
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', Array.from(selectedOptionIds));
+    console.log('[areAllCorrectAnswersSelected] Correct options selected count:', correctOptionsSelectedCount);
+    console.log('[areAllCorrectAnswersSelected] Total correct options count:', correctOptionIds.length);
+  
+    const allCorrectOptionsSelected = correctOptionIds.length > 0 && correctOptionsSelectedCount === correctOptionIds.length;
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
   }
+  
+  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
