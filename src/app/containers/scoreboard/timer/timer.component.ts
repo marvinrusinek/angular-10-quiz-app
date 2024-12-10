@@ -18,6 +18,7 @@ enum TimerType {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimerComponent implements OnInit {
+  timerType = TimerType;
   timePerQuestion = 30;
   currentTimerType = TimerType.Countdown;
 
@@ -39,15 +40,11 @@ export class TimerComponent implements OnInit {
     );
   }
 
-  switchToStopwatch(): void {
-    console.log('[QuizComponent] Switching to Stopwatch...');
-    this.countdownService.stopCountdown(); // Stop the countdown
-    this.stopwatchService.startStopwatch().subscribe();
-  }
-
-  switchToCountdown(timePerQuestion: number = 30): void {
-    console.log('[QuizComponent] Switching to Countdown...');
-    this.stopwatchService.stopStopwatch(); // Stop the stopwatch
-    this.countdownService.startCountdown(timePerQuestion).subscribe();
+  setTimerType(type: TimerType): void {
+    if (this.currentTimerType !== type) {
+      this.currentTimerType = type;
+    } else {
+      console.log(`[TimerComponent] Timer type is already set to ${type}`);
+    }
   }
 }
