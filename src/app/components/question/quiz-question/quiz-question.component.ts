@@ -1475,7 +1475,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
   
-        // 🟢 Step 2: Assign optionId and correct for every option
+        // Assign optionId and correct for every option
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
           correct: o.correct ?? false,
