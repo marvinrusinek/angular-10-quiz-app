@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, lastValueFrom, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
@@ -144,7 +144,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: false
   };
   private forceQuestionDisplay = true;
-  private readyForExplanationDisplay = false;
+  readyForExplanationDisplay = false;
   private isExplanationReady = false;
   private isExplanationLocked = true;
   currentExplanationText = '';
