@@ -1516,7 +1516,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       // Update state and answer tracking
-      // this.updateAnsweredState();
       this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
 
       // Handle the logic for stopping the timer
