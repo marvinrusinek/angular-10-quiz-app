@@ -1598,11 +1598,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  // Updates the answered state for the question.
-  private updateAnsweredState(): void {
-    this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
-  }
-
   // Updates the display to explanation mode.
   private updateDisplayStateToExplanation(): void {
     const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
