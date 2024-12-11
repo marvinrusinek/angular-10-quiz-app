@@ -1479,7 +1479,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
           correct: o.correct ?? false,
-          optionId: o.optionId ?? index
+          optionId: o.optionId !== undefined ? o.optionId : index
         }));
   
         console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
