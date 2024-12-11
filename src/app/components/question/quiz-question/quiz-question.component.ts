@@ -336,7 +336,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const currentState = this.displayStateSubject.getValue();
 
     if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
-      // Default to displaying question text if certain flags are set
+      // Default to displaying question text
       this.ensureQuestionTextDisplay();
     } else if (currentState.mode === 'explanation' && currentState.answered) {
       // Display explanation text only if mode is 'explanation' and the question is answered
