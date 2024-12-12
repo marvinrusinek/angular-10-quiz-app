@@ -1514,7 +1514,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Stop the timer if all correct answers are selected or if it's a single-answer question and any option is selected
       if (allCorrectSelected || (!isMultipleAnswer && option.correct)) {
-        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
+        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected or single-answer question was answered.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
       }
@@ -1527,6 +1527,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Handle initial selection
       this.handleInitialSelection(event);
+  
+      // Emit that an option has been selected to enable the next button
+      this.selectedOptionService.isAnsweredSubject.next(true);
   
       // Render display updates asynchronously
       setTimeout(() => {
