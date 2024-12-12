@@ -1507,19 +1507,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Update state and answer tracking
       this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
   
-      // Check if all correct options are selected after the options have been updated
-      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-      console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
+      // Delay the check for all correct options until AFTER the option updates are complete
+      setTimeout(() => {
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+        console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
   
-      // Stop the timer if all correct answers are selected for multiple-answer questions 
-      // OR if it's a single-answer question and the selected option is correct
-      if ((isMultipleAnswer && allCorrectSelected) || (!isMultipleAnswer && option.correct)) {
-        if (!this.selectedOptionService.stopTimerEmitted) {
-          console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected for multiple-answer question or single-answer question was answered.');
-          this.timerService.stopTimer();
-          this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
+        // Stop the timer if all correct answers are selected for multiple-answer questions 
+        // OR if it's a single-answer question and the selected option is correct
+        if ((isMultipleAnswer && allCorrectSelected) || (!isMultipleAnswer && option.correct)) {
+          if (!this.selectedOptionService.stopTimerEmitted) {
+            console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected for multiple-answer question or single-answer question was answered.');
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
+          }
         }
-      }
+      }, 0); // Ensure this runs AFTER all updates are complete
   
       // Handle the logic for stopping the timer
       this.stopTimerIfApplicable(isMultipleAnswer, option);
