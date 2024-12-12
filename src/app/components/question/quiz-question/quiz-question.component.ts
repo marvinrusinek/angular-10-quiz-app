@@ -1513,7 +1513,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
   
       // Stop the timer if all correct answers are selected
-      if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+      if (allCorrectSelected && (!this.selectedOptionService.stopTimerEmitted || !isMultipleAnswer)) {
         console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
