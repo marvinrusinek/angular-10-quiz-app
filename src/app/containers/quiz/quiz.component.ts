@@ -2196,35 +2196,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
-
+  
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
+          // Set the first question first to avoid blocking logic
           this.questions = questions;
           this.currentQuestion = questions[0];
           this.currentQuestionIndex = 0;
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
           this.shouldDisplayCorrectAnswersFlag = false;
-
-          // Initialize or update the state for all questions
-          for (let index = 0; index < questions.length; index++) {
-            await this.updateQuestionStateAndExplanation(index);
-          }
-
-          // Check if the first question is answered and update the message
-          await this.checkIfAnswerSelected();
-
-          // Explicitly set the answered state for the first question
-          const hasAnswered =
-            this.selectedOptionService.getSelectedOption() !== null;
+  
+          // Mark the first question as displayed and start the timer
+          await this.updateQuestionStateAndExplanation(0); // Only for the first question
+          console.log('First question initialized:', this.currentQuestion);
+  
+          // Check if the first question has an answer selected
+          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
           this.selectedOptionService.setAnsweredState(hasAnswered);
-          console.log(
-            'Initial answered state for the first question:',
-            hasAnswered
-          );
-
-          this.cdRef.markForCheck(); // Trigger change detection
+          console.log('Initial answered state for the first question:', hasAnswered);
+  
+          // Explicitly trigger change detection before starting the timer
+          this.cdRef.detectChanges();
+  
+          // Start the timer only after the first question has been set
+          this.timerService.startCountdown();
+          console.log('Timer started for the first question');
+  
+          // Start processing the rest of the questions in the background (optional)
+          for (let index = 1; index < questions.length; index++) {
+            this.updateQuestionStateAndExplanation(index);
+          }
         } else {
           this.handleNoQuestionsAvailable();
         }
