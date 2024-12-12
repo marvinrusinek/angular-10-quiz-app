@@ -2212,16 +2212,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           await this.updateQuestionStateAndExplanation(0); // Only for the first question
           console.log('First question initialized:', this.currentQuestion);
   
-          // Check if the first question has an answer selected
-          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+          // Combined check for any answer selected or all correct answers selected
+          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || 
+                              this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay);
           this.selectedOptionService.setAnsweredState(hasAnswered);
-          console.log('Initial answered state for the first question:', hasAnswered);
+          console.log('Combined answered state for the first question:', hasAnswered);
   
           // Explicitly trigger change detection before starting the timer
           this.cdRef.detectChanges();
   
           // Start the timer only after the first question has been set
-          this.timerService.startCountdown();
+          this.timerService.startTimer();
           console.log('Timer started for the first question');
   
           // Start processing the rest of the questions in the background (optional)
@@ -2237,7 +2238,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.handleQuestionsLoadingError();
       },
     });
-  }
+  }  
 
   handleNoQuestionsAvailable(): void {
     this.questions = [];
