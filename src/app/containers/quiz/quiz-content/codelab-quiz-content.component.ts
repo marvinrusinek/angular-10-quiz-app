@@ -1,12 +1,11 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
-import { QuizData } from '../../../shared/models/QuizData.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
