@@ -30,7 +30,7 @@ export class SelectedOptionService {
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
   stopTimer$ = new Subject<void>();
-  private stopTimerEmitted = false;
+  stopTimerEmitted = false;
 
   currentQuestionType: QuestionType | null = null;
 
