@@ -1512,8 +1512,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
       console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
   
-      // Stop the timer if all correct answers are selected
-      if (allCorrectSelected && (!this.selectedOptionService.stopTimerEmitted || !isMultipleAnswer)) {
+      // Stop the timer if all correct answers are selected or if it's a single-answer question and any option is selected
+      if (allCorrectSelected || (!isMultipleAnswer && option.correct)) {
         console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
