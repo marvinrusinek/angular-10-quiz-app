@@ -30,7 +30,7 @@ export class SelectedOptionService {
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
   stopTimer$ = new Subject<void>();
-  stopTimerEmitted = false;
+  private stopTimerEmitted = false;
 
   currentQuestionType: QuestionType | null = null;
 
@@ -449,20 +449,34 @@ export class SelectedOptionService {
     // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
+    // Count the number of correct options for this question
+    const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
+  
+    // Determine if this is a Multiple-Answer question
+    const isMultipleAnswer = correctOptionCount > 1;
+  
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = questionOptions 
       ? this.areAllCorrectAnswersSelected(questionOptions) 
       : false;
   
+    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
+    const isAnswered = isMultipleAnswer 
+      ? allCorrectAnswersSelected 
+      : selectedOptions.length > 0;
+  
     // Log for debugging
     console.log('[updateAnsweredState] Updating answered state:', {
       selectedOptions,
-      allCorrectAnswersSelected
+      isAnswered,
+      allCorrectAnswersSelected,
+      correctOptionCount,
+      isMultipleAnswer
     });
   
     // Update BehaviorSubject for Next button logic
-    this.isAnsweredSubject.next(allCorrectAnswersSelected);
-    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', allCorrectAnswersSelected);
+    this.isAnsweredSubject.next(isAnswered);
+    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
   
     // Emit the event to stop the timer **only if all correct answers are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
@@ -474,6 +488,8 @@ export class SelectedOptionService {
 
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
+
+    console.log('Question Options:::>>', JSON.stringify(questionOptions, null, 2));
   
     // Get the list of correct option IDs
     const correctOptionIds = questionOptions
@@ -495,13 +511,13 @@ export class SelectedOptionService {
       )
     );
   
-    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
-    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
-  
     // Check if every correct option is present in the selected options
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
+    
+    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
-  
+
     return allCorrectOptionsSelected;
   }
  
