@@ -2208,26 +2208,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.optionsToDisplay = this.currentQuestion.options;
           this.shouldDisplayCorrectAnswersFlag = false;
           
-          console.log('First question options:', this.optionsToDisplay);
+          console.log('First question options at initialization:', this.optionsToDisplay);
   
           // Wait for the state to be updated for the first question
           await this.updateQuestionStateAndExplanation(0); // Only for the first question
           console.log('First question initialized:', this.currentQuestion);
   
-          // Check if any answer is selected OR all correct answers are selected
-          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || 
-                              this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay);
-          
+          // Combined check for any answer selected OR all correct answers are selected
+          const hasAnswered = this.checkIfAnswered();
           this.selectedOptionService.setAnsweredState(hasAnswered);
           console.log('Combined answered state for the first question:', hasAnswered);
   
-          // Ensure the change detection is applied after all logic has run
+          // Ensure change detection is applied after all logic has run
           this.cdRef.detectChanges();
           console.log('Change detection triggered after first question is set.');
   
-          // Start the timer after all state and change detection are complete
+          // Start the timer only after everything is ready
+          console.log('Starting timer for the first question');
           this.timerService.startTimer();
-          console.log('Timer started for the first question');
   
           // Start processing the rest of the questions in the background
           for (let index = 1; index < questions.length; index++) {
@@ -2242,6 +2240,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.handleQuestionsLoadingError();
       },
     });
+  }
+  
+  // Check if an answer has been selected for the first question.
+  checkIfAnswered(): boolean {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('Options not available when checking for answer state');
+      return false; // Return false if no options are loaded
+    }
+  
+    // Check if any option is selected OR all correct answers are selected
+    const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
+    const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay);
+    
+    console.log('Are any options selected?', isAnyOptionSelected);
+    console.log('Are all correct options selected?', areAllCorrectSelected);
+    
+    return isAnyOptionSelected || areAllCorrectSelected;
   }
 
   handleNoQuestionsAvailable(): void {
