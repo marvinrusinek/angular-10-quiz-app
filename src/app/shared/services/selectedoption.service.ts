@@ -449,16 +449,13 @@ export class SelectedOptionService {
     // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
-    // Count the number of correct options for this question
-    const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
-  
-    // Determine if this is a Multiple-Answer question
-    const isMultipleAnswer = correctOptionCount > 1;
-  
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = questionOptions 
       ? this.areAllCorrectAnswersSelected(questionOptions) 
       : false;
+  
+    // Determine if this is a MultipleAnswer question (by checking how many "correct" options exist)
+    const isMultipleAnswer = questionOptions && questionOptions.filter(o => o.correct).length > 1;
   
     // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
     const isAnswered = isMultipleAnswer 
@@ -470,7 +467,6 @@ export class SelectedOptionService {
       selectedOptions,
       isAnswered,
       allCorrectAnswersSelected,
-      correctOptionCount,
       isMultipleAnswer
     });
   
