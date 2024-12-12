@@ -484,8 +484,6 @@ export class SelectedOptionService {
 
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
-
-    console.log('Question Options:::>>', JSON.stringify(questionOptions, null, 2));
   
     // Get the list of correct option IDs
     const correctOptionIds = questionOptions
@@ -513,7 +511,7 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
-
+  
     return allCorrectOptionsSelected;
   }
  
