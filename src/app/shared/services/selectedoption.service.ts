@@ -448,27 +448,37 @@ export class SelectedOptionService {
   updateAnsweredState(questionOptions?: Option[]): void {
     // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
-    
-    // Mark as answered if any option is selected
-    const isAnswered = selectedOptions.length > 0;
+  
+    // Count the number of correct options for this question
+    const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
+  
+    // Determine if this is a Multiple-Answer question
+    const isMultipleAnswer = correctOptionCount > 1;
   
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = questionOptions 
-     ? this.areAllCorrectAnswersSelected(questionOptions) 
-     : false;
+      ? this.areAllCorrectAnswersSelected(questionOptions) 
+      : false;
+  
+    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
+    const isAnswered = isMultipleAnswer 
+      ? allCorrectAnswersSelected 
+      : selectedOptions.length > 0;
   
     // Log for debugging
     console.log('[updateAnsweredState] Updating answered state:', {
       selectedOptions,
       isAnswered,
-      allCorrectAnswersSelected
+      allCorrectAnswersSelected,
+      correctOptionCount,
+      isMultipleAnswer
     });
   
     // Update BehaviorSubject for Next button logic
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
   
-    // Emit the event to stop the timer only once
+    // Emit the event to stop the timer **only if all correct answers are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
       console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
       this.stopTimer$.next();
