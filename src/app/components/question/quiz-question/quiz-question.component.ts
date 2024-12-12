@@ -1524,7 +1524,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }, 0); // Ensure this runs AFTER all updates are complete
   
       // Handle the logic for stopping the timer
-      this.stopTimerIfApplicable(isMultipleAnswer, option);
+      if (!isMultipleAnswer || allCorrectSelected) {
+        this.stopTimerIfApplicable(isMultipleAnswer, option);
+      }
   
       // Update the display state to explanation mode
       this.updateDisplayStateToExplanation();
