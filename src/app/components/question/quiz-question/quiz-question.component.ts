@@ -1488,32 +1488,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       const option = event.option!;
-      const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
       // Add or remove the selected option using the service
       this.updateOptionSelection(event, option);
+  
       console.log('[Selected Options] Current state of selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
+  
+      // Update state and answer tracking
+      this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
   
       // Check if all correct options are selected
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
   
-      if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+      if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
         console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true; // Prevent further emissions
       }
   
-      // Update state and answer tracking
-      this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
-  
-      this.updateDisplayStateToExplanation();
-  
-      setTimeout(() => {
-        this.updateRenderingFlags();
-        this.renderDisplay();
-      });
-  
-      await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
