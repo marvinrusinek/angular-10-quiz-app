@@ -454,25 +454,15 @@ export class SelectedOptionService {
       ? this.areAllCorrectAnswersSelected(questionOptions) 
       : false;
   
-    // Determine if this is a MultipleAnswer question (by checking how many "correct" options exist)
-    const isMultipleAnswer = questionOptions && questionOptions.filter(o => o.correct).length > 1;
-  
-    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
-    const isAnswered = isMultipleAnswer 
-      ? allCorrectAnswersSelected 
-      : selectedOptions.length > 0;
-  
     // Log for debugging
     console.log('[updateAnsweredState] Updating answered state:', {
       selectedOptions,
-      isAnswered,
-      allCorrectAnswersSelected,
-      isMultipleAnswer
+      allCorrectAnswersSelected
     });
   
     // Update BehaviorSubject for Next button logic
-    this.isAnsweredSubject.next(isAnswered);
-    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
+    this.isAnsweredSubject.next(allCorrectAnswersSelected);
+    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', allCorrectAnswersSelected);
   
     // Emit the event to stop the timer **only if all correct answers are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
@@ -505,11 +495,11 @@ export class SelectedOptionService {
       )
     );
   
-    // Check if every correct option is present in the selected options
-    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
-    
     console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
+  
+    // Check if every correct option is present in the selected options
+    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     return allCorrectOptionsSelected;
