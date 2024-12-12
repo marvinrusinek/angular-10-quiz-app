@@ -1504,14 +1504,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Ensure selectedOptionsMap is updated before running areAllCorrectAnswersSelected()
       console.log('[Selected Options] Current state of selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
   
-      // Update state and answer tracking
-      this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
-  
-      // Delay the check for all correct options until AFTER the option updates are complete
+      // Delay to ensure that selectedOptionsMap is updated before running areAllCorrectAnswersSelected()
       setTimeout(() => {
+        // Update state and answer tracking
+        this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+    
+        // Check if all correct options are selected after the options have been updated
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
-  
+    
         // Stop the timer if all correct answers are selected for multiple-answer questions 
         // OR if it's a single-answer question and the selected option is correct
         if ((isMultipleAnswer && allCorrectSelected) || (!isMultipleAnswer && option.correct)) {
@@ -1521,12 +1522,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
           }
         }
-      }, 0); // Ensure this runs AFTER all updates are complete
-  
-      // Handle the logic for stopping the timer
-      if (!isMultipleAnswer || allCorrectSelected) {
-        this.stopTimerIfApplicable(isMultipleAnswer, option);
-      }
+
+        // Handle the logic for stopping the timer
+        if (!isMultipleAnswer || allCorrectSelected) {
+          this.stopTimerIfApplicable(isMultipleAnswer, option);
+        }
+      }, 0); // Delay the check to ensure the option updates have completed
   
       // Update the display state to explanation mode
       this.updateDisplayStateToExplanation();
