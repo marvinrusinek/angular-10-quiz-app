@@ -1497,6 +1497,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (this.handleSingleAnswerLock(isMultipleAnswer)) {
         return;
       }
+
+      // **Stop Timer for Single-Answer Questions**
+      if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] Stopping the timer for single-answer question.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
+      }
   
       // Add or remove the selected option using the service
       await this.updateOptionSelection(event, option);
@@ -1513,9 +1520,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected for multiple-answer question.');
+        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
+        this.selectedOptionService.stopTimerEmitted = true;
       }
   
       // Stop the timer for single-answer questions as soon as the correct option is clicked
