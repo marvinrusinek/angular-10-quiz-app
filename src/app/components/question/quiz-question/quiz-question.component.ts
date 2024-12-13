@@ -1527,6 +1527,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
+
+        // Early exit for multiple-answer questions when all correct options are selected
+        console.log('[onOptionClicked] All correct answers selected for multiple-answer question. Exiting early.');
+        return;
       }
   
       // Update the display state to explanation mode
