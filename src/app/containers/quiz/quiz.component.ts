@@ -2198,15 +2198,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuestionDisplayState();
     
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
+      next: async (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
-          // **1️⃣ Set first question data immediately**
+          // **1️⃣ Reset all state to prevent stale state issues**
+          this.selectedOptionService.stopTimerEmitted = false; // Reset timer logic
+          this.selectedOptionService.selectedOptionsMap.clear(); // Clear option map
+  
+          // **2️⃣ Set first question data immediately**
           this.questions = questions;
           this.currentQuestion = questions[0];
           this.currentQuestionIndex = 0;
           this.questionToDisplay = this.currentQuestion.questionText;
   
-          // **2️⃣ Set options immediately so UI can render**
+          // **3️⃣ Set options immediately so UI can render**
           this.optionsToDisplay = this.currentQuestion.options.map((o, index) => ({
             ...o,
             correct: o.correct ?? false,
@@ -2215,27 +2219,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
-          // **3️⃣ Trigger change detection immediately**
+          // **4️⃣ Trigger change detection immediately to display the options**
           this.cdRef.detectChanges();
   
-          // **4️⃣ Start background process for question state and explanation**
-          this.updateQuestionStateAndExplanation(0).then(() => {
-            console.log('[initializeFirstQuestion] Finished updating state for first question.');
-          });
+          // **5️⃣ Start background process for question state and explanation**
+          await this.updateQuestionStateAndExplanation(0);
+          console.log('[initializeFirstQuestion] Finished updating state for first question.');
   
-          // **5️⃣ Ensure selected options are properly set**
-          this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+          // **6️⃣ Ensure selected options are properly set**
+          await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
     
-          // **6️⃣ Check if the first question has an answer selected**
+          // **7️⃣ Check if the first question has an answer selected**
           const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
           const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
     
           console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
     
-          // **7️⃣ Set initial answered state properly**
+          // **8️⃣ Set initial answered state properly**
           this.selectedOptionService.setAnsweredState(hasAnswered);
     
-          // **8️⃣ Start the timer only after the first question has been set**
+          // **9️⃣ Start the timer only after the first question has been set**
           this.timerService.startTimer();
           console.log('[initializeFirstQuestion] Timer started for the first question');
     
@@ -2250,7 +2253,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       },
     });
   }
-  
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
