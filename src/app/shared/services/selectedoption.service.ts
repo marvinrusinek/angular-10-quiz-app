@@ -510,6 +510,8 @@ export class SelectedOptionService {
           .filter((id) => id != null)
       )
     );
+
+    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
   
     // Check if every correct option is present in the selected options
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
