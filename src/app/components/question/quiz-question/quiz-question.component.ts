@@ -1510,6 +1510,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
       console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
+
+      // Force debug logs to see the logic at this point
+      console.log('[onOptionClicked] allCorrectSelected:', allCorrectSelected);
+      console.log('[onOptionClicked] selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+      console.log('[onOptionClicked] stopTimerEmitted:', this.selectedOptionService.stopTimerEmitted);
   
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
