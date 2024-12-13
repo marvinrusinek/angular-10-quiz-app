@@ -486,7 +486,7 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
 
     console.log('Question Options:::>>', JSON.stringify(questionOptions, null, 2));
@@ -520,6 +520,39 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
 
+    return allCorrectOptionsSelected;
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+    // Get all correct option IDs
+    const correctOptionIds = questionOptions
+      .filter((o) => o.correct && o.optionId != null)
+      .map((o) => o.optionId);
+  
+    if (correctOptionIds.length === 0) {
+      console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
+      return false;
+    }
+  
+    // Get all selected option IDs
+    const selectedOptionIds = Array.from(
+      new Set(
+        Array.from(this.selectedOptionsMap.values())
+          .flat()
+          .map((o) => o.optionId)
+          .filter((id) => id != null)
+      )
+    );
+  
+    // 🔥 Use a Set to make it more efficient
+    const correctSet = new Set(correctOptionIds);
+    const selectedSet = new Set(selectedOptionIds);
+  
+    const allCorrectOptionsSelected = Array.from(correctSet).every(correctId => selectedSet.has(correctId));
+  
+    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
+    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
+  
     return allCorrectOptionsSelected;
   }
  
