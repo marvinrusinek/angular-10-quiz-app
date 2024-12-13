@@ -1508,7 +1508,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
 
       // Debug selected options
-      console.log('[onOptionClicked] Selected options map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries(0)));
+      console.log('[onOptionClicked] Selected options map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
 
       // Force a short delay to ensure updates are applied
       await new Promise(resolve => setTimeout(resolve, 50));
