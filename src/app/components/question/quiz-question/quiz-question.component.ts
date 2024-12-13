@@ -1503,6 +1503,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('[onOptionClicked] Stopping the timer for single-answer question.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
+
+        // **Early exit for single-answer questions**
+        console.log('[onOptionClicked] Single-answer question complete. Exiting early.');
+        return;
       }
   
       // Add or remove the selected option using the service
