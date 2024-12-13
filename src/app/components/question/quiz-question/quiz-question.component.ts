@@ -1525,13 +1525,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectedOptionService.stopTimerEmitted = true;
       }
   
-      // Stop the timer for single-answer questions as soon as the correct option is clicked
-      if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('[onOptionClicked] Stopping the timer for single-answer question immediately.');
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
-      }
-  
       // Update the display state to explanation mode
       this.updateDisplayStateToExplanation();
   
