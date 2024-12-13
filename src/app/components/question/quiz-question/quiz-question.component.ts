@@ -1499,40 +1499,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
   
       // Add or remove the selected option using the service
-      this.updateOptionSelection(event, option);
+      await this.updateOptionSelection(event, option);
   
-      // Delay the check to ensure that selectedOptionsMap is updated properly
-      setTimeout(() => {
-        // Ensure selectedOptionsMap is updated before running areAllCorrectAnswersSelected()
-        console.log('[onOptionClicked] Selected Options (AFTER delay):', this.selectedOptionService.selectedOptionsMap);
+      // Log the selected options after they are updated
+      console.log('[onOptionClicked] Selected Options (AFTER update):', this.selectedOptionService.selectedOptionsMap);
   
-        // Update state and answer tracking
-        this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+      // Update state and answer tracking
+      await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
   
-        // Check if all correct options are selected after the options have been updated
-        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-        console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
+      // Check if all correct options are selected (for multiple-answer)
+      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+      console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
   
-        // Stop the timer if all correct answers are selected for multiple-answer questions 
-        // OR if it's a single-answer question and the selected option is correct
-        if (isMultipleAnswer) {
-          if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected for multiple-answer question.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
-          }
-        } else if (option.correct) {
-          if (!this.selectedOptionService.stopTimerEmitted) {
-            console.log('[onOptionClicked] Stopping the timer as the correct option was selected for single-answer question.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
-          }
-        }
-      }, 100); // Small delay to ensure option updates complete
+      // Stop the timer for multiple-answer questions only if all correct options are selected
+      if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected for multiple-answer question.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true; // Prevent future emissions
+      }
   
-      // Handle the logic for stopping the timer (only relevant for single-answer questions)
-      if (!isMultipleAnswer) {
-        this.stopTimerIfApplicable(isMultipleAnswer, option);
+      // Stop the timer for single-answer questions as soon as the correct option is clicked
+      if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] Stopping the timer for single-answer question immediately.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
       }
   
       // Update the display state to explanation mode
