@@ -1506,6 +1506,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Update state and answer tracking
       await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+
+      // Debug selected options
+      console.log('[onOptionClicked] Selected options map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
   
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
