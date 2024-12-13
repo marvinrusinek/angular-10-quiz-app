@@ -2196,41 +2196,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
-  
+    
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: async (questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
-          // Set the first question and options
+          // Set the first question first to avoid blocking logic
           this.questions = questions;
           this.currentQuestion = questions[0];
           this.currentQuestionIndex = 0;
           this.questionToDisplay = this.currentQuestion.questionText;
           this.optionsToDisplay = this.currentQuestion.options;
           this.shouldDisplayCorrectAnswersFlag = false;
-          
-          console.log('First question options at initialization:', this.optionsToDisplay);
   
-          // Wait for the state to be updated for the first question
+          // Ensure all question options have the correct optionId and correct flag
+          this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
+            ...o,
+            correct: o.correct ?? false,
+            optionId: o.optionId !== undefined ? o.optionId : index
+          }));
+          console.log('[initializeFirstQuestion] Options for first question:', this.currentQuestion.options);
+  
+          // Explicitly wait for updateQuestionStateAndExplanation to finish
           await this.updateQuestionStateAndExplanation(0); // Only for the first question
-          console.log('First question initialized:', this.currentQuestion);
+          console.log('[initializeFirstQuestion] First question initialized:', this.currentQuestion);
   
-          // Combined check for any answer selected OR all correct answers are selected
-          const hasAnswered = this.checkIfAnswered();
+          // Ensure selected options are properly set and displayed
+          await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+    
+          // Check if the first question has an answer selected
+          const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
+    
+          console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
+    
+          // Set initial answered state properly
           this.selectedOptionService.setAnsweredState(hasAnswered);
-          console.log('Combined answered state for the first question:', hasAnswered);
-  
-          // Ensure change detection is applied after all logic has run
-          this.cdRef.detectChanges();
-          console.log('Change detection triggered after first question is set.');
-  
-          // Start the timer only after everything is ready
-          console.log('Starting timer for the first question');
+    
+          // Start the timer only after the first question has been set
           this.timerService.startTimer();
+          console.log('[initializeFirstQuestion] Timer started for the first question');
   
-          // Start processing the rest of the questions in the background
-          for (let index = 1; index < questions.length; index++) {
-            this.updateQuestionStateAndExplanation(index);
-          }
+          this.cdRef.markForCheck(); // Trigger change detection
         } else {
           this.handleNoQuestionsAvailable();
         }
@@ -2241,6 +2247,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       },
     });
   }
+  
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
