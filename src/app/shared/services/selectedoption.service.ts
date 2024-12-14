@@ -347,27 +347,30 @@ export class SelectedOptionService {
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    // 1️⃣ Validate that optionIndex is a valid number
+    // 1️⃣ Ensure optionIndex is a valid number
     if (typeof optionIndex !== 'number' || isNaN(optionIndex)) {
         console.error(`❌ [addSelectedOptionIndex] Invalid optionIndex for questionIndex ${questionIndex}. optionIndex:`, optionIndex);
         return; // 🔥 Prevent adding invalid optionIndex
     }
 
-    // 2️⃣ Ensure the questionIndex key exists in selectedOptionIndices
+    // 2️⃣ Ensure selectedOptionIndices is initialized for this questionIndex
     if (!this.selectedOptionIndices[questionIndex]) {
         this.selectedOptionIndices[questionIndex] = [];
     }
 
-    // 3️⃣ Check if the optionIndex is already in the list to avoid duplicates
-    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
-        this.selectedOptionIndices[questionIndex].push(optionIndex); // 🔥 Add only the optionIndex (not the object)
-        console.log(`🟢 [addSelectedOptionIndex] Added optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, this.selectedOptionIndices[questionIndex]);
-        
-        // 4️⃣ Update answered state
-        this.updateAnsweredState();
+    // 3️⃣ Check if optionIndex is already in the list to avoid duplicates
+    const currentIndices: number[] = this.selectedOptionIndices[questionIndex];
 
-        // 5️⃣ Call updateSelectedOptions with 'add' action
-        this.updateSelectedOptions(questionIndex, optionIndex, 'add');
+    if (!currentIndices.includes(optionIndex)) {
+        currentIndices.push(optionIndex);
+        
+        // 🔥 Check if objects are being accidentally added
+        const nonNumberEntries = currentIndices.filter(index => typeof index !== 'number');
+        if (nonNumberEntries.length > 0) {
+            console.error(`❌ [addSelectedOptionIndex] Non-number entries found for questionIndex ${questionIndex}.`, nonNumberEntries);
+        }
+
+        console.log(`🟢 [addSelectedOptionIndex] Added optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, currentIndices);
     } else {
         console.warn(`⚠️ [addSelectedOptionIndex] OptionIndex ${optionIndex} is already present for questionIndex ${questionIndex}.`);
     }
