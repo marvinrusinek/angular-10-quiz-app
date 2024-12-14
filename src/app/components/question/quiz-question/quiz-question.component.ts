@@ -1606,6 +1606,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // **1️⃣ Wait for option selection to fully update**
       await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Ensure selectedOptionsMap is fully updated
   
+      // 🔥 Log the full selectedOptionsMap to debug any issues
+      console.log('🗂️ [stopTimerIfApplicable] Full selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+
       if (isMultipleAnswer) {
         // **2️⃣ Check if all correct answers have been selected**
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
@@ -1622,6 +1625,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.log('🚀 [stopTimerIfApplicable] Correct option IDs:', correctOptionIds);
         console.log('🚀 [stopTimerIfApplicable] Selected option IDs:', selectedOptionIds);
         console.log('❌ [stopTimerIfApplicable] Missing correct options:', missingOptions);
+        console.log('✅ [stopTimerIfApplicable] All correct options selected:', allCorrectSelected);
         
         stopTimer = allCorrectSelected;
       } else {
