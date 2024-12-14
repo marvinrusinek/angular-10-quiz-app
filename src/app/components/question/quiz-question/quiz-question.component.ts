@@ -2653,72 +2653,89 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
-    const selectedOptions: Option[] = this.selectedOptionService
-      .getSelectedOptionIndices(this.currentQuestionIndex)
-      .map((index) => currentQuestion.options[index]);
-  
-    // Check if the option is already selected
-    const isOptionSelected = selectedOptions.some(
-      (option: Option) => option.optionId === optionIndex
-    );
-  
-    // Add or remove the option based on its current state
-    if (!isOptionSelected) {
-      this.selectedOptionService.addSelectedOptionIndex(
+    try {
+      // 1️⃣ Get selected option indices for the current question
+      const selectedIndices = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
+      
+      // 2️⃣ Map selected indices to actual option objects
+      const selectedOptions: Option[] = selectedIndices
+        .map((index) => {
+          const option = currentQuestion.options[index];
+          
+          // 🔥 Check for undefined option and log the problematic index
+          if (!option) {
+            console.error(`❌ [handleOptionClicked] Option at index ${index} is undefined. Current options:`, JSON.stringify(currentQuestion.options, null, 2));
+          }
+          return option;
+        })
+        .filter(Boolean); // 🔥 Remove undefined options from the array
+    
+      console.log('🚀 [handleOptionClicked] Selected options after mapping:', selectedOptions);
+    
+      // 3️⃣ Check if the option is already selected
+      const isOptionSelected = selectedOptions.some((option: Option) => {
+        if (!option) {
+          console.error('❌ [handleOptionClicked] Option is undefined while checking if option is selected.');
+          return false;
+        }
+        return option.optionId === optionIndex;
+      });
+    
+      console.log(`🟡 [handleOptionClicked] Is option (index: ${optionIndex}) selected?`, isOptionSelected);
+    
+      // 4️⃣ Add or remove the option based on its current state
+      if (!isOptionSelected) {
+        console.log(`🟢 [handleOptionClicked] Adding option at index ${optionIndex}`);
+        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+      } else {
+        console.log(`🟡 [handleOptionClicked] Removing option at index ${optionIndex}`);
+        this.selectedOptionService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+      }
+    
+      // 5️⃣ Ensure selected options are stabilized before proceeding
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    
+      // 6️⃣ Check if the question is now answered
+      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      
+      // 7️⃣ Determine if this is a multiple-answer question
+      const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(currentQuestion));
+    
+      // 8️⃣ Determine the new selection message
+      const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
-        optionIndex
+        this.totalQuestions,
+        isAnswered,
+        isMultipleAnswer
       );
-    } else {
-      this.selectedOptionService.removeSelectedOptionIndex(
+    
+      // 9️⃣ Update the message only if it has changed
+      if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
+        console.log(`🔄 [handleOptionClicked] Setting new message: ${newMessage}`);
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+        this.selectionMessageSubject.next(newMessage);
+      }
+    
+      // 🔟 Update the question state
+      const questionState: QuestionState = {
+        isAnswered,
+        selectedOptions
+      };
+    
+      this.quizStateService.setQuestionState(
+        this.quizId,
         this.currentQuestionIndex,
-        optionIndex
+        questionState
       );
+    
+      // 1️⃣1️⃣ Handle multiple-answer logic if applicable
+      this.handleMultipleAnswer(currentQuestion);
+    
+      // 1️⃣2️⃣ Ensure the UI reflects the changes
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.error('[handleOptionClicked] Unhandled error:', error);
     }
-
-    // Ensure selected options are stabilized before proceeding
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  
-    // Check if the question is now answered
-    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
-    );
-  
-    // Determine the new selection message
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered,
-      isMultipleAnswer
-    );
-  
-    // Update the message only if it has changed
-    if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
-      console.log(`Setting new message: ${newMessage}`);
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.selectionMessageSubject.next(newMessage);
-    }
-  
-    // Update the question state
-    const questionState: QuestionState = {
-      isAnswered,
-      selectedOptions
-    };
-  
-    this.quizStateService.setQuestionState(
-      this.quizId,
-      this.currentQuestionIndex,
-      questionState
-    );
-
-    //this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-    await this.updateMessageForCurrentState(currentQuestion);
-  
-    // Handle multiple-answer logic if applicable
-    this.handleMultipleAnswer(currentQuestion);
-  
-    // Ensure the UI reflects the changes
-    this.cdRef.markForCheck();
   }
 
   private async updateMessageForCurrentState(
