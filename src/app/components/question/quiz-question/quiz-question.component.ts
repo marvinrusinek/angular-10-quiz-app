@@ -1474,22 +1474,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
   
-        // Assign optionId and correct for every option
-        this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
-          ...o,
-          correct: o.correct ?? false,
-          optionId: o.optionId !== undefined ? o.optionId : index
-        }));
-
-        console.log('[onOptionClicked] Current question options:', JSON.stringify(this.currentQuestion.options, null, 2));
-  
-        console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
+        // Initialize option properties for optionId and correct
+        this.initializeQuestionOptions();
       }
 
-      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-        console.warn('[onOptionClicked] No options available for the current question.');
-        return;
-      }
+      // Re-check option initialization on every option click (failsafe)
+      this.initializeQuestionOptions();
   
       // Validate the option and ensure event.option exists
       if (!this.validateOption(event) || !event.option) {
@@ -1564,7 +1554,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     
   // ====================== Helper Functions ======================
-  
+  initializeQuestionOptions(): void {
+    if (!this.currentQuestion?.options) {
+      console.warn('🚨 [initializeQuestionOptions] currentQuestion.options is not available');
+      return;
+    }
+
+    this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
+      ...o,
+      correct: o.correct ?? false, // 🔥 Ensure correct is always true or false
+      optionId: o.optionId !== undefined ? o.optionId : index // 🔥 Ensure optionId is set
+    }));
+
+    console.log('🚀 [initializeQuestionOptions] Current question options:', JSON.stringify(this.currentQuestion.options, null, 2));
+  }
+
   /** Validates the option and returns false if early return is needed. */
   private validateOption(event: { option: SelectedOption | null; index: number; checked: boolean }): boolean {
     const option = event.option;
