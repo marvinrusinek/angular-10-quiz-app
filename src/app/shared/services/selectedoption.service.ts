@@ -570,7 +570,7 @@ export class SelectedOptionService {
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
-      .filter(o => o.correct === true) // 🔥 Ensure we explicitly check if correct === true
+      .filter(o => o.correct === true && o.optionId !== undefined) // Ensure optionId is defined
       .map(o => o.optionId);
   
     if (correctOptionIds.length === 0) {
@@ -582,6 +582,12 @@ export class SelectedOptionService {
     const selectedOptionIds = Array.from(
       this.selectedOptionsMap.values()
     ).flat().map(o => o.optionId);
+
+    // If undefined IDs are present, log the problematic options
+    const undefinedIds = selectedOptionIds.filter(id => id === undefined);
+    if (undefinedIds.length > 0) {
+      console.error('❌ [areAllCorrectAnswersSelected] Found undefined optionIds in selectedOptionIds:', selectedOptionIds);
+    }
   
     // **3️⃣ Check if every correct option is present in the selected options**
     const missingOptions = correctOptionIds.filter(id => !selectedOptionIds.includes(id));
