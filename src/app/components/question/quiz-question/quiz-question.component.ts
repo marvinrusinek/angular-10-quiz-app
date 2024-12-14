@@ -1604,15 +1604,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // **2️⃣ Remove the option from the map if it’s unchecked**
       const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
       if (updatedOptions.length > 0) {
-        this.selectedOptionsMap.set(questionIndex, updatedOptions);
+        this.selectedOptionService.selectedOptionsMap.set(questionIndex, updatedOptions);
       } else {
-        this.selectedOptionsMap.delete(questionIndex);
+        this.selectedOptionService.selectedOptionsMap.delete(questionIndex);
       }
       console.log('🟡 [updateOptionSelection] Option removed:', option);
     }
 
     // **3️⃣ Log the entire selectedOptionsMap for debugging**
-    console.log('🗂️ [updateOptionSelection] Full selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+    console.log('🗂️ [updateOptionSelection] Full selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
   }
 
   // Handles logic for when the timer should stop.
