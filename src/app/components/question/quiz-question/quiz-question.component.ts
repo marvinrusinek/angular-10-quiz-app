@@ -1586,16 +1586,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
   private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
+    const questionIndex = this.currentQuestionIndex; // 🔥 Use currentQuestionIndex as the key, not optionId
+
+    // Get the current selected options for this question
+    const currentOptions = this.selectedOptionService.selectedOptionsMap.get(questionIndex) || [];
+
+    // **1️⃣ Add the option to the map if it’s checked**
     if (event.checked) {
-      console.log('[handleOptionSelection] Option checked, adding option:', option);
-      this.selectedOptionService.addOption(this.currentQuestionIndex, option);
+      if (!currentOptions.some(o => o.optionId === option.optionId)) {
+        currentOptions.push(option);
+        this.selectedOptionService.selectedOptionsMap.set(questionIndex, currentOptions);
+        console.log('🟢 [updateOptionSelection] Option added:', option);
+      } else {
+        console.log('⚠️ [updateOptionSelection] Option already present:', option);
+      }
     } else {
-      console.log('[handleOptionSelection] Option unchecked, removing option:', option);
-      this.selectedOptionService.removeOption(this.currentQuestionIndex, option.optionId, option);
+      // **2️⃣ Remove the option from the map if it’s unchecked**
+      const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
+      if (updatedOptions.length > 0) {
+        this.selectedOptionsMap.set(questionIndex, updatedOptions);
+      } else {
+        this.selectedOptionsMap.delete(questionIndex);
+      }
+      console.log('🟡 [updateOptionSelection] Option removed:', option);
     }
 
-    // Log the options in the selectedOptionsMap
-    console.log('[updateOptionSelection] Current selected options:', Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat());
+    // **3️⃣ Log the entire selectedOptionsMap for debugging**
+    console.log('🗂️ [updateOptionSelection] Full selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
   }
 
   // Handles logic for when the timer should stop.
