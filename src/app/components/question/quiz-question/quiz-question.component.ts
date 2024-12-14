@@ -1512,6 +1512,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Force a short delay to ensure updates are applied
       await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Check if all correct options are selected (for multiple-answer)
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.warn('[onOptionClicked] No options available for the current question.');
+        return;
+      }
   
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
