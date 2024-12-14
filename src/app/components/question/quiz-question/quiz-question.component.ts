@@ -1647,7 +1647,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         stopTimer = allCorrectSelected;
       } else {
         // **3️⃣ Handle single-answer logic**
-        stopTimer = option.correct;
+        stopTimer = option.correct === true;
         console.log('[stopTimerIfApplicable] Correct option selected (single-answer):', stopTimer);
       }
   
