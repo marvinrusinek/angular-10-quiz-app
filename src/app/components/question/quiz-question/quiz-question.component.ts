@@ -1477,14 +1477,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Assign optionId and correct for every option
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
-          correct: o.correct === true, // Force correct to be true/false
+          correct: o.correct ?? false,
           optionId: o.optionId !== undefined ? o.optionId : index
         }));
   
         console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
 
-      // Check if all correct options are selected (for multiple-answer)
       if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
         console.warn('[onOptionClicked] No options available for the current question.');
         return;
