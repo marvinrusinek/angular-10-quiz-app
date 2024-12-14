@@ -328,42 +328,78 @@ export class SelectedOptionService {
     return selectedOptions.map(option => option.optionId);
   } */
   getSelectedOptionIndices(questionIndex: number): number[] {
-    const indices = this.selectedOptionsMap.get(questionIndex) || [];
-    const filteredIndices = indices.filter((index) => {
-      if (index === undefined || index === null) {
-        console.error(`❌ [getSelectedOptionIndices] Found undefined index for questionIndex ${questionIndex}. Indices:`, indices);
-        return false; // Remove undefined indices
-      }
-      return true;
+    const indices: number[] = this.selectedOptionsMap.get(questionIndex) || [];
+
+    if (!Array.isArray(indices)) {
+        console.error('❌ [getSelectedOptionIndices] selectedOptionsMap value is not an array:', indices);
+    }
+
+    const filteredIndices: number[] = indices.filter((index) => {
+        const isValidNumber = typeof index === 'number' && !isNaN(index);
+        if (!isValidNumber) {
+            console.error(`❌ [getSelectedOptionIndices] Invalid index for questionIndex ${questionIndex}. Indices:`, indices);
+        }
+        return isValidNumber; // 🔥 Filter only valid numeric indices
     });
 
     console.log(`✅ [getSelectedOptionIndices] Valid indices for questionIndex ${questionIndex}:`, filteredIndices);
-    return filteredIndices;
+    return filteredIndices; // 🔥 Return only numbers
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    if (!this.selectedOptionIndices[questionIndex]) {
-      this.selectedOptionIndices[questionIndex] = [];
+    // 1️⃣ Validate that optionIndex is a valid number
+    if (typeof optionIndex !== 'number' || isNaN(optionIndex)) {
+        console.error(`❌ [addSelectedOptionIndex] Invalid optionIndex for questionIndex ${questionIndex}. optionIndex:`, optionIndex);
+        return; // 🔥 Prevent adding invalid optionIndex
     }
 
-    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
-      this.selectedOptionIndices[questionIndex].push(optionIndex);
-      this.updateAnsweredState();
+    // 2️⃣ Ensure the questionIndex key exists in selectedOptionIndices
+    if (!this.selectedOptionIndices[questionIndex]) {
+        this.selectedOptionIndices[questionIndex] = [];
+    }
 
-      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
+    // 3️⃣ Check if the optionIndex is already in the list to avoid duplicates
+    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
+        this.selectedOptionIndices[questionIndex].push(optionIndex); // 🔥 Add only the optionIndex (not the object)
+        console.log(`🟢 [addSelectedOptionIndex] Added optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, this.selectedOptionIndices[questionIndex]);
+        
+        // 4️⃣ Update answered state
+        this.updateAnsweredState();
+
+        // 5️⃣ Call updateSelectedOptions with 'add' action
+        this.updateSelectedOptions(questionIndex, optionIndex, 'add');
+    } else {
+        console.warn(`⚠️ [addSelectedOptionIndex] OptionIndex ${optionIndex} is already present for questionIndex ${questionIndex}.`);
     }
   }
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    if (this.selectedOptionIndices[questionIndex]) {
-      const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
-      if (optionPos > -1) {
-        this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
-        this.updateAnsweredState();
+    // 1️⃣ Validate that optionIndex is a valid number
+    if (typeof optionIndex !== 'number' || isNaN(optionIndex)) {
+        console.error(`❌ [removeSelectedOptionIndex] Invalid optionIndex for questionIndex ${questionIndex}. optionIndex:`, optionIndex);
+        return; // 🔥 Prevent removing invalid optionIndex
+    }
 
-        // Sync with selectedOptionsMap
-        this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
-      }
+    // 2️⃣ Check if selectedOptionIndices for the given questionIndex exists
+    if (this.selectedOptionIndices[questionIndex]) {
+        // 3️⃣ Find the position of optionIndex in the array
+        const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
+
+        if (optionPos > -1) {
+            // 4️⃣ Remove the optionIndex from the array
+            this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
+            console.log(`🗑️ [removeSelectedOptionIndex] Removed optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, this.selectedOptionIndices[questionIndex]);
+            
+            // 5️⃣ Update the answered state after removal
+            this.updateAnsweredState();
+
+            // 6️⃣ Sync with selectedOptionsMap with 'remove' action
+            this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
+        } else {
+            console.warn(`⚠️ [removeSelectedOptionIndex] OptionIndex ${optionIndex} not found for questionIndex ${questionIndex}.`);
+        }
+    } else {
+        console.warn(`⚠️ [removeSelectedOptionIndex] No option indices exist for questionIndex ${questionIndex}.`);
     }
   }
 
