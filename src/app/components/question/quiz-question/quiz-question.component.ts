@@ -1489,6 +1489,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       const option = event.option!;
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+
+      // Log the optionId for this option
+      console.log('🟡 [onOptionClicked] optionId for this option:', option.optionId);
+
+      if (!option.optionId) {
+        console.error('❌ [onOptionClicked] optionId is undefined for option:', option);
+      }
   
       // Stop Timer for Single-Answer Questions
       if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
