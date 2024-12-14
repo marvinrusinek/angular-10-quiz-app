@@ -1489,8 +1489,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       const option = event.option!;
       // Ensure optionId exists
-      if (!option.optionId) {
-        console.error('❌ [onOptionClicked] optionId is undefined for option:', option);
+      if (option.optionId === undefined || option.optionId === null) {
+        console.error('❌ [onOptionClicked] optionId is undefined for option:', event.option);
+        return; // 🔥 Stop execution to prevent further errors
       }
 
       // Log the optionId for this option
