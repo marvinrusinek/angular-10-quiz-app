@@ -1611,8 +1611,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Get the current selected options for this question
     const currentOptions = this.selectedOptionService.selectedOptionsMap.get(questionIndex) || [];
 
-    if (!option.optionId) {
+    if (option.optionId === undefined || option.optionId === null) {
       console.error('🚨 [updateOptionSelection] option.optionId is undefined:', option);
+      return; // 🔥 Stop execution to prevent errors
     }
 
     // **1️⃣ Add the option to the map if it’s checked**
