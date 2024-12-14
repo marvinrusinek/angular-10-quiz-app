@@ -1599,21 +1599,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   // Handles logic for when the timer should stop.
-  private stopTimerIfApplicable(isMultipleAnswer: boolean, option: SelectedOption): void {
+  private async stopTimerIfApplicable(isMultipleAnswer: boolean, option: SelectedOption): Promise<void> {
     let stopTimer = false;
   
     try {
+      // **1️⃣ Wait for option selection to fully update**
+      await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Ensure selectedOptionsMap is fully updated
+  
       if (isMultipleAnswer) {
+        // **2️⃣ Check if all correct answers have been selected**
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-        console.log('[stopTimerIfApplicable] All correct answers selected (multiple-answer):', allCorrectSelected);
+        
+        // 🔥 Log which options are missing if not all correct options are selected
+        const correctOptionIds = this.currentQuestion.options
+          .filter(o => o.correct)
+          .map(o => o.optionId);
+        const selectedOptionIds = Array.from(this.selectedOptionService.selectedOptionsMap.values())
+          .flat()
+          .map(o => o.optionId);
+        const missingOptions = correctOptionIds.filter(id => !selectedOptionIds.includes(id));
+        
+        console.log('🚀 [stopTimerIfApplicable] Correct option IDs:', correctOptionIds);
+        console.log('🚀 [stopTimerIfApplicable] Selected option IDs:', selectedOptionIds);
+        console.log('❌ [stopTimerIfApplicable] Missing correct options:', missingOptions);
+        
         stopTimer = allCorrectSelected;
       } else {
+        // **3️⃣ Handle single-answer logic**
         stopTimer = option.correct;
         console.log('[stopTimerIfApplicable] Correct option selected (single-answer):', stopTimer);
       }
   
       if (stopTimer) {
-        console.log('[stopTimerIfApplicable] Stopping the timer.');
+        console.log('🛑 [stopTimerIfApplicable] Stopping the timer.');
         this.timerService.stopTimer();
       }
     } catch (error) {
