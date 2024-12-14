@@ -377,30 +377,23 @@ export class SelectedOptionService {
   }
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    // 1️⃣ Validate that optionIndex is a valid number
     if (typeof optionIndex !== 'number' || isNaN(optionIndex)) {
         console.error(`❌ [removeSelectedOptionIndex] Invalid optionIndex for questionIndex ${questionIndex}. optionIndex:`, optionIndex);
         return; // 🔥 Prevent removing invalid optionIndex
     }
 
-    // 2️⃣ Check if selectedOptionIndices for the given questionIndex exists
     if (this.selectedOptionIndices[questionIndex]) {
-        // 3️⃣ Find the position of optionIndex in the array
-        const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
+        const currentIndices: number[] = this.selectedOptionIndices[questionIndex];
+        const updatedIndices: number[] = currentIndices.filter((index) => index !== optionIndex);
 
-        if (optionPos > -1) {
-            // 4️⃣ Remove the optionIndex from the array
-            this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
-            console.log(`🗑️ [removeSelectedOptionIndex] Removed optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, this.selectedOptionIndices[questionIndex]);
-            
-            // 5️⃣ Update the answered state after removal
-            this.updateAnsweredState();
-
-            // 6️⃣ Sync with selectedOptionsMap with 'remove' action
-            this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
-        } else {
-            console.warn(`⚠️ [removeSelectedOptionIndex] OptionIndex ${optionIndex} not found for questionIndex ${questionIndex}.`);
+        // 🔥 Check if objects are being accidentally added
+        const nonNumberEntries = updatedIndices.filter(index => typeof index !== 'number');
+        if (nonNumberEntries.length > 0) {
+            console.error(`❌ [removeSelectedOptionIndex] Non-number entries found for questionIndex ${questionIndex}.`, nonNumberEntries);
         }
+
+        this.selectedOptionIndices[questionIndex] = updatedIndices;
+        console.log(`🗑️ [removeSelectedOptionIndex] Removed optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, updatedIndices);
     } else {
         console.warn(`⚠️ [removeSelectedOptionIndex] No option indices exist for questionIndex ${questionIndex}.`);
     }
