@@ -110,6 +110,11 @@ export class SelectedOptionService {
 
   /** Adds an option to the selectedOptionsMap */
   addOption(questionIndex: number, option: SelectedOption): void {
+    if (option.optionId === undefined) {
+      console.warn('🚨 [addOption] option.optionId is undefined:', option);
+      return; // 🔥 Don't add an option with an undefined optionId
+    }
+
     // Get the current selected options for this question
     const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
 
