@@ -486,42 +486,6 @@ export class SelectedOptionService {
     }
   }
 
-  /* areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
-    console.log('[areAllCorrectAnswersSelected] Full question options:', questionOptions);
-
-    console.log('Question Options:::>>', JSON.stringify(questionOptions, null, 2));
-  
-    // Get the list of correct option IDs
-    const correctOptionIds = questionOptions
-      .filter((o) => o.correct && o.optionId != null) // Ensure optionId exists and correct === true
-      .map((o) => o.optionId);
-  
-    if (correctOptionIds.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
-      return false; // No correct options, so return false
-    }
-  
-    // Get the list of selected option IDs
-    const selectedOptionIds = Array.from(
-      new Set(
-        Array.from(this.selectedOptionsMap.values())
-          .flat()
-          .map((o) => o.optionId)
-          .filter((id) => id != null)
-      )
-    );
-
-    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
-  
-    // Check if every correct option is present in the selected options
-    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
-    
-    console.log('[areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
-    console.log('[areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
-    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
-
-    return allCorrectOptionsSelected;
-  } */
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     // Get all correct option IDs
     const correctOptionIds = questionOptions
@@ -543,7 +507,7 @@ export class SelectedOptionService {
       )
     );
   
-    // 🔥 Use a Set to make it more efficient
+    // Use a Set to make it more efficient
     const correctSet = new Set(correctOptionIds);
     const selectedSet = new Set(selectedOptionIds);
   
