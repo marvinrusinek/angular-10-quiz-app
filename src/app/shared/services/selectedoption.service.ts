@@ -328,10 +328,10 @@ export class SelectedOptionService {
     return selectedOptions.map(option => option.optionId);
   } */
   getSelectedOptionIndices(questionIndex: number): number[] {
-    const indices: number[] = this.selectedOptionsMap.get(questionIndex) || [];
+    const indices: number[] = this.selectedOptionIndices[questionIndex] || [];
 
     if (!Array.isArray(indices)) {
-        console.error('❌ [getSelectedOptionIndices] selectedOptionsMap value is not an array:', indices);
+        console.error('❌ [getSelectedOptionIndices] selectedOptionIndices value is not an array:', indices);
     }
 
     const filteredIndices: number[] = indices.filter((index) => {
