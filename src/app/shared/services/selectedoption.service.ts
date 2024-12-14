@@ -109,30 +109,51 @@ export class SelectedOptionService {
   }
 
   /** Adds an option to the selectedOptionsMap */
-  addOption(option: SelectedOption): void {
-    const currentOptions = this.selectedOptionsMap.get(option.optionId) || [];
-
-    if (!currentOptions.some(o => o.optionId === option.optionId)) {
-      this.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
-      console.log(`[SelectedOptionService] Option added:`, option);
-    } else {
-      console.log(`[SelectedOptionService] Option already present:`, option);
+  addOption(questionIndex: number, option: SelectedOption): void {
+    if (!option.optionId && option.optionId !== 0) {
+      console.warn('[addOption] Option ID is invalid:', option.optionId);
+      return;
     }
+
+    // Get current selected options for this question
+    const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
+
+    // Check if this option is already present (avoid duplicates)
+    if (!currentOptions.some(o => o.optionId === option.optionId)) {
+      currentOptions.push(option);
+      this.selectedOptionsMap.set(questionIndex, currentOptions); // 🔥 Update the map with the new option list
+      console.log(`🟢 [addOption] Option added for questionIndex ${questionIndex}:`, option);
+    } else {
+      console.log(`⚠️ [addOption] Option already present for questionIndex ${questionIndex}:`, option);
+    }
+
+    console.log('🗂️ [addOption] Selected options map (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
   }
 
   /** Removes an option from the selectedOptionsMap */
-  removeOption(optionId: number, option: SelectedOption): void {
-    const currentOptions = this.selectedOptionsMap.get(optionId) || [];
-    const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
-
-    if (updatedOptions.length > 0) {
-      this.selectedOptionsMap.set(optionId, updatedOptions);
-    } else {
-      this.selectedOptionsMap.delete(optionId);
+  removeOption(questionIndex: number, optionId: number, option: SelectedOption): void {
+    if (!optionId && optionId !== 0) {
+      console.warn('[removeOption] Option ID is invalid:', optionId);
+      return;
     }
 
-    console.log(`[SelectedOptionService] Option removed:`, option);
+    // Get current selected options for this question
+    const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
+
+    // Filter out the option from the selected options list
+    const updatedOptions = currentOptions.filter(o => o.optionId !== optionId);
+
+    // Update the map with the updated list of options
+    if (updatedOptions.length > 0) {
+      this.selectedOptionsMap.set(questionIndex, updatedOptions);
+    } else {
+      this.selectedOptionsMap.delete(questionIndex); // Remove the question if no options are selected
+    }
+
+    console.log(`🟡 [removeOption] Option removed for questionIndex ${questionIndex}:`, option);
+    console.log('🗂️ [removeOption] Selected options map (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
   }
+
 
   setNextButtonEnabled(enabled: boolean): void {
     this.isNextButtonEnabledSubject.next(enabled);  // Update the button's enabled state
