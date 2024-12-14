@@ -1511,6 +1511,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Add or remove the selected option using the service
       await this.updateOptionSelection(event, option);
 
+      // Call stopTimerIfApplicable() to check if the timer should be stopped
       this.stopTimerIfApplicable(isMultipleAnswer, option);
   
       // Update state and answer tracking
