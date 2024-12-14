@@ -1621,7 +1621,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     try {
       // **1️⃣ Wait for option selection to fully update**
-      await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Ensure selectedOptionsMap is fully updated
+      await new Promise(resolve => setTimeout(resolve, 100)); // 🔥 Ensure selectedOptionsMap is fully updated
   
       // 🔥 Log the full selectedOptionsMap to debug any issues
       console.log('🗂️ [stopTimerIfApplicable] Full selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
