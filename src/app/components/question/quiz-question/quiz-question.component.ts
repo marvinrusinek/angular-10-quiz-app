@@ -1480,6 +1480,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           correct: o.correct ?? false,
           optionId: o.optionId !== undefined ? o.optionId : index
         }));
+
+        console.log('[onOptionClicked] Current question options:', JSON.stringify(this.currentQuestion.options, null, 2));
   
         console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
