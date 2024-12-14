@@ -540,7 +540,7 @@ export class SelectedOptionService {
   
     return allCorrectOptionsSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     console.log('[areAllCorrectAnswersSelected] Full question options:', JSON.stringify(questionOptions, null, 2));
   
     // Get the list of correct option IDs
@@ -576,7 +576,34 @@ export class SelectedOptionService {
     console.log('✅ [areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
 
     return allCorrectOptionsSelected;
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+    // **1️⃣ Get the list of correct option IDs**
+    const correctOptionIds = questionOptions
+      .filter(o => o.correct === true) // 🔥 Ensure we explicitly check if correct === true
+      .map(o => o.optionId);
+  
+    if (correctOptionIds.length === 0) {
+      console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
+      return false; // No correct options, so return false
+    }
+  
+    // **2️⃣ Get the list of selected option IDs**
+    const selectedOptionIds = Array.from(
+      this.selectedOptionsMap.values()
+    ).flat().map(o => o.optionId);
+  
+    // **3️⃣ Check if every correct option is present in the selected options**
+    const missingOptions = correctOptionIds.filter(id => !selectedOptionIds.includes(id));
+  
+    console.log('🚀 [areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('🚀 [areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
+    console.log('❌ [areAllCorrectAnswersSelected] Missing correct options:', missingOptions);
+  
+    // **4️⃣ Return true only if no options are missing**
+    return missingOptions.length === 0;
   }
+  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
