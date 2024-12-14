@@ -323,9 +323,22 @@ export class SelectedOptionService {
     });
   }
 
-  getSelectedOptionIndices(questionIndex: number): number[] {
+  /* getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
     return selectedOptions.map(option => option.optionId);
+  } */
+  getSelectedOptionIndices(questionIndex: number): number[] {
+    const indices = this.selectedOptionsMap.get(questionIndex) || [];
+    const filteredIndices = indices.filter((index) => {
+      if (index === undefined || index === null) {
+        console.error(`❌ [getSelectedOptionIndices] Found undefined index for questionIndex ${questionIndex}. Indices:`, indices);
+        return false; // Remove undefined indices
+      }
+      return true;
+    });
+
+    console.log(`✅ [getSelectedOptionIndices] Valid indices for questionIndex ${questionIndex}:`, filteredIndices);
+    return filteredIndices;
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
