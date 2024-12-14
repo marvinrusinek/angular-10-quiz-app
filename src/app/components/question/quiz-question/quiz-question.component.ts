@@ -1474,12 +1474,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
   
-        // Initialize option properties for optionId and correct
-        this.initializeQuestionOptions();
+        // Assign optionId and correct for every option
+        this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
+          ...o,
+          correct: o.correct === true, // Force correct to be true/false
+          optionId: o.optionId !== undefined ? o.optionId : index
+        }));
+  
+        console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
 
-      // Re-check option initialization on every option click (failsafe)
-      this.initializeQuestionOptions();
+      // Check if all correct options are selected (for multiple-answer)
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.warn('[onOptionClicked] No options available for the current question.');
+        return;
+      }
   
       // Validate the option and ensure event.option exists
       if (!this.validateOption(event) || !event.option) {
@@ -1488,15 +1497,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
   
       const option = event.option!;
-      // Ensure optionId exists
-      if (option.optionId === undefined || option.optionId === null) {
-        console.error('❌ [onOptionClicked] optionId is undefined for option:', event.option);
-        return; // 🔥 Stop execution to prevent further errors
-      }
-
-      // Log the optionId for this option
-      console.log('🟡 [onOptionClicked] optionId for this option:', option.optionId);
-
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
       // Stop Timer for Single-Answer Questions
@@ -1509,9 +1509,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Add or remove the selected option using the service
       await this.updateOptionSelection(event, option);
-
-      // Call stopTimerIfApplicable() to check if the timer should be stopped
-      this.stopTimerIfApplicable(isMultipleAnswer, option);
   
       // Update state and answer tracking
       await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
@@ -1563,28 +1560,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     
   // ====================== Helper Functions ======================
-  initializeQuestionOptions(): void {
-    if (!this.currentQuestion?.options) {
-      console.warn('🚨 [initializeQuestionOptions] currentQuestion.options is not available');
-      return;
-    }
-
-    this.currentQuestion.options = this.currentQuestion.options.map((o, index) => {
-      const optionId = o.optionId !== undefined ? o.optionId : index;
-      const correct = o.correct ?? false;
-      if (optionId === undefined) {
-        console.error('🚨 [initializeQuestionOptions] Option has undefined optionId:', o);
-      }
-      return {
-        ...o,
-        correct,
-        optionId
-      };
-    });
-
-    console.log('🚀 [initializeQuestionOptions] Current question options:', JSON.stringify(this.currentQuestion.options, null, 2));
-  }
-
+  
   /** Validates the option and returns false if early return is needed. */
   private validateOption(event: { option: SelectedOption | null; index: number; checked: boolean }): boolean {
     const option = event.option;
@@ -1606,77 +1582,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
   private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
-    const questionIndex = this.currentQuestionIndex; // 🔥 Use currentQuestionIndex as the key, not optionId
-
-    // Get the current selected options for this question
-    const currentOptions = this.selectedOptionService.selectedOptionsMap.get(questionIndex) || [];
-
-    if (!option.optionId) {
-      console.error('🚨 [updateOptionSelection] option.optionId is undefined:', option);
-    }
-
-    // **1️⃣ Add the option to the map if it’s checked**
     if (event.checked) {
-      if (!currentOptions.some(o => o.optionId === option.optionId)) {
-        currentOptions.push(option);
-        this.selectedOptionService.selectedOptionsMap.set(questionIndex, currentOptions);
-        console.log('🟢 [updateOptionSelection] Option added:', option);
-      } else {
-        console.log('⚠️ [updateOptionSelection] Option already present:', option);
-      }
+      console.log('[handleOptionSelection] Option checked, adding option:', option);
+      this.selectedOptionService.addOption(option);
     } else {
-      // **2️⃣ Remove the option from the map if it’s unchecked**
-      const updatedOptions = currentOptions.filter(o => o.optionId !== option.optionId);
-      if (updatedOptions.length > 0) {
-        this.selectedOptionService.selectedOptionsMap.set(questionIndex, updatedOptions);
-      } else {
-        this.selectedOptionService.selectedOptionsMap.delete(questionIndex);
-      }
-      console.log('🟡 [updateOptionSelection] Option removed:', option);
+      console.log('[handleOptionSelection] Option unchecked, removing option:', option);
+      this.selectedOptionService.removeOption(option.optionId, option);
     }
 
-    // **3️⃣ Log the entire selectedOptionsMap for debugging**
-    console.log('🗂️ [updateOptionSelection] Full selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+    // Log the options in the selectedOptionsMap
+    console.log('[updateOptionSelection] Current selected options:', Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat());
   }
 
   // Handles logic for when the timer should stop.
-  private async stopTimerIfApplicable(isMultipleAnswer: boolean, option: SelectedOption): Promise<void> {
+  private stopTimerIfApplicable(isMultipleAnswer: boolean, option: SelectedOption): void {
     let stopTimer = false;
   
     try {
-      // **1️⃣ Wait for option selection to fully update**
-      await new Promise(resolve => setTimeout(resolve, 100)); // 🔥 Ensure selectedOptionsMap is fully updated
-  
-      // 🔥 Log the full selectedOptionsMap to debug any issues
-      console.log('🗂️ [stopTimerIfApplicable] Full selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-
       if (isMultipleAnswer) {
-        // **2️⃣ Check if all correct answers have been selected**
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-        
-        // 🔥 Log which options are missing if not all correct options are selected
-        const correctOptionIds = this.currentQuestion.options
-          .filter(o => o.correct === true)
-          .map(o => o.optionId);
-        const selectedOptionIds = Array.from(this.selectedOptionService.selectedOptionsMap.values())
-          .flat()
-          .map(o => o.optionId);
-        const missingOptions = correctOptionIds.filter(id => !selectedOptionIds.includes(id));
-        
-        console.log('🚀 [stopTimerIfApplicable] Correct option IDs:', correctOptionIds);
-        console.log('🚀 [stopTimerIfApplicable] Selected option IDs:', selectedOptionIds);
-        console.log('❌ [stopTimerIfApplicable] Missing correct options:', missingOptions);
-        console.log('✅ [stopTimerIfApplicable] All correct options selected:', allCorrectSelected);
-        
+        console.log('[stopTimerIfApplicable] All correct answers selected (multiple-answer):', allCorrectSelected);
         stopTimer = allCorrectSelected;
       } else {
-        // **3️⃣ Handle single-answer logic**
-        stopTimer = option.correct === true;
+        stopTimer = option.correct;
         console.log('[stopTimerIfApplicable] Correct option selected (single-answer):', stopTimer);
       }
   
       if (stopTimer) {
-        console.log('🛑 [stopTimerIfApplicable] Stopping the timer.');
+        console.log('[stopTimerIfApplicable] Stopping the timer.');
         this.timerService.stopTimer();
       }
     } catch (error) {
@@ -2654,107 +2587,72 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
-    try {
-      // 1️⃣ Get selected option indices for the current question
-      const selectedIndices = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
-
-      if (!Array.isArray(selectedIndices)) {
-        console.error('❌ [handleOptionClicked] selectedIndices is not an array:', selectedIndices);
-      }
-
-      // 2️⃣ Filter out undefined indices and log them
-      const filteredIndices = selectedIndices.filter((index) => {
-        if (index === undefined || index === null) {
-          console.error('❌ [handleOptionClicked] Found undefined index in selectedIndices:', selectedIndices);
-          return false; // 🔥 Filter out undefined indices
-        }
-        return true;
-      });
-
-      // 3️⃣ Map the filtered indices to actual option objects
-      const selectedOptions: Option[] = filteredIndices
-        .map((index) => {
-          if (index >= currentQuestion.options.length || index < 0) {
-            console.error(`❌ [handleOptionClicked] Index ${index} is out of range for options length ${currentQuestion.options.length}.`, currentQuestion.options);
-            return null; // 🔥 Prevent out-of-bounds errors
-          }
-
-          const option = currentQuestion.options[index];
-
-          if (!option) {
-            console.error(`❌ [handleOptionClicked] Option at index ${index} is undefined. Current options:`, JSON.stringify(currentQuestion.options, null, 2));
-          }
-
-          return option || null; // 🔥 Return null to avoid undefined options
-        })
-        .filter(Boolean); // 🔥 Remove null options from the array
-
-      console.log('🚀 [handleOptionClicked] Selected options after mapping:', selectedOptions);
-
-      // 4️⃣ Check if the option is already selected
-      const isOptionSelected = selectedOptions.some((option: Option) => {
-        if (!option) {
-          console.error('❌ [handleOptionClicked] Option is undefined while checking if option is selected.');
-          return false;
-        }
-        return option.optionId === optionIndex;
-      });
-
-      console.log(`🟡 [handleOptionClicked] Is option (index: ${optionIndex}) selected?`, isOptionSelected);
-
-      // 5️⃣ Add or remove the option based on its current state
-      if (!isOptionSelected) {
-        console.log(`🟢 [handleOptionClicked] Adding option at index ${optionIndex}`);
-        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
-      } else {
-        console.log(`🟡 [handleOptionClicked] Removing option at index ${optionIndex}`);
-        this.selectedOptionService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
-      }
-
-      // 6️⃣ Ensure selected options are stabilized before proceeding
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // 7️⃣ Check if the question is now answered
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-
-      // 8️⃣ Determine if this is a multiple-answer question
-      const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(currentQuestion));
-
-      // 9️⃣ Determine the new selection message
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
+    const selectedOptions: Option[] = this.selectedOptionService
+      .getSelectedOptionIndices(this.currentQuestionIndex)
+      .map((index) => currentQuestion.options[index]);
+  
+    // Check if the option is already selected
+    const isOptionSelected = selectedOptions.some(
+      (option: Option) => option.optionId === optionIndex
+    );
+  
+    // Add or remove the option based on its current state
+    if (!isOptionSelected) {
+      this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered,
-        isMultipleAnswer
+        optionIndex
       );
-
-      // 🔟 Update the message only if it has changed
-      if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
-        console.log(`🔄 [handleOptionClicked] Setting new message: ${newMessage}`);
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-        this.selectionMessageSubject.next(newMessage);
-      }
-
-      // 🔟 Update the question state
-      const questionState: QuestionState = {
-        isAnswered,
-        selectedOptions
-      };
-
-      this.quizStateService.setQuestionState(
-        this.quizId,
+    } else {
+      this.selectedOptionService.removeSelectedOptionIndex(
         this.currentQuestionIndex,
-        questionState
+        optionIndex
       );
-
-      // 1️⃣1️⃣ Handle multiple-answer logic if applicable
-      this.handleMultipleAnswer(currentQuestion);
-
-      // 1️⃣2️⃣ Ensure the UI reflects the changes
-      this.cdRef.markForCheck();
-    } catch (error) {
-      console.error('[handleOptionClicked] Unhandled error:', error);
     }
+
+    // Ensure selected options are stabilized before proceeding
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  
+    // Check if the question is now answered
+    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+    );
+  
+    // Determine the new selection message
+    const newMessage = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultipleAnswer
+    );
+  
+    // Update the message only if it has changed
+    if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
+      console.log(`Setting new message: ${newMessage}`);
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+      this.selectionMessageSubject.next(newMessage);
+    }
+  
+    // Update the question state
+    const questionState: QuestionState = {
+      isAnswered,
+      selectedOptions
+    };
+  
+    this.quizStateService.setQuestionState(
+      this.quizId,
+      this.currentQuestionIndex,
+      questionState
+    );
+
+    //this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    await this.updateMessageForCurrentState(currentQuestion);
+  
+    // Handle multiple-answer logic if applicable
+    this.handleMultipleAnswer(currentQuestion);
+  
+    // Ensure the UI reflects the changes
+    this.cdRef.markForCheck();
   }
 
   private async updateMessageForCurrentState(

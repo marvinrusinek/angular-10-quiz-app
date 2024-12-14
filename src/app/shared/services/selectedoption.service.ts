@@ -323,79 +323,34 @@ export class SelectedOptionService {
     });
   }
 
-  /* getSelectedOptionIndices(questionIndex: number): number[] {
+  getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
     return selectedOptions.map(option => option.optionId);
-  } */
-  getSelectedOptionIndices(questionIndex: number): number[] {
-    const indices: number[] = this.selectedOptionIndices[questionIndex] || [];
-
-    if (!Array.isArray(indices)) {
-        console.error('❌ [getSelectedOptionIndices] selectedOptionIndices value is not an array:', indices);
-    }
-
-    const filteredIndices: number[] = indices.filter((index) => {
-        const isValidNumber = typeof index === 'number' && !isNaN(index);
-        if (!isValidNumber) {
-            console.error(`❌ [getSelectedOptionIndices] Invalid index for questionIndex ${questionIndex}. Indices:`, indices);
-        }
-        return isValidNumber; // 🔥 Filter only valid numeric indices
-    });
-
-    console.log(`✅ [getSelectedOptionIndices] Valid indices for questionIndex ${questionIndex}:`, filteredIndices);
-    return filteredIndices; // 🔥 Return only numbers
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    // 1️⃣ Ensure optionIndex is a valid number
-    if (typeof optionIndex !== 'number' || isNaN(optionIndex)) {
-        console.error(`❌ [addSelectedOptionIndex] Invalid optionIndex for questionIndex ${questionIndex}. optionIndex:`, optionIndex);
-        return; // 🔥 Prevent adding invalid optionIndex
-    }
-
-    // 2️⃣ Ensure selectedOptionIndices is initialized for this questionIndex
     if (!this.selectedOptionIndices[questionIndex]) {
-        this.selectedOptionIndices[questionIndex] = [];
+      this.selectedOptionIndices[questionIndex] = [];
     }
 
-    // 3️⃣ Check if optionIndex is already in the list to avoid duplicates
-    const currentIndices: number[] = this.selectedOptionIndices[questionIndex];
+    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
+      this.selectedOptionIndices[questionIndex].push(optionIndex);
+      this.updateAnsweredState();
 
-    if (!currentIndices.includes(optionIndex)) {
-        currentIndices.push(optionIndex);
-        
-        // 🔥 Check if objects are being accidentally added
-        const nonNumberEntries = currentIndices.filter(index => typeof index !== 'number');
-        if (nonNumberEntries.length > 0) {
-            console.error(`❌ [addSelectedOptionIndex] Non-number entries found for questionIndex ${questionIndex}.`, nonNumberEntries);
-        }
-
-        console.log(`🟢 [addSelectedOptionIndex] Added optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, currentIndices);
-    } else {
-        console.warn(`⚠️ [addSelectedOptionIndex] OptionIndex ${optionIndex} is already present for questionIndex ${questionIndex}.`);
+      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
     }
   }
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    if (typeof optionIndex !== 'number' || isNaN(optionIndex)) {
-        console.error(`❌ [removeSelectedOptionIndex] Invalid optionIndex for questionIndex ${questionIndex}. optionIndex:`, optionIndex);
-        return; // 🔥 Prevent removing invalid optionIndex
-    }
-
     if (this.selectedOptionIndices[questionIndex]) {
-        const currentIndices: number[] = this.selectedOptionIndices[questionIndex];
-        const updatedIndices: number[] = currentIndices.filter((index) => index !== optionIndex);
+      const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
+      if (optionPos > -1) {
+        this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
+        this.updateAnsweredState();
 
-        // 🔥 Check if objects are being accidentally added
-        const nonNumberEntries = updatedIndices.filter(index => typeof index !== 'number');
-        if (nonNumberEntries.length > 0) {
-            console.error(`❌ [removeSelectedOptionIndex] Non-number entries found for questionIndex ${questionIndex}.`, nonNumberEntries);
-        }
-
-        this.selectedOptionIndices[questionIndex] = updatedIndices;
-        console.log(`🗑️ [removeSelectedOptionIndex] Removed optionIndex ${optionIndex} for questionIndex ${questionIndex}. Current indices:`, updatedIndices);
-    } else {
-        console.warn(`⚠️ [removeSelectedOptionIndex] No option indices exist for questionIndex ${questionIndex}.`);
+        // Sync with selectedOptionsMap
+        this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
+      }
     }
   }
 
