@@ -1477,7 +1477,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Assign optionId and correct for every option
         this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
           ...o,
-          correct: o.correct ?? false,
+          correct: o.correct === true, // Force correct to be true/false
           optionId: o.optionId !== undefined ? o.optionId : index
         }));
   
