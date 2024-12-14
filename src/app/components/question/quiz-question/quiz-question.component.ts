@@ -1567,11 +1567,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return;
     }
 
-    this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
-      ...o,
-      correct: o.correct ?? false, // 🔥 Ensure correct is always true or false
-      optionId: o.optionId !== undefined ? o.optionId : index // 🔥 Ensure optionId is set
-    }));
+    this.currentQuestion.options = this.currentQuestion.options.map((o, index) => {
+      const optionId = o.optionId !== undefined ? o.optionId : index;
+      const correct = o.correct ?? false;
+      if (optionId === undefined) {
+        console.error('🚨 [initializeQuestionOptions] Option has undefined optionId:', o);
+      }
+      return {
+        ...o,
+        correct,
+        optionId
+      };
+    });
 
     console.log('🚀 [initializeQuestionOptions] Current question options:', JSON.stringify(this.currentQuestion.options, null, 2));
   }
