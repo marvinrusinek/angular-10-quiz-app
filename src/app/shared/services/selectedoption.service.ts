@@ -110,6 +110,7 @@ export class SelectedOptionService {
 
   /** Adds an option to the selectedOptionsMap */
   addOption(questionIndex: number, option: SelectedOption): void {
+    this.trackOptionLifecycle(option, `addOption (BEFORE) source=${source}`);
     // 1️⃣ Check if option is valid
     if (!option) {
       console.error('❌ [addOption] Option is undefined. Cannot add it to selectedOptionsMap.');
