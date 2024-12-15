@@ -2208,9 +2208,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           // **2️⃣ Set options immediately so UI can render**
           this.optionsToDisplay = this.currentQuestion.options.map((option, index) => {
-            // 🔥 Call trackOptionLifecycle from SelectedOptionService
-            this.selectedOptionService.trackOptionLifecycle(option, `initializeFirstQuestion (BEFORE) index=${index}`);
-
+            // 🔥 Check if option is valid (must be an object and have a 'text' property)
             if (!option || typeof option !== 'object') {
               console.error(`❌ [initializeFirstQuestion] Invalid option (not an object). Skipping this option:`, option);
               return null;
@@ -2221,15 +2219,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               return null;
             }
 
+            // 🔥 Assign optionId if not already set
             if (option.optionId === undefined || option.optionId === null) {
-              option.optionId = index; // 🔥 Set optionId if not already set
+              option.optionId = index; // 🔥 Set optionId to the index if it's not present
               console.warn(`❌ [initializeFirstQuestion] optionId was undefined. Assigned optionId=${index} to option:`, option);
             }
 
-            // 🔥 Call trackOptionLifecycle after optionId is assigned
+            // 🔥 Log the option lifecycle
             this.selectedOptionService.trackOptionLifecycle(option, `initializeFirstQuestion (AFTER) index=${index}`);
             return option;
-          }).filter(Boolean); // 🔥 Filter out null values
+          }).filter(Boolean); // 🔥 Remove null values
   
           console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
