@@ -586,6 +586,7 @@ export class SelectedOptionService {
         Array.from(this.selectedOptionsMap.values())
           .flat()
           .map((o) => {
+            this.selectedOptionService.trackOptionLifecycle(o, 'areAllCorrectAnswersSelected (BEFORE)');
             if (o.optionId === undefined) {
               console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId:', o);
             }
