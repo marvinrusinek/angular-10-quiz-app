@@ -1596,7 +1596,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
-  private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption, source: string = 'updateOptionSelection'): void {
+  private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
     if (event.checked) {
       console.log('[handleOptionSelection] Option checked, adding option:', option);
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
