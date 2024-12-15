@@ -591,7 +591,7 @@ export class SelectedOptionService {
             }
             return o.optionId;
           })
-          .filter((id) => id != null) // 🔥 Filter out null/undefined optionIds
+          .filter((id) => typeof id === 'number')
       )
     );
 
