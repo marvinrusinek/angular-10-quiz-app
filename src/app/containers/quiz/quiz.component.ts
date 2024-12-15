@@ -2227,8 +2227,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
     
           // **6️⃣ Check if the first question has an answer selected**
-          const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
+          // const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+          // const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
+          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
     
           console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
     
