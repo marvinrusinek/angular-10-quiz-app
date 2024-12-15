@@ -2234,7 +2234,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
     
           // **7️⃣ Set initial answered state properly**
-          this.selectedOptionService.setAnsweredState(hasAnswered);
+          // this.selectedOptionService.setAnsweredState(hasAnswered);
 
           // **8️⃣ Stop the timer if the first question is already answered**
           if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
