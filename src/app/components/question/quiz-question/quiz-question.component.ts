@@ -1502,6 +1502,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         return; 
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+
+      // 🔥 **4️⃣ Handle single-answer lock logic**
+      if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
+        console.log('[onOptionClicked] Single answer lock is active, returning early.');
+        return;
+      }
   
       // Stop Timer for Single-Answer Questions
       if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
