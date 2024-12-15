@@ -577,34 +577,32 @@ export class SelectedOptionService {
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
-      .filter(o => o.correct === true && o.optionId !== undefined) // Ensure optionId is defined
+      .filter(o => o.correct) // Ensure optionId is defined
       .map(o => o.optionId);
-  
-    if (correctOptionIds.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No correct options for this question');
-      return false; // No correct options, so return false
-    }
   
     // **2️⃣ Get the list of selected option IDs**
     const selectedOptionIds = Array.from(
-      this.selectedOptionsMap.values()
-    ).flat().map(o => o.optionId);
+      new Set(
+        Array.from(this.selectedOptionsMap.values())
+          .flat()
+          .map((o) => {
+            if (o.optionId === undefined) {
+              console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId:', o);
+            }
+            return o.optionId;
+          })
+          .filter((id) => id != null) // 🔥 Filter out null/undefined optionIds
+      )
+    );
 
-    // If undefined IDs are present, log the problematic options
-    const undefinedIds = selectedOptionIds.filter(id => id === undefined);
-    if (undefinedIds.length > 0) {
-      console.error('❌ [areAllCorrectAnswersSelected] Found undefined optionIds in selectedOptionIds:', selectedOptionIds);
-    }
-  
-    // **3️⃣ Check if every correct option is present in the selected options**
-    const missingOptions = correctOptionIds.filter(id => !selectedOptionIds.includes(id));
+    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
   
     console.log('🚀 [areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('🚀 [areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
-    console.log('❌ [areAllCorrectAnswersSelected] Missing correct options:', missingOptions);
+    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     // **4️⃣ Return true only if no options are missing**
-    return missingOptions.length === 0;
+    return allCorrectOptionsSelected;
   }
   
  
