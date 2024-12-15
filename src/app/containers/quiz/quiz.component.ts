@@ -2224,8 +2224,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           });
   
           // **5️⃣ Ensure selected options are properly set**
-          this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
-    
+          this.selectedOptionService.updateAnsweredState(this.optionsToDisplay);
+
           // **6️⃣ Check if the first question has an answer selected**
           // const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
           // const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
