@@ -108,22 +108,6 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
   }
 
-  public trackOptionLifecycle(option: any, location: string): void {
-    if (!option) {
-      console.error(`❌ [trackOptionLifecycle] Option is undefined at ${location}`);
-      return;
-    }
-    if (typeof option !== 'object') {
-      console.error(`❌ [trackOptionLifecycle] Option is not an object at ${location}.`, option);
-      return;
-    }
-    if (option.optionId === undefined) {
-      console.error(`❌ [trackOptionLifecycle] Option with undefined optionId at ${location}:`, option);
-    } else {
-      console.log(`🚀 [trackOptionLifecycle] Option at ${location}:`, option);
-    }
-  }  
-
   /** Adds an option to the selectedOptionsMap */
   addOption(questionIndex: number, option: SelectedOption, source: string = 'unknown'): void {
     this.trackOptionLifecycle(option, `addOption (BEFORE) source=${source}`);
