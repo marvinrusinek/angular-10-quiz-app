@@ -139,6 +139,8 @@ export class SelectedOptionService {
       return; // 🔥 Stop execution to prevent errors
     }
 
+    this.trackOptionLifecycle(option, `addOption (AFTER) source=${source}`);
+
     // Get the current selected options for this question
     const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
 
