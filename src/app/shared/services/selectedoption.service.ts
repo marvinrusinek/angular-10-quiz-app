@@ -122,7 +122,7 @@ export class SelectedOptionService {
     } else {
       console.log(`🚀 [trackOptionLifecycle] Option at ${location}:`, option);
     }
-  }
+  }  
 
   /** Adds an option to the selectedOptionsMap */
   addOption(questionIndex: number, option: SelectedOption, source: string = 'unknown'): void {
