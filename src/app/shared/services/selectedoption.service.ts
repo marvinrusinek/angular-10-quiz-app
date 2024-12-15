@@ -125,7 +125,7 @@ export class SelectedOptionService {
   }
 
   /** Adds an option to the selectedOptionsMap */
-  addOption(questionIndex: number, option: SelectedOption): void {
+  addOption(questionIndex: number, option: SelectedOption, source: string = 'unknown'): void {
     this.trackOptionLifecycle(option, `addOption (BEFORE) source=${source}`);
     // 1️⃣ Check if option is valid
     if (!option) {
