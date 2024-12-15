@@ -121,7 +121,7 @@ export class SelectedOptionService {
       console.error('❌ [addOption] option.optionId is undefined:', option);
       return; // 🔥 Stop execution to prevent errors
     }
-    
+
     // Get the current selected options for this question
     const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
 
@@ -586,7 +586,6 @@ export class SelectedOptionService {
         Array.from(this.selectedOptionsMap.values())
           .flat()
           .map((o) => {
-            this.trackOptionLifecycle(o, 'areAllCorrectAnswersSelected (BEFORE)');
             if (o.optionId === undefined) {
               console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId:', o);
             }

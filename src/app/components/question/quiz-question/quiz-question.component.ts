@@ -1469,7 +1469,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
-    this.selectedOptionService.trackOptionLifecycle(event.option, 'onOptionClicked (BEFORE)');
     try {
       // Ensure current question is loaded
       if (!this.currentQuestion) {
@@ -1587,9 +1586,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
   private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption, source: string = 'updateOptionSelection'): void {
-    // 🔥 Log the option lifecycle for debugging
-    this.selectedOptionService.trackOptionLifecycle(option, `updateOptionSelection (BEFORE) source=${source}`);
-
     if (event.checked) {
       console.log('[handleOptionSelection] Option checked, adding option:', option);
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
