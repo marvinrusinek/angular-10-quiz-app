@@ -2225,8 +2225,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               console.warn(`❌ [initializeFirstQuestion] optionId was undefined. Assigned optionId=${index} to option:`, option);
             }
 
-            // 🔥 Log the option lifecycle
-            this.selectedOptionService.trackOptionLifecycle(option, `initializeFirstQuestion (AFTER) index=${index}`);
             return option;
           }).filter(Boolean); // 🔥 Remove null values
   
