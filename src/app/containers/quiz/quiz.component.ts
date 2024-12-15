@@ -2236,11 +2236,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.selectedOptionService.setAnsweredState(hasAnswered);
 
           // **8️⃣ Stop the timer if the first question is already answered**
-          /* if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
+          if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
             console.log('[initializeFirstQuestion] Stopping the timer for the first question.');
             this.timerService.stopTimer();
             this.selectedOptionService.stopTimerEmitted = true;
-          } */
+          }
     
           // **8️⃣ Start the timer only after the first question has been set**
           this.timerService.startTimer();
