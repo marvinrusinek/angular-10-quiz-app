@@ -1519,8 +1519,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           this.selectedOptionService.stopTimerEmitted = true;
         }
 
-        // Exit early for single-answer questions
-        return;
+        return; // Exit early for single-answer questions
       }
   
       // Add or remove the selected option using the service
