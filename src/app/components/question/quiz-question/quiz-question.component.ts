@@ -1469,6 +1469,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+    this.selectedOptionService.trackOptionLifecycle(event.option, 'onOptionClicked (BEFORE)');
     try {
       // Ensure current question is loaded
       if (!this.currentQuestion) {
