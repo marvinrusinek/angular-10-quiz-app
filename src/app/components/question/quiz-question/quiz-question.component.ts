@@ -1503,18 +1503,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
 
-      // 🔥 **4️⃣ Handle single-answer lock logic**
-      if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
-        console.log('[onOptionClicked] Single answer lock is active, returning early.');
+      // Handle single-answer logic
+      if (!isMultipleAnswer) {
+        
+        // Lock the single-answer question
+        if (this.handleSingleAnswerLock(isMultipleAnswer)) {
+          console.log('[onOptionClicked] Single answer lock is active, returning early.');
+          return; // Exit early, single-answer lock is in place
+        }
+        
+        // Stop the timer for single-answer questions
+        if (option.correct && !this.selectedOptionService.stopTimerEmitted) {
+          console.log('[onOptionClicked] Stopping the timer for single-answer question.');
+          this.timerService.stopTimer();
+          this.selectedOptionService.stopTimerEmitted = true;
+        }
+
+        // Exit early for single-answer questions
         return;
-      }
-  
-      // Stop Timer for Single-Answer Questions
-      if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('[onOptionClicked] Stopping the timer for single-answer question.');
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
-        return; // Stop here for single-answer questions
       }
   
       // Add or remove the selected option using the service
