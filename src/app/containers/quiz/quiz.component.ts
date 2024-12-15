@@ -2207,16 +2207,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.questionToDisplay = this.currentQuestion.questionText;
   
           // **2️⃣ Set options immediately so UI can render**
-          this.optionsToDisplay = this.currentQuestion.options.map((o, index) => {
-            const optionId = o.optionId !== undefined ? o.optionId : index;
-            if (optionId === undefined) {
-              console.error('🚨 [initializeFirstQuestion] optionId is undefined for option:', o);
+          this.optionsToDisplay = this.currentQuestion.options.map((option, index) => {
+            if (option.optionId === undefined || option.optionId === null) {
+              console.warn(`❌ [initializeFirstQuestion] optionId is undefined for option. Assigning optionId=${index}`, option);
+              option.optionId = index; // 🔥 Assign optionId based on index
             }
-            return {
-              ...o,
-              correct: o.correct ?? false, // 🔥 Ensure correct is always true or false
-              optionId // 🔥 Ensure optionId is properly assigned
-            };
+            return option;
           });
   
           console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
