@@ -1503,25 +1503,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
 
-      // Handle single-answer logic
-      if (!isMultipleAnswer) {
-        
-        // Lock the single-answer question
-        if (this.handleSingleAnswerLock(isMultipleAnswer)) {
-          console.log('[onOptionClicked] Single answer lock is active, returning early.');
-          return; // Exit early, single-answer lock is in place
-        }
-        
-        // Stop the timer for single-answer questions
-        if (option.correct && !this.selectedOptionService.stopTimerEmitted) {
-          console.log('[onOptionClicked] Stopping the timer for single-answer question.');
-          this.timerService.stopTimer();
-          this.selectedOptionService.stopTimerEmitted = true;
-        }
-
-        return; // Exit early for single-answer questions
+      // 🔥 **Single-answer lock logic**
+      if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
+        console.log('🔒 [onOptionClicked] Single answer lock is active, returning early.');
+        return;
       }
-  
+
+      if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('🛑 [onOptionClicked] Stopping the timer for single-answer question.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
+      }
+
+      // 🔥 **Multiple-answer logic**  
       // Add or remove the selected option using the service
       await this.updateOptionSelection(event, option);
   
@@ -1530,18 +1524,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Debug selected options
       console.log('[onOptionClicked] Selected options map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-
-      // Force a short delay to ensure updates are applied
-      await new Promise(resolve => setTimeout(resolve, 50));
   
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
       console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
-
-      // Force debug logs to see the logic at this point
-      console.log('[onOptionClicked] allCorrectSelected:', allCorrectSelected);
-      console.log('[onOptionClicked] selectedOptionsMap:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-      console.log('[onOptionClicked] stopTimerEmitted:', this.selectedOptionService.stopTimerEmitted);
   
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
@@ -1549,6 +1535,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
         return; // Stop here for multiple-answer questions
+      } else {
+        console.log(`❌ [onOptionClicked] Timer NOT stopped. allCorrectSelected: ${allCorrectSelected}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
       }
   
       // Update the display state to explanation mode
