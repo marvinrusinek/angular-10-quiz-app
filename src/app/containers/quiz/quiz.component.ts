@@ -2271,29 +2271,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionToDisplay = this.currentQuestion.questionText;
   
         // **3️⃣ Set optionsToDisplay immediately**
-        this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => ({
-          ...o,
-          correct: o.correct ?? false,
-          optionId: o.optionId !== undefined ? o.optionId : optionIndex
-        }));
-
-        // 4️⃣ **Check for missing optionIds**
-        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => {
-          if (option.optionId === undefined) {
-            console.error('❌ [initializeFirstQuestion] OptionId is missing at index:', index, 'Option:', option);
+        // 🔥 **Ensure all options have optionId in one go**
+        this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
+          if (o.optionId === undefined) {
+            console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', o);
             return {
-              ...option,
-              optionId: index // 🔥 Assign fallback optionId
+              ...o,
+              optionId: optionIndex, // 🔥 Assign fallback optionId
+              correct: o.correct ?? false // 🔥 Ensure "correct" is set
             };
           }
-          return option;
+          return {
+            ...o,
+            correct: o.correct ?? false // 🔥 Ensure "correct" is set
+          };
         });
-  
-        // **4️⃣ Check for missing optionIds**
+
+        // 🔥 **Post-check for any missing optionIds (just in case)**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
         if (missingOptionIds.length > 0) {
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
         }
+
   
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
