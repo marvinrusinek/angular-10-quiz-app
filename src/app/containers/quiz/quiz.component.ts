@@ -2280,32 +2280,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId found:', undefinedOptionIds);
         }
   
-        // **5️⃣ Log to check if options are present**
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
-        // **6️⃣ Wait for options to stabilize before running logic**
-        await this.ensureOptionsLoaded();
+        // **5️⃣ Wait for options to stabilize before running logic**
+        await new Promise(resolve => setTimeout(resolve, 50));
   
-        // **7️⃣ Trigger change detection to display the options**
-        this.cdRef.detectChanges();
-  
-        // **8️⃣ Call checkIfAnswered() to track answered state**
+        // **6️⃣ Call checkIfAnswered() to track answered state**
         const hasAnswered = this.checkIfAnswered();
         console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
   
-        // **9️⃣ Stop the timer if the question is already answered**
+        // **7️⃣ Stop the timer if the question is already answered**
         if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
           console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
           this.timerService.stopTimer();
           this.selectedOptionService.stopTimerEmitted = true;
         }
   
-        // **🔟 Start the timer only after the first question has been set**
+        // **8️⃣ Start the timer only after the first question has been set**
         this.timerService.startTimer();
         console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
     
-        // **🔟 Trigger change detection to ensure the options are rendered**
-        this.cdRef.markForCheck(); // Ensures the UI picks up all changes
+        this.cdRef.markForCheck(); // Trigger change detection
       } else {
         this.handleNoQuestionsAvailable();
       }
