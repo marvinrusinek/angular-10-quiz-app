@@ -606,9 +606,7 @@ export class SelectedOptionService {
       .flat()
       .filter(o => {
         const isValid = o && Number.isInteger(o.optionId);
-        if (!isValid) {
-          console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId. Full option:', o, 'Question Index:', questionIndex);
-        }
+        if (!isValid) console.error('❌ Option with undefined optionId:', o, 'Question Index:', questionIndex);
         return isValid;
       })
       .map(o => o.optionId);
