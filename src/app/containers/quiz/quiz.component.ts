@@ -2308,7 +2308,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return newOption;
         });
 
-        // **5️⃣ Double-check if any optionIds are still undefined**
+        // 🔥 **Post-check for any missing optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
         if (missingOptionIds.length > 0) {
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId (AFTER assignment):', missingOptionIds);
@@ -2346,7 +2346,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
     }
-  }  
+  }
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
