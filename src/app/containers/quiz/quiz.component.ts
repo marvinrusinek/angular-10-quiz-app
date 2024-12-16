@@ -1060,7 +1060,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('❌ [initializeRouteParams] Questions failed to load before route parameter processing.');
       }
     });
-  }
+  }  
   
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
