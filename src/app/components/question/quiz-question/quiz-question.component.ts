@@ -323,7 +323,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-onVisibilityChange(): void {
+  onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
       console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
 
@@ -395,6 +395,7 @@ onVisibilityChange(): void {
       }
     }
   }
+
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
