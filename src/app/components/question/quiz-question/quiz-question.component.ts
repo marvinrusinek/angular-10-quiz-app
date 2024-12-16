@@ -325,7 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is now visible, rechecking option state.');
+      console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
 
       // Restore quiz-level state
       this.restoreQuizState(); 
@@ -363,6 +363,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             };
           }
           return option;
+        });
+
+        // 🔥 Recheck and log any options with undefined optionIds
+        this.currentQuestion.options.forEach((option, index) => {
+          if (option.optionId === undefined) {
+            console.error('[onVisibilityChange] Option with undefined optionId:', option, 'Question Index:', this.currentQuestionIndex);
+          }
         });
 
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
