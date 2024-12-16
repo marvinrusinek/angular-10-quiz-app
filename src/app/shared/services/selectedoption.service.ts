@@ -575,6 +575,14 @@ export class SelectedOptionService {
     return allCorrectOptionsSelected;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+    // Check for undefined optionIds
+    questionOptions.forEach((option, index) => {
+      if (option.optionId === undefined) {
+        console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId:', option);
+        option.optionId = index; // Fallback optionId
+      }
+    });
+
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
       .filter(o => o.correct) // Ensure optionId is defined
