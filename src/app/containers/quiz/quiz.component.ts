@@ -2257,8 +2257,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuestionDisplayState();
     
     try {
+      console.log('🚀 [initializeFirstQuestion] Starting initialization...');
+  
       // **1️⃣ Load questions for the quiz**
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      console.log('✅ [initializeFirstQuestion] Questions loaded:', questions);
       
       if (questions && questions.length > 0) {
         // **2️⃣ Set first question data immediately**
@@ -2267,23 +2270,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
   
-        // **3️⃣ Set options immediately so UI can render**
+        // **3️⃣ Set optionsToDisplay immediately**
         this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => ({
           ...o,
           correct: o.correct ?? false,
           optionId: o.optionId !== undefined ? o.optionId : optionIndex
         }));
   
-        // **4️⃣ Log if optionIds are missing**
-        const undefinedOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
-        if (undefinedOptionIds.length > 0) {
-          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found:', undefinedOptionIds);
+        // **4️⃣ Check if any optionIds are missing**
+        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIds.length > 0) {
+          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found:', missingOptionIds);
         }
   
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
-        // **5️⃣ Wait for options to stabilize before running logic**
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // **5️⃣ Force Angular to recognize the new options**
+        this.cdRef.detectChanges();
+        console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
   
         // **6️⃣ Call checkIfAnswered() to track answered state**
         const hasAnswered = this.checkIfAnswered();
@@ -2296,18 +2300,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.selectedOptionService.stopTimerEmitted = true;
         }
   
-        // **8️⃣ Start the timer only after the first question has been set**
-        this.timerService.startTimer();
-        console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
+        // **8️⃣ Start the timer only after the first question has been set and stabilized**
+        setTimeout(() => {
+          console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
+          this.timerService.startTimer();
+          this.cdRef.markForCheck();
+        }, 50); // 🔥 Wait 50ms to make sure options are rendered
     
-        this.cdRef.markForCheck(); // Trigger change detection
+        // **🔟 Double change detection for safety**
+        setTimeout(() => {
+          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
+          console.log('🕵️‍♂️ [initializeFirstQuestion] Double detectChanges() to ensure options render.');
+        }, 100);
       } else {
+        console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
         this.handleNoQuestionsAvailable();
       }
     } catch (err) {
       console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
     }
   }
+  
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
