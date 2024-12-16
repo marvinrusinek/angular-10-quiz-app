@@ -1495,6 +1495,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.warn('[onOptionClicked] Option is invalid or missing.');
         return;
       }
+
+      // **Check if option exists**
+      if (!event.option) {
+        console.error('❌ [onOptionClicked] Option is undefined in event:', event);
+        return;
+      }
   
       const option = event.option!;
       if (option.optionId === undefined || option.optionId === null) {
@@ -1595,7 +1601,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('❌ [updateOptionSelection] option.optionId is undefined:', option);
       option.optionId = event.index; // Assign fallback optionId
     }
-    
+
     if (event.checked) {
       console.log('[handleOptionSelection] Option checked, adding option:', option);
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
