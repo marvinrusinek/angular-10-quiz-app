@@ -2283,7 +2283,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
         // **5️⃣ Wait for options to stabilize before running logic**
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await this.ensureOptionsLoaded();
   
         // **6️⃣ Call checkIfAnswered() to track answered state**
         const hasAnswered = this.checkIfAnswered();
@@ -2330,6 +2330,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[checkIfAnswered] Are all correct options selected?', areAllCorrectSelected);
     
     return isAnyOptionSelected || areAllCorrectSelected;
+  }
+
+  private async ensureOptionsLoaded(): Promise<void> {
+    try {
+      while (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('🕒 [ensureOptionsLoaded] Waiting for options to load...');
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      console.log('✅ [ensureOptionsLoaded] Options loaded successfully.');
+    } catch (error) {
+      console.error('❌ [ensureOptionsLoaded] Failed to ensure options were loaded:', error);
+    }
   }
 
   handleNoQuestionsAvailable(): void {
