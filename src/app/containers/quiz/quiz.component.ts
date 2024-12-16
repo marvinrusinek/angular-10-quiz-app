@@ -2197,70 +2197,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
     
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-      next: (questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          // **1️⃣ Set first question data immediately**
-          this.questions = questions;
-          this.currentQuestion = questions[0];
-          this.currentQuestionIndex = 0;
-          this.questionToDisplay = this.currentQuestion.questionText;
-  
-          // **2️⃣ Set options immediately so UI can render**
-          this.optionsToDisplay = this.currentQuestion.options.map((o, index) => ({
-            ...o,
-            correct: o.correct ?? false, // Ensure "correct" is always a boolean
-            optionId: o.optionId !== undefined ? o.optionId : index // Ensure "optionId" is always set
-          }));
-  
-          console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
-  
-          // **3️⃣ Trigger change detection immediately to display the options**
-          this.cdRef.detectChanges();
+    try {
+      const questions: QuizQuestion[] = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
 
-          // 🔥 **3️⃣ Wait to ensure all data is stable before running logic**
-          await new Promise(resolve => setTimeout(resolve, 50)); // Allow all data to stabilize
-  
-          // **4️⃣ Start background process for question state and explanation**
-          this.updateQuestionStateAndExplanation(0).then(() => {
-            console.log('[initializeFirstQuestion] Finished updating state for first question.');
-          });
-  
-          // **5️⃣ Ensure selected options are properly set**
-          this.selectedOptionService.updateAnsweredState(this.optionsToDisplay);
+      if (questions && questions.length > 0) {
+        this.questions = questions;
+        this.currentQuestion = questions[0];
+        this.currentQuestionIndex = 0;
+        this.questionToDisplay = this.currentQuestion.questionText;
 
-          // **6️⃣ Check if the first question has an answer selected**
-          // const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-          // const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
-          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
-    
-          console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
-    
-          // **7️⃣ Set initial answered state properly**
-          // this.selectedOptionService.setAnsweredState(hasAnswered);
+        // Set options properly before anything else
+        this.optionsToDisplay = this.currentQuestion.options.map((o, index) => ({
+          ...o,
+          correct: o.correct ?? false, // 🔥 Ensure "correct" is always a boolean
+          optionId: o.optionId !== undefined ? o.optionId : index // Ensure "optionId" is always set
+        }));
 
-          // **8️⃣ Stop the timer if the first question is already answered**
-          if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('[initializeFirstQuestion] Stopping the timer for the first question.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true;
-          }
-    
-          // **8️⃣ Start the timer only after the first question has been set**
-          this.timerService.startTimer();
-          console.log('[initializeFirstQuestion] Timer started for the first question');
-    
-          this.cdRef.markForCheck(); // Trigger change detection
-        } else {
-          this.handleNoQuestionsAvailable();
+        console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
+  
+        // Detect changes to make sure UI shows the options
+        this.cdRef.detectChanges();
+
+        // Wait to ensure all data is stable before running logic
+        await new Promise(resolve => setTimeout(resolve, 50)); // Allow all data to stabilize
+
+        // Update selected options and check if question is answered
+        this.selectedOptionService.updateAnsweredState(this.optionsToDisplay);
+
+        const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+
+        // Set initial answered state properly
+        this.selectedOptionService.setAnsweredState(hasAnswered);
+        
+        // Call stopTimer() if first question is answered
+        if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
+          console.log('[initializeFirstQuestion] Stopping the timer for the first question.');
+          this.timerService.stopTimer();
+          this.selectedOptionService.stopTimerEmitted = true;
         }
-      },
-      error: (err) => {
-        console.error('Error fetching questions:', err);
-        this.handleQuestionsLoadingError();
-      },
-    });
-  }  
+
+        // Start the timer (last)
+        this.timerService.startTimer();
+        console.log('[initializeFirstQuestion] Timer started for the first question');
+
+      } else {
+        this.handleNoQuestionsAvailable();
+      }
+    } catch (err) {
+      console.error('Error fetching questions:', err);
+      this.handleQuestionsLoadingError();
+    }
+  }
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
