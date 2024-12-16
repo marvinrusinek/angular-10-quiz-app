@@ -2270,19 +2270,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
 
-        // **3️⃣ Ensure options exist and are valid before mapping**
+        // 🔥 **1️⃣ Check for undefined options in currentQuestion.options**
         if (!Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
           console.error('❌ [initializeFirstQuestion] currentQuestion.options is missing or empty.');
           return; // Stop execution if no options are available
         }
 
-        // **4️⃣ Map options and ensure optionId is valid**
+        // 🔥 **2️⃣ Map options and ensure optionId is assigned**
         this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
+          // 🔥 Ensure the option object exists
           if (!o) {
             console.error('❌ [initializeFirstQuestion] Option is undefined at optionIndex:', optionIndex);
             return {
               text: `Missing option at index ${optionIndex}`, 
-              optionId: optionIndex, // Fallback optionId if missing
+              optionId: optionIndex, // Assign fallback optionId
               correct: false 
             };
           }
@@ -2290,10 +2291,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           const newOption = {
             ...o,
             optionId: Number.isInteger(o.optionId) ? o.optionId : optionIndex, // 🔥 Ensure optionId is valid
-            correct: o.correct ?? false // 🔥 Ensure "correct" is always true/false
+            correct: o.correct ?? false // 🔥 Ensure "correct" is set
           };
 
-          // 🔥 Check if optionId is still undefined
+          // 🔥 Check for missing optionId
           if (newOption.optionId === undefined) {
             console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', newOption);
             newOption.optionId = optionIndex; // Fallback assignment
@@ -2308,7 +2309,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return newOption;
         });
 
-        // 🔥 **Post-check for any missing optionIds**
+        // 🔥 **3️⃣ Post-check for missing optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
         if (missingOptionIds.length > 0) {
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId (AFTER assignment):', missingOptionIds);
@@ -2316,28 +2317,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
-        // **6️⃣ Trigger change detection to display the options**
+        // **4️⃣ Trigger change detection to display the options**
         this.cdRef.detectChanges();
         console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
   
-        // **7️⃣ Wait for options to render, then check answered state**
+        // **5️⃣ Wait for options to render, then check answered state**
         await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Slight delay to ensure options are rendered
 
         const hasAnswered = this.checkIfAnswered();
         console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
   
-        // **8️⃣ Stop the timer if the question is already answered**
+        // **6️⃣ Stop the timer if the question is already answered**
         if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
           console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
           this.timerService.stopTimer();
           this.selectedOptionService.stopTimerEmitted = true;
         }
   
-        // **9️⃣ Start the timer only after the first question is ready**
+        // **7️⃣ Start the timer only after the first question is ready**
         this.timerService.startTimer();
         console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
         
-        // **🔟 Trigger change detection to re-check option display**
+        // **8️⃣ Trigger change detection to re-check option display**
         this.cdRef.markForCheck();
       } else {
         console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
