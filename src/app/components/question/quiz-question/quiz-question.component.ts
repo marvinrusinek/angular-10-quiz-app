@@ -325,7 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
+      console.log('[onVisibilityChange] Tab is now visible, rechecking option state.');
 
       // Restore quiz-level state
       this.restoreQuizState(); 
@@ -339,8 +339,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Recheck if the first question is answered
       if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
         this.optionsToDisplay = this.optionsToDisplay.map((option, index) => {
-          if (!option || option.optionId === undefined) {
-            console.error('[onVisibilityChange] OptionId is undefined at index:', index, 'Option:', option);
+          if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
+            console.error('[onVisibilityChange] OptionId is undefined or invalid at index:', index, 'Option:', option);
             return {
               ...option,
               optionId: index // Assign fallback optionId to prevent future errors
@@ -355,8 +355,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Recheck if all correct answers are selected
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
         this.currentQuestion.options = this.currentQuestion.options.map((option, index) => {
-          if (!option || option.optionId === undefined) {
-            console.error('[onVisibilityChange] OptionId is undefined for option at index:', index, 'Option:', option);
+          if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
+            console.error('[onVisibilityChange] OptionId is undefined or invalid for option at index:', index, 'Option:', option);
             return {
               ...option,
               optionId: index // Assign fallback optionId to prevent future errors
@@ -378,7 +378,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }
   }
-
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
