@@ -343,7 +343,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             console.error('[onVisibilityChange] OptionId is undefined at index:', index, 'Option:', option);
             return {
               ...option,
-              optionId: index // 🔥 Assign fallback optionId to prevent future errors
+              optionId: index // Assign fallback optionId to prevent future errors
             };
           }
           return option;
