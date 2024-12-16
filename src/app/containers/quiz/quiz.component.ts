@@ -2288,6 +2288,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return newOption;
           });
 
+          // 🔥 **Log the options to ensure they are valid**
+          console.log('🚀 [initializeFirstQuestion] Options to display:', this.optionsToDisplay);
+          
           // 🛠️ Check if any optionIds are still undefined after assignment
           const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined || o.optionId < 0);
           if (missingOptionIds.length > 0) {
@@ -2295,7 +2298,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
 
           // 3️⃣ **Trigger change detection to display the options**
-          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
   
           // 4️⃣ **Start background process for question state and explanation**
           this.updateQuestionStateAndExplanation(0).then(() => {
