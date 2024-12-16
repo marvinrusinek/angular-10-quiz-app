@@ -2271,20 +2271,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionToDisplay = this.currentQuestion.questionText;
   
         // **3️⃣ Set optionsToDisplay immediately**
-        // 🔥 **Ensure all options have optionId in one go**
+        // 🔥 **Ensure all options have optionId and correct flag in one go**
         this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
-          if (o.optionId === undefined) {
-            console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', o);
-            return {
-              ...o,
-              optionId: optionIndex, // 🔥 Assign fallback optionId
-              correct: o.correct ?? false // 🔥 Ensure "correct" is set
-            };
-          }
-          return {
+          const newOption = {
             ...o,
+            optionId: o.optionId !== undefined ? o.optionId : optionIndex, // 🔥 Fallback optionId
             correct: o.correct ?? false // 🔥 Ensure "correct" is set
           };
+
+          if (newOption.optionId === undefined) {
+            console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', newOption);
+          }
+
+          return newOption;
         });
 
         // 🔥 **Post-check for any missing optionIds (just in case)**
