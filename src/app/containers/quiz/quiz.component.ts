@@ -2253,96 +2253,83 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[initializeFirstQuestion] Error initializing first question:', err);
     }
   } */
-  async initializeFirstQuestion(): Promise<void> {
+  initializeFirstQuestion(): void {
     this.resetQuestionDisplayState();
     
-    try {
-      console.log('🚀 [initializeFirstQuestion] Starting initialization...');
-  
-      // **1️⃣ Load questions for the quiz**
-      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      console.log('✅ [initializeFirstQuestion] Questions loaded:', questions);
-      
-      if (questions && questions.length > 0) {
-        // **2️⃣ Set first question data immediately**
-        this.questions = questions;
-        this.currentQuestion = questions[0];
-        this.currentQuestionIndex = 0;
-        this.questionToDisplay = this.currentQuestion.questionText;
-  
-        // **3️⃣ Set optionsToDisplay immediately**
-        // 🔥 **Ensure all options have optionId and correct flag in one go**
-        this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
-          if (!o) {
-            console.error('❌ [initializeFirstQuestion] Option is undefined at optionIndex:', optionIndex);
-            return {
-              text: `Missing option at index ${optionIndex}`, 
-              optionId: optionIndex, // Assign a fallback optionId
-              correct: false 
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          // 1️⃣ **Set first question data immediately**
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+          this.currentQuestionIndex = 0;
+          this.questionToDisplay = this.currentQuestion.questionText;
+
+          // 2️⃣ **Set optionsToDisplay with optionId assignment and validation**
+          this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
+            const newOption = {
+              ...o,
+              optionId: (typeof o.optionId === 'number' && o.optionId >= 0) ? o.optionId : optionIndex, // 🔥 Fallback to optionIndex if optionId is undefined
+              correct: o.correct ?? false // 🔥 Ensure "correct" is always set to true/false
             };
-          }
-        
-          const newOption = {
-            ...o,
-            optionId: Number.isInteger(o.optionId) ? o.optionId : optionIndex, // 🔥 Ensure optionId is a valid number
-            correct: o.correct ?? false // 🔥 Ensure "correct" is set
-          };
-        
-          if (newOption.optionId === undefined) {
-            console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', newOption);
-          }
-        
-          return newOption;
-        });
 
-        // 🔥 **Post-check for any missing optionIds (just in case)**
-        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
-        if (missingOptionIds.length > 0) {
-          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
-        }
+            // 🛠️ Validate if optionId is still undefined or invalid
+            if (newOption.optionId === undefined || newOption.optionId < 0) {
+              console.error('❌ [initializeFirstQuestion] OptionId is missing or invalid at optionIndex:', optionIndex, 'Option:', newOption);
+              newOption.optionId = optionIndex; // Fallback assignment to index
+            }
 
-  
-        console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
-  
-        // **5️⃣ Force Angular to recognize the new options**
-        this.cdRef.detectChanges();
-        console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
-  
-        // **6️⃣ Call checkIfAnswered() to track answered state**
-        setTimeout(() => {
-          const hasAnswered = this.checkIfAnswered();
-          console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
-  
-          // **7️⃣ Stop the timer if the question is already answered**
-          if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true;
+            // 🛠️ Check for null or incomplete option data
+            if (!newOption.text) {
+              console.warn('⚠️ [initializeFirstQuestion] Option has missing "text" at optionIndex:', optionIndex, 'Option:', newOption);
+              newOption.text = `Option ${optionIndex + 1}`; // Provide a default text to avoid undefined issues
+            }
+
+            return newOption;
+          });
+
+          // 🛠️ Check if any optionIds are still undefined after assignment
+          const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined || o.optionId < 0);
+          if (missingOptionIds.length > 0) {
+            console.error('❌ [initializeFirstQuestion] Options with undefined optionId (AFTER assignment):', missingOptionIds);
           }
-  
-          // **8️⃣ Start the timer only after the first question has been set and stabilized**
-          setTimeout(() => {
-            console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
-            this.timerService.startTimer();
-            this.cdRef.markForCheck();
-          }, 50); // 🔥 Wait 50ms to make sure options are rendered
-        }, 100); // 🔥 Wait 100ms to ensure options are displayed
-  
-        // **🔟 Double change detection for safety**
-        setTimeout(() => {
-          this.cdRef.markForCheck();
+
+          // 3️⃣ **Trigger change detection to display the options**
           this.cdRef.detectChanges();
-          console.log('🕵️‍♂️ [initializeFirstQuestion] Double detectChanges() to ensure options render.');
-        }, 200);
-      } else {
-        console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
-        this.handleNoQuestionsAvailable();
-      }
-    } catch (err) {
-      console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
-    }
-  }
   
+          // 4️⃣ **Start background process for question state and explanation**
+          this.updateQuestionStateAndExplanation(0).then(() => {
+            console.log('[initializeFirstQuestion] Finished updating state for first question.');
+          });
+  
+          // 5️⃣ **Ensure selected options are properly set**
+          this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+    
+          // 6️⃣ **Check if the first question has an answer selected**
+          const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+          const hasAnswered = this.selectedOptionService.getSelectedOption() !== null || allCorrectSelected;
+    
+          console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
+    
+          // 7️⃣ **Set initial answered state properly**
+          this.selectedOptionService.setAnsweredState(hasAnswered);
+    
+          // 8️⃣ **Start the timer only after the first question has been set**
+          this.timerService.startTimer();
+          console.log('[initializeFirstQuestion] Timer started for the first question');
+    
+          // 🔥 **Trigger change detection to re-check option display**
+          this.cdRef.markForCheck(); 
+        } else {
+          this.handleNoQuestionsAvailable();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+        this.handleQuestionsLoadingError();
+      },
+    });
+  }
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
