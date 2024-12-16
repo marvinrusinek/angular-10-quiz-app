@@ -1028,34 +1028,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private async initializeRouteParams(): Promise<void> {
-    // Ensure questions are loaded before processing route parameters
-    const loadedSuccessfully = await this.loadQuizData();
+    // **1️⃣ Ensure questions are loaded before processing route parameters**
+    const loadedSuccessfully = await this.ensureQuestionsLoaded();
     if (!loadedSuccessfully) {
-      console.error('Aborting route param initialization due to failed quiz load.');
+      console.error('❌ Aborting route param initialization due to failed quiz load.');
       return; // Stop if loading fails
     }
-
-    // Now handle route parameters only if questions are loaded
-    this.activatedRoute.params.subscribe((params) => {
+  
+    // **2️⃣ Handle route parameters only if questions are loaded**
+    this.activatedRoute.params.subscribe(async (params) => {
       this.quizId = params['quizId'];
-        
-      // Determine and adjust the question index from route parameters
-      const routeQuestionIndex =
-        params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
+  
+      // **3️⃣ Determine and adjust the question index from route parameters**
+      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
       const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
-
-      // Ensure questions are available before updating the display
+  
+      console.log(`🚀 [initializeRouteParams] QuizId: ${this.quizId}, Route Question Index: ${routeQuestionIndex}, Adjusted Index: ${adjustedIndex}`);
+  
+      // **4️⃣ Wait for questions to load before updating the display**
+      await this.waitForQuestionsToLoad();
+  
       if (Array.isArray(this.questions) && this.questions.length > 0) {
         if (adjustedIndex === 0) {
-          this.initializeFirstQuestion();
+          console.log('🚀 [initializeRouteParams] Initializing first question...');
+          await this.initializeFirstQuestion(); // 🔥 Wait for first question to be initialized
         } else {
+          console.log(`🚀 [initializeRouteParams] Updating question display for index: ${adjustedIndex}`);
           this.updateQuestionDisplay(adjustedIndex);
         }
       } else {
-        console.error('Questions failed to load before route parameter processing.');
+        console.error('❌ [initializeRouteParams] Questions failed to load before route parameter processing.');
       }
     });
   }
+  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isQuizLoaded) {
