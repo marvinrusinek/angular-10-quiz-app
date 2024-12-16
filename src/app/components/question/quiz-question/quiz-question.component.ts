@@ -1498,24 +1498,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       const option = event.option!;
       if (option.optionId === undefined || option.optionId === null) {
-        console.error('❌ [onOptionClicked] optionId is undefined for option:', event.option);
+        console.error('[onOptionClicked] optionId is undefined for option:', event.option);
         return; 
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
 
-      // 🔥 **Single-answer lock logic**
+      // Single-answer lock logic
       if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
-        console.log('🔒 [onOptionClicked] Single answer lock is active, returning early.');
+        console.log('[onOptionClicked] Single answer lock is active, returning early.');
         return;
       }
 
       if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('🛑 [onOptionClicked] Stopping the timer for single-answer question.');
+        console.log('[onOptionClicked] Stopping the timer for single-answer question.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
       }
 
-      // 🔥 **Multiple-answer logic**  
+      // Multiple-answer logic  
       // Add or remove the selected option using the service
       await this.updateOptionSelection(event, option);
   
@@ -1536,7 +1536,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectedOptionService.stopTimerEmitted = true;
         return; // Stop here for multiple-answer questions
       } else {
-        console.log(`❌ [onOptionClicked] Timer NOT stopped. allCorrectSelected: ${allCorrectSelected}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
+        console.log(`[onOptionClicked] Timer NOT stopped. allCorrectSelected: ${allCorrectSelected}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
       }
   
       // Update the display state to explanation mode
