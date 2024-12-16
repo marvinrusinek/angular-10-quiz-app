@@ -325,7 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
+      console.log('[onVisibilityChange] Tab is now visible, rechecking option state.');
 
       // Restore quiz-level state
       this.restoreQuizState(); 
@@ -339,14 +339,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Recheck if the first question is answered
       if (this.optionsToDisplay) {
         this.optionsToDisplay.forEach((option, index) => {
-          if (option.optionId === undefined) {
+          if (option && option.optionId === undefined) {
             console.error('[onVisibilityChange] OptionId is undefined at index:', index, 'Option:', option);
+            option.optionId = index; // Assign fallback optionId to prevent future errors
           }
         });
+      } else {
+        console.warn('[onVisibilityChange] optionsToDisplay is null or undefined.');
       }
 
       // Recheck if all correct answers are selected
-      if (this.currentQuestion && this.currentQuestion.options) {
+      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+        this.currentQuestion.options.forEach((option, index) => {
+          if (option && option.optionId === undefined) {
+            console.error('[onVisibilityChange] OptionId is undefined for option at index:', index, 'Option:', option);
+            option.optionId = index; // Assign fallback optionId to prevent future errors
+          }
+        });
+
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onVisibilityChange] All correct answers selected:', allCorrectSelected);
 
@@ -360,7 +370,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }
   }
-
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
