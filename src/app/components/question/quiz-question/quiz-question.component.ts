@@ -325,7 +325,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is now visible, rechecking option state.');
+      console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
 
       // Restore quiz-level state
       this.restoreQuizState(); 
@@ -346,16 +346,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
 
       // Recheck if all correct answers are selected
-      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-      console.log('[onVisibilityChange] All correct answers selected:', allCorrectSelected);
+      if (this.currentQuestion && this.currentQuestion.options) {
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+        console.log('[onVisibilityChange] All correct answers selected:', allCorrectSelected);
 
-      if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('[onVisibilityChange] Stopping the timer as all correct answers have been selected.');
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
+        if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+          console.log('[onVisibilityChange] Stopping the timer as all correct answers have been selected.');
+          this.timerService.stopTimer();
+          this.selectedOptionService.stopTimerEmitted = true;
+        }
+      } else {
+        console.warn('[onVisibilityChange] currentQuestion or currentQuestion.options is null or undefined.');
       }
     }
   }
+
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
