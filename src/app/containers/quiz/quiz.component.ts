@@ -1031,33 +1031,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // **1️⃣ Ensure questions are loaded before processing route parameters**
     const loadedSuccessfully = await this.ensureQuestionsLoaded();
     if (!loadedSuccessfully) {
-      console.error('❌ Aborting route param initialization due to failed quiz load.');
+      console.error('Aborting route param initialization due to failed quiz load.');
       return; // Stop if loading fails
     }
   
-    // **2️⃣ Handle route parameters only if questions are loaded**
+    // Handle route parameters only if questions are loaded
     this.activatedRoute.params.subscribe(async (params) => {
       this.quizId = params['quizId'];
   
-      // **3️⃣ Determine and adjust the question index from route parameters**
+      // Determine and adjust the question index from route parameters
       const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 1;
       const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
   
-      console.log(`🚀 [initializeRouteParams] QuizId: ${this.quizId}, Route Question Index: ${routeQuestionIndex}, Adjusted Index: ${adjustedIndex}`);
+      console.log(`[initializeRouteParams] QuizId: ${this.quizId}, Route Question Index: ${routeQuestionIndex}, Adjusted Index: ${adjustedIndex}`);
   
-      // **4️⃣ Wait for questions to load before updating the display**
+      // Wait for questions to load before updating the display
       await this.waitForQuestionsToLoad();
   
       if (Array.isArray(this.questions) && this.questions.length > 0) {
         if (adjustedIndex === 0) {
-          console.log('🚀 [initializeRouteParams] Initializing first question...');
-          await this.initializeFirstQuestion(); // 🔥 Wait for first question to be initialized
+          console.log('[initializeRouteParams] Initializing first question...');
+          await this.initializeFirstQuestion(); // Wait for first question to be initialized
         } else {
-          console.log(`🚀 [initializeRouteParams] Updating question display for index: ${adjustedIndex}`);
+          console.log(`[initializeRouteParams] Updating question display for index: ${adjustedIndex}`);
           this.updateQuestionDisplay(adjustedIndex);
         }
       } else {
-        console.error('❌ [initializeRouteParams] Questions failed to load before route parameter processing.');
+        console.error('[initializeRouteParams] Questions failed to load before route parameter processing.');
       }
     });
   }  
@@ -2200,62 +2200,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
-  /* async initializeFirstQuestion(): Promise<void> {
-    this.resetQuestionDisplayState();
-    
-    try {
-      // Wait for the questions to fully load
-      const questions: QuizQuestion[] = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      if (!questions || questions.length === 0) {
-        this.handleNoQuestionsAvailable();
-        return;
-      }
-
-      this.questions = questions;
-      this.currentQuestion = questions[0];
-      this.currentQuestionIndex = 0;
-      this.questionToDisplay = this.currentQuestion.questionText;
-
-      // Set options properly before any logic runs
-      this.optionsToDisplay = this.currentQuestion.options.map((o, index) => ({
-        ...o,
-        correct: o.correct ?? false, // Ensure "correct" is always a boolean
-        optionId: o.optionId !== undefined ? o.optionId : index // Ensure "optionId" is always set
-      }));
-
-      console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
-  
-      // 🔥 **3️⃣ Ensure UI has time to reflect changes**
-      this.cdRef.detectChanges();
-
-      // Wait to ensure everything is stable before running logic
-      await new Promise(resolve => setTimeout(resolve, 50)); // Ensure all async data stabilizes
-
-      // Update selected options and check if question is answered
-      this.selectedOptionService.updateAnsweredState(this.optionsToDisplay);
-      // const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
-      const hasAnswered = this.checkIfAnswered();
-      console.log('[initializeFirstQuestion] Has the first question been answered?', hasAnswered);
-
-      // Set initial answered state properly
-      this.selectedOptionService.setAnsweredState(hasAnswered);
-
-      // Call stopTimer() if first question is answered
-      if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
-      }
-
-      // Start the timer after all logic has run
-      this.timerService.startTimer();
-      console.log('[initializeFirstQuestion] Timer started for the first question');
-
-    } catch (err) {
-      console.error('Error fetching questions:', err);
-      this.handleQuestionsLoadingError();
-    }
-  } */
   async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
     
