@@ -323,62 +323,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
+onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is now visible, rechecking option state.');
+      console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
 
-      // Restore quiz-level state
+      // 🔥 Restore quiz-level state
       this.restoreQuizState(); 
       
-      // Re-render display to reflect current state
+      // 🔥 Re-render display to reflect current state
       this.renderDisplay();    
       
-      // Notify QuizComponent to restore state
+      // 🔥 Notify QuizComponent to restore state
       this.quizStateService.notifyRestoreQuestionState(); 
       
-      // Recheck if the first question is answered
+      // 🔥 Recheck if the first question is answered
       if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
         this.optionsToDisplay = this.optionsToDisplay.map((option, index) => {
           if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
-            console.error('[onVisibilityChange] OptionId is undefined or invalid at index:', index, 'Option:', option);
+            console.error('❌ [onVisibilityChange] OptionId is undefined or invalid at index:', index, 'Option:', option);
             return {
               ...option,
-              optionId: index // Assign fallback optionId to prevent future errors
+              optionId: index // 🔥 Assign fallback optionId to prevent future errors
             };
           }
           return option;
         });
       } else {
-        console.warn('[onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
+        console.warn('❌ [onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
       }
 
-      // Recheck if all correct answers are selected
+      // 🔥 Recheck if all correct answers are selected
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
         this.currentQuestion.options = this.currentQuestion.options.map((option, index) => {
           if (!option) {
-            console.error('[onVisibilityChange] Option is null or undefined at index:', index);
+            console.error('❌ [onVisibilityChange] Option is null or undefined at index:', index);
             return {
               text: 'Placeholder', // Placeholder text to prevent undefined options
-              optionId: index, // Assign fallback optionId
+              optionId: index, // 🔥 Assign fallback optionId
               correct: false // Assume incorrect unless explicitly stated
             };
           }
 
           if (typeof option.optionId !== 'number' || option.optionId < 0) {
-            console.error('[onVisibilityChange] OptionId is undefined or invalid for option at index:', index, 'Option:', option);
-            return {
-              ...option,
-              optionId: index // Assign fallback optionId to prevent future errors
-            };
+            console.error('❌ [onVisibilityChange] OptionId is undefined or invalid for option at index:', index, 'Option:', option);
+            option.optionId = index; // 🔥 Assign fallback optionId directly on option object
           }
           return option;
         });
 
-        // Recheck and log any options with undefined optionIds
+        // 🔥 Recheck and log any options with undefined optionIds
         this.currentQuestion.options.forEach((option, index) => {
-          if (option.optionId === undefined) {
-            console.error('[onVisibilityChange] Option with undefined optionId:', option, 'Question Index:', this.currentQuestionIndex);
-            option.optionId = index; // Assign a fallback optionId here as well to prevent future issues
+          if (!option) {
+            console.error('❌ [onVisibilityChange] Option is null or undefined at index:', index);
+            option = { text: 'Placeholder', optionId: index, correct: false };
+          } else if (typeof option.optionId !== 'number' || option.optionId < 0) {
+            console.error('❌ [onVisibilityChange] Option with undefined or invalid optionId:', option, 'Question Index:', this.currentQuestionIndex);
+            option.optionId = index; // 🔥 Assign a fallback optionId directly on option object
           }
         });
 
@@ -391,7 +391,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           this.selectedOptionService.stopTimerEmitted = true;
         }
       } else {
-        console.warn('[onVisibilityChange] currentQuestion or currentQuestion.options is null or undefined.');
+        console.warn('❌ [onVisibilityChange] currentQuestion or currentQuestion.options is null or undefined.');
       }
     }
   }
