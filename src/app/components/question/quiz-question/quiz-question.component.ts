@@ -369,6 +369,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion.options.forEach((option, index) => {
           if (option.optionId === undefined) {
             console.error('[onVisibilityChange] Option with undefined optionId:', option, 'Question Index:', this.currentQuestionIndex);
+            option.optionId = index; // Assign a fallback optionId here as well to prevent future issues
           }
         });
 
