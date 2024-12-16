@@ -588,29 +588,27 @@ export class SelectedOptionService {
       .filter(o => o.correct && Number.isInteger(o.optionId)) // Check that optionId is valid
       .map(o => o.optionId);
   
-    // **2️⃣ Get the list of selected option IDs**
-    /* const selectedOptionIds = Array.from(
+    // 🔥 Get all selected option IDs from selectedOptionsMap
+    const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
           .flat()
-          .map((o) => {
-            if (o.optionId === undefined) {
-              console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId:', o);
+          .filter(o => {
+            const isValid = o && Number.isInteger(o.optionId);
+            if (!isValid) {
+              console.error('❌ Option with undefined optionId:', o, 'Question Index:', questionIndex);
             }
-            return o.optionId;
+            return isValid;
           })
-          .filter((id) => typeof id === 'number')
+          .map(o => o.optionId) // 🔥 Extract optionId
       )
-    ); */
-    const selectedOptionIds = Array.from(this.selectedOptionsMap.values())
-      .flat()
-      .filter(o => {
-        const isValid = o && Number.isInteger(o.optionId);
-        if (!isValid) console.error('❌ Option with undefined optionId:', o, 'Question Index:', questionIndex);
-        return isValid;
-      })
-      .map(o => o.optionId);
+    );
 
+    // 🔥 If no correct options exist, log it as a warning
+    if (correctOptionIds.length === 0) {
+      console.warn('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
+      return false;
+    }
 
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
   
