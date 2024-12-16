@@ -355,7 +355,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Recheck if all correct answers are selected
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
         this.currentQuestion.options = this.currentQuestion.options.map((option, index) => {
-          if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
+          if (!option) {
+            console.error('[onVisibilityChange] Option is null or undefined at index:', index);
+            return {
+              text: 'Placeholder', // Placeholder text to prevent undefined options
+              optionId: index, // Assign fallback optionId
+              correct: false // Assume incorrect unless explicitly stated
+            };
+          }
+
+          if (typeof option.optionId !== 'number' || option.optionId < 0) {
             console.error('[onVisibilityChange] OptionId is undefined or invalid for option at index:', index, 'Option:', option);
             return {
               ...option,
@@ -365,7 +374,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           return option;
         });
 
-        // 🔥 Recheck and log any options with undefined optionIds
+        // Recheck and log any options with undefined optionIds
         this.currentQuestion.options.forEach((option, index) => {
           if (option.optionId === undefined) {
             console.error('[onVisibilityChange] Option with undefined optionId:', option, 'Question Index:', this.currentQuestionIndex);
