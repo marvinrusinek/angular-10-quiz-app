@@ -2277,7 +2277,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           optionId: o.optionId !== undefined ? o.optionId : optionIndex
         }));
   
-        // **4️⃣ Check if any optionIds are missing**
+        // **4️⃣ Check for missing optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
         if (missingOptionIds.length > 0) {
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId found:', missingOptionIds);
@@ -2290,29 +2290,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
   
         // **6️⃣ Call checkIfAnswered() to track answered state**
-        const hasAnswered = this.checkIfAnswered();
-        console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
-  
-        // **7️⃣ Stop the timer if the question is already answered**
-        if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
-          console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
-          this.timerService.stopTimer();
-          this.selectedOptionService.stopTimerEmitted = true;
-        }
-  
-        // **8️⃣ Start the timer only after the first question has been set and stabilized**
         setTimeout(() => {
-          console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
-          this.timerService.startTimer();
-          this.cdRef.markForCheck();
-        }, 50); // 🔥 Wait 50ms to make sure options are rendered
-    
+          const hasAnswered = this.checkIfAnswered();
+          console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
+  
+          // **7️⃣ Stop the timer if the question is already answered**
+          if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true;
+          }
+  
+          // **8️⃣ Start the timer only after the first question has been set and stabilized**
+          setTimeout(() => {
+            console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
+            this.timerService.startTimer();
+            this.cdRef.markForCheck();
+          }, 50); // 🔥 Wait 50ms to make sure options are rendered
+        }, 100); // 🔥 Wait 100ms to ensure options are displayed
+  
         // **🔟 Double change detection for safety**
         setTimeout(() => {
           this.cdRef.markForCheck();
           this.cdRef.detectChanges();
           console.log('🕵️‍♂️ [initializeFirstQuestion] Double detectChanges() to ensure options render.');
-        }, 100);
+        }, 200);
       } else {
         console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
         this.handleNoQuestionsAvailable();
