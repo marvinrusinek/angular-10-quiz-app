@@ -2204,17 +2204,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuestionDisplayState();
     
     try {
-      // **1️⃣ Wait for the questions to be fully loaded**
+      // Wait for the questions to be fully loaded
       await this.waitForQuestionsToLoad();
-      console.log('✅ [initializeFirstQuestion] Questions are loaded:', this.questions);
+      console.log('[initializeFirstQuestion] Questions are loaded:', this.questions);
   
       if (!this.questions || this.questions.length === 0) {
-        console.error('❌ [initializeFirstQuestion] No questions available.');
+        console.error('[initializeFirstQuestion] No questions available.');
         this.handleNoQuestionsAvailable();
         return;
       }
   
-      // **2️⃣ Set first question and options**
+      // Set first question and options
       this.currentQuestion = this.questions[0];
       this.currentQuestionIndex = 0;
       this.questionToDisplay = this.currentQuestion.questionText;
@@ -2225,32 +2225,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         optionId: o.optionId !== undefined ? o.optionId : index
       }));
   
-      console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
+      console.log('[initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
   
-      // **3️⃣ Wait for the options to stabilize**
+      // Wait for the options to stabilize
       await new Promise(resolve => setTimeout(resolve, 50)); 
   
-      // **4️⃣ Update selected options and check if question is answered**
+      // Update selected options and check if question is answered
       this.selectedOptionService.updateAnsweredState(this.optionsToDisplay);
   
       const hasAnswered = this.checkIfAnswered();
       console.log('[initializeFirstQuestion] Has the first question been answered?', hasAnswered);
   
-      // **5️⃣ Stop Timer if First Question is Answered**
+      // Stop Timer if First Question is Answered
       if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
+        console.log('[initializeFirstQuestion] Stopping the timer for the first question.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
       } else {
-        console.log(`❌ [initializeFirstQuestion] Timer NOT stopped. hasAnswered: ${hasAnswered}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
+        console.log(`[initializeFirstQuestion] Timer NOT stopped. hasAnswered: ${hasAnswered}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
       }
   
-      // **6️⃣ Start the timer for the first question**
+      // Start the timer for the first question
       this.timerService.startTimer();
-      console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
+      console.log('[initializeFirstQuestion] Timer started for the first question');
   
     } catch (err) {
-      console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
+      console.error('[initializeFirstQuestion] Error initializing first question:', err);
     }
   }
   
