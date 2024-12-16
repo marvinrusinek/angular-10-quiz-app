@@ -585,11 +585,11 @@ export class SelectedOptionService {
 
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
-      .filter(o => o.correct) // Ensure optionId is defined
+      .filter(o => o.correct && Number.isInteger(o.optionId)) // Check that optionId is valid
       .map(o => o.optionId);
   
     // **2️⃣ Get the list of selected option IDs**
-    const selectedOptionIds = Array.from(
+    /* const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
           .flat()
@@ -601,7 +601,18 @@ export class SelectedOptionService {
           })
           .filter((id) => typeof id === 'number')
       )
-    );
+    ); */
+    const selectedOptionIds = Array.from(this.selectedOptionsMap.values())
+      .flat()
+      .filter(o => {
+        const isValid = o && Number.isInteger(o.optionId);
+        if (!isValid) {
+          console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId. Full option:', o, 'Question Index:', this.currentQuestionIndex);
+        }
+        return isValid;
+      })
+      .map(o => o.optionId);
+
 
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
   
