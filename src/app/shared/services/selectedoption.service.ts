@@ -574,7 +574,7 @@ export class SelectedOptionService {
 
     return allCorrectOptionsSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: Option[]): boolean {
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // Check for undefined optionIds
     questionOptions.forEach((option, index) => {
       if (option.optionId === undefined) {
@@ -607,7 +607,7 @@ export class SelectedOptionService {
       .filter(o => {
         const isValid = o && Number.isInteger(o.optionId);
         if (!isValid) {
-          console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId. Full option:', o, 'Question Index:', this.currentQuestionIndex);
+          console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId. Full option:', o, 'Question Index:', questionIndex);
         }
         return isValid;
       })
