@@ -2194,7 +2194,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
-  initializeFirstQuestion(): void {
+  async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
     
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
@@ -2217,6 +2217,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           // **3️⃣ Trigger change detection immediately to display the options**
           this.cdRef.detectChanges();
+
+          // 🔥 **3️⃣ Wait to ensure all data is stable before running logic**
+          await new Promise(resolve => setTimeout(resolve, 50)); // Allow all data to stabilize
   
           // **4️⃣ Start background process for question state and explanation**
           this.updateQuestionStateAndExplanation(0).then(() => {
