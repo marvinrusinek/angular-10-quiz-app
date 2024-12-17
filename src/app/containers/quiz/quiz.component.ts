@@ -2418,10 +2418,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             correct: o.correct ?? false
           };
   
-          // 🔥 **Track lifecycle before and after processing**
-          this.trackOptionLifecycle(o, 'initializeFirstQuestion (BEFORE)');
-          this.trackOptionLifecycle(newOption, 'initializeFirstQuestion (AFTER)');
-  
           if (newOption.optionId === undefined || newOption.optionId === null) {
             console.error('❌ [initializeFirstQuestion] OptionId is still undefined at optionIndex:', optionIndex, 'Option:', newOption);
             newOption.optionId = optionIndex; 
