@@ -370,12 +370,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  /**
-    * Normalizes the options array to ensure optionId, text, and correct are properly assigned.
-    * @param {Option[]} options - The array of options to normalize.
-    * @param {string} context - The context of where this normalization is called from (used for logging).
-    * @returns {Option[]} - The normalized array of options.
-  */
+  // Normalizes the options array to ensure optionId, text, and correct are properly assigned.
   private normalizeOptions(options: Option[], context: string): Option[] {
     return options.map((option, index) => {
       if (!option) {
