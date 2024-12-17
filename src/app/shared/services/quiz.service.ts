@@ -450,18 +450,53 @@ export class QuizService implements OnDestroy {
     );
   }  
 
-  sanitizeOptions(options: Option[]): Option[] {
-    return options.map((option, index) => ({
-      optionId: option.optionId ?? index,
-      text: option.text?.trim() || `Option ${index}`,
-      correct: option.correct ?? false,
-      value: option.value ?? null,
-      answer: option.answer ?? null,
-      selected: option.selected ?? false,
-      showIcon: option.showIcon ?? false,
-      feedback: option.feedback ?? 'No feedback available',
-      styleClass: option.styleClass ?? '',
-    }));
+  sanitizeOptions(options: Option[], context: string = 'sanitizeOptions'): Option[] {
+    if (!Array.isArray(options)) {
+      console.warn(`⚠️ [sanitizeOptions] Options is not an array. Context: ${context}`);
+      return [];
+    }
+  
+    return options.map((option, index) => {
+      // 🔥 Ensure option exists
+      if (!option) {
+        console.error(`❌ [sanitizeOptions] Option is null or undefined at index ${index} in ${context}`);
+        return {
+          optionId: index, 
+          text: `Missing option at index ${index}`, 
+          correct: false, 
+          value: null, 
+          answer: null, 
+          selected: false, 
+          showIcon: false, 
+          feedback: 'No feedback available', 
+          styleClass: ''
+        };
+      }
+  
+      // 🔥 Ensure optionId is a valid number and not undefined
+      if (!Number.isInteger(option.optionId) || option.optionId < 0) {
+        console.warn(`⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
+        option.optionId = index; // Assign fallback optionId
+      }
+  
+      // 🔥 Ensure text is present and not an empty string
+      if (!option.text || option.text.trim() === '') {
+        console.warn(`⚠️ [sanitizeOptions] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
+        option.text = `Option ${index + 1}`; // Provide default text if missing
+      }
+  
+      return {
+        optionId: option.optionId, // 🔥 Use pre-sanitized optionId
+        text: option.text?.trim() || `Option ${index}`,
+        correct: option.correct ?? false, // Default to false
+        value: option.value ?? null, 
+        answer: option.answer ?? null, 
+        selected: option.selected ?? false, 
+        showIcon: option.showIcon ?? false, 
+        feedback: option.feedback ?? 'No feedback available', 
+        styleClass: option.styleClass ?? ''
+      };
+    });
   }
 
   getSafeOptionId(option: SelectedOption, index: number): number | undefined {    
