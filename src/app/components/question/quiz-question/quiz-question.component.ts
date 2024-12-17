@@ -440,7 +440,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('🔍 [restoreQuizState] Normalizing currentQuestion.options using sanitizeOptions.');
       
       // 🔥 Use sanitizeOptions to ensure all properties are valid (optionId, text, correct, etc.)
-      this.currentQuestion.options = this.quizService.sanitizeOptions(this.currentQuestion.options, 'restoreQuizState');
+      this.currentQuestion.options = this.quizService.sanitizeOptions(this.currentQuestion.options);
       
       // 🔥 Double-check for missing optionIds (just in case)
       this.currentQuestion.options.forEach((option, index) => {
