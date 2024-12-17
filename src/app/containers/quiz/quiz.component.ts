@@ -2418,8 +2418,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             correct: o.correct ?? false
           };
   
-          // 🔥 **Log option after modifications**
-          console.log('✅ [initializeFirstQuestion] Option after processing:', newOption);
+          // 🔥 **Track lifecycle before and after processing**
+          this.trackOptionLifecycle(o, 'initializeFirstQuestion (BEFORE)');
+          this.trackOptionLifecycle(newOption, 'initializeFirstQuestion (AFTER)');
   
           if (newOption.optionId === undefined || newOption.optionId === null) {
             console.error('❌ [initializeFirstQuestion] OptionId is still undefined at optionIndex:', optionIndex, 'Option:', newOption);
@@ -2472,6 +2473,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
     }
   }
+  
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
