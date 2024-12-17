@@ -1569,8 +1569,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
   
       const option = event.option!;
-      if (option.optionId === undefined || option.optionId === null) {
-        console.error('[onOptionClicked] optionId is undefined for option:', event.option);
+      if (!option || option.optionId === undefined || option.optionId === null) {
+        console.warn('Option or optionId is invalid.', option);
         return; 
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
