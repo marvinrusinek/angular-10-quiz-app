@@ -2746,16 +2746,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
+    // **1️⃣ Get the selected options for the current question**
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map((index) => currentQuestion.options[index]);
-  
-    // Check if the option is already selected
+
+    // 🔥 **2️⃣ Ensure optionId is valid before proceeding**
+    const targetOption = currentQuestion.options[optionIndex];
+    if (!targetOption || typeof targetOption.optionId !== 'number') {
+      console.error('❌ [handleOptionClicked] optionId is missing or invalid for option at index:', optionIndex, 'Option:', targetOption);
+      return; // Exit early if optionId is invalid
+    }
+
+    // **3️⃣ Check if the option is already selected**
     const isOptionSelected = selectedOptions.some(
       (option: Option) => option.optionId === optionIndex
     );
-  
-    // Add or remove the option based on its current state
+
+    // **4️⃣ Add or remove the option based on its current state**
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2768,16 +2776,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       );
     }
 
-    // Ensure selected options are stabilized before proceeding
+    // **5️⃣ Ensure selected options are stabilized before proceeding**
     await new Promise((resolve) => setTimeout(resolve, 10));
   
-    // Check if the question is now answered
+    // **6️⃣ Check if the question is now answered**
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
     const isMultipleAnswer = await firstValueFrom(
       this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
     );
   
-    // Determine the new selection message
+    // **7️⃣ Determine the new selection message**
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -2785,14 +2793,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       isMultipleAnswer
     );
   
-    // Update the message only if it has changed
+    // **8️⃣ Update the message only if it has changed**
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       console.log(`Setting new message: ${newMessage}`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessageSubject.next(newMessage);
     }
   
-    // Update the question state
+    // **9️⃣ Update the question state**
     const questionState: QuestionState = {
       isAnswered,
       selectedOptions
@@ -2804,13 +2812,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       questionState
     );
 
-    //this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+    // **🔟 Update message for current state**
     await this.updateMessageForCurrentState(currentQuestion);
   
-    // Handle multiple-answer logic if applicable
+    // **1️⃣1️⃣ Handle multiple-answer logic if applicable**
     this.handleMultipleAnswer(currentQuestion);
   
-    // Ensure the UI reflects the changes
+    // **1️⃣2️⃣ Ensure the UI reflects the changes**
     this.cdRef.markForCheck();
   }
 
