@@ -327,23 +327,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (document.visibilityState === 'visible') {
       console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
 
+      // 🔥 Restore quiz state from sessionStorage
       this.restoreQuizState(); 
+      
+      // 🔥 Re-render display to reflect the current state
       this.renderDisplay();    
+
+      // 🔥 Notify QuizComponent to restore state
       this.quizStateService.notifyRestoreQuestionState(); 
 
+      // 🔥 Normalize and check optionIds for optionsToDisplay
       if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
         console.log('🔍 [onVisibilityChange] Normalizing options for optionsToDisplay.');
-        this.optionsToDisplay = this.quizService.ensureOptionId(this.optionsToDisplay, 'onVisibilityChange');
+        this.optionsToDisplay = this.quizService.ensureOptionId(this.optionsToDisplay, 'onVisibilityChange:optionsToDisplay');
       } else {
         console.warn('⚠️ [onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
       }
 
+      // 🔥 Normalize and check optionIds for currentQuestion.options
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length > 0) {
         console.log('🔍 [onVisibilityChange] Normalizing options for currentQuestion.options.');
-        this.currentQuestion.options = this.quizService.ensureOptionId(this.currentQuestion.options, 'onVisibilityChange');
+        this.currentQuestion.options = this.quizService.ensureOptionId(this.currentQuestion.options, 'onVisibilityChange:currentQuestion.options');
       } else {
         console.warn('⚠️ [onVisibilityChange] currentQuestion or currentQuestion.options is null, undefined, or empty.');
       }
+
+      // 🔥 Final Validation: Check if any optionId is still undefined
+      this.currentQuestion?.options.forEach((option, index) => {
+        if (!option || typeof option.optionId !== 'number') {
+          console.error('❌ [onVisibilityChange] Option with undefined or invalid optionId:', option, 'Index:', index);
+          option.optionId = index; // 🔥 Assign a fallback optionId directly on option object
+        }
+      });
+
+      this.optionsToDisplay?.forEach((option, index) => {
+        if (!option || typeof option.optionId !== 'number') {
+          console.error('❌ [onVisibilityChange] Option with undefined or invalid optionId in optionsToDisplay:', option, 'Index:', index);
+          option.optionId = index; // 🔥 Assign a fallback optionId directly on option object
+        }
+      });
+
+      console.log('✅ [onVisibilityChange] Options after normalization:', this.currentQuestion?.options);
+      console.log('✅ [onVisibilityChange] OptionsToDisplay after normalization:', this.optionsToDisplay);
     }
   }
 
