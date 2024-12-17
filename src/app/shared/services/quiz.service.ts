@@ -486,7 +486,7 @@ export class QuizService implements OnDestroy {
       }
   
       return {
-        optionId: option.optionId, 
+        optionId: option.optionId ?? index, 
         text: option.text?.trim() || `Option ${index}`,
         correct: option.correct ?? false, 
         value: option.value ?? null, 
