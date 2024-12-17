@@ -1981,6 +1981,32 @@ export class QuizService implements OnDestroy {
     return !!this.quizId;
   }
 
+  public ensureOptionId(options: Option[], context: string): Option[] {
+    return options.map((option, index) => {
+      if (!option) {
+        console.error(`❌ [ensureOptionId] Option is null or undefined at index: ${index} in ${context}`);
+        option = { text: `Placeholder option at index ${index}`, optionId: index, correct: false };
+      }
+
+      if (typeof option.optionId !== 'number' || option.optionId < 0) {
+        console.warn(`⚠️ [ensureOptionId] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
+        option.optionId = index; // 🔥 Assign fallback optionId
+      }
+
+      if (!option.text) {
+        console.warn(`⚠️ [ensureOptionId] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
+        option.text = `Option ${index + 1}`; // Provide default text if missing
+      }
+
+      if (typeof option.correct !== 'boolean') {
+        console.warn(`⚠️ [ensureOptionId] Option "correct" is missing or invalid at index ${index} in ${context}. Setting default to false.`);
+        option.correct = false; // Assume false if undefined
+      }
+
+      return option;
+    });
+  }
+
   resetUserSelection(): void {
     this.selectedOption$.next('');
   }
