@@ -1607,9 +1607,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     };
     this.data = data;
   
-    // 🔥 Log the incoming question data
-    console.log('🚀 [initializeAndPrepareQuestion] Incoming questionData:', JSON.stringify(questionData, null, 2));
-  
     this.quizService.setQuizId(quizId);
   
     // 🔥 Call fetchQuizQuestions to load questions
@@ -1637,27 +1634,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('✅ [initializeAndPrepareQuestion] Options received from currentOptions$:', JSON.stringify(options, null, 2));
   
       // 🔥 Log if any options are undefined
-      const missingOptionIds = options.filter(o => o.optionId === undefined);
-      if (missingOptionIds.length > 0) {
-        console.error('❌ [initializeAndPrepareQuestion] Options with undefined optionId:', missingOptionIds);
+      const undefinedOptions = options.filter(o => !o);
+      if (undefinedOptions.length > 0) {
+        console.error('❌ [initializeAndPrepareQuestion] Undefined or null options found:', undefinedOptions);
       }
   
-      const currentQuestion: QuizQuestion = {
-        questionText: this.data.questionText || 'No question text provided',
-        options: options.map(option => ({
-          ...option,
-          optionId: Number.isInteger(option.optionId) ? option.optionId : options.indexOf(option), // 🔥 Ensure optionId is a number
-          correct: option.correct ?? false // 🔥 Default to false if `correct` is undefined
-        })),
-        explanation: this.explanationTextService.formattedExplanationSubject.getValue() || 'No explanation available',
-        type: this.quizDataService.questionType as QuestionType,
-      };
+      // 🔥 Ensure optionId is assigned properly
+      const updatedOptions = options.map((option, index) => {
+        // 🔥 Ensure option is a valid object
+        if (!option) {
+          console.error('❌ [initializeAndPrepareQuestion] Option is undefined or null at optionIndex:', index);
+          return {
+            text: `Missing option at index ${index}`,
+            optionId: index, // Fallback optionId
+            correct: false 
+          };
+        }
   
-      // 🔥 Check for missing optionIds
-      const missingIds = currentQuestion.options.filter(o => o.optionId === undefined);
+        // 🔥 Ensure optionId is present and valid
+        const newOption = {
+          ...option,
+          optionId: Number.isInteger(option.optionId) ? option.optionId : index, // 🔥 Set optionId if missing
+          correct: option.correct ?? false // 🔥 Ensure correct is set
+        };
+  
+        // 🔥 Check for missing optionId
+        if (newOption.optionId === undefined) {
+          console.error('❌ [initializeAndPrepareQuestion] OptionId is missing at optionIndex:', index, 'Option:', newOption);
+          newOption.optionId = index; // Fallback assignment
+        }
+  
+        return newOption;
+      });
+  
+      const missingIds = updatedOptions.filter(o => o.optionId === undefined);
       if (missingIds.length > 0) {
         console.error('❌ [initializeAndPrepareQuestion] Options with missing optionIds:', missingIds);
       }
+  
+      // 🔥 Log the final options with optionIds
+      console.log('🚀 [initializeAndPrepareQuestion] Final options with optionIds:', updatedOptions);
+  
+      const currentQuestion: QuizQuestion = {
+        questionText: this.data.questionText || 'No question text provided',
+        options: updatedOptions,
+        explanation: this.explanationTextService.formattedExplanationSubject.getValue() || 'No explanation available',
+        type: this.quizDataService.questionType as QuestionType,
+      };
   
       this.question = currentQuestion;
   
@@ -1692,7 +1715,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('✅ [initializeAndPrepareQuestion] Correct Answer Options:', correctAnswerOptions);
     });
   }
-  
 
   private prepareFeedback(): void {
     this.showFeedback = true;
