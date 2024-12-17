@@ -2746,24 +2746,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
-    // **1️⃣ Get the selected options for the current question**
+    // 🔥 Check if currentQuestion and currentQuestion.options are valid
+    if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
+      console.error('❌ [handleOptionClicked] currentQuestion or currentQuestion.options is missing or invalid.');
+      return; // Exit early if no question or options are available
+    }
+
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
-      .map((index) => currentQuestion.options[index]);
+      .map((index) => currentQuestion.options[index])
+      .filter(option => option && option.optionId !== undefined); // 🔥 Filter out undefined options
 
-    // 🔥 **2️⃣ Ensure optionId is valid before proceeding**
+    // 🔥 Check if the target option exists and has a valid optionId
     const targetOption = currentQuestion.options[optionIndex];
     if (!targetOption || typeof targetOption.optionId !== 'number') {
       console.error('❌ [handleOptionClicked] optionId is missing or invalid for option at index:', optionIndex, 'Option:', targetOption);
-      return; // Exit early if optionId is invalid
+      return; // 🔥 Exit early if optionId is not valid
     }
-
-    // **3️⃣ Check if the option is already selected**
+  
+    // 🔥 Check if the option is already selected
     const isOptionSelected = selectedOptions.some(
-      (option: Option) => option.optionId === optionIndex
+      (option: Option) => option.optionId === targetOption.optionId
     );
-
-    // **4️⃣ Add or remove the option based on its current state**
+  
+    // 🔥 Add or remove the option based on its current state
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2775,17 +2781,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         optionIndex
       );
     }
-
-    // **5️⃣ Ensure selected options are stabilized before proceeding**
+  
+    // 🔥 Ensure selected options are stabilized before proceeding
     await new Promise((resolve) => setTimeout(resolve, 10));
   
-    // **6️⃣ Check if the question is now answered**
+    // 🔥 Check if the question is now answered
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
     const isMultipleAnswer = await firstValueFrom(
       this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
     );
   
-    // **7️⃣ Determine the new selection message**
+    // 🔥 Determine the new selection message
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -2793,14 +2799,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       isMultipleAnswer
     );
   
-    // **8️⃣ Update the message only if it has changed**
+    // 🔥 Update the message only if it has changed
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       console.log(`Setting new message: ${newMessage}`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessageSubject.next(newMessage);
     }
   
-    // **9️⃣ Update the question state**
+    // 🔥 Update the question state
     const questionState: QuestionState = {
       isAnswered,
       selectedOptions
@@ -2811,16 +2817,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.currentQuestionIndex,
       questionState
     );
-
-    // **🔟 Update message for current state**
+  
+    // 🔥 Update the message for the current state
     await this.updateMessageForCurrentState(currentQuestion);
   
-    // **1️⃣1️⃣ Handle multiple-answer logic if applicable**
+    // 🔥 Handle multiple-answer logic if applicable
     this.handleMultipleAnswer(currentQuestion);
   
-    // **1️⃣2️⃣ Ensure the UI reflects the changes**
+    // 🔥 Ensure the UI reflects the changes
     this.cdRef.markForCheck();
   }
+
 
   private async updateMessageForCurrentState(
     currentQuestion: QuizQuestion
