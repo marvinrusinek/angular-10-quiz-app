@@ -327,43 +327,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (document.visibilityState === 'visible') {
       console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
 
-      // 🔥 Restore quiz-level state
       this.restoreQuizState(); 
-      
-      // 🔥 Re-render display to reflect current state
       this.renderDisplay();    
-      
-      // 🔥 Notify QuizComponent to restore state
       this.quizStateService.notifyRestoreQuestionState(); 
 
-      // 🔥 Recheck and normalize options for `optionsToDisplay`
       if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
         console.log('🔍 [onVisibilityChange] Normalizing options for optionsToDisplay.');
-        this.optionsToDisplay = this.normalizeOptions(this.optionsToDisplay, 'optionsToDisplay');
+        this.optionsToDisplay = this.quizService.ensureOptionId(this.optionsToDisplay, 'onVisibilityChange');
       } else {
         console.warn('⚠️ [onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
       }
 
-      // 🔥 Recheck and normalize options for `currentQuestion.options`
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length > 0) {
         console.log('🔍 [onVisibilityChange] Normalizing options for currentQuestion.options.');
-        this.currentQuestion.options = this.normalizeOptions(this.currentQuestion.options, 'currentQuestion.options');
-        
-        // 🔥 Recheck and log any options with undefined optionIds
-        const missingOptionIds = this.currentQuestion.options.filter(option => !option || typeof option.optionId !== 'number');
-        if (missingOptionIds.length > 0) {
-          console.error('❌ [onVisibilityChange] Options with undefined or invalid optionIds found in currentQuestion.options:', missingOptionIds);
-        }
-
-        // 🔥 Recheck if all correct answers are selected
-        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
-        console.log('[onVisibilityChange] All correct answers selected:', allCorrectSelected);
-
-        if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-          console.log('🛑 [onVisibilityChange] Stopping the timer as all correct answers have been selected.');
-          this.timerService.stopTimer();
-          this.selectedOptionService.stopTimerEmitted = true;
-        }
+        this.currentQuestion.options = this.quizService.ensureOptionId(this.currentQuestion.options, 'onVisibilityChange');
       } else {
         console.warn('⚠️ [onVisibilityChange] currentQuestion or currentQuestion.options is null, undefined, or empty.');
       }
