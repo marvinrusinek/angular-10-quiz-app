@@ -335,65 +335,71 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       
       // 🔥 Notify QuizComponent to restore state
       this.quizStateService.notifyRestoreQuestionState(); 
-      
-      // 🔥 Recheck if the first question is answered
+
+      // 🔥 Recheck and normalize options for `optionsToDisplay`
       if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
-        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => {
-          if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
-            console.error('❌ [onVisibilityChange] OptionId is undefined or invalid at index:', index, 'Option:', option);
-            return {
-              ...option,
-              optionId: index // 🔥 Assign fallback optionId to prevent future errors
-            };
-          }
-          return option;
-        });
+        console.log('🔍 [onVisibilityChange] Normalizing options for optionsToDisplay.');
+        this.optionsToDisplay = this.normalizeOptions(this.optionsToDisplay, 'optionsToDisplay');
       } else {
-        console.warn('❌ [onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
+        console.warn('⚠️ [onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
       }
 
-      // 🔥 Recheck if all correct answers are selected
-      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-        this.currentQuestion.options = this.currentQuestion.options.map((option, index) => {
-          if (!option) {
-            console.error('❌ [onVisibilityChange] Option is null or undefined at index:', index);
-            return {
-              text: 'Placeholder', // Placeholder text to prevent undefined options
-              optionId: index, // 🔥 Assign fallback optionId
-              correct: false // Assume incorrect unless explicitly stated
-            };
-          }
-
-          if (typeof option.optionId !== 'number' || option.optionId < 0) {
-            console.error('❌ [onVisibilityChange] OptionId is undefined or invalid for option at index:', index, 'Option:', option);
-            option.optionId = index; // 🔥 Assign fallback optionId directly on option object
-          }
-          return option;
-        });
-
+      // 🔥 Recheck and normalize options for `currentQuestion.options`
+      if (this.currentQuestion && Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length > 0) {
+        console.log('🔍 [onVisibilityChange] Normalizing options for currentQuestion.options.');
+        this.currentQuestion.options = this.normalizeOptions(this.currentQuestion.options, 'currentQuestion.options');
+        
         // 🔥 Recheck and log any options with undefined optionIds
-        this.currentQuestion.options.forEach((option, index) => {
-          if (!option) {
-            console.error('❌ [onVisibilityChange] Option is null or undefined at index:', index);
-            option = { text: 'Placeholder', optionId: index, correct: false };
-          } else if (typeof option.optionId !== 'number' || option.optionId < 0) {
-            console.error('❌ [onVisibilityChange] Option with undefined or invalid optionId:', option, 'Question Index:', this.currentQuestionIndex);
-            option.optionId = index; // 🔥 Assign a fallback optionId directly on option object
-          }
-        });
+        const missingOptionIds = this.currentQuestion.options.filter(option => !option || typeof option.optionId !== 'number');
+        if (missingOptionIds.length > 0) {
+          console.error('❌ [onVisibilityChange] Options with undefined or invalid optionIds found in currentQuestion.options:', missingOptionIds);
+        }
 
+        // 🔥 Recheck if all correct answers are selected
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
         console.log('[onVisibilityChange] All correct answers selected:', allCorrectSelected);
 
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-          console.log('[onVisibilityChange] Stopping the timer as all correct answers have been selected.');
+          console.log('🛑 [onVisibilityChange] Stopping the timer as all correct answers have been selected.');
           this.timerService.stopTimer();
           this.selectedOptionService.stopTimerEmitted = true;
         }
       } else {
-        console.warn('❌ [onVisibilityChange] currentQuestion or currentQuestion.options is null or undefined.');
+        console.warn('⚠️ [onVisibilityChange] currentQuestion or currentQuestion.options is null, undefined, or empty.');
       }
     }
+  }
+
+  /**
+     * Normalizes the options array to ensure optionId, text, and correct are properly assigned.
+     * @param {Option[]} options - The array of options to normalize.
+     * @param {string} context - The context of where this normalization is called from (used for logging).
+     * @returns {Option[]} - The normalized array of options.
+  */
+  private normalizeOptions(options: Option[], context: string): Option[] {
+    return options.map((option, index) => {
+      if (!option) {
+        console.error(`❌ [normalizeOptions] Option is null or undefined at index: ${index} in ${context}`);
+        option = { text: `Placeholder option at index ${index}`, optionId: index, correct: false };
+      }
+
+      if (typeof option.optionId !== 'number' || option.optionId < 0) {
+        console.warn(`⚠️ [normalizeOptions] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
+        option.optionId = index; // 🔥 Assign fallback optionId
+      }
+
+      if (!option.text) {
+        console.warn(`⚠️ [normalizeOptions] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
+        option.text = `Option ${index + 1}`; // Provide default text if missing
+      }
+
+      if (typeof option.correct !== 'boolean') {
+        console.warn(`⚠️ [normalizeOptions] Option "correct" is missing or invalid at index ${index} in ${context}. Setting default to false.`);
+        option.correct = false; // Assume false if undefined
+      }
+
+      return option;
+    });
   }
 
 
