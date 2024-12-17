@@ -1522,7 +1522,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private initializeAndPrepareQuestion(
+  /* private initializeAndPrepareQuestion(
     questionData: CombinedQuestionDataType,
     quizId: string
   ): void {
@@ -1591,7 +1591,108 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       console.log('Correct Answer Options:', correctAnswerOptions);
     });
+  } */
+  private initializeAndPrepareQuestion(
+    questionData: CombinedQuestionDataType,
+    quizId: string
+  ): void {
+    if (!quizId) {
+      console.error('❌ [initializeAndPrepareQuestion] Quiz ID is not provided or is empty');
+      return;
+    }
+  
+    const data = {
+      ...questionData,
+      currentOptions: questionData.currentOptions || [],
+    };
+    this.data = data;
+  
+    // 🔥 Log the incoming question data
+    console.log('🚀 [initializeAndPrepareQuestion] Incoming questionData:', JSON.stringify(questionData, null, 2));
+  
+    this.quizService.setQuizId(quizId);
+  
+    // 🔥 Call fetchQuizQuestions to load questions
+    this.quizService.fetchQuizQuestions(quizId)
+      .then((questions) => {
+        console.log('✅ [initializeAndPrepareQuestion] Fetched questions:', questions);
+        if (!Array.isArray(questions) || questions.length === 0) {
+          console.warn('⚠️ [initializeAndPrepareQuestion] No questions returned from fetchQuizQuestions()');
+          return; // 🔥 Exit early to avoid setting invalid question data
+        }
+        this.quizService.setQuestionData(questions);
+      })
+      .catch((error) => {
+        console.error('❌ [initializeAndPrepareQuestion] Error fetching questions:', error);
+      });
+  
+    // Subscribe to current options
+    this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
+      if (!Array.isArray(options) || options.length === 0) {
+        console.error('❌ [initializeAndPrepareQuestion] No options received. Ensure data flow is correct.');
+        return;
+      }
+  
+      // 🔥 Log the options that were received
+      console.log('✅ [initializeAndPrepareQuestion] Options received from currentOptions$:', JSON.stringify(options, null, 2));
+  
+      // 🔥 Log if any options are undefined
+      const missingOptionIds = options.filter(o => o.optionId === undefined);
+      if (missingOptionIds.length > 0) {
+        console.error('❌ [initializeAndPrepareQuestion] Options with undefined optionId:', missingOptionIds);
+      }
+  
+      const currentQuestion: QuizQuestion = {
+        questionText: this.data.questionText || 'No question text provided',
+        options: options.map(option => ({
+          ...option,
+          optionId: Number.isInteger(option.optionId) ? option.optionId : options.indexOf(option), // 🔥 Ensure optionId is a number
+          correct: option.correct ?? false // 🔥 Default to false if `correct` is undefined
+        })),
+        explanation: this.explanationTextService.formattedExplanationSubject.getValue() || 'No explanation available',
+        type: this.quizDataService.questionType as QuestionType,
+      };
+  
+      // 🔥 Check for missing optionIds
+      const missingIds = currentQuestion.options.filter(o => o.optionId === undefined);
+      if (missingIds.length > 0) {
+        console.error('❌ [initializeAndPrepareQuestion] Options with missing optionIds:', missingIds);
+      }
+  
+      this.question = currentQuestion;
+  
+      // 🔥 Log current question
+      console.log('✅ [initializeAndPrepareQuestion] Current Question:', JSON.stringify(currentQuestion, null, 2));
+  
+      // Filter correct answers
+      const correctAnswerOptions = currentQuestion.options.filter((option: Option) => option.correct);
+  
+      if (!Array.isArray(correctAnswerOptions) || correctAnswerOptions.length === 0) {
+        console.error(
+          `❌ [initializeAndPrepareQuestion] No correct options found for question: "${currentQuestion.questionText}". Options:`,
+          currentQuestion.options
+        );
+        return; // Exit early to avoid setting invalid correct answers
+      }
+  
+      // Set correct answers if valid options are found
+      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions).subscribe({
+        next: () => {
+          console.log('✅ [initializeAndPrepareQuestion] Correct answers set successfully.');
+          this.prepareFeedback();
+        },
+        error: (err) => {
+          console.error('❌ [initializeAndPrepareQuestion] Error setting correct answers:', err);
+        }
+      });
+  
+      this.quizService.setCorrectAnswersLoaded(true);
+      this.quizService.correctAnswersLoadedSubject.next(true);
+  
+      console.log('✅ [initializeAndPrepareQuestion] Correct Answer Options:', correctAnswerOptions);
+    });
   }
+  
 
   private prepareFeedback(): void {
     this.showFeedback = true;
