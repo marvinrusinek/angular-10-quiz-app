@@ -451,15 +451,15 @@ export class QuizService implements OnDestroy {
   }  
 
   sanitizeOptions(options: Option[]): Option[] {
-    if (!Array.isArray(options)) {
-      console.warn('⚠️ [sanitizeOptions] Options is not an array.');
+    if (!Array.isArray(options) || options.length === 0) {
+      console.warn(`⚠️ Options are empty or not an array.`);
       return [];
     }
-  
+
     return options.map((option, index) => {
       // 🔥 Ensure option exists
       if (!option) {
-        console.error(`❌ [sanitizeOptions] Option is null or undefined at index ${index}`);
+        console.error(`❌ Option is null or undefined at index ${index}`);
         return {
           optionId: index, 
           text: `Missing option at index ${index}`, 
@@ -473,21 +473,25 @@ export class QuizService implements OnDestroy {
         };
       }
   
+      // 🔥 Log option before modification for debugging purposes
+      console.log(`🕵️‍♂️ Option BEFORE sanitization at index ${index}:`, option);
+
       // 🔥 Ensure optionId is a valid number
       if (!Number.isInteger(option.optionId) || option.optionId < 0) {
-        console.warn(`⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`);
+        console.warn(`⚠️ optionId is missing or invalid at index ${index}. Assigning fallback optionId.`);
         option.optionId = index; // Assign fallback optionId
       }
   
       // 🔥 Ensure option text is present
       if (!option.text || option.text.trim() === '') {
-        console.warn(`⚠️ [sanitizeOptions] Option text is missing at index ${index}. Assigning placeholder text.`);
+        console.warn(`⚠️ Option text is missing at index ${index}. Assigning placeholder text.`);
         option.text = `Option ${index + 1}`; // Provide default text if missing
       }
   
-      return {
+      // 🔥 Return sanitized option ensuring no field is undefined
+      const sanitizedOption = {
         optionId: option.optionId ?? index, 
-        text: option.text?.trim() || `Option ${index}`,
+        text: option.text?.trim() || `Option ${index + 1}`,
         correct: option.correct ?? false, 
         value: option.value ?? null, 
         answer: option.answer ?? null, 
@@ -496,9 +500,17 @@ export class QuizService implements OnDestroy {
         feedback: option.feedback ?? 'No feedback available', 
         styleClass: option.styleClass ?? ''
       };
+
+      // 🔥 Log option after modification for debugging purposes
+      console.log(`✅ Option AFTER sanitization at index ${index}:`, sanitizedOption);
+
+      if (sanitizedOption.optionId === undefined) {
+        console.error(`❌ optionId is still undefined after sanitization at index ${index}:`, sanitizedOption);
+      }
+
+      return sanitizedOption;
     });
   }
-  
 
   getSafeOptionId(option: SelectedOption, index: number): number | undefined {    
     // Ensure optionId exists and is a number
