@@ -450,7 +450,7 @@ export class QuizService implements OnDestroy {
     );
   }  
 
-  sanitizeOptions(options: Option[], context: string = 'sanitizeOptions'): Option[] {
+  sanitizeOptions(options: Option[], context?: string = 'sanitizeOptions'): Option[] {
     if (!Array.isArray(options)) {
       console.warn(`⚠️ [sanitizeOptions] Options is not an array. Context: ${context}`);
       return [];
