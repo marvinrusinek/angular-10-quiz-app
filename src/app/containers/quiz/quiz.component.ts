@@ -2382,41 +2382,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       console.log('🚀 [initializeFirstQuestion] Starting initialization...');
   
+      // **1️⃣ Load questions for the quiz**
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       console.log('✅ [initializeFirstQuestion] Questions loaded:', questions);
       
       if (questions && questions.length > 0) {
+        // **2️⃣ Set first question data immediately**
         this.questions = questions;
         this.currentQuestion = questions[0];
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
   
-        // 🔥 **Ensure options exist and optionId is assigned**
         if (!Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
           console.error('❌ [initializeFirstQuestion] currentQuestion.options is missing or empty.');
-          return; 
+          return; // Stop execution if no options are available
         }
   
-        // 🔥 **Assign and check optionId**
-        this.optionsToDisplay = this.currentQuestion.options.map((o, index) => ({
-          ...o,
-          optionId: o.optionId !== undefined ? o.optionId : index, // Fallback assignment
-          correct: o.correct ?? false
-        }));
+        // 🔥 **3️⃣ Ensure optionId for options**
+        this.optionsToDisplay = this.quizService.ensureOptionId(this.currentQuestion.options, 'initializeFirstQuestion');
   
-        // 🔥 **Check for undefined optionIds**
-        this.optionsToDisplay.forEach((option, index) => {
-          if (!option || option.optionId === undefined) {
-            console.error(`❌ [initializeFirstQuestion] OptionId is missing at index: ${index}`, option);
-            option.optionId = index; 
-          }
-        });
+        // 🔥 **4️⃣ Post-check for missing optionIds**
+        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIds.length > 0) {
+          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
+        }
   
-        console.log('🚀 [initializeFirstQuestion] Options for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
+        console.log('🚀 [initializeFirstQuestion] Options set for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
   
         this.cdRef.detectChanges();
-  
-        await new Promise(resolve => setTimeout(resolve, 50)); 
+        await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Wait to ensure options are rendered
   
         const hasAnswered = this.checkIfAnswered();
         console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
@@ -2428,8 +2422,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
   
         this.timerService.startTimer();
-        console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
-        
         this.cdRef.markForCheck();
       } else {
         console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
