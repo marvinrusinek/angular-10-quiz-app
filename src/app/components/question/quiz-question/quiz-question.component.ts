@@ -406,44 +406,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private restoreQuizState(): void {
-    try {
-      console.log('🚀 [restoreQuizState] Restoring quiz state...');
+    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
+    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   
-      // Restore explanation text
-      this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
-      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-  
-      // 🔥 **Restore current question options** 🔥
-      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-        console.log('🔍 [restoreQuizState] Current question options BEFORE restoration:', JSON.stringify(this.currentQuestion.options, null, 2));
-  
-        this.currentQuestion.options = this.currentQuestion.options.map((option, index) => {
-          if (!option) {
-            console.error('❌ [restoreQuizState] Option is null or undefined at index:', index);
-            option = { text: 'Placeholder option', optionId: index, correct: false };
-          }
-  
-          if (option.optionId === undefined || option.optionId === null) {
-            console.warn(`⚠️ [restoreQuizState] optionId is missing for option at index ${index}. Assigning fallback optionId.`);
-            option.optionId = index; // 🔥 Assign fallback optionId
-          }
-  
-          // If option text is missing, add placeholder text
-          if (!option.text) {
-            option.text = `Option ${index + 1}`;
-          }
-  
-          return option;
-        });
-  
-        console.log('✅ [restoreQuizState] Current question options AFTER restoration:', JSON.stringify(this.currentQuestion.options, null, 2));
-      } else {
-        console.warn('⚠️ [restoreQuizState] currentQuestion or currentQuestion.options is null or undefined.');
-      }
-  
-    } catch (error) {
-      console.error('❌ [restoreQuizState] Error restoring quiz state:', error);
+    if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+      this.currentQuestion.options = this.quizService.ensureOptionId(this.currentQuestion.options, 'restoreQuizState');
     }
   }
 
