@@ -450,16 +450,16 @@ export class QuizService implements OnDestroy {
     );
   }  
 
-  sanitizeOptions(options: Option[], context: string = 'sanitizeOptions'): Option[] {
+  sanitizeOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
-      console.warn(`⚠️ [sanitizeOptions] Options is not an array. Context: ${context}`);
+      console.warn('⚠️ [sanitizeOptions] Options is not an array.');
       return [];
     }
   
     return options.map((option, index) => {
       // 🔥 Ensure option exists
       if (!option) {
-        console.error(`❌ [sanitizeOptions] Option is null or undefined at index ${index} in ${context}`);
+        console.error(`❌ [sanitizeOptions] Option is null or undefined at index ${index}`);
         return {
           optionId: index, 
           text: `Missing option at index ${index}`, 
@@ -473,22 +473,22 @@ export class QuizService implements OnDestroy {
         };
       }
   
-      // 🔥 Ensure optionId is a valid number and not undefined
+      // 🔥 Ensure optionId is a valid number
       if (!Number.isInteger(option.optionId) || option.optionId < 0) {
-        console.warn(`⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
+        console.warn(`⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`);
         option.optionId = index; // Assign fallback optionId
       }
   
-      // 🔥 Ensure text is present and not an empty string
+      // 🔥 Ensure option text is present
       if (!option.text || option.text.trim() === '') {
-        console.warn(`⚠️ [sanitizeOptions] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
+        console.warn(`⚠️ [sanitizeOptions] Option text is missing at index ${index}. Assigning placeholder text.`);
         option.text = `Option ${index + 1}`; // Provide default text if missing
       }
   
       return {
-        optionId: option.optionId, // 🔥 Use pre-sanitized optionId
+        optionId: option.optionId, 
         text: option.text?.trim() || `Option ${index}`,
-        correct: option.correct ?? false, // Default to false
+        correct: option.correct ?? false, 
         value: option.value ?? null, 
         answer: option.answer ?? null, 
         selected: option.selected ?? false, 
@@ -498,6 +498,7 @@ export class QuizService implements OnDestroy {
       };
     });
   }
+  
 
   getSafeOptionId(option: SelectedOption, index: number): number | undefined {    
     // Ensure optionId exists and is a number
