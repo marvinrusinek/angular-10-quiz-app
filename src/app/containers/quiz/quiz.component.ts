@@ -2378,10 +2378,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
-    
+  
     try {
       console.log('🚀 [initializeFirstQuestion] Starting initialization...');
-
+  
       // **1️⃣ Load questions for the quiz**
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       console.log('✅ [initializeFirstQuestion] Questions loaded:', questions);
@@ -2392,86 +2392,77 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = questions[0];
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
-
-        // 🔥 **1️⃣ Validate currentQuestion.options**
+  
+        // 🔥 **3️⃣ Validate currentQuestion.options**
         if (!Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
           console.error('❌ [initializeFirstQuestion] currentQuestion.options is missing or empty.');
           return; // Stop execution if no options are available
         }
-
-        // 🔥 **2️⃣ Log raw initial options**
-        console.log('🕵️ [initializeFirstQuestion] Initial options from API response:', JSON.stringify(this.currentQuestion.options, null, 2));
-
-        // 🔥 **3️⃣ Ensure every option has a valid optionId and correct flag**
+  
+        // 🔥 **4️⃣ Map options and ensure optionId is assigned**
         this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
-          // 🔥 Check if option exists
+          // 🔥 **Ensure option exists and assign optionId**
           if (!o || typeof o !== 'object') {
             console.error('❌ [initializeFirstQuestion] Option is undefined or not an object at optionIndex:', optionIndex);
             return {
               text: `Missing option at index ${optionIndex}`, 
-              optionId: optionIndex, // Assign a fallback optionId
+              optionId: optionIndex, 
               correct: false 
             };
           }
-
-          // 🔥 Ensure optionId is valid
+  
+          // 🔥 **Ensure optionId is valid**
           const newOption = {
             ...o,
-            optionId: (o.optionId !== undefined && Number.isInteger(o.optionId)) ? o.optionId : optionIndex, // Fallback to optionIndex
-            correct: o.correct ?? false // Ensure "correct" is set
+            optionId: (o.optionId !== undefined && Number.isInteger(o.optionId)) ? o.optionId : optionIndex,
+            correct: o.correct ?? false
           };
-
-          // 🔥 Log final option after ensuring properties
+  
+          // 🔥 **Log option after modifications**
           console.log('✅ [initializeFirstQuestion] Option after processing:', newOption);
-
+  
           if (newOption.optionId === undefined || newOption.optionId === null) {
             console.error('❌ [initializeFirstQuestion] OptionId is still undefined at optionIndex:', optionIndex, 'Option:', newOption);
-            newOption.optionId = optionIndex; // Final fallback for optionId
+            newOption.optionId = optionIndex; 
           }
-
+  
           if (!newOption.text) {
             console.warn('⚠️ [initializeFirstQuestion] Option text is missing at optionIndex:', optionIndex);
-            newOption.text = `Option ${optionIndex + 1}`; // Provide default text if missing
+            newOption.text = `Option ${optionIndex + 1}`;
           }
-
+  
           return newOption;
         });
-
-        // 🔥 **4️⃣ Post-check for any undefined optionIds**
+  
+        // 🔥 **5️⃣ Final check for any undefined optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined || o.optionId === null);
         if (missingOptionIds.length > 0) {
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
-          // **Force-Fix undefined optionIds**
-          this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-            ...option,
-            optionId: (option.optionId !== undefined && Number.isInteger(option.optionId)) ? option.optionId : index
-          }));
         }
-
+  
         console.log('🚀 [initializeFirstQuestion] Finalized options set for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
-
-        // **5️⃣ Trigger change detection to display the options**
+  
+        // **6️⃣ Trigger change detection to display the options**
         this.cdRef.detectChanges();
         console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
-
-        // **6️⃣ Wait for options to render, then check answered state**
-        await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Slight delay to ensure options are rendered
-
+  
+        // **7️⃣ Wait for options to render, then check answered state**
+        await new Promise(resolve => setTimeout(resolve, 50)); 
+  
         const hasAnswered = this.checkIfAnswered();
         console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
-
-        // **7️⃣ Stop the timer if the question is already answered**
+  
+        // **8️⃣ Stop the timer if the question is already answered**
         if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
           console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
           this.timerService.stopTimer();
           this.selectedOptionService.stopTimerEmitted = true;
         }
-
-        // **8️⃣ Start the timer only after the first question is ready**
+  
+        // **9️⃣ Start the timer only after the first question is ready**
         this.timerService.startTimer();
         console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
         
-        // **9️⃣ Trigger change detection to re-check option display**
         this.cdRef.markForCheck();
       } else {
         console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
