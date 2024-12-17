@@ -1318,7 +1318,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -1616,7 +1615,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // **Check if option exists**
       if (!event.option) {
-        console.error('❌ [onOptionClicked] Option is undefined in event:', event);
+        console.error('[onOptionClicked] Option is undefined in event:', event);
         return;
       }
   
