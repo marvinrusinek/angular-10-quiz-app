@@ -2359,6 +2359,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
