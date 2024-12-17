@@ -2752,10 +2752,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return; // Exit early if no question or options are available
     }
 
+    // 🔥 Sanitize currentQuestion options to ensure optionIds are valid
+    currentQuestion.options = currentQuestion.options.map((option, index) => {
+      if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
+        console.warn('⚠️ [handleOptionClicked] optionId is missing or invalid for option at index:', index, 'Option:', option);
+        return {
+          ...option,
+          optionId: index // 🔥 Assign fallback optionId
+        };
+      }
+      return option;
+    });
+
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
       .map((index) => currentQuestion.options[index])
-      .filter(option => option && option.optionId !== undefined); // 🔥 Filter out undefined options
+      .filter(option => option && typeof option.optionId === 'number'); // 🔥 Filter out undefined optionIds
 
     // 🔥 Check if the target option exists and has a valid optionId
     const targetOption = currentQuestion.options[optionIndex];
@@ -2827,7 +2839,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // 🔥 Ensure the UI reflects the changes
     this.cdRef.markForCheck();
   }
-
 
   private async updateMessageForCurrentState(
     currentQuestion: QuizQuestion
