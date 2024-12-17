@@ -2286,7 +2286,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('❌ [initializeFirstQuestion] Option is undefined at optionIndex:', optionIndex);
             return {
               text: `Missing option at index ${optionIndex}`, 
-              optionId: optionIndex, // Assign fallback optionId
+              optionId: optionIndex, // Assign a fallback optionId
               correct: false 
             };
           }
@@ -2297,7 +2297,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // 🔥 Ensure optionId is present
           const newOption = {
             ...o,
-            optionId: Number.isInteger(o.optionId) ? o.optionId : optionIndex, // 🔥 Ensure optionId is valid
+            optionId: Number.isInteger(o.optionId) ? o.optionId : optionIndex, // 🔥 Ensure optionId is a valid number
             correct: o.correct ?? false // 🔥 Ensure "correct" is set
           };
 
@@ -2322,7 +2322,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // 🔥 **4️⃣ Post-check for missing optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
         if (missingOptionIds.length > 0) {
-          console.error('❌ [initializeFirstQuestion] Options with undefined optionId (AFTER assignment):', missingOptionIds);
+          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
         }
 
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
