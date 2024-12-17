@@ -1981,10 +1981,7 @@ export class QuizService implements OnDestroy {
     return !!this.quizId;
   }
 
-  /**
-   * Ensures every option has a valid optionId.
-   * If optionId is missing or invalid, it will assign the index as the optionId.
-   */
+  // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
   public ensureOptionId(options: Option[], context: string): Option[] {
     return options.map((option, index) => {
       if (!option) {
