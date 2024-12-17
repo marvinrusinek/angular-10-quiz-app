@@ -431,12 +431,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private restoreQuizState(): void {
+    // 🔥 Restore explanation text and display mode from sessionStorage
     this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
     const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
     this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-  
+
     if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-      this.currentQuestion.options = this.quizService.ensureOptionId(this.currentQuestion.options, 'restoreQuizState');
+      console.log('🔍 [restoreQuizState] Normalizing currentQuestion.options using sanitizeOptions.');
+      
+      // 🔥 Use sanitizeOptions to ensure all properties are valid (optionId, text, correct, etc.)
+      this.currentQuestion.options = this.quizService.sanitizeOptions(this.currentQuestion.options, 'restoreQuizState');
+      
+      // 🔥 Double-check for missing optionIds (just in case)
+      this.currentQuestion.options.forEach((option, index) => {
+        if (option.optionId === undefined) {
+          console.error('❌ [restoreQuizState] OptionId is still undefined after sanitizeOptions:', option, 'Index:', index);
+          option.optionId = index; // Assign fallback optionId
+        }
+      });
+      
+    } else {
+      console.warn('⚠️ [restoreQuizState] currentQuestion or currentQuestion.options is null, undefined, or empty.');
     }
   }
 
