@@ -2393,18 +2393,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
 
-        // 🔥 **1️⃣ Check for undefined or missing options in currentQuestion.options**
+        // 🔥 **1️⃣ Validate currentQuestion.options**
         if (!Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
           console.error('❌ [initializeFirstQuestion] currentQuestion.options is missing or empty.');
           return; // Stop execution if no options are available
         }
 
-        // 🔥 **2️⃣ Log initial options before any mapping**
+        // 🔥 **2️⃣ Log raw initial options**
         console.log('🕵️ [initializeFirstQuestion] Initial options from API response:', JSON.stringify(this.currentQuestion.options, null, 2));
 
-        // 🔥 **3️⃣ Map options and ensure optionId is assigned**
+        // 🔥 **3️⃣ Ensure every option has a valid optionId and correct flag**
         this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
-          // 🔥 Ensure the option object exists
+          // 🔥 Check if option exists
           if (!o || typeof o !== 'object') {
             console.error('❌ [initializeFirstQuestion] Option is undefined or not an object at optionIndex:', optionIndex);
             return {
@@ -2414,26 +2414,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             };
           }
 
-          // 🔥 Log option before modification
-          console.log('🛠️ [initializeFirstQuestion] Option BEFORE modification:', o);
-
-          // 🔥 **Ensure optionId is present and valid**
+          // 🔥 Ensure optionId is valid
           const newOption = {
             ...o,
-            optionId: Number.isInteger(o.optionId) && o.optionId >= 0 ? o.optionId : optionIndex, // 🔥 Ensure optionId is a valid number
-            correct: o.correct ?? false // 🔥 Ensure "correct" is set
+            optionId: (o.optionId !== undefined && Number.isInteger(o.optionId)) ? o.optionId : optionIndex, // Fallback to optionIndex
+            correct: o.correct ?? false // Ensure "correct" is set
           };
 
-          // 🔥 Log option after modification
-          console.log('✅ [initializeFirstQuestion] Option AFTER modification:', newOption);
+          // 🔥 Log final option after ensuring properties
+          console.log('✅ [initializeFirstQuestion] Option after processing:', newOption);
 
-          // 🔥 **Check for missing optionId**
           if (newOption.optionId === undefined || newOption.optionId === null) {
-            console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', newOption);
-            newOption.optionId = optionIndex; // Fallback assignment
+            console.error('❌ [initializeFirstQuestion] OptionId is still undefined at optionIndex:', optionIndex, 'Option:', newOption);
+            newOption.optionId = optionIndex; // Final fallback for optionId
           }
 
-          // 🔥 Check if option text is missing
           if (!newOption.text) {
             console.warn('⚠️ [initializeFirstQuestion] Option text is missing at optionIndex:', optionIndex);
             newOption.text = `Option ${optionIndex + 1}`; // Provide default text if missing
@@ -2442,18 +2437,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return newOption;
         });
 
-        // 🔥 **4️⃣ Final validation for missing optionIds (AFTER mapping)**
+        // 🔥 **4️⃣ Post-check for any undefined optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined || o.optionId === null);
         if (missingOptionIds.length > 0) {
           console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
-          // 🔥 **Assign fallback optionId to any missing ones**
+          // **Force-Fix undefined optionIds**
           this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
             ...option,
-            optionId: option.optionId !== undefined ? option.optionId : index // Final safeguard
+            optionId: (option.optionId !== undefined && Number.isInteger(option.optionId)) ? option.optionId : index
           }));
         }
 
-        console.log('🚀 [initializeFirstQuestion] Options set for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
+        console.log('🚀 [initializeFirstQuestion] Finalized options set for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
 
         // **5️⃣ Trigger change detection to display the options**
         this.cdRef.detectChanges();
@@ -2486,7 +2481,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
     }
   }
-
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
