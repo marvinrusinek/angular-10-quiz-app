@@ -1211,7 +1211,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  private initializeQuizQuestion(): void {
+  /* private initializeQuizQuestion(): void {
     if (!this.quizStateService || !this.quizService) {
       console.warn('Required services are not available.');
       return;
@@ -1265,7 +1265,59 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           },
         });
     }
+  } */
+  private initializeQuizQuestion(): void {
+    if (!this.quizStateService || !this.quizService) {
+      console.warn('Required services are not available.');
+      return;
+    }
+
+    if (!this.quizStateService.getQuizQuestionCreated()) {
+      this.quizStateService.setQuizQuestionCreated();
+
+      this.questionsObservableSubscription = this.quizService
+        .getAllQuestions()
+        .pipe(
+          map((questions: QuizQuestion[]) => {
+            for (let questionIndex = 0; questionIndex < questions.length; questionIndex++) {
+              const quizQuestion = questions[questionIndex];
+              quizQuestion.selectedOptions = null;
+
+              // Check if options exist and are an array before mapping
+              if (Array.isArray(quizQuestion.options)) {
+                quizQuestion.options = quizQuestion.options.map((option, optionIndex) => ({
+                  ...option,
+                  optionId: optionIndex, // Ensure each option has a unique optionId
+                  questionIndex // Attach the question index for reference
+                }));
+              } else {
+                console.error(
+                  `Options are not properly defined for question: ${quizQuestion.questionText}`
+                );
+                quizQuestion.options = []; // Initialize as an empty array to prevent further errors
+              }
+            }
+            return questions;
+          })
+        )
+        .subscribe({
+          next: (questions: QuizQuestion[]) => {
+            // Initialize the first question
+            if (questions && questions.length > 0) {
+              this.selectedOptionService.resetAnsweredState();
+              const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
+              this.selectedOptionService.setAnsweredState(hasAnswered);
+              console.log('Initial answered state for the first question:', hasAnswered);
+              this.cdRef.markForCheck(); // Trigger change detection
+            }
+          },
+          error: (err) => {
+            console.error('Error fetching questions:', err);
+          },
+        });
+    }
   }
+
 
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
