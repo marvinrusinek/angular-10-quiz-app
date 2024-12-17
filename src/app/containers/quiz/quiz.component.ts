@@ -2381,7 +2381,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     
     try {
       console.log('🚀 [initializeFirstQuestion] Starting initialization...');
-  
+
       // **1️⃣ Load questions for the quiz**
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
       console.log('✅ [initializeFirstQuestion] Questions loaded:', questions);
@@ -2393,7 +2393,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
 
-        // 🔥 **1️⃣ Check for undefined options in currentQuestion.options**
+        // 🔥 **1️⃣ Check for undefined or missing options in currentQuestion.options**
         if (!Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
           console.error('❌ [initializeFirstQuestion] currentQuestion.options is missing or empty.');
           return; // Stop execution if no options are available
@@ -2405,8 +2405,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // 🔥 **3️⃣ Map options and ensure optionId is assigned**
         this.optionsToDisplay = this.currentQuestion.options.map((o, optionIndex) => {
           // 🔥 Ensure the option object exists
-          if (!o) {
-            console.error('❌ [initializeFirstQuestion] Option is undefined at optionIndex:', optionIndex);
+          if (!o || typeof o !== 'object') {
+            console.error('❌ [initializeFirstQuestion] Option is undefined or not an object at optionIndex:', optionIndex);
             return {
               text: `Missing option at index ${optionIndex}`, 
               optionId: optionIndex, // Assign a fallback optionId
@@ -2417,15 +2417,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // 🔥 Log option before modification
           console.log('🛠️ [initializeFirstQuestion] Option BEFORE modification:', o);
 
-          // 🔥 Ensure optionId is present and valid
+          // 🔥 **Ensure optionId is present and valid**
           const newOption = {
             ...o,
-            optionId: Number.isInteger(o.optionId) ? o.optionId : optionIndex, // 🔥 Ensure optionId is a valid number
+            optionId: Number.isInteger(o.optionId) && o.optionId >= 0 ? o.optionId : optionIndex, // 🔥 Ensure optionId is a valid number
             correct: o.correct ?? false // 🔥 Ensure "correct" is set
           };
 
-          if (!Number.isInteger(newOption.optionId) || newOption.optionId < 0) {
-            console.error('❌ [initializeFirstQuestion] Invalid or missing optionId for option at optionIndex:', optionIndex, 'Option:', newOption);
+          // 🔥 Log option after modification
+          console.log('✅ [initializeFirstQuestion] Option AFTER modification:', newOption);
+
+          // 🔥 **Check for missing optionId**
+          if (newOption.optionId === undefined || newOption.optionId === null) {
+            console.error('❌ [initializeFirstQuestion] OptionId is missing at optionIndex:', optionIndex, 'Option:', newOption);
             newOption.optionId = optionIndex; // Fallback assignment
           }
 
@@ -2435,37 +2439,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             newOption.text = `Option ${optionIndex + 1}`; // Provide default text if missing
           }
 
-          // 🔥 Log option after modification
-          console.log('✅ [initializeFirstQuestion] Option AFTER modification:', newOption);
-
           return newOption;
         });
 
-        // 🔥 **4️⃣ Post-check for missing optionIds**
-        const missingOptionIds = this.optionsToDisplay.filter(o => !Number.isInteger(o.optionId) || o.optionId < 0);
+        // 🔥 **4️⃣ Final validation for missing optionIds (AFTER mapping)**
+        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined || o.optionId === null);
         if (missingOptionIds.length > 0) {
-          console.error('❌ [initializeFirstQuestion] Options with undefined or invalid optionId found (AFTER assignment):', missingOptionIds);
+          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found (AFTER assignment):', missingOptionIds);
+          // 🔥 **Assign fallback optionId to any missing ones**
+          this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+            ...option,
+            optionId: option.optionId !== undefined ? option.optionId : index // Final safeguard
+          }));
         }
 
         console.log('🚀 [initializeFirstQuestion] Options set for first question:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
+
         // **5️⃣ Trigger change detection to display the options**
         this.cdRef.detectChanges();
         console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
-  
+
         // **6️⃣ Wait for options to render, then check answered state**
         await new Promise(resolve => setTimeout(resolve, 50)); // 🔥 Slight delay to ensure options are rendered
 
         const hasAnswered = this.checkIfAnswered();
         console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
-  
+
         // **7️⃣ Stop the timer if the question is already answered**
         if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
           console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
           this.timerService.stopTimer();
           this.selectedOptionService.stopTimerEmitted = true;
         }
-  
+
         // **8️⃣ Start the timer only after the first question is ready**
         this.timerService.startTimer();
         console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
@@ -2480,6 +2486,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
     }
   }
+
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
