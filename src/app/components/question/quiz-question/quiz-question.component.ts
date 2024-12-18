@@ -996,21 +996,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
-      // 🔥 **Ensure each option has a valid optionId**
-      if (this.currentQuestion.options && Array.isArray(this.currentQuestion.options)) {
-        this.currentQuestion.options.forEach((option: any, idx: number) => {
-          if (option.optionId === undefined || option.optionId === null) {
-            console.warn(`❌ [loadQuestion] Missing optionId for option:`, option);
-            option.optionId = idx + 1; // Assign unique optionId starting from 1
-          }
-        });
-      }
+      // Call assignOptionIds via QuizService
+      this.quizService.assignOptionIds(this.currentQuestion.options);
   
       // Set the options to display for the current question
       this.optionsToDisplay = this.currentQuestion.options || [];
   
       // Abort handling
-      if (signal?.aborted) {
+      if (signal?.aborted) {0
         console.log('Load question operation aborted.');
         this.timerService.stopTimer();
         return;
