@@ -2041,22 +2041,10 @@ export class QuizService implements OnDestroy {
   }
 
   assignOptionIds(options: Option[]): Option[] {
-    if (!options || !Array.isArray(options)) {
-      console.error('❌ [assignOptionIds] Invalid options array:', options);
-      return options;
-    }
-  
-    for (let i = 0; i < options.length; i++) {
-      const option = options[i];
-      if (option.optionId === undefined || option.optionId === null) {
-        option.optionId = i; // Assign the index as the optionId if missing
-      } else {
-        console.log(`✅ [assignOptionIds] Valid optionId for option:`, option);
-      }
-    }
-  
-    console.log('🚀 [assignOptionIds] Assigned option IDs:', options.map(o => ({ optionId: o.optionId, text: o.text })));
-    return options;
+    return options.map((option, index) => ({
+      ...option,
+      optionId: option.optionId !== undefined ? option.optionId : index
+    }));
   }
 
   resetUserSelection(): void {
