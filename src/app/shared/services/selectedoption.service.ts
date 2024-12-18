@@ -652,8 +652,8 @@ export class SelectedOptionService {
     return allCorrectOptionsSelected;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
-    // 🚀 **Ensure optionId exists**
-    questionOptions = this.quizService.assignOptionIds(questionOptions);
+    // **Check for missing optionIds and assign them if needed**
+    this.quizService.assignOptionIds(questionOptions);
     
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
