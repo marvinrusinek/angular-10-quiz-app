@@ -2728,26 +2728,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // **Check and assign optionIds if necessary**
       currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options);
   
-      // **Check if option is valid before accessing optionId**
-      const isOptionSelected = selectedOptions.some((option) => {
-        if (!option || option.optionId === undefined) {
-          console.error('❌ [handleOptionClicked] Option with undefined optionId:', option);
-          return false;
-        }
-        return option.optionId === optionIndex;
-      });
+      // Check if the option is already selected
+      const isOptionSelected = selectedOptions.some((option) => option.optionId === optionIndex);
   
-      // **Add or remove the option based on its current state**
+      // Add or remove the option based on its current state
       if (!isOptionSelected) {
-        this.selectedOptionService.addSelectedOptionIndex(
-          this.currentQuestionIndex,
-          optionIndex
-        );
+        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
       } else {
-        this.selectedOptionService.removeSelectedOptionIndex(
-          this.currentQuestionIndex,
-          optionIndex
-        );
+        this.selectedOptionService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
       }
   
       // **Ensure selected options are stabilized before proceeding**
