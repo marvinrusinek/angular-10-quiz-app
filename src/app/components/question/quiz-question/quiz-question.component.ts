@@ -325,80 +325,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('🚀 [onVisibilityChange] Tab is now visible, rechecking option state.');
-
-      // 🔥 Restore quiz state from sessionStorage
-      this.restoreQuizState(); 
-      
-      // 🔥 Re-render display to reflect the current state
-      this.renderDisplay();    
-
-      // 🔥 Notify QuizComponent to restore state
-      this.quizStateService.notifyRestoreQuestionState(); 
-
-      // 🔥 Normalize and check optionIds for optionsToDisplay
-      if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
-        console.log('🔍 [onVisibilityChange] Normalizing options for optionsToDisplay.');
-        this.optionsToDisplay = this.quizService.ensureOptionId(this.optionsToDisplay, 'onVisibilityChange:optionsToDisplay');
-      } else {
-        console.warn('⚠️ [onVisibilityChange] optionsToDisplay is null, undefined, or empty.');
-      }
-
-      // 🔥 Normalize and check optionIds for currentQuestion.options
-      if (this.currentQuestion && Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length > 0) {
-        console.log('🔍 [onVisibilityChange] Normalizing options for currentQuestion.options.');
-        this.currentQuestion.options = this.quizService.ensureOptionId(this.currentQuestion.options, 'onVisibilityChange:currentQuestion.options');
-      } else {
-        console.warn('⚠️ [onVisibilityChange] currentQuestion or currentQuestion.options is null, undefined, or empty.');
-      }
-
-      // 🔥 Final Validation: Check if any optionId is still undefined
-      this.currentQuestion?.options.forEach((option, index) => {
-        if (!option || typeof option.optionId !== 'number') {
-          console.error('❌ [onVisibilityChange] Option with undefined or invalid optionId:', option, 'Index:', index);
-          option.optionId = index; // 🔥 Assign a fallback optionId directly on option object
-        }
-      });
-
-      this.optionsToDisplay?.forEach((option, index) => {
-        if (!option || typeof option.optionId !== 'number') {
-          console.error('❌ [onVisibilityChange] Option with undefined or invalid optionId in optionsToDisplay:', option, 'Index:', index);
-          option.optionId = index; // 🔥 Assign a fallback optionId directly on option object
-        }
-      });
-
-      console.log('✅ [onVisibilityChange] Options after normalization:', this.currentQuestion?.options);
-      console.log('✅ [onVisibilityChange] OptionsToDisplay after normalization:', this.optionsToDisplay);
+      this.restoreQuizState(); // Restore quiz-level state
+      this.renderDisplay();    // Reflect current display state
+      this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
     }
   }
-
-  // Normalizes the options array to ensure optionId, text, and correct are properly assigned.
-  private normalizeOptions(options: Option[], context: string): Option[] {
-    return options.map((option, index) => {
-      if (!option) {
-        console.error(`❌ [normalizeOptions] Option is null or undefined at index: ${index} in ${context}`);
-        option = { text: `Placeholder option at index ${index}`, optionId: index, correct: false };
-      }
-
-      if (typeof option.optionId !== 'number' || option.optionId < 0) {
-        console.warn(`⚠️ [normalizeOptions] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
-        option.optionId = index; // 🔥 Assign fallback optionId
-      }
-
-      if (!option.text) {
-        console.warn(`⚠️ [normalizeOptions] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
-        option.text = `Option ${index + 1}`; // Provide default text if missing
-      }
-
-      if (typeof option.correct !== 'boolean') {
-        console.warn(`⚠️ [normalizeOptions] Option "correct" is missing or invalid at index ${index} in ${context}. Setting default to false.`);
-        option.correct = false; // Assume false if undefined
-      }
-
-      return option;
-    });
-  }
-
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
@@ -431,28 +362,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private restoreQuizState(): void {
-    // 🔥 Restore explanation text and display mode from sessionStorage
     this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
     const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
     this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-
-    if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-      console.log('🔍 [restoreQuizState] Normalizing currentQuestion.options using sanitizeOptions.');
-      
-      // 🔥 Use sanitizeOptions to ensure all properties are valid (optionId, text, correct, etc.)
-      this.currentQuestion.options = this.quizService.sanitizeOptions(this.currentQuestion.options);
-      
-      // 🔥 Double-check for missing optionIds (just in case)
-      this.currentQuestion.options.forEach((option, index) => {
-        if (option.optionId === undefined) {
-          console.error('❌ [restoreQuizState] OptionId is still undefined after sanitizeOptions:', option, 'Index:', index);
-          option.optionId = index; // Assign fallback optionId
-        }
-      });
-      
-    } else {
-      console.warn('⚠️ [restoreQuizState] currentQuestion or currentQuestion.options is null, undefined, or empty.');
-    }
   }
 
   // Method to initialize `displayMode$` and control the display reactively
@@ -964,14 +876,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isLoading = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
-  
+
     this.timerService.startTimer(this.timerService.timePerQuestion, true);
   
     // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.feedbackText = '';
-  
+
     this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
     this.readyForExplanationDisplay = false;
@@ -996,14 +908,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
-      // Call assignOptionIds via QuizService
-      this.quizService.assignOptionIds(this.currentQuestion.options);
-  
       // Set the options to display for the current question
       this.optionsToDisplay = this.currentQuestion.options || [];
   
       // Abort handling
-      if (signal?.aborted) {0
+      if (signal?.aborted) {
         console.log('Load question operation aborted.');
         this.timerService.stopTimer();
         return;
@@ -1023,7 +932,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizStateService.setLoading(false);
     }
   }
-  
+
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     const questionsLoaded = await this.ensureQuestionsLoaded();
@@ -1236,7 +1145,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  /* private initializeQuizQuestion(): void {
+  private initializeQuizQuestion(): void {
     if (!this.quizStateService || !this.quizService) {
       console.warn('Required services are not available.');
       return;
@@ -1282,57 +1191,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
                 'Initial answered state for the first question:',
                 hasAnswered
               );
-              this.cdRef.markForCheck(); // Trigger change detection
-            }
-          },
-          error: (err) => {
-            console.error('Error fetching questions:', err);
-          },
-        });
-    }
-  } */
-  private initializeQuizQuestion(): void {
-    if (!this.quizStateService || !this.quizService) {
-      console.warn('Required services are not available.');
-      return;
-    }
-
-    if (!this.quizStateService.getQuizQuestionCreated()) {
-      this.quizStateService.setQuizQuestionCreated();
-
-      this.questionsObservableSubscription = this.quizService
-        .getAllQuestions()
-        .pipe(
-          map((questions: QuizQuestion[]) => {
-            for (let questionIndex = 0; questionIndex < questions.length; questionIndex++) {
-              const quizQuestion = questions[questionIndex];
-              quizQuestion.selectedOptions = null;
-
-              // Check if options exist and are an array before mapping
-              if (Array.isArray(quizQuestion.options)) {
-                quizQuestion.options = quizQuestion.options.map((option, optionIndex) => ({
-                  ...option,
-                  optionId: optionIndex, // Ensure each option has a unique optionId
-                  questionIndex // Attach the question index for reference
-                }));
-              } else {
-                console.error(
-                  `Options are not properly defined for question: ${quizQuestion.questionText}`
-                );
-                quizQuestion.options = []; // Initialize as an empty array to prevent further errors
-              }
-            }
-            return questions;
-          })
-        )
-        .subscribe({
-          next: (questions: QuizQuestion[]) => {
-            // Initialize the first question
-            if (questions && questions.length > 0) {
-              this.selectedOptionService.resetAnsweredState();
-              const hasAnswered = this.selectedOptionService.getSelectedOption() !== null;
-              this.selectedOptionService.setAnsweredState(hasAnswered);
-              console.log('Initial answered state for the first question:', hasAnswered);
               this.cdRef.markForCheck(); // Trigger change detection
             }
           },
@@ -1640,13 +1498,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // **Check if option exists**
       if (!event.option) {
-        console.error('[onOptionClicked] Option is undefined in event:', event);
+        console.error('❌ [onOptionClicked] Option is undefined in event:', event);
         return;
       }
   
       const option = event.option!;
-      if (!option || option.optionId === undefined || option.optionId === null) {
-        console.warn('Option or optionId is invalid.', option);
+      if (option.optionId === undefined || option.optionId === null) {
+        console.error('[onOptionClicked] optionId is undefined for option:', event.option);
         return; 
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
@@ -1676,16 +1534,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
       console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
-
-      if (allCorrectSelected) {
-        console.log('[onOptionClicked] All correct options selected.');
-        this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        this.timerService.stopTimer();
-      } else {
-        console.log('[onOptionClicked] Not all correct options selected yet.');
-        this.selectedOptionService.updateAnsweredState();
-      }
   
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
@@ -1718,6 +1566,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('[onOptionClicked] Unhandled error:', error);
     }
   }
+
     
   // ====================== Helper Functions ======================
   
@@ -1741,7 +1590,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
-  private updateOptionSelection(event: { option: SelectedOption; checked: boolean; index?: number }, option: SelectedOption): void {
+  private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
     if (!option) {
       console.error('❌ [updateOptionSelection] Option is undefined, cannot update.');
       return;
@@ -1750,7 +1599,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Check for undefined optionId
     if (option.optionId === undefined) {
       console.error('❌ [updateOptionSelection] option.optionId is undefined:', option);
-      option.optionId = event.index ?? -1; // Use a default index if event.index is undefined
+      option.optionId = event.index; // Assign fallback optionId
     }
 
     if (event.checked) {
@@ -1758,7 +1607,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
     } else {
       console.log('[handleOptionSelection] Option unchecked, removing option:', option);
-      this.selectedOptionService.removeOption(option.optionId);
+      this.selectedOptionService.removeOption(this.currentQuestionIndex, option.optionId);
     }
 
     // Log the options in the selectedOptionsMap
@@ -2758,42 +2607,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
-    // 🔥 Check if currentQuestion and currentQuestion.options are valid
-    if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
-      console.error('❌ [handleOptionClicked] currentQuestion or currentQuestion.options is missing or invalid.');
-      return; // Exit early if no question or options are available
-    }
-
-    // 🔥 Sanitize currentQuestion options to ensure optionIds are valid
-    currentQuestion.options = currentQuestion.options.map((option, index) => {
-      if (!option || typeof option.optionId !== 'number' || option.optionId < 0) {
-        console.warn('⚠️ [handleOptionClicked] optionId is missing or invalid for option at index:', index, 'Option:', option);
-        return {
-          ...option,
-          optionId: index // 🔥 Assign fallback optionId
-        };
-      }
-      return option;
-    });
-
     const selectedOptions: Option[] = this.selectedOptionService
       .getSelectedOptionIndices(this.currentQuestionIndex)
-      .map((index) => currentQuestion.options[index])
-      .filter(option => option && typeof option.optionId === 'number'); // 🔥 Filter out undefined optionIds
-
-    // 🔥 Check if the target option exists and has a valid optionId
-    const targetOption = currentQuestion.options[optionIndex];
-    if (!targetOption || typeof targetOption.optionId !== 'number') {
-      console.error('❌ [handleOptionClicked] optionId is missing or invalid for option at index:', optionIndex, 'Option:', targetOption);
-      return; // 🔥 Exit early if optionId is not valid
-    }
+      .map((index) => currentQuestion.options[index]);
   
-    // 🔥 Check if the option is already selected
+    // Check if the option is already selected
     const isOptionSelected = selectedOptions.some(
-      (option: Option) => option.optionId === targetOption.optionId
+      (option: Option) => option.optionId === optionIndex
     );
   
-    // 🔥 Add or remove the option based on its current state
+    // Add or remove the option based on its current state
     if (!isOptionSelected) {
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
@@ -2805,17 +2628,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         optionIndex
       );
     }
-  
-    // 🔥 Ensure selected options are stabilized before proceeding
+
+    // Ensure selected options are stabilized before proceeding
     await new Promise((resolve) => setTimeout(resolve, 10));
   
-    // 🔥 Check if the question is now answered
+    // Check if the question is now answered
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
     const isMultipleAnswer = await firstValueFrom(
       this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
     );
   
-    // 🔥 Determine the new selection message
+    // Determine the new selection message
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -2823,14 +2646,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       isMultipleAnswer
     );
   
-    // 🔥 Update the message only if it has changed
+    // Update the message only if it has changed
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       console.log(`Setting new message: ${newMessage}`);
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessageSubject.next(newMessage);
     }
   
-    // 🔥 Update the question state
+    // Update the question state
     const questionState: QuestionState = {
       isAnswered,
       selectedOptions
@@ -2841,14 +2664,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.currentQuestionIndex,
       questionState
     );
-  
-    // 🔥 Update the message for the current state
+
+    //this.updateSelectionMessageBasedOnCurrentState(isAnswered);
     await this.updateMessageForCurrentState(currentQuestion);
   
-    // 🔥 Handle multiple-answer logic if applicable
+    // Handle multiple-answer logic if applicable
     this.handleMultipleAnswer(currentQuestion);
   
-    // 🔥 Ensure the UI reflects the changes
+    // Ensure the UI reflects the changes
     this.cdRef.markForCheck();
   }
 

@@ -451,15 +451,15 @@ export class QuizService implements OnDestroy {
   }  
 
   sanitizeOptions(options: Option[]): Option[] {
-    if (!Array.isArray(options) || options.length === 0) {
-      console.warn(`⚠️ Options are empty or not an array.`);
+    if (!Array.isArray(options)) {
+      console.warn('⚠️ [sanitizeOptions] Options is not an array.');
       return [];
     }
-
+  
     return options.map((option, index) => {
       // 🔥 Ensure option exists
       if (!option) {
-        console.error(`❌ Option is null or undefined at index ${index}`);
+        console.error(`❌ [sanitizeOptions] Option is null or undefined at index ${index}`);
         return {
           optionId: index, 
           text: `Missing option at index ${index}`, 
@@ -473,25 +473,21 @@ export class QuizService implements OnDestroy {
         };
       }
   
-      // 🔥 Log option before modification for debugging purposes
-      console.log(`🕵️‍♂️ Option BEFORE sanitization at index ${index}:`, option);
-
       // 🔥 Ensure optionId is a valid number
       if (!Number.isInteger(option.optionId) || option.optionId < 0) {
-        console.warn(`⚠️ optionId is missing or invalid at index ${index}. Assigning fallback optionId.`);
+        console.warn(`⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`);
         option.optionId = index; // Assign fallback optionId
       }
   
       // 🔥 Ensure option text is present
       if (!option.text || option.text.trim() === '') {
-        console.warn(`⚠️ Option text is missing at index ${index}. Assigning placeholder text.`);
+        console.warn(`⚠️ [sanitizeOptions] Option text is missing at index ${index}. Assigning placeholder text.`);
         option.text = `Option ${index + 1}`; // Provide default text if missing
       }
   
-      // 🔥 Return sanitized option ensuring no field is undefined
-      const sanitizedOption = {
-        optionId: option.optionId ?? index, 
-        text: option.text?.trim() || `Option ${index + 1}`,
+      return {
+        optionId: option.optionId, 
+        text: option.text?.trim() || `Option ${index}`,
         correct: option.correct ?? false, 
         value: option.value ?? null, 
         answer: option.answer ?? null, 
@@ -500,17 +496,9 @@ export class QuizService implements OnDestroy {
         feedback: option.feedback ?? 'No feedback available', 
         styleClass: option.styleClass ?? ''
       };
-
-      // 🔥 Log option after modification for debugging purposes
-      console.log(`✅ Option AFTER sanitization at index ${index}:`, sanitizedOption);
-
-      if (sanitizedOption.optionId === undefined) {
-        console.error(`❌ optionId is still undefined after sanitization at index ${index}:`, sanitizedOption);
-      }
-
-      return sanitizedOption;
     });
   }
+  
 
   getSafeOptionId(option: SelectedOption, index: number): number | undefined {    
     // Ensure optionId exists and is a number
@@ -652,7 +640,10 @@ export class QuizService implements OnDestroy {
     );
   }  
 
-  public getCurrentQuestionByIndex(quizId: string, questionIndex: number) {
+  getCurrentQuestionByIndex(
+    quizId: string,
+    questionIndex: number
+  ): Observable<QuizQuestion | null> {
     return this.getQuizData().pipe(
       map((quizzes) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
@@ -660,17 +651,18 @@ export class QuizService implements OnDestroy {
           console.error(`No quiz found with ID: ${quizId}`);
           throw new Error(`No quiz found with the given ID: ${quizId}`);
         }
-        if (!selectedQuiz.questions || selectedQuiz.questions.length <= questionIndex) {
-          console.error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
-          throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+        if (
+          !selectedQuiz.questions ||
+          selectedQuiz.questions.length <= questionIndex
+        ) {
+          console.error(
+            `No questions available or index out of bounds for quiz ID: ${quizId}`
+          );
+          throw new Error(
+            `No questions available or index out of bounds for quiz ID: ${quizId}`
+          );
         }
-
-        const question = selectedQuiz.questions[questionIndex];
-
-        // 🔥 Ensure each option has a valid optionId
-        this.assignOptionIds(question.options);
-
-        return question;
+        return selectedQuiz.questions[questionIndex];
       }),
       catchError((error) => {
         console.error('Error fetching specific question:', error);
@@ -2050,21 +2042,6 @@ export class QuizService implements OnDestroy {
 
       return option;
     });
-  }
-
-  public assignOptionIds(options: Option[]): void {
-    if (!options || !Array.isArray(options)) return;
-    
-    let idx = 1; // Start optionId from 1
-    for (const option of options) {
-      if (option.optionId === undefined || option.optionId === null) {
-        option.optionId = idx; 
-        console.log(`✅ [assignOptionIds] optionId assigned:`, option);
-      } else {
-        console.log(`🟡 [assignOptionIds] optionId already exists:`, option);
-      }
-      idx++;
-    }
   }
 
   resetUserSelection(): void {
