@@ -2015,6 +2015,11 @@ export class QuizService implements OnDestroy {
 
   // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
   assignOptionIds(options: Option[], context: string = 'Unknown Context'): Option[] {
+    if (!options || !Array.isArray(options)) {
+      console.error(`❌ [assignOptionIds] Invalid options array in ${context}:`, options);
+      return [];
+    }
+  
     return options.map((option, index) => {
       if (!option) {
         console.error(`❌ [assignOptionIds] Option is null or undefined at index: ${index} in ${context}`);
