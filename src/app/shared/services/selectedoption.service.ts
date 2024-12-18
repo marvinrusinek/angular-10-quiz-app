@@ -139,23 +139,23 @@ export class SelectedOptionService {
 
   /** Removes an option from the selectedOptionsMap */
   removeOption(optionId: number): void {
-    if (!optionId) {
+    if (!optionId && optionId !== 0) { // Check for valid optionId
       console.error('❌ [removeOption] Invalid optionId:', optionId);
       return;
     }
   
-    // 🔥 Get current options for this optionId
-    const currentOptions = this.selectedOptionsMap.get(optionId) || [];
-    
-    // 🔥 Remove the option by filtering it out
-    const updatedOptions = currentOptions.filter(o => o.optionId !== optionId);
+    // 🔥 Iterate over each entry in the selectedOptionsMap using a for-of loop
+    for (const [questionIndex, options] of this.selectedOptionsMap.entries()) {
+      // 🔥 Remove the option by filtering it out
+      const updatedOptions = options.filter(option => option.optionId !== optionId);
   
-    if (updatedOptions.length > 0) {
-      // 🔥 Update the options for this specific optionId
-      this.selectedOptionsMap.set(optionId, updatedOptions);
-    } else {
-      // 🔥 If no options remain, delete the optionId from the map
-      this.selectedOptionsMap.delete(optionId);
+      if (updatedOptions.length > 0) {
+        // 🔥 Update the options for this specific questionIndex
+        this.selectedOptionsMap.set(questionIndex, updatedOptions);
+      } else {
+        // 🔥 If no options remain for this question, delete the questionIndex from the map
+        this.selectedOptionsMap.delete(questionIndex);
+      }
     }
   
     console.log('🟡 [removeOption] Option removed:', optionId);
