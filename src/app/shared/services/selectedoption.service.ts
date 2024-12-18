@@ -123,7 +123,7 @@ export class SelectedOptionService {
     }
 
     // Get the current selected options for this question
-    const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
+    const currentOptions = this.selectedOptionsMap.get(option.optionId) || [];
 
     // Avoid adding the same option twice
     if (!currentOptions.some(o => o.optionId === option.optionId)) {
@@ -139,7 +139,12 @@ export class SelectedOptionService {
 
   /** Removes an option from the selectedOptionsMap */
   removeOption(questionIndex: number, optionId: number): void {
-    const currentOptions = this.selectedOptionsMap.get(questionIndex) || [];
+    if (!optionId) {
+      console.error('❌ [removeOption] Invalid optionId:', optionId);
+      return;
+    }
+    
+    const currentOptions = this.selectedOptionsMap.get(optionId) || [];
     const updatedOptions = currentOptions.filter(o => o.optionId !== optionId);
 
     if (updatedOptions.length > 0) {
