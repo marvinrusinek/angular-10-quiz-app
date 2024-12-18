@@ -964,14 +964,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isLoading = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
-
+  
     this.timerService.startTimer(this.timerService.timePerQuestion, true);
   
     // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.feedbackText = '';
-
+  
     this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
     this.forceQuestionDisplay = true; // Reset to enforce question text by default
     this.readyForExplanationDisplay = false;
@@ -994,6 +994,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       if (!this.currentQuestion) {
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+  
+      // 🔥 **Ensure each option has a valid optionId**
+      if (this.currentQuestion.options && Array.isArray(this.currentQuestion.options)) {
+        this.currentQuestion.options.forEach((option: any, idx: number) => {
+          if (option.optionId === undefined || option.optionId === null) {
+            console.warn(`❌ [loadQuestion] Missing optionId for option:`, option);
+            option.optionId = idx + 1; // Assign unique optionId starting from 1
+          }
+        });
       }
   
       // Set the options to display for the current question
@@ -1020,7 +1030,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizStateService.setLoading(false);
     }
   }
-
+  
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     const questionsLoaded = await this.ensureQuestionsLoaded();
