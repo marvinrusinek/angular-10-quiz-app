@@ -1575,6 +1575,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
 
+        if (!this.currentQuestion?.options) {
+          console.warn('[onOptionClicked] No current question options available.');
+          return;
+        }
+
         // 🚀 **Assign optionIds if missing**
         this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
   
