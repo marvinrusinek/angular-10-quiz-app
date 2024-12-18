@@ -2044,6 +2044,13 @@ export class QuizService implements OnDestroy {
     });
   }
 
+  assignOptionIds(options: Option[]): Option[] {
+    return options.map((option, index) => ({
+      ...option,
+      optionId: option.optionId !== undefined ? option.optionId : index,
+    }));
+  }
+
   resetUserSelection(): void {
     this.selectedOption$.next('');
   }
