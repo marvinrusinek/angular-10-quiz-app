@@ -2722,8 +2722,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // **Get selected options ensuring option is defined and has optionId**
       const selectedOptions: Option[] = this.selectedOptionService
         .getSelectedOptionIndices(this.currentQuestionIndex)
-        .map((index) => currentQuestion.options[index] ?? {})
-        .filter((option) => option && option.optionId !== undefined);
+        .map((index) => currentQuestion.options[index] as Option) // Assert as Option
+        .filter((option) => option && option.optionId !== undefined); // Ensure option is defined and has optionId
   
       // **Check and assign optionIds if necessary**
       currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options);
