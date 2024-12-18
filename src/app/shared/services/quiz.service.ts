@@ -2014,37 +2014,30 @@ export class QuizService implements OnDestroy {
   }
 
   // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
-  public ensureOptionId(options: Option[], context: string): Option[] {
+  assignOptionIds(options: Option[], context: string = 'Unknown Context'): Option[] {
     return options.map((option, index) => {
       if (!option) {
-        console.error(`❌ [ensureOptionId] Option is null or undefined at index: ${index} in ${context}`);
+        console.error(`❌ [assignOptionIds] Option is null or undefined at index: ${index} in ${context}`);
         option = { text: `Placeholder option at index ${index}`, optionId: index, correct: false };
       }
-
-      if (typeof option.optionId !== 'number' || option.optionId < 0) {
-        console.warn(`⚠️ [ensureOptionId] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
-        option.optionId = index; // 🔥 Assign fallback optionId
-      }
-
+  
+      // **Ensure optionId is valid**
+      option.optionId = option.optionId !== undefined && option.optionId !== null ? option.optionId : index;
+  
+      // **Ensure option text is valid**
       if (!option.text) {
-        console.warn(`⚠️ [ensureOptionId] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
+        console.warn(`⚠️ [assignOptionIds] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
         option.text = `Option ${index + 1}`; // Provide default text if missing
       }
-
+  
+      // **Ensure option correct flag is valid**
       if (typeof option.correct !== 'boolean') {
-        console.warn(`⚠️ [ensureOptionId] Option "correct" is missing or invalid at index ${index} in ${context}. Setting default to false.`);
+        console.warn(`⚠️ [assignOptionIds] Option "correct" is missing or invalid at index ${index} in ${context}. Setting default to false.`);
         option.correct = false; // Assume false if undefined
       }
-
+  
       return option;
     });
-  }
-
-  assignOptionIds(options: Option[]): Option[] {
-    return options.map((option, index) => ({
-      ...option,
-      optionId: option.optionId !== undefined ? option.optionId : index
-    }));
   }
 
   resetUserSelection(): void {
