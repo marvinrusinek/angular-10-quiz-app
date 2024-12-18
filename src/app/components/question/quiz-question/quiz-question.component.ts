@@ -2719,11 +2719,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         return;
       }
   
-      // **Get selected options ensuring option is defined and has optionId**
+      // 🔥 Get selected options, but only include those with a valid optionId
       const selectedOptions: Option[] = this.selectedOptionService
         .getSelectedOptionIndices(this.currentQuestionIndex)
-        .map((index) => currentQuestion.options[index] as Option) // Assert as Option
-        .filter((option) => option && option.optionId !== undefined); // Ensure option is defined and has optionId
+        .map((index) => currentQuestion.options[index])
+        .filter((option) => option && option.optionId !== undefined);
   
       // **Check and assign optionIds if necessary**
       currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options);
