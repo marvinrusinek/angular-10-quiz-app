@@ -652,27 +652,26 @@ export class SelectedOptionService {
     return allCorrectOptionsSelected;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
-    // **Check for missing optionIds and assign them if needed**
-    this.quizService.assignOptionIds(questionOptions);
+    // 🔥 **Check for missing optionIds in questionOptions**
+    questionOptions = this.quizService.assignOptionIds(questionOptions, `areAllCorrectAnswersSelected (questionIndex: ${questionIndex})`);
     
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
       .filter(o => o.correct && Number.isInteger(o.optionId)) 
       .map(o => o.optionId);
   
-    // 🔥 Get all selected option IDs from selectedOptionsMap
+    // 🔥 **Check for missing optionIds in selectedOptionsMap**
     const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
           .flat()
-          .filter(o => {
-            const isValid = o && Number.isInteger(o.optionId);
-            if (!isValid) {
-              console.error('❌ Option with undefined optionId:', o, 'Question Index:', questionIndex);
+          .map((o, index) => {
+            if (!o || o.optionId === undefined) {
+              console.error('❌ [areAllCorrectAnswersSelected] Option with undefined optionId:', o, 'Question Index:', questionIndex);
+              return index; // Assign a fallback index
             }
-            return isValid;
+            return o.optionId;
           })
-          .map(o => o.optionId) 
       )
     );
   
@@ -691,8 +690,6 @@ export class SelectedOptionService {
     // **4️⃣ Return true only if all correct options are selected**
     return allCorrectOptionsSelected;
   }
-  
-  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
