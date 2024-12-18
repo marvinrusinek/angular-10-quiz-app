@@ -663,18 +663,24 @@ export class QuizService implements OnDestroy {
           console.error(`No quiz found with ID: ${quizId}`);
           throw new Error(`No quiz found with the given ID: ${quizId}`);
         }
-        if (
-          !selectedQuiz.questions ||
-          selectedQuiz.questions.length <= questionIndex
-        ) {
-          console.error(
-            `No questions available or index out of bounds for quiz ID: ${quizId}`
-          );
-          throw new Error(
-            `No questions available or index out of bounds for quiz ID: ${quizId}`
-          );
+        if (!selectedQuiz.questions || selectedQuiz.questions.length <= questionIndex) {
+          console.error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+          throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
         }
-        return selectedQuiz.questions[questionIndex];
+  
+        const question = selectedQuiz.questions[questionIndex];
+  
+        // 🔥 **Assign optionId if missing**
+        if (question && question.options) {
+          question.options.forEach((option: any, idx: number) => {
+            if (option.optionId === undefined || option.optionId === null) {
+              console.warn('❌ [getCurrentQuestionByIndex] Missing optionId for option:', option);
+              option.optionId = idx + 1; // Assign unique optionId starting from 1
+            }
+          });
+        }
+  
+        return question;
       }),
       catchError((error) => {
         console.error('Error fetching specific question:', error);
@@ -682,6 +688,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
+  
 
   getQuestionTextForIndex(index: number): Observable<string | undefined> {
     return this.getCurrentQuiz().pipe(
