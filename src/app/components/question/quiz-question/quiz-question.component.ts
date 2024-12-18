@@ -1468,7 +1468,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
       // Ensure current question is loaded
       if (!this.currentQuestion) {
@@ -1565,8 +1565,102 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+    try {
+      // Ensure current question is loaded
+      if (!this.currentQuestion) {
+        this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+  
+        // Assign optionId and correct for every option
+        this.currentQuestion.options = this.currentQuestion.options.map((o, index) => ({
+          ...o,
+          correct: o.correct === true, // Force correct to be true/false
+          optionId: o.optionId !== undefined ? o.optionId : index
+        }));
+  
+        console.log('[Option IDs and Correct Flags Assigned] Options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
+      }
+  
+      // Check if all correct options are selected (for multiple-answer)
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.warn('[onOptionClicked] No options available for the current question.');
+        return;
+      }
+  
+      // Validate the option and ensure event.option exists
+      if (!this.validateOption(event) || !event.option) {
+        console.warn('[onOptionClicked] Option is invalid or missing.');
+        return;
+      }
+  
+      // **Check if option exists**
+      if (!event.option) {
+        console.error('❌ [onOptionClicked] Option is undefined in event:', event);
+        return;
+      }
+  
+      const option = event.option!;
+      if (option.optionId === undefined || option.optionId === null) {
+        console.error('[onOptionClicked] optionId is undefined for option:', event.option);
+        return; 
+      }
+      const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+  
+      // Single-answer lock logic
+      if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
+        console.log('[onOptionClicked] Single answer lock is active, returning early.');
+        return;
+      }
+  
+      // Single-answer logic for stopping the timer
+      if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] Stopping the timer for single-answer question.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
+      }
+  
+      // Multiple-answer logic  
+      await this.updateOptionSelection(event, option);
+    
+      // Update state and answer tracking
+      await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
+  
+      console.log('[onOptionClicked] Selected options map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
+  
+      // Check if all correct options are selected (for multiple-answer)
+      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+      console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
+  
+      // Stop the timer for multiple-answer questions only if all correct options are selected
+      if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
+      } else {
+        console.log(`[onOptionClicked] Timer NOT stopped. allCorrectSelected: ${allCorrectSelected}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
+      }
+  
+      // Update the display state to explanation mode
+      this.updateDisplayStateToExplanation();
+  
+      // Handle initial selection
+      this.handleInitialSelection(event);
+  
+      // Emit that an option has been selected to enable the next button
+      this.selectedOptionService.isAnsweredSubject.next(true);
+  
+      // Render display updates asynchronously
+      setTimeout(() => {
+        this.updateRenderingFlags();
+        this.renderDisplay();
+      });
+  
+      await this.handleAdditionalProcessing(event, isMultipleAnswer);
+    } catch (error) {
+      console.error('[onOptionClicked] Unhandled error:', error);
+    }
   }
-
     
   // ====================== Helper Functions ======================
   
