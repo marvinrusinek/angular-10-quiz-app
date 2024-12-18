@@ -2041,21 +2041,19 @@ export class QuizService implements OnDestroy {
   }
 
   assignOptionIds(options: Option[]): Option[] {
-    if (!options || options.length === 0) {
-      console.warn('⚠️ [assignOptionIds] No options available to assign optionIds.');
-      return [];
+    if (!options || !Array.isArray(options)) {
+      console.error('❌ [assignOptionIds] Invalid options array:', options);
+      return options;
     }
   
-    for (let index = 0; index < options.length; index++) {
-      const option = options[index];
-  
-      // Assign optionId only if it does not exist or is not valid
+    // Use for-of loop to iterate over options and assign a unique, auto-incremented optionId
+    for (let i = 0; i < options.length; i++) {
+      const option = options[i];
       if (option.optionId === undefined || option.optionId === null) {
-        option.optionId = index; // Use index as the optionId
+        option.optionId = i; // Assign the index as the optionId if missing
       }
     }
   
-    console.log('✅ [assignOptionIds] Option IDs assigned:', options);
     return options;
   }
 
