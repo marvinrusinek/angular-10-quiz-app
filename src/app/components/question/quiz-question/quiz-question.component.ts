@@ -2700,44 +2700,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log(`Conditions for showing explanation not met.`);
     }
   }
-
+  
   private async handleOptionClicked(
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
     try {
-      if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
-        console.error('❌ [handleOptionClicked] currentQuestion or options are invalid:', currentQuestion);
+      // Ensure optionId is assigned to all options in the current question
+      if (currentQuestion && currentQuestion.options) {
+        currentQuestion.options.forEach((option, index) => {
+          if (option.optionId === undefined || option.optionId === null) {
+            option.optionId = index;
+            console.warn('🔧 [handleOptionClicked] Assigned missing optionId:', option);
+          }
+        });
+      } else {
+        console.error('[handleOptionClicked] Current question or options are undefined.', currentQuestion);
         return;
       }
-
-      // 🔥 Ensure optionIds are assigned to each option
-      currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options);
-
-      // 🔥 Check if optionIndex is within valid range
-      if (optionIndex < 0 || optionIndex >= currentQuestion.options.length) {
-        console.error(`❌ [handleOptionClicked] Invalid optionIndex: ${optionIndex}, available options:`, currentQuestion.options);
-        return;
-      }
-
-      const option = currentQuestion.options[optionIndex];
-
-      if (!option || option.optionId === undefined) {
-        console.error('❌ [handleOptionClicked] Option is undefined or optionId is missing:', option);
-        return;
-      }
-
-      console.log(`🟢 [handleOptionClicked] Option Clicked:`, option);
-      
+  
       const selectedOptions: Option[] = this.selectedOptionService
         .getSelectedOptionIndices(this.currentQuestionIndex)
-        .map((index) => currentQuestion.options[index]);
-    
+        .map((index) => currentQuestion.options[index])
+        .filter((option) => option && option.optionId !== undefined); // Ensure option is defined and has optionId
+  
       // Check if the option is already selected
       const isOptionSelected = selectedOptions.some(
         (option: Option) => option.optionId === optionIndex
       );
-    
+  
       // Add or remove the option based on its current state
       if (!isOptionSelected) {
         this.selectedOptionService.addSelectedOptionIndex(
@@ -2753,13 +2744,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Ensure selected options are stabilized before proceeding
       await new Promise((resolve) => setTimeout(resolve, 10));
-    
+  
       // Check if the question is now answered
       const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
       const isMultipleAnswer = await firstValueFrom(
         this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
       );
-    
+  
       // Determine the new selection message
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
@@ -2767,39 +2758,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         isAnswered,
         isMultipleAnswer
       );
-    
+  
       // Update the message only if it has changed
       if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
         console.log(`Setting new message: ${newMessage}`);
         this.selectionMessageService.updateSelectionMessage(newMessage);
         this.selectionMessageSubject.next(newMessage);
       }
-    
+  
       // Update the question state
       const questionState: QuestionState = {
         isAnswered,
         selectedOptions
       };
-    
+  
       this.quizStateService.setQuestionState(
         this.quizId,
         this.currentQuestionIndex,
         questionState
       );
   
-      //this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       await this.updateMessageForCurrentState(currentQuestion);
-    
+  
       // Handle multiple-answer logic if applicable
       this.handleMultipleAnswer(currentQuestion);
-    
+  
       // Ensure the UI reflects the changes
       this.cdRef.markForCheck();
     } catch (error) {
       console.error('[handleOptionClicked] Unhandled error:', error);
     }
   }
-
 
   private async updateMessageForCurrentState(
     currentQuestion: QuizQuestion
