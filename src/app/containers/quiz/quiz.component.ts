@@ -2340,8 +2340,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
   
-        // **3️⃣ Assign optionIds using QuizService**
-        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+        // **2️⃣ Assign optionIds**
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+        console.log('🚀 [initializeFirstQuestion] After assignOptionIds, options:', this.currentQuestion.options);
+
+        this.optionsToDisplay = this.currentQuestion.options;
   
         // **5️⃣ Check for missing optionIds**
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
