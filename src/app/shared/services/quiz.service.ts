@@ -2058,8 +2058,10 @@ export class QuizService implements OnDestroy {
     let idx = 1; // Start optionId from 1
     for (const option of options) {
       if (option.optionId === undefined || option.optionId === null) {
-        console.warn('❌ [assignOptionIds] Missing optionId for option:', option);
-        option.optionId = idx; // Assign unique optionId starting from 1
+        option.optionId = idx; 
+        console.log(`✅ [assignOptionIds] optionId assigned:`, option);
+      } else {
+        console.log(`🟡 [assignOptionIds] optionId already exists:`, option);
       }
       idx++;
     }
