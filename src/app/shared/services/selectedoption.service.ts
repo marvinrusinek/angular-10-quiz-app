@@ -528,10 +528,10 @@ export class SelectedOptionService {
       ? this.areAllCorrectAnswersSelected(questionOptions) 
       : false;
   
-    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
+    // Set the "isAnswered" state
     const isAnswered = isMultipleAnswer 
       ? allCorrectAnswersSelected 
-      : selectedOptions.length > 0;
+      : selectedOptions.length > 0; // For single answer, set to true as long as 1 option is selected
   
     // Log for debugging
     console.log('[updateAnsweredState] Updating answered state:', {
