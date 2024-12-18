@@ -652,10 +652,7 @@ export class QuizService implements OnDestroy {
     );
   }  
 
-  getCurrentQuestionByIndex(
-    quizId: string,
-    questionIndex: number
-  ): Observable<QuizQuestion | null> {
+  public getCurrentQuestionByIndex(quizId: string, questionIndex: number) {
     return this.getQuizData().pipe(
       map((quizzes) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
@@ -667,19 +664,12 @@ export class QuizService implements OnDestroy {
           console.error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
           throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
         }
-  
+
         const question = selectedQuiz.questions[questionIndex];
-  
-        // 🔥 **Assign optionId if missing**
-        if (question && question.options) {
-          question.options.forEach((option: any, idx: number) => {
-            if (option.optionId === undefined || option.optionId === null) {
-              console.warn('❌ [getCurrentQuestionByIndex] Missing optionId for option:', option);
-              option.optionId = idx + 1; // Assign unique optionId starting from 1
-            }
-          });
-        }
-  
+
+        // 🔥 Ensure each option has a valid optionId
+        this.assignOptionIds(question.options);
+
         return question;
       }),
       catchError((error) => {
@@ -688,7 +678,6 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
 
   getQuestionTextForIndex(index: number): Observable<string | undefined> {
     return this.getCurrentQuiz().pipe(
@@ -2061,6 +2050,19 @@ export class QuizService implements OnDestroy {
 
       return option;
     });
+  }
+
+  public assignOptionIds(options: any[]): void {
+    if (!options || !Array.isArray(options)) return;
+    
+    let idx = 1; // Start optionId from 1
+    for (const option of options) {
+      if (option.optionId === undefined || option.optionId === null) {
+        console.warn('❌ [assignOptionIds] Missing optionId for option:', option);
+        option.optionId = idx; // Assign unique optionId starting from 1
+      }
+      idx++;
+    }
   }
 
   resetUserSelection(): void {
