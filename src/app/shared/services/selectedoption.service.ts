@@ -118,8 +118,8 @@ export class SelectedOptionService {
 
     // 2️⃣ Check if optionId is valid
     if (option.optionId === undefined || option.optionId === null) {
-      console.error('❌ [addOption] option.optionId is undefined:', option);
-      return; // 🔥 Stop execution to prevent errors
+      console.warn('❌ [addOption] Option has no optionId:', option);
+      option.optionId = Math.random(); // As a last resort, assign random optionI
     }
 
     // Get the current selected options for this question
@@ -128,7 +128,7 @@ export class SelectedOptionService {
     // Avoid adding the same option twice
     if (!currentOptions.some(o => o.optionId === option.optionId)) {
       currentOptions.push(option);
-      this.selectedOptionsMap.set(questionIndex, currentOptions);
+      this.selectedOptionsMap.set(option.optionId, [...currentOptions, option]);
       console.log('🟢 [addOption] Option added:', option);
     } else {
       console.log('⚠️ [addOption] Option already present:', option);
@@ -138,24 +138,29 @@ export class SelectedOptionService {
   }
 
   /** Removes an option from the selectedOptionsMap */
-  removeOption(questionIndex: number, optionId: number): void {
+  removeOption(optionId: number): void {
     if (!optionId) {
       console.error('❌ [removeOption] Invalid optionId:', optionId);
       return;
     }
-
+  
+    // 🔥 Get current options for this optionId
     const currentOptions = this.selectedOptionsMap.get(optionId) || [];
+    
+    // 🔥 Remove the option by filtering it out
     const updatedOptions = currentOptions.filter(o => o.optionId !== optionId);
-
+  
     if (updatedOptions.length > 0) {
-      this.selectedOptionsMap.set(questionIndex, updatedOptions);
+      // 🔥 Update the options for this specific optionId
+      this.selectedOptionsMap.set(optionId, updatedOptions);
     } else {
-      this.selectedOptionsMap.delete(questionIndex);
+      // 🔥 If no options remain, delete the optionId from the map
+      this.selectedOptionsMap.delete(optionId);
     }
-
+  
     console.log('🟡 [removeOption] Option removed:', optionId);
     console.log('🗂️ [removeOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
-  }
+  }  
 
   setNextButtonEnabled(enabled: boolean): void {
     this.isNextButtonEnabledSubject.next(enabled);  // Update the button's enabled state
