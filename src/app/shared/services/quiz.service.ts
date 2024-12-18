@@ -640,29 +640,25 @@ export class QuizService implements OnDestroy {
     );
   }  
 
-  getCurrentQuestionByIndex(
-    quizId: string,
-    questionIndex: number
-  ): Observable<QuizQuestion | null> {
+  getCurrentQuestionByIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
     return this.getQuizData().pipe(
       map((quizzes) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
         if (!selectedQuiz) {
-          console.error(`No quiz found with ID: ${quizId}`);
           throw new Error(`No quiz found with the given ID: ${quizId}`);
         }
-        if (
-          !selectedQuiz.questions ||
-          selectedQuiz.questions.length <= questionIndex
-        ) {
-          console.error(
-            `No questions available or index out of bounds for quiz ID: ${quizId}`
-          );
-          throw new Error(
-            `No questions available or index out of bounds for quiz ID: ${quizId}`
-          );
+        if (!selectedQuiz.questions || selectedQuiz.questions.length <= questionIndex) {
+          throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
         }
-        return selectedQuiz.questions[questionIndex];
+  
+        const question = selectedQuiz.questions[questionIndex];
+        
+        // 🚀 **Ensure optionIds are assigned**
+        question.options = this.assignOptionIds(question.options);
+  
+        console.log('✅ [getCurrentQuestionByIndex] Assigned option IDs:', question.options.map(o => ({ optionId: o.optionId, text: o.text })));
+  
+        return question;
       }),
       catchError((error) => {
         console.error('Error fetching specific question:', error);
