@@ -473,6 +473,46 @@ export class SelectedOptionService {
     this.updateAnsweredState();
   }
 
+  /* updateAnsweredState(questionOptions?: Option[]): void {
+    // Get all the selected options
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    // Count the number of correct options for this question
+    const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
+  
+    // Determine if this is a Multiple-Answer question
+    const isMultipleAnswer = correctOptionCount > 1;
+  
+    // Check if all correct answers are selected
+    const allCorrectAnswersSelected = questionOptions 
+      ? this.areAllCorrectAnswersSelected(questionOptions) 
+      : false;
+  
+    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
+    const isAnswered = isMultipleAnswer 
+      ? allCorrectAnswersSelected 
+      : selectedOptions.length > 0;
+  
+    // Log for debugging
+    console.log('[updateAnsweredState] Updating answered state:', {
+      selectedOptions,
+      isAnswered,
+      allCorrectAnswersSelected,
+      correctOptionCount,
+      isMultipleAnswer
+    });
+  
+    // Update BehaviorSubject for Next button logic
+    this.isAnsweredSubject.next(isAnswered);
+    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
+  
+    // Emit the event to stop the timer **only if all correct answers are selected**
+    if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+      console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
+      this.stopTimer$.next();
+      this.stopTimerEmitted = true; // Prevent future emissions
+    }
+  } */
   updateAnsweredState(questionOptions?: Option[]): void {
     // Get all the selected options
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
@@ -627,6 +667,43 @@ export class SelectedOptionService {
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
   
     // **4️⃣ Return true only if no options are missing**
+    return allCorrectOptionsSelected;
+  } */
+  /* areAllCorrectAnswersSelected(questionOptions: (Option | SelectedOption)[], questionIndex?: number): boolean {
+    // **1️⃣ Get the list of correct option IDs**
+    const correctOptionIds = questionOptions
+      .filter(o => o.correct && Number.isInteger(o.optionId))
+      .map(o => o.optionId);
+
+    // 🔥 Get all selected option IDs from selectedOptionsMap
+    const selectedOptionIds = Array.from(
+      new Set(
+        Array.from(this.selectedOptionsMap.values())
+          .flat()
+          .filter(o => {
+            const isValid = o && Number.isInteger(o.optionId);
+            if (!isValid) {
+              console.error('❌ Option with undefined optionId:', o, 'Question Index:', questionIndex);
+            }
+            return isValid;
+          })
+          .map(o => o.optionId) // 🔥 Extract optionId
+      )
+    );
+
+    // 🔥 If no correct options exist, log it as a warning
+    if (correctOptionIds.length === 0) {
+      console.warn('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
+      return false;
+    }
+
+    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
+
+    console.log('🚀 [areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
+    console.log('🚀 [areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
+    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
+
+    // **4️⃣ Return true only if all correct options are selected**
     return allCorrectOptionsSelected;
   } */
   areAllCorrectAnswersSelected(questionOptions: (Option | SelectedOption)[], questionIndex?: number): boolean {
