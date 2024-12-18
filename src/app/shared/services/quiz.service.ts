@@ -2052,7 +2052,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  public assignOptionIds(options: any[]): void {
+  public assignOptionIds(options: Option[]): void {
     if (!options || !Array.isArray(options)) return;
     
     let idx = 1; // Start optionId from 1
