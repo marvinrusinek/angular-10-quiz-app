@@ -2253,7 +2253,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[initializeFirstQuestion] Error initializing first question:', err);
     }
   } */
-  async initializeFirstQuestion(): Promise<void> {
+  /* async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
     
     try {
@@ -2322,7 +2322,79 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
     }
+  } */
+  async initializeFirstQuestion(): Promise<void> {
+    this.resetQuestionDisplayState();
+    
+    try {
+      console.log('🚀 [initializeFirstQuestion] Starting initialization...');
+  
+      // **1️⃣ Load questions for the quiz**
+      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      console.log('✅ [initializeFirstQuestion] Questions loaded:', questions);
+      
+      if (questions && questions.length > 0) {
+        // **2️⃣ Set first question data immediately**
+        this.questions = questions;
+        this.currentQuestion = questions[0];
+        this.currentQuestionIndex = 0;
+        this.questionToDisplay = this.currentQuestion.questionText;
+  
+        // **3️⃣ Assign optionIds using QuizService**
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+        
+        // **4️⃣ Set optionsToDisplay for the first question**
+        this.optionsToDisplay = this.currentQuestion.options;
+  
+        // **5️⃣ Check for missing optionIds**
+        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIds.length > 0) {
+          console.error('❌ [initializeFirstQuestion] Options with undefined optionId found:', missingOptionIds);
+        } else {
+          console.log('✅ [initializeFirstQuestion] All options have valid optionIds.');
+        }
+  
+        console.log('🚀 [initializeFirstQuestion] Options set for first question:', this.optionsToDisplay);
+  
+        // **6️⃣ Force Angular to recognize the new options**
+        this.cdRef.detectChanges();
+        console.log('🕵️‍♂️ [initializeFirstQuestion] Called detectChanges() after options set.');
+  
+        // **7️⃣ Call checkIfAnswered() to track answered state**
+        setTimeout(() => {
+          const hasAnswered = this.checkIfAnswered();
+          console.log('[initializeFirstQuestion] Initial answered state for the first question:', hasAnswered);
+  
+          // **8️⃣ Stop the timer if the question is already answered**
+          if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('🛑 [initializeFirstQuestion] Stopping the timer for the first question.');
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true;
+          }
+  
+          // **9️⃣ Start the timer only after the first question has been set and stabilized**
+          setTimeout(() => {
+            console.log('🚀 [initializeFirstQuestion] Timer started for the first question');
+            this.timerService.startTimer();
+            this.cdRef.markForCheck();
+          }, 50); // 🔥 Wait 50ms to make sure options are rendered
+        }, 100); // 🔥 Wait 100ms to ensure options are displayed
+  
+        // **🔟 Double change detection for safety**
+        setTimeout(() => {
+          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
+          console.log('🕵️‍♂️ [initializeFirstQuestion] Double detectChanges() to ensure options render.');
+        }, 200);
+      } else {
+        console.warn('⚠️ [initializeFirstQuestion] No questions available for this quiz.');
+        this.handleNoQuestionsAvailable();
+      }
+    } catch (err) {
+      console.error('❌ [initializeFirstQuestion] Error initializing first question:', err);
+    }
   }
+  
   
   
   // Check if an answer has been selected for the first question.
