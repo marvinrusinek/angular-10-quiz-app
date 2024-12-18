@@ -143,7 +143,7 @@ export class SelectedOptionService {
       console.error('❌ [removeOption] Invalid optionId:', optionId);
       return;
     }
-    
+
     const currentOptions = this.selectedOptionsMap.get(optionId) || [];
     const updatedOptions = currentOptions.filter(o => o.optionId !== optionId);
 
@@ -624,7 +624,7 @@ export class SelectedOptionService {
     // **4️⃣ Return true only if no options are missing**
     return allCorrectOptionsSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: SelectedOption[], questionIndex?: number): boolean {
+  areAllCorrectAnswersSelected(questionOptions: (Option | SelectedOption)[], questionIndex?: number): boolean {
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
       .filter(o => o.correct && Number.isInteger(o.optionId))
