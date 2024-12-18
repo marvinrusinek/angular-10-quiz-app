@@ -1732,7 +1732,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
-  private updateOptionSelection(event: { option: SelectedOption; checked: boolean }, option: SelectedOption): void {
+  private updateOptionSelection(event: { option: SelectedOption; checked: boolean; index?: number }, option: SelectedOption): void {
     if (!option) {
       console.error('❌ [updateOptionSelection] Option is undefined, cannot update.');
       return;
@@ -1741,7 +1741,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Check for undefined optionId
     if (option.optionId === undefined) {
       console.error('❌ [updateOptionSelection] option.optionId is undefined:', option);
-      option.optionId = event.index; // Assign fallback optionId
+      option.optionId = event.index ?? -1; // Use a default index if event.index is undefined
     }
 
     if (event.checked) {
@@ -1749,7 +1749,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
     } else {
       console.log('[handleOptionSelection] Option unchecked, removing option:', option);
-      this.selectedOptionService.removeOption(this.currentQuestionIndex, option.optionId);
+      this.selectedOptionService.removeOption(option.optionId);
     }
 
     // Log the options in the selectedOptionsMap
