@@ -2046,14 +2046,16 @@ export class QuizService implements OnDestroy {
       return options;
     }
   
-    // Use for-of loop to iterate over options and assign a unique, auto-incremented optionId
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
       if (option.optionId === undefined || option.optionId === null) {
         option.optionId = i; // Assign the index as the optionId if missing
+      } else {
+        console.log(`✅ [assignOptionIds] Valid optionId for option:`, option);
       }
     }
   
+    console.log('🚀 [assignOptionIds] Assigned option IDs:', options.map(o => ({ optionId: o.optionId, text: o.text })));
     return options;
   }
 
