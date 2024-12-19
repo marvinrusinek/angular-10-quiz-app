@@ -2260,7 +2260,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // **🔟 Double change detection for safety**
         setTimeout(() => {
           this.cdRef.markForCheck();
-          this.cdRef.detectChanges();
           console.log('🕵️‍♂️ [initializeFirstQuestion] Double detectChanges() to ensure options render.');
         }, 200);
       } else {
