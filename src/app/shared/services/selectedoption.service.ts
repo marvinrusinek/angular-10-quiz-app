@@ -594,28 +594,28 @@ export class SelectedOptionService {
       ? this.areAllCorrectAnswersSelected(questionOptions) 
       : false;
   
-    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
+    // **Set isAnswered state** 
     const isAnswered = isMultipleAnswer 
       ? allCorrectAnswersSelected 
       : selectedOptions.length > 0;
   
+    // **Call isAnsweredSubject**
+    if (isAnswered) {
+      console.log('[updateAnsweredState] Setting isAnsweredSubject to TRUE.');
+      this.isAnsweredSubject.next(true);
+    } else {
+      console.log('[updateAnsweredState] Setting isAnsweredSubject to FALSE.');
+      this.isAnsweredSubject.next(false);
+    }
+  
     // Log for debugging
-    console.log('[updateAnsweredState] Updating answered state:', {
+    console.log('[updateAnsweredState] State Info:', {
       selectedOptions,
       isAnswered,
       allCorrectAnswersSelected,
       correctOptionCount,
       isMultipleAnswer
     });
-  
-    // Update BehaviorSubject for Next button logic
-    if (isAnswered) {
-      this.isAnsweredSubject.next(true);
-      console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', true);
-    } else {
-      this.isAnsweredSubject.next(false);
-      console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', false);
-    }
   
     // Emit the event to stop the timer **only if all correct answers are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
@@ -624,8 +624,6 @@ export class SelectedOptionService {
       this.stopTimerEmitted = true; // Prevent future emissions
     }
   }
-  
-  
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // 🔥 **Check for missing optionIds in questionOptions**
