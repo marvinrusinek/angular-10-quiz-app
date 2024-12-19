@@ -372,9 +372,9 @@ export class SelectedOptionService {
         this.selectedOptionsMap.set(questionIndex, options);
         
         // Log updated selectedOptionsMap
-        console.log('[addSelectedOptionIndex] Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+        console.log('Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
       } else {
-        console.log('[addSelectedOptionIndex] Option already exists in selectedOptionsMap:', existingOption);
+        console.log('Option already exists in selectedOptionsMap:', existingOption);
       }
     }
   }
