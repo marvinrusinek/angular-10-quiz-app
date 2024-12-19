@@ -1569,7 +1569,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     
   // ====================== Helper Functions ======================
   
-  /** Validates the option and returns false if early return is needed. */
+  // Validates the option and returns false if early return is needed.
   private validateOption(event: { option: SelectedOption | null; index: number; checked: boolean }): boolean {
     const option = event.option;
     // Exit early if option or optionId is invalid
@@ -1577,7 +1577,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return true;
   }
   
-  /** Handles single-answer lock logic. Returns true if we should return early. */
+  // Handles single-answer lock logic. Returns true if we should return early.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
     // Lock input for single-answer questions
     if (!isMultipleAnswer && this.isOptionSelected) {
