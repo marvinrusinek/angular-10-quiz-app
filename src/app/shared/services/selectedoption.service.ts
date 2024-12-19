@@ -368,25 +368,24 @@ export class SelectedOptionService {
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
   
-      // **4️⃣ Update selectedOptionsMap properly**
+      // **Update selectedOptionsMap properly**
       this.updateSelectedOptions(questionIndex, optionIndex, 'add');
   
       const options = this.selectedOptionsMap.get(questionIndex) || [];
       
       options.forEach((option, index) => {
-        if (option.optionId === undefined) {
+        if (!option || option.optionId === undefined) {
           option.optionId = index;
           console.warn(`⚠️ [addSelectedOptionIndex] Assigned missing optionId for option:`, option);
         }
       });
   
       this.selectedOptionsMap.set(questionIndex, options);
-  
       console.log('[addSelectedOptionIndex] 🔥 Updated selectedOptionsMap:', this.selectedOptionsMap);
-  
       this.updateAnsweredState();
     }
   }
+  
   
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
@@ -615,7 +614,14 @@ export class SelectedOptionService {
       this.stopTimer$.next();
       this.stopTimerEmitted = true; // Prevent future emissions
     }
+  
+    // **9️⃣ Wait briefly to ensure the selectedOptionsMap is updated**
+    setTimeout(() => {
+      const selectedOptionsCheck = Array.from(this.selectedOptionsMap.values()).flat();
+      console.log('[updateAnsweredState] 🕵️‍♂️ Double-check selectedOptionsMap (AFTER delay):', selectedOptionsCheck);
+    }, 100); // 🔥 Small delay to avoid race conditions
   }
+  
   
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
@@ -659,7 +665,12 @@ export class SelectedOptionService {
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // **Check for missing optionIds and assign them if needed**
-    this.quizService.assignOptionIds(questionOptions);
+    questionOptions.forEach((option, index) => {
+      if (!option || option.optionId === undefined) {
+        option.optionId = index; // 🔥 Assign fallback optionId
+        console.warn(`⚠️ [areAllCorrectAnswersSelected] Missing optionId — assigned fallback optionId:`, option);
+      }
+    });
     
     // **1️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
@@ -682,21 +693,15 @@ export class SelectedOptionService {
       )
     );
   
-    // 🔥 If no correct options exist, log it as a warning
-    if (correctOptionIds.length === 0) {
-      console.warn('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
-      return false;
-    }
-  
-    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
-    
     console.log('🚀 [areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
     console.log('🚀 [areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
+    const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
     console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
     
     // **4️⃣ Return true only if all correct options are selected**
     return allCorrectOptionsSelected;
   }
+  
   
   
   
