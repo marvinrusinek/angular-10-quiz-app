@@ -1591,26 +1591,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
   private updateOptionSelection(event: { option: SelectedOption; checked: boolean; index?: number }, option: SelectedOption): void {
     if (!option) {
-      console.error('❌ [updateOptionSelection] Option is undefined, cannot update.');
+      console.error('Option is undefined, cannot update.');
       return;
     }
   
     // Check for undefined optionId
     if (option.optionId === undefined) {
-      console.error('❌ [updateOptionSelection] option.optionId is undefined:', option);
+      console.error('option.optionId is undefined:', option);
       option.optionId = event.index ?? -1; // Assign fallback optionId
     }
 
     if (event.checked) {
-      console.log('[handleOptionSelection] Option checked, adding option:', option);
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
     } else {
-      console.log('[handleOptionSelection] Option unchecked, removing option:', option);
       this.selectedOptionService.removeOption(this.currentQuestionIndex, option.optionId);
     }
-
-    // Log the options in the selectedOptionsMap
-    console.log('[updateOptionSelection] Current selected options:', Array.from(this.selectedOptionService.selectedOptionsMap.values()).flat());
   }
 
   // Handles logic for when the timer should stop.
@@ -1620,19 +1615,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     try {
       if (isMultipleAnswer) {
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
-        console.log('[stopTimerIfApplicable] All correct answers selected (multiple-answer):', allCorrectSelected);
         stopTimer = allCorrectSelected;
       } else {
         stopTimer = option.correct;
-        console.log('[stopTimerIfApplicable] Correct option selected (single-answer):', stopTimer);
       }
   
       if (stopTimer) {
-        console.log('[stopTimerIfApplicable] Stopping the timer.');
         this.timerService.stopTimer();
       }
     } catch (error) {
-      console.error('[stopTimerIfApplicable] Error in timer logic:', error);
+      console.error('Error in timer logic:', error);
     }
   }
 
