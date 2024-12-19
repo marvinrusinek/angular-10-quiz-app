@@ -336,31 +336,6 @@ export class SelectedOptionService {
     return selectedOptions.map(option => option.optionId);
   }
 
-  /* addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    if (!this.selectedOptionIndices[questionIndex]) {
-      this.selectedOptionIndices[questionIndex] = [];
-    }
-  
-    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
-      this.selectedOptionIndices[questionIndex].push(optionIndex);
-  
-      // **4️⃣ Update selectedOptionsMap properly**
-      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
-  
-      const options = this.selectedOptionsMap.get(questionIndex) || [];
-      
-      options.forEach((option, index) => {
-        if (option.optionId === undefined) {
-          option.optionId = index;
-          console.warn(`⚠️ [addSelectedOptionIndex] Assigned missing optionId for option:`, option);
-        }
-      });
-  
-      this.selectedOptionsMap.set(questionIndex, options);
-  
-      this.updateAnsweredState();
-    }
-  } */
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (!this.selectedOptionIndices[questionIndex]) {
       this.selectedOptionIndices[questionIndex] = [];
@@ -368,28 +343,41 @@ export class SelectedOptionService {
   
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
+  
+      // Update selectedOptionsMap properly using updateSelectedOptions()
+      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
+      
+      // Update the answered state for this question
       this.updateAnsweredState();
   
-      // 🛠️ Ensure that options are properly initialized
+      // Check if the selectedOptionsMap already has this question
       let options = this.selectedOptionsMap.get(questionIndex) || [];
   
-      // 🛠️ Check if the option is already present
-      if (!options.some(o => o.optionId === optionIndex)) {
-        // ✅ Ensure the object matches the type for SelectedOption
+      // Check if the option is already in selectedOptionsMap
+      const existingOption = options.find(o => o.optionId === optionIndex);
+      
+      if (!existingOption) {
+        // Ensure the option is valid and follows the SelectedOption structure
         const option: SelectedOption = {
           optionId: optionIndex,
-          text: `Option ${optionIndex + 1}`, // Placeholder text
-          correct: false, // Assume false by default, you can update if necessary
-          questionIndex: questionIndex // Ensure questionIndex is included
+          text: `Option ${optionIndex + 1}`,
+          correct: false,
+          questionIndex: questionIndex
         };
   
         options.push(option);
+        
+        // Set updated options into the map
         this.selectedOptionsMap.set(questionIndex, options);
         
-        console.log('📢 [addSelectedOptionIndex] Updated selectedOptionsMap:', this.selectedOptionsMap);
+        // Log updated selectedOptionsMap
+        console.log('[addSelectedOptionIndex] Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+      } else {
+        console.log('[addSelectedOptionIndex] Option already exists in selectedOptionsMap:', existingOption);
       }
     }
   }
+  
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
@@ -436,47 +424,47 @@ export class SelectedOptionService {
     
     const option = options.find((opt) => opt.optionId === optionIndex);
     if (!option) {
-      console.warn(`⚠️ [updateSelectedOptions] Option not found for optionIndex: ${optionIndex}`);
+      console.warn(`[updateSelectedOptions] Option not found for optionIndex: ${optionIndex}`);
       return;
     }
   
     if (action === 'add') {
       options.push(option);
-      console.log(`✅ [updateSelectedOptions] Added option to selectedOptionsMap:`, option);
+      console.log(`[updateSelectedOptions] Added option to selectedOptionsMap:`, option);
     } else if (action === 'remove') {
       const idx = options.findIndex((opt) => opt.optionId === optionIndex);
       if (idx !== -1) options.splice(idx, 1);
-      console.log(`🗑️ [updateSelectedOptions] Removed option from selectedOptionsMap:`, option);
+      console.log(`[updateSelectedOptions] Removed option from selectedOptionsMap:`, option);
     }
   
     this.selectedOptionsMap.set(questionIndex, options);
   }
   
-  updateAnsweredState(questionOptions: Option[], questionIndex: number): void {
-    // 🔥 Validate the options
+  updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
+    // Validate the options
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions);
+      console.error('[updateAnsweredState] Invalid questionOptions:', questionOptions);
       return;
     }
   
-    // 🔥 Get the list of selected options for the given question
+    // Get the list of selected options for the given question
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
     
-    // 🔥 Count the number of correct options for this question
+    // Count the number of correct options for this question
     const correctOptionCount = questionOptions.filter(option => option.correct).length;
   
-    // 🔥 Determine if this is a Multiple-Answer question
+    // Determine if this is a Multiple-Answer question
     const isMultipleAnswer = correctOptionCount > 1;
   
-    // 🔥 Check if all correct answers are selected
+    // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
   
-    // 🔥 Set the "isAnswered" state
+    // Set the "isAnswered" state
     const isAnswered = isMultipleAnswer 
       ? allCorrectAnswersSelected 
       : selectedOptions.length > 0;
   
-    // 🔥 Log for debugging
+    // Log for debugging
     console.log('[updateAnsweredState] Answered State:', {
       selectedOptions,
       correctOptionCount,
@@ -485,50 +473,48 @@ export class SelectedOptionService {
       isAnswered
     });
   
-    // 🔥 Update BehaviorSubject for Next button logic
+    // Update BehaviorSubject for Next button logic
     this.isAnsweredSubject.next(isAnswered);
-    console.log(`✅ [updateAnsweredState] Setting isAnsweredSubject to ${isAnswered ? 'TRUE' : 'FALSE'}`);
     
-    // 🔥 Stop the timer if all correct options are selected
+    // Stop the timer if all correct options are selected
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-      console.log('🛑 [updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
   }
 
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
-    console.log('📢 [areAllCorrectAnswersSelected] Called for question index:', questionIndex);
+    console.log('[areAllCorrectAnswersSelected] Called for question index:', questionIndex);
     
-    // **1️⃣ Validate input**
+    // Validate input
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('❌ [areAllCorrectAnswersSelected] Invalid questionOptions provided:', questionOptions);
+      console.error('[areAllCorrectAnswersSelected] Invalid questionOptions provided:', questionOptions);
       return false;
     }
   
-    // 🔥 **Filter out any undefined/null options**
+    // Filter out any undefined/null options
     questionOptions = questionOptions.filter((option, index) => {
       if (!option) {
-        console.error(`❌ [areAllCorrectAnswersSelected] Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
+        console.error(`[areAllCorrectAnswersSelected] Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
         return false;
       }
       return true;
     });
   
-    // **2️⃣ Ensure optionId is present using assignOptionIds**
+    // Ensure optionId is present using assignOptionIds
     questionOptions = this.quizService.assignOptionIds(questionOptions, `areAllCorrectAnswersSelected (questionIndex: ${questionIndex})`);
   
-    // **3️⃣ Get the list of correct option IDs**
+    // Get the list of correct option IDs
     const correctOptionIds = questionOptions
       .filter(o => o.correct && Number.isInteger(o.optionId)) 
       .map(o => o.optionId);
     
     if (correctOptionIds.length === 0) {
-      console.warn('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
+      console.warn('[areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
       return false; // Return false early if no correct options exist
     }
   
-    // **4️⃣ Get all selected option IDs from selectedOptionsMap**
+    // Get all selected option IDs from selectedOptionsMap
     const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
@@ -537,14 +523,9 @@ export class SelectedOptionService {
           .map(o => o.optionId) 
       )
     );
-  
-    console.log('🚀 [areAllCorrectAnswersSelected] Correct option IDs:', correctOptionIds);
-    console.log('🚀 [areAllCorrectAnswersSelected] Selected option IDs:', selectedOptionIds);
     
-    // **5️⃣ Check if all correct options are selected**
+    // Check if all correct options are selected
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
-    console.log('[areAllCorrectAnswersSelected] All correct options selected:', allCorrectOptionsSelected);
-    
     return allCorrectOptionsSelected;
   }
 
