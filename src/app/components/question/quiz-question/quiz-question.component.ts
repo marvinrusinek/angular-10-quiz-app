@@ -1526,9 +1526,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Multiple-answer logic  
       await this.updateOptionSelection(event, option);
-    
-      // Update state and answer tracking
-      await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
   
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
