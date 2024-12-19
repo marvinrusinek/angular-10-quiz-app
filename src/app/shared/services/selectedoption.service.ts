@@ -440,10 +440,10 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
-    // Validate and assign option IDs**
+    // 🔥 **1️⃣ Validate and assign option IDs**
     if (!questionOptions || !Array.isArray(questionOptions)) {
       console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
-      console.trace();
+      console.trace(); // Trace where the undefined is coming from
       return;
     }
   
@@ -467,6 +467,7 @@ export class SelectedOptionService {
   
     // 🔥 **7️⃣ Log Answered State**
     console.log('📢 [updateAnsweredState] Answered State:', {
+      questionOptions,
       selectedOptions,
       correctOptionCount,
       isMultipleAnswer,
@@ -484,6 +485,7 @@ export class SelectedOptionService {
       this.stopTimerEmitted = true;
     }
   }
+  
   
 
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
