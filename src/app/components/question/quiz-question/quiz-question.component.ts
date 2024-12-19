@@ -909,11 +909,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
 
       // 🚀 **Assign optionIds if missing**
-      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-  
+      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion?.options ?? []);
+
       // Set the options to display for the current question
-      this.optionsToDisplay = this.currentQuestion.options || [];
-  
+      this.optionsToDisplay = [...this.currentQuestion.options] || [];
+
       // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
