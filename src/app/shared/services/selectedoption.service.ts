@@ -437,6 +437,9 @@ export class SelectedOptionService {
     }
   
     this.selectedOptionsMap.set(questionIndex, options);
+
+    // Call updateAnsweredState every time selectedOptionsMap changes
+    this.updateAnsweredState(options, questionIndex);
   }
   
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
