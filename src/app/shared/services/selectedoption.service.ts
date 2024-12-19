@@ -343,26 +343,23 @@ export class SelectedOptionService {
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
   
-      // 🔥 Update the selected options for the selectedOptionsMap
+      // **4️⃣ Update selectedOptionsMap properly**
       this.updateSelectedOptions(questionIndex, optionIndex, 'add');
   
       const options = this.selectedOptionsMap.get(questionIndex) || [];
       
-      // **4️⃣ Ensure optionId exists on all options**
       options.forEach((option, index) => {
         if (option.optionId === undefined) {
-          option.optionId = index; // Assign optionId if missing
+          option.optionId = index;
           console.warn(`⚠️ [addSelectedOptionIndex] Assigned missing optionId for option:`, option);
         }
       });
   
       this.selectedOptionsMap.set(questionIndex, options);
   
-      // 🔥 Call updateAnsweredState to determine if Next button should be enabled
       this.updateAnsweredState();
     }
   }
-  
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
