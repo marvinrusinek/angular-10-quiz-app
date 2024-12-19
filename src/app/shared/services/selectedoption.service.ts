@@ -447,19 +447,19 @@ export class SelectedOptionService {
       return;
     }
   
-    // Get selected options
+    // Get the list of selected options from the selectedOptionsMap
     const selectedOptions = Array.from(this.selectedOptionsMap.get(questionIndex) || []);
   
     // Count the number of correct options
     const correctOptionCount = questionOptions.filter(option => option.correct).length;
   
-    // Determine if it is a multiple-answer question
+    // Determine if this is a multiple-answer question
     const isMultipleAnswer = correctOptionCount > 1;
   
     // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
   
-    // Set answered state only if all correct answers are selected
+    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
     const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
 
     // Update BehaviorSubject for Next button logic
