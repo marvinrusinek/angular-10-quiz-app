@@ -568,49 +568,40 @@ export class SelectedOptionService {
     }
   } */
   updateAnsweredState(questionOptions?: Option[]): void {
-    console.log('📢 [updateAnsweredState] Called with questionOptions:', questionOptions);
-    
-    // **1️⃣ Get all the selected options**
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
-    
-    // **2️⃣ Count the number of correct options for this question**
+  
     const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
-    
-    // **3️⃣ Determine if this is a Multiple-Answer question**
+  
     const isMultipleAnswer = correctOptionCount > 1;
-    
-    // **4️⃣ Check if all correct answers are selected**
+  
     const allCorrectAnswersSelected = questionOptions 
       ? this.areAllCorrectAnswersSelected(questionOptions) 
       : false;
   
-    // **5️⃣ Set isAnswered state** 
     const isAnswered = isMultipleAnswer 
       ? allCorrectAnswersSelected 
       : selectedOptions.length > 0;
   
-    console.log('📢 [updateAnsweredState] Answered State:', { 
-      selectedOptions, 
-      correctOptionCount, 
-      isMultipleAnswer, 
-      allCorrectAnswersSelected, 
-      isAnswered 
+    console.log('📢 [updateAnsweredState] Answered State:', {
+      selectedOptions,
+      correctOptionCount,
+      isMultipleAnswer,
+      allCorrectAnswersSelected,
+      isAnswered
     });
   
-    if (isAnswered) {
-      console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
-      this.isAnsweredSubject.next(true);
-    } else {
-      console.log('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE.');
-      this.isAnsweredSubject.next(false);
+    if (!isAnswered) {
+      console.error('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE.');
     }
   
-    // **7️⃣ Log current state of selectedOptionsMap**
-    const optionsMap = Array.from(this.selectedOptionsMap.entries()).map(([index, options]) => ({
-      index,
-      options: options.map(o => ({ text: o.text, optionId: o.optionId }))
-    }));
-    console.log('📢 [updateAnsweredState] Current selectedOptionsMap:', optionsMap);
+    this.isAnsweredSubject.next(isAnswered);
+    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
+  
+    if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+      console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
+      this.stopTimer$.next();
+      this.stopTimerEmitted = true;
+    }
   }
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
