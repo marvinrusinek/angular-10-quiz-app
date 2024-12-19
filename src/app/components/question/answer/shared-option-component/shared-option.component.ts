@@ -305,9 +305,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
         // Ensure selection state updates are properly finalized
         this.finalizeOptionSelection(optionBinding, checked);
-
-        // Update answered state at the end of the process
-        this.selectedOptionService.updateAnsweredState();
   
         // Add a small timeout to let the browser finish rendering before detecting changes
         requestAnimationFrame(() => {
