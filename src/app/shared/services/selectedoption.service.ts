@@ -462,7 +462,7 @@ export class SelectedOptionService {
     // Set answered state only if all correct answers are selected
     const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
 
-    // Update BehaviorSubject
+    // Update BehaviorSubject for Next button logic
     this.isAnsweredSubject.next(isAnswered);
   
     // Stop the timer if all correct options are selected
