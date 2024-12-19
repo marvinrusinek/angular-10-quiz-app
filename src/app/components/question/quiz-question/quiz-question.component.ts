@@ -908,7 +908,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
 
-      // 🚀 **Assign optionIds if missing**
+      // Assign optionIds if missing
       this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion?.options ?? []);
 
       // Set the options to display for the current question
