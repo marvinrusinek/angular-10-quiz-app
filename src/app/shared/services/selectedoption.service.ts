@@ -573,28 +573,32 @@ export class SelectedOptionService {
       this.stopTimerEmitted = true; // Prevent future emissions
     }
   } */
-  updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
+  updateAnsweredState(questionOptions: Option[], questionIndex: number): void {
+    // 🔥 Validate the options
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.warn('⚠️ [updateAnsweredState] No valid questionOptions provided.');
-      return; // 🔥 Exit early if questionOptions is missing
+      console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions);
+      return;
     }
   
-    // 🔥 **Ensure options have valid optionIds before proceeding**
-    questionOptions = this.quizService.assignOptionIds(questionOptions, `updateAnsweredState (questionIndex: ${questionIndex})`);
-  
+    // 🔥 Get the list of selected options for the given question
+    const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+    
+    // 🔥 Count the number of correct options for this question
     const correctOptionCount = questionOptions.filter(option => option.correct).length;
-    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    // 🔥 Determine if this is a Multiple-Answer question
     const isMultipleAnswer = correctOptionCount > 1;
   
-    // 🔥 **Check if all correct answers are selected**
+    // 🔥 Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
   
+    // 🔥 Set the "isAnswered" state
     const isAnswered = isMultipleAnswer 
       ? allCorrectAnswersSelected 
       : selectedOptions.length > 0;
   
-    console.log('📢 [updateAnsweredState] Answered State:', {
-      questionOptions,
+    // 🔥 Log for debugging
+    console.log('[updateAnsweredState] Answered State:', {
       selectedOptions,
       correctOptionCount,
       isMultipleAnswer,
@@ -602,12 +606,15 @@ export class SelectedOptionService {
       isAnswered
     });
   
-    if (isAnswered) {
-      console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
-      this.isAnsweredSubject.next(true);
-    } else {
-      console.warn('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE.');
-      this.isAnsweredSubject.next(false);
+    // 🔥 Update BehaviorSubject for Next button logic
+    this.isAnsweredSubject.next(isAnswered);
+    console.log(`✅ [updateAnsweredState] Setting isAnsweredSubject to ${isAnswered ? 'TRUE' : 'FALSE'}`);
+    
+    // 🔥 Stop the timer if all correct options are selected
+    if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+      console.log('🛑 [updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
+      this.stopTimer$.next();
+      this.stopTimerEmitted = true;
     }
   }
 
