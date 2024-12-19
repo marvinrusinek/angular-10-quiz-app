@@ -2266,7 +2266,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false; // Return false if no options are loaded
     }
   
-    // 🔥 Check for undefined optionIds
+    // Check for undefined optionIds
     const undefinedOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
     if (undefinedOptionIds.length > 0) {
       console.error('Options with undefined optionId found:', undefinedOptionIds);
@@ -2275,9 +2275,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Check if any option is selected OR all correct answers are selected
     const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
     const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay);
-    
-    console.log('[checkIfAnswered] Are any options selected?', isAnyOptionSelected);
-    console.log('[checkIfAnswered] Are all correct options selected?', areAllCorrectSelected);
     
     return isAnyOptionSelected || areAllCorrectSelected;
   }
