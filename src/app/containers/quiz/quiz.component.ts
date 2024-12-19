@@ -561,7 +561,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Reset answered state and options for the new question
         this.selectedOptionService.clearSelectedOption();
         this.selectedOptionService.isAnsweredSubject.next(false);
-        this.selectedOptionService.updateAnsweredState();
   
         // Restore previously selected options, if any
         await this.restoreSelectionState();
@@ -766,10 +765,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Store displayExplanation directly
     const displayExplanation = this.isAnswered;
     sessionStorage.setItem('displayExplanation', String(displayExplanation));
-
-    // Update answered state via the service
-    this.selectedOptionService.updateAnsweredState();
-
+    
     // Immediately evaluate Next button state
     this.evaluateNextButtonState();
   }
