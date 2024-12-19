@@ -2048,7 +2048,6 @@ export class QuizService implements OnDestroy {
       return option;
     });
   }
-  
 
   resetUserSelection(): void {
     this.selectedOption$.next('');
