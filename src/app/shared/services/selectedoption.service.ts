@@ -362,27 +362,22 @@ export class SelectedOptionService {
     }
   } */
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    console.log('📢 [addSelectedOptionIndex] Called with questionIndex:', questionIndex, 'optionIndex:', optionIndex);
-  
     if (!this.selectedOptionIndices[questionIndex]) {
       this.selectedOptionIndices[questionIndex] = [];
     }
   
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
-      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
-  
-      const options = this.selectedOptionsMap.get(questionIndex) || [];
-      options.forEach((option, index) => {
-        if (option.optionId === undefined || option.optionId === null) {
-          option.optionId = index;
-          console.warn(`⚠️ [addSelectedOptionIndex] Assigned missing optionId for option:`, option);
-        }
-      });
-  
-      this.selectedOptionsMap.set(questionIndex, options);
-      console.log('[addSelectedOptionIndex] 🔥 Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
       this.updateAnsweredState();
+  
+      // 🛠️ Updated to check for valid optionId
+      let options = this.selectedOptionsMap.get(questionIndex) || [];
+      if (!options.some(o => o.optionId === optionIndex)) {
+        const option = { optionId: optionIndex, text: `Option ${optionIndex + 1}` }; // Add option data
+        options.push(option);
+        this.selectedOptionsMap.set(questionIndex, options);
+        console.log('📢 [addSelectedOptionIndex] Updated selectedOptionsMap:', this.selectedOptionsMap);
+      }
     }
   }
 
