@@ -708,6 +708,7 @@ export class SelectedOptionService {
   }
   
   
+  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
