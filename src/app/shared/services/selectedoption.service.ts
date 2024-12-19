@@ -442,7 +442,7 @@ export class SelectedOptionService {
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
     // Validate the options
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('[updateAnsweredState] Invalid questionOptions:', questionOptions);
+      console.error('Invalid questionOptions:', questionOptions);
       return;
     }
   
@@ -464,7 +464,7 @@ export class SelectedOptionService {
       : selectedOptions.length > 0;
   
     // Log for debugging
-    console.log('[updateAnsweredState] Answered State:', {
+    console.log('Answered State:', {
       selectedOptions,
       correctOptionCount,
       isMultipleAnswer,
@@ -483,18 +483,16 @@ export class SelectedOptionService {
   }
 
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
-    console.log('[areAllCorrectAnswersSelected] Called for question index:', questionIndex);
-    
     // Validate input
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('[areAllCorrectAnswersSelected] Invalid questionOptions provided:', questionOptions);
+      console.error('Invalid questionOptions provided:', questionOptions);
       return false;
     }
   
     // Filter out any undefined/null options
     questionOptions = questionOptions.filter((option, index) => {
       if (!option) {
-        console.error(`[areAllCorrectAnswersSelected] Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
+        console.error(`Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
         return false;
       }
       return true;
@@ -509,7 +507,7 @@ export class SelectedOptionService {
       .map(o => o.optionId);
     
     if (correctOptionIds.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
+      console.warn('No correct options found for question index:', questionIndex);
       return false; // Return false early if no correct options exist
     }
   
