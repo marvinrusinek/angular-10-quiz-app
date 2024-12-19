@@ -1619,7 +1619,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     try {
       if (isMultipleAnswer) {
-        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options);
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
         console.log('[stopTimerIfApplicable] All correct answers selected (multiple-answer):', allCorrectSelected);
         stopTimer = allCorrectSelected;
       } else {
