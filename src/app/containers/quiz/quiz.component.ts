@@ -2285,12 +2285,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async ensureOptionsLoaded(): Promise<void> {
     try {
       while (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('🕒 [ensureOptionsLoaded] Waiting for options to load...');
+        console.warn('Waiting for options to load...');
         await new Promise(resolve => setTimeout(resolve, 50));
       }
-      console.log('✅ [ensureOptionsLoaded] Options loaded successfully.');
+      console.log('Options loaded successfully.');
     } catch (error) {
-      console.error('❌ [ensureOptionsLoaded] Failed to ensure options were loaded:', error);
+      console.error('Failed to ensure options were loaded:', error);
     }
   }
 
