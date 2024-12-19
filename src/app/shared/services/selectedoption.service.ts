@@ -446,7 +446,7 @@ export class SelectedOptionService {
       const fallbackQuestionIndex = this.quizService?.currentQuestionIndex ?? -1;
       const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex);
       if (!fallbackOptions) {
-        console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
+        console.error('[updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
         console.trace('[updateAnsweredState] Call stack'); // Trace where the undefined is coming from
         return;
       }
@@ -471,7 +471,7 @@ export class SelectedOptionService {
     const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
 
     // Log the updated state
-    console.log('📢 [updateAnsweredState] Answered State:', {
+    console.log('[updateAnsweredState] Answered State:', {
       questionOptions,
       selectedOptions,
       correctOptionCount,
