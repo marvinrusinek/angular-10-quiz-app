@@ -573,25 +573,35 @@ export class SelectedOptionService {
       this.stopTimerEmitted = true; // Prevent future emissions
     }
   } */
-  updateAnsweredState(questionOptions?: Option[]): void {
+  updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
     if (!questionOptions || !Array.isArray(questionOptions)) {
       console.warn('⚠️ [updateAnsweredState] No valid questionOptions provided.');
       return; // 🔥 Exit early if questionOptions is missing
     }
   
-    // Assign optionIds if missing
-    questionOptions = this.quizService.assignOptionIds(questionOptions, 'updateAnsweredState');
+    // 🔥 **Ensure options have valid optionIds before proceeding**
+    questionOptions = this.quizService.assignOptionIds(questionOptions, `updateAnsweredState (questionIndex: ${questionIndex})`);
   
-    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, this.currentQuestionIndex);
+    const correctOptionCount = questionOptions.filter(option => option.correct).length;
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+    const isMultipleAnswer = correctOptionCount > 1;
   
-    // Log important values
+    // 🔥 **Check if all correct answers are selected**
+    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
+  
+    const isAnswered = isMultipleAnswer 
+      ? allCorrectAnswersSelected 
+      : selectedOptions.length > 0;
+  
     console.log('📢 [updateAnsweredState] Answered State:', {
       questionOptions,
-      allCorrectAnswersSelected
+      selectedOptions,
+      correctOptionCount,
+      isMultipleAnswer,
+      allCorrectAnswersSelected,
+      isAnswered
     });
   
-    // Determine the "isAnswered" state
-    const isAnswered = allCorrectAnswersSelected;
     if (isAnswered) {
       console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
       this.isAnsweredSubject.next(true);
@@ -640,7 +650,7 @@ export class SelectedOptionService {
     // **4️⃣ Return true only if all correct options are selected**
     return allCorrectOptionsSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
     console.log('📢 [areAllCorrectAnswersSelected] Called for question index:', questionIndex);
     
     // **1️⃣ Validate input**
@@ -649,7 +659,7 @@ export class SelectedOptionService {
       return false;
     }
   
-    // 🔥 **Check for undefined or null options** 🔥
+    // 🔥 **Filter out any undefined/null options**
     questionOptions = questionOptions.filter((option, index) => {
       if (!option) {
         console.error(`❌ [areAllCorrectAnswersSelected] Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
