@@ -573,7 +573,7 @@ export class SelectedOptionService {
       this.stopTimerEmitted = true; // Prevent future emissions
     }
   } */
-  updateAnsweredState(questionOptions: Option[]): void {
+  updateAnsweredState(questionOptions?: Option[]): void {
     // Get all selected options from the map
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
