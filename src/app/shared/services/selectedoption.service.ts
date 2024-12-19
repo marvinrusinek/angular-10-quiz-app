@@ -113,14 +113,14 @@ export class SelectedOptionService {
   addOption(questionIndex: number, option: SelectedOption, source: string = 'unknown'): void {
     // 1️⃣ Check if option is valid
     if (!option) {
-      console.error('❌ [addOption] Option is undefined. Cannot add it to selectedOptionsMap.');
-      return; // 🔥 Stop execution to prevent errors
+      console.error('[addOption] Option is undefined. Cannot add it to selectedOptionsMap.');
+      return; // Stop execution to prevent errors
     }
 
     // 2️⃣ Check if optionId is valid
     if (option.optionId === undefined || option.optionId === null) {
-      console.error('❌ [addOption] option.optionId is undefined:', option);
-      return; // 🔥 Stop execution to prevent errors
+      console.error('[addOption] option.optionId is undefined:', option);
+      return; // Stop execution to prevent errors
     }
 
     // Get the current selected options for this question
@@ -130,12 +130,12 @@ export class SelectedOptionService {
     if (!currentOptions.some(o => o.optionId === option.optionId)) {
       currentOptions.push(option);
       this.selectedOptionsMap.set(questionIndex, currentOptions);
-      console.log('🟢 [addOption] Option added:', option);
+      console.log('[addOption] Option added:', option);
     } else {
-      console.log('⚠️ [addOption] Option already present:', option);
+      console.log('[addOption] Option already present:', option);
     }
 
-    console.log('🗂️ [addOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
+    console.log('[addOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
   }
 
   /** Removes an option from the selectedOptionsMap */
@@ -149,8 +149,8 @@ export class SelectedOptionService {
       this.selectedOptionsMap.delete(questionIndex);
     }
 
-    console.log('🟡 [removeOption] Option removed:', optionId);
-    console.log('🗂️ [removeOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
+    console.log('[removeOption] Option removed:', optionId);
+    console.log('[removeOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
   }
 
   setNextButtonEnabled(enabled: boolean): void {
@@ -377,7 +377,6 @@ export class SelectedOptionService {
       }
     }
   }
-  
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
