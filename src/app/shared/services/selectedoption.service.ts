@@ -346,9 +346,6 @@ export class SelectedOptionService {
   
       // Update selectedOptionsMap properly using updateSelectedOptions()
       this.updateSelectedOptions(questionIndex, optionIndex, 'add');
-      
-      // Update the answered state for this question
-      this.updateAnsweredState();
   
       // Check if the selectedOptionsMap already has this question
       let options = this.selectedOptionsMap.get(questionIndex) || [];
@@ -383,7 +380,6 @@ export class SelectedOptionService {
       const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
       if (optionPos > -1) {
         this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
-        this.updateAnsweredState();
 
         // Sync with selectedOptionsMap
         this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
