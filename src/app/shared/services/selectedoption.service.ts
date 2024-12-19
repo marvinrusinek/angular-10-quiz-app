@@ -574,44 +574,31 @@ export class SelectedOptionService {
     }
   } */
   updateAnsweredState(questionOptions?: Option[]): void {
-    // Get all selected options from the map
-    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+    if (!questionOptions || !Array.isArray(questionOptions)) {
+      console.warn('⚠️ [updateAnsweredState] No valid questionOptions provided.');
+      return; // 🔥 Exit early if questionOptions is missing
+    }
   
-    // Count the number of correct options for this question
-    const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
+    // Assign optionIds if missing
+    questionOptions = this.quizService.assignOptionIds(questionOptions, 'updateAnsweredState');
   
-    // Determine if this is a Multiple-Answer question
-    const isMultipleAnswer = correctOptionCount > 1;
+    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, this.currentQuestionIndex);
   
-    // Check if all correct answers are selected
-    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions);
-  
-    // Set the "isAnswered" state 
-    const isAnswered = isMultipleAnswer 
-      ? allCorrectAnswersSelected 
-      : selectedOptions.length > 0;
-  
+    // Log important values
     console.log('📢 [updateAnsweredState] Answered State:', {
-      selectedOptions,
-      correctOptionCount,
-      isMultipleAnswer,
-      allCorrectAnswersSelected,
-      isAnswered
+      questionOptions,
+      allCorrectAnswersSelected
     });
   
+    // Determine the "isAnswered" state
+    const isAnswered = allCorrectAnswersSelected;
     if (isAnswered) {
       console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
       this.isAnsweredSubject.next(true);
     } else {
-      console.warn('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE. Reason:', 
-        allCorrectAnswersSelected ? '' : '➡️ Not all correct answers selected.', 
-        selectedOptions.length > 0 ? '' : '➡️ No options selected.', 
-        correctOptionCount > 0 ? '' : '➡️ No correct options found.'
-      );
+      console.warn('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE.');
       this.isAnsweredSubject.next(false);
     }
-  
-    console.log('🗂️ [updateAnsweredState] Full selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
   }
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
