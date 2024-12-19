@@ -574,15 +574,19 @@ export class SelectedOptionService {
     }
   } */
   updateAnsweredState(questionOptions?: Option[]): void {
+    // Get all selected options from the map
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
+  
+    // Count the number of correct options for this question
     const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
   
+    // Determine if this is a Multiple-Answer question
     const isMultipleAnswer = correctOptionCount > 1;
   
-    const allCorrectAnswersSelected = questionOptions 
-      ? this.areAllCorrectAnswersSelected(questionOptions) 
-      : false;
+    // Check if all correct answers are selected
+    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions);
   
+    // Set the "isAnswered" state 
     const isAnswered = isMultipleAnswer 
       ? allCorrectAnswersSelected 
       : selectedOptions.length > 0;
@@ -599,13 +603,15 @@ export class SelectedOptionService {
       this.isAnsweredSubject.next(true);
       console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
     } else {
-      console.error('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE. Reason:');
-      if (correctOptionCount === 0) console.error('➡️ No correct options found.');
-      if (selectedOptions.length === 0) console.error('➡️ No options selected.');
-      if (allCorrectAnswersSelected === false) console.error('➡️ Not all correct answers selected.');
+      console.warn('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE. Reason:', 
+        allCorrectAnswersSelected ? '' : '➡️ Not all correct answers selected.', 
+        selectedOptions.length > 0 ? '' : '➡️ No options selected.', 
+        correctOptionCount > 0 ? '' : '➡️ No correct options found.'
+      );
       this.isAnsweredSubject.next(false);
     }
   }
+  
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // 🔥 **Check for missing optionIds in questionOptions**
