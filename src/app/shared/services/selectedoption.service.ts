@@ -257,6 +257,10 @@ export class SelectedOptionService {
     }
 
     console.log('SelectedOptionService: Updated selectedOptionsMap:', this.selectedOptionsMap);
+
+    // Update answered state after updating selectedOptionsMap
+    const questionOptions = this.selectedOptionsMap.get(currentQuestionIndex) || [];
+    this.updateAnsweredState(questionOptions, currentQuestionIndex);
   }
 
   getSelectedOption(): SelectedOption | SelectedOption[] {
