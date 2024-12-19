@@ -373,7 +373,7 @@ export class SelectedOptionService {
   
       const options = this.selectedOptionsMap.get(questionIndex) || [];
       options.forEach((option, index) => {
-        if (!option || option.optionId === undefined) {
+        if (option.optionId === undefined || option.optionId === null) {
           option.optionId = index;
           console.warn(`⚠️ [addSelectedOptionIndex] Assigned missing optionId for option:`, option);
         }
@@ -384,9 +384,6 @@ export class SelectedOptionService {
       this.updateAnsweredState();
     }
   }
-  
-  
-  
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
@@ -592,6 +589,14 @@ export class SelectedOptionService {
       ? allCorrectAnswersSelected 
       : selectedOptions.length > 0;
   
+    console.log('📢 [updateAnsweredState] Answered State:', { 
+      selectedOptions, 
+      correctOptionCount, 
+      isMultipleAnswer, 
+      allCorrectAnswersSelected, 
+      isAnswered 
+    });
+  
     if (isAnswered) {
       console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
       this.isAnsweredSubject.next(true);
@@ -600,23 +605,13 @@ export class SelectedOptionService {
       this.isAnsweredSubject.next(false);
     }
   
-    // **7️⃣ Log for debugging**
-    console.log('📢 [updateAnsweredState] Debug Info:', {
-      selectedOptions,
-      correctOptionCount,
-      isMultipleAnswer,
-      allCorrectAnswersSelected,
-      isAnswered
-    });
-  
-    // **8️⃣ Log current state of selectedOptionsMap**
+    // **7️⃣ Log current state of selectedOptionsMap**
     const optionsMap = Array.from(this.selectedOptionsMap.entries()).map(([index, options]) => ({
       index,
       options: options.map(o => ({ text: o.text, optionId: o.optionId }))
     }));
     console.log('📢 [updateAnsweredState] Current selectedOptionsMap:', optionsMap);
-  }  
-  
+  }
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // 🔥 **Check for missing optionIds in questionOptions**
@@ -660,31 +655,25 @@ export class SelectedOptionService {
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     console.log('📢 [areAllCorrectAnswersSelected] Called for question index:', questionIndex);
   
-    // **Check for missing optionIds and assign them if needed**
+    // **1️⃣ Ensure optionId is present**
     questionOptions.forEach((option, index) => {
-      if (!option || option.optionId === undefined) {
+      if (option.optionId === undefined || option.optionId === null) {
         option.optionId = index; // 🔥 Assign fallback optionId
         console.warn(`⚠️ [areAllCorrectAnswersSelected] Assigned fallback optionId:`, option);
       }
     });
-    
-    // **1️⃣ Get the list of correct option IDs**
+  
+    // **2️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
       .filter(o => o.correct && Number.isInteger(o.optionId)) 
       .map(o => o.optionId);
   
-    // 🔥 Get all selected option IDs from selectedOptionsMap
+    // **3️⃣ Get all selected option IDs from selectedOptionsMap**
     const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
           .flat()
-          .filter(o => {
-            const isValid = o && Number.isInteger(o.optionId);
-            if (!isValid) {
-              console.error('❌ Option with undefined optionId:', o, 'Question Index:', questionIndex);
-            }
-            return isValid;
-          })
+          .filter(o => o && Number.isInteger(o.optionId))
           .map(o => o.optionId) 
       )
     );
@@ -697,13 +686,6 @@ export class SelectedOptionService {
     
     return allCorrectOptionsSelected;
   }
-  
-  
-  
-  
-  
-  
-  
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
