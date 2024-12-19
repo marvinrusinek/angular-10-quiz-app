@@ -2262,14 +2262,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // Check if an answer has been selected for the first question.
   checkIfAnswered(): boolean {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('❌ [checkIfAnswered] Options not available when checking for answer state');
+      console.warn('Options not available when checking for answer state');
       return false; // Return false if no options are loaded
     }
   
     // 🔥 Check for undefined optionIds
     const undefinedOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
     if (undefinedOptionIds.length > 0) {
-      console.error('❌ [checkIfAnswered] Options with undefined optionId found:', undefinedOptionIds);
+      console.error('Options with undefined optionId found:', undefinedOptionIds);
     }
   
     // Check if any option is selected OR all correct answers are selected
