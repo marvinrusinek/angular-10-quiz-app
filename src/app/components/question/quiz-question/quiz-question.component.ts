@@ -1477,50 +1477,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
 
         if (!this.currentQuestion?.options) {
-          console.warn('[onOptionClicked] No current question options available.');
+          console.warn('No current question options available.');
           return;
         }
 
         // Assign optionIds if missing
         this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
   
-        console.log('[onOptionClicked] Option IDs assigned for options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
+        console.log('Option IDs assigned for options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
   
       // Check if all correct options are selected (for multiple-answer)
       if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-        console.warn('[onOptionClicked] No options available for the current question.');
+        console.warn('No options available for the current question.');
         return;
       }
   
       // Validate the option and ensure event.option exists
       if (!this.validateOption(event) || !event.option) {
-        console.warn('[onOptionClicked] Option is invalid or missing.');
+        console.warn('Option is invalid or missing.');
         return;
       }
   
       // Check if option exists
       if (!event.option) {
-        console.error('❌ [onOptionClicked] Option is undefined in event:', event);
+        console.error('Option is undefined in event:', event);
         return;
       }
   
       const option = event.option!;
       if (option.optionId === undefined || option.optionId === null) {
-        console.error('[onOptionClicked] optionId is undefined for option:', event.option);
+        console.error('optionId is undefined for option:', event.option);
         return; 
       }
       const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
       // Single-answer lock logic
       if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
-        console.log('[onOptionClicked] Single answer lock is active, returning early.');
+        console.log('Single answer lock is active, returning early.');
         return;
       }
   
       // Single-answer logic for stopping the timer
       if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('[onOptionClicked] Stopping the timer for single-answer question.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
       }
@@ -1531,15 +1530,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Update state and answer tracking
       await this.selectedOptionService.updateAnsweredState(this.currentQuestion.options);
   
-      console.log('[onOptionClicked] Selected options map:', Array.from(this.selectedOptionService.selectedOptionsMap.entries()));
-  
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
-      console.log('[onOptionClicked] All correct answers selected:', allCorrectSelected);
+      console.log('All correct answers selected:', allCorrectSelected);
   
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('[onOptionClicked] Stopping the timer as all correct answers have been selected.');
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
       } else {
