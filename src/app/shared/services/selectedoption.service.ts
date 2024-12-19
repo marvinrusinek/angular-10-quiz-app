@@ -656,7 +656,7 @@ export class SelectedOptionService {
   
     // **2️⃣ Ensure optionId is present using assignOptionIds**
     questionOptions = this.quizService.assignOptionIds(questionOptions, `areAllCorrectAnswersSelected (questionIndex: ${questionIndex})`);
-  
+    
     // **3️⃣ Get the list of correct option IDs**
     const correctOptionIds = questionOptions
       .filter(o => o.correct && Number.isInteger(o.optionId)) 
@@ -686,7 +686,7 @@ export class SelectedOptionService {
     
     return allCorrectOptionsSelected;
   }
-  
+ 
  
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
