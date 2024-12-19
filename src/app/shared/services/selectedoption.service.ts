@@ -440,31 +440,33 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
-    // Validate the options
+    // Validate and assign option IDs**
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('Invalid questionOptions:', questionOptions);
+      console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
+      console.trace();
       return;
     }
   
-    // Get the list of selected options for the given question
-    const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-    
-    // Count the number of correct options for this question
+    // **Assign option IDs**
+    questionOptions = this.quizService.assignOptionIds(questionOptions, `updateAnsweredState (questionIndex: ${questionIndex})`);
+  
+    // 🔥 **2️⃣ Get selected options**
+    const selectedOptions = Array.from(this.selectedOptionsMap.get(questionIndex) || []);
+  
+    // 🔥 **3️⃣ Count the number of correct options**
     const correctOptionCount = questionOptions.filter(option => option.correct).length;
   
-    // Determine if this is a Multiple-Answer question
+    // 🔥 **4️⃣ Determine if it is a multiple-answer question**
     const isMultipleAnswer = correctOptionCount > 1;
   
-    // Check if all correct answers are selected
+    // 🔥 **5️⃣ Check if all correct answers are selected**
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
   
-    // Set the "isAnswered" state
-    const isAnswered = isMultipleAnswer 
-      ? allCorrectAnswersSelected 
-      : selectedOptions.length > 0;
+    // 🔥 **6️⃣ Set answered state only if all correct answers are selected**
+    const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
   
-    // Log for debugging
-    console.log('Answered State:', {
+    // 🔥 **7️⃣ Log Answered State**
+    console.log('📢 [updateAnsweredState] Answered State:', {
       selectedOptions,
       correctOptionCount,
       isMultipleAnswer,
@@ -472,15 +474,17 @@ export class SelectedOptionService {
       isAnswered
     });
   
-    // Update BehaviorSubject for Next button logic
+    // 🔥 **8️⃣ Update BehaviorSubject**
     this.isAnsweredSubject.next(isAnswered);
-    
-    // Stop the timer if all correct options are selected
+  
+    // 🔥 **9️⃣ Stop the timer if all correct options are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+      console.log('⏱️ [updateAnsweredState] Stopping the timer as all correct answers have been selected.');
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
   }
+  
 
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
     // Validate input
