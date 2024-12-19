@@ -891,7 +891,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isExplanationLocked = true; // Block explanation display until user interaction
     this.currentExplanationText = '';
     this.ensureQuestionTextDisplay();
-    console.log(`[loadQuestion] Initialized question ${this.currentQuestionIndex} to default question text.`);
+    console.log(`Initialized question ${this.currentQuestionIndex} to default question text.`);
   
     try {
       // Ensure a valid quiz ID is available
