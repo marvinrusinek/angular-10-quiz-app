@@ -573,7 +573,7 @@ export class SelectedOptionService {
       this.stopTimerEmitted = true; // Prevent future emissions
     }
   } */
-  updateAnsweredState(questionOptions?: Option[]): void {
+  updateAnsweredState(questionOptions: Option[]): void {
     // Get all selected options from the map
     const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
   
@@ -600,8 +600,8 @@ export class SelectedOptionService {
     });
   
     if (isAnswered) {
-      this.isAnsweredSubject.next(true);
       console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
+      this.isAnsweredSubject.next(true);
     } else {
       console.warn('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE. Reason:', 
         allCorrectAnswersSelected ? '' : '➡️ Not all correct answers selected.', 
@@ -610,8 +610,9 @@ export class SelectedOptionService {
       );
       this.isAnsweredSubject.next(false);
     }
-  }
   
+    console.log('🗂️ [updateAnsweredState] Full selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+  }
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // 🔥 **Check for missing optionIds in questionOptions**
