@@ -370,12 +370,22 @@ export class SelectedOptionService {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
       this.updateAnsweredState();
   
-      // 🛠️ Updated to check for valid optionId
+      // 🛠️ Ensure that options are properly initialized
       let options = this.selectedOptionsMap.get(questionIndex) || [];
+  
+      // 🛠️ Check if the option is already present
       if (!options.some(o => o.optionId === optionIndex)) {
-        const option = { optionId: optionIndex, text: `Option ${optionIndex + 1}` }; // Add option data
+        // ✅ Ensure the object matches the type for SelectedOption
+        const option: SelectedOption = {
+          optionId: optionIndex,
+          text: `Option ${optionIndex + 1}`, // Placeholder text
+          correct: false, // Assume false by default, you can update if necessary
+          questionIndex: questionIndex // Ensure questionIndex is included
+        };
+  
         options.push(option);
         this.selectedOptionsMap.set(questionIndex, options);
+        
         console.log('📢 [addSelectedOptionIndex] Updated selectedOptionsMap:', this.selectedOptionsMap);
       }
     }
