@@ -52,7 +52,8 @@ export class SelectedOptionService {
     return this.isOptionSelectedSubject.getValue();
   } */
 
-  saveState(): void {
+  // probably remove...
+  /* saveState(): void {
     localStorage.setItem('isAnswered', JSON.stringify(this.isAnsweredSubject.value));
   }
 
@@ -63,7 +64,7 @@ export class SelectedOptionService {
       console.log('Restoring isAnswered:', isAnswered);
       this.isAnsweredSubject.next(isAnswered);
     }
-  }
+  } */
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
