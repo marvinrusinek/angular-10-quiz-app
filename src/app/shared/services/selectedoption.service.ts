@@ -568,8 +568,8 @@ export class SelectedOptionService {
     }
   } */
   updateAnsweredState(questionOptions?: Option[]): void {
-    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat();
-  
+    const selectedOptions = Array.from(this.selectedOptionsMap.values()).flat().filter(option => option.optionId !== undefined && option.optionId !== null);
+    
     const correctOptionCount = questionOptions?.filter(option => option.correct).length ?? 0;
   
     const isMultipleAnswer = correctOptionCount > 1;
@@ -590,19 +590,21 @@ export class SelectedOptionService {
       isAnswered
     });
   
-    if (!isAnswered) {
-      console.error('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE.');
+    if (isAnswered) {
+      console.log('✅ [updateAnsweredState] Setting isAnsweredSubject to TRUE.');
+      this.isAnsweredSubject.next(true);
+    } else {
+      console.warn('❌ [updateAnsweredState] Setting isAnsweredSubject to FALSE.');
+      this.isAnsweredSubject.next(false);
     }
   
-    this.isAnsweredSubject.next(isAnswered);
-    console.log('[updateAnsweredState] isAnsweredSubject emitted (for Next button):', isAnswered);
-  
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-      console.log('[updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
+      console.log('🕒 [updateAnsweredState] All correct answers selected — emitting stopTimer$ event');
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
   }
+  
 
   /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex?: number): boolean {
     // 🔥 **Check for missing optionIds in questionOptions**
