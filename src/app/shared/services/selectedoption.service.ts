@@ -467,7 +467,7 @@ export class SelectedOptionService {
   
     // Stop the timer if all correct options are selected
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-      console.log('⏱️ [updateAnsweredState] Stopping the timer as all correct answers have been selected.');
+      console.log('[updateAnsweredState] Stopping the timer as all correct answers have been selected.');
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
