@@ -1685,14 +1685,14 @@ export class QuizService implements OnDestroy {
   shuffleQuestionsAndAnswers(quizId: string): void {
     this.fetchAndShuffleQuestions(quizId); // Fetch and shuffle questions
     this.questionsSubject.pipe(take(1)).subscribe((questions) => {
-      for (const question of questions) {
+      const typedQuestions = questions as QuizQuestion[];
+      for (const question of typedQuestions) {
         question.options = this.shuffleAnswers(question.options); // Shuffle answers
       }
-      this.questionsSubject.next(questions); // Emit updated questions with shuffled answers
+      this.questionsSubject.next(typedQuestions); // Emit updated questions with shuffled answers
       console.log('Questions and answers shuffled for quiz ID:', quizId);
     });
   }
-
 
   navigateToResults(): void {
     if (this.quizCompleted) {
