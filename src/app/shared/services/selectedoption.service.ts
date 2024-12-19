@@ -443,9 +443,16 @@ export class SelectedOptionService {
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
     // Validate and assign option IDs
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
-      console.trace(); // Trace where the undefined is coming from
-      return;
+      const fallbackQuestionIndex = this.quizService?.currentQuestionIndex ?? -1;
+      const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex);
+      if (!fallbackOptions) {
+        console.error('❌ [updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
+        console.trace('[updateAnsweredState] Call stack'); // Trace where the undefined is coming from
+        return;
+      }
+
+      questionOptions = fallbackOptions;
+      questionIndex = fallbackQuestionIndex;
     }
   
     // Get the list of selected options from the selectedOptionsMap
@@ -463,8 +470,20 @@ export class SelectedOptionService {
     // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
     const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
 
+    // Log the updated state
+    console.log('📢 [updateAnsweredState] Answered State:', {
+      questionOptions,
+      selectedOptions,
+      correctOptionCount,
+      questionIndex,
+      isMultipleAnswer,
+      allCorrectAnswersSelected,
+      isAnswered
+    });
+
     // Update BehaviorSubject for Next button logic
     this.isAnsweredSubject.next(isAnswered);
+    console.log('[updateAnsweredState] Setting isAnsweredSubject to', isAnswered);
   
     // Stop the timer if all correct options are selected
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
