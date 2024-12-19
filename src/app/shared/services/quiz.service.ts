@@ -2021,16 +2021,20 @@ export class QuizService implements OnDestroy {
     }
   
     return options.map((option, index) => {
-      if (!option) {
-        console.error(`❌ [assignOptionIds] Option is null or undefined at index: ${index} in ${context}`);
+      // **Check if option is a valid object**
+      if (!option || typeof option !== 'object' || Array.isArray(option)) {
+        console.error(`❌ [assignOptionIds] Option is null, undefined, or not an object at index: ${index} in ${context}`);
         option = { text: `Placeholder option at index ${index}`, optionId: index, correct: false };
       }
   
       // **Ensure optionId is valid**
-      option.optionId = option.optionId !== undefined && option.optionId !== null ? option.optionId : index;
+      if (!Number.isInteger(option.optionId) || option.optionId < 0) {
+        console.warn(`⚠️ [assignOptionIds] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
+        option.optionId = index; // 🔥 Assign fallback optionId
+      }
   
       // **Ensure option text is valid**
-      if (!option.text) {
+      if (!option.text || typeof option.text !== 'string' || option.text.trim() === '') {
         console.warn(`⚠️ [assignOptionIds] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
         option.text = `Option ${index + 1}`; // Provide default text if missing
       }
