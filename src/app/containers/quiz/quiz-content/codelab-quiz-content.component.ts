@@ -316,15 +316,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       });
   }
 
-  /* private initializeQuizQuestionComponent(): void {
-    if (this.quizQuestionComponent) {
-      this.isQuizQuestionComponentInitialized.next(true);
-      console.log('QuizQuestionComponent initialized successfully.');
-    } else {
-      console.warn('QuizQuestionComponent not found. Retrying initialization...');
-      this.retryInitializeQuizQuestionComponent();
-    }
-  } */
   private initializeQuizQuestionComponent(retries = 10): void {
     if (retries === 0) {
       console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
@@ -342,23 +333,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }, 200); // Adjust the delay as necessary
   }
 
-  /* private async retryInitializeQuizQuestionComponent(maxRetries = 10, delayMs = 200): Promise<boolean> {
-    let retries = 0;
-  
-    while (!this.quizQuestionComponent && retries < maxRetries) {
-      console.warn(`QuizQuestionComponent not initialized yet. Retrying... (${retries + 1}/${maxRetries})`);
-      retries++;
-      await new Promise(resolve => setTimeout(resolve, delayMs));
-    }
-  
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent successfully initialized after retries.');
-      return true;
-    }
-  
-    console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-    return false;
-  } */
   private retryInitializeQuizQuestionComponent(): Promise<boolean> {
     let retries = 0;
     const maxRetries = 10;
@@ -389,30 +363,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     console.log('Content is now available.');
   } */
   
-  
-  
-
-  /* private setupDisplayStateSubscription(): void {
-    combineLatest([this.displayState$, this.isQuizQuestionComponentInitialized])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([state, isInitialized]) => {
-        if (isInitialized) {
-          if (this.quizQuestionComponent) {
-            if (state.mode === 'explanation' && state.answered) {
-              console.log('Displaying explanation text.');
-              this.quizQuestionComponent.ensureExplanationTextDisplay();
-            } else {
-              console.log('Displaying question text.');
-              this.quizQuestionComponent.ensureQuestionTextDisplay();
-            }
-          } else {
-            console.error('QuizQuestionComponent unexpectedly null during display update.');
-          }
-        } else {
-          console.warn('QuizQuestionComponent not ready. Skipping display update.');
-        }
-      });
-  }  */
   private setupDisplayStateSubscription(): void {
     combineLatest([
       this.displayState$.pipe(distinctUntilChanged()), // Ensure state changes trigger updates
