@@ -441,6 +441,7 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
+    console.log("MY LOG");
     console.trace('[updateAnsweredState] Call stack'); // Trace where undefined is coming from
 
     // Validate and assign option IDs
