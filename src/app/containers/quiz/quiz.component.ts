@@ -975,8 +975,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = this.questions[this.currentQuestionIndex];
       this.isQuizLoaded = true;
 
-      console.log('Current question index:', this.currentQuestionIndex);
-
       return true;
     } catch (error) {
       console.error('Error loading quiz data:', error);
