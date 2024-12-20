@@ -604,16 +604,17 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false);
   }
   
-  getDefaultOptions(questionIndex: number): Option[] {
-    console.warn('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
-    
-    const defaultOptions: Option[] = Array.from({ length: 4 }, (_, index) => ({
-      optionId: index,
-      text: `Default Option ${index + 1}`,
-      correct: false,
-      questionIndex: questionIndex
+  private getDefaultOptions(questionIndex: number): Option[] {
+    console.warn('[getDefaultOptions] Generating default options for questionIndex:', questionIndex);
+
+    const defaultOptions = Array.from({ length: 4 }, (_, i) => ({
+        optionId: i,
+        text: `Default Option ${i + 1}`,
+        correct: i === 0, // Make the first option correct by default
+        selected: false,
     }));
-  
+
+    console.log('[getDefaultOptions] Default options generated:', defaultOptions);
     return defaultOptions;
   }
 
