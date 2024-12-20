@@ -934,31 +934,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
   }
 
-  /* private combineCurrentQuestionAndOptions(): Observable<{
-    currentQuestion: QuizQuestion | null;
-    currentOptions: Option[];
-  }> {
-    const question$ = this.quizService.getCurrentQuestion().pipe(
-      map((value) => value ?? null),
-      distinctUntilChanged()
-    );
-  
-    const options$ = this.quizService.getCurrentOptions(this.currentQuestionIndexValue).pipe(
-      map((value) => (Array.isArray(value) ? value : [])),
-      distinctUntilChanged()
-    );
-  
-    return combineLatest([question$, options$]).pipe(
-      map(([currentQuestion, currentOptions]) => ({
-        currentQuestion,
-        currentOptions,
-      })),
-      catchError((error) => {
-        console.error('Error combining current question and options:', error);
-        return of({ currentQuestion: null, currentOptions: [] });
-      })
-    );
-  } */
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return combineLatest([
       this.quizService.getCurrentQuestion(this.currentQuestionIndexValue), 
@@ -975,7 +950,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }
-  
 
   private calculateCombinedQuestionData(
     currentQuizData: CombinedQuestionDataType,
