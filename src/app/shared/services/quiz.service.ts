@@ -927,7 +927,7 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(questionIndex: number = this.quizService?.currentQuestionIndex ?? 0): Observable<Option[]> { 
+  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> { 
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
       console.error(`❌ [getCurrentOptions] Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       console.trace('[getCurrentOptions] Call stack');
