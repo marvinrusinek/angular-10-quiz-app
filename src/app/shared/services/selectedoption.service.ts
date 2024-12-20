@@ -481,7 +481,7 @@ export class SelectedOptionService {
     }
   
     // 🛠️ **Step 4: Get selected options using getSelectedOption()**
-    const selectedOptions = this.getSelectedOption(questionIndex);
+    const selectedOptions = this.getSelectedOption();
     const selectedOptionIds = Array.isArray(selectedOptions)
       ? selectedOptions.map(opt => opt.optionId) 
       : (selectedOptions?.optionId ? [selectedOptions.optionId] : []);
