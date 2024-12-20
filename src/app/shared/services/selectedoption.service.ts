@@ -433,11 +433,13 @@ export class SelectedOptionService {
       if (idx !== -1) options.splice(idx, 1);
       console.log(`[updateSelectedOptions] Removed option from selectedOptionsMap:`, option);
     }
-  
-    this.selectedOptionsMap.set(questionIndex, options);
 
+    this.selectedOptionsMap.set(questionIndex, options);
+    
     // Call updateAnsweredState every time selectedOptionsMap changes
-    this.updateAnsweredState(options, questionIndex);
+    if (options && options.length > 0) {
+      this.updateAnsweredState(options, questionIndex);
+    }
   }
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
