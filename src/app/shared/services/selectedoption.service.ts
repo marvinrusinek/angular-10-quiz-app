@@ -465,7 +465,7 @@ export class SelectedOptionService {
       questionIndex = fallbackQuestionIndex;
     }
   
-    // 🛠️ **Step 2: Inline Assign Option IDs**
+    // 🛠️ **Step 2: Inline Option ID assignment logic**
     questionOptions = questionOptions.map((option, index) => ({
       ...option,
       optionId: option.optionId ?? index // If optionId is missing, assign the index
@@ -480,30 +480,38 @@ export class SelectedOptionService {
       console.warn('⚠️ [updateAnsweredState] No correct options found for question index:', questionIndex);
     }
   
-    // 🛠️ **Step 4: Get selected options from selectedOptionsMap**
-    const selectedOptions = this.getSelectedOptions(questionIndex);
-    
+    // 🛠️ **Step 4: Get selected options using getSelectedOption()**
+    const selectedOptions = this.getSelectedOption(questionIndex);
+    const selectedOptionIds = Array.isArray(selectedOptions)
+      ? selectedOptions.map(opt => opt.optionId) 
+      : (selectedOptions?.optionId ? [selectedOptions.optionId] : []);
+  
+    if (!selectedOptionIds || selectedOptionIds.length === 0) {
+      console.warn(`⚠️ [updateAnsweredState] No selected options found for question index: ${questionIndex}`);
+    }
+  
     // 🛠️ **Step 5: Check if all correct answers are selected**
     const allCorrectAnswersSelected = correctOptionIds.length > 0 
-      ? correctOptionIds.every(id => selectedOptions.some(opt => opt.optionId === id)) 
+      ? correctOptionIds.every(id => selectedOptionIds.includes(id)) 
       : false;
   
-    // 🛠️ **Step 6: Determine isAnswered**
+    // 🛠️ **Step 6: Determine isAnswered state**
     const isMultipleAnswer = correctOptionIds.length > 1;
-    const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
+    const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptionIds.length > 0;
   
-    // 🛠️ **Step 7: Log the state**
+    // 🛠️ **Step 7: Log the final answered state**
     console.log('[updateAnsweredState] Answered State:', {
       questionOptions,
       selectedOptions,
       correctOptionIds,
+      selectedOptionIds,
       questionIndex,
       isMultipleAnswer,
       allCorrectAnswersSelected,
       isAnswered
     });
   
-    // 🛠️ **Step 8: Update BehaviorSubject for "Next" button logic**
+    // 🛠️ **Step 8: Update BehaviorSubject for Next button logic**
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] Setting isAnsweredSubject to', isAnswered);
   
