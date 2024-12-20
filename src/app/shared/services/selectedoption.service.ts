@@ -499,10 +499,17 @@ export class SelectedOptionService {
     // 1️⃣ Validate input
     if (!questionOptions || !Array.isArray(questionOptions)) {
       console.error('❌ [areAllCorrectAnswersSelected] Invalid questionOptions provided:', questionOptions, 'for questionIndex:', questionIndex);
+      console.trace('[areAllCorrectAnswersSelected] Call stack');
       return false;
     }
   
-    // 2️⃣ Filter out null or undefined options
+    // 2️⃣ Check if options array is empty
+    if (questionOptions.length === 0) {
+      console.warn('⚠️ [areAllCorrectAnswersSelected] No options found for question index:', questionIndex, '| Question Text:', questionText || 'N/A');
+      return false; // No options, no correct answers, exit early
+    }
+  
+    // 3️⃣ Filter out null or undefined options
     questionOptions = questionOptions.filter((option, index) => {
       if (!option) {
         console.error(`❌ [areAllCorrectAnswersSelected] Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
@@ -511,10 +518,10 @@ export class SelectedOptionService {
       return true;
     });
   
-    // 3️⃣ Ensure optionId is valid
+    // 4️⃣ Ensure optionId is present using assignOptionIds
     questionOptions = this.quizService.assignOptionIds(questionOptions);
   
-    // 4️⃣ Get the list of correct option IDs
+    // 5️⃣ Get the list of correct option IDs
     const correctOptionIds = questionOptions
       .filter(o => o.correct === true && Number.isInteger(o.optionId)) 
       .map(o => o.optionId);
@@ -531,7 +538,7 @@ export class SelectedOptionService {
       return false; // Return early since there are no correct options
     }
   
-    // 5️⃣ Get all selected option IDs from selectedOptionsMap
+    // 6️⃣ Get all selected option IDs from selectedOptionsMap
     const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
@@ -541,10 +548,9 @@ export class SelectedOptionService {
       )
     );
     
-    // 6️⃣ Check if all correct options are selected
+    // 7️⃣ Check if all correct options are selected
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
     
-    // 🟢 Return the result
     return allCorrectOptionsSelected;
   }
 
