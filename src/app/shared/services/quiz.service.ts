@@ -653,10 +653,8 @@ export class QuizService implements OnDestroy {
   
         const question = selectedQuiz.questions[questionIndex];
         
-        // 🚀 **Ensure optionIds are assigned**
+        // Ensure optionIds are assigned
         question.options = this.assignOptionIds(question.options);
-  
-        console.log('✅ [getCurrentQuestionByIndex] Assigned option IDs:', question.options.map(o => ({ optionId: o.optionId, text: o.text })));
   
         return question;
       }),
