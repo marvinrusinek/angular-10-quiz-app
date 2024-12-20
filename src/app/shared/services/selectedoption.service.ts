@@ -568,7 +568,7 @@ export class SelectedOptionService {
   }
   
   private getDefaultOptions(questionIndex: number): Option[] {
-    console.warn('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
+    console.info('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
 
     const defaultOptions = Array.from({ length: 4 }, (_, i) => ({
         optionId: i,
