@@ -927,7 +927,7 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(questionIndex: number = -1): Observable<Option[]> { 
+  getCurrentOptions(questionIndex: number = this.quizService?.currentQuestionIndex ?? 0): Observable<Option[]> { 
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
       console.error(`❌ [getCurrentOptions] Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       console.trace('[getCurrentOptions] Call stack');
@@ -939,7 +939,7 @@ export class QuizService implements OnDestroy {
     return this.getQuestionByIndex(questionIndex).pipe(
       tap((question) => {
         if (!question) {
-          console.warn(`⚠️ [getCurrentOptions] No question found for index: ${questionIndex}.`);
+          console.warn(`⚠️ [getCurrentOptions] No question found for the given index: ${questionIndex}.`);
         }
       }),
       map((question) => question?.options || []),
@@ -948,7 +948,8 @@ export class QuizService implements OnDestroy {
         return of([]); 
       })
     );
-  }    
+  }
+  
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
