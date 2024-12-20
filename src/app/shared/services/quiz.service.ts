@@ -2014,36 +2014,16 @@ export class QuizService implements OnDestroy {
   }
 
   // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
-  assignOptionIds(options: Option[], context: string = 'Unknown Context'): Option[] {
-    if (!options || !Array.isArray(options)) {
-      console.error(`❌ [assignOptionIds] Invalid options array in ${context}:`, options);
+  assignOptionIds(options: Option[]): Option[] {
+    if (!Array.isArray(options)) {
+      console.error('Expected an array of options but received:', options);
       return [];
     }
   
-    return options.map((option, index) => {
-      if (!option || typeof option !== 'object' || Array.isArray(option)) {
-        console.error(`❌ [assignOptionIds] Option is null, undefined, or not an object at index: ${index} in ${context}`);
-        option = { text: `Placeholder option at index ${index}`, optionId: index, correct: false };
-      }
-  
-      if (!Number.isInteger(option.optionId) || option.optionId < 0) {
-        console.warn(`⚠️ [assignOptionIds] optionId is missing or invalid at index ${index} in ${context}. Assigning fallback optionId.`);
-        option.optionId = index; 
-      }
-  
-      if (!option.text || typeof option.text !== 'string' || option.text.trim() === '') {
-        console.warn(`⚠️ [assignOptionIds] Option text is missing at index ${index} in ${context}. Assigning placeholder text.`);
-        option.text = `Option ${index + 1}`; 
-      }
-  
-      if (typeof option.correct !== 'boolean') {
-        console.warn(`⚠️ [assignOptionIds] Option "correct" is missing or invalid at index ${index} in ${context}. Setting default to false.`);
-        option.correct = false; 
-      }
-  
-      console.log(`✅ [assignOptionIds] Finalized option:`, option);
-      return option;
-    });
+    return options.map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index // If optionId is missing, assign index as optionId
+    }));
   }
   
   resetUserSelection(): void {
