@@ -339,41 +339,29 @@ export class SelectedOptionService {
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    if (!this.selectedOptionIndices[questionIndex]) {
-      this.selectedOptionIndices[questionIndex] = [];
+    console.log('🛠️ [addSelectedOptionIndex] Called with:', {
+        questionIndex,
+        optionIndex,
+    });
+
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+        this.selectedOptionsMap.set(questionIndex, []);
     }
-  
-    // 🚀 Ensure the optionIndex is unique for this questionIndex
-    if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
-      this.selectedOptionIndices[questionIndex].push(optionIndex);
-    
-      // 🚀 Update selectedOptionsMap properly
-      let options = this.selectedOptionsMap.get(questionIndex) || [];
-  
-      // 🚀 Check if the option is already in the selectedOptionsMap
-      const existingOption = options.find(o => o.optionId === optionIndex);
-      
-      if (!existingOption) {
-        // 🚀 Ensure the option is valid and follows the SelectedOption structure
-        const option: SelectedOption = {
-          optionId: optionIndex,
-          text: `Option ${optionIndex + 1}`, // Provide default text if text is missing
-          correct: false, // Set default to false unless otherwise specified
-          questionIndex: questionIndex
+
+    const options = this.selectedOptionsMap.get(questionIndex)!;
+    const existingOption = options.find(option => option.optionId === optionIndex);
+
+    if (!existingOption) {
+        const newOption: SelectedOption = {
+            optionId: optionIndex,
+            text: `Option ${optionIndex + 1}`,
+            correct: false,
+            questionIndex,
         };
-  
-        options.push(option);
-        
-        // 🚀 Set updated options into the selectedOptionsMap
-        this.selectedOptionsMap.set(questionIndex, options);
-        
-        console.log(`✅ [addSelectedOptionIndex] Added option for questionIndex: ${questionIndex}, optionIndex: ${optionIndex}`);
-        console.log('✅ Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
-      } else {
-        console.log(`⚠️ [addSelectedOptionIndex] Option already exists for questionIndex: ${questionIndex}, optionIndex: ${optionIndex}`);
-      }
+        options.push(newOption);
+        console.log('✅ [addSelectedOptionIndex] Added option:', newOption, 'to questionIndex:', questionIndex);
     } else {
-      console.log(`⚠️ [addSelectedOptionIndex] Option already present in selectedOptionIndices for questionIndex: ${questionIndex}, optionIndex: ${optionIndex}`);
+        console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption);
     }
   }
   
@@ -585,21 +573,22 @@ export class SelectedOptionService {
     const defaultOptions = Array.from({ length: 4 }, (_, i) => ({
         optionId: i,
         text: `Default Option ${i + 1}`,
-        correct: i === 0, // Make the first option correct by default
+        correct: false,
         selected: false,
+        questionIndex,
     }));
 
-    console.log('✅ [getDefaultOptions] Default options generated:', defaultOptions);
+    console.log('✅ [getDefaultOptions] Generated default options:', defaultOptions);
     return defaultOptions;
   }
 
   private getFallbackQuestionIndex(): number {
-    const currentKeys = Array.from(this.selectedOptionsMap.keys());
-    if (currentKeys.length > 0) {
-        console.log('✅ [getFallbackQuestionIndex] Derived fallback index from selectedOptionsMap:', currentKeys[0]);
-        return currentKeys[0]; // Use the first key in the map as a fallback
+    const keys = Array.from(this.selectedOptionsMap.keys());
+    if (keys.length > 0) {
+        console.log('✅ [getFallbackQuestionIndex] Using fallback index from selectedOptionsMap:', keys[0]);
+        return keys[0];
     }
-    console.warn('⚠️ [getFallbackQuestionIndex] No keys found in selectedOptionsMap. Defaulting to 0.');
-    return 0; // Default to 0 if no keys are present
+    console.warn('⚠️ [getFallbackQuestionIndex] No keys in selectedOptionsMap. Defaulting to 0.');
+    return 0;
   }
 }
