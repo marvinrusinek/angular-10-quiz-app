@@ -456,6 +456,15 @@ export class SelectedOptionService {
       questionOptions = fallbackOptions;
       questionIndex = fallbackQuestionIndex;
     }
+
+    if (typeof questionIndex !== 'number' || questionIndex < 0) {
+      console.warn(
+        '⚠️ [updateAnsweredState] Invalid questionIndex provided:', 
+        questionIndex
+      );
+      console.trace('[updateAnsweredState] Call stack');
+      return;
+    }
   
     // Get the list of selected options from the selectedOptionsMap
     const selectedOptions = Array.from(this.selectedOptionsMap.get(questionIndex) || []);
