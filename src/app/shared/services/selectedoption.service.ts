@@ -495,36 +495,43 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
-    // Validate input
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number, questionText?: string): boolean {
+    // 1️⃣ Validate input
     if (!questionOptions || !Array.isArray(questionOptions)) {
-      console.error('Invalid questionOptions provided:', questionOptions);
+      console.error('❌ [areAllCorrectAnswersSelected] Invalid questionOptions provided:', questionOptions, 'for questionIndex:', questionIndex);
       return false;
     }
   
-    // Filter out any undefined/null options
+    // 2️⃣ Filter out null or undefined options
     questionOptions = questionOptions.filter((option, index) => {
       if (!option) {
-        console.error(`Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
+        console.error(`❌ [areAllCorrectAnswersSelected] Option is null or undefined at index: ${index} in questionIndex: ${questionIndex}`);
         return false;
       }
       return true;
     });
   
-    // Ensure optionId is present using assignOptionIds
-    questionOptions = this.quizService.assignOptionIds(questionOptions, `areAllCorrectAnswersSelected (questionIndex: ${questionIndex})`);
+    // 3️⃣ Ensure optionId is valid
+    questionOptions = this.quizService.assignOptionIds(questionOptions);
   
-    // Get the list of correct option IDs
+    // 4️⃣ Get the list of correct option IDs
     const correctOptionIds = questionOptions
-      .filter(o => o.correct && Number.isInteger(o.optionId)) 
+      .filter(o => o.correct === true && Number.isInteger(o.optionId)) 
       .map(o => o.optionId);
     
     if (correctOptionIds.length === 0) {
-      console.warn('No correct options found for question index:', questionIndex);
-      return false; // Return false early if no correct options exist
+      console.warn(
+        '⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:',
+        questionIndex,
+        '| Question Text:',
+        questionText || 'N/A',
+        '| Options:',
+        questionOptions
+      );
+      return false; // Return early since there are no correct options
     }
   
-    // Get all selected option IDs from selectedOptionsMap
+    // 5️⃣ Get all selected option IDs from selectedOptionsMap
     const selectedOptionIds = Array.from(
       new Set(
         Array.from(this.selectedOptionsMap.values())
@@ -534,8 +541,10 @@ export class SelectedOptionService {
       )
     );
     
-    // Check if all correct options are selected
+    // 6️⃣ Check if all correct options are selected
     const allCorrectOptionsSelected = correctOptionIds.every(id => selectedOptionIds.includes(id));
+    
+    // 🟢 Return the result
     return allCorrectOptionsSelected;
   }
 
