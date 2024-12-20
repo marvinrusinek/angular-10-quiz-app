@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -21,7 +21,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
@@ -262,16 +262,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupCombinedTextObservable();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
-  }
-
-  ngAfterViewInit(): void {
-    console.log('ngAfterViewInit triggered');
-    if (this.quizQuestionComponent) {
-      console.log('QuizQuestionComponent is ready:', this.quizQuestionComponent);
-      this.setupDisplayStateSubscription();
-    } else {
-      console.warn('QuizQuestionComponent is not available in ngAfterViewInit.');
-    }
   }
   
   ngAfterViewChecked(): void {
