@@ -535,17 +535,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async restoreSelectionState(): Promise<void> {
-    const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
-  
-    // Re-apply selected states to options
-    for (const optionId of selectedOptions) {
-      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionId);
+    try {
+      const selectedOptions = this.selectedOptionService.getSelectedOptionIndices(this.currentQuestionIndex);
+    
+      // Re-apply selected states to options
+      for (const optionId of selectedOptions) {
+        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionId);
+      }
+    
+      console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
+    
+      // Get the question options to update the answered state
+      const questionOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
+    
+      // Update the answered state
+      this.selectedOptionService.updateAnsweredState(questionOptions, this.currentQuestionIndex);
+    } catch (error) {
+      console.error('[restoreSelectionState] Unhandled error:', error);
     }
-
-    console.log(`Restored selected options for question ${this.currentQuestionIndex}:`, selectedOptions);
-  
-    // After restoring, update the answered state
-    this.selectedOptionService.updateAnsweredState();
   }
 
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
