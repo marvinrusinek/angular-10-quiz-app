@@ -446,66 +446,64 @@ export class SelectedOptionService {
     console.log('🛠️ [updateAnsweredState] Called with:', {
       questionOptions,
       questionIndex,
-      fallbackIndex: this.quizService?.currentQuestionIndex ?? -1
+      fallbackIndex: this.getLatestQuestionIndex()
     });
     console.trace('[updateAnsweredState] Call stack');
-
-    // Validate and assign option IDs
-    // Fallback if questionOptions or questionIndex is missing
+  
+    // 🛠️ **Step 1: Handle missing options and questionIndex**
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      const fallbackQuestionIndex = questionIndex ?? this.quizService?.currentQuestionIndex ?? -1;
+      const fallbackQuestionIndex = questionIndex !== -1 ? questionIndex : this.getLatestQuestionIndex();
       const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
-      
-      // **Check if fallbackOptions is valid**
+  
       if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
-        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
-        console.warn('Options from selectedOptionsMap:', fallbackOptions);
+        console.error('❌ [updateAnsweredState] No valid options found for question index:', fallbackQuestionIndex);
         return; // Exit early to prevent errors
       }
-
+  
       questionOptions = fallbackOptions;
       questionIndex = fallbackQuestionIndex;
     }
-
-    // Call areAllCorrectAnswersSelected only if questionOptions are valid
-    if (Array.isArray(questionOptions) && questionOptions.length > 0 && questionIndex !== undefined) {
-      const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-      console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected, 'for question index:', questionIndex);
-    } else {
-      console.warn('⚠️ [updateAnsweredState] Skipping areAllCorrectAnswersSelected due to invalid questionOptions or questionIndex.');
+  
+    // 🛠️ **Step 2: Assign option IDs (local logic, no calls to quizService)**
+    questionOptions = this.assignOptionIds(questionOptions, `updateAnsweredState (questionIndex: ${questionIndex})`);
+  
+    // 🛠️ **Step 3: Calculate correct answers**
+    const correctOptionIds = questionOptions
+      .filter(option => option.correct)
+      .map(option => option.optionId);
+  
+    if (correctOptionIds.length === 0) {
+      console.warn('⚠️ [updateAnsweredState] No correct options found for question index:', questionIndex);
     }
   
-    // Get the list of selected options from the selectedOptionsMap
-    const selectedOptions = Array.from(this.selectedOptionsMap.get(questionIndex) || []);
+    // 🛠️ **Step 4: Get selected options from selectedOptionsMap**
+    const selectedOptions = this.getSelectedOptions(questionIndex);
+    
+    // 🛠️ **Step 5: Check if all correct answers are selected**
+    const allCorrectAnswersSelected = correctOptionIds.length > 0 
+      ? correctOptionIds.every(id => selectedOptions.some(opt => opt.optionId === id)) 
+      : false;
   
-    // Count the number of correct options
-    const correctOptionCount = questionOptions.filter(option => option.correct).length;
-  
-    // Determine if this is a multiple-answer question
-    const isMultipleAnswer = correctOptionCount > 1;
-  
-    // Check if all correct answers are selected
-    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-  
-    // Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions
+    // 🛠️ **Step 6: Determine isAnswered**
+    const isMultipleAnswer = correctOptionIds.length > 1;
     const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
-
-    // Log the updated state
+  
+    // 🛠️ **Step 7: Log the state**
     console.log('[updateAnsweredState] Answered State:', {
       questionOptions,
       selectedOptions,
-      correctOptionCount,
+      correctOptionIds,
       questionIndex,
       isMultipleAnswer,
       allCorrectAnswersSelected,
       isAnswered
     });
-
-    // Update BehaviorSubject for Next button logic
+  
+    // 🛠️ **Step 8: Update BehaviorSubject for "Next" button logic**
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] Setting isAnsweredSubject to', isAnswered);
   
-    // Stop the timer if all correct options are selected
+    // 🛠️ **Step 9: Stop the timer if all correct options are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
       console.log('[updateAnsweredState] Stopping the timer as all correct answers have been selected.');
       this.stopTimer$.next();
