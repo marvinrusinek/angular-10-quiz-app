@@ -343,40 +343,40 @@ export class SelectedOptionService {
       this.selectedOptionIndices[questionIndex] = [];
     }
   
+    // 🚀 Ensure the optionIndex is unique for this questionIndex
     if (!this.selectedOptionIndices[questionIndex].includes(optionIndex)) {
       this.selectedOptionIndices[questionIndex].push(optionIndex);
-  
-      // Update selectedOptionsMap properly using updateSelectedOptions()
-      this.updateSelectedOptions(questionIndex, optionIndex, 'add');
-  
-      // Check if the selectedOptionsMap already has this question
+    
+      // 🚀 Update selectedOptionsMap properly
       let options = this.selectedOptionsMap.get(questionIndex) || [];
   
-      // Check if the option is already in selectedOptionsMap
+      // 🚀 Check if the option is already in the selectedOptionsMap
       const existingOption = options.find(o => o.optionId === optionIndex);
       
       if (!existingOption) {
-        // Ensure the option is valid and follows the SelectedOption structure
+        // 🚀 Ensure the option is valid and follows the SelectedOption structure
         const option: SelectedOption = {
           optionId: optionIndex,
-          text: `Option ${optionIndex + 1}`,
-          correct: false,
+          text: `Option ${optionIndex + 1}`, // Provide default text if text is missing
+          correct: false, // Set default to false unless otherwise specified
           questionIndex: questionIndex
         };
   
         options.push(option);
         
-        // Set updated options into the map
+        // 🚀 Set updated options into the selectedOptionsMap
         this.selectedOptionsMap.set(questionIndex, options);
         
-        // Log updated selectedOptionsMap
-        console.log('Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+        console.log(`✅ [addSelectedOptionIndex] Added option for questionIndex: ${questionIndex}, optionIndex: ${optionIndex}`);
+        console.log('✅ Updated selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
       } else {
-        console.log('Option already exists in selectedOptionsMap:', existingOption);
+        console.log(`⚠️ [addSelectedOptionIndex] Option already exists for questionIndex: ${questionIndex}, optionIndex: ${optionIndex}`);
       }
+    } else {
+      console.log(`⚠️ [addSelectedOptionIndex] Option already present in selectedOptionIndices for questionIndex: ${questionIndex}, optionIndex: ${optionIndex}`);
     }
   }
-
+  
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
       const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
