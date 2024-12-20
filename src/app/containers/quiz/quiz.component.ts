@@ -951,7 +951,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     try {
-      console.log('Fetching quiz data for quizId:', this.quizId);
+      console.log('Fetching quiz data for quizId::>>', this.quizId);
 
       // Fetch quiz data using quizId
       const quiz = await firstValueFrom(
@@ -2266,7 +2266,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Check if any option is selected OR all correct answers are selected
     const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
-    const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay);
+    const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay, this.currentQuestionIndex);
     
     return isAnyOptionSelected || areAllCorrectSelected;
   }
