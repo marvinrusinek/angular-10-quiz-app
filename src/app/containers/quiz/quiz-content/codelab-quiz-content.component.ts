@@ -1055,54 +1055,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('');
       })
     );
-  }
-  /* private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.quizStateService.currentQuestion$.pipe(
-        startWith(null),
-        distinctUntilChanged()
-      ),
-      this.explanationTextService.formattedExplanation$.pipe(
-        startWith(''),
-        distinctUntilChanged()
-      ),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        startWith(false),
-        distinctUntilChanged()
-      ),
-      this.quizStateService.currentQuestionIndex$.pipe(
-        startWith(0),
-        distinctUntilChanged()
-      ),
-      this.correctAnswersTextSource.pipe(
-        startWith(''),
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      map(([currentQuestion, formattedExplanation, shouldDisplayExplanation, questionIndex, correctAnswersText]) => {
-        if (!currentQuestion) {
-          return 'No question or explanation available.';
-        }
-  
-        if (shouldDisplayExplanation) {
-          return formattedExplanation || 'Explanation unavailable.';
-        }
-  
-        let displayText = currentQuestion.questionText || 'No question text available.';
-        if (correctAnswersText) {
-          displayText += ` ${correctAnswersText}`;
-        }
-  
-        return displayText.trim();
-      }),
-      distinctUntilChanged(),
-      catchError((error: Error) => {
-        console.error('Error in combinedText$ observable:', error);
-        return of('Error loading question or explanation text.');
-      })
-    );
-  } */
-  
+  }  
 
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
