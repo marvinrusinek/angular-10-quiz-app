@@ -603,9 +603,22 @@ export class SelectedOptionService {
   resetSelectedOption(): void {
     this.isOptionSelectedSubject.next(false);
   }
+  
+  getDefaultOptions(questionIndex: number): Option[] {
+    console.warn('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
+    
+    const defaultOptions: Option[] = Array.from({ length: 4 }, (_, index) => ({
+      optionId: index,
+      text: `Default Option ${index + 1}`,
+      correct: false,
+      questionIndex: questionIndex
+    }));
+  
+    return defaultOptions;
+  }
 
   private getLatestQuestionIndex(): number {
     if (!this.selectedOptionsMap || this.selectedOptionsMap.size === 0) return -1;
     return Math.max(...Array.from(this.selectedOptionsMap.keys()));
-  }  
+  }
 }
