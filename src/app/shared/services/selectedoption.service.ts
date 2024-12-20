@@ -495,10 +495,12 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number, questionText?: string): boolean {
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number, questionText: string = 'N/A'): boolean {
     // 1️⃣ Validate input early
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.warn('⚠️ [areAllCorrectAnswersSelected] No options found for question index:', questionIndex, '| Question Text:', questionText || 'N/A');
+      console.warn('⚠️ [areAllCorrectAnswersSelected] No options found for question index:', questionIndex, 
+        '| Question Text:', questionText, 
+        '| Options:', questionOptions);
       console.trace('[areAllCorrectAnswersSelected] Call stack');
       return false; 
     }
@@ -513,7 +515,7 @@ export class SelectedOptionService {
     });
   
     // 3️⃣ Ensure optionId is present using assignOptionIds
-    questionOptions = this.quizService.assignOptionIds(questionOptions);
+    questionOptions = this.quizService.assignOptionIds(questionOptions, `areAllCorrectAnswersSelected (questionIndex: ${questionIndex})`);
   
     // 4️⃣ Get the list of correct option IDs
     const correctOptionIds = questionOptions
@@ -525,9 +527,9 @@ export class SelectedOptionService {
         '⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:',
         questionIndex,
         '| Question Text:',
-        questionText || 'N/A',
+        questionText,
         '| Options:',
-        questionOptions
+        questionOptions.map(o => ({ optionId: o.optionId, text: o.text }))
       );
       return false; 
     }
