@@ -399,7 +399,7 @@ export class SelectedOptionService {
       this.selectedOptionsMap.set(questionIndex, []);
     }
 
-    const options = this.selectedOptionsMap.get(questionIndex);
+    const options = this.selectedOptionsMap.get(questionIndex) || [];
     const index = options.findIndex(
       selectedOption => selectedOption.optionId === option.optionId
     );
@@ -414,6 +414,8 @@ export class SelectedOptionService {
 
     this.selectedOptionsMap.set(questionIndex, options);
     console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
+
+    this.updateSelectedOptions(questionIndex, option.optionId, 'add');
   }
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
