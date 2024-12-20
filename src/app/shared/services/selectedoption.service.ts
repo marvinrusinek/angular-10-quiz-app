@@ -435,7 +435,7 @@ export class SelectedOptionService {
     }
 
     this.selectedOptionsMap.set(questionIndex, options);
-    
+
     // Call updateAnsweredState every time selectedOptionsMap changes
     if (options && options.length > 0) {
       this.updateAnsweredState(options, questionIndex);
@@ -443,29 +443,36 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    console.log("MY LOG");
-    console.trace('[updateAnsweredState] Call stack'); // Trace where undefined is coming from
+    console.log('🛠️ [updateAnsweredState] Called with:', {
+      questionOptions,
+      questionIndex,
+      fallbackIndex: this.quizService?.currentQuestionIndex ?? -1
+    });
+    console.trace('[updateAnsweredState] Call stack');
 
     // Validate and assign option IDs
-    if (!questionOptions || !Array.isArray(questionOptions)) {
-      const fallbackQuestionIndex = this.quizService?.currentQuestionIndex ?? -1;
-      const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex);
-      if (!fallbackOptions) {
-        console.error('[updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
-        return;
+    // Fallback if questionOptions or questionIndex is missing
+    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+      const fallbackQuestionIndex = questionIndex ?? this.quizService?.currentQuestionIndex ?? -1;
+      const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
+      
+      // **Check if fallbackOptions is valid**
+      if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
+        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
+        console.warn('Options from selectedOptionsMap:', fallbackOptions);
+        return; // Exit early to prevent errors
       }
 
       questionOptions = fallbackOptions;
       questionIndex = fallbackQuestionIndex;
     }
 
-    if (typeof questionIndex !== 'number' || questionIndex < 0) {
-      console.warn(
-        '⚠️ [updateAnsweredState] Invalid questionIndex provided:', 
-        questionIndex
-      );
-      console.trace('[updateAnsweredState] Call stack');
-      return;
+    // Call areAllCorrectAnswersSelected only if questionOptions are valid
+    if (Array.isArray(questionOptions) && questionOptions.length > 0 && questionIndex !== undefined) {
+      const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
+      console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected, 'for question index:', questionIndex);
+    } else {
+      console.warn('⚠️ [updateAnsweredState] Skipping areAllCorrectAnswersSelected due to invalid questionOptions or questionIndex.');
     }
   
     // Get the list of selected options from the selectedOptionsMap
