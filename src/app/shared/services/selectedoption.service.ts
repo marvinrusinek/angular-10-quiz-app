@@ -571,11 +571,11 @@ export class SelectedOptionService {
     console.info('Generating default options for questionIndex:', questionIndex);
 
     const defaultOptions = Array.from({ length: 4 }, (_, i) => ({
-        optionId: i,
-        text: `Default Option ${i + 1}`,
-        correct: false,
-        selected: false,
-        questionIndex,
+      optionId: i,
+      text: `Default Option ${i + 1}`,
+      correct: false,
+      selected: false,
+      questionIndex
     }));
 
     console.log('Generated default options:', defaultOptions);
