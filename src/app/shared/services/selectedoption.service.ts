@@ -448,48 +448,37 @@ export class SelectedOptionService {
         questionIndex,
     });
 
-    // Validate and assign options
+    // **Validate and Assign Options**
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
 
-        // Use fallback index and options
-        const fallbackQuestionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
-        const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
+        // **Fallback Mechanism**
+        questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
 
-        if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
-            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
-
-            // Log `selectedOptionsMap` content for debugging
-            console.log('SelectedOptionsMap Content:', Array.from(this.selectedOptionsMap.entries()));
-
-            // Use default options as a last resort
-            questionOptions = this.getDefaultOptions(fallbackQuestionIndex);
-        } else {
-            questionOptions = fallbackOptions;
-            console.log('✅ [updateAnsweredState] Using fallback options:', questionOptions);
+        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
+            questionOptions = this.getDefaultOptions(questionIndex); // Use default options as a last resort
         }
-
-        questionIndex = fallbackQuestionIndex;
     }
 
-    // Log question options after fallback handling
-    console.log('[updateAnsweredState] Final questionOptions:', questionOptions);
+    console.log('[updateAnsweredState] Final questionOptions after fallback:', questionOptions);
 
-    // If options are still invalid, exit early
+    // **Exit Early if Options Are Still Invalid**
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
         return;
     }
 
-    // Check if all correct answers are selected
+    // **Check If All Correct Answers Are Selected**
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-    console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected, 'for question index:', questionIndex);
+    console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected);
 
-    // Determine answered state
+    // **Determine Answered State**
     const isAnswered = questionOptions.some(option => option.selected);
     this.isAnsweredSubject.next(isAnswered);
 
-    // Stop the timer if all correct answers are selected
+    // **Stop Timer If All Correct Answers Are Selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
         console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
         this.stopTimer$.next();
