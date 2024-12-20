@@ -446,82 +446,77 @@ export class SelectedOptionService {
     console.log('🛠️ [updateAnsweredState] Called with:', {
       questionOptions,
       questionIndex,
-      fallbackIndex: this.getLatestQuestionIndex()
+      fallbackIndex: this.quizService?.currentQuestionIndex ?? -1
     });
     console.trace('[updateAnsweredState] Call stack');
   
-    // 🛠️ **Step 1: Handle missing options and questionIndex**
+    // 🚀 **1️⃣ Ensure Options Are Valid**
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      const fallbackQuestionIndex = questionIndex !== -1 ? questionIndex : this.getLatestQuestionIndex();
+      console.warn('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
+  
+      // **Fallback Strategy 1**: Get options from selectedOptionsMap
+      const fallbackQuestionIndex = questionIndex >= 0 ? questionIndex : (this.quizService?.currentQuestionIndex ?? -1);
       const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
-  
-      if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
-        console.error('❌ [updateAnsweredState] No valid options found for question index:', fallbackQuestionIndex);
+      
+      if (Array.isArray(fallbackOptions) && fallbackOptions.length > 0) {
+        questionOptions = fallbackOptions;
+        questionIndex = fallbackQuestionIndex;
+        console.log('✅ [updateAnsweredState] Options found from selectedOptionsMap.');
+      } else {
+        // **Fallback Strategy 2**: Use default placeholder options if no options exist
+        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
         console.warn('Options from selectedOptionsMap:', fallbackOptions);
-        return; // Exit early to prevent errors
+  
+        questionOptions = this.getDefaultOptions(fallbackQuestionIndex);
+        console.warn('⚠️ [updateAnsweredState] Using default options:', questionOptions);
       }
-  
-      questionOptions = fallbackOptions;
-      questionIndex = fallbackQuestionIndex;
     }
   
-    // 🛠️ **Step 2: Inline Option ID assignment logic**
-    questionOptions = questionOptions.map((option, index) => ({
-      ...option,
-      optionId: option.optionId ?? index // If optionId is missing, assign the index
-    }));
-  
-    // 🛠️ **Step 3: Calculate correct answers**
-    const correctOptionIds = questionOptions
-      .filter(option => option.correct)
-      .map(option => option.optionId);
-  
-    if (correctOptionIds.length === 0) {
-      console.warn('⚠️ [updateAnsweredState] No correct options found for question index:', questionIndex);
+    // 🚀 **2️⃣ Call areAllCorrectAnswersSelected only if questionOptions are valid**
+    if (Array.isArray(questionOptions) && questionOptions.length > 0 && questionIndex !== undefined) {
+      const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
+      console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected, 'for question index:', questionIndex);
+    } else {
+      console.warn('⚠️ [updateAnsweredState] Skipping areAllCorrectAnswersSelected due to invalid questionOptions or questionIndex.');
     }
   
-    // 🛠️ **Step 4: Get selected options using getSelectedOption()**
-    const selectedOptions = this.getSelectedOption();
-    const selectedOptionIds = Array.isArray(selectedOptions)
-      ? selectedOptions.map(opt => opt.optionId) 
-      : (selectedOptions?.optionId ? [selectedOptions.optionId] : []);
+    // 🚀 **3️⃣ Get the list of selected options from the selectedOptionsMap**
+    const selectedOptions = Array.from(this.selectedOptionsMap.get(questionIndex) || []);
   
-    if (!selectedOptionIds || selectedOptionIds.length === 0) {
-      console.warn(`⚠️ [updateAnsweredState] No selected options found for question index: ${questionIndex}`);
-    }
+    // 🚀 **4️⃣ Count the number of correct options**
+    const correctOptionCount = questionOptions.filter(option => option.correct).length;
   
-    // 🛠️ **Step 5: Check if all correct answers are selected**
-    const allCorrectAnswersSelected = correctOptionIds.length > 0 
-      ? correctOptionIds.every(id => selectedOptionIds.includes(id)) 
-      : false;
+    // 🚀 **5️⃣ Determine if this is a multiple-answer question**
+    const isMultipleAnswer = correctOptionCount > 1;
   
-    // 🛠️ **Step 6: Determine isAnswered state**
-    const isMultipleAnswer = correctOptionIds.length > 1;
-    const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptionIds.length > 0;
+    // 🚀 **6️⃣ Check if all correct answers are selected**
+    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
   
-    // 🛠️ **Step 7: Log the final answered state**
+    // 🚀 **7️⃣ Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions**
+    const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
+  
+    // 🚀 **8️⃣ Log the updated state**
     console.log('[updateAnsweredState] Answered State:', {
       questionOptions,
       selectedOptions,
-      correctOptionIds,
-      selectedOptionIds,
+      correctOptionCount,
       questionIndex,
       isMultipleAnswer,
       allCorrectAnswersSelected,
       isAnswered
     });
   
-    // 🛠️ **Step 8: Update BehaviorSubject for Next button logic**
+    // 🚀 **9️⃣ Update BehaviorSubject for Next button logic**
     this.isAnsweredSubject.next(isAnswered);
     console.log('[updateAnsweredState] Setting isAnsweredSubject to', isAnswered);
   
-    // 🛠️ **Step 9: Stop the timer if all correct options are selected**
+    // 🚀 **🔟 Stop the timer if all correct options are selected**
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
       console.log('[updateAnsweredState] Stopping the timer as all correct answers have been selected.');
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
-  }  
+  }
 
   areAllCorrectAnswersSelected(questionOptions?: Option[], questionIndex?: number, questionText: string = 'N/A'): boolean {
     // 1️⃣ Validate input early
