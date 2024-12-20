@@ -448,15 +448,21 @@ export class SelectedOptionService {
         questionIndex,
     });
 
-    // Handle missing or invalid questionOptions
+    // Validate and assign options
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
 
+        // Use fallback index and options
         const fallbackQuestionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
         const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
 
         if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
             console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
+
+            // Log `selectedOptionsMap` content for debugging
+            console.log('SelectedOptionsMap Content:', Array.from(this.selectedOptionsMap.entries()));
+
+            // Use default options as a last resort
             questionOptions = this.getDefaultOptions(fallbackQuestionIndex);
         } else {
             questionOptions = fallbackOptions;
@@ -466,7 +472,10 @@ export class SelectedOptionService {
         questionIndex = fallbackQuestionIndex;
     }
 
-    // Ensure we have valid options to work with
+    // Log question options after fallback handling
+    console.log('[updateAnsweredState] Final questionOptions:', questionOptions);
+
+    // If options are still invalid, exit early
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
         return;
