@@ -457,6 +457,7 @@ export class SelectedOptionService {
   
       if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
         console.error('❌ [updateAnsweredState] No valid options found for question index:', fallbackQuestionIndex);
+        console.warn('Options from selectedOptionsMap:', fallbackOptions);
         return; // Exit early to prevent errors
       }
   
@@ -464,8 +465,11 @@ export class SelectedOptionService {
       questionIndex = fallbackQuestionIndex;
     }
   
-    // 🛠️ **Step 2: Assign option IDs (local logic, no calls to quizService)**
-    questionOptions = this.assignOptionIds(questionOptions, `updateAnsweredState (questionIndex: ${questionIndex})`);
+    // 🛠️ **Step 2: Inline Assign Option IDs**
+    questionOptions = questionOptions.map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index // If optionId is missing, assign the index
+    }));
   
     // 🛠️ **Step 3: Calculate correct answers**
     const correctOptionIds = questionOptions
@@ -509,7 +513,7 @@ export class SelectedOptionService {
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
-  }
+  }  
 
   areAllCorrectAnswersSelected(questionOptions?: Option[], questionIndex?: number, questionText: string = 'N/A'): boolean {
     // 1️⃣ Validate input early
