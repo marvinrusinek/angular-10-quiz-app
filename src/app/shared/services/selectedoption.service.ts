@@ -444,78 +444,55 @@ export class SelectedOptionService {
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     console.log('🛠️ [updateAnsweredState] Called with:', {
-      questionOptions,
-      questionIndex,
-      fallbackIndex: this.quizService?.currentQuestionIndex ?? -1
+        questionOptions,
+        questionIndex,
     });
-    console.trace('[updateAnsweredState] Call stack');
-  
-    // 🚀 **1️⃣ Ensure Options Are Valid**
+
+    // Handle missing or invalid questionOptions
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.warn('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
-  
-      // **Fallback Strategy 1**: Get options from selectedOptionsMap
-      const fallbackQuestionIndex = questionIndex >= 0 ? questionIndex : (this.quizService?.currentQuestionIndex ?? -1);
-      const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
-      
-      if (Array.isArray(fallbackOptions) && fallbackOptions.length > 0) {
-        questionOptions = fallbackOptions;
+        console.warn('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
+
+        const fallbackQuestionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
+        const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex) ?? [];
+
+        if (!Array.isArray(fallbackOptions) || fallbackOptions.length === 0) {
+            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
+            questionOptions = this.getDefaultOptions(fallbackQuestionIndex);
+        } else {
+            questionOptions = fallbackOptions;
+            console.log('✅ [updateAnsweredState] Using fallback options:', questionOptions);
+        }
+
         questionIndex = fallbackQuestionIndex;
-        console.log('✅ [updateAnsweredState] Options found from selectedOptionsMap.');
-      } else {
-        // **Fallback Strategy 2**: Use default placeholder options if no options exist
-        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', fallbackQuestionIndex);
-        console.warn('Options from selectedOptionsMap:', fallbackOptions);
-  
-        questionOptions = this.getDefaultOptions(fallbackQuestionIndex);
-        console.warn('⚠️ [updateAnsweredState] Using default options:', questionOptions);
-      }
     }
-  
-    // 🚀 **2️⃣ Call areAllCorrectAnswersSelected only if questionOptions are valid**
-    if (Array.isArray(questionOptions) && questionOptions.length > 0 && questionIndex !== undefined) {
-      const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-      console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected, 'for question index:', questionIndex);
-    } else {
-      console.warn('⚠️ [updateAnsweredState] Skipping areAllCorrectAnswersSelected due to invalid questionOptions or questionIndex.');
+
+    // Ensure we have valid options to work with
+    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
+        return;
     }
-  
-    // 🚀 **3️⃣ Get the list of selected options from the selectedOptionsMap**
-    const selectedOptions = Array.from(this.selectedOptionsMap.get(questionIndex) || []);
-  
-    // 🚀 **4️⃣ Count the number of correct options**
-    const correctOptionCount = questionOptions.filter(option => option.correct).length;
-  
-    // 🚀 **5️⃣ Determine if this is a multiple-answer question**
-    const isMultipleAnswer = correctOptionCount > 1;
-  
-    // 🚀 **6️⃣ Check if all correct answers are selected**
+
+    // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-  
-    // 🚀 **7️⃣ Set the "isAnswered" state ONLY if all correct answers are selected for multiple-answer questions**
-    const isAnswered = isMultipleAnswer ? allCorrectAnswersSelected : selectedOptions.length > 0;
-  
-    // 🚀 **8️⃣ Log the updated state**
-    console.log('[updateAnsweredState] Answered State:', {
-      questionOptions,
-      selectedOptions,
-      correctOptionCount,
-      questionIndex,
-      isMultipleAnswer,
-      allCorrectAnswersSelected,
-      isAnswered
-    });
-  
-    // 🚀 **9️⃣ Update BehaviorSubject for Next button logic**
+    console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected, 'for question index:', questionIndex);
+
+    // Determine answered state
+    const isAnswered = questionOptions.some(option => option.selected);
     this.isAnsweredSubject.next(isAnswered);
-    console.log('[updateAnsweredState] Setting isAnsweredSubject to', isAnswered);
-  
-    // 🚀 **🔟 Stop the timer if all correct options are selected**
+
+    // Stop the timer if all correct answers are selected
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-      console.log('[updateAnsweredState] Stopping the timer as all correct answers have been selected.');
-      this.stopTimer$.next();
-      this.stopTimerEmitted = true;
+        console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
+        this.stopTimer$.next();
+        this.stopTimerEmitted = true;
     }
+
+    console.log('[updateAnsweredState] Final state:', {
+        questionOptions,
+        questionIndex,
+        allCorrectAnswersSelected,
+        isAnswered,
+    });
   }
 
   areAllCorrectAnswersSelected(questionOptions?: Option[], questionIndex?: number, questionText: string = 'N/A'): boolean {
@@ -605,7 +582,7 @@ export class SelectedOptionService {
   }
   
   private getDefaultOptions(questionIndex: number): Option[] {
-    console.warn('[getDefaultOptions] Generating default options for questionIndex:', questionIndex);
+    console.warn('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
 
     const defaultOptions = Array.from({ length: 4 }, (_, i) => ({
         optionId: i,
@@ -614,12 +591,17 @@ export class SelectedOptionService {
         selected: false,
     }));
 
-    console.log('[getDefaultOptions] Default options generated:', defaultOptions);
+    console.log('✅ [getDefaultOptions] Default options generated:', defaultOptions);
     return defaultOptions;
   }
 
-  private getLatestQuestionIndex(): number {
-    if (!this.selectedOptionsMap || this.selectedOptionsMap.size === 0) return -1;
-    return Math.max(...Array.from(this.selectedOptionsMap.keys()));
+  private getFallbackQuestionIndex(): number {
+    const currentKeys = Array.from(this.selectedOptionsMap.keys());
+    if (currentKeys.length > 0) {
+        console.log('✅ [getFallbackQuestionIndex] Derived fallback index from selectedOptionsMap:', currentKeys[0]);
+        return currentKeys[0]; // Use the first key in the map as a fallback
+    }
+    console.warn('⚠️ [getFallbackQuestionIndex] No keys found in selectedOptionsMap. Defaulting to 0.');
+    return 0; // Default to 0 if no keys are present
   }
 }
