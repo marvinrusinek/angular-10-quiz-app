@@ -441,13 +441,14 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
+    console.trace('[updateAnsweredState] Call stack'); // Trace where undefined is coming from
+
     // Validate and assign option IDs
     if (!questionOptions || !Array.isArray(questionOptions)) {
       const fallbackQuestionIndex = this.quizService?.currentQuestionIndex ?? -1;
       const fallbackOptions = this.selectedOptionsMap.get(fallbackQuestionIndex);
       if (!fallbackOptions) {
         console.error('[updateAnsweredState] Invalid questionOptions:', questionOptions, 'for question index:', questionIndex);
-        console.trace('[updateAnsweredState] Call stack'); // Trace where the undefined is coming from
         return;
       }
 
