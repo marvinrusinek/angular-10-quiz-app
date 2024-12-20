@@ -131,18 +131,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
-    
-
-    /* this.quizService.getCurrentQuestion().subscribe((question) => {
-      console.log('Updating currentQuestion$', question);
-      this.currentQuestion$.next(question || null);
-    });
-  
-    this.quizService.getCurrentOptions(this.currentQuestionIndexValue).subscribe((options) => {
-      console.log('Updating options$', options);
-      this.options$.next(options || []);
-    }); */
-
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -155,7 +143,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of(false);
       })
     ); */
-
 
     this.currentQuestion$.subscribe((question) => {
       console.log('currentQuestion$ emitted::>>', question);
