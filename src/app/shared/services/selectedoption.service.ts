@@ -440,7 +440,7 @@ export class SelectedOptionService {
     this.updateAnsweredState(options, questionIndex);
   }
   
-  updateAnsweredState(questionOptions?: Option[], questionIndex?: number): void {
+  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     console.log("MY LOG");
     console.trace('[updateAnsweredState] Call stack'); // Trace where undefined is coming from
 
