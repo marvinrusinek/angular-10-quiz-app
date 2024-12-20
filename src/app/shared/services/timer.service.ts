@@ -44,11 +44,9 @@ export class TimerService {
       isTimerRunning: this.isTimerRunning,
       duration,
     });
-
-    if (this.isTimerRunning) {
-      console.warn('[TimerService] Timer is already running. Start ignored.');
-      return;
-    }
+  
+    // Stop existing timer before starting a new one
+    this.stopTimer();
 
     this.isTimerRunning = true; // Mark timer as running
     this.elapsedTime = 0;
