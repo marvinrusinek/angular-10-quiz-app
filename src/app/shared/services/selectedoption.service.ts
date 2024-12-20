@@ -438,7 +438,7 @@ export class SelectedOptionService {
 
     // **Validate and Assign Options**
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.warn('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
+        console.info('No options provided. Attempting fallback.');
 
         // **Fallback Mechanism**
         questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
@@ -568,7 +568,7 @@ export class SelectedOptionService {
   }
   
   private getDefaultOptions(questionIndex: number): Option[] {
-    console.info('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
+    console.info('Generating default options for questionIndex:', questionIndex);
 
     const defaultOptions = Array.from({ length: 4 }, (_, i) => ({
         optionId: i,
@@ -578,15 +578,15 @@ export class SelectedOptionService {
         questionIndex,
     }));
 
-    console.log('✅ [getDefaultOptions] Generated default options:', defaultOptions);
+    console.log('Generated default options:', defaultOptions);
     return defaultOptions;
   }
 
   private getFallbackQuestionIndex(): number {
     const keys = Array.from(this.selectedOptionsMap.keys());
     if (keys.length > 0) {
-        console.log('✅ [getFallbackQuestionIndex] Using fallback index from selectedOptionsMap:', keys[0]);
-        return keys[0];
+      console.log('✅ [getFallbackQuestionIndex] Using fallback index from selectedOptionsMap:', keys[0]);
+      return keys[0];
     }
     console.warn('⚠️ [getFallbackQuestionIndex] No keys in selectedOptionsMap. Defaulting to 0.');
     return 0;
