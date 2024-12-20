@@ -596,4 +596,9 @@ export class SelectedOptionService {
   resetSelectedOption(): void {
     this.isOptionSelectedSubject.next(false);
   }
+
+  private getLatestQuestionIndex(): number {
+    if (!this.selectedOptionsMap || this.selectedOptionsMap.size === 0) return -1;
+    return Math.max(...Array.from(this.selectedOptionsMap.keys()));
+  }  
 }
