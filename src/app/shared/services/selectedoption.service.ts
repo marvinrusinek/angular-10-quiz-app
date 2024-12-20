@@ -495,7 +495,7 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number, questionText: string = 'N/A'): boolean {
+  areAllCorrectAnswersSelected(questionOptions?: Option[], questionIndex?: number, questionText: string = 'N/A'): boolean {
     // 1️⃣ Validate input early
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.warn('⚠️ [areAllCorrectAnswersSelected] No options found for question index:', questionIndex, 
