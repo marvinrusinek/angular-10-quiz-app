@@ -929,8 +929,7 @@ export class QuizService implements OnDestroy {
   // Get the current options for the current quiz and question
   getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> { 
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-      console.error(`❌ [getCurrentOptions] Invalid questionIndex: ${questionIndex}. Returning empty options.`);
-      console.trace('[getCurrentOptions] Call stack');
+      console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
     }
   
@@ -939,12 +938,12 @@ export class QuizService implements OnDestroy {
     return this.getQuestionByIndex(questionIndex).pipe(
       tap((question) => {
         if (!question) {
-          console.warn(`⚠️ [getCurrentOptions] No question found for the given index: ${questionIndex}.`);
+          console.warn(`No question found for the given index: ${questionIndex}.`);
         }
       }),
       map((question) => question?.options || []),
       catchError((error) => {
-        console.error(`❌ [getCurrentOptions] Error fetching options for questionIndex ${questionIndex}:`, error);
+        console.error(`Error fetching options for questionIndex ${questionIndex}:`, error);
         return of([]); 
       })
     );
