@@ -513,7 +513,7 @@ export class SelectedOptionService {
     });
   
     // 3️⃣ Ensure optionId is present using assignOptionIds
-    questionOptions = this.quizService.assignOptionIds(questionOptions, `areAllCorrectAnswersSelected (questionIndex: ${questionIndex})`);
+    questionOptions = this.quizService.assignOptionIds(questionOptions);
   
     // 4️⃣ Get the list of correct option IDs
     const correctOptionIds = questionOptions
