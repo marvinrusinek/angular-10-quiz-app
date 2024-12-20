@@ -447,8 +447,8 @@ export class SelectedOptionService {
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
 
-        // Log the current state of selectedOptionsMap for debugging
-        console.debug('Current selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+        // Debug selectedOptionsMap content
+        console.warn('SelectedOptionsMap content:', Array.from(this.selectedOptionsMap.entries()));
 
         questionOptions = this.getDefaultOptions(questionIndex); // Use default options as a last resort
       }
