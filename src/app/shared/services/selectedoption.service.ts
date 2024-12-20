@@ -436,18 +436,22 @@ export class SelectedOptionService {
         questionIndex,
     });
 
-    // **Validate and Assign Options**
+    // Validate and Assign Options
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.info('No options provided. Attempting fallback.');
+      console.info('No options provided. Attempting fallback.');
 
-        // **Fallback Mechanism**
-        questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
+      // **Fallback Mechanism**
+      questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
 
-        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
-        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
-            questionOptions = this.getDefaultOptions(questionIndex); // Use default options as a last resort
-        }
+      questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
+
+        // Log the current state of selectedOptionsMap for debugging
+        console.debug('Current selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+
+        questionOptions = this.getDefaultOptions(questionIndex); // Use default options as a last resort
+      }
     }
 
     console.log('[updateAnsweredState] Final questionOptions after fallback:', questionOptions);
