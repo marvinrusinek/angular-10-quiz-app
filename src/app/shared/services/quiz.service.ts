@@ -933,7 +933,7 @@ export class QuizService implements OnDestroy {
       return of([]);
     }
   
-    console.log('📡 [getCurrentOptions] Fetching options for questionIndex:', questionIndex);
+    console.log('Fetching options for questionIndex:', questionIndex);
   
     return this.getQuestionByIndex(questionIndex).pipe(
       tap((question) => {
