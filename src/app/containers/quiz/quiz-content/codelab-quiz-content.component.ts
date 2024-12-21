@@ -252,21 +252,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           if (isAvailable && !this.quizQuestionComponent) {
             console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
           }
-        }),
-        switchMap((isAvailable) =>
-          isAvailable
-            ? this.waitForQuizQuestionComponent().pipe(map((isReady) => ({ isAvailable, isReady })))
-            : of({ isAvailable: false, isReady: false })
-        )
+        })
       )
-      .subscribe(({ isAvailable, isReady }) => {
-        if (isAvailable && isReady) {
-          console.log('[CodelabQuizContentComponent] Content is available and QuizQuestionComponent is ready.');
-          this.setupDisplayStateSubscription();
-        } else if (!isReady) {
-          console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready yet.');
+      .subscribe((isAvailable) => {
+        if (isAvailable) {
+          if (this.quizQuestionComponent) {
+            console.log('[CodelabQuizContentComponent] Content is available and QuizQuestionComponent is ready.');
+            this.setupDisplayStateSubscription();
+          } else {
+            console.warn('[CodelabQuizContentComponent] QuizQuestionComponent is not ready yet. Retrying setup in the next tick.');
+
+            // Use a timeout to allow Angular to initialize @ViewChild
+            setTimeout(() => {
+              if (this.quizQuestionComponent) {
+                console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready. Setting up display state.');
+                this.setupDisplayStateSubscription();
+              } else {
+                console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready after retry.');
+              }
+            }, 0); // Adjust the delay as necessary
+          }
+        } else {
+          console.warn('[CodelabQuizContentComponent] Content is not yet available.');
         }
-      });    
+      });
     
     this.emitContentAvailableState(); // Start emitting the content availability state
 
@@ -312,44 +321,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         },
         error: (error) => console.error('Error in isContentAvailable$:', error),
       });
-  }
-
-  private waitForQuizQuestionComponent(retries = 10, intervalMs = 300): Observable<boolean> {
-    return this.isContentAvailable$.pipe(
-      distinctUntilChanged(),
-      switchMap((isContentAvailable) => {
-        if (!isContentAvailable) {
-          console.warn('[CodelabQuizContentComponent] Content not available. Skipping component check.');
-          return of(false);
-        }
-        console.log('[CodelabQuizContentComponent] Content available. Checking for QuizQuestionComponent...');
-        return new Observable<boolean>((observer) => {
-          let attempts = 0;
-          const interval = setInterval(() => {
-            if (this.quizQuestionComponent) {
-              console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready.');
-              observer.next(true);
-              observer.complete();
-              clearInterval(interval);
-            } else if (++attempts >= retries) {
-              console.error('[CodelabQuizContentComponent] QuizQuestionComponent not ready after retries.');
-              observer.next(false);
-              observer.complete();
-              clearInterval(interval);
-            } else {
-              console.warn(`[CodelabQuizContentComponent] Retrying... (${attempts}/${retries})`);
-            }
-          }, intervalMs);
-        });
-      }),
-      tap((ready) => {
-        if (ready) {
-          console.log('[CodelabQuizContentComponent] Component initialization successful.');
-        } else {
-          console.error('[CodelabQuizContentComponent] Initialization failed. Content or component not ready.');
-        }
-      })
-    );
   }
 
   /* private async waitForContentAvailable(): Promise<void> {
