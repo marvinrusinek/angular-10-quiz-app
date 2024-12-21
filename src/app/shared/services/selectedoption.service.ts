@@ -488,34 +488,32 @@ export class SelectedOptionService {
     });
   } */
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    console.log('🛠️ [updateAnsweredState] Called with:', {
-        questionOptions,
-        questionIndex,
-    });
+    console.log('🛠️ [updateAnsweredState] Called with:', { questionOptions, questionIndex });
 
-    // Validate and Assign Options
+    // Fallback Logic: Validate or retrieve question options
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.info('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
 
-        // Fallback Mechanism
+        // Fallback to get valid questionIndex
         questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
-        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
 
+        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
         console.log('[updateAnsweredState] Retrieved questionOptions from selectedOptionsMap:', questionOptions);
 
         if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
+            console.error('❌ [updateAnsweredState] No valid options available for fallback question index:', questionIndex);
             console.log('[updateAnsweredState] SelectedOptionsMap content:', Array.from(this.selectedOptionsMap.entries()));
 
-            // Generate default options as a last resort
-            questionOptions = this.getDefaultOptions(questionIndex);
-            console.warn('⚠️ [updateAnsweredState] Using default options:', questionOptions);
+            // Debug fallback behavior
+            const defaultOptions = this.getDefaultOptions(questionIndex);
+            console.warn('⚠️ [updateAnsweredState] Using default options:', defaultOptions);
+            questionOptions = defaultOptions; // Use default options as last resort
         }
     }
 
-    // Exit Early if Options Are Still Invalid
+    // Exit Early if options are still invalid
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
+        console.error('❌ [updateAnsweredState] Unable to proceed. No valid options after fallback.');
         return;
     }
 
