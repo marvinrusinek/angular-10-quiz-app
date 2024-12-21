@@ -245,7 +245,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.warn('Content is not yet available, and QuizQuestionComponent is not ready.');
       }
     }); **/
-    this.isContentAvailable$
+    /* this.isContentAvailable$
       .pipe(distinctUntilChanged())
       .subscribe((isAvailable) => {
         if (isAvailable) {
@@ -267,7 +267,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         } else {
           console.warn('[CodelabQuizContentComponent] Content is not yet available.');
         }
-      });
+      }); */
+      this.isContentAvailable$
+        .pipe(distinctUntilChanged())
+        .subscribe((isAvailable) => {
+          if (isAvailable) {
+            setTimeout(() => {
+              if (this.quizQuestionComponent) {
+                console.log('[CodelabQuizContentComponent] QuizQuestionComponent is ready.');
+                this.setupDisplayStateSubscription();
+              } else {
+                console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready. Check template or rendering conditions.');
+              }
+            }, 0); // Deferring to allow rendering to complete
+          } else {
+            console.warn('[CodelabQuizContentComponent] Content is not yet available.');
+          }
+        });
+    
 
     
     this.emitContentAvailableState(); // Start emitting the content availability state
