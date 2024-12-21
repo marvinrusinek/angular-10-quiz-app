@@ -284,7 +284,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
             console.warn('[CodelabQuizContentComponent] Content is not yet available.');
           }
         }); */
-        this.isContentAvailable$
+        /* this.isContentAvailable$
         .pipe(
           distinctUntilChanged(),
           tap((isAvailable) => {
@@ -308,7 +308,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           error: (err) => {
             console.error('[CodelabQuizContentComponent] Error in initialization:', err);
           },
-        });
+        }); */
       
     
 
