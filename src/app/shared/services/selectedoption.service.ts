@@ -360,9 +360,8 @@ export class SelectedOptionService {
   
       options.push(newOption);
       this.selectedOptionsMap.set(questionIndex, options); // Update the map
-      console.log('✅ [addSelectedOptionIndex] Added new option:', newOption);
     } else {
-      console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption);
+      console.info('Option already exists:', existingOption);
     }
   
     this.debugSelectedOptionsMap(); // Log current map state
