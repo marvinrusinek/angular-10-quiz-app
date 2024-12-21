@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -21,7 +21,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
@@ -284,6 +284,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
+
+  ngAfterViewInit(): void {
+    console.log('[CodelabQuizContentComponent] ngAfterViewInit triggered.');
+  
+    this.waitForQuizQuestionComponent().subscribe((ready) => {
+      if (ready) {
+        this.setupDisplayStateSubscription();
+      } else {
+        console.error('[CodelabQuizContentComponent] Initialization failed. Content or component not ready.');
+      }
+    });
+  }  
   
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
@@ -315,35 +327,42 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private waitForQuizQuestionComponent(retries = 10, intervalMs = 300): Observable<boolean> {
-    return combineLatest([
-      this.isContentAvailable$.pipe(distinctUntilChanged()),
-      new Observable<boolean>((observer) => {
-        let attempts = 0;
-        const interval = setInterval(() => {
-          if (this.quizQuestionComponent) {
-            console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready.');
-            observer.next(true);
-            observer.complete();
-            clearInterval(interval);
-          } else if (++attempts >= retries) {
-            console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready after retries.');
-            observer.next(false);
-            observer.complete();
-            clearInterval(interval);
-          }
-        }, intervalMs);
+    return this.isContentAvailable$.pipe(
+      distinctUntilChanged(),
+      switchMap((isContentAvailable) => {
+        if (!isContentAvailable) {
+          console.warn('[CodelabQuizContentComponent] Content not available. Skipping component check.');
+          return of(false);
+        }
+        console.log('[CodelabQuizContentComponent] Content available. Checking for QuizQuestionComponent...');
+        return new Observable<boolean>((observer) => {
+          let attempts = 0;
+          const interval = setInterval(() => {
+            if (this.quizQuestionComponent) {
+              console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready.');
+              observer.next(true);
+              observer.complete();
+              clearInterval(interval);
+            } else if (++attempts >= retries) {
+              console.error('[CodelabQuizContentComponent] QuizQuestionComponent not ready after retries.');
+              observer.next(false);
+              observer.complete();
+              clearInterval(interval);
+            } else {
+              console.warn(`[CodelabQuizContentComponent] Retrying... (${attempts}/${retries})`);
+            }
+          }, intervalMs);
+        });
       }),
-    ]).pipe(
-      map(([isContentAvailable, isQuizQuestionReady]) => isContentAvailable && isQuizQuestionReady),
       tap((ready) => {
         if (ready) {
-          console.log('[CodelabQuizContentComponent] Content and QuizQuestionComponent are ready.');
+          console.log('[CodelabQuizContentComponent] Component initialization successful.');
         } else {
-          console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
+          console.error('[CodelabQuizContentComponent] Initialization failed. Content or component not ready.');
         }
       })
     );
-  }  
+  }
 
   /* private async waitForContentAvailable(): Promise<void> {
     while (!this.isContentAvailable || !this.quizComponentData) {
