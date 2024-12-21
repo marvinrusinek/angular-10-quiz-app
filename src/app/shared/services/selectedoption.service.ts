@@ -646,7 +646,7 @@ export class SelectedOptionService {
   
     const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
     if (correctOptionIds.length === 0) {
-      console.warn('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
+      console.log('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
       return false;
     }
   
