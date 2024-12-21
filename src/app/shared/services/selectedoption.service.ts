@@ -378,11 +378,10 @@ export class SelectedOptionService {
   
     // Ensure `selectedOptionsMap` entry for questionIndex exists
     if (!this.selectedOptionsMap.has(questionIndex)) {
-      console.warn('⚠️ [addSelectedOptionIndex] Initializing new array for questionIndex:', questionIndex);
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
-    const options = this.selectedOptionsMap.get(questionIndex)!;
+    const options = this.selectedOptionsMap.get(questionIndex)!
   
     // Check if the option already exists
     const existingOption = options.find(option => option.optionId === optionIndex);
