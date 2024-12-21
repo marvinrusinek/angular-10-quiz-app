@@ -563,6 +563,22 @@ export class SelectedOptionService {
     console.log('[updateAnsweredState] Final state:', { questionOptions, questionIndex, allCorrectAnswersSelected, isAnswered });
   }
 
+  private debugSelectedOptionsMap(): void {
+    console.log('🔍 [debugSelectedOptionsMap] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+
+    if (this.selectedOptionsMap.size === 0) {
+        console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap is empty.');
+    } else {
+        this.selectedOptionsMap.forEach((options, questionIndex) => {
+            if (!Array.isArray(options) || options.length === 0) {
+                console.warn(`⚠️ [debugSelectedOptionsMap] No valid options for questionIndex: ${questionIndex}`);
+            } else {
+                console.log(`✅ [debugSelectedOptionsMap] Options for questionIndex: ${questionIndex}:`, options);
+            }
+        });
+    }
+  }
+
   areAllCorrectAnswersSelected(questionOptions?: Option[], questionIndex?: number, questionText: string = 'N/A'): boolean {
     // 1️⃣ Validate input early
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
