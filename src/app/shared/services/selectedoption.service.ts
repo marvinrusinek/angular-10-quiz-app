@@ -339,30 +339,39 @@ export class SelectedOptionService {
   }
 
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    console.log('🛠️ [addSelectedOptionIndex] Called with:', {
-        questionIndex,
-        optionIndex,
-    });
+    console.log('🛠️ [addSelectedOptionIndex] Called with:', { questionIndex, optionIndex });
 
+    // Ensure the questionIndex exists in selectedOptionsMap
     if (!this.selectedOptionsMap.has(questionIndex)) {
+        console.warn('⚠️ [addSelectedOptionIndex] No entry for questionIndex. Initializing new array for questionIndex:', questionIndex);
         this.selectedOptionsMap.set(questionIndex, []);
     }
 
+    // Retrieve the options array for the questionIndex
     const options = this.selectedOptionsMap.get(questionIndex)!;
+
+    // Check if the option already exists
     const existingOption = options.find(option => option.optionId === optionIndex);
 
     if (!existingOption) {
+        // Create a new SelectedOption and add it to the options array
         const newOption: SelectedOption = {
             optionId: optionIndex,
-            text: `Option ${optionIndex + 1}`,
-            correct: false,
-            questionIndex,
+            text: `Option ${optionIndex + 1}`, // Placeholder text, update as needed
+            correct: false, // Default to false, adjust based on your app logic
+            selected: true, // Mark as selected if adding
+            questionIndex, // Associate with the questionIndex
         };
-        options.push(newOption);
-        console.log('✅ [addSelectedOptionIndex] Added option:', newOption, 'to questionIndex:', questionIndex);
+
+        options.push(newOption); // Add the new option
+        this.selectedOptionsMap.set(questionIndex, options); // Update the map
+        console.log('✅ [addSelectedOptionIndex] Added new option:', newOption, 'to questionIndex:', questionIndex);
     } else {
-        console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption);
+        console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption, 'for questionIndex:', questionIndex);
     }
+
+    // Debug log the current state of selectedOptionsMap
+    console.log('🔍 [addSelectedOptionIndex] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
   }
   
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
