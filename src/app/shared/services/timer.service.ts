@@ -45,12 +45,14 @@ export class TimerService {
       duration,
     });
   
-    // Stop existing timer before starting a new one
-    this.stopTimer();
-
+    if (this.isTimerRunning) {
+      console.warn('[TimerService] Timer is already running. Start ignored.');
+      return; // Prevent restarting an already running timer
+    }
+  
     this.isTimerRunning = true; // Mark timer as running
     this.elapsedTime = 0;
-
+  
     const timer$ = timer(0, 1000).pipe(
       tap((tick) => {
         this.elapsedTime = tick;
@@ -63,17 +65,16 @@ export class TimerService {
         }
       }),
       takeUntil(this.isStop),
-      takeUntil(this.isReset),
-      finalize(() => console.log('[TimerService] Timer finalized.'))
+      finalize(() => {
+        console.log('[TimerService] Timer finalized.');
+        this.isTimerRunning = false; // Reset running state when timer completes
+      })
     );
-
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
+  
     this.timerSubscription = timer$.subscribe();
-
+  
     console.log('[TimerService] Timer started successfully.');
-  }
+  }  
 
   // Stops the timer
   stopTimer(callback?: (elapsedTime: number) => void): void {
