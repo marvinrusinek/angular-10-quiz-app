@@ -246,36 +246,29 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }
     }); **/
     this.isContentAvailable$
-      .pipe(
-        distinctUntilChanged(),
-        tap((isAvailable) => {
-          if (isAvailable && !this.quizQuestionComponent) {
-            console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
-          }
-        })
-      )
+      .pipe(distinctUntilChanged())
       .subscribe((isAvailable) => {
         if (isAvailable) {
           if (this.quizQuestionComponent) {
             console.log('[CodelabQuizContentComponent] Content is available and QuizQuestionComponent is ready.');
             this.setupDisplayStateSubscription();
           } else {
-            console.warn('[CodelabQuizContentComponent] QuizQuestionComponent is not ready yet. Retrying setup in the next tick.');
-
-            // Use a timeout to allow Angular to initialize @ViewChild
+            console.warn('[CodelabQuizContentComponent] Content is available, but QuizQuestionComponent is not yet ready. Waiting for Angular to initialize.');
+            // Defer check to allow Angular to complete initialization
             setTimeout(() => {
               if (this.quizQuestionComponent) {
                 console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready. Setting up display state.');
                 this.setupDisplayStateSubscription();
               } else {
-                console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready after retry.');
+                console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready. Check template or rendering conditions.');
               }
-            }, 0); // Adjust the delay as necessary
+            }, 0);
           }
         } else {
           console.warn('[CodelabQuizContentComponent] Content is not yet available.');
         }
       });
+
     
     this.emitContentAvailableState(); // Start emitting the content availability state
 
