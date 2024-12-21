@@ -192,10 +192,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       distinctUntilChanged(),
     ).subscribe((isAvailable) => {
       if (isAvailable) {
-        console.log('[CodelabQuizContentComponent] Content is available. Setting up state subscription.');
+        console.log('Content is available. Setting up state subscription.');
         this.setupDisplayStateSubscription();
       } else {
-        console.warn('[CodelabQuizContentComponent] Content is not yet available.');
+        console.log('Content is not yet available.');
       }
     });
     
