@@ -497,7 +497,7 @@ export class SelectedOptionService {
       return false;
     }
   
-    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
+    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || [])?.map(option => option.optionId) ?? [];
     return correctOptionIds.every(id => selectedOptionIds.includes(id));
   }
 
