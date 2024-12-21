@@ -315,25 +315,35 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private waitForQuizQuestionComponent(retries = 10, intervalMs = 300): Observable<boolean> {
-    return new Observable<boolean>((observer) => {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        if (this.quizQuestionComponent) {
-          console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready.');
-          observer.next(true);
-          observer.complete();
-          clearInterval(interval);
-        } else if (++attempts >= retries) {
-          console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready after retries.');
-          observer.next(false);
-          observer.complete();
-          clearInterval(interval);
+    return combineLatest([
+      this.isContentAvailable$.pipe(distinctUntilChanged()),
+      new Observable<boolean>((observer) => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          if (this.quizQuestionComponent) {
+            console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready.');
+            observer.next(true);
+            observer.complete();
+            clearInterval(interval);
+          } else if (++attempts >= retries) {
+            console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready after retries.');
+            observer.next(false);
+            observer.complete();
+            clearInterval(interval);
+          }
+        }, intervalMs);
+      }),
+    ]).pipe(
+      map(([isContentAvailable, isQuizQuestionReady]) => isContentAvailable && isQuizQuestionReady),
+      tap((ready) => {
+        if (ready) {
+          console.log('[CodelabQuizContentComponent] Content and QuizQuestionComponent are ready.');
         } else {
-          console.log(`[CodelabQuizContentComponent] Retrying... (${attempts}/${retries})`);
+          console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
         }
-      }, intervalMs);
-    });
-  }
+      })
+    );
+  }  
 
   /* private async waitForContentAvailable(): Promise<void> {
     while (!this.isContentAvailable || !this.quizComponentData) {
