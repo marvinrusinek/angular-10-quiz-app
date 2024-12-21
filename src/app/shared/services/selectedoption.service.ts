@@ -637,13 +637,13 @@ export class SelectedOptionService {
 
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.warn('⚠️ [areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
+      console.warn('No options provided for question index:', questionIndex);
       return false;
     }
   
     const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
     if (correctOptionIds.length === 0) {
-      console.log('⚠️ [areAllCorrectAnswersSelected] No correct options found for question index:', questionIndex);
+      console.log('No correct options found for question index:', questionIndex);
       return false;
     }
   
