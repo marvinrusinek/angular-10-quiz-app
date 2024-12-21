@@ -594,11 +594,6 @@ export class SelectedOptionService {
       return;
     }
   
-    console.log('✅ [updateAnsweredState] Proceeding with validated options:', {
-      questionOptions,
-      questionIndex,
-    });
-  
     // Step 3: Determine answered state
     const isAnswered = questionOptions.some(option => option.selected);
     this.isAnsweredSubject.next(isAnswered);
