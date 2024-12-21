@@ -584,7 +584,7 @@ export class SelectedOptionService {
       questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         // Generate default options
-        questionOptions = this.getDefaultOptions(questionIndex);
+        questionOptions = this.getDefaultOptions();
       }
     }
   
@@ -691,7 +691,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false);
   }
   
-  private getDefaultOptions(questionIndex: number): Option[] {
+  private getDefaultOptions(): Option[] {
     const defaultOptions = Array(4)
       .fill(null)
       .map((_, index) => ({
@@ -700,8 +700,6 @@ export class SelectedOptionService {
         correct: index === 0, // Default to the first option as correct
         selected: false,
       }));
-  
-    console.log('✅ [getDefaultOptions] Generated default options:', defaultOptions);
     return defaultOptions;
   }
 
