@@ -703,7 +703,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
    // Helper methods
    public ensureQuestionTextDisplay(): void {
-    if (this.displayMode$.value !== 'question') {
+    if (this.displayMode$.getValue() !== 'question') {
       console.log('Blocked: Attempted to show question in incorrect mode.');
       return;
     }
