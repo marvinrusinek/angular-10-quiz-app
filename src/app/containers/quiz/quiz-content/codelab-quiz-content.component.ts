@@ -266,9 +266,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         } else if (!isReady) {
           console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready yet.');
         }
-      });
-
-    
+      });    
     
     this.emitContentAvailableState(); // Start emitting the content availability state
 
@@ -316,7 +314,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       });
   }
 
-  private waitForQuizQuestionComponent(retries = 5, intervalMs = 300): Observable<boolean> {
+  private waitForQuizQuestionComponent(retries = 10, intervalMs = 300): Observable<boolean> {
     return new Observable<boolean>((observer) => {
       let attempts = 0;
       const interval = setInterval(() => {
@@ -330,6 +328,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           observer.next(false);
           observer.complete();
           clearInterval(interval);
+        } else {
+          console.log(`[CodelabQuizContentComponent] Retrying... (${attempts}/${retries})`);
         }
       }, intervalMs);
     });
