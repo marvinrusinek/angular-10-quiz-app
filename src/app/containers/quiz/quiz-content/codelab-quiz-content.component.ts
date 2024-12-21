@@ -233,7 +233,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.warn('Content is not yet ready. Waiting...');
       }
     }); */
-    this.isContentAvailable$.pipe(distinctUntilChanged()).subscribe((isAvailable) => {
+    /** this.isContentAvailable$.pipe(distinctUntilChanged()).subscribe((isAvailable) => {
       if (isAvailable) {
         if (this.quizQuestionComponent) {
           console.log('QuizQuestionComponent is ready.');
@@ -244,7 +244,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       } else if (!this.quizQuestionComponent) {
         console.warn('Content is not yet available, and QuizQuestionComponent is not ready.');
       }
-    });
+    }); **/
+    this.isContentAvailable$
+      .pipe(
+        distinctUntilChanged(),
+        tap((isAvailable) => {
+          if (isAvailable && !this.quizQuestionComponent) {
+            console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
+          }
+        }),
+        switchMap((isAvailable) =>
+          isAvailable
+            ? this.waitForQuizQuestionComponent().pipe(map((isReady) => ({ isAvailable, isReady })))
+            : of({ isAvailable: false, isReady: false })
+        )
+      )
+      .subscribe(({ isAvailable, isReady }) => {
+        if (isAvailable && isReady) {
+          console.log('[CodelabQuizContentComponent] Content is available and QuizQuestionComponent is ready.');
+          this.setupDisplayStateSubscription();
+        } else if (!isReady) {
+          console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready yet.');
+        }
+      });
+
     
     
     this.emitContentAvailableState(); // Start emitting the content availability state
@@ -293,44 +316,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       });
   }
 
-  private initializeQuizQuestionComponent(retries = 10): void {
-    if (retries === 0) {
-      console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
-      return;
-    }
-  
-    setTimeout(() => {
-      if (this.quizQuestionComponent) {
-        console.log('QuizQuestionComponent initialized:', this.quizQuestionComponent);
-        // Add any other setup logic here
-      } else {
-        console.warn(`QuizQuestionComponent not initialized yet. Retrying... (${10 - retries}/10)`);
-        this.initializeQuizQuestionComponent(retries - 1);
-      }
-    }, 200); // Adjust the delay as necessary
-  }
-
-  private retryInitializeQuizQuestionComponent(): Promise<boolean> {
-    let retries = 0;
-    const maxRetries = 10;
-    const retryInterval = 300; // Retry every 300ms
-  
-    return new Promise<boolean>((resolve, reject) => {
+  private waitForQuizQuestionComponent(retries = 5, intervalMs = 300): Observable<boolean> {
+    return new Observable<boolean>((observer) => {
+      let attempts = 0;
       const interval = setInterval(() => {
         if (this.quizQuestionComponent) {
-          console.log('QuizQuestionComponent successfully initialized:', this.quizQuestionComponent);
+          console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready.');
+          observer.next(true);
+          observer.complete();
           clearInterval(interval);
-          resolve(true);
-        } else if (++retries >= maxRetries) {
-          console.error('Failed to initialize QuizQuestionComponent after maximum retries.');
+        } else if (++attempts >= retries) {
+          console.warn('[CodelabQuizContentComponent] QuizQuestionComponent not ready after retries.');
+          observer.next(false);
+          observer.complete();
           clearInterval(interval);
-          reject(false);
-        } else {
-          console.warn(`Retrying to initialize QuizQuestionComponent (${retries}/${maxRetries})...`);
         }
-      }, retryInterval);
+      }, intervalMs);
     });
-  }  
+  }
 
   /* private async waitForContentAvailable(): Promise<void> {
     while (!this.isContentAvailable || !this.quizComponentData) {
