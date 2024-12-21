@@ -536,7 +536,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.selectedOptionService.updateAnsweredState();
   
     console.log('Answered state after feedback update:', {
-      isAnswered: this.selectedOptionService.isAnsweredSubject.value,
+      isAnswered: this.selectedOptionService.isAnsweredSubject.getValue(),
       selectedOptions: this.selectedOptionService.selectedOptionsMap,
     });
   }  
