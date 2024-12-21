@@ -113,13 +113,13 @@ export class SelectedOptionService {
   addOption(questionIndex: number, option: SelectedOption): void {
     // Check if option is valid
     if (!option) {
-      console.error('[addOption] Option is undefined. Cannot add it to selectedOptionsMap.');
+      console.error('Option is undefined. Cannot add it to selectedOptionsMap.');
       return; // Stop execution to prevent errors
     }
 
     // Check if optionId is valid
     if (option.optionId === undefined || option.optionId === null) {
-      console.error('[addOption] option.optionId is undefined:', option);
+      console.error('option.optionId is undefined:', option);
       return; // Stop execution to prevent errors
     }
 
@@ -130,12 +130,10 @@ export class SelectedOptionService {
     if (!currentOptions.some(o => o.optionId === option.optionId)) {
       currentOptions.push(option);
       this.selectedOptionsMap.set(questionIndex, currentOptions);
-      console.log('[addOption] Option added:', option);
+      console.log('Option added:', option);
     } else {
-      console.log('[addOption] Option already present:', option);
+      console.log('Option already present:', option);
     }
-
-    console.log('[addOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
   }
 
   // Removes an option from the selectedOptionsMap
