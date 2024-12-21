@@ -508,26 +508,18 @@ export class SelectedOptionService {
   }  
 
   private debugSelectedOptionsMap(): void {
-    console.log('🔍 [debugSelectedOptionsMap] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+    console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
   
     if (this.selectedOptionsMap.size === 0) {
-      console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap is empty.');
+      console.warn('selectedOptionsMap is empty.');
     } else {
       for (const [questionIndex, options] of this.selectedOptionsMap) {
         if (!Array.isArray(options) || options.length === 0) {
-          console.warn(`⚠️ [debugSelectedOptionsMap] No valid options for questionIndex: ${questionIndex}`);
+          console.warn(`No valid options for questionIndex: ${questionIndex}`);
         } else {
-          console.log(`✅ [debugSelectedOptionsMap] Options for questionIndex ${questionIndex}:`, options);
+          console.log(`Options for questionIndex ${questionIndex}:`, options);
         }
       }
-    }
-  }  
-
-  private debugQuestionOptions(questionOptions: Option[], questionIndex: number): void {
-    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.warn('⚠️ [debugQuestionOptions] No valid options for questionIndex:', questionIndex);
-    } else {
-      console.log('✅ [debugQuestionOptions] Valid options for questionIndex:', questionIndex, questionOptions);
     }
   }
 
@@ -546,7 +538,6 @@ export class SelectedOptionService {
     const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
     return correctOptionIds.every(id => selectedOptionIds.includes(id));
   }
-  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
