@@ -269,7 +269,7 @@ export class SelectedOptionService {
   }
 
   getShowFeedbackForOption(): { [optionId: number]: boolean } {
-    return this.showFeedbackForOptionSubject.value;
+    return this.showFeedbackForOptionSubject.getValue();
   }
 
   isSelectedOption(option: Option): boolean {
