@@ -583,6 +583,9 @@ export class SelectedOptionService {
   
         // Step 4: Debug selectedOptionsMap
         console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap is empty or invalid:', Array.from(this.selectedOptionsMap.entries()));
+
+        // Debug selectedOptionsMap content
+        this.debugSelectedOptionsMap();
   
         // Step 5: Generate default options if necessary
         questionOptions = this.getDefaultOptions(questionIndex);
