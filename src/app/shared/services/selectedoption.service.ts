@@ -563,36 +563,59 @@ export class SelectedOptionService {
     console.log('[updateAnsweredState] Final state:', { questionOptions, questionIndex, allCorrectAnswersSelected, isAnswered });
   } */
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    console.log('🛠️ [updateAnsweredState] Called with:', { questionOptions, questionIndex });
+    console.log('🛠️ [updateAnsweredState] Called with:', {
+      questionOptions,
+      questionIndex,
+      selectedOptionsMap: Array.from(this.selectedOptionsMap.entries()),
+    });
   
+    // Step 1: Validate inputs
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.info('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
-      questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
+      console.info('[updateAnsweredState] No options provided. Attempting fallback.');
   
-      questionOptions = this.selectedOptionsMap.get(questionIndex) || [];
+      // Step 2: Fallback to selectedOptionsMap
+      questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
+  
+        // Step 3: Debug selectedOptionsMap
+        this.debugSelectedOptionsMap();
+  
+        // Step 4: Generate default options if necessary
         questionOptions = this.getDefaultOptions(questionIndex);
       }
     }
   
+    // Final validation before proceeding
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
       return;
     }
   
-    console.log('✅ [updateAnsweredState] Proceeding with options:', questionOptions);
+    console.log('✅ [updateAnsweredState] Proceeding with validated options:', {
+      questionOptions,
+      questionIndex,
+    });
   
+    // Determine answered state
+    const isAnswered = questionOptions.some(option => option.selected);
+    this.isAnsweredSubject.next(isAnswered);
+  
+    // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-    this.isAnsweredSubject.next(questionOptions.some(o => o.selected));
-  
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+      console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
   
-    console.log('[updateAnsweredState] Final State:', { questionOptions, questionIndex, allCorrectAnswersSelected });
-  }  
+    console.log('[updateAnsweredState] Final state:', {
+      questionOptions,
+      questionIndex,
+      allCorrectAnswersSelected,
+      isAnswered,
+    });
+  }
 
   private debugSelectedOptionsMap(): void {
     console.log('🔍 [debugSelectedOptionsMap] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
@@ -668,17 +691,19 @@ export class SelectedOptionService {
   
   private getDefaultOptions(questionIndex: number): Option[] {
     console.warn('⚠️ [getDefaultOptions] Generating default options for questionIndex:', questionIndex);
+  
     const defaultOptions = Array(4)
       .fill(null)
       .map((_, index) => ({
         optionId: index,
         text: `Default Option ${index + 1}`,
-        correct: index === 0, // Mark the first option as correct for simplicity
+        correct: index === 0, // Default to the first option as correct
         selected: false,
       }));
-    console.log('✅ [getDefaultOptions] Generated options:', defaultOptions);
+  
+    console.log('✅ [getDefaultOptions] Generated default options:', defaultOptions);
     return defaultOptions;
-  }  
+  }
 
   private getFallbackQuestionIndex(): number {
     const keys = Array.from(this.selectedOptionsMap.keys());
