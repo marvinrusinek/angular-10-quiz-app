@@ -298,7 +298,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
             console.error('QuizQuestionComponent is unexpectedly null during display update.');
           }
         } else {
-          console.warn('QuizQuestionComponent not ready. Skipping display update.', {
+          console.info('QuizQuestionComponent not ready. Skipping display update.', {
             state,
             isInitialized
           });
