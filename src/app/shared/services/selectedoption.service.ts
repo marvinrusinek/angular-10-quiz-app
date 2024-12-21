@@ -54,7 +54,7 @@ export class SelectedOptionService {
 
   // probably remove...
   /* saveState(): void {
-    localStorage.setItem('isAnswered', JSON.stringify(this.isAnsweredSubject.value));
+    localStorage.setItem('isAnswered', JSON.stringify(this.isAnsweredSubject.getValue()));
   }
 
   restoreState(): void {
@@ -235,7 +235,7 @@ export class SelectedOptionService {
     // Set the selected option
     this.selectedOption = option;
     this.selectedOptionSubject.next(option);
-    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.value);
+    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.getValue());
 
     // Update the selected status
     this.isOptionSelectedSubject.next(true);
@@ -260,7 +260,7 @@ export class SelectedOptionService {
   }
 
   getSelectedOption(): SelectedOption | SelectedOption[] {
-    return this.selectedOptionSubject.value;
+    return this.selectedOptionSubject.getValue();
   }
 
   // Method to get the current option selected state
@@ -309,7 +309,7 @@ export class SelectedOptionService {
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOption$.pipe(
-      startWith(this.selectedOptionSubject.value), // Emit the current state immediately when subscribed
+      startWith(this.selectedOptionSubject.getValue()), // Emit the current state immediately when subscribed
       map(option => option !== null), // Determine if an option is selected
       distinctUntilChanged(), // Emit only when the selection state changes
       tap(isSelected => this.isOptionSelectedSubject.next(isSelected)) // Update the subject with the new state
@@ -320,9 +320,9 @@ export class SelectedOptionService {
   setOptionSelected(isSelected: boolean): void {
     this.ngZone.run(() => {
       // Check if the new state is different from the current state
-      if (this.isOptionSelectedSubject.value !== isSelected) {
+      if (this.isOptionSelectedSubject.getValue() !== isSelected) {
         console.log(
-          `Updating isOptionSelected state from ${this.isOptionSelectedSubject.value} to ${isSelected}`
+          `Updating isOptionSelected state from ${this.isOptionSelectedSubject.getValue()} to ${isSelected}`
         );
         this.isOptionSelectedSubject.next(isSelected);
       } else {
@@ -517,7 +517,7 @@ export class SelectedOptionService {
   }
 
   getAnsweredState(): boolean {
-    return this.isAnsweredSubject.value;
+    return this.isAnsweredSubject.getValue();
   }
 
   resetAnsweredState(): void {
