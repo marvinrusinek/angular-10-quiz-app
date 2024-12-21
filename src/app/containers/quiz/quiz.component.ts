@@ -612,9 +612,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetOptionState();
 
     // Retrieve the current state from the necessary subjects
-    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
-    const isLoading = !this.quizStateService.isLoadingSubject.value;
-    const isNavigating = !this.quizStateService.isNavigatingSubject.value;
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
+    const isLoading = !this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = !this.quizStateService.isNavigatingSubject.getValue();
 
     // Determine if the next button should be enabled
     const shouldEnable = isAnswered && isLoading && isNavigating;
