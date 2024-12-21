@@ -403,8 +403,7 @@ export class SelectedOptionService {
       console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption);
     }
   
-    // Debug state of `selectedOptionsMap`
-    console.log('🔍 [addSelectedOptionIndex] Current selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+    this.debugSelectedOptionsMap(); // Log current map state
   }  
   
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
