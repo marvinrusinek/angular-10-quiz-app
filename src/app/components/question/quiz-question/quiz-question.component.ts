@@ -1623,12 +1623,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Updates the display to explanation mode.
   private updateDisplayStateToExplanation(): void {
-    const isAnswered = this.selectedOptionService.isAnsweredSubject.value;
+    const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
     this.updateDisplayState('explanation', isAnswered);
     this.displayStateChange.emit({ mode: 'explanation', answered: isAnswered });
   }  
   
-  /** Handles the outcome after checking if all correct answers are selected. */
+  // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
     if (allCorrectSelected) {
       if (this.timerService.isTimerRunning) {
