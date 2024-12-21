@@ -187,131 +187,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       startWith(false)
     );
     
-    /* this.isContentAvailable$ = (this.combineCurrentQuestionAndOptions?.() || of({ currentQuestion: null, currentOptions: [] }))
-      .pipe(
-        map(({ currentQuestion, currentOptions }) => {
-          const isAvailable = !!currentQuestion && currentOptions.length > 0;
-          console.log('isContentAvailable$:::>>> ', isAvailable, { currentQuestion, currentOptions });
-          return isAvailable;
-        }),
-        distinctUntilChanged(), // Prevent unnecessary emissions
-        catchError(error => {
-          console.error('Error in isContentAvailable$: ', error);
-          return of(false); // Fallback to `false` in case of errors
-        }),
-        startWith(false) // Default to `false` initially
-      ); */
-
-    /* this.isContentAvailable$.subscribe((isAvailable) => {
+  
+    this.isContentAvailable$.pipe(
+      distinctUntilChanged(),
+    ).subscribe((isAvailable) => {
       if (isAvailable) {
-        console.log('Content is ready. Proceeding with QuizQuestionComponent.');
+        console.log('[CodelabQuizContentComponent] Content is available. Setting up state subscription.');
         this.setupDisplayStateSubscription();
       } else {
-        console.warn('Content is not yet ready. Waiting...');
+        console.warn('[CodelabQuizContentComponent] Content is not yet available.');
       }
-    }); */
-    /* this.isContentAvailable$.subscribe((isAvailable) => {
-      if (isAvailable) {
-        console.log('Content is ready. Checking for QuizQuestionComponent.');
-        if (this.quizQuestionComponent) {
-          console.log('QuizQuestionComponent is available. Proceeding.');
-          this.setupDisplayStateSubscription();
-        } else {
-          console.warn('QuizQuestionComponent is not available. Delaying setup.');
-          setTimeout(() => {
-            if (this.quizQuestionComponent) {
-              console.log('QuizQuestionComponent is now available. Proceeding.');
-              this.setupDisplayStateSubscription();
-            } else {
-              console.error(
-                'QuizQuestionComponent is still not available after delay.'
-              );
-            }
-          }, 300);
-        }
-      } else {
-        console.warn('Content is not yet ready. Waiting...');
-      }
-    }); */
-    /** this.isContentAvailable$.pipe(distinctUntilChanged()).subscribe((isAvailable) => {
-      if (isAvailable) {
-        if (this.quizQuestionComponent) {
-          console.log('QuizQuestionComponent is ready.');
-          this.setupDisplayStateSubscription();
-        } else {
-          console.warn('QuizQuestionComponent not ready yet.');
-        }
-      } else if (!this.quizQuestionComponent) {
-        console.warn('Content is not yet available, and QuizQuestionComponent is not ready.');
-      }
-    }); **/
-    /* this.isContentAvailable$
-      .pipe(distinctUntilChanged())
-      .subscribe((isAvailable) => {
-        if (isAvailable) {
-          if (this.quizQuestionComponent) {
-            console.log('[CodelabQuizContentComponent] Content is available and QuizQuestionComponent is ready.');
-            this.setupDisplayStateSubscription();
-          } else {
-            console.warn('[CodelabQuizContentComponent] Content is available, but QuizQuestionComponent is not yet ready. Waiting for Angular to initialize.');
-            // Defer check to allow Angular to complete initialization
-            setTimeout(() => {
-              if (this.quizQuestionComponent) {
-                console.log('[CodelabQuizContentComponent] QuizQuestionComponent is now ready. Setting up display state.');
-                this.setupDisplayStateSubscription();
-              } else {
-                console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready. Check template or rendering conditions.');
-              }
-            }, 0);
-          }
-        } else {
-          console.warn('[CodelabQuizContentComponent] Content is not yet available.');
-        }
-      }); */
-      /* this.isContentAvailable$
-        .pipe(distinctUntilChanged())
-        .subscribe((isAvailable) => {
-          if (isAvailable) {
-            setTimeout(() => {
-              if (this.quizQuestionComponent) {
-                console.log('[CodelabQuizContentComponent] QuizQuestionComponent is ready.');
-                this.setupDisplayStateSubscription();
-              } else {
-                console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready. Check template or rendering conditions.');
-              }
-            }, 0); // Deferring to allow rendering to complete
-          } else {
-            console.warn('[CodelabQuizContentComponent] Content is not yet available.');
-          }
-        }); */
-        /* this.isContentAvailable$
-        .pipe(
-          distinctUntilChanged(),
-          tap((isAvailable) => {
-            console.log('[CodelabQuizContentComponent] Content availability:', isAvailable);
-            if (isAvailable && !this.quizQuestionComponent) {
-              console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
-            }
-          }),
-          filter((isAvailable) => isAvailable),
-          switchMap(() => this.checkQuizQuestionComponentReadiness()),
-        )
-        .subscribe({
-          next: (isReady) => {
-            if (isReady) {
-              console.log('[CodelabQuizContentComponent] QuizQuestionComponent is ready.');
-              this.setupDisplayStateSubscription();
-            } else {
-              console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready. Check template or rendering conditions.');
-            }
-          },
-          error: (err) => {
-            console.error('[CodelabQuizContentComponent] Error in initialization:', err);
-          },
-        }); */
-      
-    
-
+    });
     
     this.emitContentAvailableState(); // Start emitting the content availability state
 
