@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -268,7 +268,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           console.warn('[CodelabQuizContentComponent] Content is not yet available.');
         }
       }); */
-      this.isContentAvailable$
+      /* this.isContentAvailable$
         .pipe(distinctUntilChanged())
         .subscribe((isAvailable) => {
           if (isAvailable) {
@@ -283,7 +283,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           } else {
             console.warn('[CodelabQuizContentComponent] Content is not yet available.');
           }
+        }); */
+        this.isContentAvailable$
+        .pipe(
+          distinctUntilChanged(),
+          tap((isAvailable) => {
+            console.log('[CodelabQuizContentComponent] Content availability:', isAvailable);
+            if (isAvailable && !this.quizQuestionComponent) {
+              console.warn('[CodelabQuizContentComponent] Content available, but QuizQuestionComponent not ready.');
+            }
+          }),
+          filter((isAvailable) => isAvailable),
+          switchMap(() => this.checkQuizQuestionComponentReadiness()),
+        )
+        .subscribe({
+          next: (isReady) => {
+            if (isReady) {
+              console.log('[CodelabQuizContentComponent] QuizQuestionComponent is ready.');
+              this.setupDisplayStateSubscription();
+            } else {
+              console.error('[CodelabQuizContentComponent] QuizQuestionComponent is still not ready. Check template or rendering conditions.');
+            }
+          },
+          error: (err) => {
+            console.error('[CodelabQuizContentComponent] Error in initialization:', err);
+          },
         });
+      
     
 
     
@@ -303,6 +329,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
+
+  private checkQuizQuestionComponentReadiness(): Observable<boolean> {
+    return new Observable<boolean>((observer) => {
+      const interval = setInterval(() => {
+        if (this.quizQuestionComponent) {
+          observer.next(true);
+          observer.complete();
+          clearInterval(interval);
+        }
+      }, 200);
+  
+      setTimeout(() => {
+        observer.next(false);
+        observer.complete();
+        clearInterval(interval);
+      }, 2000); // Maximum wait time of 2 seconds
+    });
+  }
+  
   
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
