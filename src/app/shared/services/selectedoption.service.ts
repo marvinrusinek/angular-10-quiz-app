@@ -355,7 +355,7 @@ export class SelectedOptionService {
         text: `Option ${optionIndex + 1}`,
         correct: false, // Default to false unless explicitly set
         selected: true, // Mark as selected since it’s being added
-        questionIndex,
+        questionIndex
       };
   
       options.push(newOption);
