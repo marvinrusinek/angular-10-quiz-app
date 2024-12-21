@@ -40,11 +40,6 @@ export class TimerService {
 
   // Starts the timer
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
-    console.log('[TimerService] Attempting to start timer. Current state:', {
-      isTimerRunning: this.isTimerRunning,
-      duration,
-    });
-  
     if (this.isTimerRunning) {
       console.info('[TimerService] Timer is already running. Start ignored.');
       return; // Prevent restarting an already running timer
