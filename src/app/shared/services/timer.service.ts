@@ -46,7 +46,7 @@ export class TimerService {
     });
   
     if (this.isTimerRunning) {
-      console.warn('[TimerService] Timer is already running. Start ignored.');
+      console.info('[TimerService] Timer is already running. Start ignored.');
       return; // Prevent restarting an already running timer
     }
   
