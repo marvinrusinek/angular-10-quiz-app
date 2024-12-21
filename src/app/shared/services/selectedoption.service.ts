@@ -612,18 +612,35 @@ export class SelectedOptionService {
   }  
 
   private debugSelectedOptionsMap(): void {
-    console.log('🔍 [debugSelectedOptionsMap] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+    console.log('🔍 [debugSelectedOptionsMap] Inspecting selectedOptionsMap...');
 
-    if (this.selectedOptionsMap.size === 0) {
-        console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap is empty.');
+    // Convert the map entries to an array for iteration
+    const mapEntries = Array.from(this.selectedOptionsMap.entries());
+
+    if (mapEntries.length === 0) {
+      console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap is empty.');
+      return;
+    }
+
+    // Use for-of loop to iterate through map entries
+    for (const [questionIndex, options] of mapEntries) {
+      if (!Array.isArray(options) || options.length === 0) {
+        console.warn(`⚠️ [debugSelectedOptionsMap] No valid options for questionIndex: ${questionIndex}.`);
+      } else {
+        console.groupCollapsed(`✅ [debugSelectedOptionsMap] Options for questionIndex: ${questionIndex}`);
+        console.table(options); // Display the options in table format
+        console.groupEnd();
+      }
+    }
+
+    console.log('🔍 [debugSelectedOptionsMap] Full selectedOptionsMap content:', mapEntries);
+  }
+
+  private debugQuestionOptions(questionOptions: Option[], questionIndex: number): void {
+    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+      console.warn('⚠️ [debugQuestionOptions] No valid options for questionIndex:', questionIndex);
     } else {
-        this.selectedOptionsMap.forEach((options, questionIndex) => {
-            if (!Array.isArray(options) || options.length === 0) {
-                console.warn(`⚠️ [debugSelectedOptionsMap] No valid options for questionIndex: ${questionIndex}`);
-            } else {
-                console.log(`✅ [debugSelectedOptionsMap] Options for questionIndex: ${questionIndex}:`, options);
-            }
-        });
+      console.log('✅ [debugQuestionOptions] Valid options for questionIndex:', questionIndex, questionOptions);
     }
   }
 
