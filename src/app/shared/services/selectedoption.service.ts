@@ -431,59 +431,54 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    console.log('🛠️ [updateAnsweredState] Called with:', {
-        questionOptions,
-        questionIndex,
-    });
-
-    // **Step 1: Validate and Fallback Mechanism**
+    console.log('🛠️ [updateAnsweredState] Called with:', { questionOptions, questionIndex });
+  
+    // Validate and assign options
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.info('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
-
-        questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
-
-        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
-        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
-
-            // **Step 2: Debug selectedOptionsMap content**
-            console.warn('[updateAnsweredState] SelectedOptionsMap content:', Array.from(this.selectedOptionsMap.entries()));
-
-            questionOptions = this.getDefaultOptions(questionIndex); // Use default options as a last resort
-            console.info('⚠️ [updateAnsweredState] Using default options:', questionOptions);
-        }
+      console.info('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
+  
+      // Fallback mechanism
+      questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
+      questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+  
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
+  
+        // Debug selectedOptionsMap content
+        console.warn('[updateAnsweredState] SelectedOptionsMap content:', Array.from(this.selectedOptionsMap.entries()));
+  
+        questionOptions = this.getDefaultOptions(questionIndex); // Use default options as a last resort
+      }
     }
-
+  
     console.log('[updateAnsweredState] Final questionOptions after fallback:', questionOptions);
-
-    // **Step 3: Exit Early if Options Are Still Invalid**
+  
+    // Exit early if options are still invalid
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
-        return;
+      console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
+      return;
     }
-
-    // **Step 4: Check If All Correct Answers Are Selected**
+  
+    // Check if all correct answers are selected
     const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-    console.info('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected);
-
-    // **Step 5: Determine Answered State**
+    console.log('✅ [updateAnsweredState] All correct answers selected:', allCorrectAnswersSelected);
+  
+    // Determine answered state
     const isAnswered = questionOptions.some(option => option.selected);
     this.isAnsweredSubject.next(isAnswered);
-    console.info('[updateAnsweredState] Setting isAnsweredSubject to:', isAnswered);
-
-    // **Step 6: Stop Timer If All Correct Answers Are Selected**
+  
+    // Stop timer if all correct answers are selected
     if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-        console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
-        this.stopTimer$.next();
-        this.stopTimerEmitted = true;
+      console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
+      this.stopTimer$.next();
+      this.stopTimerEmitted = true;
     }
-
-    // **Step 7: Final State Debugging**
+  
     console.log('[updateAnsweredState] Final state:', {
-        questionOptions,
-        questionIndex,
-        allCorrectAnswersSelected,
-        isAnswered,
+      questionOptions,
+      questionIndex,
+      allCorrectAnswersSelected,
+      isAnswered,
     });
   }
 
