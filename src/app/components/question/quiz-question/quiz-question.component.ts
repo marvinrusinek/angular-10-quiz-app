@@ -1495,7 +1495,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Validate the option and ensure event.option exists
       if (!this.validateOption(event) || !event.option) {
-        console.warn('Option is invalid or missing.');
+        console.info('Option is invalid or missing. Likely during initialization or empty state.');
         return;
       }
   
