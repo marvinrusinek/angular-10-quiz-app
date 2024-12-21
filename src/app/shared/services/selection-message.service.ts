@@ -54,8 +54,8 @@ export class SelectionMessageService {
     }
   
     // Check if the new message is different from the current value
-    if (this.selectionMessageSubject.value !== newMessage) {
-      console.log(`[updateSelectionMessage] Changing message from "${this.selectionMessageSubject.value}" to "${newMessage}"`);
+    if (this.selectionMessageSubject.getValue() !== newMessage) {
+      console.log(`[updateSelectionMessage] Changing message from "${this.selectionMessageSubject.getValue()}" to "${newMessage}"`);
       this.selectionMessageSubject.next(newMessage);
     } else {
       console.log('[updateSelectionMessage] No update required, selection message remains unchanged:', newMessage);
