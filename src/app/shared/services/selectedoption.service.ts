@@ -583,14 +583,8 @@ export class SelectedOptionService {
   
       questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
-  
-        // Debug selectedOptionsMap
-        this.debugSelectedOptionsMap();
-  
-        // Generate default options if necessary
+        // Generate default options
         questionOptions = this.getDefaultOptions(questionIndex);
-        console.warn('⚠️ [updateAnsweredState] Using default options:', questionOptions);
       }
     }
   
