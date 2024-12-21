@@ -1768,7 +1768,7 @@ export class QuizService implements OnDestroy {
 
     // Validate answers
     if (!this.answers || this.answers.length === 0) {
-      console.warn('No answers provided for validation.');
+      console.info('No answers provided for validation.');
       return false;
     }
 

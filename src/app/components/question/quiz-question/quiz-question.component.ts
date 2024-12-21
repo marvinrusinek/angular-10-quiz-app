@@ -2593,7 +2593,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   ): Promise<void> {
     try {
       // Ensure optionId is assigned to all options in the current question
-      currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options, 'handleOptionClicked');
+      currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options);
   
       // Get selected options, but only include those with a valid optionId
       const selectedOptions: Option[] = this.selectedOptionService
