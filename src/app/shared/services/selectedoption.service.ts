@@ -505,13 +505,6 @@ export class SelectedOptionService {
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
-  
-    console.log('Final state:', {
-      questionOptions,
-      questionIndex,
-      allCorrectAnswersSelected,
-      isAnswered,
-    });
   }  
 
   private debugSelectedOptionsMap(): void {
