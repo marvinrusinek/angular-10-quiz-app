@@ -375,34 +375,37 @@ export class SelectedOptionService {
   } */
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     console.log('🛠️ [addSelectedOptionIndex] Called with:', { questionIndex, optionIndex });
-
+  
+    // Ensure `selectedOptionsMap` entry for questionIndex exists
     if (!this.selectedOptionsMap.has(questionIndex)) {
-        console.warn('⚠️ [addSelectedOptionIndex] No entry for questionIndex. Initializing new array for questionIndex:', questionIndex);
-        this.selectedOptionsMap.set(questionIndex, []);
+      console.warn('⚠️ [addSelectedOptionIndex] Initializing new array for questionIndex:', questionIndex);
+      this.selectedOptionsMap.set(questionIndex, []);
     }
-
+  
     const options = this.selectedOptionsMap.get(questionIndex)!;
-
+  
+    // Check if the option already exists
     const existingOption = options.find(option => option.optionId === optionIndex);
-
+  
     if (!existingOption) {
-        const newOption: SelectedOption = {
-            optionId: optionIndex,
-            text: `Option ${optionIndex + 1}`,
-            correct: false,
-            selected: true,
-            questionIndex,
-        };
-
-        options.push(newOption);
-        this.selectedOptionsMap.set(questionIndex, options);
-        console.log('✅ [addSelectedOptionIndex] Added new option:', newOption, 'to questionIndex:', questionIndex);
+      const newOption: SelectedOption = {
+        optionId: optionIndex,
+        text: `Option ${optionIndex + 1}`,
+        correct: false, // Default to false unless explicitly set
+        selected: true, // Mark as selected since it’s being added
+        questionIndex,
+      };
+  
+      options.push(newOption);
+      this.selectedOptionsMap.set(questionIndex, options); // Update the map
+      console.log('✅ [addSelectedOptionIndex] Added new option:', newOption);
     } else {
-        console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption, 'for questionIndex:', questionIndex);
+      console.log('ℹ️ [addSelectedOptionIndex] Option already exists:', existingOption);
     }
-
-    console.log('🔍 [addSelectedOptionIndex] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
-  }
+  
+    // Debug state of `selectedOptionsMap`
+    console.log('🔍 [addSelectedOptionIndex] Current selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+  }  
   
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
@@ -567,32 +570,37 @@ export class SelectedOptionService {
       selectedOptionsMap: Array.from(this.selectedOptionsMap.entries()),
     });
   
-    // If no options provided, attempt fallback
+    // Step 1: Validate inputs
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.info('[updateAnsweredState] No options provided. Attempting fallback.');
-      
-      // Determine fallback question index
+  
+      // Step 2: Attempt fallback for questionIndex
       questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
-      
-      // Get options from selectedOptionsMap
+  
+      // Step 3: Fetch from selectedOptionsMap
       questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
-        
-        // Debug current state of selectedOptionsMap
-        console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
   
-        // Generate default options as a last resort
+        // Step 4: Debug selectedOptionsMap
+        console.warn('⚠️ [debugSelectedOptionsMap] selectedOptionsMap is empty or invalid:', Array.from(this.selectedOptionsMap.entries()));
+  
+        // Step 5: Generate default options if necessary
         questionOptions = this.getDefaultOptions(questionIndex);
         console.warn('⚠️ [updateAnsweredState] Using default options:', questionOptions);
       }
     }
   
-    // Final validation
+    // Step 6: Final validation
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
       return;
     }
+  
+    console.log('✅ [updateAnsweredState] Proceeding with validated options:', {
+      questionOptions,
+      questionIndex,
+    });
   
     console.log('[updateAnsweredState] Proceeding with:', { questionOptions, questionIndex });
 
@@ -609,7 +617,8 @@ export class SelectedOptionService {
     }
 
     console.log('[updateAnsweredState] Final state:', { questionOptions, questionIndex, allCorrectAnswersSelected, isAnswered });
-  }  
+  }
+  
 
   private debugSelectedOptionsMap(): void {
     console.log('🔍 [debugSelectedOptionsMap] Inspecting selectedOptionsMap...');
