@@ -81,7 +81,7 @@ export class TimerService {
     console.log('Entered stopTimer(). Timer running:', this.isTimerRunning);
 
     if (!this.isTimerRunning) {
-      console.warn('Timer is not running. Nothing to stop.');
+      console.log('Timer is not running. Nothing to stop.');
       return;
     }
 
