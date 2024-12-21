@@ -373,9 +373,7 @@ export class SelectedOptionService {
     // Debug log the current state of selectedOptionsMap
     console.log('🔍 [addSelectedOptionIndex] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
   } */
-  addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    console.log('🛠️ [addSelectedOptionIndex] Called with:', { questionIndex, optionIndex });
-  
+  addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {  
     // Ensure `selectedOptionsMap` entry for questionIndex exists
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
