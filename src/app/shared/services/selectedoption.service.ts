@@ -439,7 +439,7 @@ export class SelectedOptionService {
     }
   }
   
-  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+  /* updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     console.log('🛠️ [updateAnsweredState] Called with:', { questionOptions, questionIndex });
   
     // Validate question options
@@ -486,6 +486,36 @@ export class SelectedOptionService {
       allCorrectAnswersSelected,
       isAnswered,
     });
+  } */
+  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+    console.log('🛠️ [updateAnsweredState] Called with:', { questionOptions, questionIndex });
+
+    // Validate and Assign Options
+    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.info('⚠️ [updateAnsweredState] No options provided. Attempting fallback.');
+
+        // Fallback Mechanism
+        questionIndex = questionIndex >= 0 ? questionIndex : this.getFallbackQuestionIndex();
+
+        // Attempt to retrieve options from selectedOptionsMap
+        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+            console.warn('⚠️ [updateAnsweredState] No valid options found for fallback question index:', questionIndex);
+
+            // Debug selectedOptionsMap content
+            console.warn('[updateAnsweredState] SelectedOptionsMap content:', Array.from(this.selectedOptionsMap.entries()));
+
+            // Attempt to generate default options
+            questionOptions = this.getDefaultOptions(questionIndex);
+        }
+    }
+
+    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.error('❌ [updateAnsweredState] Unable to proceed. No valid options available.');
+        return;
+    }
+
+    console.log('✅ [updateAnsweredState] Proceeding with options:', questionOptions);
   }
 
   areAllCorrectAnswersSelected(questionOptions?: Option[], questionIndex?: number, questionText: string = 'N/A'): boolean {
