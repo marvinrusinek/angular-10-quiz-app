@@ -608,7 +608,15 @@ export class SelectedOptionService {
   
     // Step 6: Update selectedOptionsMap if missing
     if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, questionOptions);
+      const selectedOptions: SelectedOption[] = questionOptions.map(option => ({
+        optionId: option.optionId ?? -1,
+        text: option.text ?? '',
+        correct: option.correct ?? false,
+        selected: option.selected ?? false,
+        questionIndex: questionIndex,
+      }));
+  
+      this.selectedOptionsMap.set(questionIndex, selectedOptions);
       console.log('✅ [updateAnsweredState] Updated selectedOptionsMap with validated options.');
     }
   
@@ -632,7 +640,6 @@ export class SelectedOptionService {
       isAnswered,
     });
   }
-  
 
   private debugSelectedOptionsMap(): void {
     console.log('🔍 [debugSelectedOptionsMap] Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
