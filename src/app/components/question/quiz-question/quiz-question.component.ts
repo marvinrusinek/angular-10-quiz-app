@@ -2698,7 +2698,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
     if (this.isFormValid()) {
-     console.log('Both form and question data are ready, rendering component');
+     console.info('Both form and question data are ready, rendering component.');
     this.shouldRenderComponent = true;
     } else {
       console.log('Form or question data is not ready yet');
