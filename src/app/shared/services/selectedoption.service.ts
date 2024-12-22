@@ -517,6 +517,8 @@ export class SelectedOptionService {
       allCorrectSelected
     });
 
+    console.log('[areAllCorrectAnswersSelected] Comparison result:', allCorrectSelected);
+
     return allCorrectSelected;
   }
 
