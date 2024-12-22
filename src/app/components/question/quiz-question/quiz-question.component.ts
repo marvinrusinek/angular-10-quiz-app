@@ -1661,7 +1661,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
         if (!this.currentQuestion) {
             this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
@@ -1749,7 +1749,78 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     } catch (error) {
         console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+    try {
+        if (!this.currentQuestion) {
+            this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+
+            if (!this.currentQuestion?.options) {
+                console.warn('⚠️ [onOptionClicked] No current question options available.');
+                return;
+            }
+
+            this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+            console.log('[onOptionClicked] Assigned Option IDs:', this.currentQuestion.options);
+        }
+
+        if (!event.option || !this.validateOption(event)) {
+            console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
+            return;
+        }
+
+        const option = event.option;
+        if (option.optionId === undefined || option.optionId === null) {
+            console.error('❌ [onOptionClicked] optionId is undefined:', option);
+            return;
+        }
+
+        this.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
+
+        const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+
+        await this.updateOptionSelection(event, option);
+
+        const allCorrectSelected = this.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
+
+        console.log('[onOptionClicked] Debugging Timer Logic:', {
+            isMultipleAnswer,
+            allCorrectSelected,
+            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+            selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
+        });
+
+        if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('✅ [onOptionClicked] All correct options selected. Stopping timer.');
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true;
+        } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true;
+        } else {
+            console.log('❌ [onOptionClicked] Timer NOT stopped.', {
+                isMultipleAnswer,
+                allCorrectSelected,
+                stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+            });
+        }
+
+        this.updateDisplayStateToExplanation();
+        this.handleInitialSelection(event);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+
+        setTimeout(() => {
+            this.updateRenderingFlags();
+            this.renderDisplay();
+        });
+
+        await this.handleAdditionalProcessing(event, isMultipleAnswer);
+    } catch (error) {
+        console.error('❌ [onOptionClicked] Unhandled error:', error);
+    }
   }
+
     
   // ====================== Helper Functions ======================
   
