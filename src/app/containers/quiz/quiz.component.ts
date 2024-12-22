@@ -3085,6 +3085,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.selectedOptionService.stopTimerEmitted = false; // Reset timer logic
     this.selectedOptionService.selectedOptionsMap.clear(); // Clear selected options
+
+    console.log('[resetQuizState] Timer and selected options reset:', {
+      stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+      selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
+    });
   
     // Trigger reset in various services
     this.resetStateService.triggerResetFeedback();
