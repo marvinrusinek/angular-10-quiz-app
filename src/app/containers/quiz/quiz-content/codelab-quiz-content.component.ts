@@ -1022,7 +1022,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     return this.currentQuestion.pipe(
       take(1), // Take the first value emitted and then complete
       switchMap((question: QuizQuestion) =>
-        question ? this.quizStateService.isMultipleAnswerQuestion(question) : of(false)
+        question ? this.quizQuestionManagerService.isMultipleAnswerQuestion(question) : of(false)
       )
     );
   }
