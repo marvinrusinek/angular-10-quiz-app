@@ -43,7 +43,7 @@ export class QuizQuestionManagerService {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     // this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
-    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleCorrectAnswers(question);
+    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleAnswerQuestion(question);
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
