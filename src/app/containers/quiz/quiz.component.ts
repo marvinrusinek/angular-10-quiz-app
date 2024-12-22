@@ -296,7 +296,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Determine if the question is a multiple-answer question
         const isMultipleAnswer = await firstValueFrom(
-          this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+          this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
         );
 
         // Update selection message if it has changed
@@ -1979,7 +1979,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   ): Promise<void> {
     try {
       const [multipleAnswers, isExplanationDisplayed] = await Promise.all([
-        firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(question)),
+        firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(question)),
         this.explanationTextService.isExplanationTextDisplayedSource.getValue(),
       ]);
   

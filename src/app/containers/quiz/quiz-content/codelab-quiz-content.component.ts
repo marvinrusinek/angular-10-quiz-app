@@ -552,7 +552,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   // Function to handle the display of correct answers
   private handleCorrectAnswersDisplay(question: QuizQuestion): void {
-    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+    const isMultipleAnswer$ = this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
         map(value => value ?? false), // Default to `false` if value is `undefined`
         distinctUntilChanged()
     );
@@ -588,7 +588,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       return of(void 0);
     }
   
-    return this.quizStateService.isMultipleAnswerQuestion(question).pipe(
+    return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
       tap(isMultipleAnswer => {
         const correctAnswers = question.options.filter(option => option.correct).length;
         let newCorrectAnswersText = '';
@@ -902,7 +902,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       switchMap(combinedData => {
         if (combinedData && combinedData.currentQuestion) {
           this.currentQuestionType = combinedData.currentQuestion.type;
-          return this.quizStateService.isMultipleAnswerQuestion(combinedData.currentQuestion).pipe(
+          return this.quizQuestionManagerService.isMultipleAnswerQuestion(combinedData.currentQuestion).pipe(
             map(isMultipleAnswer => ({
               combinedData,
               isMultipleAnswer

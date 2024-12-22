@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -55,18 +55,19 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers;
   }
 
-  isMultipleCorrectAnswers(question: QuizQuestion): boolean {  
-    if (!question || !Array.isArray(question.options)) {
-      console.log('Question is invalid or has no options array.');
-      return false;
+  public isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+    try {
+      if (question && Array.isArray(question.options)) {
+        const correctAnswersCount = question.options.filter(option => option.correct).length;
+        const hasMultipleAnswers = correctAnswersCount > 1;
+        return of(hasMultipleAnswers);
+      } else {
+        return of(false);
+      }
+    } catch (error) {
+      console.error('Error determining if it is a multiple-answer question:', error);
+      return of(false);
     }
-  
-    const numberOfCorrectAnswers = question.options.filter(
-      (option) => option.correct
-    ).length;
-  
-    const isMultiple = numberOfCorrectAnswers > 1;  
-    return isMultiple;
   }
 
   isSelectedOption(option: Option): boolean {
