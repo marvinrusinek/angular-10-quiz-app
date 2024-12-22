@@ -340,14 +340,16 @@ export class SelectedOptionService {
     // Ensure `selectedOptionsMap` entry for questionIndex exists
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
+      console.info(`[addSelectedOptionIndex] Initialized new entry for questionIndex: ${questionIndex}`);
     }
   
     const options = this.selectedOptionsMap.get(questionIndex)!
   
-    // Check if the option already exists
+    // Check if the option already exists in the array
     const existingOption = options.find(option => option.optionId === optionIndex);
   
     if (!existingOption) {
+      // Create a new SelectedOption object
       const newOption: SelectedOption = {
         optionId: optionIndex,
         text: `Option ${optionIndex + 1}`,
@@ -356,7 +358,10 @@ export class SelectedOptionService {
         questionIndex
       };
   
+      // Add the new option to the array
       options.push(newOption);
+      
+      // Update the selectedOptionsMap
       this.selectedOptionsMap.set(questionIndex, options); // Update the map
     } else {
       console.info('Option already exists:', existingOption);
