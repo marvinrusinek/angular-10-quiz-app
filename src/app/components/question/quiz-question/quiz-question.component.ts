@@ -1673,7 +1673,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             }
 
             this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-
             console.log('[onOptionClicked] Assigned Option IDs:', this.currentQuestion.options);
         }
 
@@ -1692,7 +1691,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
 
-        // Handle timer logic for both single-answer and multiple-answer questions
+        console.log('[onOptionClicked] Option clicked:', {
+            option,
+            questionIndex: this.currentQuestionIndex,
+            isMultipleAnswer,
+        });
+
+        await this.updateOptionSelection(event, option);
+
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
             this.currentQuestion.options,
             this.currentQuestionIndex
@@ -1705,14 +1711,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
         });
 
-        if (
-            (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) || 
-            (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted)
-        ) {
-            console.log('✅ [onOptionClicked] Timer condition met. Stopping timer.', {
-                isMultipleAnswer,
-                allCorrectSelected,
-            });
+        // Timer logic
+        if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('✅ [onOptionClicked] All correct options selected. Stopping timer.');
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true;
+        } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
             this.timerService.stopTimer();
             this.selectedOptionService.stopTimerEmitted = true;
         } else {
@@ -1722,8 +1727,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
                 stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
             });
         }
-
-        await this.updateOptionSelection(event, option);
 
         this.updateDisplayStateToExplanation();
         this.handleInitialSelection(event);
