@@ -1614,6 +1614,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
   
       const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+
+      // Handle single-answer logic
+      if (!isMultipleAnswer) {
+        if (option.correct && !this.selectedOptionService.stopTimerEmitted) {
+          console.log('[onOptionClicked] Single-answer question. Stopping timer.');
+          this.timerService.stopTimer();
+          this.selectedOptionService.stopTimerEmitted = true;
+        }
+        return;
+      }
+
+      await this.updateOptionSelection(event, option);
+
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
   
       console.log('[onOptionClicked] Debug State:', {
@@ -1634,7 +1647,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         });
       }
   
-      await this.updateOptionSelection(event, option);
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
       this.selectedOptionService.isAnsweredSubject.next(true);
