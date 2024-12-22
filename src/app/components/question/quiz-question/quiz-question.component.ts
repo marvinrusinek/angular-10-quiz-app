@@ -2053,7 +2053,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.selectOption(currentQuestion, option, index);
   
     const isMultipleAnswer = await firstValueFrom(
-      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion)
     );
   
     // Update selection message with the correct state
@@ -2142,7 +2142,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestionIndex,
         this.totalQuestions,
         isAnswered,
-        await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion))
+        await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion))
       );
   
       console.log('Updating selection message. New message:', newMessage);
@@ -2228,7 +2228,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     try {
       // Retrieve the isMultipleAnswer flag asynchronously
       const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
   
       // Call determineSelectionMessage with all four required arguments
@@ -2665,7 +2665,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   ): Promise<void> {
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
     const isMultipleAnswer = await firstValueFrom(
-      this.quizStateService.isMultipleAnswerQuestion(currentQuestion)
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion)
     );
   
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -2748,7 +2748,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizStateService.isMultipleAnswerQuestion(currentQuestion).subscribe({
+    this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion).subscribe({
       next: () => {
         const selectedOptions =
           this.quizService.selectedOptionsMap.get(this.currentQuestionIndex) ||
