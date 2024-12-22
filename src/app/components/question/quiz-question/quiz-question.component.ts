@@ -1661,8 +1661,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
   }
-  
-  
     
   // ====================== Helper Functions ======================
   
