@@ -1585,7 +1585,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('[onOptionClicked] Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
@@ -1660,6 +1660,83 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('❌ [onOptionClicked] Unhandled error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+    try {
+        if (!this.currentQuestion) {
+            this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+
+            if (!this.currentQuestion?.options) {
+                console.warn('⚠️ [onOptionClicked] No current question options available.');
+                return;
+            }
+
+            this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+
+            console.log('[onOptionClicked] Assigned Option IDs:', this.currentQuestion.options);
+        }
+
+        if (!event.option || !this.validateOption(event)) {
+            console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
+            return;
+        }
+
+        const option = event.option;
+        if (option.optionId === undefined || option.optionId === null) {
+            console.error('❌ [onOptionClicked] optionId is undefined:', option);
+            return;
+        }
+
+        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
+
+        const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+
+        // Handle timer logic for both single-answer and multiple-answer questions
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+            this.currentQuestion.options,
+            this.currentQuestionIndex
+        );
+
+        console.log('[onOptionClicked] Validation:', {
+            isMultipleAnswer,
+            allCorrectSelected,
+            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+            selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
+        });
+
+        if (
+            (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) || 
+            (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted)
+        ) {
+            console.log('✅ [onOptionClicked] Timer condition met. Stopping timer.', {
+                isMultipleAnswer,
+                allCorrectSelected,
+            });
+            this.timerService.stopTimer();
+            this.selectedOptionService.stopTimerEmitted = true;
+        } else {
+            console.log('❌ [onOptionClicked] Timer NOT stopped.', {
+                isMultipleAnswer,
+                allCorrectSelected,
+                stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+            });
+        }
+
+        await this.updateOptionSelection(event, option);
+
+        this.updateDisplayStateToExplanation();
+        this.handleInitialSelection(event);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+
+        setTimeout(() => {
+            this.updateRenderingFlags();
+            this.renderDisplay();
+        });
+
+        await this.handleAdditionalProcessing(event, isMultipleAnswer);
+    } catch (error) {
+        console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
   }
     
