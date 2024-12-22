@@ -369,26 +369,31 @@ export class SelectedOptionService {
     this.debugSelectedOptionsMap(); // Log current map state
   } */
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    console.log('[addSelectedOptionIndex] Called:', {
-      questionIndex,
-      optionIndex,
-      existingOptions: Array.from(this.selectedOptionsMap.entries()),
-    });
-  
     if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
+        this.selectedOptionsMap.set(questionIndex, []);
     }
-  
+
     const options = this.selectedOptionsMap.get(questionIndex)!;
-  
-    if (!options.some(option => option.optionId === optionIndex)) {
-      options.push({ optionId: optionIndex, selected: true, questionIndex } as SelectedOption);
-      this.selectedOptionsMap.set(questionIndex, options);
-      console.log('[addSelectedOptionIndex] Updated Map:', Array.from(this.selectedOptionsMap.entries()));
+    const existingOption = options.find(o => o.optionId === optionIndex);
+
+    if (!existingOption) {
+        const newOption: SelectedOption = {
+            optionId: optionIndex,
+            questionIndex, // Ensure the questionIndex is set correctly
+            text: `Option ${optionIndex + 1}`, // Placeholder text, update if needed
+            correct: false, // Default to false unless explicitly set elsewhere
+            selected: true, // Mark as selected since it's being added
+        };
+
+        options.push(newOption); // Add the new option
+        this.selectedOptionsMap.set(questionIndex, options); // Update the map
+
+        console.log(`[addSelectedOptionIndex] Updated selectedOptionsMap:`, 
+          Array.from(this.selectedOptionsMap.entries()));
     } else {
-      console.log('[addSelectedOptionIndex] Option already exists:', optionIndex);
+        console.log(`[addSelectedOptionIndex] Option ${optionIndex} already exists for questionIndex ${questionIndex}`);
     }
-  }  
+  }
   
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
@@ -510,7 +515,7 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
     // Validate the input
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.warn('No options provided for question index:', questionIndex);
@@ -540,6 +545,18 @@ export class SelectedOptionService {
 
     console.log('[areAllCorrectAnswersSelected] Comparison result:', allCorrectSelected);
 
+    return allCorrectSelected;
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
+    const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
+    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
+
+    const allCorrectSelected = correctOptionIds.every(correctId => selectedOptionIds.includes(correctId));
+    console.log('[areAllCorrectAnswersSelected] Validation:', {
+        correctOptionIds,
+        selectedOptionIds,
+        allCorrectSelected
+    });
     return allCorrectSelected;
   }
 
