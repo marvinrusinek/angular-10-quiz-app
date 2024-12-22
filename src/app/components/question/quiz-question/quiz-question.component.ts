@@ -1475,19 +1475,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Ensure current question is loaded
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-
+  
         if (!this.currentQuestion?.options) {
           console.warn('No current question options available.');
           return;
         }
-
+  
         // Assign optionIds if missing
         this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
   
         console.log('Option IDs assigned for options:', this.currentQuestion.options.map(o => ({ id: o.optionId, correct: o.correct })));
       }
   
-      // Check if all correct options are selected (for multiple-answer)
+      // Validate options for the current question
       if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
         console.warn('No options available for the current question.');
         return;
@@ -1499,39 +1499,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         return;
       }
   
-      // Check if option exists
-      if (!event.option) {
-        console.error('Option is undefined in event:', event);
-        return;
-      }
-  
       const option = event.option!;
       if (option.optionId === undefined || option.optionId === null) {
         console.error('optionId is undefined for option:', event.option);
-        return; 
+        return;
       }
-
+  
       // Update selectedOptionsMap
       this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
-
+  
       // Check if the current question is multiple-answer
       const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
-
+  
       console.log('[onOptionClicked] Option clicked:', {
         option: event.option,
         questionIndex: this.currentQuestionIndex,
-        isMultipleAnswer
+        isMultipleAnswer,
       });
   
-      // Single-answer lock logic
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion).subscribe((isMultipleAnswer: boolean) => {
-        if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
-          console.log('Single answer lock is active, returning early.');
-          return;
-        }
-      
-        // Continue with the rest of your logic here
-      });      
+      // Handle single-answer logic
+      if (!isMultipleAnswer && this.handleSingleAnswerLock(false)) {
+        console.log('Single answer lock is active. Exiting early.');
+        return;
+      }
   
       // Single-answer logic for stopping the timer
       if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
@@ -1539,7 +1529,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectedOptionService.stopTimerEmitted = true;
       }
   
-      // Multiple-answer logic  
+      // Multiple-answer logic
       await this.updateOptionSelection(event, option);
   
       // Check if all correct options are selected (for multiple-answer)
@@ -1548,8 +1538,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.currentQuestionIndex
       );
       console.log('All correct answers selected:', allCorrectSelected);
-    
-      // Stop the timer for multiple-answer questions only if all correct options are selected
+  
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
         console.log('[onOptionClicked] All correct options selected. Stopping timer.', {
           isMultipleAnswer,
@@ -1582,11 +1571,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.renderDisplay();
       });
   
+      // Handle any additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
   }
+  
     
   // ====================== Helper Functions ======================
   
