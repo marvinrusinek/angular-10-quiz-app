@@ -342,7 +342,7 @@ export class SelectedOptionService {
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
-    const options = this.selectedOptionsMap.get(questionIndex)!
+    const options = this.selectedOptionsMap.get(questionIndex)!;
   
     // Check if the option already exists in the array
     const existingOption = options.find(option => option.optionId === optionIndex);
