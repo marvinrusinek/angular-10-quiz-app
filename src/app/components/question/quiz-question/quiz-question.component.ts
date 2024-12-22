@@ -1515,7 +1515,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
 
       // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleCorrectAnswers(this.currentQuestion);
+      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion);
       console.log('[onOptionClicked] Is multiple-answer question:', isMultipleAnswer);
 
       console.log('[onOptionClicked] Option clicked:', {
@@ -1525,10 +1525,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       });
   
       // Single-answer lock logic
-      if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
-        console.log('Single answer lock is active, returning early.');
-        return;
-      }
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion).subscribe((isMultipleAnswer: boolean) => {
+        if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
+          console.log('Single answer lock is active, returning early.');
+          return;
+        }
+      
+        // Continue with the rest of your logic here
+      });      
   
       // Single-answer logic for stopping the timer
       if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
