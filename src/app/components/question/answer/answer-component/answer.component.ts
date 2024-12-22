@@ -8,6 +8,7 @@ import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
@@ -43,6 +44,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   constructor(
     protected dynamicComponentService: DynamicComponentService,
     protected quizService: QuizService,
+    protected quizQuestionManagerService: QuizQuestionManagerService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
     protected fb: FormBuilder,
@@ -57,7 +59,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     this.initializeSharedOptionConfig();
 
     this.quizService.getCurrentQuestion(this.quizService.currentQuestionIndex).subscribe((currentQuestion: QuizQuestion) => {
-      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion);
       this.type = isMultipleAnswer ? 'multiple' : 'single';
     });
   }
@@ -115,7 +117,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
     // Get the current question and determine the component to load
     this.quizService.getCurrentQuestion(this.quizService.currentQuestionIndex).subscribe((currentQuestion: QuizQuestion) => {
-      const isMultipleAnswer = this.quizStateService.isMultipleAnswerQuestion(currentQuestion);
+      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion);
       console.log('Is Multiple Answer:', isMultipleAnswer);
 
       if (typeof isMultipleAnswer === 'boolean') {
