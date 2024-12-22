@@ -784,7 +784,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.dynamicAnswerContainer.clear(); // Clear previous components
   
       const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswerQuestion(this.question)
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
       );
   
       const componentRef: ComponentRef<BaseQuestionComponent> = 
