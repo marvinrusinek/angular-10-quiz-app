@@ -1541,6 +1541,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] All correct options selected. Stopping timer.', {
+          isMultipleAnswer,
+          allCorrectSelected,
+          stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        });
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
         console.log('[onOptionClicked] Timer stopped for multiple-answer question.');
