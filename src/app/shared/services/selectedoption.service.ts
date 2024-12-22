@@ -471,7 +471,7 @@ export class SelectedOptionService {
       this.stopTimer$.next();
       this.stopTimerEmitted = true;
     }
-  }  
+  }
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
@@ -490,27 +490,32 @@ export class SelectedOptionService {
   }
 
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
+    // Validate the input
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.warn('No options provided for question index:', questionIndex);
       return false;
     }
-  
+
+    // Get correct option IDs
     const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
     if (correctOptionIds.length === 0) {
       console.log('No correct options found for question index:', questionIndex);
       return false;
     }
-  
-    // Retrieve selected options from the map
-    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || [])?.map(option => option.optionId);
+
+    // Retrieve selected option IDs from the map
+    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(option => option.optionId);
 
     // Check if all correct options are selected
     const allCorrectSelected = correctOptionIds.every(correctId => selectedOptionIds.includes(correctId));
 
-    // Early exit for single-answer questions
-    if (correctOptionIds.length === 1 && selectedOptionIds.includes(correctOptionIds[0])) {
-      return true;
-    }
+    // Debugging logs
+    console.log('[areAllCorrectAnswersSelected]', {
+      questionIndex,
+      correctOptionIds,
+      selectedOptionIds,
+      allCorrectSelected
+    });
 
     return allCorrectSelected;
   }
