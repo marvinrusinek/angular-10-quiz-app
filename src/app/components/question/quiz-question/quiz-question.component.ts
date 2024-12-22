@@ -1629,10 +1629,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
   
-      console.log('[onOptionClicked] Debug State:', {
+      console.log('[onOptionClicked] Validation:', {
         isMultipleAnswer,
         allCorrectSelected,
         stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
       });
   
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
