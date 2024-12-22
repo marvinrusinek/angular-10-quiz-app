@@ -557,10 +557,10 @@ export class SelectedOptionService {
   private getFallbackQuestionIndex(): number {
     const keys = Array.from(this.selectedOptionsMap.keys());
     if (keys.length > 0) {
-      console.log('✅ [getFallbackQuestionIndex] Using fallback index from selectedOptionsMap:', keys[0]);
+      console.log('[getFallbackQuestionIndex] Using fallback index from selectedOptionsMap:', keys[0]);
       return keys[0];
     }
-    console.warn('⚠️ [getFallbackQuestionIndex] No keys in selectedOptionsMap. Defaulting to 0.');
+    console.warn('[getFallbackQuestionIndex] No keys in selectedOptionsMap. Defaulting to 0.');
     return 0;
   }
 }
