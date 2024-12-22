@@ -1775,13 +1775,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             return;
         }
 
-        this.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
+        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
 
         const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
 
         await this.updateOptionSelection(event, option);
 
-        const allCorrectSelected = this.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
 
         console.log('[onOptionClicked] Debugging Timer Logic:', {
             isMultipleAnswer,
