@@ -3022,6 +3022,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Reset quiz-related services and states
     this.resetQuizState();
   
+    // Stop the timer before restarting
+    this.timerService.stopTimer();
+    console.log('[QuizComponent] Timer stopped.');
+  
     // Set the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
   
@@ -3058,6 +3062,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             // Update badge text after reset
             this.quizService.updateBadgeText(1, this.totalQuestions);
+  
+            // Start the timer for the first question
+            this.timerService.startTimer(this.timerService.timePerQuestion);
+            console.log('[QuizComponent] Timer started for new quiz.');
           } catch (error) {
             console.error('Error fetching and displaying the first question:', error);
           }
@@ -3066,7 +3074,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .catch((error) => {
         console.error('Error during quiz restart:', error);
       });
-  }  
+  }
   
   private resetQuizState(): void {
     // Reset all quiz-related services
