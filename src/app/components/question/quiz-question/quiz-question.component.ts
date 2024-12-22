@@ -1528,13 +1528,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       await this.updateOptionSelection(event, option);
   
       // Check if all correct options are selected (for multiple-answer)
-      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
+      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+        this.currentQuestion.options,
+        this.currentQuestionIndex
+      );
       console.log('All correct answers selected:', allCorrectSelected);
-  
+    
       // Stop the timer for multiple-answer questions only if all correct options are selected
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
+        console.log('[onOptionClicked] Timer stopped for multiple-answer question.');
       } else {
         console.log(`[onOptionClicked] Timer NOT stopped. allCorrectSelected: ${allCorrectSelected}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
       }
