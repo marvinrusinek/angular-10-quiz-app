@@ -1704,11 +1704,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             this.currentQuestionIndex
         );
 
-        console.log('[onOptionClicked] Validation:', {
-            isMultipleAnswer,
-            allCorrectSelected,
-            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-            selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
+        console.log('[onOptionClicked] Validation Details:', {
+          correctOptionIds: this.currentQuestion.options.filter(o => o.correct).map(o => o.optionId),
+          selectedOptionIds: (this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || []).map(o => o.optionId),
+          allCorrectSelected,
         });
 
         // Timer logic
