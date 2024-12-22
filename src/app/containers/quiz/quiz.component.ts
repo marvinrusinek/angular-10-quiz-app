@@ -516,8 +516,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private restoreQuestionState(): void {
-    console.log('Restoring question state for currentQuestionIndex:', this.currentQuestionIndex);
-  
     this.quizService.getCurrentQuestion(this.currentQuestionIndex).subscribe({
       next: (question) => {
         if (question) {
