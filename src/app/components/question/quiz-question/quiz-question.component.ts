@@ -514,7 +514,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Get the active quiz after questions are loaded
         this.quiz = this.quizService.getActiveQuiz();
         if (!this.quiz) {
-          console.error('Failed to get the active quiz');
+          console.error('Failed to get the active quiz.');
           return false;
         }
 
