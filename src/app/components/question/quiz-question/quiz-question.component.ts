@@ -510,7 +510,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (questions && questions.length > 0) {
         this.questions = questions;
         this.questionsArray = questions;
-        console.log('Questions successfully loaded:', this.questionsArray);
 
         // Get the active quiz after questions are loaded
         this.quiz = this.quizService.getActiveQuiz();
