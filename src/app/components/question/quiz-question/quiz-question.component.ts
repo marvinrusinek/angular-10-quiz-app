@@ -1717,26 +1717,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         });
 
         // Timer logic
-        if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-          console.log("MY TIMER LOG TEST");
-          console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
-            correctOptionIds: this.currentQuestion.options.filter(o => o.correct).map(o => o.optionId),
-            selectedOptionIds: (this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || []).map(o => o.optionId),
-            allCorrectSelected,
-            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-          });
-          this.timerService.stopTimer();
-          this.selectedOptionService.stopTimerEmitted = true;
-        } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
+        if (isMultipleAnswer) {
+          if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+              console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.');
+              this.timerService.stopTimer();
+              this.selectedOptionService.stopTimerEmitted = true;
+          } else {
+              console.log('❌ Timer NOT stopped: Waiting for all correct options.');
+          }
+        } else if (option.correct && !this.selectedOptionService.stopTimerEmitted) {
+            console.log('✅ Stopping timer: Single correct option selected for single-answer question.');
             this.timerService.stopTimer();
             this.selectedOptionService.stopTimerEmitted = true;
-        } else {
-            console.log('❌ [onOptionClicked] Timer NOT stopped.', {
-                isMultipleAnswer,
-                allCorrectSelected,
-                stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-            });
+        }
+
+        // Reset stopTimerEmitted when transitioning to a new question
+        if (!allCorrectSelected && this.selectedOptionService.stopTimerEmitted) {
+            console.log('🔄 Resetting stopTimerEmitted for multiple-answer question.');
+            this.selectedOptionService.stopTimerEmitted = false;
         }
 
         this.updateDisplayStateToExplanation();
