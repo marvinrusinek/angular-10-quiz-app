@@ -1515,14 +1515,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
 
       // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-      const correctOptionsCount = this.currentQuestion.options.filter(o => o.correct).length;
-      const isMultipleAnswer = correctOptionsCount > 1;
+      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleCorrectAnswers(this.currentQuestion);
+      console.log('[onOptionClicked] Is multiple-answer question:', isMultipleAnswer);
 
       console.log('[onOptionClicked] Option clicked:', {
         option: event.option,
         questionIndex: this.currentQuestionIndex,
-        isMultipleAnswer,
-        correctOptionsCount,
+        isMultipleAnswer
       });
   
       // Single-answer lock logic
