@@ -1529,6 +1529,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectedOptionService.stopTimerEmitted = true;
       }
   
+      // Multiple-answer logic
+      await this.updateOptionSelection(event, option);
+  
       // Check if all correct options are selected (for multiple-answer)
       const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
         this.currentQuestion.options,
@@ -1537,12 +1540,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('All correct answers selected:', allCorrectSelected);
   
       if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('[onOptionClicked] All correct options selected. Stopping timer.', {
+          isMultipleAnswer,
+          allCorrectSelected,
+          stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        });
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
+        console.log('[onOptionClicked] Timer stopped for multiple-answer question.');
+      } else {
+        console.log('[onOptionClicked] Timer NOT stopped:', {
+          isMultipleAnswer,
+          allCorrectSelected,
+          stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        });
       }
-
-      // Multiple-answer logic
-      await this.updateOptionSelection(event, option);
   
       // Update the display state to explanation mode
       this.updateDisplayStateToExplanation();
