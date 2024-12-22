@@ -1825,7 +1825,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
   
   private handleMultipleAnswerQuestion(option: SelectedOption): void {
-    this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion).subscribe({
+    this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion).subscribe({
       next: (isMultipleAnswer) => {
         console.log('Multiple answer question detected:', isMultipleAnswer);
   
