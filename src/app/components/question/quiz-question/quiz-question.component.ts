@@ -1514,9 +1514,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Update selectedOptionsMap
       this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
 
-      // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+      // Check if the current question is multiple-answer
       const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
-      console.log('[onOptionClicked] Is multiple-answer question:', isMultipleAnswer);
 
       console.log('[onOptionClicked] Option clicked:', {
         option: event.option,
