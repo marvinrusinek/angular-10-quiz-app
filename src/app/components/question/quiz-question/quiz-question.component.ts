@@ -1712,9 +1712,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         // Timer logic
         if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('✅ [onOptionClicked] All correct options selected. Stopping timer.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true;
+          console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
+            correctOptionIds: this.currentQuestion.options.filter(o => o.correct).map(o => o.optionId),
+            selectedOptionIds: (this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || []).map(o => o.optionId),
+            allCorrectSelected,
+            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+          });
+          this.timerService.stopTimer();
+          this.selectedOptionService.stopTimerEmitted = true;
         } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
             console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
             this.timerService.stopTimer();
