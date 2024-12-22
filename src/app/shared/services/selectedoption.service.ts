@@ -340,7 +340,6 @@ export class SelectedOptionService {
     // Ensure `selectedOptionsMap` entry for questionIndex exists
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
-      console.info(`[addSelectedOptionIndex] Initialized new entry for questionIndex: ${questionIndex}`);
     }
   
     const options = this.selectedOptionsMap.get(questionIndex)!
