@@ -1510,6 +1510,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.error('optionId is undefined for option:', event.option);
         return; 
       }
+
+      // Update selectedOptionsMap
+      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
+
       // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
       const isMultipleAnswer = this.currentQuestion.options.filter(o => o.correct).length > 1;
   
