@@ -503,6 +503,11 @@ export class SelectedOptionService {
     // Check if all correct options are selected
     const allCorrectSelected = correctOptionIds.every(correctId => selectedOptionIds.includes(correctId));
 
+    // Early exit for single-answer questions
+    if (correctOptionIds.length === 1 && selectedOptionIds.includes(correctOptionIds[0])) {
+      return true;
+    }
+
     return allCorrectSelected;
   }
 
