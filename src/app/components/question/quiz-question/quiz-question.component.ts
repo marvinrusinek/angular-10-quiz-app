@@ -2727,7 +2727,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     try {
       const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
       const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
   
       const newMessage = this.selectionMessageService.determineSelectionMessage(
