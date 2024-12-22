@@ -1545,7 +1545,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectedOptionService.stopTimerEmitted = true;
         console.log('[onOptionClicked] Timer stopped for multiple-answer question.');
       } else {
-        console.log(`[onOptionClicked] Timer NOT stopped. allCorrectSelected: ${allCorrectSelected}, stopTimerEmitted: ${this.selectedOptionService.stopTimerEmitted}`);
+        console.log('[onOptionClicked] Timer NOT stopped:', {
+          isMultipleAnswer,
+          allCorrectSelected,
+          stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        });
       }
   
       // Update the display state to explanation mode
