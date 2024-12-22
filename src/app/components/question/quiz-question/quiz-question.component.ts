@@ -1510,7 +1510,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.error('optionId is undefined for option:', event.option);
         return; 
       }
-      const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+      // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+      const isMultipleAnswer = this.currentQuestion.options.filter(o => o.correct).length > 1;
   
       // Single-answer lock logic
       if (!isMultipleAnswer && this.handleSingleAnswerLock(isMultipleAnswer)) {
