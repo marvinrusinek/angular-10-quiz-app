@@ -1710,8 +1710,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           allCorrectSelected,
         });
 
+        console.log('[onOptionClicked] Debugging timer stop condition:', {
+          isMultipleAnswer,
+          allCorrectSelected,
+          stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        });
+
         // Timer logic
         if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+          console.log("MY TIMER LOG TEST");
           console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
             correctOptionIds: this.currentQuestion.options.filter(o => o.correct).map(o => o.optionId),
             selectedOptionIds: (this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || []).map(o => o.optionId),
