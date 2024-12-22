@@ -845,7 +845,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
     const isMultipleAnswer = await firstValueFrom(
-      this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion)
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
   
     let newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -1322,7 +1322,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private async shouldUpdateMessageOnAnswer(isAnswered: boolean): Promise<boolean> {
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswerQuestion(this.currentQuestion));
+    const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
   
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
@@ -1515,7 +1515,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
 
       // const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion);
+      const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
       console.log('[onOptionClicked] Is multiple-answer question:', isMultipleAnswer);
 
       console.log('[onOptionClicked] Option clicked:', {
