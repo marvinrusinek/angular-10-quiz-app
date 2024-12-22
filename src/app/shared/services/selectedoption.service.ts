@@ -369,6 +369,12 @@ export class SelectedOptionService {
     this.debugSelectedOptionsMap(); // Log current map state
   } */
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
+    console.log('[addSelectedOptionIndex] Called:', {
+      questionIndex,
+      optionIndex,
+      existingOptions: Array.from(this.selectedOptionsMap.entries()),
+    });
+  
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -376,29 +382,13 @@ export class SelectedOptionService {
     const options = this.selectedOptionsMap.get(questionIndex)!;
   
     if (!options.some(option => option.optionId === optionIndex)) {
-      const newOption: SelectedOption = {
-        optionId: optionIndex,
-        text: `Option ${optionIndex + 1}`, // Adjust text logic as needed
-        correct: false, // Default value
-        selected: true, // Mark as selected
-        questionIndex,
-      };
-  
-      options.push(newOption);
+      options.push({ optionId: optionIndex, selected: true, questionIndex } as SelectedOption);
       this.selectedOptionsMap.set(questionIndex, options);
-  
-      console.log('[addSelectedOptionIndex] Option Added:', {
-        questionIndex,
-        optionIndex,
-        selectedOptionsMap: Array.from(this.selectedOptionsMap.entries()),
-      });
+      console.log('[addSelectedOptionIndex] Updated Map:', Array.from(this.selectedOptionsMap.entries()));
     } else {
-      console.log('[addSelectedOptionIndex] Option already exists:', {
-        questionIndex,
-        optionIndex,
-      });
+      console.log('[addSelectedOptionIndex] Option already exists:', optionIndex);
     }
-  }   
+  }  
   
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (this.selectedOptionIndices[questionIndex]) {
