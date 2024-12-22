@@ -497,8 +497,13 @@ export class SelectedOptionService {
       return false;
     }
   
+    // Retrieve selected options from the map
     const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || [])?.map(option => option.optionId) ?? [];
-    return correctOptionIds.every(id => selectedOptionIds.includes(id));
+
+    // Check if all correct options are selected
+    const allCorrectSelected = correctOptionIds.every(correctId => selectedOptionIds.includes(correctId));
+
+    return allCorrectSelected;
   }
 
   setAnswered(isAnswered: boolean): void {
