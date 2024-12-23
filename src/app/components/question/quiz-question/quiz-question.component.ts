@@ -1781,6 +1781,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       await this.updateOptionSelection(event, option);
 
+      // Timer logic
       if (isMultipleAnswer) {
         const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
           this.currentQuestion.options,
