@@ -1128,10 +1128,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       : this.data?.options;
   }
 
-  getDisplayMode(): Observable<'question' | 'explanation'> {
-    return this.displayMode$.pipe(distinctUntilChanged());
-  }
-
   // logging undefined...
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
