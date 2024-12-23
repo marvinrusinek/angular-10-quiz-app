@@ -795,7 +795,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isButtonEnabledSubject.next(false);
 
     // Clear selected state for options
-    if (this.currentQuestion && this.currentQuestion.options) {
+    if (this.currentQuestion?.options) {
       for (const option of this.currentQuestion.options) {
         if (option.selected) {
           console.log(`Clearing selected state for option: ${option.optionId}`);
