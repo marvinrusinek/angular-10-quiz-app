@@ -803,6 +803,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     }
 
+    // Reset timer and selected options logic
+    this.selectedOptionService.stopTimerEmitted = false;
+    this.selectedOptionService.selectedOptionsMap.clear();
+
     this.quizStateService.setAnswered(false);
     this.quizStateService.setLoading(false);
     this.cdRef.detectChanges();
@@ -2995,14 +2999,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Reset the quiz service state
     this.quizService.resetAll();
-
-    this.selectedOptionService.stopTimerEmitted = false; // Reset timer logic
-    this.selectedOptionService.selectedOptionsMap.clear(); // Clear selected options
-
-    console.log('[resetQuizState] Timer and selected options reset:', {
-      stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-      selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
-    });
   
     // Trigger background reset
     this.resetBackgroundService.setShouldResetBackground(true);
