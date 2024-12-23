@@ -1752,72 +1752,72 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
-        if (!this.currentQuestion) {
-            this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+      if (!this.currentQuestion) {
+        this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
 
-            if (!this.currentQuestion?.options) {
-                console.warn('⚠️ [onOptionClicked] No current question options available.');
-                return;
-            }
-
-            this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-            console.log('[onOptionClicked] Assigned Option IDs:', this.currentQuestion.options);
+        if (!this.currentQuestion?.options) {
+          console.warn('⚠️ [onOptionClicked] No current question options available.');
+          return;
         }
 
-        if (!event.option || !this.validateOption(event)) {
-            console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
-            return;
-        }
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+        console.log('[onOptionClicked] Assigned Option IDs:', this.currentQuestion.options);
+      }
 
-        const option = event.option;
-        if (option.optionId === undefined || option.optionId === null) {
-            console.error('❌ [onOptionClicked] optionId is undefined:', option);
-            return;
-        }
+      if (!event.option || !this.validateOption(event)) {
+        console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
+        return;
+      }
 
-        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
+      const option = event.option;
+      if (option.optionId === undefined || option.optionId === null) {
+        console.error('❌ [onOptionClicked] optionId is undefined:', option);
+        return;
+      }
 
-        const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
 
-        await this.updateOptionSelection(event, option);
+      const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
 
-        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
+      await this.updateOptionSelection(event, option);
 
-        console.log('[onOptionClicked] Debugging Timer Logic:', {
-            isMultipleAnswer,
-            allCorrectSelected,
-            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-            selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
+      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
+
+      console.log('[onOptionClicked] Debugging Timer Logic:', {
+        isMultipleAnswer,
+        allCorrectSelected,
+        stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+        selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
+      });
+
+      if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('✅ [onOptionClicked] All correct options selected. Stopping timer.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
+      } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
+        console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
+        this.timerService.stopTimer();
+        this.selectedOptionService.stopTimerEmitted = true;
+      } else {
+        console.log('❌ [onOptionClicked] Timer NOT stopped.', {
+          isMultipleAnswer,
+          allCorrectSelected,
+          stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
+      }
 
-        if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('✅ [onOptionClicked] All correct options selected. Stopping timer.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true;
-        } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-            console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
-            this.timerService.stopTimer();
-            this.selectedOptionService.stopTimerEmitted = true;
-        } else {
-            console.log('❌ [onOptionClicked] Timer NOT stopped.', {
-                isMultipleAnswer,
-                allCorrectSelected,
-                stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-            });
-        }
+      this.updateDisplayStateToExplanation();
+      this.handleInitialSelection(event);
+      this.selectedOptionService.isAnsweredSubject.next(true);
 
-        this.updateDisplayStateToExplanation();
-        this.handleInitialSelection(event);
-        this.selectedOptionService.isAnsweredSubject.next(true);
+      setTimeout(() => {
+        this.updateRenderingFlags();
+        this.renderDisplay();
+      });
 
-        setTimeout(() => {
-            this.updateRenderingFlags();
-            this.renderDisplay();
-        });
-
-        await this.handleAdditionalProcessing(event, isMultipleAnswer);
+      await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
-        console.error('❌ [onOptionClicked] Unhandled error:', error);
+      console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
   }
 
