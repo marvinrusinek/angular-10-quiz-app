@@ -794,6 +794,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
 
+    // Clear selected state for options
     if (this.currentQuestion && this.currentQuestion.options) {
       for (const option of this.currentQuestion.options) {
         if (option.selected) {
