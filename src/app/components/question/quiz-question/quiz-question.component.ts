@@ -1781,29 +1781,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       await this.updateOptionSelection(event, option);
 
-      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
-
-      console.log('[onOptionClicked] Debugging Timer Logic:', {
-        isMultipleAnswer,
-        allCorrectSelected,
-        stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-        selectedOptionsMap: Array.from(this.selectedOptionService.selectedOptionsMap.entries()),
-      });
-
-      if (isMultipleAnswer && allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('✅ [onOptionClicked] All correct options selected. Stopping timer.');
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
-      } else if (!isMultipleAnswer && option.correct && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('✅ [onOptionClicked] Single correct option selected. Stopping timer.');
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
-      } else {
-        console.log('❌ [onOptionClicked] Timer NOT stopped.', {
+      if (isMultipleAnswer) {
+        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+          this.currentQuestion.options,
+          this.currentQuestionIndex
+        );
+      
+        console.log('[onOptionClicked] Debugging timer stop condition:', {
           isMultipleAnswer,
           allCorrectSelected,
           stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
+      
+        if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+          console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
+            correctOptionIds: this.currentQuestion.options.filter(o => o.correct).map(o => o.optionId),
+            selectedOptionIds: (this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || []).map(o => o.optionId),
+            allCorrectSelected,
+          });
+          this.timerService.stopTimer();
+          this.selectedOptionService.stopTimerEmitted = true;
+        } else {
+          console.log('❌ Timer not stopped: Conditions not met.', {
+            isMultipleAnswer,
+            allCorrectSelected,
+            stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+          });
+        }
       }
 
       this.updateDisplayStateToExplanation();
