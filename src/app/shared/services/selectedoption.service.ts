@@ -567,12 +567,12 @@ export class SelectedOptionService {
     const validSelectedOptions = selectedOptionIds.filter(id => correctOptionIds.includes(id));
     const allCorrectSelected = correctOptionIds.every(id => validSelectedOptions.includes(id));
 
-    console.log('[areAllCorrectAnswersSelected] Validation:', {
-        questionIndex,
-        correctOptionIds,
-        selectedOptionIds,
-        validSelectedOptions,
-        allCorrectSelected,
+    console.log('[areAllCorrectAnswersSelected] Debugging Validation:', {
+      questionIndex,
+      correctOptionIds,
+      selectedOptionIds,
+      validSelectedOptions,
+      allCorrectSelected,
     });
 
     return allCorrectSelected;
