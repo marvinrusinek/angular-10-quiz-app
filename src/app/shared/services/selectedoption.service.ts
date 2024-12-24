@@ -547,7 +547,7 @@ export class SelectedOptionService {
 
     return allCorrectSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
     const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
     const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
 
@@ -558,6 +558,28 @@ export class SelectedOptionService {
       selectedOptionIds,
       allCorrectSelected
     });
+    return allCorrectSelected;
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
+    const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
+    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
+
+    if (!correctOptionIds.length) {
+      console.warn('No correct options found for question index:', questionIndex);
+      return false;
+    }
+
+    const validSelectedOptions = selectedOptionIds.filter(id => correctOptionIds.includes(id));
+    const allCorrectSelected = correctOptionIds.every(id => validSelectedOptions.includes(id));
+
+    console.log('[areAllCorrectAnswersSelected] Validation:', {
+      questionIndex,
+      correctOptionIds,
+      selectedOptionIds,
+      validSelectedOptions,
+      allCorrectSelected
+    });
+
     return allCorrectSelected;
   }
 
