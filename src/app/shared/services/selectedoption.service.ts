@@ -564,20 +564,15 @@ export class SelectedOptionService {
     const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
     const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
 
-    if (!correctOptionIds.length) {
-      console.warn('No correct options found for question index:', questionIndex);
-      return false;
-    }
-
     const validSelectedOptions = selectedOptionIds.filter(id => correctOptionIds.includes(id));
     const allCorrectSelected = correctOptionIds.every(id => validSelectedOptions.includes(id));
 
     console.log('[areAllCorrectAnswersSelected] Validation:', {
-      questionIndex,
-      correctOptionIds,
-      selectedOptionIds,
-      validSelectedOptions,
-      allCorrectSelected
+        questionIndex,
+        correctOptionIds,
+        selectedOptionIds,
+        validSelectedOptions,
+        allCorrectSelected,
     });
 
     return allCorrectSelected;
