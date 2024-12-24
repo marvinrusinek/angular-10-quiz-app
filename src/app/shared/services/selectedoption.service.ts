@@ -553,9 +553,10 @@ export class SelectedOptionService {
 
     const allCorrectSelected = correctOptionIds.every(correctId => selectedOptionIds.includes(correctId));
     console.log('[areAllCorrectAnswersSelected] Validation:', {
-        correctOptionIds,
-        selectedOptionIds,
-        allCorrectSelected
+      questionIndex,
+      correctOptionIds,
+      selectedOptionIds,
+      allCorrectSelected
     });
     return allCorrectSelected;
   }
