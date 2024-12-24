@@ -561,6 +561,11 @@ export class SelectedOptionService {
     return allCorrectSelected;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
+    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+      console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
+      return false;
+    }
+
     const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
     const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
 
