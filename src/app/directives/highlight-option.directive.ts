@@ -24,6 +24,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
+  @Input() isDeactivated: boolean = false;
 
   constructor(
     private el: ElementRef,
@@ -71,7 +72,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     let backgroundColor = 'transparent';
   
     if (this.isSelected && this.showFeedback) {
@@ -82,6 +83,18 @@ export class HighlightOptionDirective implements OnChanges {
       this.highlightCorrectAnswers();
     } else {
       this.setBackgroundColor(backgroundColor);
+    }
+  } */
+  updateHighlight(): void {
+    if (this.isDeactivated) {
+      this.setBackgroundColor('yellow'); // yellow for deactivated options
+      this.setPointerEvents('none'); // Disable interactions
+    } else if (this.isSelected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+      this.setBackgroundColor(color);
+    } else {
+      this.setBackgroundColor('white'); // Default background
+      this.setPointerEvents('auto'); // Enable interactions
     }
   }
 
@@ -104,6 +117,10 @@ export class HighlightOptionDirective implements OnChanges {
 
   private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  }
+
+  private setPointerEvents(value: string): void {
+    this.renderer.setStyle(this.el.nativeElement, 'pointer-events', value);
   }
 
   // Reset the state in-between questions
