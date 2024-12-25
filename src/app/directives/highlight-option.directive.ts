@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, Ho
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
+import { QuizService } from '../shared/services/quiz.service';
+import { SelectedOptionService } from '../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
@@ -24,9 +26,11 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
-  @Input() areAllCorrectAnswersSelected: boolean = false;
+  private areAllCorrectAnswersSelected= false;
 
   constructor(
+    private quizService: QuizService,
+    private selectedOptionService: SelectedOptionService,
     private el: ElementRef,
     private renderer: Renderer2,
     private cdRef: ChangeDetectorRef,
@@ -47,6 +51,10 @@ export class HighlightOptionDirective implements OnChanges {
       changes.isSelected ||
       changes.appHighlightReset
     ) {
+      this.areAllCorrectAnswersSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+        this.quizService.currentQuestion.options,
+        this.quizService.currentQuestionIndex
+      );
       this.updateHighlight();
     } else {
       console.log('No relevant changes detected, skipping highlight update');
