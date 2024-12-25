@@ -794,12 +794,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
 
-    // Clear selected state for options
+    // Clear selected, highlight, and activation states for options
     if (this.currentQuestion?.options) {
       for (const option of this.currentQuestion.options) {
         if (option.selected) {
           console.log(`Clearing selected state for option: ${option.optionId}`);
-          option.selected = false;
+          option.selected = false;     // Clear selected state
+          option.highlight = false;    // Clear highlight state
+          option.active = true;        // Reactivate the option
         }
       }
     }
