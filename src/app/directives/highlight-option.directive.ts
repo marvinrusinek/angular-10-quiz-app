@@ -153,7 +153,12 @@ export class HighlightOptionDirective implements OnChanges {
     // Default background for other options
     this.setBackgroundColor('white'); // Default white background
     this.setPointerEvents('auto'); // Enable interactions
-  }  
+
+    // Highlight correct answers after incorrect answers if applicable
+    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    }
+  }
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
