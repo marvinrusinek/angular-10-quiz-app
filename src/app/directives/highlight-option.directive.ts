@@ -109,6 +109,11 @@ export class HighlightOptionDirective implements OnChanges {
   // Reset the state in-between questions
   public reset(): void {
     this.isAnswered = false;
+    if (this.allOptions) {
+      for (const opt of this.allOptions) {
+        opt.active = true; // Reset all options to active
+      }
+    }
     this.setBackgroundColor('transparent');
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     this.resetBackground.emit(true); // Emit event to notify the reset
