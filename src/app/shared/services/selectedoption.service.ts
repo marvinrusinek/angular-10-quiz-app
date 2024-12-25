@@ -336,62 +336,30 @@ export class SelectedOptionService {
     return selectedOptions.map(option => option.optionId);
   }
 
-  /* addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {  
-    // Ensure `selectedOptionsMap` entry for questionIndex exists
-    if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
-    }
-  
-    const options = this.selectedOptionsMap.get(questionIndex)!;
-  
-    // Check if the option already exists in the array
-    const existingOption = options.find(option => option.optionId === optionIndex);
-  
-    if (!existingOption) {
-      // Create a new SelectedOption object
-      const newOption: SelectedOption = {
-        optionId: optionIndex,
-        text: `Option ${optionIndex + 1}`,
-        correct: false, // Default to false unless explicitly set
-        selected: true, // Mark as selected since it’s being added
-        questionIndex
-      };
-  
-      // Add the new option to the array
-      options.push(newOption);
-      
-      // Update the selectedOptionsMap
-      this.selectedOptionsMap.set(questionIndex, options); // Update the map
-    } else {
-      console.info('Option already exists:', existingOption);
-    }
-  
-    this.debugSelectedOptionsMap(); // Log current map state
-  } */
   addSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
-        this.selectedOptionsMap.set(questionIndex, []);
+      this.selectedOptionsMap.set(questionIndex, []);
     }
 
     const options = this.selectedOptionsMap.get(questionIndex)!;
     const existingOption = options.find(o => o.optionId === optionIndex);
 
     if (!existingOption) {
-        const newOption: SelectedOption = {
-            optionId: optionIndex,
-            questionIndex, // Ensure the questionIndex is set correctly
-            text: `Option ${optionIndex + 1}`, // Placeholder text, update if needed
-            correct: false, // Default to false unless explicitly set elsewhere
-            selected: true, // Mark as selected since it's being added
-        };
+      const newOption: SelectedOption = {
+        optionId: optionIndex,
+        questionIndex, // Ensure the questionIndex is set correctly
+        text: `Option ${optionIndex + 1}`, // Placeholder text, update if needed
+        correct: false, // Default to false unless explicitly set elsewhere
+        selected: true, // Mark as selected since it's being added
+      };
 
-        options.push(newOption); // Add the new option
-        this.selectedOptionsMap.set(questionIndex, options); // Update the map
+      options.push(newOption); // Add the new option
+      this.selectedOptionsMap.set(questionIndex, options); // Update the map
 
-        console.log(`[addSelectedOptionIndex] Updated selectedOptionsMap:`, 
-          Array.from(this.selectedOptionsMap.entries()));
+      console.log(`[addSelectedOptionIndex] Updated selectedOptionsMap:`, 
+      Array.from(this.selectedOptionsMap.entries()));
     } else {
-        console.log(`[addSelectedOptionIndex] Option ${optionIndex} already exists for questionIndex ${questionIndex}`);
+      console.log(`[addSelectedOptionIndex] Option ${optionIndex} already exists for questionIndex ${questionIndex}`);
     }
   }
   
