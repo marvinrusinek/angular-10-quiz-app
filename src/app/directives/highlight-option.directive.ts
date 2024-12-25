@@ -135,9 +135,18 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   updateHighlight(): void {
-    // If all correct answers are selected and the option is incorrect, grey it out and deactivate it
+    // Debugging logs to verify the state
+    console.log('[updateHighlight] Triggered with:', {
+      areAllCorrectAnswersSelected: this.areAllCorrectAnswersSelected,
+      isSelected: this.isSelected,
+      isCorrect: this.isCorrect,
+      option: this.option,
+    });
+  
+    // If all correct answers are selected and the option is incorrect, grey it out
     if (this.areAllCorrectAnswersSelected && !this.option?.correct) {
-      this.setBackgroundColor('#a3a3a3'); // Grey-out background for deactivated incorrect options
+      console.log('[updateHighlight] Applying grey-out for incorrect option:', this.option);
+      this.setBackgroundColor('#a3a3a3'); // Grey-out background
       this.setPointerEvents('none'); // Disable interactions
       return;
     }
@@ -145,26 +154,22 @@ export class HighlightOptionDirective implements OnChanges {
     // Highlight selected options (correct or incorrect)
     if (this.isSelected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+      console.log('[updateHighlight] Highlighting selected option:', this.option);
       this.setBackgroundColor(color);
       return; // Prioritize selected state over others
     }
   
-    // Apply neutral background if all correct answers are selected
-    if (this.highlightCorrectAfterIncorrect && this.isAnswered && this.areAllCorrectAnswersSelected) {
-      this.setBackgroundColor('#a3a3a3'); // Grey-out background
-      this.setPointerEvents('none'); // Disable interactions
+    // Default background for other options before all correct answers are selected
+    if (!this.areAllCorrectAnswersSelected) {
+      console.log('[updateHighlight] Applying default background for option (not yet all correct answers selected):', this.option);
+      this.setBackgroundColor('#a3a3a3'); // Default white background
+      this.setPointerEvents('auto'); // Enable interactions
       return;
     }
-  
-    // Default background for other options
-    this.setBackgroundColor('white'); // Default white background
-    this.setPointerEvents('auto'); // Enable interactions
-
-    // Highlight correct answers after incorrect answers if applicable
-    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
-      this.highlightCorrectAnswers();
-    }
   }
+  
+  
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
