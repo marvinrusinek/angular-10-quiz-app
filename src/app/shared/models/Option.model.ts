@@ -7,6 +7,7 @@ export interface Option {
   value?: number;
   answer?: Answer;
   selected?: boolean;
+  active?: boolean;
   showIcon?: boolean;
   feedback?: string;
   styleClass?: string;
