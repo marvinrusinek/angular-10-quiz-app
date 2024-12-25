@@ -126,7 +126,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setPointerEvents('none'); // Disable interactions
       return;
     }
-
+  
     // Highlight selected options (correct or incorrect)
     if (this.isSelected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
@@ -134,15 +134,17 @@ export class HighlightOptionDirective implements OnChanges {
       return; // Prioritize selected state over others
     }
   
-    // Default background for other options
-    this.setBackgroundColor('#a3a3a3'); // Default background
-    this.setPointerEvents('auto'); // Enable interactions
-  
-    // Highlight correct answers after incorrect answers if applicable
-    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
-      this.highlightCorrectAnswers();
+    // Apply neutral background if all correct answers are selected
+    if (this.highlightCorrectAfterIncorrect && this.isAnswered && this.areAllCorrectAnswersSelected) {
+      this.setBackgroundColor('#a3a3a3'); // Grey-out background
+      this.setPointerEvents('none'); // Disable interactions
+      return;
     }
-  }
+  
+    // Default background for other options
+    this.setBackgroundColor('white'); // Default white background
+    this.setPointerEvents('auto'); // Enable interactions
+  }  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
