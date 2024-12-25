@@ -24,7 +24,6 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
-  @Input() isDeactivated: boolean = false;
 
   constructor(
     private el: ElementRef,
@@ -121,25 +120,22 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   updateHighlight(): void {
-    if (this.option?.highlight && !this.option?.correct) {
-      // Apply grey-out style for incorrect options
-      this.setBackgroundColor('#d3d3d3'); // Light grey
-      this.setPointerEvents('none'); // Disable interactions
-      return;
-    }
-  
+    // Highlight selected options (correct or incorrect)
     if (this.isSelected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
       this.setBackgroundColor(color);
-    } else {
-      this.setBackgroundColor('white'); // Default background
-      this.setPointerEvents('auto'); // Enable interactions
+      return; // Prioritize selected state over others
     }
   
+    // Default background for other options
+    this.setBackgroundColor('#a3a3a3'); // Default background
+    this.setPointerEvents('auto'); // Enable interactions
+  
+    // Highlight correct answers after incorrect answers if applicable
     if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
     }
-  }  
+  }
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
