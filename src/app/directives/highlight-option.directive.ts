@@ -108,7 +108,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor(backgroundColor);
     }
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (this.isDeactivated) {
       this.setBackgroundColor('yellow'); // yellow for deactivated options
       this.setPointerEvents('none'); // Disable interactions
@@ -119,7 +119,31 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor('white'); // Default background
       this.setPointerEvents('auto'); // Enable interactions
     }
+  } */
+  updateHighlight(): void {
+    if (this.option?.active === false) {
+      // Grey-out for deactivated options
+      this.setBackgroundColor('#d3d3d3'); // Light grey
+      this.setPointerEvents('none'); // Disable interactions
+    } else {
+      // Apply highlight styles
+      if (this.isSelected) {
+        const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+        this.setBackgroundColor(color);
+      } else {
+        this.setBackgroundColor('white'); // Default background
+        this.setPointerEvents('auto'); // Enable interactions
+      }
+  
+      // Handle highlighting after incorrect answer
+      if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+        this.highlightCorrectAnswers();
+      } else {
+        this.setBackgroundColor(this.backgroundColor);
+      }
+    }
   }
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
