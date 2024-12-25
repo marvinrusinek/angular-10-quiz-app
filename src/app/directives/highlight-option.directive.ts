@@ -24,6 +24,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
+  @Input() areAllCorrectAnswersSelected: boolean = false;
 
   constructor(
     private el: ElementRef,
