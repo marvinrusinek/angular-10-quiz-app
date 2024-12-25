@@ -122,28 +122,27 @@ export class HighlightOptionDirective implements OnChanges {
   } */
   updateHighlight(): void {
     if (this.option?.active === false) {
-      // Grey-out for deactivated options
-      this.setBackgroundColor('#d3d3d3'); // Light grey
+      // Highlight deactivated options with dark grey
+      this.setBackgroundColor('#a9a9a9'); // Dark grey
       this.setPointerEvents('none'); // Disable interactions
-    } else {
-      // Apply highlight styles
-      if (this.isSelected) {
-        const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-        this.setBackgroundColor(color);
-      } else {
-        this.setBackgroundColor('white'); // Default background
-        this.setPointerEvents('auto'); // Enable interactions
-      }
-  
-      // Handle highlighting after incorrect answer
-      if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
-        this.highlightCorrectAnswers();
-      } else {
-        this.setBackgroundColor(this.backgroundColor);
-      }
+      return; // Exit early for deactivated options
     }
-  }
   
+    // Handle selected options (correct/incorrect feedback)
+    if (this.isSelected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+      this.setBackgroundColor(color);
+    } else {
+      // Default styling for non-selected options
+      this.setBackgroundColor('white');
+      this.setPointerEvents('auto');
+    }
+  
+    // Highlight correct answers after incorrect feedback
+    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    }
+  }  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
