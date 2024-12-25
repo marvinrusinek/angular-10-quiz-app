@@ -1848,6 +1848,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         if (!opt.correct) {
           opt.selected = false; // Deselect the incorrect option
           opt.active = false; // Deactivate the option (if `active` is used elsewhere)
+          opt.highlight = true;  // Highlight the incorrect option
         }
       }
       console.log('Deactivated incorrect options:', this.currentQuestion.options);
