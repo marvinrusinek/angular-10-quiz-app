@@ -1842,21 +1842,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('No action taken. Not all correct answers selected yet.');
       return;
     }
-
+  
     if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
           opt.selected = false; // Deselect the incorrect option
-          opt.active = false; // Deactivate the option (if `active` is used elsewhere)
-          opt.highlight = true;  // Highlight the incorrect option
+          opt.active = false; // Deactivate the option
+          opt.highlight = true; // Highlight the incorrect option
         }
       }
-      console.log('Deactivated incorrect options:', this.currentQuestion.options);
+  
+      // Trigger UI update by reassigning `optionsToDisplay`
+      this.optionsToDisplay = [...this.currentQuestion.options]; // Create a new reference for change detection
+      this.cdRef.detectChanges(); // Force Angular to update the UI immediately
+  
+      console.log('Deactivated and highlighted incorrect options:', this.optionsToDisplay);
     } else {
       console.warn('⚠️ [deactivateIncorrectOptions] No options available to deactivate.');
     }
   }
-
   
   // Handles single-answer lock logic. Returns true if we should return early.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
