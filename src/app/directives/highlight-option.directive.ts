@@ -55,7 +55,7 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  @HostListener('click', ['$event'])
+  /* @HostListener('click', ['$event'])
   onClick(event: Event): void {
     try {
       this.ngZone.run(() => {
@@ -70,7 +70,30 @@ export class HighlightOptionDirective implements OnChanges {
     } catch (error) {
       console.error('Error in onClick:', error);
     }
+  } */
+  @HostListener('click', ['$event'])
+  onClick(event: Event): void {
+    try {
+      this.ngZone.run(() => {
+        event.stopPropagation(); // Ensure event doesn't bubble up further
+
+        // Prevent interaction if the option is deactivated
+        if (this.option?.active === false) {
+          console.info('Option is deactivated and cannot be clicked:', this.option);
+          return; // Exit early for deactivated options
+        }
+
+        if (this.option) {
+          this.optionClicked.emit(this.option);
+          this.updateHighlight();
+          this.cdRef.detectChanges(); // Trigger change detection to ensure UI updates
+        }
+      });
+    } catch (error) {
+      console.error('Error in onClick:', error);
+    }
   }
+
 
   /* updateHighlight(): void {
     let backgroundColor = 'transparent';
