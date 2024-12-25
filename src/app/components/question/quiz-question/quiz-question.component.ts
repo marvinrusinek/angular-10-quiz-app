@@ -1790,16 +1790,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
 
-        if (allCorrectSelected) {
-          // Deactivate all incorrect options using a for-of loop
-          for (const opt of this.currentQuestion.options) {
-            if (!opt.correct) {
-              opt.selected = false; // Deactivate incorrect options
-            }
-          }
-
-          console.log('Deactivated incorrect options:', this.currentQuestion.options);
-        }
+        // Deactivate incorrect options
+        this.deactivateIncorrectOptions(allCorrectSelected);
 
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
           console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
@@ -1844,6 +1836,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (!option || option.optionId == null) return false;
     return true;
   }
+
+  private deactivateIncorrectOptions(allCorrectSelected: boolean): void {
+    if (allCorrectSelected && this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+      for (const opt of this.currentQuestion.options) {
+        if (!opt.correct) {
+          opt.selected = false; // Deactivate incorrect options
+        }
+      }
+      console.log('Deactivated incorrect options:', this.currentQuestion.options);
+    } else if (!allCorrectSelected) {
+      console.log('No action taken. Not all correct answers selected yet.');
+    } else {
+      console.warn('⚠️ [deactivateIncorrectOptions] No options available to deactivate.');
+    }
+  }  
   
   // Handles single-answer lock logic. Returns true if we should return early.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
