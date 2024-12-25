@@ -2846,6 +2846,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Reset UI and navigate after loading the question
       await this.resetUIAndNavigate(questionIndex);
+
+      // Timer logic: Start the timer for the loaded question
+      const timePerQuestion = this.timerService.timePerQuestion(questionIndex); // Ensure this method returns the correct duration
+      console.log('[fetchAndSetQuestionData] Starting timer for question index:', questionIndex, 'with duration:', timePerQuestion);
+      this.timerService.startTimer(timePerQuestion);
+
+
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
