@@ -1841,7 +1841,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (allCorrectSelected && this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
-          opt.selected = false; // Deactivate incorrect options
+          opt.selected = false; // Deselect the incorrect option
+          opt.active = false; // Deactivate the option
         }
       }
       console.log('Deactivated incorrect options:', this.currentQuestion.options);
