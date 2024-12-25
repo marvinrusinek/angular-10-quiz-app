@@ -1838,20 +1838,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private deactivateIncorrectOptions(allCorrectSelected: boolean): void {
-    if (allCorrectSelected && this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+    if (!allCorrectSelected) {
+      console.log('No action taken. Not all correct answers selected yet.');
+      return;
+    }
+
+    if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
           opt.selected = false; // Deselect the incorrect option
-          opt.active = false; // Deactivate the option
+          opt.active = false; // Deactivate the option (if `active` is used elsewhere)
         }
       }
       console.log('Deactivated incorrect options:', this.currentQuestion.options);
-    } else if (!allCorrectSelected) {
-      console.log('No action taken. Not all correct answers selected yet.');
     } else {
       console.warn('⚠️ [deactivateIncorrectOptions] No options available to deactivate.');
     }
-  }  
+  }
+
   
   // Handles single-answer lock logic. Returns true if we should return early.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
