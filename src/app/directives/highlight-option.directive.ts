@@ -51,10 +51,16 @@ export class HighlightOptionDirective implements OnChanges {
       changes.isSelected ||
       changes.appHighlightReset
     ) {
-      this.areAllCorrectAnswersSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
-        this.quizService.currentQuestion.options,
-        this.quizService.currentQuestionIndex
-      );
+      this.quizService.currentOptions.subscribe((currentOptions) => {
+        if (Array.isArray(currentOptions)) {
+          this.areAllCorrectAnswersSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+            currentOptions,
+            this.quizService.currentQuestionIndex
+          );
+    
+          console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', this.areAllCorrectAnswersSelected);
+        }
+      });
       this.updateHighlight();
     } else {
       console.log('No relevant changes detected, skipping highlight update');
