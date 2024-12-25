@@ -1783,13 +1783,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           this.currentQuestion.options,
           this.currentQuestionIndex
         );
-      
+
         console.log('[onOptionClicked] Debugging timer stop condition:', {
           isMultipleAnswer,
           allCorrectSelected,
           stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
-      
+
+        if (allCorrectSelected) {
+          // Deactivate all incorrect options using a for-of loop
+          for (const opt of this.currentQuestion.options) {
+            if (!opt.correct) {
+              opt.selected = false; // Deactivate incorrect options
+            }
+          }
+
+          console.log('Deactivated incorrect options:', this.currentQuestion.options);
+        }
+
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
           console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
             correctOptionIds: this.currentQuestion.options.filter(o => o.correct).map(o => o.optionId),
@@ -1806,6 +1817,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           });
         }
       }
+
 
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
