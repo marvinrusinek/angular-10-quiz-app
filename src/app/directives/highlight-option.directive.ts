@@ -178,10 +178,12 @@ export class HighlightOptionDirective implements OnChanges {
         return; // Prioritize selected state over others
     }
 
-    // Default background for other options
-    console.log('[updateHighlight] Applying default background for unselected option:', this.option);
-    this.setBackgroundColor('#a3a3a3'); // Dark gray background
-    this.setPointerEvents('auto'); // Enable interactions
+    if (option.correct) {
+      // Default background for other options
+      console.log('[updateHighlight] Applying default background for unselected option:', this.option);
+      this.setBackgroundColor('#a3a3a3'); // Dark gray background
+      this.setPointerEvents('auto'); // Enable interactions
+    }
   }
 
   private highlightCorrectAnswers(): void {
