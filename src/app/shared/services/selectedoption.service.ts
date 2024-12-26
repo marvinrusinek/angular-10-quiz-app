@@ -551,43 +551,33 @@ export class SelectedOptionService {
     return allCorrectSelected;
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
-    // Validate input
     if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
       console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
       return false;
     }
 
-    // Get correct and selected option IDs
-    const correctOptionIds = questionOptions.filter(o => o.correct).map(o => o.optionId);
+    // Filter only options with correct: true
+    const correctOptionIds = questionOptions.filter(o => o.correct === true).map(o => o.optionId);
+
+    if (correctOptionIds.length === 0) {
+      console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
+      return false; // No correct options means no way to validate
+    }
+
+    // Retrieve selected options for the current question index
     const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
 
-    // Validate if all correct options are selected
+    // Validate that all correct options are selected
     const validSelectedOptions = selectedOptionIds.filter(id => correctOptionIds.includes(id));
     const allCorrectSelected = correctOptionIds.every(id => validSelectedOptions.includes(id));
 
-    // Log details for debugging
-    console.log('[areAllCorrectAnswersSelected] Debugging Validation:', {
+    console.log('[areAllCorrectAnswersSelected] Validation Details:', {
       questionIndex,
       correctOptionIds,
       selectedOptionIds,
       validSelectedOptions,
       allCorrectSelected,
     });
-
-    // Handle cases with no correct options
-    if (correctOptionIds.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
-      return false;
-    }
-
-    // Handle cases with no valid selected options
-    if (validSelectedOptions.length === 0 && selectedOptionIds.length > 0) {
-      console.warn('[areAllCorrectAnswersSelected] None of the selected options are correct:', {
-        selectedOptionIds,
-        correctOptionIds,
-      });
-      return false;
-    }
 
     return allCorrectSelected;
   }
