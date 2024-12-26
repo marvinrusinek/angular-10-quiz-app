@@ -172,7 +172,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
 
     // Grey out incorrect options when a correct option has been selected
-    if (!this.isCorrect && this.areAllCorrectAnswersSelected) {
+    if (!this.isCorrect) {
       console.log('[updateHighlight] Highlighting incorrect option as deactivated:', this.option);
       this.setBackgroundColor('#a3a3a3'); // Dark gray background for incorrect options
       this.setPointerEvents('none'); // Disable interactions for deactivated options
