@@ -1858,7 +1858,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('No action taken. Not all correct answers selected yet.');
       return;
     }
-  
+
     if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
@@ -1869,15 +1869,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           console.log(`Option ${opt.optionId} deactivated and highlighted:`, opt);
         }
       }
-  
-      // Trigger UI update by reassigning `optionsToDisplay`
-      this.optionsToDisplay = [...this.currentQuestion.options]; // Create a new reference for change detection
 
-      // Trigger UI update for all options
+      // Create a new reference for `optionsToDisplay` to trigger Angular's change detection
+      this.optionsToDisplay = [...this.currentQuestion.options];
+
+      // Trigger UI updates for all options to ensure the new states are reflected
       this.updateOptionHighlightState();
-      
-      this.cdRef.detectChanges(); // Force Angular to update the UI immediately
-  
+
+      // Force Angular to update the UI immediately
+      this.cdRef.detectChanges();
+
       console.log('Deactivated and highlighted incorrect options:', this.optionsToDisplay);
     } else {
       console.warn('⚠️ [deactivateIncorrectOptions] No options available to deactivate.');
