@@ -160,13 +160,20 @@ export class HighlightOptionDirective implements OnChanges {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
       console.log('[updateHighlight] Highlighting selected option:', this.option);
       this.setBackgroundColor(color);
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove class if selected
       return;
     }
 
     // Highlight incorrect option(s) when correct answer is selected
     if (!this.isCorrect) {
+      console.log('[updateHighlight] Highlighting incorrect option as deactivated:', this.option);
       this.setBackgroundColor('#a3a3a3'); // Dark gray background
-      this.setPointerEvents('none'); // Enable interactions
+      this.setPointerEvents('none'); // Disable interactions
+      this.renderer.addClass(this.el.nativeElement, 'deactivated-option'); // Add deactivated-option class
+      return;
+    } else {
+      // Ensure the class is removed for other states
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
     }
   }
 
