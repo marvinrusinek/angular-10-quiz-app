@@ -171,7 +171,6 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   updateHighlight(): void {
-    // Debugging logs to verify the state
     console.log('[updateHighlight] Triggered with:', {
         areAllCorrectAnswersSelected: this.areAllCorrectAnswersSelected,
         isSelected: this.isSelected,
@@ -179,9 +178,9 @@ export class HighlightOptionDirective implements OnChanges {
         option: this.option,
     });
 
-    // Apply grey-out to incorrect options only if all correct answers are selected
-    if (this.areAllCorrectAnswersSelected && !this.option?.correct) {
-        console.log('[updateHighlight] Grey-out for incorrect option:', this.option);
+    // For deactivated incorrect options
+    if (this.option?.highlight && !this.option?.correct) {
+        console.log('[updateHighlight] Applying grey-out for deactivated incorrect option:', this.option);
         this.setBackgroundColor('#a3a3a3'); // Grey-out background
         this.setPointerEvents('none'); // Disable interactions
         return;
@@ -192,13 +191,12 @@ export class HighlightOptionDirective implements OnChanges {
         const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
         console.log('[updateHighlight] Highlighting selected option:', this.option);
         this.setBackgroundColor(color);
-        this.setPointerEvents('auto'); // Ensure interactions for selected
         return; // Prioritize selected state over others
     }
 
-    // Default background for other options before conditions are met
+    // Default background for other options
     console.log('[updateHighlight] Applying default background for unselected option:', this.option);
-    this.setBackgroundColor('white'); // Default background
+    this.setBackgroundColor('white'); // Default white background
     this.setPointerEvents('auto'); // Enable interactions
   }
 
