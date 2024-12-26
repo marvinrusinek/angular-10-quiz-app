@@ -26,7 +26,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
-  private areAllCorrectAnswersSelected= false;
+  private areAllCorrectAnswersSelected = false;
 
   constructor(
     private quizService: QuizService,
@@ -69,22 +69,6 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  /* @HostListener('click', ['$event'])
-  onClick(event: Event): void {
-    try {
-      this.ngZone.run(() => {
-        event?.stopPropagation();
-    
-        if (this.option) {
-          this.optionClicked.emit(this.option);
-          this.updateHighlight();
-          this.cdRef.detectChanges(); // Trigger change detection to ensure UI updates
-        }
-      });
-    } catch (error) {
-      console.error('Error in onClick:', error);
-    }
-  } */
   @HostListener('click', ['$event'])
   onClick(event: Event): void {
     try {
