@@ -134,7 +134,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setPointerEvents('auto'); // Enable interactions
     }
   } */
-  /* updateHighlight(): void {
+  updateHighlight(): void {
     // Debugging logs to verify the state
     console.log('[updateHighlight] Triggered with:', {
       areAllCorrectAnswersSelected: this.areAllCorrectAnswersSelected,
@@ -164,40 +164,11 @@ export class HighlightOptionDirective implements OnChanges {
     this.setBackgroundColor('#a3a3a3'); // Default gray background
     this.setPointerEvents('auto'); // Enable interactions
 
-    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+    /* if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
     } else {
       this.setBackgroundColor(color);
-    }
-  } */
-  updateHighlight(): void {
-    console.log('[updateHighlight] Triggered with:', {
-      areAllCorrectAnswersSelected: this.areAllCorrectAnswersSelected,
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect,
-      option: this.option,
-    });
-
-    // Grey out incorrect options and disable them when at least one correct option is selected
-    if (this.option?.highlight && !this.option?.correct) {
-        console.log('[updateHighlight] Grey-out and deactivate incorrect option:', this.option);
-        this.setBackgroundColor('#a3a3a3'); // Grey-out background
-        this.setPointerEvents('none'); // Disable interactions
-        return;
-    }
-
-    // Highlight selected options (correct or incorrect)
-    if (this.isSelected) {
-        const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-        console.log('[updateHighlight] Highlighting selected option:', this.option);
-        this.setBackgroundColor(color);
-        return; // Prioritize selected state over others
-    }
-
-    // Default background for other options before conditions are met
-    console.log('[updateHighlight] Applying default background for unselected option:', this.option);
-    this.setBackgroundColor('#ffffff'); // Default white background
-    this.setPointerEvents('auto'); // Enable interactions
+    } */
   }
 
   private highlightCorrectAnswers(): void {
