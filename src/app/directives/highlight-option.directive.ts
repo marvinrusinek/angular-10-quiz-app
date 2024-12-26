@@ -157,10 +157,10 @@ export class HighlightOptionDirective implements OnChanges {
   updateHighlight(): void {
     // Highlight selected options (correct or incorrect)
     if (this.isSelected) {
-        const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-        console.log('[updateHighlight] Highlighting selected option:', this.option);
-        this.setBackgroundColor(color);
-        return; // Prioritize selected state over others
+      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+      console.log('[updateHighlight] Highlighting selected option:', this.option);
+      this.setBackgroundColor(color);
+      return;
     }
 
     // Highlight incorrect option(s) when correct answer is selected
