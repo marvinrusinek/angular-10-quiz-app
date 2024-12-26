@@ -163,6 +163,12 @@ export class HighlightOptionDirective implements OnChanges {
     console.log('[updateHighlight] Applying default background for unselected option:', this.option);
     this.setBackgroundColor('#a3a3a3'); // Default gray background
     this.setPointerEvents('auto'); // Enable interactions
+
+    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    } else {
+      this.setBackgroundColor(color);
+    }
   }
 
   private highlightCorrectAnswers(): void {
