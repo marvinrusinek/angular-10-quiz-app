@@ -1872,6 +1872,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
       // Trigger UI update by reassigning `optionsToDisplay`
       this.optionsToDisplay = [...this.currentQuestion.options]; // Create a new reference for change detection
+
+      // Trigger UI update for all options
+      this.updateOptionHighlightState();
+      
       this.cdRef.detectChanges(); // Force Angular to update the UI immediately
   
       console.log('Deactivated and highlighted incorrect options:', this.optionsToDisplay);
