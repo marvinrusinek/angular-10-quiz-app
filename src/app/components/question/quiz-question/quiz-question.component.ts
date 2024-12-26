@@ -1810,6 +1810,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         }
       }
 
+      // Update the highlight state for all options
+      this.updateOptionHighlightState();
 
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
