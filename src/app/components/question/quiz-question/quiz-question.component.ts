@@ -1845,10 +1845,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.currentQuestionIndex
     );
   
-    // Notify all options of the updated state
-    this.currentQuestion.options.forEach((opt) => {
-      opt.highlight = !opt.correct && allCorrectSelected; // Set highlight state for incorrect options
-    });
+    // Update the highlight state for incorrect options
+    for (const opt of this.currentQuestion.options) {
+      opt.highlight = !opt.correct && allCorrectSelected;
+    }
   
     console.log('[QuizQuestionComponent] Updated highlight state for all options:', this.currentQuestion.options);
   }  
