@@ -1790,8 +1790,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
 
-        // Deactivate incorrect options
-        this.deactivateIncorrectOptions(allCorrectSelected);
+        if (option.correct) {
+          // Deactivate incorrect options
+          this.deactivateIncorrectOptions(allCorrectSelected);
+        }
 
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
           console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
