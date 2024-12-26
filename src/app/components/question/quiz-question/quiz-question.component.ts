@@ -1837,6 +1837,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return true;
   }
 
+  private updateOptionHighlightState(): void {
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+      this.currentQuestion.options,
+      this.currentQuestionIndex
+    );
+  
+    // Notify all options of the updated state
+    this.currentQuestion.options.forEach((opt) => {
+      opt.highlight = !opt.correct && allCorrectSelected; // Set highlight state for incorrect options
+    });
+  
+    console.log('[QuizQuestionComponent] Updated highlight state for all options:', this.currentQuestion.options);
+  }  
+
   private deactivateIncorrectOptions(allCorrectSelected: boolean): void {
     if (!allCorrectSelected) {
       console.log('No action taken. Not all correct answers selected yet.');
