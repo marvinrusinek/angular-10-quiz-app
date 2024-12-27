@@ -75,15 +75,17 @@ export class HighlightOptionDirective implements OnChanges {
       this.ngZone.run(() => {
         event.stopPropagation(); // Ensure event doesn't bubble up further
 
-        // Prevent interaction if the option is deactivated
-        if (this.option?.active === false) {
-          console.info('Option is deactivated and cannot be clicked:', this.option);
+        // Check if the option is deactivated (highlighted or inactive)
+        if (this.option?.highlight || this.option?.active === false) {
+          console.info('Deactivated option clicked. No action taken:', this.option);
           return; // Exit early for deactivated options
         }
 
+        // Emit the optionClicked event and update highlight if not deactivated
         if (this.option) {
-          this.optionClicked.emit(this.option);
-          this.updateHighlight();
+          console.log('[onClick] Valid option clicked:', this.option);
+          this.optionClicked.emit(this.option); // Notify the parent component
+          this.updateHighlight(); // Update the visual state
           this.cdRef.detectChanges(); // Trigger change detection to ensure UI updates
         }
       });
@@ -92,68 +94,6 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-
-  /* updateHighlight(): void {
-    let backgroundColor = 'transparent';
-  
-    if (this.isSelected && this.showFeedback) {
-      backgroundColor = this.isCorrect ? '#43f756' : '#ff0000';
-    }
-  
-    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
-      this.highlightCorrectAnswers();
-    } else {
-      this.setBackgroundColor(backgroundColor);
-    }
-  } */
-  /* updateHighlight(): void {
-    if (this.isDeactivated) {
-      this.setBackgroundColor('yellow'); // yellow for deactivated options
-      this.setPointerEvents('none'); // Disable interactions
-    } else if (this.isSelected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-      this.setBackgroundColor(color);
-    } else {
-      this.setBackgroundColor('white'); // Default background
-      this.setPointerEvents('auto'); // Enable interactions
-    }
-  } */
-  /* updateHighlight(): void {
-    // Debugging logs to verify the state
-    console.log('[updateHighlight] Triggered with:', {
-      areAllCorrectAnswersSelected: this.areAllCorrectAnswersSelected,
-      isSelected: this.isSelected,
-      isCorrect: this.isCorrect,
-      option: this.option,
-    });
-  
-    // Highlight incorrect options as grey only after at least one correct option is selected
-    if (this.isAnswered && !this.option?.correct && this.areAllCorrectAnswersSelected) {
-      console.log('[updateHighlight] Grey-out for incorrect option:', this.option);
-      this.setBackgroundColor('#a3a3a3'); // Grey-out background
-      this.setPointerEvents('none'); // Disable interactions
-      return;
-    }
-  
-    // Highlight selected options (correct or incorrect)
-    if (this.isSelected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-      console.log('[updateHighlight] Highlighting selected option:', this.option);
-      this.setBackgroundColor(color);
-      return; // Prioritize selected state over others
-    }
-  
-    // Default background for other options before conditions are met
-    console.log('[updateHighlight] Applying default background for unselected option:', this.option);
-    this.setBackgroundColor('#a3a3a3'); // Default gray background
-    this.setPointerEvents('auto'); // Enable interactions
-
-    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
-      this.highlightCorrectAnswers();
-    } else {
-      this.setBackgroundColor(color);
-    }
-  } */
   updateHighlight(): void {
     // Debugging state
     console.log('[updateHighlight] Triggered with:', {
@@ -177,6 +117,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor('#a3a3a3'); // Dark gray background for incorrect options
       this.setPointerEvents('none'); // Disable interactions for deactivated options
       this.renderer.addClass(this.el.nativeElement, 'deactivated-option'); // Add deactivation class
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed'); 
       return;
     }
 
@@ -185,6 +126,12 @@ export class HighlightOptionDirective implements OnChanges {
     this.setPointerEvents('auto'); // Enable interactions for unselected options
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation class
   }
+
+    /* if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    } else {
+      this.setBackgroundColor(color);
+    } */
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
