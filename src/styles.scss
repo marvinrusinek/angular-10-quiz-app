@@ -101,9 +101,10 @@ mat-card {
 }
 
 .deactivated-option {
-  background-color: #a3a3a3; // Dark gray background
-  pointer-events: none; // Disable interactions
-  opacity: 0.4; // Slight transparency for visual effect
+  background-color: #a3a3a3; // dark gray background
+  pointer-events: none !important; // disable interactions
+  opacity: 0.4; // slight transparency for visual effect
+  cursor: not-allowed; // change cursor to indicate unclickable state
 }
 
 .preload {
