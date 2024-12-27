@@ -1790,7 +1790,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
 
-        if (option.correct) {
+        if (allCorrectSelected) {
           // Deactivate incorrect options
           this.deactivateIncorrectOptions(allCorrectSelected);
         }
