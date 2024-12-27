@@ -1790,10 +1790,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
         });
 
-        //if (allCorrectSelected) {
+        if (option.correct) {
           // Deactivate incorrect options
-          // this.deactivateIncorrectOptions(allCorrectSelected);
-        //}
+          this.deactivateIncorrectOptions(allCorrectSelected);
+        }
 
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
           console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
@@ -1867,7 +1867,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           opt.selected = false; // Deselect the incorrect option
           opt.highlight = true; // Mark for grey-out
           opt.active = false; // Deactivate the option (prevent further clicks)
-          opt.showIcon = true; // Display the 'x' icon for incorrect options
 
           console.log(`Option ${opt.optionId} deactivated and highlighted:`, opt);
         } else {
