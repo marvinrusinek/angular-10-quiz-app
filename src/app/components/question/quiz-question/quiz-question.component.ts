@@ -1867,6 +1867,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           opt.selected = false; // Deselect the incorrect option
           opt.highlight = true; // Mark for grey-out
           opt.active = false; // Deactivate the option (prevent further clicks)
+          opt.showIcon = true; // Display the 'x' icon for incorrect options
 
           console.log(`Option ${opt.optionId} deactivated and highlighted:`, opt);
         } else {
