@@ -32,17 +32,17 @@
 
 <!-- Template for displaying the option content -->
 <ng-template #optionContent let-option="option" let-optionIndex="idx">
-<div class="option-content">
-  <span class="option-text" [ngStyle]="optionTextStyle">
-    {{ getOptionDisplayText(option, optionIndex) }}
-  </span>
-  <mat-icon *ngIf="shouldShowIcon(option)" class="material-icons icon" [ngClass]="optionIconClass">
-    {{ getOptionIcon(option) }}
-  </mat-icon>
-</div>
+  <div class="option-content">
+    <span class="option-text" [ngStyle]="optionTextStyle">
+      {{ getOptionDisplayText(option, optionIndex) }}
+    </span>
+    <mat-icon *ngIf="shouldShowIcon(option)" class="material-icons icon" [ngClass]="optionIconClass">
+      {{ getOptionIcon(option) }}
+    </mat-icon>
+  </div>
 </ng-template>
 
 <!-- Fallback when no options are available -->
 <ng-template #noOptions>
-<p>No options available.</p>
+  <p>No options available.</p>
 </ng-template>
