@@ -125,13 +125,13 @@ export class HighlightOptionDirective implements OnChanges {
     this.setBackgroundColor('white'); // Default background color for unselected options
     this.setPointerEvents('auto'); // Enable interactions for unselected options
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation class
-  }
 
     /* if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
     } else {
       this.setBackgroundColor(color);
     } */
+  }
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
