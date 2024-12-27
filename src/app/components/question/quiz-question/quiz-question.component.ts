@@ -1869,6 +1869,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           opt.active = false; // Deactivate the option (prevent further clicks)
 
           console.log(`Option ${opt.optionId} deactivated and highlighted:`, opt);
+        } else {
+          opt.active = true; // Ensure correct options remain active
         }
       }
 

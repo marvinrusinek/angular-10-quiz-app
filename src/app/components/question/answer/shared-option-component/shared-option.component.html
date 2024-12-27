@@ -32,7 +32,8 @@
 
 <!-- Template for displaying the option content -->
 <ng-template #optionContent let-option="option" let-optionIndex="idx">
-  <div class="option-content">
+  <div class="option-content" [attr.disabled]="!option.active ? true : null"
+  [ngClass]="{ 'deactivated-option': option.highlight || !option.active }">
     <span class="option-text" [ngStyle]="optionTextStyle">
       {{ getOptionDisplayText(option, optionIndex) }}
     </span>
