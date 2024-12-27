@@ -395,14 +395,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (selectedOption.correct) {
       console.log('[updateOptionActiveStates] Correct option selected:', selectedOption);
   
-      this.currentQuestion.options.forEach((opt) => {
+      for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
           opt.active = false; // Deactivate incorrect options
           opt.highlight = true; // Highlight as greyed-out (optional)
         } else {
           opt.active = true; // Ensure correct options remain active
         }
-      });
+      }      
     }
   
     // Trigger UI updates for all options
