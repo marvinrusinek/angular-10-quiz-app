@@ -1792,7 +1792,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
         //if (allCorrectSelected) {
           // Deactivate incorrect options
-          this.deactivateIncorrectOptions(allCorrectSelected);
+          // this.deactivateIncorrectOptions(allCorrectSelected);
         //}
 
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
