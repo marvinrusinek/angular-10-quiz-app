@@ -4,7 +4,7 @@
       <ng-container [ngSwitch]="optionBinding.type">
         <!-- Handle multiple choice options -->
         <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
-          [attr.disabled]="!optionBinding.active ? true : null"
+          [disabled]="!optionBinding.active"
           (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
           (optionSelected)="onOptionClicked($event)">
           <ng-container 
@@ -14,7 +14,7 @@
 
         <!-- Handle single choice options --> 
         <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
-          [attr.disabled]="!optionBinding.active ? true : null"
+          [disabled]="!optionBinding.active"
           (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
           (optionSelected)="onOptionClicked($event)">
           <ng-container

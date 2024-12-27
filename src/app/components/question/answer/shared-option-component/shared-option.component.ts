@@ -318,6 +318,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
         // Check if the option state changes correctly
         if (!this.handleOptionState(optionBinding, optionId, index, checked, inputElement)) return;
+
+        // Update the active state of options
+        this.updateOptionActiveStates(optionBinding);
   
         // Set the element's state directly
         inputElement.checked = checked;
@@ -384,6 +387,30 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return true;
   }
+
+  private updateOptionActiveStates(optionBinding: OptionBindings): void {
+    const selectedOption = optionBinding.option as SelectedOption;
+  
+    // Deactivate incorrect options when a correct option is selected
+    if (selectedOption.correct) {
+      console.log('[updateOptionActiveStates] Correct option selected:', selectedOption);
+  
+      this.currentQuestion.options.forEach((opt) => {
+        if (!opt.correct) {
+          opt.active = false; // Deactivate incorrect options
+          opt.highlight = true; // Highlight as greyed-out (optional)
+        } else {
+          opt.active = true; // Ensure correct options remain active
+        }
+      });
+    }
+  
+    // Trigger UI updates for all options
+    this.optionsToDisplay = [...this.currentQuestion.options]; // Trigger change detection
+    this.cdRef.detectChanges(); // Force immediate UI update
+  
+    console.log('[updateOptionActiveStates] Updated options state:', this.optionsToDisplay);
+  }  
 
   private updateFeedbackState(optionId: number): void {
     this.showFeedback = true;
