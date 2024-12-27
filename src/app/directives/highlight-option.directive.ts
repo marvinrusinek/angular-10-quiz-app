@@ -73,7 +73,8 @@ export class HighlightOptionDirective implements OnChanges {
   onClick(event: Event): void {
     try {
       this.ngZone.run(() => {
-        event.stopPropagation(); // Ensure event doesn't bubble up further
+        event.preventDefault(); // Prevent default browser behavior
+        event.stopPropagation(); // Prevent further propagation, ensure event doesn't bubble up further
 
         // Check if the option is deactivated (highlighted or inactive)
         if (this.option?.highlight || this.option?.active === false) {
