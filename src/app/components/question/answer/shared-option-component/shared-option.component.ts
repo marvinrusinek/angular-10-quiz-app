@@ -261,9 +261,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No class if the option is not selected or does not meet the conditions above
   }
 
-  isIconVisible(option: Option): boolean {
+  /* isIconVisible(option: Option): boolean {
     return option.showIcon === true;
-  }
+  } */
+  isIconVisible(option: Option): boolean {
+    // Show icon for all incorrect options after the correct answer is selected
+    if (!option.correct && option.highlight) {
+      return true;
+    }
+    return option.showIcon === true;
+  }  
 
   updateOptionAndUI(
     optionBinding: OptionBindings,
