@@ -3,7 +3,7 @@
     <label class="options">
       <ng-container [ngSwitch]="optionBinding.type">
         <!-- Handle multiple choice options -->
-        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption
+        <mat-checkbox *ngSwitchCase="'multiple'" #checkbox appHighlightOption 
           (change)="updateOptionAndUI(optionBinding, optionIndex, checkbox)"
           (optionSelected)="onOptionClicked($event)">
           <ng-container 
