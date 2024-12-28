@@ -12,7 +12,7 @@
       </mat-checkbox>
 
       <!-- Handle single choice options --> 
-      <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
+      <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption [disabled]="!optionBinding.active"
         (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
         (optionSelected)="onOptionClicked($event)">
         <ng-container
