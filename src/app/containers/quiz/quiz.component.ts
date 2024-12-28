@@ -2837,7 +2837,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       for (const opt of this.currentQuestion.options) {
         if (opt.active === undefined) {
-            opt.active = true; // Default to active
+          opt.active = true; // Default to active
         }
         opt.highlight = opt.highlight ?? false; // Default to not highlighted if undefined
       }
@@ -2849,7 +2849,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correct: opt.correct
       })));
     
-
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
       console.log('Current question updated:', this.currentQuestion);
 
