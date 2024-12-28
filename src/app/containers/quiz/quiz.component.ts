@@ -558,14 +558,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
-      next: async (question) => {
+      next: async (question: QuizQuestion) => {
         // Reset currentQuestionType
         if (question) {
-          if (question.type) {
-            this.quizService.setCurrentQuestionType(question.type);
+          if (question.type !== null && question.type !== undefined) {
+            this.quizDataService.setQuestionType(question);
           } else {
-            console.error('❌ Question type is undefined:', question);
-          }
+            console.error('❌ Question type is undefined or null:', question);
+          }          
         } else {
           console.warn('No question data available for the given index.');
         }
