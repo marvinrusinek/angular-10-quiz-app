@@ -2027,6 +2027,21 @@ export class QuizService implements OnDestroy {
       optionId: option.optionId ?? index // If optionId is missing, assign index as optionId
     }));
   }
+
+  assignOptionActiveStates(options: Option[]): Option[] {
+    if (!Array.isArray(options) || options.length === 0) {
+      console.warn('[assignOptionActiveStates] No options provided.');
+      return [];
+    }
+  
+    return options.map((opt) => {
+      // Ensure the `active` property is initialized for all options
+      if (opt.active === undefined) {
+        opt.active = true; // Default to active
+      }
+      return opt;
+    });
+  }  
   
   resetUserSelection(): void {
     this.selectedOption$.next('');
