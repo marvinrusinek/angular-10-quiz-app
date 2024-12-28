@@ -2840,7 +2840,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const { questionText, options, explanation } = questionDetails;
 
       // Assign active states to options
-      questionDetails.options = this.quizService.assignOptionActiveStates(options);
+      questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
 
       // Set the UI state immediately
       this.setQuestionDetails(questionText, questionDetails.options, '');
