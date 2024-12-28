@@ -15,6 +15,7 @@
       <mat-radio-button *ngSwitchCase="'single'" #radio appHighlightOption
         (change)="updateOptionAndUI(optionBinding, optionIndex, radio)"
         (optionSelected)="onOptionClicked($event)">
+        {{ optionBinding.option.text }} - Active: {{ optionBinding.active }}
         <ng-container
           *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
         </ng-container>
