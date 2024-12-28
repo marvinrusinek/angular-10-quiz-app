@@ -2028,15 +2028,16 @@ export class QuizService implements OnDestroy {
     }));
   }
 
-  assignOptionActiveStates(options: Option[]): Option[] {
+  assignOptionActiveStates(options: Option[], correctOptionSelected: boolean): Option[] {
     if (!Array.isArray(options) || options.length === 0) {
       console.warn('[assignOptionActiveStates] No options provided.');
       return [];
     }
-
+  
     return options.map((opt) => ({
       ...opt,
-      active: opt.active !== undefined ? opt.active : true,
+      active: correctOptionSelected ? opt.correct : true, // Keep only correct options active
+      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // Add feedback for incorrect options
     }));
   }
   
