@@ -214,6 +214,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       type: optionBinding.type,
       checked: optionBinding.isSelected,
       disabled: optionBinding.disabled,
+      active: optionBinding.active,
       change: optionBinding.change,
       option: optionBinding.option,
       optionsToDisplay: optionBinding.optionsToDisplay,
