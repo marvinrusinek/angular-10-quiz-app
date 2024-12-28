@@ -1917,6 +1917,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Create a new array with updated active states
       this.optionsToDisplay = [...this.quizService.assignOptionActiveStates(this.optionsToDisplay, true)];
+
+      // Trigger UI update
+      this.cdRef.detectChanges();
     } else {
       console.log('Incorrect option selected:', option);
 
