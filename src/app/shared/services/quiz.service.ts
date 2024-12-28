@@ -853,7 +853,12 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
-  setCurrentQuestionType(type: QuestionType): void {
+  setCurrentQuestionType(type: QuestionType | undefined): void {
+    if (!type) {
+      console.error('❌ [setCurrentQuestionType] Invalid type provided:', type);
+      return;
+    }
+
     this.currentQuestionType = type;
     console.log('Set current question type:', this.currentQuestionType);
   }
