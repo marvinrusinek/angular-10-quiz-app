@@ -1746,7 +1746,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
     try {
       if (!this.currentQuestion) {
         this.currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
@@ -1827,6 +1827,56 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.renderDisplay();
       });
 
+      await this.handleAdditionalProcessing(event, isMultipleAnswer);
+    } catch (error) {
+      console.error('❌ [onOptionClicked] Unhandled error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+    try {
+      // Ensure the current question is loaded
+      if (!this.currentQuestion) {
+        await this.loadCurrentQuestion();
+      }
+  
+      // Validate the event and option
+      if (!event.option || !this.validateOption(event)) {
+        console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
+        return;
+      }
+  
+      const option = event.option;
+      if (option.optionId == null) {
+        console.error('❌ [onOptionClicked] optionId is undefined:', option);
+        return;
+      }
+  
+      // Track selected option
+      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
+  
+      const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+  
+      // Handle option selection
+      await this.updateOptionSelection(event, option);
+  
+      // Handle timer logic for multiple-answer questions
+      if (isMultipleAnswer) {
+        await this.handleMultipleAnswerTimerLogic(option);
+      }
+  
+      // Update option highlight states and UI
+      this.updateOptionHighlightState();
+      this.updateDisplayStateToExplanation();
+      this.handleInitialSelection(event);
+      this.selectedOptionService.isAnsweredSubject.next(true);
+  
+      // Ensure rendering flags are updated asynchronously
+      setTimeout(() => {
+        this.updateRenderingFlags();
+        this.renderDisplay();
+      });
+  
+      // Handle any additional processing (if required)
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('❌ [onOptionClicked] Unhandled error:', error);
