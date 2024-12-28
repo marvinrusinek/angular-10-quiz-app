@@ -943,8 +943,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       try {
         const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
         if (questionData) {
-          // Assign option IDs to ensure unique identification for each option
-          questionData.options = this.quizService. assignOptionIds(questionData.options);
+          // Assign unique IDs to options for consistent identification
+          questionData.options = this.quizService.assignOptionIds(questionData.options);
+
+          // Set the initial active states for options (default: all active)
+          questionData.options = this.quizService.assignOptionActiveStates(questionData.options, false);
 
           this.currentQuestion = questionData;
           this.optionsToDisplay = questionData.options;
