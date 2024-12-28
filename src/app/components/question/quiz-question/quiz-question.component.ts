@@ -1913,7 +1913,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   
     // Deactivate incorrect options if a correct one is selected
     if (option.correct) {
+      console.log('Correct option selected:', option);
+
+      // Deactivate incorrect options and assign feedback icons
       this.optionsToDisplay = this.quizService.assignOptionActiveStates(this.optionsToDisplay, true);
+    } else {
+      console.log('Incorrect option selected:', option);
     }
   
     // Stop the timer if all correct options are selected
