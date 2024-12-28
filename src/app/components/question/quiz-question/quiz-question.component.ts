@@ -1794,6 +1794,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           // Deactivate incorrect options
           this.deactivateIncorrectOptions(allCorrectSelected);
         //}
+        if (option.correct) {
+          this.optionsToDisplay = this.quizService.assignOptionActiveStates(this.optionsToDisplay, true);
+        }
 
         if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
           console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.', {
