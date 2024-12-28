@@ -390,27 +390,36 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private updateOptionActiveStates(optionBinding: OptionBindings): void {
     const selectedOption = optionBinding.option as SelectedOption;
-  
-    // Deactivate incorrect options when a correct option is selected
+
+    if (!selectedOption) {
+      console.warn('[updateOptionActiveStates] No selected option found.');
+      return;
+    }
+
+    // Check if the selected option is correct
     if (selectedOption.correct) {
       console.log('[updateOptionActiveStates] Correct option selected:', selectedOption);
-  
+
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
           opt.active = false; // Deactivate incorrect options
-          opt.highlight = true; // Highlight as greyed-out (optional)
+          opt.highlight = true; // Highlight as greyed-out
         } else {
           opt.active = true; // Ensure correct options remain active
         }
-      }      
+      }
+    } else {
+      console.log('[updateOptionActiveStates] Selected option is not correct:', selectedOption);
     }
-  
-    // Trigger UI updates for all options
-    this.optionsToDisplay = [...this.currentQuestion.options]; // Trigger change detection
-    this.cdRef.detectChanges(); // Force immediate UI update
-  
+
+    // Update `optionsToDisplay` to trigger change detection
+    this.optionsToDisplay = [...this.currentQuestion.options]; 
+
+    // Trigger Angular's change detection
+    this.cdRef.detectChanges();
+
     console.log('[updateOptionActiveStates] Updated options state:', this.optionsToDisplay);
-  }  
+  }
 
   private updateFeedbackState(optionId: number): void {
     this.showFeedback = true;
