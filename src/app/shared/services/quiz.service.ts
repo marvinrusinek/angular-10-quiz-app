@@ -853,20 +853,6 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
-  setCurrentQuestionType(type: QuestionType | undefined): void {
-    if (!type) {
-      console.error('❌ [setCurrentQuestionType] Invalid type provided:', type);
-      return;
-    }
-
-    this.currentQuestionType = type;
-    console.log('Set current question type:', this.currentQuestionType);
-  }
-  
-  getCurrentQuestionType(): QuestionType | null {
-    return this.currentQuestionType;
-  }
-
   // Sets the current question and the next question along with an explanation text.
   setCurrentQuestionAndNext(
     nextQuestion: QuizQuestion | null,
