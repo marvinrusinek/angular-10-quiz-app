@@ -258,16 +258,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return 'close'; // X mark for incorrect answers
   } */
   getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return '';
-  
-    // Show "close" (X mark) for incorrect disabled options
+    // Show 'close' (X mark) for incorrect options that are inactive (disabled)
     if (!option.active && !option.correct) {
-      return 'close';
+      return 'close'; // X mark for disabled incorrect options
     }
   
-    // Show "check" (✓) for correct options
+    // Show 'check' (✓) for correct options
     if (option.correct) {
-      return 'check';
+      return 'check'; // Checkmark for correct answers
     }
   
     return ''; // Default: no icon
@@ -295,23 +293,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No specific styling for other cases
   } */
   getOptionIconClass(option: Option): string {
-    // Correct options should have a specific styling
+    // Class for correct options
     if (option.correct) {
       return 'correct-icon'; // Green or styled icon for correct answers
     }
   
-    // Incorrect options that are disabled
+    // Class for incorrect disabled options
     if (!option.active && !option.correct) {
-      return 'disabled-incorrect-icon'; // Greyed-out or styled icon for disabled incorrect answers
+      return 'disabled-incorrect-icon'; // Greyed-out or styled icon for disabled incorrect options
     }
   
-    // Incorrect options that are selected/highlighted
+    // Class for incorrect selected/highlighted options
     if (option.highlight) {
       return 'incorrect-icon'; // Red or styled icon for selected incorrect answers
     }
   
     return ''; // No specific styling for other cases
   }
+  
 
   /* isIconVisible(option: Option): boolean {
     return option.showIcon === true;
