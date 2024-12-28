@@ -248,7 +248,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return option.correct ? 'check' : 'close';
   } */
-  /* getOptionIcon(option: Option): string {
+  getOptionIcon(option: Option): string {
     if (!this.showFeedback) return '';
   
     // Highlight correct answers with "check" and incorrect answers with "close"
@@ -256,19 +256,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return 'check'; // Checkmark for correct answers
     }
     return 'close'; // X mark for incorrect answers
-  } */
-  getOptionIcon(option: Option): string {
-    // Show 'close' (X mark) for incorrect options marked with feedback
-    if (option.feedback === 'x') {
-      return 'close';
-    }
-  
-    // Show 'check' (✓) for correct options
-    if (option.correct) {
-      return 'check';
-    }
-  
-    return ''; // Default: no icon
   }
 
   /* getOptionIconClass(option: Option): string {
