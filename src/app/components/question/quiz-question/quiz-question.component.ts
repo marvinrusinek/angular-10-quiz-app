@@ -1894,6 +1894,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return true;
   }
 
+  private async handleMultipleAnswerTimerLogic(option: SelectedOption): Promise<void> {
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+      this.currentQuestion.options,
+      this.currentQuestionIndex
+    );
+  
+    console.log('[handleMultipleAnswerTimerLogic] Debugging timer stop condition:', {
+      allCorrectSelected,
+      stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+    });
+  
+    // Deactivate incorrect options if a correct one is selected
+    if (option.correct) {
+      this.optionsToDisplay = this.quizService.assignOptionActiveStates(this.optionsToDisplay, true);
+    }
+  
+    // Stop the timer if all correct options are selected
+    if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
+      console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.');
+      this.timerService.stopTimer();
+      this.selectedOptionService.stopTimerEmitted = true;
+    } else {
+      console.log('❌ Timer not stopped: Conditions not met.');
+    }
+  }
+
   private updateOptionHighlightState(): void {
     const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
       this.currentQuestion.options,
