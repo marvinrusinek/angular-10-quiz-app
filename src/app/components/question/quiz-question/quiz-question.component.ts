@@ -1916,7 +1916,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log('Correct option selected:', option);
 
       // Deactivate incorrect options and assign feedback icons
-      this.optionsToDisplay = this.quizService.assignOptionActiveStates(this.optionsToDisplay, true);
+      this.optionsToDisplay = [...this.quizService.assignOptionActiveStates(this.optionsToDisplay, true)];
     } else {
       console.log('Incorrect option selected:', option);
     }
