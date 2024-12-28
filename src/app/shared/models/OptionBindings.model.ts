@@ -17,6 +17,7 @@ export interface OptionBindings {
   appResetBackground: boolean;
   optionsToDisplay: Option[];
   isSelected: boolean;
+  active: boolean;
   checked: boolean;
   change: (element: MatCheckbox | MatRadioButton) => void;
   disabled: boolean;
