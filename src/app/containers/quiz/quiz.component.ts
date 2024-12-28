@@ -562,7 +562,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Reset currentQuestionType
         if (question) {
           if (question.type) {
-            this.quizService.setCurrentQuestionType(question.type); // Restore question type
+            this.quizService.setCurrentQuestionType(question.type);
           } else {
             console.error('❌ Question type is undefined:', question);
           }
