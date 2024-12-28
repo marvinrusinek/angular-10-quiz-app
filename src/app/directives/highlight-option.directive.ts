@@ -136,29 +136,31 @@ export class HighlightOptionDirective implements OnChanges {
   updateHighlight(): void {
     // Debugging state
     console.log('[updateHighlight] Triggered with:', {
-        isCorrect: this.isCorrect,
-        isSelected: this.isSelected,
-        option: this.option,
+      isCorrect: this.isCorrect,
+      isSelected: this.isSelected,
+      highlight: this.option?.highlight,
+      active: this.option?.active,
+      option: this.option,
     });
 
     // Highlight only the selected option (green for correct, red for incorrect)
     if (this.isSelected) {
-        const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-        console.log('[updateHighlight] Highlighting selected option:', this.option);
-        this.setBackgroundColor(color); // Set background color based on correctness
-        this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation for selected option
-        this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer'); // Restore pointer for active options
-        return;
+      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+      console.log('[updateHighlight] Highlighting selected option:', this.option);
+      this.setBackgroundColor(color); // Set background color based on correctness
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation for selected option
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer'); // Restore pointer for active options
+      return;
     }
 
     // Grey out incorrect options when a correct option has been selected
-    if (!this.isCorrect && this.option?.highlight) {
-        console.log('[updateHighlight] Highlighting incorrect option as deactivated:', this.option);
-        this.setBackgroundColor('#a3a3a3'); // Dark gray background for incorrect options
-        this.setPointerEvents('none'); // Disable interactions for deactivated options
-        this.renderer.addClass(this.el.nativeElement, 'deactivated-option'); // Add deactivation class
-        this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed'); // Set cursor for deactivated options
-        return;
+    if (!this.isCorrect) {
+      console.log('[updateHighlight] Grey-out and deactivate incorrect option:', this.option);
+      this.setBackgroundColor('#a3a3a3'); // Dark gray background for incorrect options0
+      this.setPointerEvents('none'); // Disable interactions for deactivated options
+      this.renderer.addClass(this.el.nativeElement, 'deactivated-option'); // Add deactivation class
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed'); // Set cursor for deactivated options
+      return;
     }
 
     // Reset state for other options
@@ -167,7 +169,6 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation class
     this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer'); // Restore pointer for active options
   }
-
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
