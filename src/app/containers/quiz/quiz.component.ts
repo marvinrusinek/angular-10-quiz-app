@@ -2831,25 +2831,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       const { questionText, options, explanation } = questionDetails;
 
+      // Assign active states to options
+      questionDetails.options = this.quizService.assignOptionActiveStates(options);
+
       // Set the UI state immediately
-      this.setQuestionDetails(questionText, options, '');
-      this.currentQuestion = { ...questionDetails, options };
+      this.setQuestionDetails(questionText, questionDetails.options, '');
+      this.currentQuestion = { ...questionDetails, options: questionDetails.options };
 
-      for (const opt of this.currentQuestion.options) {
-        if (opt.active === undefined) {
-          opt.active = true; // Default to active if not explicitly set
-        }
-        if (opt.highlight === undefined) {
-          opt.highlight = false; // Default to not highlighted if not explicitly set
-        }
-      }      
-
-      console.log('[fetchAndSetQuestionData] Initialized options:', this.currentQuestion.options.map(opt => ({
-        optionId: opt.optionId,
-        active: opt.active,
-        highlight: opt.highlight,
-        correct: opt.correct
-      })));
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+      console.log('Current question updated with active states:', this.currentQuestion);
     
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
       console.log('Current question updated:', this.currentQuestion);
