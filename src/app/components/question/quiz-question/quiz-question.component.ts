@@ -1861,26 +1861,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return;
     }
 
-    if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+    if (this.currentQuestion?.options?.length) {
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
           opt.selected = false; // Deselect the incorrect option
           opt.highlight = true; // Mark for grey-out
           opt.active = false; // Deactivate the option (prevent further clicks)
-
           console.log(`Option ${opt.optionId} deactivated and highlighted:`, opt);
         } else {
           opt.active = true; // Ensure correct options remain active
         }
       }
 
-      // Create a new reference for `optionsToDisplay` to trigger Angular's change detection
+      // Update `optionsToDisplay` to trigger Angular's change detection
       this.optionsToDisplay = [...this.currentQuestion.options];
 
-      // Trigger UI updates for all options to ensure the new states are reflected
+      // Ensure highlights are applied correctly
       this.updateOptionHighlightState();
 
-      // Force Angular to update the UI immediately
+      // Trigger UI refresh
       this.cdRef.detectChanges();
 
       console.log('Deactivated and highlighted incorrect options:', this.optionsToDisplay);
