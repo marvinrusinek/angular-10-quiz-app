@@ -2033,15 +2033,12 @@ export class QuizService implements OnDestroy {
       console.warn('[assignOptionActiveStates] No options provided.');
       return [];
     }
-  
-    return options.map((opt) => {
-      // Ensure the `active` property is initialized for all options
-      if (opt.active === undefined) {
-        opt.active = true; // Default to active
-      }
-      return opt;
-    });
-  }  
+
+    return options.map((opt) => ({
+      ...opt,
+      active: opt.active !== undefined ? opt.active : true,
+    }));
+  }
   
   resetUserSelection(): void {
     this.selectedOption$.next('');
