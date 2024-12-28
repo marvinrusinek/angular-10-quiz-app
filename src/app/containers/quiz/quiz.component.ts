@@ -519,7 +519,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.getCurrentQuestion(this.currentQuestionIndex).subscribe({
       next: (question) => {
         if (question) {
-          this.quizService.setCurrentQuestionType(question.type); // Restore question type
+          if (question.type) {
+            this.quizService.setCurrentQuestionType(question.type); // Restore question type
+          } else {
+            console.error('❌ Question type is undefined:', question);
+          }
           this.updateQuestionDisplay(this.currentQuestionIndex);
         } else {
           console.warn('Failed to restore question state: Question not found.');
@@ -557,7 +561,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       next: async (question) => {
         // Reset currentQuestionType
         if (question) {
-          this.quizService.setCurrentQuestionType(question.type);
+          if (question.type) {
+            this.quizService.setCurrentQuestionType(question.type); // Restore question type
+          } else {
+            console.error('❌ Question type is undefined:', question);
+          }
         } else {
           console.warn('No question data available for the given index.');
         }
