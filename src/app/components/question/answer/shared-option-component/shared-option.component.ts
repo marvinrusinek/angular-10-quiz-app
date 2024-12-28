@@ -248,7 +248,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return option.correct ? 'check' : 'close';
   } */
-  getOptionIcon(option: Option): string {
+  /* getOptionIcon(option: Option): string {
     if (!this.showFeedback) return '';
   
     // Highlight correct answers with "check" and incorrect answers with "close"
@@ -256,8 +256,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return 'check'; // Checkmark for correct answers
     }
     return 'close'; // X mark for incorrect answers
-  }
+  } */
+  getOptionIcon(option: Option): string {
+    if (!this.showFeedback) return '';
   
+    // Show "close" (X mark) for incorrect disabled options
+    if (!option.active && !option.correct) {
+      return 'close';
+    }
+  
+    // Show "check" (✓) for correct options
+    if (option.correct) {
+      return 'check';
+    }
+  
+    return ''; // Default: no icon
+  }  
 
   /* getOptionIconClass(option: Option): string {
     // Use the cached preference value
@@ -271,7 +285,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return ''; // No class if the option is not selected or does not meet the conditions above
   } */
-  getOptionIconClass(option: Option): string {
+  /* getOptionIconClass(option: Option): string {
     if (option.correct) {
       return 'correct-icon'; // Green or styled icon for correct answers
     }
@@ -279,7 +293,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return 'incorrect-icon'; // Red or styled icon for incorrect answers
     }
     return ''; // No specific styling for other cases
-  }  
+  } */
+  getOptionIconClass(option: Option): string {
+    // Correct options should have a specific styling
+    if (option.correct) {
+      return 'correct-icon'; // Green or styled icon for correct answers
+    }
+  
+    // Incorrect options that are disabled
+    if (!option.active && !option.correct) {
+      return 'disabled-incorrect-icon'; // Greyed-out or styled icon for disabled incorrect answers
+    }
+  
+    // Incorrect options that are selected/highlighted
+    if (option.highlight) {
+      return 'incorrect-icon'; // Red or styled icon for selected incorrect answers
+    }
+  
+    return ''; // No specific styling for other cases
+  }
 
   /* isIconVisible(option: Option): boolean {
     return option.showIcon === true;
