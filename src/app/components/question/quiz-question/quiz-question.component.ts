@@ -2143,6 +2143,16 @@ export class QuizQuestionComponent
         ),
       ];
 
+      // Update state for all options
+      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+        ...opt,
+        feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, no feedback for correct
+        showIcon: true, // Ensure icons are displayed for all options
+        active: opt.correct // Only correct options remain active
+      }));
+
+      console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+
       // Trigger UI update
       this.cdRef.detectChanges();
     } else {
