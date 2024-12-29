@@ -238,7 +238,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return `${idx + 1}. ${option?.text}`;
   }
 
-  /* getOptionIcon(option: Option): string {
+  getOptionIcon(option: Option): string {
     if (!this.showFeedback) return '';
   
     // Use the cached preference value
@@ -247,22 +247,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     return option.correct ? 'check' : 'close';
-  } */
-  getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Feedback icons are disabled
-  
-    // Show 'close' for incorrect options with feedback
-    if (!option.correct && option.feedback === 'x') {
-      return 'close';
-    }
-  
-    // Show 'check' for correct options
-    if (option.correct) {
-      return 'check';
-    }
-  
-    return ''; // Default: no icon
-  }  
+  }
   /* getOptionIcon(option: Option): string {
     if (!this.showFeedback) return '';
   
@@ -347,7 +332,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     return false; // Default: icon is not visible
-  }  
+  }
 
   updateOptionAndUI(
     optionBinding: OptionBindings,
