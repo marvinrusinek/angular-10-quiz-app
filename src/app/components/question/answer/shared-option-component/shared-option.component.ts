@@ -258,10 +258,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return 'close'; // X mark for incorrect answers
   } */
   getOptionIcon(option: Option): string {
-    if (!option.showIcon) return ''; // No icon if showIcon is false
+    // Display no icon if showIcon is false
+    if (!option.showIcon) return '';
   
     // Show 'close' (X mark) for incorrect options
-    if (!option.correct && option.feedback === 'x') {
+    if (option.feedback === 'x') {
       return 'close';
     }
   
@@ -272,8 +273,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return ''; // Default: no icon
   }
-  
-  
   
 
   /* getOptionIconClass(option: Option): string {
