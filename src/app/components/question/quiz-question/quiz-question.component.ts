@@ -2503,7 +2503,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private handleMultipleAnswerQuestion(option: SelectedOption): void {
+  private async handleMultipleAnswerQuestion(option: SelectedOption): Promise<void> {
     this.quizQuestionManagerService
       .isMultipleAnswerQuestion(this.currentQuestion)
       .subscribe({
