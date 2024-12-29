@@ -1869,7 +1869,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       if (isMultipleAnswer) {
         await this.handleMultipleAnswerTimerLogic(option);
       }
-  
+
+      // Handle feedback and disable incorrect options for all question types
+      if (option.correct) {
+        this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+          ...opt,
+          feedback: !opt.correct ? 'x' : undefined, // Add 'x' feedback for incorrect options
+          showIcon: true, // Ensure icons are displayed for all options
+          active: opt.correct, // Disable incorrect options
+        }));
+
+        console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+        this.cdRef.detectChanges(); // Trigger UI update
+      }
+
       // Update option highlight states and UI
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
