@@ -2136,20 +2136,16 @@ export class QuizQuestionComponent
       this.showFeedback = true; // Enable feedback display
 
       // Update state for all options
-      this.optionsToDisplay = this.quizService.assignOptionActiveStates(
-        this.optionsToDisplay,
-        true
-      ).map(opt => ({
-        ...opt,
-        feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, no feedback for correct
-        showIcon: true, // Ensure icons are displayed for all options
-        active: opt.correct // Disable incorrect options
+      this.optionsToDisplay = this.quizService
+        .assignOptionActiveStates(this.optionsToDisplay, true)
+        .map(opt => ({
+          ...opt,
+          feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, no feedback for correct
+          showIcon: true, // Ensure icons are displayed for all options
+          active: opt.correct // Disable incorrect options
       }));
 
       console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-
-      // Trigger UI update
-      this.cdRef.detectChanges();
     } else {
       console.log('Incorrect option selected:', option);
 
@@ -2161,10 +2157,10 @@ export class QuizQuestionComponent
       }));
 
       console.log('Updated optionsToDisplay after incorrect selection:', JSON.stringify(this.optionsToDisplay, null, 2));
-
-      // Trigger UI update
-      this.cdRef.detectChanges();
     }
+
+    // Trigger UI update
+    this.cdRef.detectChanges();
 
     // Stop the timer if all correct options are selected
     if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
