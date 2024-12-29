@@ -2114,9 +2114,7 @@ export class QuizQuestionComponent
     return true;
   }
 
-  private async handleMultipleAnswerTimerLogic(
-    option: SelectedOption
-  ): Promise<void> {
+  private async handleMultipleAnswerTimerLogic(option: Option): Promise<void> {
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelected(
         this.currentQuestion.options,
@@ -2503,7 +2501,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private async handleMultipleAnswerQuestion(option: SelectedOption): Promise<void> {
+  private handleMultipleAnswerQuestion(option: SelectedOption): void {
     this.quizQuestionManagerService
       .isMultipleAnswerQuestion(this.currentQuestion)
       .subscribe({
