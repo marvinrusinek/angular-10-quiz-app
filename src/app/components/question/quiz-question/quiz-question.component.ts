@@ -2115,6 +2115,8 @@ export class QuizQuestionComponent
   }
 
   private async handleMultipleAnswerTimerLogic(option: Option): Promise<void> {
+    this.showFeedback = true; // Enable feedback display
+
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelected(
         this.currentQuestion.options,
@@ -2150,8 +2152,6 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
     } else {
       console.log('Incorrect option selected:', option);
-
-      this.showFeedback = true; // Enable feedback display
 
       // Handle incorrect option feedback explicitly
       this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
