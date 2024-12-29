@@ -258,9 +258,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return 'close'; // X mark for incorrect answers
   } */
   getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return '';
+    if (!option.showIcon) return ''; // No icon if showIcon is false
   
-    // Show 'close' (X mark) for incorrect options with feedback
+    // Show 'close' (X mark) for incorrect options
     if (!option.correct && option.feedback === 'x') {
       return 'close';
     }
