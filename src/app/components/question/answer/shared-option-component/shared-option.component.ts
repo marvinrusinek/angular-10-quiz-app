@@ -884,9 +884,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
   
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     return this.showFeedback && this.isIconVisible(option);
-  }
+  } */
+  shouldShowIcon(option: Option): boolean {
+    // Icons are visible if feedback is enabled and the option is marked
+    return this.showFeedback && (option.showIcon || option.feedback === 'x');
+  }  
 
   // Determines if feedback should be shown for the option
   shouldShowFeedback(index: number): boolean {
