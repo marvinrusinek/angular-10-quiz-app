@@ -258,25 +258,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return 'close'; // X mark for incorrect answers
   } */
   getOptionIcon(option: Option): string {
+    // If feedback icons should not be shown, return no icon
     if (!this.showFeedback) return '';
-
+  
     // Show 'close' (X mark) for incorrect options with feedback
-    if (option.feedback === 'x') {
-      return 'close';
+    if (!option.correct && option.feedback === 'x') {
+      return 'close'; // X mark for incorrect options with feedback
     }
   
     // Show 'check' (✓) for correct options
     if (option.correct) {
-      return 'check';
-    }
-
-    // Use the cached preference value
-    if (this.highlightCorrectAfterIncorrect && option.correct) {
-      return 'check';
+      return 'check'; // Checkmark for correct answers
     }
   
     return ''; // Default: no icon
   }
+  
   
 
   /* getOptionIconClass(option: Option): string {
