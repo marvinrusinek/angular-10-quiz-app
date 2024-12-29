@@ -249,16 +249,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return option.correct ? 'check' : 'close';
   } */
   getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Feedback icons are disabled
+    console.log('Evaluating getOptionIcon for option:', option);
   
-    // Show 'close' (X mark) for incorrect options with feedback
+    if (!this.showFeedback) return ''; // No feedback icons if feedback is disabled
+  
     if (option.feedback === 'x') {
-      return 'close';
+      return 'close'; // Display 'close' for incorrect options
     }
   
-    // Show 'check' (✓) for correct options
     if (option.correct) {
-      return 'check';
+      return 'check'; // Display 'check' for correct options
     }
   
     return ''; // Default: no icon
@@ -328,12 +328,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   /* isIconVisible(option: Option): boolean {
     return option.showIcon === true;
   } */
-  isIconVisible(option: Option): boolean {
+  /* isIconVisible(option: Option): boolean {
     // Show icon for all incorrect options after the correct answer is selected
     if (!option.correct && option.highlight) {
       return true;
     }
     return option.showIcon === true;
+  } */
+  isIconVisible(option: Option): boolean {
+    // Show icon for incorrect options marked with feedback or highlight
+    if (!option.correct && (option.feedback === 'x' || option.highlight)) {
+      return true;
+    }
+  
+    // Show icon for correct options
+    if (option.correct && option.showIcon) {
+      return true;
+    }
+  
+    return false; // Default: icon is not visible
   }  
 
   updateOptionAndUI(
@@ -886,8 +899,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
   
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     return this.showFeedback && this.isIconVisible(option);
+  } */
+  shouldShowIcon(option: Option): boolean {
+    // Feedback icons are shown only when feedback is enabled
+    if (!this.showFeedback) {
+      return false;
+    }
+  
+    // Delegate to isIconVisible for specific option logic
+    return this.isIconVisible(option);
   }
 
   // Determines if feedback should be shown for the option
