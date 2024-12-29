@@ -2029,7 +2029,7 @@ export class QuizService implements OnDestroy {
       ...opt,
       active: correctOptionSelected ? opt.correct : true, // Keep only correct options active
       feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // Add feedback for incorrect options
-      showIcon: correctOptionSelected ? true : opt.showIcon // Ensure icons display for all options after correct selection
+      showIcon: true // Ensure icons are displayed for all options
     }));
   }
   
