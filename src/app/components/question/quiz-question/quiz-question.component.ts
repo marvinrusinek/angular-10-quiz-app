@@ -2135,20 +2135,14 @@ export class QuizQuestionComponent
     if (option.correct) {
       this.showFeedback = true; // Enable feedback display
 
-      // Use assignOptionActiveStates to update active states and feedback
-      this.optionsToDisplay = [
-        ...this.quizService.assignOptionActiveStates(
-          this.optionsToDisplay,
-          true
-        ),
-      ];
-
       // Update state for all options
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+      this.optionsToDisplay = this.quizService.assignOptionActiveStates(
+        this.optionsToDisplay,
+        true
+      ).map(opt => ({
         ...opt,
         feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, no feedback for correct
-        showIcon: true, // Ensure icons are displayed for all options
-        active: opt.correct // Only correct options remain active
+        showIcon: true // Ensure icons are displayed for all options
       }));
 
       console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
@@ -2158,17 +2152,16 @@ export class QuizQuestionComponent
     } else {
       console.log('Incorrect option selected:', option);
 
+      this.showFeedback = true; // Enable feedback display
+
       // Handle incorrect option feedback explicitly
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
+      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
         ...opt,
-        feedback: opt === option ? 'x' : opt.feedback, // Add 'x' for the selected incorrect option
-        showIcon: true, // Ensure icons are displayed for all options
+        feedback: opt === option ? 'x' : opt.feedback, // Add 'x' only for the selected incorrect option
+        showIcon: true // Ensure icons are displayed for all options
       }));
 
-      console.log(
-        'Updated optionsToDisplay after incorrect selection:',
-        this.optionsToDisplay
-      );
+      console.log('Updated optionsToDisplay after incorrect selection:', JSON.stringify(this.optionsToDisplay, null, 2));
 
       // Trigger UI update
       this.cdRef.detectChanges();
