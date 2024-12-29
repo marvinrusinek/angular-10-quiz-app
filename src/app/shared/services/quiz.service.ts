@@ -2028,7 +2028,7 @@ export class QuizService implements OnDestroy {
     return options.map((opt) => ({
       ...opt,
       active: correctOptionSelected ? opt.correct : true, // Keep only correct options active
-      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // Add feedback for incorrect options
+      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined // Add feedback for incorrect options
     }));
   }
   
