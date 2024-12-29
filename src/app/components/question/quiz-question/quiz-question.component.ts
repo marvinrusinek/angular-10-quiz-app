@@ -1923,7 +1923,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Further refine feedback and icons using map
       this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
         ...opt,
-        feedback: !opt.correct ? 'x' : opt.feedback, // Set 'x' for incorrect options
+        feedback: !opt.correct ? 'x' : undefined, // Set 'x' for incorrect options
         showIcon: true, // Ensure icons are displayed for all options
         active: opt.correct // Disable incorrect options
       }));
