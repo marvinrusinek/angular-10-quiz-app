@@ -310,9 +310,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return ''; // No specific styling for other cases
   }  
 
-  /* isIconVisible(option: Option): boolean {
+  isIconVisible(option: Option): boolean {
     return option.showIcon === true;
-  } */
+  }
   /* isIconVisible(option: Option): boolean {
     // Show icon for all incorrect options after the correct answer is selected
     if (!option.correct && option.highlight) {
@@ -320,7 +320,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
     return option.showIcon === true;
   } */
-  isIconVisible(option: Option): boolean {
+  /* isIconVisible(option: Option): boolean {
     // Show icon for incorrect options marked with feedback or highlight
     if (!option.correct && (option.highlight || option.feedback === 'x')) {
       return true;
@@ -332,7 +332,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     return false; // Default: icon is not visible
-  }
+  } */
 
   updateOptionAndUI(
     optionBinding: OptionBindings,
