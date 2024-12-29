@@ -238,7 +238,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return `${idx + 1}. ${option?.text}`;
   }
 
-  /* getOptionIcon(option: Option): string {
+  getOptionIcon(option: Option): string {
     if (!this.showFeedback) return '';
   
     // Use the cached preference value
@@ -247,7 +247,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     return option.correct ? 'check' : 'close';
-  } */
+  }
   /* getOptionIcon(option: Option): string {
     if (!this.showFeedback) return '';
   
@@ -257,7 +257,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
     return 'close'; // X mark for incorrect answers
   } */
-  getOptionIcon(option: Option): string {
+  /* getOptionIcon(option: Option): string {
     // Display no icon if showIcon is false
     if (!option.showIcon) return '';
   
@@ -272,7 +272,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     return ''; // Default: no icon
-  }
+  } */
   
 
   /* getOptionIconClass(option: Option): string {
