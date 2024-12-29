@@ -1,8 +1,44 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ComponentRef,
+  ComponentFactoryResolver,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  firstValueFrom,
+  from,
+  Observable,
+  of,
+  ReplaySubject,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -32,36 +68,53 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent extends BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class QuizQuestionComponent
+  extends BaseQuestionComponent
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+{
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
-    question: QuizQuestion,
-    selectedOptions: Option[]
+    question: QuizQuestion;
+    selectedOptions: Option[];
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
+    new EventEmitter<boolean>();
+  @Output() explanationToDisplayChange: EventEmitter<string> =
+    new EventEmitter<string>();
+  @Output() showExplanationChange: EventEmitter<boolean> =
+    new EventEmitter<boolean>();
+  @Output() selectionMessageChange: EventEmitter<string> =
+    new EventEmitter<string>();
+  @Output() isAnsweredChange: EventEmitter<boolean> =
+    new EventEmitter<boolean>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
-  @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
-  @Output() displayStateChange = new EventEmitter<{ mode: 'question' | 'explanation'; answered: boolean }>();
+  @Output() optionSelected = new EventEmitter<{
+    option: SelectedOption;
+    index: number;
+    checked: boolean;
+  }>();
+  @Output() displayStateChange = new EventEmitter<{
+    mode: 'question' | 'explanation';
+    answered: boolean;
+  }>();
   @Input() data: {
-    questionText: string,
-    explanationText?: string,
-    correctAnswersText?: string,
-    options: Option[]
+    questionText: string;
+    explanationText?: string;
+    correctAnswersText?: string;
+    options: Option[];
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
-  @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
+  @Input() questions$: Observable<QuizQuestion[]> = new Observable<
+    QuizQuestion[]
+  >();
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
@@ -69,7 +122,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
-  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  @Input() multipleAnswer: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() showFeedback = false;
@@ -85,10 +139,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   questionRenderComplete = new EventEmitter<void>();
 
   combinedQuestionData$: Subject<{
-    questionText: string,
-    explanationText?: string,
-    correctAnswersText?: string,
-    currentOptions: Option[]
+    questionText: string;
+    explanationText?: string;
+    correctAnswersText?: string;
+    currentOptions: Option[];
   }> = new Subject();
 
   selectedOption: SelectedOption | null = null;
@@ -133,14 +187,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
-  private displayMode$: BehaviorSubject<"question" | "explanation"> = new BehaviorSubject("question");
+  private displayMode$: BehaviorSubject<'question' | 'explanation'> =
+    new BehaviorSubject('question');
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
   private isRestoringState = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
-    answered: false
+    answered: false,
   };
   private forceQuestionDisplay = true;
   readyForExplanationDisplay = false;
@@ -148,7 +203,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private isExplanationLocked = true;
   currentExplanationText = '';
 
-  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
+  private displayStateSubject = new BehaviorSubject<{
+    mode: 'question' | 'explanation';
+    answered: boolean;
+  }>({
     mode: 'question',
     answered: false,
   });
@@ -170,11 +228,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   // Correct and incorrect audio sources
   correctAudioSource: AudioItem = {
     url: '../../../../../../../assets/audio/sound-correct.mp3',
-    title: 'Correct Answer'
+    title: 'Correct Answer',
   };
   incorrectAudioSource: AudioItem = {
     url: '../../../../../../../assets/audio/sound-incorrect.mp3',
-    title: 'Incorrect Answer'
+    title: 'Incorrect Answer',
   };
 
   private destroy$: Subject<void> = new Subject<void>();
@@ -221,10 +279,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
-      
+
       // Add the visibility change listener
-      document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  
+      document.addEventListener(
+        'visibilitychange',
+        this.onVisibilityChange.bind(this)
+      );
+
       // Initial component setups
       this.initializeComponent();
       this.initializeComponentState();
@@ -236,11 +297,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Initialize questions
       this.initializeQuizQuestion();
       this.initializeFirstQuestion();
-  
+
       // Setup for visibility and routing
       this.setupVisibilitySubscription();
       this.initializeRouteListener();
-  
+
       // Additional subscriptions and state tracking
       this.setupSubscriptions();
       this.subscribeToNavigationFlags();
@@ -252,9 +313,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-  
+
     // Load the initial question and options immediately
-    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    const index =
+      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     const question = this.questionsArray[index];
     if (question) {
       this.setCurrentQuestion(question);
@@ -262,8 +324,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     setTimeout(() => {
-      const explanationText = question ? question.explanation : 'No explanation available';
-  
+      const explanationText = question
+        ? question.explanation
+        : 'No explanation available';
+
       // Only after rendering is complete, update the explanation
       if (this.questionsArray && this.questionsArray.length > 0) {
         this.updateExplanationUI(index, explanationText);
@@ -272,35 +336,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }, 50);
   }
 
-  ngOnChanges(changes: SimpleChanges): void { 
-    const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
-  
+  ngOnChanges(changes: SimpleChanges): void {
+    const isSubsequentChange = (change: SimpleChange) =>
+      change && !change.firstChange;
+
     // Initialize configurations when questionData changes
     if (changes.questionData) {
       console.log('questionData changed:', this.questionData);
       this.initializeSharedOptionConfig();
     }
-  
+
     // Update selection message on currentQuestionIndex or isAnswered changes
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
     }
-  
+
     // Update options to display if options or questionData changes
     if (changes.options || changes.questionData) {
       this.optionsToDisplay = this.options;
     }
-  
+
     // Process correct answers and selected options when they change
-    if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
+    if (
+      isSubsequentChange(changes.correctAnswers) ||
+      isSubsequentChange(changes.selectedOptions)
+    ) {
       this.updateCorrectAnswersAndMessage();
     }
-  
+
     // Handle question and selectedOptions changes
-    if (isSubsequentChange(changes.currentQuestion) || isSubsequentChange(changes.selectedOptions)) {
-      this.handleQuestionAndOptionsChange(changes.currentQuestion, changes.selectedOptions);
+    if (
+      isSubsequentChange(changes.currentQuestion) ||
+      isSubsequentChange(changes.selectedOptions)
+    ) {
+      this.handleQuestionAndOptionsChange(
+        changes.currentQuestion,
+        changes.selectedOptions
+      );
     }
-  
+
     // Reset feedback if reset change is detected
     if (changes.reset?.currentValue) {
       this.resetFeedback();
@@ -309,7 +383,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
-    document.removeEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+    document.removeEventListener(
+      'visibilitychange',
+      this.onVisibilityChange.bind(this)
+    );
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
@@ -320,13 +397,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.resetStateSubscription?.unsubscribe();
     this.displayModeSubscription?.unsubscribe();
   }
-  
+
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
       this.restoreQuizState(); // Restore quiz-level state
-      this.renderDisplay();    // Reflect current display state
+      this.renderDisplay(); // Reflect current display state
       this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
     }
   }
@@ -334,14 +411,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
 
-    if (this.forceQuestionDisplay || this.isExplanationLocked || !this.isExplanationReady) {
+    if (
+      this.forceQuestionDisplay ||
+      this.isExplanationLocked ||
+      !this.isExplanationReady
+    ) {
       // Default to displaying question text
       this.ensureQuestionTextDisplay();
     } else if (currentState.mode === 'explanation' && currentState.answered) {
       // Display explanation text only if mode is 'explanation' and the question is answered
       this.setExplanationText(); // Set the explanation text before displaying
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
-      console.log(`[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`);
+      console.log(
+        `[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`
+      );
     } else {
       // Fallback to displaying question text in all other cases
       this.ensureQuestionTextDisplay();
@@ -357,33 +440,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private saveQuizState(): void {
     // Store the explanation state or text
-    sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
+    sessionStorage.setItem(
+      `explanationText_${this.currentQuestionIndex}`,
+      this.currentExplanationText
+    );
+    sessionStorage.setItem(
+      `displayMode_${this.currentQuestionIndex}`,
+      this.displayState.mode
+    );
   }
 
   private restoreQuizState(): void {
-    this.currentExplanationText = sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || "";
-    const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-    this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+    this.currentExplanationText =
+      sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) ||
+      '';
+    const displayMode = sessionStorage.getItem(
+      `displayMode_${this.currentQuestionIndex}`
+    );
+    this.displayState.mode =
+      displayMode === 'explanation' ? 'explanation' : 'question';
   }
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
-    this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-      map(isAnswered => (isAnswered ? 'explanation' : 'question')),
-      distinctUntilChanged(),
-      tap((mode: 'question' | 'explanation') => {
-        console.log(`Reactive display mode update to: ${mode}`);
-        if (!this.isRestoringState) { // Skip during restoration
-          this.displayMode$.next(mode);
-          this.applyDisplayMode(mode);
-        }
-      }),
-      catchError(error => {
-        console.error('Error in display mode subscription:', error);
-        return of('question');
-      })
-    ).subscribe();
+    this.displayModeSubscription = this.quizService
+      .isAnswered(this.currentQuestionIndex)
+      .pipe(
+        map((isAnswered) => (isAnswered ? 'explanation' : 'question')),
+        distinctUntilChanged(),
+        tap((mode: 'question' | 'explanation') => {
+          console.log(`Reactive display mode update to: ${mode}`);
+          if (!this.isRestoringState) {
+            // Skip during restoration
+            this.displayMode$.next(mode);
+            this.applyDisplayMode(mode);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error in display mode subscription:', error);
+          return of('question');
+        })
+      )
+      .subscribe();
   }
 
   // Helper function to enforce the display mode directly
@@ -400,7 +498,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   // Update selection message based on the current question state
   private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-  
+
     // Update the selection message only if necessary, ensuring it doesn't impact question rendering
     if (isAnswered) {
       await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
@@ -409,49 +507,55 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Function to set up shared visibility subscription
   private setupVisibilitySubscription(): void {
-    this.sharedVisibilitySubscription = this.sharedVisibilityService.pageVisibility$
-      .subscribe((isHidden) => {
+    this.sharedVisibilitySubscription =
+      this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
         this.handlePageVisibilityChange(isHidden);
       });
   }
 
   private initializeRouteListener(): void {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      const paramIndex = this.activatedRoute.snapshot.paramMap.get('questionIndex');
-      const index = paramIndex ? +paramIndex : 0; // Fallback to 0 if param is missing or invalid
-  
-      // Check if questions are available to avoid out-of-bounds access
-      if (!this.questions || this.questions.length === 0) {
-        console.warn('Questions are not loaded yet.');
-        return;
-      }
-  
-      const adjustedIndex = Math.max(0, Math.min(index - 1, this.questions.length - 1));
-      this.quizService.updateCurrentQuestionIndex(adjustedIndex);
-  
-      // Use the adjusted index for explanation text to ensure sync
-      this.fetchAndSetExplanationText(adjustedIndex);
-  
-      // Subscribe to the isAnswered$ observable to get the boolean value
-      this.quizStateService.isAnswered$.subscribe((isAnswered: boolean) => {
-        this.updateSelectionMessage(isAnswered);
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const paramIndex =
+          this.activatedRoute.snapshot.paramMap.get('questionIndex');
+        const index = paramIndex ? +paramIndex : 0; // Fallback to 0 if param is missing or invalid
+
+        // Check if questions are available to avoid out-of-bounds access
+        if (!this.questions || this.questions.length === 0) {
+          console.warn('Questions are not loaded yet.');
+          return;
+        }
+
+        const adjustedIndex = Math.max(
+          0,
+          Math.min(index - 1, this.questions.length - 1)
+        );
+        this.quizService.updateCurrentQuestionIndex(adjustedIndex);
+
+        // Use the adjusted index for explanation text to ensure sync
+        this.fetchAndSetExplanationText(adjustedIndex);
+
+        // Subscribe to the isAnswered$ observable to get the boolean value
+        this.quizStateService.isAnswered$.subscribe((isAnswered: boolean) => {
+          this.updateSelectionMessage(isAnswered);
+        });
       });
-    });
   }
 
   // Function to subscribe to navigation flags
   private subscribeToNavigationFlags(): void {
-    this.quizService.getIsNavigatingToPrevious()
-    .subscribe(
-      (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
-    );
+    this.quizService
+      .getIsNavigatingToPrevious()
+      .subscribe(
+        (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
+      );
   }
 
   // Function to subscribe to total questions count
   private subscribeToTotalQuestions(): void {
-    this.quizService.getTotalQuestionsCount()
+    this.quizService
+      .getTotalQuestionsCount()
       .pipe(takeUntil(this.destroy$))
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
@@ -476,21 +580,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Wait for questionsLoaded$ to emit true before proceeding
     this.quizService.questionsLoaded$
       .pipe(take(1), debounceTime(100))
-      .subscribe((loaded) => {        
+      .subscribe((loaded) => {
         if (loaded) {
           // Handle route changes after questions are loaded
           this.handleRouteChanges();
 
           this.updateQuestionAndExplanation(0); // Set the first question and explanation
         } else {
-          console.warn('Questions are not loaded yet. Skipping explanation update.....');
+          console.warn(
+            'Questions are not loaded yet. Skipping explanation update.....'
+          );
         }
       });
   }
 
   private initializeFirstQuestion(): void {
     // Retrieve the question index from the route parameters and parse it as a number
-    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    const index =
+      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
 
     // Set the initial question and load options
     this.setQuestionFirst(index);
@@ -521,7 +628,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         // Mark quiz as loaded and emit
         this.isQuizLoaded = true;
         this.quizService.setQuestionsLoaded(true);
-        return true;  // Indicate successful data loading
+        return true; // Indicate successful data loading
       } else {
         console.error('No questions loaded.');
         return false;
@@ -531,34 +638,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       return false;
     }
   }
-  
+
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
       const index = +params.get('questionIndex') || 0;
-  
+
       // Reset state and hide explanation initially
       this.resetStateForNewQuestion();
       this.explanationToDisplay = '';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(false);
-  
+
       if (this.questionsArray && this.questionsArray.length > 0) {
         this.setQuestionFirst(index);
       } else {
-        console.warn('Questions are not ready yet. Skipping explanation update.');
+        console.warn(
+          'Questions are not ready yet. Skipping explanation update.'
+        );
       }
     });
   }
 
   private setQuestionFirst(index: number): void {
     // Check if the index is within the valid range of questionsArray
-    if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
+    if (
+      !this.questionsArray ||
+      index < 0 ||
+      index >= this.questionsArray.length
+    ) {
       console.warn(`Question not found at index: ${index}`);
       return;
     }
 
     const question = this.questionsArray[index];
-    
+
     // Proceed only if the question exists
     if (!question) {
       console.warn(`No question data available at index: ${index}`);
@@ -566,11 +679,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.optionsToDisplay = []; // Clear previous options
-  
+
     // Set the current question and render it
     this.setCurrentQuestion(question);
     this.loadOptionsForQuestion(question);
-  
+
     // Wait to ensure the question is fully rendered before updating explanation
     setTimeout(() => {
       this.updateExplanationIfAnswered(index, question);
@@ -586,22 +699,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.warn('No options found for the question:', question);
     }
   }
-  
+
   // Conditional method to update the explanation only if the question is answered
-  private updateExplanationIfAnswered(index: number, question: QuizQuestion): void {
+  private updateExplanationIfAnswered(
+    index: number,
+    question: QuizQuestion
+  ): void {
     if (this.isQuestionAnswered(index)) {
-      const explanationText = this.explanationTextService.prepareExplanationText(question); // Or define in component
+      const explanationText =
+        this.explanationTextService.prepareExplanationText(question); // Or define in component
       this.explanationToDisplay = explanationText;
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
-  
+
       this.updateCombinedQuestionData(question, explanationText);
       this.isAnswerSelectedChange.emit(true);
     } else {
-      console.log(`Question ${index} is not answered. Skipping explanation update.`);
+      console.log(
+        `Question ${index} is not answered. Skipping explanation update.`
+      );
     }
   }
-  
+
   private updateQuestionAndExplanation(index: number): void {
     const question = this.questionsArray[index];
     if (!question) {
@@ -609,22 +728,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizService.resetExplanationText(); // Reset explanation if no question found
       return;
     }
-  
+
     console.log('Updating question and explanation for index:', index);
 
     // Clear the explanation text to prevent flashing old content
     this.explanationTextService.explanationText$.next('');
-    this.explanationToDisplayChange.emit('');  // Ensure UI is cleared
-  
+    this.explanationToDisplayChange.emit(''); // Ensure UI is cleared
+
     // Set the current question and emit its explanation text
     if (question) {
       this.setCurrentQuestion(question);
-      this.emitExplanationText(question);  // Emit explanation after setting question
+      this.emitExplanationText(question); // Emit explanation after setting question
     }
   }
 
   private emitExplanationText(question: QuizQuestion): void {
-    const correctOptionIndices = this.explanationTextService.getCorrectOptionIndices(question);
+    const correctOptionIndices =
+      this.explanationTextService.getCorrectOptionIndices(question);
     const formattedExplanation = this.explanationTextService.formatExplanation(
       question,
       correctOptionIndices,
@@ -637,34 +757,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     setTimeout(() => {
       this.quizService.setNextExplanationText(formattedExplanation);
       this.explanationToDisplayChange.emit(formattedExplanation);
-      this.showExplanationChange.emit(true);  // Ensure it's shown in the UI
+      this.showExplanationChange.emit(true); // Ensure it's shown in the UI
     }, 50);
   }
-  
+
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error('Attempted to set a null or undefined question in setCurrentQuestion.');
+      console.error(
+        'Attempted to set a null or undefined question in setCurrentQuestion.'
+      );
       this.question = null;
       this.optionsToDisplay = [];
       return; // Exit early to avoid further errors
     }
-  
+
     this.question = question;
     this.optionsToDisplay = question.options || []; // Safely set options if available
   }
-  
+
   private setupSubscriptions(): void {
-    this.resetFeedbackSubscription = this.resetStateService.resetFeedback$.subscribe(() => {
-      console.log('Reset feedback triggered');
-      this.resetFeedback();
-    });
-  
-    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(() => {
-      console.log('Reset state triggered');
-      this.resetState();
-    });
-  
-    document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
+    this.resetFeedbackSubscription =
+      this.resetStateService.resetFeedback$.subscribe(() => {
+        console.log('Reset feedback triggered');
+        this.resetFeedback();
+      });
+
+    this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
+      () => {
+        console.log('Reset state triggered');
+        this.resetState();
+      }
+    );
+
+    document.addEventListener(
+      'visibilitychange',
+      this.onVisibilityChange.bind(this)
+    );
   }
 
   isAnswerSelected(): boolean {
@@ -700,8 +828,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log('Display subscriptions cleared and explanation reset.');
   }
 
-   // Helper methods
-   public ensureQuestionTextDisplay(): void {
+  // Helper methods
+  public ensureQuestionTextDisplay(): void {
     if (this.displayMode$.getValue() !== 'question') {
       console.log('Blocked: Attempted to show question in incorrect mode.');
       return;
@@ -712,22 +840,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.resetExplanation(); // Resets explanation text and updates UI
       this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
     } else {
-      console.log('Skipping question text display since explanation display is intended.');
+      console.log(
+        'Skipping question text display since explanation display is intended.'
+      );
     }
   }
 
   public ensureExplanationTextDisplay(explanationText?: string): void {
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
-      console.log('Blocked: Attempted to show explanation in incorrect mode or when not answered.');
+      console.log(
+        'Blocked: Attempted to show explanation in incorrect mode or when not answered.'
+      );
       return;
     }
 
     try {
       if (this.shouldDisplayExplanation) {
-        this.explanationToDisplay = explanationText || 'Explanation unavailable';
+        this.explanationToDisplay =
+          explanationText || 'Explanation unavailable';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-        console.log('Explanation successfully displayed:', this.explanationToDisplay);
+        console.log(
+          'Explanation successfully displayed:',
+          this.explanationToDisplay
+        );
       } else {
         this.resetExplanation(); // Clears explanation text and updates UI
         this.shouldDisplayExplanation = false; // Reset flag after display decision
@@ -740,27 +876,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private initializeDisplaySubscriptions(): void {
     // Ensures displayMode$ correctly sets mode based on `isAnswered`
-    const displayModeObservable = this.quizService.isAnswered(this.currentQuestionIndex).pipe(
-      map(isAnswered => (isAnswered ? 'explanation' : 'question')),
-      distinctUntilChanged(),
-      tap(mode => console.log(`Setting display mode to: ${mode}`)),
-      catchError(error => {
-        console.error("Error fetching display mode:", error);
-        return of("question"); // Default to "question" if an error occurs
-      })
-    );
+    const displayModeObservable = this.quizService
+      .isAnswered(this.currentQuestionIndex)
+      .pipe(
+        map((isAnswered) => (isAnswered ? 'explanation' : 'question')),
+        distinctUntilChanged(),
+        tap((mode) => console.log(`Setting display mode to: ${mode}`)),
+        catchError((error) => {
+          console.error('Error fetching display mode:', error);
+          return of('question'); // Default to "question" if an error occurs
+        })
+      );
 
-    this.displayModeSubscription = displayModeObservable.subscribe((mode: "question" | "explanation") => {
-      // Using the `next` method of BehaviorSubject to emit new display mode
-      this.displayMode$.next(mode);
+    this.displayModeSubscription = displayModeObservable.subscribe(
+      (mode: 'question' | 'explanation') => {
+        // Using the `next` method of BehaviorSubject to emit new display mode
+        this.displayMode$.next(mode);
 
-      // Update display based on current mode
-      if (mode === 'question') {
-        this.ensureQuestionTextDisplay();
-      } else if (mode === 'explanation') {
-        this.ensureExplanationTextDisplay();
+        // Update display based on current mode
+        if (mode === 'question') {
+          this.ensureQuestionTextDisplay();
+        } else if (mode === 'explanation') {
+          this.ensureExplanationTextDisplay();
+        }
       }
-    });
+    );
   }
 
   private initializeComponent(): void {
@@ -776,42 +916,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   async loadDynamicComponent(): Promise<void> {
     try {
       if (!this.dynamicAnswerContainer) {
-        console.error('dynamicAnswerContainer is still undefined in QuizQuestionComponent');
+        console.error(
+          'dynamicAnswerContainer is still undefined in QuizQuestionComponent'
+        );
         return;
       }
-  
+
       this.dynamicAnswerContainer.clear(); // Clear previous components
-  
+
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
       );
-  
-      const componentRef: ComponentRef<BaseQuestionComponent> = 
+
+      const componentRef: ComponentRef<BaseQuestionComponent> =
         await this.dynamicComponentService.loadComponent(
           this.dynamicAnswerContainer,
           isMultipleAnswer
         );
-  
+
       const instance = componentRef.instance as BaseQuestionComponent;
-  
+
       if (!instance) {
         console.error('Component instance is undefined');
         return;
       }
-  
+
       // Assign properties to the component instance
       instance.questionForm = this.questionForm;
       instance.question = this.question;
       instance.optionsToDisplay = [...this.optionsToDisplay];
-  
+
       // Use hasOwnProperty to assign onOptionClicked only if not already assigned
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
         console.log('onOptionClicked bound for the first time.');
       } else {
-        console.warn('onOptionClicked already assigned, skipping reassignment.');
+        console.warn(
+          'onOptionClicked already assigned, skipping reassignment.'
+        );
       }
-  
+
       // Trigger change detection to ensure updates
       componentRef.changeDetectorRef.markForCheck();
       console.log('Change detection triggered for dynamic component.');
@@ -844,40 +988,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
     const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(
+        this.currentQuestion
+      )
     );
-  
+
     let newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered,
       isMultipleAnswer
     );
-  
+
     // If the message has already been updated to 'Please click the next button', don't change it
     if (this.selectionMessage === 'Please click the next button to continue.') {
       newMessage = 'Please click the next button to continue.';
     }
-  
+
     // Only update the message if it has changed
     if (this.selectionMessage !== newMessage) {
-      console.log(`Updating message from "${this.selectionMessage}" to "${newMessage}"`);
+      console.log(
+        `Updating message from "${this.selectionMessage}" to "${newMessage}"`
+      );
       this.selectionMessageService.updateSelectionMessage(newMessage);
       this.selectionMessage = newMessage;
     }
   }
-  
+
   public async loadQuestion(signal?: AbortSignal): Promise<void> {
     this.resetQuestionStateBeforeNavigation();
     this.resetExplanation();
     this.resetTexts();
-    
+
     this.isLoading = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswered(false);
 
     this.timerService.startTimer(this.timerService.timePerQuestion, true);
-  
+
     // Clear previous data
     this.currentQuestion = null;
     this.optionsToDisplay = [];
@@ -890,24 +1038,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isExplanationLocked = true; // Block explanation display until user interaction
     this.currentExplanationText = '';
     this.ensureQuestionTextDisplay();
-    console.log(`Initialized question ${this.currentQuestionIndex} to default question text.`);
-  
+    console.log(
+      `Initialized question ${this.currentQuestionIndex} to default question text.`
+    );
+
     try {
       // Ensure a valid quiz ID is available
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) throw new Error('No active quiz ID found');
-  
+
       // Fetch the current question by index
       this.currentQuestion = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
+        this.quizService.getCurrentQuestionByIndex(
+          quizId,
+          this.currentQuestionIndex
+        )
       );
-  
+
       if (!this.currentQuestion) {
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        throw new Error(
+          `No question found for index ${this.currentQuestionIndex}`
+        );
       }
 
       // Assign optionIds if missing
-      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion?.options ?? []);
+      this.currentQuestion.options = this.quizService.assignOptionIds(
+        this.currentQuestion?.options ?? []
+      );
 
       // Set the options to display for the current question
       this.optionsToDisplay = [...this.currentQuestion.options] || [];
@@ -918,13 +1075,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.timerService.stopTimer();
         return;
       }
-  
+
       // Display explanation only if the question is answered
       await this.handleExplanationDisplay();
-  
+
       // Update the selection message
       this.updateSelectionMessage(false);
-  
     } catch (error) {
       console.error('Error loading question:', error);
       this.feedbackText = 'Error loading question. Please try again.';
@@ -939,22 +1095,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const questionsLoaded = await this.ensureQuestionsLoaded();
     if (!questionsLoaded) return false;
 
-    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
+    if (
+      this.currentQuestionIndex >= 0 &&
+      this.currentQuestionIndex < this.questions.length
+    ) {
       try {
-        const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+        const questionData = await firstValueFrom(
+          this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+        );
         if (questionData) {
           // Assign unique IDs to options for consistent identification
-          questionData.options = this.quizService.assignOptionIds(questionData.options);
+          questionData.options = this.quizService.assignOptionIds(
+            questionData.options
+          );
 
           // Set the initial active states for options (default: all active)
-          questionData.options = this.quizService.assignOptionActiveStates(questionData.options, false);
+          questionData.options = this.quizService.assignOptionActiveStates(
+            questionData.options,
+            false
+          );
 
           this.currentQuestion = questionData;
           this.optionsToDisplay = questionData.options;
           console.log(`Loaded data for Question ${this.currentQuestionIndex}`);
           return true;
         } else {
-          console.error(`Question data not found for index: ${this.currentQuestionIndex}`);
+          console.error(
+            `Question data not found for index: ${this.currentQuestionIndex}`
+          );
           return false;
         }
       } catch (error) {
@@ -971,7 +1139,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (this.isLoadingInProgress) {
       console.log('Waiting for ongoing loading process...');
       while (this.isLoadingInProgress) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
       return this.isQuizLoaded;
     }
@@ -1078,7 +1246,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     this.getCorrectAnswers();
-  } 
+  }
 
   private initializeData(): void {
     if (!this.question) {
@@ -1090,7 +1258,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       questionText: this.question.questionText,
       explanationText: this.question.explanation || 'No explanation available',
       correctAnswersText: this.quizService.getCorrectAnswersAsString() || '',
-      options: this.options || []
+      options: this.options || [],
     };
     console.log('Data initialized:', this.data);
   }
@@ -1259,15 +1427,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
               const explanationText = await this.getExplanationText(index);
               const formattedExplanationText: FormattedExplanation = {
                 questionIndex: index,
-                explanation: explanationText
+                explanation: explanationText,
               };
-              this.explanationTextService.formattedExplanations[index] = formattedExplanationText;
+              this.explanationTextService.formattedExplanations[index] =
+                formattedExplanationText;
             } catch (error) {
               // Set a default explanation and handle the error as needed
-              console.error(`Error getting explanation for question ${index}:`, error);
+              console.error(
+                `Error getting explanation for question ${index}:`,
+                error
+              );
               this.explanationTextService.formattedExplanations[index] = {
                 questionIndex: index,
-                explanation: 'Unable to load explanation.'
+                explanation: 'Unable to load explanation.',
               };
             }
           }
@@ -1293,9 +1465,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.selectionMessageService.updateSelectionMessage(initialMessage);
       }
     } else {
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+      const isAnswered = await this.isQuestionAnswered(
+        this.currentQuestionIndex
+      );
       this.clearSelection();
-  
+
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       } else {
@@ -1306,7 +1480,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   // Subscribe to option selection changes
   private subscribeToOptionSelection(): void {
-    this.selectedOptionService.isOptionSelected$()
+    this.selectedOptionService
+      .isOptionSelected$()
       .pipe(
         debounceTime(300), // Debounce to avoid rapid state changes
         distinctUntilChanged(),
@@ -1322,19 +1497,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return this.currentQuestionIndex !== 0 || isSelected;
   }
 
-  private async shouldUpdateMessageOnAnswer(isAnswered: boolean): Promise<boolean> {
-    const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
-  
+  private async shouldUpdateMessageOnAnswer(
+    isAnswered: boolean
+  ): Promise<boolean> {
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(
+        this.currentQuestion
+      )
+    );
+
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered,
       isMultipleAnswer
     );
-  
+
     console.log('Determined new message:', newMessage);
     console.log('Current selection message:', this.selectionMessage);
-  
+
     return this.selectionMessage !== newMessage;
   }
 
@@ -1350,16 +1531,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   private async checkAsynchronousStateChanges(): Promise<void> {
     try {
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-      const currentSelectionState = this.selectedOptionService.getCurrentOptionSelectedState();
-  
+      const isAnswered = await this.isQuestionAnswered(
+        this.currentQuestionIndex
+      );
+      const currentSelectionState =
+        this.selectedOptionService.getCurrentOptionSelectedState();
+
       if (isAnswered !== currentSelectionState) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       }
     } catch (error) {
       console.error('Error checking asynchronous state changes:', error);
     }
-  } 
+  }
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message);
@@ -1370,18 +1554,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.warn('this.data is undefined or null');
       return;
     }
-  
+
     // Safely assign properties directly to this.data
     this.data = {
       questionText: this.data?.questionText || '',
       options: this.data?.options || [],
-      correctAnswersText: this.data?.correctAnswersText || ''
+      correctAnswersText: this.data?.correctAnswersText || '',
     };
-  
+
     // Log the relevant data
     console.log('questionData:::', this.questionData || 'Not available');
     console.log('MY CORR MSG', this.correctMessage || 'Not available');
-  }  
+  }
 
   public async getCorrectAnswers(): Promise<number[]> {
     if (!this.currentQuestion) {
@@ -1395,7 +1579,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         return [];
       }
     }
-  
+
     return this.quizService.getCorrectAnswers(this.currentQuestion);
   }
 
@@ -1838,33 +2022,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean }): Promise<void> {
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
     try {
       // Ensure the current question is loaded
       if (!this.currentQuestion) {
         await this.loadCurrentQuestion();
       }
-  
+
       // Validate the event and option
       if (!event.option || !this.validateOption(event)) {
         console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
         return;
       }
-  
+
       const option = event.option;
       if (option.optionId == null) {
         console.error('❌ [onOptionClicked] optionId is undefined:', option);
         return;
       }
-  
+
       // Track selected option
-      this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, option.optionId);
-  
-      const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
-  
+      this.selectedOptionService.addSelectedOptionIndex(
+        this.currentQuestionIndex,
+        option.optionId
+      );
+
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(
+          this.currentQuestion
+        )
+      );
+
       // Handle option selection
       await this.updateOptionSelection(event, option);
-  
+
       // Handle timer logic for multiple-answer questions
       if (isMultipleAnswer) {
         await this.handleMultipleAnswerTimerLogic(option);
@@ -1872,14 +2067,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Handle feedback and disable incorrect options for all question types
       if (option.correct) {
-        this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+        this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
           ...opt,
           feedback: !opt.correct ? 'x' : undefined, // Add 'x' feedback for incorrect options
           showIcon: true, // Ensure icons are displayed for all options
           active: opt.correct, // Disable incorrect options
         }));
 
-        console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+        console.log(
+          'Updated optionsToDisplay:',
+          JSON.stringify(this.optionsToDisplay, null, 2)
+        );
         this.cdRef.detectChanges(); // Trigger UI update
       }
 
@@ -1888,13 +2086,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
       this.selectedOptionService.isAnsweredSubject.next(true);
-  
+
       // Ensure rendering flags are updated asynchronously
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
       });
-  
+
       // Handle any additional processing (if required)
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
@@ -1902,69 +2100,75 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-    
   // ====================== Helper Functions ======================
-  
+
   // Validates the option and returns false if early return is needed.
-  private validateOption(event: { option: SelectedOption | null; index: number; checked: boolean }): boolean {
+  private validateOption(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): boolean {
     const option = event.option;
     // Exit early if option or optionId is invalid
     if (!option || option.optionId == null) return false;
     return true;
   }
 
-  private async handleMultipleAnswerTimerLogic(option: SelectedOption): Promise<void> {
-    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
-      this.currentQuestion.options,
-      this.currentQuestionIndex
+  private async handleMultipleAnswerTimerLogic(
+    option: SelectedOption
+  ): Promise<void> {
+    const allCorrectSelected =
+      this.selectedOptionService.areAllCorrectAnswersSelected(
+        this.currentQuestion.options,
+        this.currentQuestionIndex
+      );
+
+    console.log(
+      '[handleMultipleAnswerTimerLogic] Debugging timer stop condition:',
+      {
+        allCorrectSelected,
+        stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+      }
     );
-  
-    console.log('[handleMultipleAnswerTimerLogic] Debugging timer stop condition:', {
-      allCorrectSelected,
-      stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-    });
-  
+
     // Deactivate incorrect options if a correct one is selected
     if (option.correct) {
-      console.log('Correct option selected:', option);
-
       this.showFeedback = true; // Enable feedback display
-    
+
       // Use assignOptionActiveStates to update active states and feedback
-      this.optionsToDisplay = [...this.quizService.assignOptionActiveStates(this.optionsToDisplay, true)];
-    
-      // Further refine feedback and icons using map
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-        ...opt,
-        feedback: !opt.correct ? 'x' : undefined, // Set 'x' for incorrect options
-        showIcon: true, // Ensure icons are displayed for all options
-        active: opt.correct // Disable incorrect options
-      }));
-    
-      console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-    
+      this.optionsToDisplay = [
+        ...this.quizService.assignOptionActiveStates(
+          this.optionsToDisplay,
+          true
+        ),
+      ];
+
       // Trigger UI update
       this.cdRef.detectChanges();
     } else {
       console.log('Incorrect option selected:', option);
-    
+
       // Handle incorrect option feedback explicitly
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+      this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
         ...opt,
         feedback: opt === option ? 'x' : opt.feedback, // Add 'x' for the selected incorrect option
         showIcon: true, // Ensure icons are displayed for all options
       }));
-    
-      console.log('Updated optionsToDisplay after incorrect selection:', this.optionsToDisplay);
-    
+
+      console.log(
+        'Updated optionsToDisplay after incorrect selection:',
+        this.optionsToDisplay
+      );
+
       // Trigger UI update
       this.cdRef.detectChanges();
     }
-    
-  
+
     // Stop the timer if all correct options are selected
     if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-      console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.');
+      console.log(
+        '✅ Stopping timer: All correct answers selected for multiple-answer question.'
+      );
       this.timerService.stopTimer();
       this.selectedOptionService.stopTimerEmitted = true;
     } else {
@@ -1973,18 +2177,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private updateOptionHighlightState(): void {
-    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
-      this.currentQuestion.options,
-      this.currentQuestionIndex
-    );
-  
+    const allCorrectSelected =
+      this.selectedOptionService.areAllCorrectAnswersSelected(
+        this.currentQuestion.options,
+        this.currentQuestionIndex
+      );
+
     // Update the highlight state for incorrect options
     for (const opt of this.currentQuestion.options) {
       opt.highlight = !opt.correct && allCorrectSelected;
     }
-  
-    console.log('[QuizQuestionComponent] Updated highlight state for all options:', this.currentQuestion.options);
-  }  
+
+    console.log(
+      '[QuizQuestionComponent] Updated highlight state for all options:',
+      this.currentQuestion.options
+    );
+  }
 
   private deactivateIncorrectOptions(allCorrectSelected: boolean): void {
     if (!allCorrectSelected) {
@@ -1998,7 +2206,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           opt.selected = false; // Deselect the incorrect option
           opt.highlight = true; // Mark for grey-out
           opt.active = false; // Deactivate the option (prevent further clicks)
-          console.log(`Option ${opt.optionId} deactivated and highlighted:`, opt);
+          console.log(
+            `Option ${opt.optionId} deactivated and highlighted:`,
+            opt
+          );
         } else {
           opt.active = true; // Ensure correct options remain active
         }
@@ -2013,12 +2224,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       // Trigger UI refresh
       this.cdRef.detectChanges();
 
-      console.log('Deactivated and highlighted incorrect options:', this.optionsToDisplay);
+      console.log(
+        'Deactivated and highlighted incorrect options:',
+        this.optionsToDisplay
+      );
     } else {
-      console.warn('⚠️ [deactivateIncorrectOptions] No options available to deactivate.');
+      console.warn(
+        '⚠️ [deactivateIncorrectOptions] No options available to deactivate.'
+      );
     }
   }
-  
+
   // Handles single-answer lock logic. Returns true if we should return early.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
     // Lock input for single-answer questions
@@ -2031,12 +2247,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   // Handles option selection logic to avoid duplicating "add/remove option" logic.
-  private updateOptionSelection(event: { option: SelectedOption; checked: boolean; index?: number }, option: SelectedOption): void {
+  private updateOptionSelection(
+    event: { option: SelectedOption; checked: boolean; index?: number },
+    option: SelectedOption
+  ): void {
     if (!option) {
       console.error('Option is undefined, cannot update.');
       return;
     }
-  
+
     // Check for undefined optionId
     if (option.optionId === undefined) {
       console.error('option.optionId is undefined:', option);
@@ -2046,22 +2265,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     if (event.checked) {
       this.selectedOptionService.addOption(this.currentQuestionIndex, option);
     } else {
-      this.selectedOptionService.removeOption(this.currentQuestionIndex, option.optionId);
+      this.selectedOptionService.removeOption(
+        this.currentQuestionIndex,
+        option.optionId
+      );
     }
   }
 
   // Handles logic for when the timer should stop.
-  private stopTimerIfApplicable(isMultipleAnswer: boolean, option: SelectedOption): void {
+  private stopTimerIfApplicable(
+    isMultipleAnswer: boolean,
+    option: SelectedOption
+  ): void {
     let stopTimer = false;
-  
+
     try {
       if (isMultipleAnswer) {
-        const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.currentQuestion.options, this.currentQuestionIndex);
+        const allCorrectSelected =
+          this.selectedOptionService.areAllCorrectAnswersSelected(
+            this.currentQuestion.options,
+            this.currentQuestionIndex
+          );
         stopTimer = allCorrectSelected;
       } else {
         stopTimer = option.correct;
       }
-  
+
       if (stopTimer) {
         this.timerService.stopTimer();
       }
@@ -2075,34 +2304,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
     this.updateDisplayState('explanation', isAnswered);
     this.displayStateChange.emit({ mode: 'explanation', answered: isAnswered });
-  }  
-  
+  }
+
   // Handles the outcome after checking if all correct answers are selected.
-  private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
+  private async handleCorrectnessOutcome(
+    allCorrectSelected: boolean
+  ): Promise<void> {
     if (allCorrectSelected) {
       if (this.timerService.isTimerRunning) {
         this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('[onOptionClicked] Timer stopped. Elapsed time:', elapsedTime);
+          console.log(
+            '[onOptionClicked] Timer stopped. Elapsed time:',
+            elapsedTime
+          );
         });
-  
+
         // Emit true since all correct answers are selected
         this.answerSelected.emit(true);
-  
+
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('[onOptionClicked] Next button enabled.');
       } else {
-        console.warn('[onOptionClicked] Timer was not running. No action taken.');
+        console.warn(
+          '[onOptionClicked] Timer was not running. No action taken.'
+        );
         this.answerSelected.emit(true);
       }
     } else {
       // Emit false since not all correct answers are selected
       this.answerSelected.emit(false);
-  
+
       this.selectedOptionService.isAnsweredSubject.next(false);
       console.log('[onOptionClicked] Next button remains disabled.');
     }
   }
-  
+
   /** Handles the additional UI processing inside ngZone run block. */
   private async handleAdditionalProcessing(
     event: { option: SelectedOption | null; index: number; checked: boolean },
@@ -2111,24 +2347,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     try {
       await this.ngZone.run(async () => {
         await this.applyUIStabilityDelay();
-  
+
         const { option, index, checked } = event;
-  
+
         if (!this.isValidIndex(index)) {
           console.warn('Invalid index for option selection:', { index });
           return;
         }
-  
+
         // Update the selection state
         this.updateSelectionState(option, index, checked);
-  
+
         // Perform additional processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-  
+
         // Save quiz state
         this.saveQuizState();
-  
-        console.log('Option processing completed for:', { option, index, checked });
+
+        console.log('Option processing completed for:', {
+          option,
+          index,
+          checked,
+        });
       });
     } catch (error) {
       console.error('Error during option click:', error);
@@ -2138,7 +2378,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
   }
 
-  private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
+  private updateDisplayState(
+    mode: 'question' | 'explanation',
+    answered: boolean
+  ): void {
     // Log the state update for debugging
     console.log('Updating display state:', { mode, answered });
 
@@ -2146,14 +2389,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.displayStateSubject.next({ mode, answered });
   }
 
-  private handleInitialSelection(event: { option: SelectedOption | null; index: number; checked: boolean }): void {
+  private handleInitialSelection(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): void {
     if (this.forceQuestionDisplay) {
       this.isAnswered = true;
       this.forceQuestionDisplay = false;
       this.displayState.answered = true;
-      this.displayState.mode = "explanation";
+      this.displayState.mode = 'explanation';
       this.ensureExplanationTextDisplay();
-      console.log(`[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`);
+      console.log(
+        `[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`
+      );
     }
   }
 
@@ -2169,7 +2418,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     return true;
   }
 
-  private updateSelectionState(option: SelectedOption, index: number, checked: boolean): void {
+  private updateSelectionState(
+    option: SelectedOption,
+    index: number,
+    checked: boolean
+  ): void {
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.isAnsweredSubject.next(true);
 
@@ -2215,84 +2468,89 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
     this.finalizeLoadingState();
   }
-  
+
   private toggleOptionState(option: SelectedOption, index: number): void {
-    if (!option || !('optionId' in option) || typeof option.optionId !== 'number') {
+    if (
+      !option ||
+      !('optionId' in option) ||
+      typeof option.optionId !== 'number'
+    ) {
       console.error('Invalid option passed to toggleOptionState:', option);
       return;
     }
-  
+
     option.selected = !option.selected; // Toggle the selection state
-  
+
     // Update the feedback display state for this option
     this.showFeedbackForOption[option.optionId] = option.selected;
     console.log('Updated feedback display state:', this.showFeedbackForOption);
     console.log(`Option state toggled:`, { option, index });
   }
-  
-  
+
   private emitOptionSelected(option: SelectedOption, index: number): void {
     this.optionSelected.emit({ option, index, checked: option.selected });
   }
-  
+
   private startLoading(): void {
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
-  
+
     if (!this.quizStateService.isLoading()) {
       this.quizStateService.startLoading();
     }
   }
-  
+
   private handleMultipleAnswerQuestion(option: SelectedOption): void {
-    this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion).subscribe({
-      next: (isMultipleAnswer) => {
-        console.log('Multiple answer question detected:', isMultipleAnswer);
-  
-        // Set the selected option in the service
-        this.selectedOptionService.setSelectedOption(option);
-  
-        // Ensure fallback values for option properties if necessary
-        const optionId = option.optionId ?? -1;
-        const optionText = option.text || 'none';
-  
-        console.log('Selecting option:', {
-          optionId,
-          questionIndex: this.currentQuestionIndex,
-          text: optionText,
-          isMultiSelect: isMultipleAnswer,
-        });
-  
-        // Safely select the option with validated data
-        this.selectedOptionService.selectOption(
-          optionId,
-          this.currentQuestionIndex,
-          optionText,
-          isMultipleAnswer
-        );
-  
-        // Toggle the selected option state
-        this.selectedOptionService.toggleSelectedOption(
-          this.currentQuestionIndex,
-          option,
-          isMultipleAnswer
-        );
-      },
-      error: (error) => {
-        console.error('Error determining multiple-answer:', error);
-      },
-    });
+    this.quizQuestionManagerService
+      .isMultipleAnswerQuestion(this.currentQuestion)
+      .subscribe({
+        next: (isMultipleAnswer) => {
+          console.log('Multiple answer question detected:', isMultipleAnswer);
+
+          // Set the selected option in the service
+          this.selectedOptionService.setSelectedOption(option);
+
+          // Ensure fallback values for option properties if necessary
+          const optionId = option.optionId ?? -1;
+          const optionText = option.text || 'none';
+
+          console.log('Selecting option:', {
+            optionId,
+            questionIndex: this.currentQuestionIndex,
+            text: optionText,
+            isMultiSelect: isMultipleAnswer,
+          });
+
+          // Safely select the option with validated data
+          this.selectedOptionService.selectOption(
+            optionId,
+            this.currentQuestionIndex,
+            optionText,
+            isMultipleAnswer
+          );
+
+          // Toggle the selected option state
+          this.selectedOptionService.toggleSelectedOption(
+            this.currentQuestionIndex,
+            option,
+            isMultipleAnswer
+          );
+        },
+        error: (error) => {
+          console.error('Error determining multiple-answer:', error);
+        },
+      });
   }
-    
+
   private markQuestionAsAnswered(): void {
     const questionState = this.initializeQuestionState();
     questionState.isAnswered = true;
-  
+
     if (!this.quizStateService.isAnswered$) {
       this.quizStateService.setAnswerSelected(true);
     }
   }
-  
+
   private async processSelectedOption(
     option: SelectedOption,
     index: number,
@@ -2300,11 +2558,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   ): Promise<void> {
     await this.handleOptionProcessingAndFeedback(option, index, checked);
     await this.updateQuestionState(option);
-  
+
     this.handleCorrectAnswers(option);
     this.updateFeedback(option);
   }
-  
+
   private async finalizeSelection(
     option: SelectedOption,
     index: number
@@ -2314,7 +2572,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private initializeQuestionState(): QuestionState {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+    const questionState = this.quizStateService.getQuestionState(
+      this.quizId,
+      this.currentQuestionIndex
+    );
     questionState.isAnswered = false;
     return questionState;
   }
@@ -2327,32 +2588,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     try {
       const event = { option, index, checked };
       await super.onOptionClicked(event);
-  
-      this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+
+      this.selectedOptions = [
+        { ...option, questionIndex: this.currentQuestionIndex },
+      ];
       this.selectedOption = { ...option, optionId: index + 1 };
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
-  
+
       // The question is now answered
       this.isAnswered = true;
-  
+
       // Fetch and set the explanation text
       await this.fetchAndSetExplanationText(this.currentQuestionIndex);
-      
+
       // Update the explanation display
       this.updateExplanationDisplay(true);
-  
+
       // Fetch the current question data again to ensure we have the most up-to-date information
-      const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-  
+      const questionData = await firstValueFrom(
+        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+      );
+
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         // Process the explanation text
-        const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
-        
-        let explanationText = processedExplanation?.explanation ?? questionData.explanation ?? 'No explanation available';
-  
-        console.log(`Explanation text for question ${this.currentQuestionIndex}:`, explanationText);
-  
+        const processedExplanation = await this.processExplanationText(
+          questionData,
+          this.currentQuestionIndex
+        );
+
+        let explanationText =
+          processedExplanation?.explanation ??
+          questionData.explanation ??
+          'No explanation available';
+
+        console.log(
+          `Explanation text for question ${this.currentQuestionIndex}:`,
+          explanationText
+        );
+
         // Update the explanation display properties
         this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
@@ -2362,9 +2636,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.displayExplanation = true;
 
         // Set the correct message using the QuizService method
-        const correctOptions = questionData.options.filter(opt => opt.correct);
-        this.correctMessage = this.quizService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-        console.log('QuizQuestionComponent - Correct Message set:', this.correctMessage);
+        const correctOptions = questionData.options.filter(
+          (opt) => opt.correct
+        );
+        this.correctMessage = this.quizService.setCorrectMessage(
+          correctOptions,
+          this.optionsToDisplay
+        );
+        console.log(
+          'QuizQuestionComponent - Correct Message set:',
+          this.correctMessage
+        );
 
         // Ensure the correctMessage is being updated in the view
         this.cdRef.detectChanges();
@@ -2377,7 +2659,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     } catch (error) {
       console.error('Error in handleOptionProcessingAndFeedback:', error);
-      this.explanationToDisplay = 'Error processing question. Please try again.';
+      this.explanationToDisplay =
+        'Error processing question. Please try again.';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
     } finally {
       // Ensure the explanation is always displayed, even if there was an error
@@ -2391,49 +2674,51 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizStateService.updateQuestionState(
         this.quizId,
         this.currentQuestionIndex,
-        { 
-          explanationDisplayed: true, 
+        {
+          explanationDisplayed: true,
           selectedOptions: [option],
-          explanationText: this.explanationToDisplay
+          explanationText: this.explanationToDisplay,
         },
         this.correctAnswers?.length ?? 0
       );
       console.log('Question state updated with explanationDisplayed: true');
     } catch (stateUpdateError) {
-      console.error('Error updating question state:',stateUpdateError);
+      console.error('Error updating question state:', stateUpdateError);
     }
   }
 
   private async handleCorrectAnswers(option: SelectedOption): Promise<void> {
     try {
       console.log('Handling correct answers for option:', option);
-  
+
       // Fetch correct answers asynchronously
-      this.correctAnswers = await this.getCorrectAnswers(); 
+      this.correctAnswers = await this.getCorrectAnswers();
       console.log('Fetched correct answers:', this.correctAnswers);
-  
+
       // Check if the correct answers are available
       if (!this.correctAnswers || this.correctAnswers.length === 0) {
         console.warn('No correct answers available for this question.');
         return;
       }
-  
+
       // Check if the selected option is among the correct answers
-      const isSpecificAnswerCorrect = this.correctAnswers.includes(option.optionId);
+      const isSpecificAnswerCorrect = this.correctAnswers.includes(
+        option.optionId
+      );
       console.log('Is the specific answer correct?', isSpecificAnswerCorrect);
     } catch (error) {
       console.error('An error occurred while handling correct answers:', error);
     }
-  }  
+  }
 
   private updateFeedback(option: SelectedOption): void {
     this.updateFeedbackForOption(option);
-  
+
     console.log(
       'onOptionClicked - showFeedbackForOption:',
       this.showFeedbackForOption
     );
-  
+
     if (!option.correct) {
       console.log('Incorrect option selected.');
       for (const opt of this.optionsToDisplay) {
@@ -2446,13 +2731,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.showFeedbackForOption
       );
     }
-  
+
     // Find the index of the selected option
-    const selectedIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === option.optionId);
+    const selectedIndex = this.optionsToDisplay.findIndex(
+      (opt) => opt.optionId === option.optionId
+    );
     if (selectedIndex !== -1) {
       this.processOptionSelectionAndUpdateState(selectedIndex);
     }
-  
+
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setSelectedOption(option);
     this.selectedOptionService.setAnsweredState(true);
@@ -2468,14 +2755,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('Could not retrieve the current question.');
       return;
     }
-    
+
     // Select the option and update the state
     this.selectOption(currentQuestion, option, index);
-  
+
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion)
     );
-  
+
     // Update selection message with the correct state
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
@@ -2483,24 +2770,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       questionState.isAnswered,
       isMultipleAnswer
     );
-  
+
     this.selectionMessageService.updateSelectionMessage(newMessage);
-  
+
     this.processCurrentQuestionState(currentQuestion, option, index);
     await this.handleCorrectnessAndTimer();
   }
-  
 
   private handleError(error: Error): void {
     console.error(
-      'An error occurred while processing the option click:', error
+      'An error occurred while processing the option click:',
+      error
     );
   }
 
   private finalizeLoadingState(): void {
     this.quizStateService.setLoading(false); // Loading state reset in finally block of onOptionClicked()
   }
-  
+
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
@@ -2543,7 +2830,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
-      text: option.text
+      text: option.text,
     };
     this.selectedOptionService.toggleSelectedOption(
       this.currentQuestionIndex,
@@ -2556,26 +2843,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.isFirstQuestion = false; // Reset after the first option click
   }
 
-  private async updateSelectionMessageBasedOnCurrentState(isAnswered: boolean): Promise<void> {
+  private async updateSelectionMessageBasedOnCurrentState(
+    isAnswered: boolean
+  ): Promise<void> {
     try {
-      const newMessage = this.selectionMessageService?.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered,
-        await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion))
-      );
-  
+      const newMessage =
+        this.selectionMessageService?.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          isAnswered,
+          await firstValueFrom(
+            this.quizQuestionManagerService.isMultipleAnswerQuestion(
+              this.currentQuestion
+            )
+          )
+        );
+
       console.log('Updating selection message. New message:', newMessage);
-  
+
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
         console.log('Selection message updated to:', newMessage);
       } else {
-        console.log('[updateSelectionMessageBasedOnCurrentState] No message update required');
+        console.log(
+          '[updateSelectionMessageBasedOnCurrentState] No message update required'
+        );
       }
     } catch (error) {
-      console.error('[updateSelectionMessageBasedOnCurrentState] Error updating selection message:', error);
+      console.error(
+        '[updateSelectionMessageBasedOnCurrentState] Error updating selection message:',
+        error
+      );
     }
   }
 
@@ -2602,7 +2901,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         questionText: currentQuestion.questionText,
         explanationText: currentQuestion.explanation,
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-        options: this.optionsToDisplay
+        options: this.optionsToDisplay,
       };
 
       // Determine if the current question is answered
@@ -2634,7 +2933,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     option: SelectedOption,
     index: number
   ): void {
-    console.log('processCurrentQuestionState started', { currentQuestion, option, index });
+    console.log('processCurrentQuestionState started', {
+      currentQuestion,
+      option,
+      index,
+    });
     this.processCurrentQuestion(currentQuestion);
     this.handleOptionSelection(option, index, currentQuestion);
     this.quizStateService.updateQuestionStateForExplanation(
@@ -2644,13 +2947,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.questionAnswered.emit();
   }
 
-  private async updateAnswerStateAndMessage(isAnswered: boolean): Promise<void> {
+  private async updateAnswerStateAndMessage(
+    isAnswered: boolean
+  ): Promise<void> {
     try {
       // Retrieve the isMultipleAnswer flag asynchronously
       const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(
+          this.currentQuestion
+        )
       );
-  
+
       // Call determineSelectionMessage with all four required arguments
       const message = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
@@ -2658,7 +2965,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         isAnswered,
         isMultipleAnswer
       );
-  
+
       this.setSelectionMessageIfChanged(message);
     } catch (error) {
       console.error(
@@ -2688,17 +2995,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.handleAudioPlayback(isCorrect);
   }
 
-  private async processCurrentQuestion(currentQuestion: QuizQuestion): Promise<void> {
+  private async processCurrentQuestion(
+    currentQuestion: QuizQuestion
+  ): Promise<void> {
     try {
       // Await the explanation text to ensure it resolves to a string
-      const explanationText: string = await this.getExplanationText(this.currentQuestionIndex);
-      
+      const explanationText: string = await this.getExplanationText(
+        this.currentQuestionIndex
+      );
+
       // Set the current explanation text
-      this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+      this.explanationTextService.setCurrentQuestionExplanation(
+        explanationText
+      );
       this.updateExplanationDisplay(true);
-  
-      const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
-  
+
+      const totalCorrectAnswers =
+        this.quizService.getTotalCorrectAnswers(currentQuestion);
+
       // Update the quiz state with the latest question information
       this.quizStateService.updateQuestionState(
         this.quizId,
@@ -2708,25 +3022,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       );
     } catch (error) {
       console.error('Error processing current question:', error);
-  
+
       // Set a fallback explanation text on error
-      this.explanationTextService.setCurrentQuestionExplanation('Unable to load explanation.');
+      this.explanationTextService.setCurrentQuestionExplanation(
+        'Unable to load explanation.'
+      );
     }
   }
 
-  private async updateExplanationDisplay(shouldDisplay: boolean): Promise<void> {
+  private async updateExplanationDisplay(
+    shouldDisplay: boolean
+  ): Promise<void> {
     this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
     this.showExplanationChange.emit(shouldDisplay);
     this.displayExplanation = shouldDisplay;
-  
+
     if (shouldDisplay) {
       // Introduce a delay to avoid flickering
       setTimeout(async () => {
         try {
           const explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+            this.explanationTextService.getFormattedExplanationTextForQuestion(
+              this.currentQuestionIndex
+            )
           );
-          this.explanationToDisplay = explanationText ?? 'No explanation available';
+          this.explanationToDisplay =
+            explanationText ?? 'No explanation available';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
           this.cdRef.markForCheck(); // Ensure UI reflects changes
         } catch (error) {
@@ -2739,7 +3060,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.resetQuestionStateBeforeNavigation(); // Clear explanation when not displaying
     }
   }
- 
+
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
     this.currentQuestion = null;
     this.explanationLocked = false; // Reset explanation lock
@@ -2760,7 +3081,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.quizId,
       questionIndex
     );
-  
+
     if (questionState.isAnswered) {
       try {
         const explanationText = await this.getExplanationText(questionIndex);
@@ -2794,35 +3115,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     option: SelectedOption,
     optionIndex: number,
     currentQuestion: QuizQuestion
-  ): Promise<void> {  
+  ): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
-  
+
     // Ensure that the option and optionIndex are valid
     if (!option || optionIndex < 0) {
       console.error(
-        `Invalid option or optionIndex: ${JSON.stringify(option)}, index: ${optionIndex}`
+        `Invalid option or optionIndex: ${JSON.stringify(
+          option
+        )}, index: ${optionIndex}`
       );
       return;
     }
-  
+
     // Ensure the question index is valid
     if (typeof questionIndex !== 'number' || questionIndex < 0) {
       console.error(`Invalid question index: ${questionIndex}`);
       return;
     }
-  
+
     try {
       // Toggle option selection state
       option.selected = !option.selected;
-      
+
       // Process the selected option and update states
       this.processOptionSelection(currentQuestion, option, optionIndex);
-  
+
       this.selectedOptionService.setAnsweredState(true);
       this.selectedOptionService.setSelectedOption(option);
       this.selectedOptionService.toggleSelectedOption(
-        questionIndex, 
-        option, 
+        questionIndex,
+        option,
         this.isMultipleAnswer
       );
       this.selectedOptionService.updateSelectedOptions(
@@ -2830,22 +3153,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         optionIndex,
         'add'
       );
-  
+
       this.selectedOption = { ...option, correct: option.correct };
       this.showFeedback = true;
-  
+
       // Ensure the explanation text is only set after the option is selected
-      const explanationText = await this.getExplanationText(this.currentQuestionIndex);
+      const explanationText = await this.getExplanationText(
+        this.currentQuestionIndex
+      );
       this.explanationTextService.setExplanationText(explanationText);
       this.explanationText = explanationText;
-  
+
       // Update the answers and check if the selection is correct
       this.quizService.updateAnswersForOption(option);
       this.checkAndHandleCorrectAnswer();
-  
+
       const totalCorrectAnswers =
         this.quizService.getTotalCorrectAnswers(currentQuestion);
-  
+
       // Update the question state in the QuizStateService
       this.quizStateService.updateQuestionState(
         this.quizId,
@@ -2861,23 +3186,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.optionSelected.emit({
         option: option,
         index: optionIndex,
-        checked: option.selected
+        checked: option.selected,
       });
-  
+
       // Log debug information for further analysis
       this.logDebugInformation();
-  
+
       // Display explanation text only if an option has been selected
       if (this.isAnswered || this.isOptionSelected) {
         await firstValueFrom(
           of(this.conditionallyShowExplanation(this.currentQuestionIndex))
         );
       }
-      
+
       console.log('After option selection:', {
         selected: this.selectedOption,
         isAnswered: this.isAnswered,
-        currentSelectedState: this.selectedOptionService.getCurrentOptionSelectedState()
+        currentSelectedState:
+          this.selectedOptionService.getCurrentOptionSelectedState(),
       });
     } catch (error) {
       console.error('Error during option selection:', error);
@@ -2886,7 +3212,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.isAnswered = false;
     }
   }
-  
 
   private processOptionSelection(
     currentQuestion: QuizQuestion,
@@ -2914,7 +3239,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
           this.currentQuestion = question;
           console.log('Question data loaded:', question);
 
-          const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+          const isAnswered = await this.isQuestionAnswered(
+            this.currentQuestionIndex
+          );
           this.updateSelectionMessage(isAnswered); // Update the message based on the question state
 
           this.initializeForm();
@@ -2928,25 +3255,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       },
       error: (error) => {
         console.error('Error loading question data:', error);
-      }
+      },
     });
   }
-  
+
   initializeForm(): void {
     if (!this.currentQuestion?.options?.length) {
       console.warn('Question data not ready or options are missing.');
       return;
     }
-  
+
     const controls = this.currentQuestion.options.reduce((acc, option) => {
       console.log(`Initializing control for optionId: ${option.optionId}`);
       acc[option.optionId] = new FormControl(false);
       return acc;
     }, {});
-  
+
     this.questionForm = this.fb.group(controls);
     console.log('Form initialized:', this.questionForm.value);
-  
+
     this.questionForm.updateValueAndValidity();
     this.updateRenderComponentState();
     this.cdRef.detectChanges();
@@ -2955,8 +3282,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   private updateRenderComponentState(): void {
     // Check if both the form is valid and question data is available
     if (this.isFormValid()) {
-     console.info('Both form and question data are ready, rendering component.');
-    this.shouldRenderComponent = true;
+      console.info(
+        'Both form and question data are ready, rendering component.'
+      );
+      this.shouldRenderComponent = true;
     } else {
       console.log('Form or question data is not ready yet');
     }
@@ -3035,44 +3364,66 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.log(`Conditions for showing explanation not met.`);
     }
   }
-  
+
   private async handleOptionClicked(
     currentQuestion: QuizQuestion,
     optionIndex: number
   ): Promise<void> {
     try {
       // Ensure optionId is assigned to all options in the current question
-      currentQuestion.options = this.quizService.assignOptionIds(currentQuestion.options);
-  
+      currentQuestion.options = this.quizService.assignOptionIds(
+        currentQuestion.options
+      );
+
       // Get selected options, but only include those with a valid optionId
       const selectedOptions: Option[] = this.selectedOptionService
         .getSelectedOptionIndices(this.currentQuestionIndex)
         .map((index) => currentQuestion.options[index])
         .filter((option) => option && option.optionId !== undefined);
-  
+
       // Check if the option is already selected
-      const isOptionSelected = selectedOptions.some((option) => option.optionId === optionIndex);
-  
+      const isOptionSelected = selectedOptions.some(
+        (option) => option.optionId === optionIndex
+      );
+
       // Add or remove the option based on its current state
       if (!isOptionSelected) {
-        this.selectedOptionService.addSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+        this.selectedOptionService.addSelectedOptionIndex(
+          this.currentQuestionIndex,
+          optionIndex
+        );
       } else {
-        this.selectedOptionService.removeSelectedOptionIndex(this.currentQuestionIndex, optionIndex);
+        this.selectedOptionService.removeSelectedOptionIndex(
+          this.currentQuestionIndex,
+          optionIndex
+        );
       }
-  
+
       // Check if all correct answers are selected
-      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(currentQuestion.options, this.currentQuestionIndex);
-      console.log('[handleOptionClicked] All correct answers selected:', allCorrectSelected);
-      
+      const allCorrectSelected =
+        this.selectedOptionService.areAllCorrectAnswersSelected(
+          currentQuestion.options,
+          this.currentQuestionIndex
+        );
+      console.log(
+        '[handleOptionClicked] All correct answers selected:',
+        allCorrectSelected
+      );
+
       // Update answered state
-      this.selectedOptionService.updateAnsweredState(currentQuestion.options, this.currentQuestionIndex);
-      
+      this.selectedOptionService.updateAnsweredState(
+        currentQuestion.options,
+        this.currentQuestionIndex
+      );
+
       // Handle multiple-answer logic
       if (allCorrectSelected) {
-        console.log('[handleOptionClicked] All correct options selected. Stopping the timer.');
+        console.log(
+          '[handleOptionClicked] All correct options selected. Stopping the timer.'
+        );
         this.timerService.stopTimer();
       }
-      
+
       // Ensure the UI reflects the changes
       this.cdRef.markForCheck();
     } catch (error) {
@@ -3087,53 +3438,50 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion)
     );
-  
+
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered,
       isMultipleAnswer
     );
-  
+
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
       console.log(`Setting new message: ${newMessage}`);
       this.selectionMessageSubject.next(newMessage);
     }
   }
-  
 
   private initializeMessageUpdateSubscription(): void {
     if (this.selectionMessageSubscription) {
       this.selectionMessageSubscription.unsubscribe();
     }
 
-    this.selectionMessageSubscription = this.selectionMessageSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(), 
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: async (message: string) => {
-        try {
-          // Use the received message directly
-          if (message) {
-            this.selectionMessage = message; // Update local selectionMessage
-            this.selectionMessageService.updateSelectionMessage(message);
-            console.log(`Selection message updated to: ${message}`);
-          } else {
-            // Otherwise, determine the message based on the current state
-            await this.updateSelectionMessageBasedOnState();
+    this.selectionMessageSubscription = this.selectionMessageSubject
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe({
+        next: async (message: string) => {
+          try {
+            // Use the received message directly
+            if (message) {
+              this.selectionMessage = message; // Update local selectionMessage
+              this.selectionMessageService.updateSelectionMessage(message);
+              console.log(`Selection message updated to: ${message}`);
+            } else {
+              // Otherwise, determine the message based on the current state
+              await this.updateSelectionMessageBasedOnState();
+            }
+          } catch (error) {
+            console.error('Error updating selection message:', error);
           }
-        } catch (error) {
-          console.error('Error updating selection message:', error);
-        }
-      },
-      error: (error) => console.error('Subscription error:', error),
-    });
+        },
+        error: (error) => console.error('Subscription error:', error),
+      });
   }
 
   private checkInitialMessage(): void {
     const isAnswered = false; // Ensure it only applies initially
-  
+
     if (this.currentQuestionIndex === 0 && !isAnswered) {
       const initialMessage = 'Please select an option to start the quiz.';
       if (this.selectionMessageService.getCurrentMessage() !== initialMessage) {
@@ -3141,22 +3489,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
     }
   }
-  
 
   public async updateSelectionMessageBasedOnState(): Promise<void> {
     try {
-      const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+      const isAnswered = await this.isQuestionAnswered(
+        this.currentQuestionIndex
       );
-  
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(
+          this.currentQuestion
+        )
+      );
+
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
         isAnswered,
         isMultipleAnswer
       );
-  
+
       // Update only if the message has changed
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
@@ -3168,21 +3519,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion).subscribe({
-      next: () => {
-        const selectedOptions =
-          this.quizService.selectedOptionsMap.get(this.currentQuestionIndex) ||
-          [];
-        if (selectedOptions.length > 0) {
-          this.fetchQuestionsArray(currentQuestion);
-        } else {
-          this.explanationTextService.explanationText$.next('');
-        }
-      },
-      error: (error) => {
-        console.error('Error in isMultipleAnswer subscription:', error);
-      },
-    });
+    this.quizQuestionManagerService
+      .isMultipleAnswerQuestion(currentQuestion)
+      .subscribe({
+        next: () => {
+          const selectedOptions =
+            this.quizService.selectedOptionsMap.get(
+              this.currentQuestionIndex
+            ) || [];
+          if (selectedOptions.length > 0) {
+            this.fetchQuestionsArray(currentQuestion);
+          } else {
+            this.explanationTextService.explanationText$.next('');
+          }
+        },
+        error: (error) => {
+          console.error('Error in isMultipleAnswer subscription:', error);
+        },
+      });
   }
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
@@ -3211,22 +3565,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   shouldShowIcon(option: Option): boolean {
     const selectedOption = this.selectedOptionService.getSelectedOption();
-    const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
-  
+    const showFeedbackForOption =
+      this.selectedOptionService.getShowFeedbackForOption();
+
     let shouldShow = false;
-  
+
     // Check if selectedOption is an array (multiple selected options)
     if (Array.isArray(selectedOption)) {
       // Loop through each selected option and check if the current option should show icon
       shouldShow = selectedOption.some(
-        (opt) => opt.optionId === option.optionId && showFeedbackForOption[option.optionId]
+        (opt) =>
+          opt.optionId === option.optionId &&
+          showFeedbackForOption[option.optionId]
       );
     } else {
       // If selectedOption is a single object, perform a direct comparison
-      shouldShow = selectedOption?.optionId === option.optionId && showFeedbackForOption[option.optionId];
+      shouldShow =
+        selectedOption?.optionId === option.optionId &&
+        showFeedbackForOption[option.optionId];
     }
-  
-    console.log('Should show icon for option', option.optionId, ':', shouldShow);
+
+    console.log(
+      'Should show icon for option',
+      option.optionId,
+      ':',
+      shouldShow
+    );
     return shouldShow;
   }
 
@@ -3235,7 +3599,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     option: SelectedOption,
     optionIndex: number
   ): Promise<void> {
-    console.log('selectOption called with:', { currentQuestion, option, optionIndex });
+    console.log('selectOption called with:', {
+      currentQuestion,
+      option,
+      optionIndex,
+    });
 
     if (optionIndex < 0) {
       console.error(`Invalid optionIndex ${optionIndex}.`);
@@ -3264,7 +3632,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     );
 
     // Update the selection message based on the new state
-    const explanationText = await this.getExplanationText(this.currentQuestionIndex) || 'No explanation available';
+    const explanationText =
+      (await this.getExplanationText(this.currentQuestionIndex)) ||
+      'No explanation available';
     this.explanationTextService.setExplanationText(explanationText);
 
     // Notify the service to update the explanation text
@@ -3306,31 +3676,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
   async manageExplanationDisplay(): Promise<void> {
     try {
-      if (this.currentQuestionIndex === null || this.currentQuestionIndex === undefined) {
+      if (
+        this.currentQuestionIndex === null ||
+        this.currentQuestionIndex === undefined
+      ) {
         throw new Error('Current question index is not set');
       }
-  
+
       // Fetch the current question data
-      const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-  
+      const questionData = await firstValueFrom(
+        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+      );
+
       if (!this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         throw new Error('Invalid question data');
       }
-  
+
       // Process the explanation text
-      console.log(`Raw explanation for question ${this.currentQuestionIndex}:`, questionData.explanation);
+      console.log(
+        `Raw explanation for question ${this.currentQuestionIndex}:`,
+        questionData.explanation
+      );
 
       // Use the raw explanation as a fallback
-      let explanationText = questionData.explanation ?? 'No explanation available';
+      let explanationText =
+        questionData.explanation ?? 'No explanation available';
 
       // Process the explanation text
-      const processedExplanation = await this.processExplanationText(questionData, this.currentQuestionIndex);
+      const processedExplanation = await this.processExplanationText(
+        questionData,
+        this.currentQuestionIndex
+      );
 
       // Use the processed explanation if available
       if (processedExplanation && processedExplanation.explanation) {
         explanationText = processedExplanation.explanation;
       }
-  
+
       // Update the explanation display properties
       this.explanationToDisplay = explanationText;
       this.explanationTextService.updateFormattedExplanation(explanationText);
@@ -3338,12 +3720,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       this.explanationToDisplayChange.emit(explanationText);
       this.showExplanationChange.emit(true);
       this.displayExplanation = true;
-  
-      console.log(`Explanation display updated for question ${this.currentQuestionIndex}:`, explanationText.substring(0, 50) + '...');
-  
+
+      console.log(
+        `Explanation display updated for question ${this.currentQuestionIndex}:`,
+        explanationText.substring(0, 50) + '...'
+      );
     } catch (error) {
       console.error('Error managing explanation display:', error);
-      this.explanationToDisplay = 'Error loading explanation. Please try again.';
+      this.explanationToDisplay =
+        'Error loading explanation. Please try again.';
       this.displayExplanation = true;
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
@@ -3359,11 +3744,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     // Reset all explanation-related states and emit necessary events
     this.displayExplanation = false; // Hide explanation display
     this.explanationToDisplay = ''; // Clear explanation text
-    
+
     // Emit updates to parent components or services
     this.explanationToDisplayChange.emit(''); // Notify components about cleared text
     this.showExplanationChange.emit(false); // Notify components to hide explanation
-    
+
     // Update the ExplanationTextService with cleared values
     this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.resetExplanationText();
@@ -3371,41 +3756,59 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
-    console.log('Preparing explanation text for question index:', questionIndex);
-  
+    console.log(
+      'Preparing explanation text for question index:',
+      questionIndex
+    );
+
     if (document.hidden) {
       console.log('Document is hidden, returning placeholder text.');
-      this.explanationToDisplay = 'Explanation text not available when document is hidden.';
+      this.explanationToDisplay =
+        'Explanation text not available when document is hidden.';
       return this.explanationToDisplay;
     }
-  
+
     try {
-      const questionData = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
-  
+      const questionData = await firstValueFrom(
+        this.quizService.getQuestionByIndex(questionIndex)
+      );
+
       if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        const formattedExplanationObservable = this.explanationTextService.getFormattedExplanation(questionIndex);
-        
+        const formattedExplanationObservable =
+          this.explanationTextService.getFormattedExplanation(questionIndex);
+
         try {
           const formattedExplanation = await Promise.race([
             firstValueFrom(formattedExplanationObservable),
-            new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+            new Promise<string>((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout')), 5000)
+            ),
           ]);
-  
+
           if (formattedExplanation) {
             this.explanationToDisplay = formattedExplanation;
           } else {
-            const processedExplanation = await this.processExplanationText(questionData, questionIndex);
-            
+            const processedExplanation = await this.processExplanationText(
+              questionData,
+              questionIndex
+            );
+
             if (processedExplanation) {
               this.explanationToDisplay = processedExplanation.explanation;
-              this.explanationTextService.updateFormattedExplanation(processedExplanation.explanation);
+              this.explanationTextService.updateFormattedExplanation(
+                processedExplanation.explanation
+              );
             } else {
               this.explanationToDisplay = 'No explanation available...';
             }
           }
         } catch (timeoutError) {
-          console.error('Timeout while fetching formatted explanation:', timeoutError);
-          this.explanationToDisplay = 'Explanation text unavailable at the moment.';
+          console.error(
+            'Timeout while fetching formatted explanation:',
+            timeoutError
+          );
+          this.explanationToDisplay =
+            'Explanation text unavailable at the moment.';
         }
       } else {
         console.error('Error: questionData is invalid');
@@ -3419,71 +3822,104 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
       this.explanationToDisplay = 'Error fetching explanation.';
     }
-  
+
     return this.explanationToDisplay;
   }
 
   private async setExplanationText(): Promise<void> {
-    if (!this.isExplanationLocked) { // Ensure explanation is unlocked
+    if (!this.isExplanationLocked) {
+      // Ensure explanation is unlocked
       this.currentExplanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        this.explanationTextService.getFormattedExplanationTextForQuestion(
+          this.currentQuestionIndex
+        )
       );
       this.ensureExplanationTextDisplay(this.currentExplanationText);
-      console.log(`Explanation text set and displayed for question ${this.currentQuestionIndex}`);
+      console.log(
+        `Explanation text set and displayed for question ${this.currentQuestionIndex}`
+      );
     } else {
-      console.log('Explanation display is locked; skipping setting explanation text.');
+      console.log(
+        'Explanation display is locked; skipping setting explanation text.'
+      );
     }
   }
 
-  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
+  public async fetchAndSetExplanationText(
+    questionIndex: number
+  ): Promise<void> {
     console.log(`Fetching explanation for question ${questionIndex}`);
-  
+
     // Clear any previous explanation state
     this.resetExplanation();
-  
+
     try {
       // Ensure the questions array is loaded only once, without retries
       const questionsLoaded = await this.ensureQuestionsLoaded();
-      
+
       // Exit early if loading was unsuccessful
-      if (!questionsLoaded || !this.questionsArray || this.questionsArray.length === 0) {
-        console.error('Failed to load questions or questions array is empty. Aborting explanation fetch.');
+      if (
+        !questionsLoaded ||
+        !this.questionsArray ||
+        this.questionsArray.length === 0
+      ) {
+        console.error(
+          'Failed to load questions or questions array is empty. Aborting explanation fetch.'
+        );
         return;
       }
-  
+
       // Check if the specified question index is valid in the array
       if (!this.questionsArray[questionIndex]) {
-        console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
+        console.error(
+          `Questions array is not properly populated or invalid index: ${questionIndex}`
+        );
         return;
       }
-  
+
       // Ensure question data is fully loaded before fetching explanation
       await this.ensureQuestionIsFullyLoaded(questionIndex);
-  
+
       // Prepare and fetch explanation text using observable
-      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+      const explanation$ = from(
+        this.prepareAndSetExplanationText(questionIndex)
+      ).pipe(
         debounceTime(100) // Smooth out updates
       );
-  
+
       explanation$.subscribe({
         next: (explanationText: string) => {
           if (this.isQuestionAnswered(questionIndex)) {
             this.currentQuestionIndex = questionIndex;
-            this.explanationToDisplay = explanationText || 'No explanation available';
-            this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+            this.explanationToDisplay =
+              explanationText || 'No explanation available';
+            this.explanationTextService.updateFormattedExplanation(
+              this.explanationToDisplay
+            );
             this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            console.log(`Explanation set for question ${questionIndex}:`, explanationText.substring(0, 50) + '...');
+            console.log(
+              `Explanation set for question ${questionIndex}:`,
+              explanationText.substring(0, 50) + '...'
+            );
           } else {
-            console.log(`Skipping explanation for unanswered question ${questionIndex}.`);
+            console.log(
+              `Skipping explanation for unanswered question ${questionIndex}.`
+            );
           }
         },
         error: (error) => {
-          console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+          console.error(
+            `Error fetching explanation for question ${questionIndex}:`,
+            error
+          );
           this.handleExplanationError(questionIndex);
-        }
+        },
       });
     } catch (error) {
-      console.error(`Error fetching explanation for question ${questionIndex}:`, error);
+      console.error(
+        `Error fetching explanation for question ${questionIndex}:`,
+        error
+      );
       this.handleExplanationError(questionIndex);
     }
   }
@@ -3501,19 +3937,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
 
       // Re-check if the questions are loaded after the loading step
       if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.error('Questions array still not loaded after loading attempt.');
-          throw new Error('Failed to load questions array.');
+        console.error(
+          'Questions array still not loaded after loading attempt.'
+        );
+        throw new Error('Failed to load questions array.');
       }
     }
-  
+
     if (index < 0 || index >= this.questionsArray.length) {
-      console.error(`Invalid index ${index}. Must be between 0 and ${this.questionsArray.length - 1}.`);
+      console.error(
+        `Invalid index ${index}. Must be between 0 and ${
+          this.questionsArray.length - 1
+        }.`
+      );
       throw new Error(`Invalid index ${index}. No such question exists.`);
     }
-  
+
     return new Promise((resolve, reject) => {
       let subscription: Subscription | undefined;
-  
+
       try {
         subscription = this.quizService.getQuestionByIndex(index).subscribe({
           next: (question) => {
@@ -3529,7 +3971,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
             console.error(`Error loading question at index ${index}:`, err);
             subscription?.unsubscribe();
             reject(err);
-          }
+          },
         });
       } catch (error) {
         reject(error); // Reject for unexpected error
@@ -3541,12 +3983,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     console.log(`Fetching explanation for question index: ${questionIndex}`);
     try {
       const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        this.explanationTextService.getFormattedExplanationTextForQuestion(
+          questionIndex
+        )
       );
       console.log(`Explanation for index ${questionIndex}: ${explanationText}`);
       return explanationText;
     } catch (error) {
-      console.error(`Error fetching explanation for index ${questionIndex}:`, error);
+      console.error(
+        `Error fetching explanation for index ${questionIndex}:`,
+        error
+      );
       return 'Error loading explanation.';
     }
   }
@@ -3559,43 +4006,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error(`Invalid question data for index ${questionIndex}`);
       return {
         questionIndex,
-        explanation: 'No question data available'
+        explanation: 'No question data available',
       };
     }
 
     const explanation = questionData.explanation || 'No explanation available';
     this.explanationTextService.setCurrentQuestionExplanation(explanation);
-  
+
     try {
       const formattedExplanation = await this.getFormattedExplanation(
         questionData,
         questionIndex
       );
-      
+
       if (formattedExplanation) {
-        const explanationText = typeof formattedExplanation === 'string' 
-          ? formattedExplanation 
-          : formattedExplanation.explanation || '';
-        
+        const explanationText =
+          typeof formattedExplanation === 'string'
+            ? formattedExplanation
+            : formattedExplanation.explanation || '';
+
         const formattedExplanationObject: FormattedExplanation = {
           questionIndex,
-          explanation: explanationText
+          explanation: explanationText,
         };
-        
-        this.handleFormattedExplanation(formattedExplanationObject, formattedExplanationObject.questionIndex);
+
+        this.handleFormattedExplanation(
+          formattedExplanationObject,
+          formattedExplanationObject.questionIndex
+        );
         return formattedExplanationObject;
       } else {
         console.warn('No formatted explanation received');
         return {
           questionIndex: questionIndex,
-          explanation: questionData.explanation || 'No explanation available'
+          explanation: questionData.explanation || 'No explanation available',
         };
       }
     } catch (error) {
       console.error('Error in processing explanation text:', error);
       return {
         questionIndex: questionIndex,
-        explanation: questionData.explanation || 'Error processing explanation'
+        explanation: questionData.explanation || 'Error processing explanation',
       };
     }
   }
@@ -3632,7 +4083,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.showExplanationChange.emit(true);
   }
 
-  private updateExplanationUI(questionIndex: number, explanationText: string): void {
+  private updateExplanationUI(
+    questionIndex: number,
+    explanationText: string
+  ): void {
     // Validate if questions are loaded and the array is non-empty
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions not loaded yet. Skipping explanation update.');
@@ -3640,7 +4094,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     }
 
     // Ensure the index is within valid bounds
-    const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
+    const adjustedIndex = Math.max(
+      0,
+      Math.min(questionIndex, this.questionsArray.length - 1)
+    );
     const currentQuestion = this.questionsArray[adjustedIndex];
 
     // Validate that the current question exists
@@ -3659,35 +4116,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       }
 
       // Wait for the question to be rendered before updating the explanation
-      this.waitForQuestionRendering().then(() => {
-        if (this.isQuestionAnswered(adjustedIndex)) {
-          // Clear any previous explanation state
-          this.clearExplanationState();
-          this.explanationToDisplay = explanationText;
-          this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          this.showExplanationChange.emit(true);
+      this.waitForQuestionRendering()
+        .then(() => {
+          if (this.isQuestionAnswered(adjustedIndex)) {
+            // Clear any previous explanation state
+            this.clearExplanationState();
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(true);
 
-          // Update combined question data with the current explanation
-          this.updateCombinedQuestionData(currentQuestion, explanationText);
-          this.isAnswerSelectedChange.emit(true);
-        } else {
-          console.log(`Question ${adjustedIndex} is not answered. Skipping explanation update.`);
-        }
+            // Update combined question data with the current explanation
+            this.updateCombinedQuestionData(currentQuestion, explanationText);
+            this.isAnswerSelectedChange.emit(true);
+          } else {
+            console.log(
+              `Question ${adjustedIndex} is not answered. Skipping explanation update.`
+            );
+          }
 
-        // Detect changes to update the UI
-        this.cdRef.detectChanges();
-      }).catch((renderError) => {
-        console.error('Error during question rendering wait:', renderError);
-      });
+          // Detect changes to update the UI
+          this.cdRef.detectChanges();
+        })
+        .catch((renderError) => {
+          console.error('Error during question rendering wait:', renderError);
+        });
     } catch (error) {
-      console.error('Error in setting current question or updating explanation:', error);
+      console.error(
+        'Error in setting current question or updating explanation:',
+        error
+      );
     }
 
     console.log(`Finished updating explanation for question ${adjustedIndex}`);
   }
 
   private waitForQuestionRendering(): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 100));  // Adjust timing as necessary
+    return new Promise((resolve) => setTimeout(resolve, 100)); // Adjust timing as necessary
   }
 
   private clearExplanationState(): void {
@@ -3695,7 +4159,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
     this.explanationTextService.explanationText$.next('');
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
-  }  
+  }
 
   updateCombinedQuestionData(
     currentQuestion: QuizQuestion,
@@ -3705,7 +4169,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-      currentOptions: this.currentOptions
+      currentOptions: this.currentOptions,
     });
   }
 
@@ -3779,7 +4243,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       isCorrect: isCorrect,
       explanationText: explanationText,
       selectedOptions: selectedOptions,
-      numberOfCorrectAnswers: numberOfCorrectAnswers
+      numberOfCorrectAnswers: numberOfCorrectAnswers,
     });
 
     // this.quizService.playSound(isCorrect);
@@ -3796,24 +4260,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         this.optionsToDisplay
       );
     } else {
-      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.');
+      console.warn(
+        'QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.'
+      );
     }
   }
-  
+
   // Helper method to handle question and selectedOptions changes
   private handleQuestionAndOptionsChange(
     currentQuestionChange: SimpleChange,
     selectedOptionsChange: SimpleChange
   ): void {
-    const selectedOptionsValue = selectedOptionsChange ? selectedOptionsChange.currentValue : null;
-  
+    const selectedOptionsValue = selectedOptionsChange
+      ? selectedOptionsChange.currentValue
+      : null;
+
     if (currentQuestionChange && this.currentQuestion) {
       // If current question has changed and is defined, handle the question change with selected options
-      this.quizService.handleQuestionChange(this.currentQuestion, selectedOptionsValue, this.options);
+      this.quizService.handleQuestionChange(
+        this.currentQuestion,
+        selectedOptionsValue,
+        this.options
+      );
     } else if (selectedOptionsChange) {
       // Handle only the selected options change if currentQuestion is not defined
-      this.quizService.handleQuestionChange(null, selectedOptionsValue, this.options);
-      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
+      this.quizService.handleQuestionChange(
+        null,
+        selectedOptionsValue,
+        this.options
+      );
+      console.warn(
+        'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
+      );
     }
   }
 
@@ -3938,4 +4416,4 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
       console.error('Playback failed:', error);
     });
   } */
-} 
+}
