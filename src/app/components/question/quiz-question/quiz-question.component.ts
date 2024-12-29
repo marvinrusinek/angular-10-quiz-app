@@ -2140,7 +2140,8 @@ export class QuizQuestionComponent
       ).map(opt => ({
         ...opt,
         feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, no feedback for correct
-        showIcon: true // Ensure icons are displayed for all options
+        showIcon: true, // Ensure icons are displayed for all options
+        active: opt.correct // Disable incorrect options
       }));
 
       console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
