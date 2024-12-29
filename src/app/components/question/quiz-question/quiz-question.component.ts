@@ -1928,7 +1928,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent implements OnIn
         active: opt.correct // Disable incorrect options
       }));
     
-      console.log('Updated optionsToDisplay:', this.optionsToDisplay);
+      console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
     
       // Trigger UI update
       this.cdRef.detectChanges();
