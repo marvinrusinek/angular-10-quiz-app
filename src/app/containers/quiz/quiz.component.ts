@@ -2268,7 +2268,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   // Check if an answer has been selected for the first question.
-  checkIfAnswered(): boolean {
+  async checkIfAnswered(): Promise<boolean> {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('Options not available when checking for answer state');
       return false; // Return false if no options are loaded
@@ -2282,10 +2282,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Check if any option is selected OR all correct answers are selected
     const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
-    const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(this.optionsToDisplay, this.currentQuestionIndex);
-    
+    const areAllCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(
+      this.optionsToDisplay,
+      this.currentQuestionIndex
+    );
+  
     return isAnyOptionSelected || areAllCorrectSelected;
-  }
+  }  
 
   private async ensureOptionsLoaded(): Promise<void> {
     try {
