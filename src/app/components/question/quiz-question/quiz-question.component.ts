@@ -3985,7 +3985,6 @@ export class QuizQuestionComponent
           questionIndex
         )
       );
-      console.log(`Explanation for index ${questionIndex}: ${explanationText}`);
       return explanationText;
     } catch (error) {
       console.error(
