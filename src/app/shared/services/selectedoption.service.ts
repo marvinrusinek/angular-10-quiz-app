@@ -550,36 +550,40 @@ export class SelectedOptionService {
 
     return allCorrectSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): boolean {
-    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
-      return false;
-    }
-
-    // Filter only options with correct: true
-    const correctOptionIds = questionOptions.filter(o => o.correct === true).map(o => o.optionId);
-
-    if (correctOptionIds.length === 0) {
-      console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
-      return false; // No correct options means no way to validate
-    }
-
-    // Retrieve selected options for the current question index
-    const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
-
-    // Validate that all correct options are selected
-    const validSelectedOptions = selectedOptionIds.filter(id => correctOptionIds.includes(id));
-    const allCorrectSelected = correctOptionIds.every(id => validSelectedOptions.includes(id));
-
-    console.log('[areAllCorrectAnswersSelected] Validation Details:', {
-      questionIndex,
-      correctOptionIds,
-      selectedOptionIds,
-      validSelectedOptions,
-      allCorrectSelected,
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
+        resolve(false);
+        return;
+      }
+  
+      // Filter only options with correct: true
+      const correctOptionIds = questionOptions.filter(o => o.correct === true).map(o => o.optionId);
+  
+      if (correctOptionIds.length === 0) {
+        console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
+        resolve(false); // No correct options means no way to validate
+        return;
+      }
+  
+      // Retrieve selected options for the current question index
+      const selectedOptionIds = (this.selectedOptionsMap.get(questionIndex) || []).map(o => o.optionId);
+  
+      // Validate that all correct options are selected
+      const validSelectedOptions = selectedOptionIds.filter(id => correctOptionIds.includes(id));
+      const allCorrectSelected = correctOptionIds.every(id => validSelectedOptions.includes(id));
+  
+      console.log('[areAllCorrectAnswersSelected] Validation Details:', {
+        questionIndex,
+        correctOptionIds,
+        selectedOptionIds,
+        validSelectedOptions,
+        allCorrectSelected,
+      });
+  
+      resolve(allCorrectSelected);
     });
-
-    return allCorrectSelected;
   }
 
   setAnswered(isAnswered: boolean): void {
