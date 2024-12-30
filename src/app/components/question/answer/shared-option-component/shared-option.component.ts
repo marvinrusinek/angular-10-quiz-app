@@ -265,9 +265,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return ''; // Default: no icon
   } */
-  getOptionIcon(option: Option): string {
+  /* getOptionIcon(option: Option): string {
     if (!this.showFeedback) return ''; // Feedback disabled
     return option.feedback === 'x' ? 'close' : option.correct ? 'check' : 'close';
+  } */
+  getOptionIcon(option: Option): string {
+    if (!this.showFeedback) return ''; // Feedback disabled
+  
+    // Show 'close' for incorrect options with feedback
+    if (option.feedback === 'x') {
+      return 'close';
+    }
+  
+    // Show 'check' for correct options
+    return option.correct ? 'check' : '';
   }
   
   
