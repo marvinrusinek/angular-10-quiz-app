@@ -2066,7 +2066,7 @@ export class QuizQuestionComponent
       }
 
       // Handle feedback and disable incorrect options for all question types
-      this.processOptionSelection(option);
+      this.papplyOptionFeedback(option);
 
       // Update option highlight states and UI
       this.updateOptionHighlightState();
@@ -2161,7 +2161,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private processOptionSelection(option: Option): void {
+  private applyOptionFeedback(option: Option): void {
     if (option.correct) {
       console.log('Correct option selected:', option);
   
