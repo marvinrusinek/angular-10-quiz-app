@@ -2268,7 +2268,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   // Check if an answer has been selected for the first question.
-  checkIfAnswered(callback: (result: boolean) => void): void {
+  checkIfAnswered(callback: (result: boolean) => void = () => {}): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('Options not available when checking for answer state');
       callback(false); // Invoke callback with false if no options are loaded
