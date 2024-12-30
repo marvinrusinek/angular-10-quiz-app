@@ -1218,8 +1218,8 @@ export class QuizQuestionComponent
     return isOptionSelected;
   }
 
-  trackByOption(option: Option): number {
-    return option.optionId;
+  trackByOption(index: number, option: Option): string | number {
+    return option.optionId || index;
   }
 
   public get shouldDisplayTextContent(): boolean {
