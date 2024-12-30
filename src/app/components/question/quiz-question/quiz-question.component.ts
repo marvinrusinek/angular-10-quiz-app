@@ -2066,29 +2066,7 @@ export class QuizQuestionComponent
       }
 
       // Handle feedback and disable incorrect options for all question types
-      if (option.correct) {
-        this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
-          ...opt,
-          feedback: !opt.correct ? 'x' : undefined, // Add 'x' feedback for incorrect options
-          showIcon: true, // Ensure icons are displayed for all options
-          active: opt.correct, // Disable incorrect options
-        }));
-
-        console.log(
-          'Updated optionsToDisplay:',
-          JSON.stringify(this.optionsToDisplay, null, 2)
-        );
-        this.cdRef.detectChanges(); // Trigger UI update
-      } else {
-        console.log('Incorrect option selected:', option);
-    
-        // Optional: Handle behavior when an incorrect option is clicked
-        option.feedback = 'x';
-        option.showIcon = true;
-    
-        // Trigger UI update
-        this.cdRef.detectChanges();
-      }
+      this.handleOptionSelection(option);
 
       // Update option highlight states and UI
       this.updateOptionHighlightState();
@@ -2182,6 +2160,37 @@ export class QuizQuestionComponent
       console.log('❌ Timer not stopped: Conditions not met.');
     }
   }
+
+  private handleOptionSelection(option: Option): void {
+    if (option.correct) {
+      console.log('Correct option selected:', option);
+  
+      this.showFeedback = true; // Enable feedback display
+  
+      // Update all options
+      this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
+        ...opt,
+        active: opt.correct, // Only correct options remain active
+        feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
+        showIcon: true, // Ensure icons are displayed for all options
+      }));
+  
+      console.log('Updated optionsToDisplay:', this.optionsToDisplay);
+  
+      // Trigger UI update
+      this.cdRef.detectChanges();
+    } else {
+      console.log('Incorrect option selected:', option);
+  
+      // Optional: Handle behavior when an incorrect option is clicked
+      option.feedback = 'x';
+      option.showIcon = true;
+  
+      // Trigger UI update
+      this.cdRef.detectChanges();
+    }
+  }
+  
 
   private async updateOptionHighlightState(): Promise<void> {
     const allCorrectSelected =
