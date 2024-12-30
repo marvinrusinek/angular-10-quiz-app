@@ -2240,19 +2240,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Call checkIfAnswered() to track answered state
         setTimeout(() => {
           this.checkIfAnswered((hasAnswered) => {
-            // Stop the timer if the question is already answered
-            if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
-              this.timerService.stopTimer();
-              this.selectedOptionService.stopTimerEmitted = true;
-            }
-        
-            // Start the timer only after the first question has been set and stabilized
-            setTimeout(() => {
-              this.timerService.startTimer();
-              this.cdRef.markForCheck();
-            }, 50); // Wait 50ms to make sure options are rendered
+            this.handleTimer(hasAnswered);
           });
-        }, 100); // Wait 100ms to ensure options are displayed
+        }, 100);
   
         // Double change detection for safety
         setTimeout(() => {
@@ -2294,7 +2284,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         callback(false); // Handle error case
       });
   }
-   
+
+  private handleTimer(hasAnswered: boolean): void {
+    // Stop the timer if the question is already answered
+    if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
+      this.timerService.stopTimer();
+      this.selectedOptionService.stopTimerEmitted = true;
+    }
+  
+    // Start the timer only after the first question has been set and stabilized
+    setTimeout(() => {
+      this.timerService.startTimer();
+      this.cdRef.markForCheck();
+    }, 50); // Wait 50ms to make sure options are rendered
+  }
 
   private async ensureOptionsLoaded(): Promise<void> {
     try {
