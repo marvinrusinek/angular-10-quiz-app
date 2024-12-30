@@ -265,10 +265,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     return ''; // Default: no icon
   } */
-  getOptionIcon(option: Option): string {
+  /* getOptionIcon(option: Option): string {
     if (!this.showFeedback) return ''; // Feedback disabled
     return option.feedback === 'x' ? 'close' : option.correct ? 'check' : 'close';
+  } */
+  getOptionIcon(option: Option): string {
+    if (!this.showFeedback) return ''; // Feedback disabled
+  
+    // Show 'close' for incorrect options with feedback
+    if (option.feedback === 'x') {
+      return 'close';
+    }
+  
+    // Show 'check' for correct options
+    return option.correct ? 'check' : '';
   }
+  
   
   
   /* getOptionIcon(option: Option): string {
@@ -910,10 +922,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   /* shouldShowIcon(option: Option): boolean {
     return this.showFeedback && this.isIconVisible(option);
   } */
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     // Icons are visible if feedback is enabled and the option is marked
     return this.showFeedback && (option.showIcon || option.feedback === 'x');
+  } */
+  shouldShowIcon(option: Option): boolean {
+    return this.showFeedback && option.showIcon;
   }
+  
 
   // Determines if feedback should be shown for the option
   shouldShowFeedback(index: number): boolean {
