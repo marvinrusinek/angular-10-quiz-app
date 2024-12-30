@@ -2066,7 +2066,7 @@ export class QuizQuestionComponent
       }
 
       // Handle feedback and disable incorrect options for all question types
-      this.papplyOptionFeedback(option);
+      this.applyOptionFeedback(option);
 
       // Update option highlight states and UI
       this.updateOptionHighlightState();
