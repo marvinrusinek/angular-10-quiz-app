@@ -2174,9 +2174,9 @@ export class QuizQuestionComponent
     }
   }
 
-  private updateOptionHighlightState(): void {
+  private async updateOptionHighlightState(): Promise<void> {
     const allCorrectSelected =
-      this.selectedOptionService.areAllCorrectAnswersSelected(
+      await this.selectedOptionService.areAllCorrectAnswersSelected(
         this.currentQuestion.options,
         this.currentQuestionIndex
       );
@@ -2271,31 +2271,30 @@ export class QuizQuestionComponent
   }
 
   // Handles logic for when the timer should stop.
-  private stopTimerIfApplicable(
+  private async stopTimerIfApplicable(
     isMultipleAnswer: boolean,
     option: SelectedOption
-  ): void {
+  ): Promise<void> {
     let stopTimer = false;
-
+  
     try {
       if (isMultipleAnswer) {
-        const allCorrectSelected =
-          this.selectedOptionService.areAllCorrectAnswersSelected(
-            this.currentQuestion.options,
-            this.currentQuestionIndex
-          );
+        const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(
+          this.currentQuestion.options,
+          this.currentQuestionIndex
+        );
         stopTimer = allCorrectSelected;
       } else {
         stopTimer = option.correct;
       }
-
+  
       if (stopTimer) {
         this.timerService.stopTimer();
       }
     } catch (error) {
       console.error('Error in timer logic:', error);
     }
-  }
+  }  
 
   // Updates the display to explanation mode.
   private updateDisplayStateToExplanation(): void {
