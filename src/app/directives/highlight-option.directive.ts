@@ -44,7 +44,7 @@ export class HighlightOptionDirective implements OnChanges {
       isAnswered: this.isAnswered,
       showFeedback: this.showFeedback
     });
-
+  
     if (
       changes.option ||
       changes.showFeedback ||
@@ -53,19 +53,24 @@ export class HighlightOptionDirective implements OnChanges {
     ) {
       this.quizService.currentOptions.subscribe((currentOptions) => {
         if (Array.isArray(currentOptions)) {
-          this.areAllCorrectAnswersSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
-            currentOptions,
-            this.quizService.currentQuestionIndex
-          );
-    
-          console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', this.areAllCorrectAnswersSelected);
+          this.selectedOptionService
+            .areAllCorrectAnswersSelected(currentOptions, this.quizService.currentQuestionIndex)
+            .then((result) => {
+              this.areAllCorrectAnswersSelected = result;
+  
+              console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', this.areAllCorrectAnswersSelected);
+            })
+            .catch((error) => {
+              console.error('Error while checking correct answers:', error);
+            });
         }
       });
+  
       this.updateHighlight();
     } else {
       console.log('No relevant changes detected, skipping highlight update');
     }
-  }
+  }  
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
