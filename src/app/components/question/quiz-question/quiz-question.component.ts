@@ -1796,36 +1796,43 @@ export class QuizQuestionComponent
 
   private applyOptionFeedback(option: Option): void {
     this.showFeedback = true; // Enable feedback display
-
+  
     if (option.correct) {
       console.log('Correct option selected:', option);
   
       // Update all options
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
-        ...opt,
-        active: opt.correct, // Only correct options remain active
-        feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
-        showIcon: true, // Ensure icons are displayed for all options
-      }));
+      this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+        const updatedOption = {
+          ...opt,
+          active: opt.correct, // Deactivate incorrect options
+          feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options
+          showIcon: true, // Ensure icons are displayed for all options
+        };
   
-      console.log('Updated optionsToDisplay:', this.optionsToDisplay);
+        console.log('Updated option:', updatedOption);
+        return updatedOption;
+      });
   
-      // Trigger UI update
-      this.cdRef.detectChanges();
+      console.log('Options after correct selection:', this.optionsToDisplay);
     } else {
       console.log('Incorrect option selected:', option);
   
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) =>
-        opt === option
+      // Optional: Update only the selected incorrect option
+      this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+        const updatedOption = opt === option
           ? { ...opt, feedback: 'x', showIcon: true }
-          : opt
-      );
+          : opt;
   
-      // Trigger UI update
-      this.cdRef.detectChanges();
+        console.log('Updated option:', updatedOption);
+        return updatedOption;
+      });
     }
-  }
   
+    // Trigger UI update
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+    }, 0);
+  }
 
   private async updateOptionHighlightState(): Promise<void> {
     const allCorrectSelected =
