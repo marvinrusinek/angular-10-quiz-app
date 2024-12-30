@@ -11,7 +11,11 @@
     <!-- Options content -->
     <div *ngIf="shouldDisplayOptions" class="options-container">
       <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
-        <app-shared-option [optionBinding]="optionBinding"></app-shared-option>
+        <app-shared-option
+          [option]="option"
+          [showFeedback]="showFeedback"
+          (optionSelected)="onOptionClicked($event)"
+        ></app-shared-option>
       </div>
     </div>
   </form>
