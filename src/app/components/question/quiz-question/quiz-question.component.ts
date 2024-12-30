@@ -2118,7 +2118,7 @@ export class QuizQuestionComponent
     this.showFeedback = true; // Enable feedback display
 
     const allCorrectSelected =
-      this.selectedOptionService.areAllCorrectAnswersSelected(
+      await this.selectedOptionService.areAllCorrectAnswersSelected(
         this.currentQuestion.options,
         this.currentQuestionIndex
       );
