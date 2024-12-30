@@ -2225,6 +2225,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Assign optionIds
         this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
         this.optionsToDisplay = this.currentQuestion.options;
+        
+        await this.ensureOptionsLoaded();
   
         // Check for missing optionIds
         const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);

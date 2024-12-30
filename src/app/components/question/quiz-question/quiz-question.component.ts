@@ -2079,6 +2079,15 @@ export class QuizQuestionComponent
           JSON.stringify(this.optionsToDisplay, null, 2)
         );
         this.cdRef.detectChanges(); // Trigger UI update
+      } else {
+        console.log('Incorrect option selected:', option);
+    
+        // Optional: Handle behavior when an incorrect option is clicked
+        option.feedback = 'x';
+        option.showIcon = true;
+    
+        // Trigger UI update
+        this.cdRef.detectChanges();
       }
 
       // Update option highlight states and UI
