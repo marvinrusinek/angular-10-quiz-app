@@ -1795,10 +1795,10 @@ export class QuizQuestionComponent
   }
 
   private applyOptionFeedback(option: Option): void {
+    this.showFeedback = true; // Enable feedback display
+
     if (option.correct) {
       console.log('Correct option selected:', option);
-  
-      this.showFeedback = true; // Enable feedback display
   
       // Update all options
       this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
@@ -1815,9 +1815,11 @@ export class QuizQuestionComponent
     } else {
       console.log('Incorrect option selected:', option);
   
-      // Optional: Handle behavior when an incorrect option is clicked
-      option.feedback = 'x';
-      option.showIcon = true;
+      this.optionsToDisplay = this.optionsToDisplay.map((opt) =>
+        opt === option
+          ? { ...opt, feedback: 'x', showIcon: true }
+          : opt
+      );
   
       // Trigger UI update
       this.cdRef.detectChanges();
