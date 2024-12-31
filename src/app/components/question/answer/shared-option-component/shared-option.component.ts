@@ -269,6 +269,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.showFeedback) return ''; // Feedback disabled
     return option.feedback === 'x' ? 'close' : option.correct ? 'check' : 'close';
   }
+  
+  
   /* getOptionIcon(option: Option): string {
     if (!this.showFeedback) return ''; // Feedback disabled
   
