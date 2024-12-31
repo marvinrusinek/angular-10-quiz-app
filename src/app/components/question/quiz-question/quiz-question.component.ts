@@ -1736,63 +1736,50 @@ export class QuizQuestionComponent
 
   private async handleMultipleAnswerTimerLogic(option: Option): Promise<void> {
     this.showFeedback = true; // Enable feedback display
-
-    const allCorrectSelected =
-      await this.selectedOptionService.areAllCorrectAnswersSelected(
-        this.currentQuestion.options,
-        this.currentQuestionIndex
-      );
-
-    console.log(
-      '[handleMultipleAnswerTimerLogic] Debugging timer stop condition:',
-      {
-        allCorrectSelected,
-        stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
-      }
+  
+    const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(
+      this.currentQuestion.options,
+      this.currentQuestionIndex
     );
-
-    // Deactivate incorrect options if a correct one is selected
-    if (option.correct) {
-      this.showFeedback = true; // Enable feedback display
-
-      // Update state for all options
-      this.optionsToDisplay = this.quizService
-        .assignOptionActiveStates(this.optionsToDisplay, true)
-        .map(opt => ({
+  
+    console.log('[handleMultipleAnswerTimerLogic] Debugging timer stop condition:', {
+      allCorrectSelected,
+      stopTimerEmitted: this.selectedOptionService.stopTimerEmitted,
+    });
+  
+    // Handle feedback and state updates for correct and incorrect options
+    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+      if (option.correct) {
+        return {
           ...opt,
-          feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, no feedback for correct
+          feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
           showIcon: true, // Ensure icons are displayed for all options
-          active: opt.correct // Disable incorrect options
-      }));
-
-      console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-    } else {
-      console.log('Incorrect option selected:', option);
-
-      // Handle incorrect option feedback explicitly
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-        ...opt,
-        feedback: opt === option ? 'x' : opt.feedback, // Add 'x' only for the selected incorrect option
-        showIcon: true // Ensure icons are displayed for all options
-      }));
-
-      console.log('Updated optionsToDisplay after incorrect selection:', JSON.stringify(this.optionsToDisplay, null, 2));
-    }
-
+          active: opt.correct, // Disable incorrect options
+        };
+      } else if (opt === option) {
+        return {
+          ...opt,
+          feedback: 'x', // Add 'x' only for the selected incorrect option
+          showIcon: true, // Ensure icon is displayed for the selected incorrect option
+        };
+      }
+      return opt;
+    });
+  
+    console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
     // Trigger UI update
     this.cdRef.detectChanges();
-
+  
     // Stop the timer if all correct options are selected
     if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-      console.log(
-        '✅ Stopping timer: All correct answers selected for multiple-answer question.'
-      );
+      console.log('✅ Stopping timer: All correct answers selected for multiple-answer question.');
       this.timerService.stopTimer();
       this.selectedOptionService.stopTimerEmitted = true;
     } else {
       console.log('❌ Timer not stopped: Conditions not met.');
     }
-  }
+  }  
 
   private applyOptionFeedback(option: Option): void {
     this.showFeedback = true; // Enable feedback display
