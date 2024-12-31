@@ -1530,7 +1530,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private initializeAndPrepareQuestion(
+  /* private initializeAndPrepareQuestion(
     questionData: CombinedQuestionDataType,
     quizId: string
   ): void {
@@ -1599,7 +1599,97 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       console.log('Correct Answer Options:', correctAnswerOptions);
     });
-  }
+  } */
+  private initializeAndPrepareQuestion(
+    questionData: CombinedQuestionDataType,
+    quizId: string
+  ): void {
+    if (!quizId) {
+      console.error('Quiz ID is not provided or is empty');
+      return;
+    }
+  
+    const data = {
+      ...questionData,
+      currentOptions: questionData.currentOptions || [],
+    };
+    this.data = data;
+  
+    // Set Quiz ID
+    this.quizService.setQuizId(quizId);
+  
+    // Fetch and set quiz questions
+    this.quizService
+      .fetchQuizQuestions(quizId)
+      .then((questions) => {
+        this.quizService.setQuestionData(questions);
+      })
+      .catch((error) => {
+        console.error('Error fetching questions:', error);
+      });
+  
+    // Log received questionData
+    console.log('Initializing question with data:', this.data);
+  
+    // Ensure options are set in quizStateService
+    const options = this.data.currentOptions || [];
+    console.log('Extracted options:', options);
+  
+    this.quizStateService.setCurrentOptions(options);
+  
+    // Subscribe to current options
+    this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
+      if (!options || options.length === 0) {
+        console.error('No options received. Ensure data flow is correct.');
+        return;
+      }
+  
+      console.log('Received options from currentOptions$:', options);
+  
+      // Create currentQuestion object
+      const currentQuestion: QuizQuestion = {
+        questionText: this.data.questionText,
+        options: options.map((option) => ({
+          ...option,
+          correct: option.correct ?? false, // Default to false if `correct` is undefined
+        })),
+        explanation: this.explanationTextService.formattedExplanationSubject.getValue(),
+        type: this.quizDataService.questionType as QuestionType,
+      };
+      this.question = currentQuestion;
+  
+      // Filter correct answers
+      const correctAnswerOptions = currentQuestion.options.filter(
+        (option: Option) => option.correct
+      );
+  
+      if (correctAnswerOptions.length === 0) {
+        console.error(
+          `No correct options found for question: "${currentQuestion.questionText}". Options:`,
+          currentQuestion.options
+        );
+        return; // Exit early to avoid setting invalid correct answers
+      }
+  
+      // Set correct answers if valid options are found
+      this.quizService
+        .setCorrectAnswers(currentQuestion, correctAnswerOptions)
+        .subscribe({
+          next: () => {
+            this.prepareFeedback();
+          },
+          error: (err) => {
+            console.error('Error setting correct answers:', err);
+          },
+        });
+  
+      // Mark correct answers as loaded
+      this.quizService.setCorrectAnswersLoaded(true);
+      this.quizService.correctAnswersLoadedSubject.next(true);
+  
+      console.log('Correct Answer Options:', correctAnswerOptions);
+    });
+  }  
 
   private prepareFeedback(): void {
     this.showFeedback = true;
