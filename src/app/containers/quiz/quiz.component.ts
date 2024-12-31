@@ -1631,12 +1631,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Log received questionData
     console.log('Initializing question with data:', this.data);
   
-    // Ensure options are set in quizStateService
-    /* const options = this.data.currentOptions || [];
-    console.log('Extracted options:', options);
-  
-    this.quizService.setCurrentOptions(options); */
-  
     // Subscribe to current options
     this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
       if (!options || options.length === 0) {
