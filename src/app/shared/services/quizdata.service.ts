@@ -134,11 +134,12 @@ export class QuizDataService implements OnDestroy {
         if (!quiz.questions) {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
-        return quiz.questions.map((question) => ({
+        return quiz.questions.map((question, index) => ({
           ...question,
-          options: question.options.map((option) => ({
+          options: question.options.map((option, optIndex) => ({
             ...option,
-            correct: option.correct ?? false // Ensure `correct` is explicitly set
+            optionId: optIndex, // Ensure optionId is set
+            correct: option.correct ?? false, // Default correct to false if undefined
           })),
         }));
       }),
