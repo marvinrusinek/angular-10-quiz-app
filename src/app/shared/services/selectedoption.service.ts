@@ -429,41 +429,50 @@ export class SelectedOptionService {
   }
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    // Validate inputs
-    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.info('[updateAnsweredState] No options provided. Attempting fallback.');
+    try {
+      // Validate inputs
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.info('[updateAnsweredState] No options provided. Attempting fallback.');
   
-      if (questionIndex < 0) {
-        questionIndex = this.getFallbackQuestionIndex();
         if (questionIndex < 0) {
-          console.error('Invalid fallback question index:', questionIndex);
-          return;
+          questionIndex = this.getFallbackQuestionIndex();
+          if (questionIndex < 0) {
+            console.error('[updateAnsweredState] Invalid fallback question index:', questionIndex);
+            return;
+          }
+        }
+  
+        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+          console.warn('[updateAnsweredState] No options in selectedOptionsMap. Using default options.');
+          questionOptions = this.getDefaultOptions();
         }
       }
   
-      questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+      // Final validation of options
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        // Generate default options
-        questionOptions = this.getDefaultOptions();
+        console.error('[updateAnsweredState] Unable to proceed. No valid options available.');
+        return;
       }
-    }
   
-    // Final validation
-    if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-      console.error('Unable to proceed. No valid options available.');
-      return;
-    }
+      // Determine answered state
+      const isAnswered = questionOptions.some((option) => option.selected);
+      this.isAnsweredSubject.next(isAnswered);
   
-    // Determine answered state
-    const isAnswered = questionOptions.some(option => option.selected);
-    this.isAnsweredSubject.next(isAnswered);
-  
-    // Check if all correct answers are selected
-    const allCorrectAnswersSelected = this.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-    if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-      console.log('Stopping timer as all correct answers are selected.');
-      this.stopTimer$.next();
-      this.stopTimerEmitted = true;
+      // Validate if all correct answers are selected
+      this.areAllCorrectAnswersSelected(questionOptions, questionIndex)
+        .then((allCorrectAnswersSelected) => {
+          if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+            console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
+            this.stopTimer$.next();
+            this.stopTimerEmitted = true;
+          }
+        })
+        .catch((error) => {
+          console.error('[updateAnsweredState] Error checking correct answers:', error);
+        });
+    } catch (error) {
+      console.error('[updateAnsweredState] Unhandled error:', error);
     }
   }
 
