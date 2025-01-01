@@ -1629,80 +1629,70 @@ export class QuizQuestionComponent
       if (!this.currentQuestion) {
         await this.loadCurrentQuestion();
       }
-
+  
       // Validate the event and option
       if (!event.option || !this.validateOption(event)) {
         console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
         return;
       }
-
+  
       const option = event.option;
-
+  
       // Validate optionId
       if (option.optionId == null) {
         console.error('❌ [onOptionClicked] optionId is undefined:', option);
         return;
       }
-
+  
       // Prevent processing for disabled options
       if (!option.active) {
         console.warn('Disabled option clicked:', option);
         return; // Prevent further processing
       }
-
+  
       // Track selected option
       this.selectedOptionService.addSelectedOptionIndex(
         this.currentQuestionIndex,
         option.optionId
       );
-
+  
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(
           this.currentQuestion
         )
       );
-
-      // Handle option selection
-      await this.updateOptionSelection(event, option);
-
-      // Handle timer logic for multiple-answer questions
+  
+      // Prevent further input for single-answer questions
+      if (this.handleSingleAnswerLock(isMultipleAnswer)) {
+        console.warn('Input locked for single-answer question.');
+        return;
+      }
+  
+      // Apply feedback and handle option logic
+      this.applyOptionFeedback(option);
+  
+      // Handle multiple-answer-specific logic
       if (isMultipleAnswer) {
         await this.handleMultipleAnswerTimerLogic(option);
       }
-
-      if (option.correct) {
-        console.log('Correct option selected. Disabling incorrect options...');
-        this.disableIncorrectOptions();
-      } else {
-        console.log('Incorrect option selected:', option);
-    
-        // Handle feedback for incorrect selection
-        option.feedback = 'x';
-        option.showIcon = true;
-        this.cdRef.detectChanges(); // Update UI
-      }
-
-      // Handle feedback and disable incorrect options for all question types
-      this.applyOptionFeedback(option);
-
-      // Update option highlight states and UI
+  
+      // Update UI states and flags
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
       this.selectedOptionService.isAnsweredSubject.next(true);
-
-      // Ensure rendering flags are updated asynchronously
+  
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
       });
-
-      // Handle any additional processing (if required)
+  
+      // Handle additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
-  }
+  }  
 
   // ====================== Helper Functions ======================
 
