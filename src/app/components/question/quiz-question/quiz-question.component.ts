@@ -1698,6 +1698,18 @@ export class QuizQuestionComponent
         await this.handleMultipleAnswerTimerLogic(option);
       }
 
+      if (option.correct) {
+        console.log('Correct option selected. Disabling incorrect options...');
+        this.disableIncorrectOptions();
+      } else {
+        console.log('Incorrect option selected:', option);
+    
+        // Handle feedback for incorrect selection
+        option.feedback = 'x';
+        option.showIcon = true;
+        this.cdRef.detectChanges(); // Update UI
+      }
+
       // Handle feedback and disable incorrect options for all question types
       this.applyOptionFeedback(option);
 
@@ -1799,9 +1811,6 @@ export class QuizQuestionComponent
       }));
   
       console.log('Updated optionsToDisplay:', this.optionsToDisplay);
-  
-      // Trigger UI update
-      this.cdRef.detectChanges();
     } else {
       console.log('Incorrect option selected:', option);
   
@@ -1810,10 +1819,9 @@ export class QuizQuestionComponent
           ? { ...opt, feedback: 'x', showIcon: true }
           : opt
       );
-  
-      // Trigger UI update
-      this.cdRef.detectChanges();
     }
+    // Trigger UI update
+    this.cdRef.detectChanges();
   }
   
 
