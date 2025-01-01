@@ -798,6 +798,7 @@ export class QuizService implements OnDestroy {
           for (const [qIndex, question] of quiz.questions.entries()) {
             for (const [oIndex, option] of question.options.entries()) {
               option.optionId = oIndex;
+              option.correct = option.correct ?? false; // Ensure `correct` is explicitly set
             }
           }
 
