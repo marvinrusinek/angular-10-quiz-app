@@ -134,7 +134,13 @@ export class QuizDataService implements OnDestroy {
         if (!quiz.questions) {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
-        return quiz.questions.map(question => ({ ...question }));
+        return quiz.questions.map((question) => ({
+          ...question,
+          options: question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false, // Ensure `correct` is explicitly set
+          })),
+        }));
       }),
       catchError(error => {
         console.error('Error fetching questions for quiz:', error);
