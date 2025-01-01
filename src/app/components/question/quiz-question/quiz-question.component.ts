@@ -1873,6 +1873,26 @@ export class QuizQuestionComponent
     }
   }
 
+  private disableIncorrectOptions(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('No options available to disable.');
+      return;
+    }
+  
+    // Update all options to disable incorrect ones
+    this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+      ...option,
+      active: option.correct, // Only correct options remain active
+      feedback: option.correct ? undefined : 'x', // Set 'x' for incorrect options
+      showIcon: true, // Ensure icons are displayed
+    }));
+  
+    console.log('Updated options after disabling incorrect ones:', this.optionsToDisplay);
+  
+    // Trigger UI update
+    this.cdRef.detectChanges();
+  }  
+
   // Handles single-answer lock logic. Returns true if we should return early.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
     // Lock input for single-answer questions
