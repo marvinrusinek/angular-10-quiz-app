@@ -1750,6 +1750,7 @@ export class QuizQuestionComponent
     // Handle feedback and state updates for correct and incorrect options
     this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
       if (option.correct) {
+        this.disableIncorrectOptions();
         return {
           ...opt,
           feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
@@ -1786,6 +1787,8 @@ export class QuizQuestionComponent
 
     if (option.correct) {
       console.log('Correct option selected:', option);
+
+      this.disableIncorrectOptions();
   
       // Update all options
       this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
