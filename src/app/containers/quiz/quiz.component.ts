@@ -2038,7 +2038,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     combinedQuestionObservable
       .pipe(
-        filter((question): question is QuizQuestion => question !== null) // Type guard to filter non-null values
+        filter((question): question is QuizQuestion => question !== null),
+        map((question) => ({
+          ...question,
+          options: question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false,
+          })),
+        }))
       )
       .subscribe({
         next: (question: QuizQuestion) => this.handleNewQuestion(question),
@@ -2047,7 +2054,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.resetCurrentQuestionState();
         },
       });
-  }
+  }  
   
   private async handleNewQuestion(question: QuizQuestion): Promise<void> {
     try {
