@@ -1802,7 +1802,7 @@ export class QuizQuestionComponent
 
       this.disableIncorrectOptions();
   
-      // Update all options
+      // Update all options to disable incorrect ones and ensure correct icons
       this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
         ...opt,
         active: opt.correct, // Only correct options remain active
@@ -1813,7 +1813,8 @@ export class QuizQuestionComponent
       console.log('Updated optionsToDisplay:', this.optionsToDisplay);
     } else {
       console.log('Incorrect option selected:', option);
-  
+
+      // Update the specific incorrect option
       this.optionsToDisplay = this.optionsToDisplay.map((opt) =>
         opt === option
           ? { ...opt, feedback: 'x', showIcon: true }
