@@ -1928,6 +1928,14 @@ export class QuizQuestionComponent
   
     try {
       if (isMultipleAnswer) {
+        // Ensure options and question index are valid
+        if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+          console.warn(
+            '[stopTimerIfApplicable] Invalid question or options for multiple-answer question.'
+          );
+          return;
+        }
+  
         const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(
           this.currentQuestion.options,
           this.currentQuestionIndex
@@ -1938,12 +1946,15 @@ export class QuizQuestionComponent
       }
   
       if (stopTimer) {
+        console.log('[stopTimerIfApplicable] Stopping timer: Condition met.');
         this.timerService.stopTimer();
+      } else {
+        console.log('[stopTimerIfApplicable] Timer not stopped: Condition not met.');
       }
     } catch (error) {
-      console.error('Error in timer logic:', error);
+      console.error('[stopTimerIfApplicable] Error in timer logic:', error);
     }
-  }  
+  }
 
   // Updates the display to explanation mode.
   private updateDisplayStateToExplanation(): void {
