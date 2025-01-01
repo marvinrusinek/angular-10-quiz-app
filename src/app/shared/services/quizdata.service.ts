@@ -139,7 +139,7 @@ export class QuizDataService implements OnDestroy {
           options: question.options.map((option, optIndex) => ({
             ...option,
             optionId: optIndex, // Ensure optionId is set
-            correct: option.correct ?? false, // Default correct to false if undefined
+            correct: option.correct ?? false // Default correct to false if undefined
           })),
         }));
       }),
