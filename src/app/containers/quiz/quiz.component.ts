@@ -1871,10 +1871,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ) => ({
       questionText: question?.questionText ?? null,
       correctAnswersText: null,
-      options: options?.map(option => ({
-        ...option,
-        correct: option.correct ?? false, // Ensure `correct` property is set
-      })) ?? [] // Fallback to an empty array if options are null or undefined
+      options: Array.isArray(options) // Ensure options is an array before mapping
+        ? options.map(option => ({
+            ...option,
+            correct: option.correct ?? false, // Ensure `correct` property is set
+          }))
+        : [], // Fallback to an empty array if options is null or not an array
     });
   
     // Combine nextQuestion$ and nextOptions$ using combineLatest
@@ -1896,10 +1898,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return [];
           }
           // Ensure options include `correct` property
-          return value.map(option => ({
-            ...option,
-            correct: option.correct ?? false, // Default `correct` to false if undefined
-          }));
+          return Array.isArray(value) // Ensure value is an array before mapping
+            ? value.map(option => ({
+                ...option,
+                correct: option.correct ?? false, // Default `correct` to false if undefined
+              }))
+            : []; // Fallback to an empty array if value is not an array
         }),
         distinctUntilChanged()
       )
@@ -1926,10 +1930,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   return [];
                 }
                 // Ensure options include `correct` property
-                return value.map(option => ({
-                  ...option,
-                  correct: option.correct ?? false, // Default `correct` to false if undefined
-                }));
+                return Array.isArray(value) // Ensure value is an array before mapping
+                  ? value.map(option => ({
+                      ...option,
+                      correct: option.correct ?? false, // Default `correct` to false if undefined
+                    }))
+                  : []; // Fallback to an empty array if value is not an array
               }),
               distinctUntilChanged()
             )
