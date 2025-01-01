@@ -552,20 +552,24 @@ export class SelectedOptionService {
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
     return new Promise((resolve) => {
-      console.log('[areAllCorrectAnswersSelected] Received questionOptions:', questionOptions);
-  
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
         resolve(false);
         return;
       }
   
-      // Filter only options with correct: true
-      const correctOptionIds = questionOptions.filter(o => o.correct === true).map(o => o.optionId);
+      // Ensure all options have a valid `correct` property
+      const validOptions = questionOptions.map(option => ({
+        ...option,
+        correct: option.correct ?? false, // Default `correct` to false
+      }));
+  
+      // Filter correct options
+      const correctOptionIds = validOptions.filter(o => o.correct).map(o => o.optionId);
   
       if (correctOptionIds.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
-        console.log('Options available:', questionOptions); // Add extra debugging for options
+        console.debug('Validated Options:', validOptions); // Debug valid options
         resolve(false); // No correct options means no way to validate
         return;
       }
