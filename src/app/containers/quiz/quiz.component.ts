@@ -2390,31 +2390,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(callback: (result: boolean) => void = () => {}): void {
+    // Ensure options are available
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('Options not available when checking for answer state');
-      callback(false); // Invoke callback with false if no options are loaded
+      console.warn('[checkIfAnswered] Options not available when checking for answer state.');
+      callback(false); // Return false if no options are loaded
       return;
     }
   
-    // Check for undefined optionIds
-    const undefinedOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
+    // Validate option structure and log undefined optionIds
+    const undefinedOptionIds = this.optionsToDisplay.filter((o) => o.optionId === undefined);
     if (undefinedOptionIds.length > 0) {
-      console.error('Options with undefined optionId found:', undefinedOptionIds);
+      console.error('[checkIfAnswered] Options with undefined optionId found:', undefinedOptionIds);
     }
   
-    // Check if any option is selected OR all correct answers are selected
+    // Check if at least one option is selected
     const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
   
+    // Validate that all correct options are selected
     this.selectedOptionService
       .areAllCorrectAnswersSelected(this.optionsToDisplay, this.currentQuestionIndex)
       .then((areAllCorrectSelected) => {
+        // Log the validation result
+        console.log('[checkIfAnswered] Validation Result:', {
+          isAnyOptionSelected,
+          areAllCorrectSelected,
+        });
+  
+        // Invoke the callback with the combined result
         callback(isAnyOptionSelected || areAllCorrectSelected);
       })
       .catch((error) => {
-        console.error('Error checking if all correct answers are selected:', error);
-        callback(false); // Handle error case
+        console.error('[checkIfAnswered] Error checking if all correct answers are selected:', error);
+  
+        // Return false in case of an error
+        callback(false);
       });
-  }
+  }  
 
   private handleTimer(hasAnswered: boolean): void {
     // Stop the timer if the question is already answered
