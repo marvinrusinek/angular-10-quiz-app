@@ -42,7 +42,7 @@ export class HighlightOptionDirective implements OnChanges {
     console.log('Current inputs:', {
       optionBinding: this.optionBinding,
       isAnswered: this.isAnswered,
-      showFeedback: this.showFeedback
+      showFeedback: this.showFeedback,
     });
   
     if (
@@ -51,21 +51,45 @@ export class HighlightOptionDirective implements OnChanges {
       changes.isSelected ||
       changes.appHighlightReset
     ) {
+      // Check if currentOptions is properly initialized
       this.quizService.currentOptions.subscribe((currentOptions) => {
-        if (Array.isArray(currentOptions)) {
-          this.selectedOptionService
-            .areAllCorrectAnswersSelected(currentOptions, this.quizService.currentQuestionIndex)
-            .then((result) => {
-              this.areAllCorrectAnswersSelected = result;
-  
-              console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', this.areAllCorrectAnswersSelected);
-            })
-            .catch((error) => {
-              console.error('Error while checking correct answers:', error);
-            });
+        if (!Array.isArray(currentOptions) || currentOptions.length === 0) {
+          console.warn(
+            '[HighlightOptionDirective] Invalid or empty currentOptions:',
+            currentOptions
+          );
+          return;
         }
+  
+        // Ensure valid currentQuestionIndex
+        if (this.quizService.currentQuestionIndex === undefined || this.quizService.currentQuestionIndex < 0) {
+          console.error(
+            '[HighlightOptionDirective] Invalid currentQuestionIndex:',
+            this.quizService.currentQuestionIndex
+          );
+          return;
+        }
+  
+        // Call areAllCorrectAnswersSelected
+        this.selectedOptionService
+          .areAllCorrectAnswersSelected(
+            currentOptions,
+            this.quizService.currentQuestionIndex
+          )
+          .then((result) => {
+            this.areAllCorrectAnswersSelected = result;
+  
+            console.log(
+              '[HighlightOptionDirective] areAllCorrectAnswersSelected:',
+              this.areAllCorrectAnswersSelected
+            );
+          })
+          .catch((error) => {
+            console.error('Error while checking correct answers:', error);
+          });
       });
   
+      // Update the highlight
       this.updateHighlight();
     } else {
       console.log('No relevant changes detected, skipping highlight update');
