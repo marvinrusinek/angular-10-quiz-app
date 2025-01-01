@@ -1789,25 +1789,37 @@ export class QuizQuestionComponent
     // Trigger UI update
     this.cdRef.detectChanges();
   }
-  
 
   private async updateOptionHighlightState(): Promise<void> {
-    const allCorrectSelected =
-      await this.selectedOptionService.areAllCorrectAnswersSelected(
+    try {
+      // Ensure currentQuestion and options are valid
+      if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+        console.warn('[updateOptionHighlightState] No valid question or options available.');
+        return;
+      }
+  
+      // Check if all correct answers are selected
+      const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(
         this.currentQuestion.options,
         this.currentQuestionIndex
       );
-
-    // Update the highlight state for incorrect options
-    for (const opt of this.currentQuestion.options) {
-      opt.highlight = !opt.correct && allCorrectSelected;
+  
+      // Update the highlight state for incorrect options
+      for (const opt of this.currentQuestion.options) {
+        opt.highlight = !opt.correct && allCorrectSelected;
+      }
+  
+      console.log(
+        '[QuizQuestionComponent] Updated highlight state for all options:',
+        this.currentQuestion.options
+      );
+  
+      // Trigger UI update if necessary
+      this.cdRef.detectChanges();
+    } catch (error) {
+      console.error('[updateOptionHighlightState] Error:', error);
     }
-
-    console.log(
-      '[QuizQuestionComponent] Updated highlight state for all options:',
-      this.currentQuestion.options
-    );
-  }
+  }  
 
   private deactivateIncorrectOptions(allCorrectSelected: boolean): void {
     if (!allCorrectSelected) {
