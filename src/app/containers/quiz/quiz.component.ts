@@ -1847,16 +1847,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  createQuestionData(): void {
+  createQuestionData(): void { 
     const createQuestionData = (
       question: QuizQuestion | null,
       options: Option[] | null
     ) => ({
       questionText: question?.questionText ?? null,
       correctAnswersText: null,
-      options: options ?? [] // Fallback to an empty array if options are null or undefined
+      options: options?.map(option => ({
+        ...option,
+        correct: option.correct ?? false, // Ensure `correct` property is set
+      })) ?? [] // Fallback to an empty array if options are null or undefined
     });
-
+  
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$.pipe(
@@ -1875,7 +1878,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('nextOptions$ emitted undefined, defaulting to empty array');
             return [];
           }
-          return value;
+          // Ensure options include `correct` property
+          return value.map(option => ({
+            ...option,
+            correct: option.correct ?? false, // Default `correct` to false if undefined
+          }));
         }),
         distinctUntilChanged()
       )
@@ -1901,7 +1908,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   console.warn('previousOptions$ emitted undefined, defaulting to empty array');
                   return [];
                 }
-                return value;
+                // Ensure options include `correct` property
+                return value.map(option => ({
+                  ...option,
+                  correct: option.correct ?? false, // Default `correct` to false if undefined
+                }));
               }),
               distinctUntilChanged()
             )
@@ -1917,7 +1928,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return of(createQuestionData(null, [])); // Fallback if an error occurs
       })
     );
-  }
+  }  
 
   private async getQuestion(): Promise<void | null> {
     try {
