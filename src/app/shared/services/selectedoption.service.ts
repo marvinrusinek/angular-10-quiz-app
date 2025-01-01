@@ -559,9 +559,10 @@ export class SelectedOptionService {
       }
   
       // Ensure all options have a valid `correct` property
-      const validOptions = questionOptions.map(option => ({
+      const validOptions = questionOptions.map((option, index) => ({
         ...option,
         correct: option.correct ?? false, // Default `correct` to false
+        optionId: option.optionId ?? index, // Ensure `optionId` is set
       }));
   
       // Filter correct options
