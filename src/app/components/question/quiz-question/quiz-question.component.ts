@@ -3058,7 +3058,7 @@ export class QuizQuestionComponent
 
       // Check if all correct answers are selected
       const allCorrectSelected =
-        this.selectedOptionService.areAllCorrectAnswersSelected(
+        await this.selectedOptionService.areAllCorrectAnswersSelected(
           currentQuestion.options,
           this.currentQuestionIndex
         );
