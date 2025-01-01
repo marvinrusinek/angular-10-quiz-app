@@ -562,7 +562,7 @@ export class SelectedOptionService {
       const validOptions = questionOptions.map((option, index) => ({
         ...option,
         correct: option.correct ?? false, // Default `correct` to false
-        optionId: option.optionId ?? index, // Ensure `optionId` is set
+        optionId: option.optionId ?? index // Ensure `optionId` is set
       }));
   
       // Filter correct options
