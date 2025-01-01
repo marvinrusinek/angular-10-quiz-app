@@ -552,6 +552,8 @@ export class SelectedOptionService {
   } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
     return new Promise((resolve) => {
+      console.log('[areAllCorrectAnswersSelected] Received questionOptions:', questionOptions);
+  
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
         resolve(false);
@@ -563,6 +565,7 @@ export class SelectedOptionService {
   
       if (correctOptionIds.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
+        console.log('Options available:', questionOptions); // Add extra debugging for options
         resolve(false); // No correct options means no way to validate
         return;
       }
@@ -584,7 +587,7 @@ export class SelectedOptionService {
   
       resolve(allCorrectSelected);
     });
-  }
+  }  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
