@@ -3046,49 +3046,70 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log('[Navigating to Question] Index:', questionIndex);
     this.currentQuestionIndex = questionIndex;
-    
+
+    try {
+      // Resolve the observable using firstValueFrom
+      const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+
+      if (question) {
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options.map((option) => ({
+          ...option,
+          correct: option.correct ?? false, // Ensure 'correct' is explicitly set
+        }));
+        console.log('Updated optionsToDisplay:', this.optionsToDisplay);
+      } else {
+        console.error('Question not found for index:', questionIndex);
+        return;
+      }
+    } catch (error) {
+      console.error(`[navigateToQuestion] Error fetching question for index ${questionIndex}:`, error);
+      return;
+    }
+
     if (this.isLoading || this.debounceNavigation) {
       console.warn('[navigateToQuestion] Navigation is already in progress or debounced.');
       return;
     }
-  
+
     // Debounce navigation to prevent rapid consecutive calls
     this.debounceNavigation = true;
     const debounceTimeout = 300;
     setTimeout(() => (this.debounceNavigation = false), debounceTimeout);
-  
+
     console.log('Preparing to reset and start timer for question:', questionIndex || this.currentQuestionIndex);
-  
+
     // Abort any ongoing navigation operations
     if (this.navigationAbortController) {
       this.navigationAbortController.abort();
     }
     this.navigationAbortController = new AbortController();
     const { signal } = this.navigationAbortController;
-  
+
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`[navigateToQuestion] Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
       return;
     }
-  
+
     // Construct the new URL for navigation
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
-  
+
     this.isLoading = true;
-  
-    try { 
+
+    try {
       // Navigate to the new URL
       await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
-  
+
       // Check if navigation was aborted
       if (signal.aborted) {
         console.log('[navigateToQuestion] Navigation aborted.');
         return;
       }
-  
+
       // Load the question in the quiz component
       if (this.quizQuestionComponent) {
         await this.quizQuestionComponent.loadQuestion(signal);
@@ -3105,7 +3126,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[navigateToQuestion] Navigation process completed.');
     }
   }
-  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
