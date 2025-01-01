@@ -3102,7 +3102,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = question;
         this.optionsToDisplay = question.options.map((option) => ({
           ...option,
-          correct: option.correct ?? false, // Ensure 'correct' is explicitly set
+          correct: option.correct ?? false // Ensure 'correct' is explicitly set
         }));
         console.log('Updated optionsToDisplay:', this.optionsToDisplay);
 
