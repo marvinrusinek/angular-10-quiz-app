@@ -138,7 +138,7 @@ export class QuizDataService implements OnDestroy {
           ...question,
           options: question.options.map((option) => ({
             ...option,
-            correct: option.correct ?? false, // Ensure `correct` is explicitly set
+            correct: option.correct ?? false // Ensure `correct` is explicitly set
           })),
         }));
       }),
