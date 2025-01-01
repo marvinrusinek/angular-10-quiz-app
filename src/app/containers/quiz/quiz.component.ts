@@ -1923,13 +1923,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
       const currentQuestionIndex = this.currentQuestionIndex;
-
+  
       if (!quizId || quizId.trim() === '') {
         console.error('Quiz ID is required but not provided.');
         return null;
       }
-
-      // Fetch the question and options
+  
       const result = await firstValueFrom(
         of(
           this.quizDataService.fetchQuestionAndOptionsFromAPI(
@@ -1938,20 +1937,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           )
         )
       );
-
+  
       if (!result) {
         console.error('No valid question found');
         return null;
       }
-
+  
       const [question, options] = result ?? [null, null];
-      this.handleQuestion(question);
-      this.handleOptions(options);
+      this.handleQuestion({
+        ...question,
+        options: options?.map((option) => ({
+          ...option,
+          correct: option.correct ?? false,
+        })),
+      });
     } catch (error) {
       console.error('Error fetching question and options:', error);
       return null;
     }
-  }
+  }  
 
   getOptions(index: number): Observable<Option[]> {
     return this.quizService.getCurrentOptions(index).pipe(
