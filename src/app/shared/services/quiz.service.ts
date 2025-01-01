@@ -795,21 +795,39 @@ export class QuizService implements OnDestroy {
       map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId)),
       tap((quiz) => {
         if (quiz) {
+          console.log(`[QuizService] Quiz fetched for ID ${quizId}:`, quiz);
+  
+          // Ensure each question and option has correct properties
           for (const [qIndex, question] of quiz.questions.entries()) {
+            if (!question.options || question.options.length === 0) {
+              console.warn(
+                `[QuizService] Question ${qIndex} has no options. Skipping option initialization.`
+              );
+              continue;
+            }
+  
+            console.log(`[QuizService] Initializing options for Question ${qIndex}:`, question);
+  
             for (const [oIndex, option] of question.options.entries()) {
-              option.optionId = oIndex;
-              option.correct = option.correct ?? false; // Ensure `correct` is explicitly set
+              option.optionId = oIndex; // Assign unique optionId
+              option.correct = option.correct ?? false; // Default `correct` to false if undefined
+  
+              console.log(`[QuizService] Option ${oIndex} initialized:`, option);
             }
           }
-
+  
+          // Shuffle questions and options if enabled
           if (this.checkedShuffle.value) {
-            Utils.shuffleArray(quiz.questions); // Shuffle questions
+            console.log('[QuizService] Shuffling questions and options...');
+            Utils.shuffleArray(quiz.questions);
             for (const question of quiz.questions) {
               if (question.options) {
-                Utils.shuffleArray(question.options); // Shuffle options within each question
+                Utils.shuffleArray(question.options);
               }
             }
           }
+        } else {
+          console.warn(`[QuizService] No quiz found with ID ${quizId}.`);
         }
       }),
       map((quiz) => {
@@ -818,7 +836,10 @@ export class QuizService implements OnDestroy {
         }
         return { quizId: quiz.quizId, questions: quiz.questions };
       }),
-      tap((quiz) => this.setActiveQuiz(quiz as unknown as Quiz)),
+      tap((quiz) => {
+        console.log('[QuizService] Active quiz set:', quiz);
+        this.setActiveQuiz(quiz as unknown as Quiz);
+      }),
       catchError((error) => {
         console.error('An error occurred while loading questions:', error);
         return throwError(() => new Error('Failed to load questions'));
@@ -827,7 +848,7 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
-  }
+  }  
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
