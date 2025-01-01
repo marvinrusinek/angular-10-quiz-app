@@ -1798,11 +1798,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Set initial question and options
         this.currentQuestion = questions[this.currentQuestionIndex];
-        this.options = this.currentQuestion.options;
+  
+        // Ensure options have the `correct` property explicitly set
+        this.options = this.currentQuestion.options.map(option => ({
+          ...option,
+          correct: option.correct ?? false, // Default `correct` to false if undefined
+        }));
   
         console.log('Questions loaded:', questions);
         console.log('Current question:', this.currentQuestion);
-        console.log('Options:', this.options);
+        console.log('Options with correct property:', this.options);
   
         // Fetch next question and options
         this.quizService.getNextQuestion(this.currentQuestionIndex).then((nextQuestion) => {
@@ -1817,7 +1822,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         this.quizService.getNextOptions(this.currentQuestionIndex).then((nextOptions) => {
           if (nextOptions) {
-            console.log('Next options:', nextOptions);
+            // Ensure next options have the `correct` property explicitly set
+            const updatedNextOptions = nextOptions.map(option => ({
+              ...option,
+              correct: option.correct ?? false, // Default `correct` to false if undefined
+            }));
+            console.log('Next options with correct property:', updatedNextOptions);
           } else {
             console.warn('No next options available.');
           }
@@ -1850,7 +1860,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       error: (error) => {
         console.error('Failed to load questions:', error);
         this.isQuizDataLoaded = true;
-      },
+      }
     });
   }  
 
