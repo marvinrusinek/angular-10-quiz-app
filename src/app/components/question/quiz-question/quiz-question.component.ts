@@ -1637,9 +1637,17 @@ export class QuizQuestionComponent
       }
 
       const option = event.option;
+
+      // Validate optionId
       if (option.optionId == null) {
         console.error('❌ [onOptionClicked] optionId is undefined:', option);
         return;
+      }
+
+      // Prevent processing for disabled options
+      if (!option.active) {
+        console.warn('Disabled option clicked:', option);
+        return; // Prevent further processing
       }
 
       // Track selected option
