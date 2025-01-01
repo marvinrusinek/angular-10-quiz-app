@@ -3046,6 +3046,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    this.currentQuestionIndex = questionIndex;
+    
     if (this.isLoading || this.debounceNavigation) {
       console.warn('[navigateToQuestion] Navigation is already in progress or debounced.');
       return;
