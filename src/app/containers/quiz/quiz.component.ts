@@ -3105,6 +3105,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           correct: option.correct ?? false, // Ensure 'correct' is explicitly set
         }));
         console.log('Updated optionsToDisplay:', this.optionsToDisplay);
+
+        // Check if there are any correct options
+        const hasCorrectOptions = this.optionsToDisplay.some(option => option.correct);
+        if (!hasCorrectOptions) {
+          console.warn(
+            '[navigateToQuestion] No correct options defined for question index:', questionIndex
+          );
+        }
       } else {
         console.error('Question not found for index:', questionIndex);
         return;
