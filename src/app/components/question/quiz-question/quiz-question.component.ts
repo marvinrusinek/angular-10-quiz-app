@@ -1658,6 +1658,9 @@ export class QuizQuestionComponent
           this.currentQuestion
         )
       );
+
+      // Call stopTimerIfApplicable to check whether the timer should stop
+      await this.stopTimerIfApplicable(isMultipleAnswer, option);
   
       // Prevent further input for single-answer questions
       if (this.handleSingleAnswerLock(isMultipleAnswer)) {
