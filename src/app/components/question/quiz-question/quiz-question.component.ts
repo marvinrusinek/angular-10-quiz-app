@@ -1667,6 +1667,7 @@ export class QuizQuestionComponent
   
       // Apply feedback and handle option logic
       this.applyOptionFeedback(option);
+      console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
       // Handle multiple-answer-specific logic
       if (isMultipleAnswer) {
