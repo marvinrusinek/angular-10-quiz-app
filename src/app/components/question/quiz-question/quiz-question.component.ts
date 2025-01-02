@@ -1645,7 +1645,7 @@ export class QuizQuestionComponent
       }
   
       // Prevent processing for disabled options
-      if (!option.active) return;
+      // if (!option.active) return;
   
       // Track selected option
       this.selectedOptionService.addSelectedOptionIndex(
@@ -1660,10 +1660,10 @@ export class QuizQuestionComponent
       );
   
       // Prevent further input for single-answer questions
-      if (this.handleSingleAnswerLock(isMultipleAnswer)) {
+      /* if (this.handleSingleAnswerLock(isMultipleAnswer)) {
         console.warn('Input locked for single-answer question.');
         return;
-      }
+      } */
   
       // Apply feedback and handle option logic
       this.applyOptionFeedback(option);
