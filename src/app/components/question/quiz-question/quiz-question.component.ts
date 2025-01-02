@@ -1776,7 +1776,7 @@ export class QuizQuestionComponent
           ...opt,
           active: opt.correct, // Only correct options remain active
           feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
-          showIcon: true, // Ensure icons are displayed for all options
+          showIcon: true // Ensure icons are displayed for all options
         };
         console.log(
           `[applyOptionFeedback] Updated option: ${opt.optionId}`,
@@ -1794,6 +1794,7 @@ export class QuizQuestionComponent
             ...opt,
             feedback: 'x', // Show 'x' feedback for the incorrect option
             showIcon: true, // Ensure icon is displayed for the selected incorrect option
+            active: false // Disable the selected incorrect option
           };
           console.log(
             `[applyOptionFeedback] Updated incorrect option: ${opt.optionId}`,
