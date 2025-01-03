@@ -1806,6 +1806,9 @@ export class QuizQuestionComponent
         return opt;
       });
     }
+
+    // Populate optionBindings for child components
+    this.optionBindings = [...this.optionsToDisplay];console.log('[applyOptionFeedback] Updated optionBindings:', this.optionBindings);
   
     // Log the final state of optionsToDisplay
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
