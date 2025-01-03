@@ -846,24 +846,43 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return feedbackProps;
   }  
 
-  initializeOptionBindings(): void {   
-    const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion); // This now returns correctOptions
-    
-    // Ensure correctOptions is available before generating feedback
-    if (!correctOptions || correctOptions.length === 0) {
-      console.warn('Correct options are not set. Skipping feedback generation.');
+  initializeOptionBindings(): void {
+    if (!this.currentQuestion) {
+      console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
       return;
     }
-  
+
+    console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
+
+    const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[initializeOptionBindings] No correct options defined for the current question. Skipping feedback generation.');
+      return;
+    }
+
+    console.log('[initializeOptionBindings] Correct options:', correctOptions);
+
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
+      return;
+    }
+
+    console.log('[initializeOptionBindings] Options to display:', this.optionsToDisplay);
+
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const optionBinding = this.getOptionBindings(option, idx);
-  
+
       // Generate feedback for each option using correctOptions
-      option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.....';
-  
+      option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+
+      console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
+
       return optionBinding;
     });
-  }  
+
+    console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+  }
 
   generateFeedbackForOptions(
     correctOptions: Option[],
