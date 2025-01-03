@@ -689,7 +689,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
   
   private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
-    this.config = {
+    const config = {
       ...this.feedbackConfig, // merge existing feedbackConfig properties
       selectedOption: option ?? null,
       correctMessage: option?.correct
@@ -701,7 +701,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
 
     console.log('[generateFeedbackConfig] Generated Feedback Config:', config);
-    return this.config;
+    return config;
   }
 
   private triggerChangeDetection(): void {
