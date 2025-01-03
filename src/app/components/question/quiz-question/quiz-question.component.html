@@ -17,6 +17,7 @@
           [showFeedback]="showFeedback"
           (optionSelected)="onOptionClicked($event)"
         ></app-shared-option>
+        <p>Option Debug: {{ optionBinding | json }}</p>
       </div>
     </div>
   </form>
