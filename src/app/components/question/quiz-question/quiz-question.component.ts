@@ -123,6 +123,7 @@ export class QuizQuestionComponent
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
+  optionBindings: Option[] = [];
   feedbackIcon: string;
   feedbackVisible: { [optionId: number]: boolean } = {};
   showFeedbackForOption: { [optionId: number]: boolean } = {};
