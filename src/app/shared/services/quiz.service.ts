@@ -1325,13 +1325,13 @@ export class QuizService implements OnDestroy {
 
   getCorrectOptionsForCurrentQuestion(question: QuizQuestion): Option[] {
     if (!question) {
-        console.error('No question provided to getCorrectOptionsForCurrentQuestion.');
-        return [];
+      console.error('No question provided to getCorrectOptionsForCurrentQuestion.');
+      return [];
     }
 
     if (!Array.isArray(question.options)) {
-        console.error('No options available for the provided question:', question);
-        return [];
+      console.error('No options available for the provided question:', question);
+      return [];
     }
 
     // Filter and return the correct options for the current question
