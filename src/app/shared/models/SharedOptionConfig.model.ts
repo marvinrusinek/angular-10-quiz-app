@@ -8,6 +8,7 @@ export interface SharedOptionConfig {
   currentQuestion: QuizQuestion;
   showFeedback: boolean;
   type: 'single' | 'multiple';
+  idx: number;
   shouldResetBackground: boolean;
   correctMessage: string;
   showCorrectMessage: boolean;
