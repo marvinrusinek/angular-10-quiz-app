@@ -13,6 +13,7 @@
       <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
         <app-shared-option
           [option]="option"
+          [optionBinding]="optionBinding"
           [showFeedback]="showFeedback"
           (optionSelected)="onOptionClicked($event)"
         ></app-shared-option>
