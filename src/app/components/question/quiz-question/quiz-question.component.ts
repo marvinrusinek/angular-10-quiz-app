@@ -1776,18 +1776,28 @@ export class QuizQuestionComponent
             ...opt,
             active: opt.correct, // Only correct options remain active
             feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
-            showIcon: true, // Ensure icons are displayed for all options
+            showIcon: opt.correct, // Show icon only for correct options
         }));
     } else {
         console.log('[applyOptionFeedback] Incorrect option selected:', option);
 
-        // Update all options: disable incorrect options and apply feedback
-        this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
-            ...opt,
-            active: false, // Disable all options initially
-            feedback: opt === option ? 'x' : opt.feedback, // Apply 'x' feedback only to the selected incorrect option
-            showIcon: opt === option || opt.correct, // Show icon for the selected incorrect option or correct options
-        }));
+        // Update options: disable only the selected incorrect option, keep correct options active
+        this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+            if (opt === option) {
+                return {
+                    ...opt,
+                    active: false, // Disable the selected incorrect option
+                    feedback: 'x', // Show 'x' for incorrect option
+                    showIcon: true, // Ensure icon is displayed for the selected incorrect option
+                };
+            }
+            return {
+                ...opt,
+                active: opt.correct, // Keep correct options active
+                feedback: opt.feedback, // Preserve existing feedback
+                showIcon: opt.showIcon || opt.correct, // Preserve icons for correct options
+            };
+        });
     }
 
     // Populate optionBindings for child components
