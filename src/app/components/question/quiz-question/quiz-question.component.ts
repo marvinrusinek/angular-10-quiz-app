@@ -1769,50 +1769,50 @@ export class QuizQuestionComponent
     console.log('[applyOptionFeedback] Initial optionsToDisplay:', this.optionsToDisplay);
   
     if (option.correct) {
-      console.log('[applyOptionFeedback] Correct option selected:', option);
-  
-      // Update all options: activate correct ones, deactivate incorrect ones
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
-        const updatedOption = {
-          ...opt,
-          active: opt.correct, // Only correct options remain active
-          feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
-          showIcon: true // Ensure icons are displayed for all options
-        };
-        console.log(
-          `[applyOptionFeedback] Updated option: ${opt.optionId}`,
-          updatedOption
-        );
-        return updatedOption;
-      });
+        console.log('[applyOptionFeedback] Correct option selected:', option);
+
+        // Update all options: activate correct ones, deactivate incorrect ones
+        this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+            const updatedOption = {
+                ...opt,
+                active: opt.correct, // Correct options remain active
+                feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
+                showIcon: opt.correct, // Show icon only for correct options
+            };
+            console.log(`[applyOptionFeedback] Updated correct option: ${opt.optionId}`, updatedOption);
+            return updatedOption;
+        });
     } else {
-      console.log('[applyOptionFeedback] Incorrect option selected:', option);
-  
-      // Update only the specific incorrect option to show feedback
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
-        if (opt === option) {
-          const updatedOption = {
-            ...opt,
-            feedback: 'x', // Show 'x' feedback for the incorrect option
-            showIcon: true, // Ensure icon is displayed for the selected incorrect option
-            active: false // Disable the selected incorrect option
-          };
-          console.log(
-            `[applyOptionFeedback] Updated incorrect option: ${opt.optionId}`,
-            updatedOption
-          );
-          return updatedOption;
-        }
-        return opt;
-      });
+        console.log('[applyOptionFeedback] Incorrect option selected:', option);
+
+        // Update only the specific incorrect option to show feedback
+        this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+            if (opt === option) {
+                const updatedOption = {
+                    ...opt,
+                    active: false, // Disable the incorrect option
+                    feedback: 'x', // Show 'x' for incorrect option
+                    showIcon: true, // Ensure icon is displayed for the selected incorrect option
+                };
+                console.log(`[applyOptionFeedback] Updated incorrect option: ${opt.optionId}`, updatedOption);
+                return updatedOption;
+            }
+            return {
+                ...opt,
+                active: opt.correct, // Maintain active state for correct options
+                showIcon: opt.showIcon || opt.correct, // Preserve icons for correct options
+                feedback: opt === option ? 'x' : opt.feedback // Preserve existing feedback
+            };
+        });
     }
 
     // Populate optionBindings for child components
-    this.optionBindings = [...this.optionsToDisplay];console.log('[applyOptionFeedback] Updated optionBindings:', this.optionBindings);
-  
+    this.optionBindings = [...this.optionsToDisplay];
+    console.log('[applyOptionFeedback] Updated optionBindings:', this.optionBindings);
+
     // Log the final state of optionsToDisplay
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
-  
+
     // Trigger UI update
     this.cdRef.detectChanges();
   }
