@@ -1764,54 +1764,52 @@ export class QuizQuestionComponent
 
   private applyOptionFeedback(option: Option): void {
     this.showFeedback = true; // Enable feedback display
-  
+
     // Log the initial state of optionsToDisplay
-    console.log('[applyOptionFeedback] Initial optionsToDisplay:', this.optionsToDisplay);
-  
-    if (option.correct) {
-      console.log('[applyOptionFeedback] Correct option selected:', option);
+    console.log('[applyOptionFeedback] Initial optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
 
-      // Update all options: activate correct ones, deactivate incorrect ones
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
-        const updatedOption = {
-           ...opt,
-          active: opt.correct, // Correct options remain active
-          feedback: opt.correct ? undefined : 'x', // 'x' for incorrect options, undefined for correct
-          showIcon: opt.correct, // Show icon only for correct options
-        };
-        console.log(`[applyOptionFeedback] Updated correct option: ${opt.optionId}`, updatedOption);
-        return updatedOption;
-      });
-    } else {
-      console.log('[applyOptionFeedback] Incorrect option selected:', option);
+    // Update options based on whether the selected option is correct
+    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+      let updatedOption;
 
-      // Update only the specific incorrect option to show feedback
-      this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
-        if (opt === option) {
-          const updatedOption = {
+      if (opt === option) {
+        if (option.correct) {
+          console.log('[applyOptionFeedback] Correct option selected:', option);
+          updatedOption = {
             ...opt,
-            active: false, // Disable the incorrect option
-            feedback: 'x', // Show 'x' for incorrect option
-            showIcon: true // Ensure icon is displayed for the selected incorrect option
+            active: true, // Correct options remain active
+            feedback: undefined, // No feedback for correct options
+            showIcon: true // Show icon for correct options
           };
-          console.log(`[applyOptionFeedback] Updated incorrect option: ${opt.optionId}`, updatedOption);
-          return updatedOption;
+        } else {
+          console.log('[applyOptionFeedback] Incorrect option selected:', option);
+          updatedOption = {
+            ...opt,
+            active: false, // Disable incorrect option
+            feedback: 'x', // Show 'x' for incorrect option
+            showIcon: true // Ensure icon is displayed for incorrect option
+          };
         }
-        return {
+      } else {
+        // Handle options that aren't the selected one
+        updatedOption = {
           ...opt,
-          active: opt.correct, // Maintain active state for correct options
-          showIcon: opt.showIcon || opt.correct, // Preserve icons for correct options
-          feedback: opt === option ? 'x' : opt.feedback // Preserve existing feedback
+          active: opt.correct, // Correct options remain active
+          feedback: opt.correct ? undefined : opt.feedback, // Preserve feedback for incorrect options
+          showIcon: opt.showIcon || opt.correct // Preserve icons for correct options
         };
-      });
-    }
+      }
+
+      console.log(`[applyOptionFeedback] Updated option: ${opt.optionId}`, updatedOption);
+      return updatedOption;
+    });
 
     // Populate optionBindings for child components
     this.optionBindings = [...this.optionsToDisplay];
-    console.log('[applyOptionFeedback] Updated optionBindings:', this.optionBindings);
+    console.log('[applyOptionFeedback] Updated optionBindings:', JSON.stringify(this.optionBindings, null, 2));
 
     // Log the final state of optionsToDisplay
-    console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
+    console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
 
     // Trigger UI update
     this.cdRef.detectChanges();
