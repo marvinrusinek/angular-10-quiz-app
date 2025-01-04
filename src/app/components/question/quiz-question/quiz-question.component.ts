@@ -1799,7 +1799,7 @@ export class QuizQuestionComponent
     });
 
     // Debug final state
-    console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
+    console.log('[applyOptionFeedback] Final optionsToDisplay before mapping to optionBindings:', this.optionsToDisplay);
 
     // Populate optionBindings for child components
     this.optionBindings = [...this.optionsToDisplay];
