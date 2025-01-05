@@ -367,22 +367,10 @@ export class QuizQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
       this.restoreQuizState(); // Restore quiz-level state
-
-      if (!this.currentQuestion) {
-        console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-        this.reloadCurrentQuestion();
-      } else {
-        console.log('[onVisibilityChange] Restoring options for the current question...');
-        this.restoreOptionsToDisplay(); // Restore options state if the question exists
-      }
-
-      this.restoreFeedbackState(); // Restore feedback state
-      this.renderDisplay(); // Reflect the current display state
-      this.quizStateService.notifyRestoreQuestionState(); // Notify the QuizComponent
-    } else {
-      console.log('[onVisibilityChange] Tab is hidden.');
+      this.restoreOptionsToDisplay(); // Restore optionsToDisplay
+      this.renderDisplay(); // Reflect current display state
+      this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
     }
   }
 
@@ -437,6 +425,8 @@ export class QuizQuestionComponent
     );
     this.displayState.mode =
       displayMode === 'explanation' ? 'explanation' : 'question';
+
+    this.restoreOptionsToDisplay();
   }
 
   // Method to initialize `displayMode$` and control the display reactively
@@ -1852,7 +1842,12 @@ export class QuizQuestionComponent
       showIcon: option.showIcon ?? false // Preserve icon state if present
     }));
   
-    this.synchronizeOptionBindings(); // Synchronize the bindings
+    // Synchronize bindings after restoration
+    if (this.optionsToDisplay.length > 0) {
+      this.synchronizeOptionBindings();
+    } else {
+      console.warn('[restoreOptionsToDisplay] No options to synchronize.');
+    }
     console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
   }
 
