@@ -366,23 +366,34 @@ export class QuizQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-      this.restoreQuizState(); // Restore quiz-level state
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
 
-      if (!this.currentQuestion) {
-        console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-        this.reloadCurrentQuestion();
+        // Restore quiz-level state
+        this.restoreQuizState();
+
+        if (!this.currentQuestion) {
+          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+          this.reloadCurrentQuestion();
+        } else {
+          console.log('[onVisibilityChange] Restoring options for the current question...');
+          this.restoreOptionsToDisplay(); // Restore options state if the question exists
+        }
+
+        // Restore feedback state
+        this.restoreFeedbackState();
+
+        // Reflect the current display state
+        this.renderDisplay();
+
+        // Notify the QuizComponent
+        this.quizStateService.notifyRestoreQuestionState();
       } else {
-        console.log('[onVisibilityChange] Restoring options for the current question...');
-        this.restoreOptionsToDisplay(); // Restore options state if the question exists
+        console.log('[onVisibilityChange] Tab is hidden.');
       }
-
-      this.restoreFeedbackState(); // Restore feedback state
-      this.renderDisplay(); // Reflect the current display state
-      this.quizStateService.notifyRestoreQuestionState(); // Notify the QuizComponent
-    } else {
-      console.log('[onVisibilityChange] Tab is hidden.');
+    } catch (error) {
+      console.error('[onVisibilityChange] Error occurred while restoring states:', error);
     }
   }
 
