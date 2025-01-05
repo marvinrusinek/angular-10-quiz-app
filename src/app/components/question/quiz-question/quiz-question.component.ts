@@ -1766,9 +1766,6 @@ export class QuizQuestionComponent
   
       console.log('Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-      // Trigger UI update
-      this.cdRef.detectChanges();
-  
       // Stop the timer if all correct options are selected
       if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
         console.log('✅ Timer stopped: All correct answers selected.');
