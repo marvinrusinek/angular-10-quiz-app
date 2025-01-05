@@ -1864,7 +1864,7 @@ export class QuizQuestionComponent
         ...option,
         active: option.active ?? true, // Default to active if undefined
         feedback: option.feedback ?? undefined, // Preserve feedback if present
-        showIcon: option.showIcon ?? false, // Preserve icon state if present
+        showIcon: option.showIcon ?? false // Preserve icon state if present
       }));
   
       console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
