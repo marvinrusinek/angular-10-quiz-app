@@ -1785,7 +1785,19 @@ export class QuizQuestionComponent
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
   
     this.cdRef.detectChanges(); // Ensure UI updates
-  }  
+  }
+  
+  private synchronizeOptionBindings(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[synchronizeOptionBindings] No options to display.');
+      this.optionBindings = [];
+      return;
+    }
+
+    this.optionBindings = [...this.optionsToDisplay];
+    console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
+  }
+
 
   private async updateOptionHighlightState(): Promise<void> {
     try {
