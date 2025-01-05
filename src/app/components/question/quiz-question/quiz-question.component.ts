@@ -1022,7 +1022,7 @@ export class QuizQuestionComponent
 
       if (!this.currentQuestion) {
         this.optionsToDisplay = [];
-        this.synchronizeOptionBindings();
+        // this.synchronizeOptionBindings();
         throw new Error(
           'No question found for index ${this.currentQuestionIndex}'
         );
@@ -1041,7 +1041,14 @@ export class QuizQuestionComponent
         showIcon: false // Reset icons
       })) || [];
 
-      console.log('[loadQuestion] optionsToDisplay before synchronization:', this.optionsToDisplay);
+      console.log('[loadQuestion] optionsToDisplay:', this.optionsToDisplay);
+
+      if (this.optionsToDisplay?.length > 0) {
+        this.synchronizeOptionBindings();
+        console.log('[loadQuestion] synchronizeOptionBindings called.');
+      } else {
+          console.warn('[loadQuestion] No options to synchronize.');
+      }
 
       // Abort handling
       if (signal?.aborted) {
@@ -1771,9 +1778,54 @@ export class QuizQuestionComponent
     }
   }
 
+  private applyOptionFeedback(selectedOption: Option): void {
+    this.showFeedback = true; // Enable feedback display
+
+    console.log('[applyOptionFeedback] Initial optionsToDisplay:', this.optionsToDisplay);
+
+    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+        if (opt === selectedOption) {
+            if (opt.correct) {
+                console.log('[applyOptionFeedback] Correct option selected:', selectedOption);
+
+                return {
+                    ...opt,
+                    active: true, // Correct option remains active
+                    feedback: undefined, // No feedback for correct options
+                    showIcon: true, // Show correct icon
+                };
+            } else {
+                console.log('[applyOptionFeedback] Incorrect option selected:', selectedOption);
+
+                return {
+                    ...opt,
+                    active: false, // Disable incorrect option
+                    feedback: 'x', // Show 'x' for incorrect option
+                    showIcon: true, // Show 'close' icon for the incorrect option
+                };
+            }
+        }
+
+        // For other options
+        return {
+            ...opt,
+            active: opt.correct, // Maintain active state for correct options
+            showIcon: opt.correct, // Show icon for correct options
+            feedback: opt.feedback, // Retain feedback state
+        };
+    });
+
+    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
+
+    // Populate optionBindings for child components
+    this.optionBindings = [...this.optionsToDisplay];
+    console.log('[applyOptionFeedback] Updated optionBindings:', this.optionBindings);
+
+    // Trigger UI update
+    this.cdRef.detectChanges();
+  }
   
-  
-  synchronizeOptionBindings(): void {
+  /* synchronizeOptionBindings(): void {
     console.log('[synchronizeOptionBindings] optionsToDisplay before mapping:', this.optionsToDisplay);
   
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
@@ -1791,6 +1843,10 @@ export class QuizQuestionComponent
     }));
   
     console.log('[synchronizeOptionBindings] Final optionBindings:', this.optionBindings);
+  } */
+  private synchronizeOptionBindings(): void {
+    this.optionBindings = [...this.optionsToDisplay];
+    console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
   }
   /* private synchronizeOptionBindings(): void {
     if (this.optionsToDisplay?.length > 0) {
