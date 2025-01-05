@@ -1818,7 +1818,7 @@ export class QuizQuestionComponent
     this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
       .pipe(first())
       .subscribe({
-        next: (question) => {
+        next: (question: QuizQuestion) => {
           if (question) {
             console.log('[reloadCurrentQuestion] Question reloaded:', question);
             this.currentQuestion = question;
