@@ -1978,9 +1978,6 @@ export class QuizQuestionComponent
       // Ensure highlights are applied correctly
       this.updateOptionHighlightState();
 
-      // Trigger UI refresh
-      this.cdRef.detectChanges();
-
       console.log(
         'Deactivated and highlighted incorrect options:',
         this.optionsToDisplay
@@ -2007,9 +2004,6 @@ export class QuizQuestionComponent
     }));
   
     console.log('Updated options after disabling incorrect ones:', this.optionsToDisplay);
-  
-    // Trigger UI update
-    this.cdRef.detectChanges();
   }  
 
   // Handles single-answer lock logic. Returns true if we should return early.
