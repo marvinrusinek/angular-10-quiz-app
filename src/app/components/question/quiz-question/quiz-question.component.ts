@@ -1779,6 +1779,8 @@ export class QuizQuestionComponent
           : { ...opt, active: opt.correct, showIcon: opt.showIcon || opt.correct } // Maintain correct options
       );
     }
+
+    this.optionBindings = [...this.optionsToDisplay];
   
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
   
