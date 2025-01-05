@@ -1802,7 +1802,7 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges(); // Ensure UI updates
   }
   
-  synchronizeOptionBindings(): void {
+  /* synchronizeOptionBindings(): void {
     console.log('[synchronizeOptionBindings] optionsToDisplay before mapping:', this.optionsToDisplay);
   
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
@@ -1820,6 +1820,14 @@ export class QuizQuestionComponent
     }));
   
     console.log('[synchronizeOptionBindings] Final optionBindings:', this.optionBindings);
+  } */
+  private synchronizeOptionBindings(): void {
+    if (this.optionsToDisplay?.length > 0) {
+      this.optionBindings = [...this.optionsToDisplay];
+      console.log('[synchronizeOptionBindings] Updated optionBindings:', this.optionBindings);
+    } else {
+      console.warn('[synchronizeOptionBindings] No optionsToDisplay available to synchronize.');
+    }
   }
 
   private async updateOptionHighlightState(): Promise<void> {
