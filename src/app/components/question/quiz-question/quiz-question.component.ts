@@ -1014,23 +1014,31 @@ export class QuizQuestionComponent
 
       // Fetch the current question by index
       this.currentQuestion = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(
-          quizId,
-          this.currentQuestionIndex
-        )
+        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
       );
 
       if (!this.currentQuestion) {
         this.optionsToDisplay = [];
         this.synchronizeOptionBindings();
-        throw new Error(
-          `No question found for index ${this.currentQuestionIndex}`
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+
+      console.log('[loadQuestion] Current question:', this.currentQuestion);
+
+      // Validate options array
+      if (!Array.isArray(this.currentQuestion.options)) {
+        console.error(
+          `Expected options to be an array, but received:`,
+          this.currentQuestion.options
         );
+        this.optionsToDisplay = [];
+        this.synchronizeOptionBindings();
+        return;
       }
 
       // Assign optionIds if missing
       this.currentQuestion.options = this.quizService.assignOptionIds(
-        this.currentQuestion?.options ?? []
+        this.currentQuestion.options
       );
 
       // Set the options to display for the current question
@@ -1040,12 +1048,22 @@ export class QuizQuestionComponent
         feedback: undefined, // Reset feedback
         showIcon: false // Reset icons
       })) || [];
+
+      console.log(
+        '[loadQuestion] Options to display after initialization:',
+        this.optionsToDisplay
+      );
+
+      // Synchronize option bindings
       this.synchronizeOptionBindings();
 
       // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
         this.timerService.stopTimer();
+        this.currentQuestion = null;
+        this.optionsToDisplay = [];
+        this.synchronizeOptionBindings();
         return;
       }
 
