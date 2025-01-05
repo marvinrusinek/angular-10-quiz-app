@@ -1814,14 +1814,22 @@ export class QuizQuestionComponent
   }
   
   private synchronizeOptionBindings(): void {
-    if (this.optionsToDisplay?.length > 0) {
-      this.optionBindings = [...this.optionsToDisplay];
-      console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
-    } else {
-      this.optionBindings = [];
-      console.warn('[synchronizeOptionBindings] No options to synchronize. Clearing bindings.');
+    try {
+      if (this.optionsToDisplay?.length > 0) {
+        // Synchronize optionBindings with optionsToDisplay
+        this.optionBindings = [...this.optionsToDisplay];
+        console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
+      } else {
+        // Clear optionBindings if no options are available
+        this.optionBindings = [];
+        console.warn('[synchronizeOptionBindings] No options to synchronize. Clearing bindings.');
+      }
+    } catch (error) {
+      console.error('[synchronizeOptionBindings] Error occurred while synchronizing bindings:', error);
+      this.optionBindings = []; // Ensure bindings are cleared in case of an error
     }
   }
+
 
   private reloadCurrentQuestion(): void {
     const quizId = this.quizService.getCurrentQuizId();
