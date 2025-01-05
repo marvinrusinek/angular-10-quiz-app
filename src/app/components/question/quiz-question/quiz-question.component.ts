@@ -370,17 +370,17 @@ export class QuizQuestionComponent
       console.log('[onVisibilityChange] Tab is visible. Restoring states...');
       this.restoreQuizState(); // Restore quiz-level state
 
-      // Ensure current question and options are restored
       if (!this.currentQuestion) {
-        console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
+        console.warn('[onVisibilityChange] Current question is missing. Reloading...');
         this.reloadCurrentQuestion();
       } else {
-        this.restoreOptionsToDisplay(); // Restore options if question exists
+        console.log('[onVisibilityChange] Restoring options for the current question...');
+        this.restoreOptionsToDisplay(); // Restore options state if the question exists
       }
 
       this.restoreFeedbackState(); // Restore feedback state
-      this.renderDisplay(); // Reflect current display state
-      this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
+      this.renderDisplay(); // Reflect the current display state
+      this.quizStateService.notifyRestoreQuestionState(); // Notify the QuizComponent
     } else {
       console.log('[onVisibilityChange] Tab is hidden.');
     }
