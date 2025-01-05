@@ -1871,12 +1871,13 @@ export class QuizQuestionComponent
       console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
       // Synchronize `optionBindings` after restoring `optionsToDisplay`
-      if (this.optionsToDisplay.length > 0) {
+      this.synchronizeOptionBindings();
+      /* if (this.optionsToDisplay.length > 0) {
         this.synchronizeOptionBindings();
         console.log('[restoreOptionsToDisplay] Synchronized optionBindings successfully.');
       } else {
         console.warn('[restoreOptionsToDisplay] No options to synchronize.');
-      }
+      } */
 
       console.log('[restoreOptionsToDisplay] Synchronized optionBindings:', this.optionBindings);
   
