@@ -1795,7 +1795,7 @@ export class QuizQuestionComponent
         ...opt,
         active: opt.correct, // Correct options remain active
         feedback: opt.correct ? undefined : 'x', // Feedback for incorrect options
-        showIcon: opt.correct // Show icon for correct options
+        showIcon: opt.correct || opt.showIcon // Show icon for correct options
       }));
     } else {
       this.optionsToDisplay = this.optionsToDisplay.map(opt =>
