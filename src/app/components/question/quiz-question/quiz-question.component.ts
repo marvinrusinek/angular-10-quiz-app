@@ -1829,21 +1829,22 @@ export class QuizQuestionComponent
         throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
       }
 
-      this.currentQuestion = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(
-          quizId,
-          this.currentQuestionIndex
-        )
+      const question = await firstValueFrom(
+        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
       );
 
-      if (!this.currentQuestion) {
-        throw new Error(`[reloadCurrentQuestion] No question found for index ${this.currentQuestionIndex}.`);
-      }
+      if (question) {
+        console.log('[reloadCurrentQuestion] Question reloaded:', question);
+        this.currentQuestion = question;
 
-      console.log('[reloadCurrentQuestion] Successfully loaded current question:', this.currentQuestion);
+        // Ensure options are restored
+        this.restoreOptionsToDisplay();
+      } else {
+        throw new Error('[reloadCurrentQuestion] Failed to reload question.');
+      }
     } catch (error) {
-      console.error('[reloadCurrentQuestion] Failed to reload current question:', error);
-      this.currentQuestion = null;
+      console.error('[reloadCurrentQuestion] Error fetching question:', error);
+      this.currentQuestion = null; // Reset currentQuestion on error
     }
   }
 
