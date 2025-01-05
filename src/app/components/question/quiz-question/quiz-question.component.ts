@@ -1800,6 +1800,25 @@ export class QuizQuestionComponent
     }
   }
 
+  private restoreFeedbackState(): void {
+    if (!this.currentQuestion || !this.optionsToDisplay.length) {
+      console.warn('[restoreFeedbackState] Missing current question or options to display.');
+      return;
+    }
+
+    // Reassign option feedback
+    this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+      ...option,
+      feedback: option.feedback || this.generateFeedbackForOption(option), // Restore or regenerate feedback
+      showIcon: option.correct || option.showIcon // Ensure icons are displayed for correct options
+    }));
+
+    console.log('[restoreFeedbackState] Restored options with feedback:', this.optionsToDisplay);
+    this.synchronizeOptionBindings(); // Ensure bindings are synchronized with optionsToDisplay
+    this.cdRef.detectChanges();
+  }
+
+
   private async updateOptionHighlightState(): Promise<void> {
     try {
       // Ensure currentQuestion and options are valid
