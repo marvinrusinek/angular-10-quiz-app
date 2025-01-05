@@ -1801,8 +1801,6 @@ export class QuizQuestionComponent
     }
   
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
-  
-    this.cdRef.detectChanges(); // Ensure UI updates
   }
   
   private synchronizeOptionBindings(): void {
