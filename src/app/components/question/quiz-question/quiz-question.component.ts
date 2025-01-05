@@ -1951,9 +1951,6 @@ export class QuizQuestionComponent
         '[QuizQuestionComponent] Updated highlight state for all options:',
         this.currentQuestion.options
       );
-  
-      // Trigger UI update if necessary
-      this.cdRef.detectChanges();
     } catch (error) {
       console.error('[updateOptionHighlightState] Error:', error);
     }
