@@ -367,10 +367,22 @@ export class QuizQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
+      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
       this.restoreQuizState(); // Restore quiz-level state
-      this.restoreOptionsToDisplay(); // Restore optionsToDisplay
-      this.renderDisplay(); // Reflect current display state
-      this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
+
+      if (!this.currentQuestion) {
+        console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+        this.reloadCurrentQuestion();
+      } else {
+        console.log('[onVisibilityChange] Restoring options for the current question...');
+        this.restoreOptionsToDisplay(); // Restore options state if the question exists
+      }
+
+      this.restoreFeedbackState(); // Restore feedback state
+      this.renderDisplay(); // Reflect the current display state
+      this.quizStateService.notifyRestoreQuestionState(); // Notify the QuizComponent
+    } else {
+      console.log('[onVisibilityChange] Tab is hidden.');
     }
   }
 
