@@ -366,23 +366,26 @@ export class QuizQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-      this.restoreQuizState();
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
 
-      if (!this.currentQuestion) {
-        console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-        this.reloadCurrentQuestion().then(() => {
-          this.restoreOptionsToDisplay();
-          this.renderDisplay(); // Ensure the UI reflects the restored state
-        });
+        this.restoreQuizState(); // Restore quiz-level state
+
+        if (!this.currentQuestion) {
+          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+          this.reloadCurrentQuestion(); // Ensure currentQuestion is reloaded
+        }
+
+        this.restoreOptionsToDisplay(); // Restore options state
+        this.restoreFeedbackState(); // Restore feedback state
+        this.renderDisplay(); // Reflect the current display state
+        this.quizStateService.notifyRestoreQuestionState(); // Notify the QuizComponent
       } else {
-        this.restoreOptionsToDisplay();
-        this.renderDisplay();
+        console.log('[onVisibilityChange] Tab is hidden.');
       }
-
-      this.restoreFeedbackState();
-      this.quizStateService.notifyRestoreQuestionState();
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during state restoration:', error);
     }
   }
 
