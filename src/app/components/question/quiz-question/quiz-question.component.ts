@@ -1837,7 +1837,9 @@ export class QuizQuestionComponent
 
   private restoreOptionsToDisplay(): void {
     if (!this.currentQuestion?.options) {
-      console.error('[restoreOptionsToDisplay] No options available in current question.');
+      console.error('[restoreOptionsToDisplay] No options available in the current question.');
+      this.optionsToDisplay = [];
+      this.synchronizeOptionBindings(); // Clear bindings if options are unavailable
       return;
     }
   
@@ -1848,8 +1850,7 @@ export class QuizQuestionComponent
       showIcon: option.showIcon ?? false // Preserve icon state if present
     }));
   
-    this.synchronizeOptionBindings(); // Ensure bindings are synchronized
-  
+    this.synchronizeOptionBindings(); // Synchronize the bindings
     console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
   }
 
