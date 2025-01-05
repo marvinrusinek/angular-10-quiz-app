@@ -374,13 +374,14 @@ export class QuizQuestionComponent
         console.warn('[onVisibilityChange] Current question is missing. Reloading...');
         this.reloadCurrentQuestion().then(() => {
           this.restoreOptionsToDisplay();
+          this.renderDisplay(); // Ensure the UI reflects the restored state
         });
       } else {
         this.restoreOptionsToDisplay();
+        this.renderDisplay();
       }
 
       this.restoreFeedbackState();
-      this.renderDisplay();
       this.quizStateService.notifyRestoreQuestionState();
     }
   }
