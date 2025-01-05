@@ -1021,6 +1021,8 @@ export class QuizQuestionComponent
       );
 
       if (!this.currentQuestion) {
+        this.optionsToDisplay = [];
+        this.synchronizeOptionBindings();
         throw new Error(
           `No question found for index ${this.currentQuestionIndex}`
         );
@@ -1032,7 +1034,13 @@ export class QuizQuestionComponent
       );
 
       // Set the options to display for the current question
-      this.optionsToDisplay = [...this.currentQuestion.options] || [];
+      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        ...option,
+        active: true, // Default all options to active initially
+        feedback: undefined, // Reset feedback
+        showIcon: false // Reset icons
+      })) || [];
+      this.synchronizeOptionBindings();
 
       // Abort handling
       if (signal?.aborted) {
@@ -1779,25 +1787,31 @@ export class QuizQuestionComponent
           : { ...opt, active: opt.correct, showIcon: opt.showIcon || opt.correct } // Maintain correct options
       );
     }
-
-    this.optionBindings = [...this.optionsToDisplay];
   
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
   
     this.cdRef.detectChanges(); // Ensure UI updates
   }
   
-  private synchronizeOptionBindings(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[synchronizeOptionBindings] No options to display.');
+  synchronizeOptionBindings(): void {
+    console.log('[synchronizeOptionBindings] optionsToDisplay before mapping:', this.optionsToDisplay);
+  
+    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       this.optionBindings = [];
+      console.warn('[synchronizeOptionBindings] No options to display.');
       return;
     }
-
-    this.optionBindings = [...this.optionsToDisplay];
-    console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
+  
+    // Directly copy optionsToDisplay and ensure required properties are synchronized
+    this.optionBindings = this.optionsToDisplay.map((option) => ({
+      ...option,
+      active: option.active ?? true, // Ensure active property is set
+      feedback: option.feedback ?? undefined, // Default feedback
+      showIcon: option.showIcon ?? false // Default icon state
+    }));
+  
+    console.log('[synchronizeOptionBindings] Final optionBindings:', this.optionBindings);
   }
-
 
   private async updateOptionHighlightState(): Promise<void> {
     try {
