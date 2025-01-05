@@ -1831,28 +1831,23 @@ export class QuizQuestionComponent
     if (!this.currentQuestion || !this.currentQuestion.options) {
       console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
       this.optionsToDisplay = [];
-      return;
-    }
-    /* if (!this.currentQuestion?.options) {
-      console.error('[restoreOptionsToDisplay] No options available in the current question.');
-      this.optionsToDisplay = [];
       this.synchronizeOptionBindings(); // Clear bindings if options are unavailable
       return;
-    } */
-  
+    }
+
+    // Rebuild optionsToDisplay with proper properties
     this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
       ...option,
       active: option.active ?? true, // Default to active if undefined
       feedback: option.feedback ?? undefined, // Preserve feedback if present
       showIcon: option.showIcon ?? false // Preserve icon state if present
     }));
-  
-    // Synchronize bindings after restoration
-    /* if (this.optionsToDisplay.length > 0) {
-      this.synchronizeOptionBindings();
-    } else {
-      console.warn('[restoreOptionsToDisplay] No options to synchronize.');
-    } */
+
+    // Synchronize bindings after ensuring options are valid
+    this.synchronizeOptionBindings();
+    console.log('[restoreOptionsToDisplay] Synchronized optionBindings:', this.optionBindings);
+
+    // Log restored options for debugging
     console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
   }
 
