@@ -1864,6 +1864,7 @@ export class QuizQuestionComponent
         console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
         this.optionsToDisplay = [];
         this.optionBindings = [];
+        this.synchronizeOptionBindings();
         return;
       }
   
@@ -1876,6 +1877,12 @@ export class QuizQuestionComponent
       }));
   
       console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+
+      if (this.optionsToDisplay.length === 0) {
+        console.warn('[restoreOptionsToDisplay] No options restored.');
+      } else {
+        console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
+      }
   
       // Synchronize `optionBindings` after restoring `optionsToDisplay`
       this.synchronizeOptionBindings();
