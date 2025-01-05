@@ -369,8 +369,14 @@ export class QuizQuestionComponent
     if (document.visibilityState === 'visible') {
       console.log('[onVisibilityChange] Tab is visible. Restoring states...');
       this.restoreQuizState(); // Restore quiz-level state
+
+      if (!this.currentQuestion) {
+        console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
+        this.reloadCurrentQuestion(); // Reload question if missing
+      }
+
       this.restoreFeedbackState(); // Restore feedback state
-      this.ensureOptionsAreAvailable(); // Ensure options are available before rendering
+      this.ensureOptionsToDisplay(); // Ensure options are available and synchronized
       this.renderDisplay(); // Reflect current display state
       this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
     } else {
@@ -1805,6 +1811,41 @@ export class QuizQuestionComponent
     }
   }
 
+  private reloadCurrentQuestion(): void {
+    const quizId = this.quizService.getCurrentQuizId();
+    if (!quizId) {
+      console.error('[reloadCurrentQuestion] No active quiz ID found.');
+      return;
+    }
+  
+    this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
+      .pipe(first())
+      .subscribe({
+        next: (question) => {
+          if (question) {
+            console.log('[reloadCurrentQuestion] Question reloaded:', question);
+            this.currentQuestion = question;
+  
+            // Assign option IDs and set options to display
+            this.currentQuestion.options = this.quizService.assignOptionIds(question.options ?? []);
+            this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+              ...option,
+              active: option.active ?? true, // Default to active if undefined
+              feedback: option.feedback ?? undefined, // Preserve feedback if present
+              showIcon: option.showIcon ?? false // Preserve icon state if present
+            }));
+  
+            this.synchronizeOptionBindings(); // Ensure bindings are synchronized
+          } else {
+            console.error('[reloadCurrentQuestion] Failed to reload question.');
+          }
+        },
+        error: (error) => {
+          console.error('[reloadCurrentQuestion] Error fetching question:', error);
+        }
+      });
+  }
+
   private restoreFeedbackState(): void {
     if (!this.currentQuestion || !this.optionsToDisplay.length) {
       console.warn('[restoreFeedbackState] Missing current question or options to display.');
@@ -1821,6 +1862,26 @@ export class QuizQuestionComponent
     console.log('[restoreFeedbackState] Restored options with feedback:', this.optionsToDisplay);
     this.synchronizeOptionBindings(); // Ensure bindings are synchronized with optionsToDisplay
     this.cdRef.detectChanges();
+  }
+
+  private ensureOptionsToDisplay(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[ensureOptionsToDisplay] Options are missing. Attempting to restore...');
+      if (this.currentQuestion?.options) {
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: option.active ?? true,
+          feedback: option.feedback ?? undefined,
+          showIcon: option.showIcon ?? false
+        }));
+        this.synchronizeOptionBindings();
+        console.log('[ensureOptionsToDisplay] Options restored:', this.optionsToDisplay);
+      } else {
+        console.error('[ensureOptionsToDisplay] No options available to restore.');
+      }
+    } else {
+      console.log('[ensureOptionsToDisplay] Options are already available.');
+    }
   }
 
   private ensureOptionsAreAvailable(): void {
