@@ -1848,6 +1848,24 @@ export class QuizQuestionComponent
       });
   }
 
+  private restoreOptionsToDisplay(): void {
+    if (!this.currentQuestion?.options) {
+      console.error('[restoreOptionsToDisplay] No options available in current question.');
+      return;
+    }
+  
+    this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+      ...option,
+      active: option.active ?? true, // Default to active if undefined
+      feedback: option.feedback ?? undefined, // Preserve feedback if present
+      showIcon: option.showIcon ?? false // Preserve icon state if present
+    }));
+  
+    this.synchronizeOptionBindings(); // Ensure bindings are synchronized
+  
+    console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
+  }
+
   private restoreFeedbackState(): void {
     if (!this.currentQuestion || !this.optionsToDisplay.length) {
       console.warn('[restoreFeedbackState] Missing current question or options to display.');
