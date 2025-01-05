@@ -1854,7 +1854,6 @@ export class QuizQuestionComponent
         console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
         this.optionsToDisplay = [];
         this.optionBindings = [];
-        this.synchronizeOptionBindings();
         return;
       }
   
