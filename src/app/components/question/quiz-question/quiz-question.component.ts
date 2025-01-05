@@ -1860,7 +1860,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Restore `optionsToDisplay` with the preserved state
+      // Restore `optionsToDisplay` from the current question options
       this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
         ...option,
         active: option.active ?? true, // Default to active if undefined
@@ -1870,7 +1870,7 @@ export class QuizQuestionComponent
   
       console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
-      // Synchronize `optionBindings` after restoring `optionsToDisplay`
+      // Synchronize `optionBindings`
       this.synchronizeOptionBindings();
       /* if (this.optionsToDisplay.length > 0) {
         this.synchronizeOptionBindings();
