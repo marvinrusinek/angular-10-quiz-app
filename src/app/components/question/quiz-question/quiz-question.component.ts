@@ -1881,7 +1881,6 @@ export class QuizQuestionComponent
 
     console.log('[restoreFeedbackState] Restored options with feedback:', this.optionsToDisplay);
     this.synchronizeOptionBindings(); // Ensure bindings are synchronized with optionsToDisplay
-    this.cdRef.detectChanges();
   }
 
   private ensureOptionsToDisplay(): void {
