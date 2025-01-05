@@ -1794,25 +1794,6 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges(); // Ensure UI updates
   }
   
-  /* synchronizeOptionBindings(): void {
-    console.log('[synchronizeOptionBindings] optionsToDisplay before mapping:', this.optionsToDisplay);
-  
-    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
-      this.optionBindings = [];
-      console.warn('[synchronizeOptionBindings] No options to display.');
-      return;
-    }
-  
-    // Directly copy optionsToDisplay and ensure required properties are synchronized
-    this.optionBindings = this.optionsToDisplay.map((option) => ({
-      ...option,
-      active: option.active ?? true, // Ensure active property is set
-      feedback: option.feedback ?? undefined, // Default feedback
-      showIcon: option.showIcon ?? false // Default icon state
-    }));
-  
-    console.log('[synchronizeOptionBindings] Final optionBindings:', this.optionBindings);
-  } */
   private synchronizeOptionBindings(): void {
     if (this.optionsToDisplay?.length > 0) {
       this.optionBindings = [...this.optionsToDisplay];
