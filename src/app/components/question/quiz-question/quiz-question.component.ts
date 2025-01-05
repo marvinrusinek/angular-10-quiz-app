@@ -1041,8 +1041,6 @@ export class QuizQuestionComponent
         showIcon: false // Reset icons
       })) || [];
 
-      console.log('[loadQuestion] optionsToDisplay before synchronization:', this.optionsToDisplay);
-
       // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
@@ -1797,7 +1795,6 @@ export class QuizQuestionComponent
   private synchronizeOptionBindings(): void {
     if (this.optionsToDisplay?.length > 0) {
       this.optionBindings = [...this.optionsToDisplay];
-      console.log('[synchronizeOptionBindings] Updated optionBindings:', this.optionBindings);
     } else {
       console.warn('[synchronizeOptionBindings] No optionsToDisplay available to synchronize.');
     }
