@@ -1818,32 +1818,29 @@ export class QuizQuestionComponent
     }
   }
 
+  private async reloadCurrentQuestion(): Promise<void> {
+    try {
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) {
+        throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
+      }
 
-  private reloadCurrentQuestion(): void {
-    const quizId = this.quizService.getCurrentQuizId();
-    if (!quizId) {
-      console.error('[reloadCurrentQuestion] No active quiz ID found.');
-      return;
+      this.currentQuestion = await firstValueFrom(
+        this.quizService.getCurrentQuestionByIndex(
+          quizId,
+          this.currentQuestionIndex
+        )
+      );
+
+      if (!this.currentQuestion) {
+        throw new Error(`[reloadCurrentQuestion] No question found for index ${this.currentQuestionIndex}.`);
+      }
+
+      console.log('[reloadCurrentQuestion] Successfully loaded current question:', this.currentQuestion);
+    } catch (error) {
+      console.error('[reloadCurrentQuestion] Failed to reload current question:', error);
+      this.currentQuestion = null;
     }
-  
-    this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
-      .pipe(first())
-      .subscribe({
-        next: (question: QuizQuestion) => {
-          if (question) {
-            console.log('[reloadCurrentQuestion] Question reloaded:', question);
-            this.currentQuestion = question;
-  
-            // Ensure options are restored
-            this.restoreOptionsToDisplay();
-          } else {
-            console.error('[reloadCurrentQuestion] Failed to reload question.');
-          }
-        },
-        error: (error) => {
-          console.error('[reloadCurrentQuestion] Error fetching question:', error);
-        }
-      });
   }
 
   private restoreOptionsToDisplay(): void {
