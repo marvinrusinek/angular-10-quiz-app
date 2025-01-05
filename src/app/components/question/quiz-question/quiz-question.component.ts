@@ -1823,16 +1823,8 @@ export class QuizQuestionComponent
             console.log('[reloadCurrentQuestion] Question reloaded:', question);
             this.currentQuestion = question;
   
-            // Assign option IDs and set options to display
-            this.currentQuestion.options = this.quizService.assignOptionIds(question.options ?? []);
-            this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-              ...option,
-              active: option.active ?? true, // Default to active if undefined
-              feedback: option.feedback ?? undefined, // Preserve feedback if present
-              showIcon: option.showIcon ?? false // Preserve icon state if present
-            }));
-  
-            this.synchronizeOptionBindings(); // Ensure bindings are synchronized
+            // Ensure options are restored
+            this.restoreOptionsToDisplay();
           } else {
             console.error('[reloadCurrentQuestion] Failed to reload question.');
           }
