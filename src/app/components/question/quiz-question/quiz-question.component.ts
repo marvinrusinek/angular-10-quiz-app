@@ -1043,14 +1043,6 @@ export class QuizQuestionComponent
 
       console.log('[loadQuestion] optionsToDisplay before synchronization:', this.optionsToDisplay);
 
-      // Call synchronizeOptionBindings only if optionsToDisplay is populated
-      if (this.optionsToDisplay.length > 0) {
-        console.log('[loadQuestion] Synchronizing option bindings.');
-        this.synchronizeOptionBindings();
-      } else {
-        console.warn('[loadQuestion] No options to display. Skipping synchronization.');
-      }
-
       // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
