@@ -1822,6 +1822,13 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
   }
 
+  private generateFeedbackForOption(option: Option): string {
+    if (option.correct) {
+      return this.correctMessage || 'Correct answer!';
+    } else {
+      return option.feedback || 'No feedback available.';
+    }
+  }
 
   private async updateOptionHighlightState(): Promise<void> {
     try {
