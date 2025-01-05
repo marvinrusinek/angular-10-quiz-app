@@ -369,7 +369,8 @@ export class QuizQuestionComponent
     if (document.visibilityState === 'visible') {
       console.log('[onVisibilityChange] Tab is visible. Restoring states...');
       this.restoreQuizState(); // Restore quiz-level state
-      this.restoreFeedbackState(); // Restore feedback state when the tab is active
+      this.restoreFeedbackState(); // Restore feedback state
+      this.ensureOptionsAreAvailable(); // Ensure options are available before rendering
       this.renderDisplay(); // Reflect current display state
       this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
     } else {
@@ -1820,6 +1821,23 @@ export class QuizQuestionComponent
     console.log('[restoreFeedbackState] Restored options with feedback:', this.optionsToDisplay);
     this.synchronizeOptionBindings(); // Ensure bindings are synchronized with optionsToDisplay
     this.cdRef.detectChanges();
+  }
+
+  private ensureOptionsAreAvailable(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[ensureOptionsAreAvailable] No options available. Reinitializing...');
+      this.optionsToDisplay = this.currentQuestion?.options?.map((option) => ({
+        ...option,
+        active: option.active ?? true, // Default to active if undefined
+        feedback: option.feedback ?? undefined, // Preserve feedback if present
+        showIcon: option.showIcon ?? false // Preserve icon state if present
+      })) || [];
+  
+      this.synchronizeOptionBindings(); // Ensure optionBindings are in sync
+      console.log('[ensureOptionsAreAvailable] Options reinitialized:', this.optionsToDisplay);
+    } else {
+      console.log('[ensureOptionsAreAvailable] Options are already available.');
+    }
   }
 
   private generateFeedbackForOption(option: Option): string {
