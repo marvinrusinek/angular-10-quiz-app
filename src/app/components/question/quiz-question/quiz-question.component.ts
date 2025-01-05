@@ -1771,30 +1771,54 @@ export class QuizQuestionComponent
     }
   }
 
-  private applyOptionFeedback(option: Option): void {
-    this.showFeedback = true;
-  
-    if (option.correct) {
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-        ...opt,
-        active: opt.correct, // Correct options remain active
-        feedback: opt.correct ? undefined : 'x', // Feedback for incorrect options
-        showIcon: opt.correct // Show icon for correct options
-      }));
-    } else {
-      this.optionsToDisplay = this.optionsToDisplay.map(opt =>
-        opt === option
-          ? { ...opt, feedback: 'x', showIcon: true, active: false } // Feedback and disable for selected incorrect
-          : { ...opt, active: opt.correct, showIcon: opt.showIcon || opt.correct } // Maintain correct options
-      );
-    }
-  
-    console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
-  
-    this.cdRef.detectChanges(); // Ensure UI updates
+  private applyOptionFeedback(selectedOption: Option): void {
+    this.showFeedback = true; // Enable feedback display
+
+    console.log('[applyOptionFeedback] Initial optionsToDisplay:', this.optionsToDisplay);
+
+    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+        if (opt === selectedOption) {
+            if (opt.correct) {
+                console.log('[applyOptionFeedback] Correct option selected:', selectedOption);
+
+                return {
+                    ...opt,
+                    active: true, // Correct option remains active
+                    feedback: undefined, // No feedback for correct options
+                    showIcon: true, // Show correct icon
+                };
+            } else {
+                console.log('[applyOptionFeedback] Incorrect option selected:', selectedOption);
+
+                return {
+                    ...opt,
+                    active: false, // Disable incorrect option
+                    feedback: 'x', // Show 'x' for incorrect option
+                    showIcon: true, // Show 'close' icon for the incorrect option
+                };
+            }
+        }
+
+        // For other options
+        return {
+            ...opt,
+            active: opt.correct, // Maintain active state for correct options
+            showIcon: opt.correct, // Show icon for correct options
+            feedback: opt.feedback, // Retain feedback state
+        };
+    });
+
+    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
+
+    // Populate optionBindings for child components
+    this.optionBindings = [...this.optionsToDisplay];
+    console.log('[applyOptionFeedback] Updated optionBindings:', this.optionBindings);
+
+    // Trigger UI update
+    this.cdRef.detectChanges();
   }
   
-  /* synchronizeOptionBindings(): void {
+  synchronizeOptionBindings(): void {
     console.log('[synchronizeOptionBindings] optionsToDisplay before mapping:', this.optionsToDisplay);
   
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
@@ -1812,15 +1836,15 @@ export class QuizQuestionComponent
     }));
   
     console.log('[synchronizeOptionBindings] Final optionBindings:', this.optionBindings);
-  } */
-  private synchronizeOptionBindings(): void {
+  }
+  /* private synchronizeOptionBindings(): void {
     if (this.optionsToDisplay?.length > 0) {
       this.optionBindings = [...this.optionsToDisplay];
       console.log('[synchronizeOptionBindings] Updated optionBindings:', this.optionBindings);
     } else {
       console.warn('[synchronizeOptionBindings] No optionsToDisplay available to synchronize.');
     }
-  }
+  } */
 
   private async updateOptionHighlightState(): Promise<void> {
     try {
