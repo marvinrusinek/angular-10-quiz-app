@@ -373,8 +373,10 @@ export class QuizQuestionComponent
         this.restoreQuizState(); // Restore quiz-level state
 
         if (!this.currentQuestion) {
-          console.warn('[onVisibilityChange] Current question missing. Reloading...');
-          await this.reloadCurrentQuestion(); // Await to ensure reloading completes
+          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+          await this.reloadCurrentQuestion();
+        } else {
+            console.log('[onVisibilityChange] Current question already exists:', this.currentQuestion);
         }
 
         this.restoreOptionsToDisplay(); // Restore options
