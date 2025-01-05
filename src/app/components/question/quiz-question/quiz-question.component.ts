@@ -367,9 +367,13 @@ export class QuizQuestionComponent
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
+      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
       this.restoreQuizState(); // Restore quiz-level state
+      this.restoreFeedbackState(); // Restore feedback state when the tab is active
       this.renderDisplay(); // Reflect current display state
       this.quizStateService.notifyRestoreQuestionState(); // Notify QuizComponent
+    } else {
+      console.log('[onVisibilityChange] Tab is hidden.');
     }
   }
 
