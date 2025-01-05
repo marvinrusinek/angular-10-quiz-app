@@ -1803,8 +1803,10 @@ export class QuizQuestionComponent
   private synchronizeOptionBindings(): void {
     if (this.optionsToDisplay?.length > 0) {
       this.optionBindings = [...this.optionsToDisplay];
+      console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
     } else {
-      console.warn('[synchronizeOptionBindings] No optionsToDisplay available to synchronize.');
+      this.optionBindings = [];
+      console.warn('[synchronizeOptionBindings] No options to synchronize. Clearing bindings.');
     }
   }
 
