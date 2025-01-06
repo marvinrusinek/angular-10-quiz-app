@@ -387,30 +387,27 @@ export class QuizQuestionComponent
     }
   } */
   @HostListener('window:visibilitychange', [])
-  async onVisibilityChange(): Promise<void> {
+  onVisibilityChange(): void {
       try {
           if (document.visibilityState === 'visible') {
               console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-
-              // Restore quiz-level state
               this.restoreQuizState();
 
               if (!this.currentQuestion) {
-                  console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-                  await this.reloadCurrentQuestion();
+                  console.warn('[onVisibilityChange] Current question missing. Reloading...');
+                  this.reloadCurrentQuestion().then(() => {
+                      console.log('[onVisibilityChange] Current question reloaded.');
+                      this.restoreOptionsToDisplay(); // Ensure options are restored after reloading
+                  });
+              } else {
+                  console.log('[onVisibilityChange] Restoring options directly...');
+                  this.restoreOptionsToDisplay();
               }
 
-              // Restore options and feedback state
-              this.restoreOptionsToDisplay();
-              this.restoreFeedbackState();
-
-              // Render display
               this.renderDisplay();
-          } else {
-              console.log('[onVisibilityChange] Tab is hidden.');
           }
       } catch (error) {
-          console.error('[onVisibilityChange] Error during state restoration:', error);
+          console.error('[onVisibilityChange] Error restoring state:', error);
       }
   }
 
