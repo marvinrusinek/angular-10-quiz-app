@@ -386,7 +386,7 @@ export class QuizQuestionComponent
       console.error('[onVisibilityChange] Error restoring state:', error);
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       try {
           if (document.visibilityState === 'visible') {
@@ -406,6 +406,21 @@ export class QuizQuestionComponent
           }
       } catch (error) {
           console.error('[onVisibilityChange] Error restoring state:', error);
+      }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      console.log('[onVisibilityChange] Triggered. Visibility:', document.visibilityState);
+      if (document.visibilityState === 'visible') {
+          console.log('[onVisibilityChange] Restoring state...');
+          if (!this.currentQuestion) {
+              console.warn('[onVisibilityChange] No current question. Reloading...');
+              this.reloadCurrentQuestion().then(() => {
+                  this.restoreOptionsToDisplay();
+              });
+          } else {
+              this.restoreOptionsToDisplay();
+          }
       }
   }
 
@@ -1846,7 +1861,6 @@ export class QuizQuestionComponent
       console.error('[synchronizeOptionBindings] Error occurred while synchronizing bindings:', error);
       this.optionBindings = []; // Ensure bindings are cleared in case of an error
     }
-    this.cdRef.detectChanges();
   }
 
   private async reloadCurrentQuestion(): Promise<void> {
@@ -1882,7 +1896,6 @@ export class QuizQuestionComponent
             console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
             this.optionsToDisplay = [];
             this.optionBindings = [];
-            this.cdRef.detectChanges(); // Ensure UI updates
             return;
         }
 
@@ -1896,13 +1909,10 @@ export class QuizQuestionComponent
         console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
         this.synchronizeOptionBindings();
-        this.cdRef.detectChanges(); // Ensure UI updates
-
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
         this.optionsToDisplay = [];
         this.optionBindings = [];
-        this.cdRef.detectChanges(); // Ensure UI updates
     }
   }
   
@@ -2290,14 +2300,12 @@ export class QuizQuestionComponent
     }
 
     console.log('Option processed. Applying changes.');
-    this.cdRef.detectChanges();
   }
 
   private applyCooldownAndFinalize(): void {
     setTimeout(() => {
       this.isOptionSelected = false;
       this.updateExplanationText(this.currentQuestionIndex);
-      this.cdRef.detectChanges();
     }, 300);
 
     this.finalizeLoadingState();
@@ -2481,9 +2489,6 @@ export class QuizQuestionComponent
           'QuizQuestionComponent - Correct Message set:',
           this.correctMessage
         );
-
-        // Ensure the correctMessage is being updated in the view
-        this.cdRef.detectChanges();
       } else {
         console.error('Invalid question data when handling option processing');
         throw new Error('Invalid question data');
@@ -3110,7 +3115,6 @@ export class QuizQuestionComponent
 
     this.questionForm.updateValueAndValidity();
     this.updateRenderComponentState();
-    this.cdRef.detectChanges();
   }
 
   private updateRenderComponentState(): void {
@@ -3966,9 +3970,6 @@ export class QuizQuestionComponent
               `Question ${adjustedIndex} is not answered. Skipping explanation update.`
             );
           }
-
-          // Detect changes to update the UI
-          this.cdRef.detectChanges();
         })
         .catch((renderError) => {
           console.error('Error during question rendering wait:', renderError);
