@@ -413,22 +413,29 @@ export class QuizQuestionComponent
       try {
           if (document.visibilityState === 'visible') {
               console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+              
+              this.restoreQuizState();
 
               if (!this.currentQuestion) {
-                  console.warn('[onVisibilityChange] Current question missing. Reloading...');
+                  console.warn('[onVisibilityChange] Current question is missing. Reloading...');
                   this.reloadCurrentQuestion().then(() => {
-                      console.log('[onVisibilityChange] Reloaded question. Setting optionsToDisplay...');
-                      this.setOptionsToDisplay(); // Directly set options here
+                      this.restoreOptionsToDisplay();
+                      this.renderDisplay();
                   });
               } else {
-                  console.log('[onVisibilityChange] Restoring options for existing question...');
-                  this.setOptionsToDisplay(); // Directly set options here
+                  console.log('[onVisibilityChange] Restoring options for the current question...');
+                  this.restoreOptionsToDisplay();
+                  this.renderDisplay();
               }
 
-              this.renderDisplay();
+              // Additional state restoration
+              this.restoreFeedbackState();
+              this.quizStateService.notifyRestoreQuestionState();
+          } else {
+              console.log('[onVisibilityChange] Tab is hidden.');
           }
       } catch (error) {
-          console.error('[onVisibilityChange] Error restoring state:', error);
+          console.error('[onVisibilityChange] Error during state restoration:', error);
       }
   }
 
@@ -1938,11 +1945,13 @@ export class QuizQuestionComponent
 
         console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
-        if (this.optionsToDisplay?.length > 0) {
+        this.synchronizeOptionBindings();
+
+        /* if (this.optionsToDisplay?.length > 0) {
           this.synchronizeOptionBindings();
         } else {
             console.warn('[restoreOptionsToDisplay] No options to synchronize.');
-        }
+        } */
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
         this.optionsToDisplay = [];
