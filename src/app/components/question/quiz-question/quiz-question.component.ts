@@ -1910,17 +1910,17 @@ export class QuizQuestionComponent
         console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
         this.synchronizeOptionBindings();
+
+        // Force UI update if changes occur outside Angular’s lifecycle
+        setTimeout(() => {
+          console.log('[restoreOptionsToDisplay] Forcing change detection.');
+          this.cdRef.detectChanges();
+        });
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
         this.optionsToDisplay = [];
         this.optionBindings = [];
     }
-
-    // Force UI update if changes occur outside Angular’s lifecycle
-    setTimeout(() => {
-      console.log('[restoreOptionsToDisplay] Forcing change detection.');
-      this.cdRef.detectChanges();
-    });
   }
   
   private restoreFeedbackState(): void {
