@@ -415,7 +415,7 @@ export class QuizQuestionComponent
               console.log('[onVisibilityChange] Tab is visible. Restoring states...');
               
               this.restoreQuizState();
-  
+
               if (!this.currentQuestion) {
                   console.warn('[onVisibilityChange] Current question is missing. Reloading...');
                   this.reloadCurrentQuestion().then(() => {
@@ -427,7 +427,7 @@ export class QuizQuestionComponent
                   this.restoreOptionsToDisplay();
                   this.renderDisplay();
               }
-  
+
               // Additional state restoration
               this.restoreFeedbackState();
               this.quizStateService.notifyRestoreQuestionState();
