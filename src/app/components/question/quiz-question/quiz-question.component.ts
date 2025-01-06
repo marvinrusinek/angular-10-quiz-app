@@ -1980,9 +1980,10 @@ export class QuizQuestionComponent
 
         this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
             ...option,
-            active: option.active ?? true,
+            active: option.active !== undefined ? option.active : true,
             feedback: option.feedback ?? undefined,
             showIcon: option.showIcon ?? false,
+            selected: this.selectedOptionService.isSelectedOption(option)
         }));
 
         console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
