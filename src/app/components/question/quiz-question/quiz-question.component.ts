@@ -1656,6 +1656,7 @@ export class QuizQuestionComponent
     try {
       // Ensure the current question is loaded
       if (!this.currentQuestion) {
+        console.warn('[onOptionClicked] Current question is missing. Loading question...');
         await this.loadCurrentQuestion();
       }
   
@@ -1681,12 +1682,14 @@ export class QuizQuestionComponent
         this.currentQuestionIndex,
         option.optionId
       );
+      console.log('[onOptionClicked] Option tracked successfully:', option);
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(
           this.currentQuestion
         )
       );
+      console.log('[onOptionClicked] isMultipleAnswer:', isMultipleAnswer);
   
       // Prevent further input for single-answer questions
       /* if (this.handleSingleAnswerLock(isMultipleAnswer)) {
@@ -1708,8 +1711,11 @@ export class QuizQuestionComponent
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
+
+      // Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
   
+      // Allow UI changes to propagate before rendering
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
@@ -1720,7 +1726,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('❌ [onOptionClicked] Unhandled error:', error);
     }
-  }  
+  }
 
   // ====================== Helper Functions ======================
 
