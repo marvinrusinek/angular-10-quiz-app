@@ -1885,7 +1885,8 @@ export class QuizQuestionComponent
       // Restore `optionsToDisplay` with the preserved state
       this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
         ...option,
-        active: option.active !== undefined ? option.active : true, // Default to active if undefined
+        // active: option.active !== undefined ? option.active : true, // Default to active if undefined
+        active: option.active ?? true, // Default active to true
         feedback: option.feedback ?? undefined, // Preserve feedback if present
         showIcon: option.showIcon ?? false // Preserve icon state if present
       }));
@@ -1903,7 +1904,9 @@ export class QuizQuestionComponent
       } */
 
       console.log('[restoreOptionsToDisplay] Synchronized optionBindings:', this.optionBindings);
-  
+
+      // Ensure feedback state is restored
+      this.restoreFeedbackState();
     } catch (error) {
       console.error('[restoreOptionsToDisplay] Error restoring options:', error);
       this.optionsToDisplay = [];
