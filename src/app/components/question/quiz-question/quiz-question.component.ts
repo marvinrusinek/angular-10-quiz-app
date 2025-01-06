@@ -417,12 +417,12 @@ export class QuizQuestionComponent
               if (!this.currentQuestion) {
                   console.warn('[onVisibilityChange] Current question missing. Reloading...');
                   this.reloadCurrentQuestion().then(() => {
-                      console.log('[onVisibilityChange] Reloaded question. Restoring options...');
-                      this.restoreOptionsToDisplay();
+                      console.log('[onVisibilityChange] Reloaded question. Setting optionsToDisplay...');
+                      this.setOptionsToDisplay(); // Directly set options here
                   });
               } else {
                   console.log('[onVisibilityChange] Restoring options for existing question...');
-                  this.restoreOptionsToDisplay();
+                  this.setOptionsToDisplay(); // Directly set options here
               }
 
               this.renderDisplay();
@@ -431,6 +431,28 @@ export class QuizQuestionComponent
           console.error('[onVisibilityChange] Error restoring state:', error);
       }
   }
+
+  private setOptionsToDisplay(): void {
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+        console.warn('[setOptionsToDisplay] No valid options in current question.');
+        this.optionsToDisplay = [];
+        this.optionBindings = [];
+        return;
+    }
+
+    this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        ...option,
+        active: option.active ?? true,
+        feedback: option.feedback ?? undefined,
+        showIcon: option.showIcon ?? false
+    }));
+
+    console.log('[setOptionsToDisplay] Updated optionsToDisplay:', this.optionsToDisplay);
+
+    this.synchronizeOptionBindings(); // Ensure bindings are in sync
+    console.log('[setOptionsToDisplay] Updated optionBindings:', this.optionBindings);
+  }
+
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
