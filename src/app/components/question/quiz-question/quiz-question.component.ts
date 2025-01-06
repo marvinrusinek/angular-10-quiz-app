@@ -395,13 +395,12 @@ export class QuizQuestionComponent
 
         if (!this.currentQuestion) {
           console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-          await this.reloadCurrentQuestion(); // Reload the current question if it is missing
+          await this.reloadCurrentQuestion(); // Reload currentQuestion if it is missing
         }
 
-        console.log('[onVisibilityChange] Restoring options for the current question...');
-        this.restoreOptionsToDisplay(); // Restore optionsToDisplay state
-
-        this.renderDisplay(); // Update the display to reflect restored state
+        console.log('[onVisibilityChange] Restoring options...');
+        this.restoreOptionsToDisplay(); // Ensure options are restored
+        this.renderDisplay(); // Reflect current display state
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error restoring state:', error);
@@ -1876,7 +1875,7 @@ export class QuizQuestionComponent
 
   private restoreOptionsToDisplay(): void {
     try {
-      if (!this.currentQuestion || !this.currentQuestion.options) {
+      if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
         console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
         this.optionsToDisplay = [];
         this.optionBindings = [];
@@ -1894,13 +1893,14 @@ export class QuizQuestionComponent
       console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
       // Synchronize `optionBindings` after restoring `optionsToDisplay`
-      if (this.optionsToDisplay.length > 0) {
+      this.synchronizeOptionBindings();
+      /* if (this.optionsToDisplay.length > 0) {
         this.synchronizeOptionBindings();
         console.log('[restoreOptionsToDisplay] Synchronized optionBindings successfully.');
       } else {
         console.warn('[restoreOptionsToDisplay] No options to synchronize.');
         this.optionBindings = [];
-      }
+      } */
 
       console.log('[restoreOptionsToDisplay] Synchronized optionBindings:', this.optionBindings);
   
