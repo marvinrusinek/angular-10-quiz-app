@@ -364,7 +364,7 @@ export class QuizQuestionComponent
   }
 
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -381,6 +381,31 @@ export class QuizQuestionComponent
         }
 
         this.renderDisplay();
+      }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error restoring state:', error);
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+        this.restoreQuizState();
+
+        if (!this.currentQuestion) {
+          console.warn('[onVisibilityChange] Current question missing. Reloading...');
+          await this.reloadCurrentQuestion(); // Reload the current question if missing
+        }
+
+        if (this.currentQuestion?.options?.length > 0) {
+          console.log('[onVisibilityChange] Restoring options for the current question...');
+          this.restoreOptionsToDisplay(); // Ensure options are restored
+        } else {
+          console.warn('[onVisibilityChange] No options found for the current question.');
+        }
+
+        this.renderDisplay(); // Ensure display reflects the restored state
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error restoring state:', error);
@@ -1877,12 +1902,15 @@ export class QuizQuestionComponent
         console.log('[restoreOptionsToDisplay] Synchronized optionBindings successfully.');
       } else {
         console.warn('[restoreOptionsToDisplay] No options to synchronize.');
+        this.optionBindings = [];
       }
 
       console.log('[restoreOptionsToDisplay] Synchronized optionBindings:', this.optionBindings);
   
     } catch (error) {
       console.error('[restoreOptionsToDisplay] Error restoring options:', error);
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
     }
   }
   
