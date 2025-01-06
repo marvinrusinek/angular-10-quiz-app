@@ -408,7 +408,7 @@ export class QuizQuestionComponent
           console.error('[onVisibilityChange] Error restoring state:', error);
       }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
       try {
           if (document.visibilityState === 'visible') {
@@ -433,6 +433,36 @@ export class QuizQuestionComponent
               this.quizStateService.notifyRestoreQuestionState();
           } else {
               console.log('[onVisibilityChange] Tab is hidden.');
+          }
+      } catch (error) {
+          console.error('[onVisibilityChange] Error during state restoration:', error);
+      }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      try {
+          if (document.visibilityState === 'visible') {
+              console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+              
+              // First restore the quiz state
+              this.restoreQuizState();
+
+              // Then ensure we have a valid current question
+              if (!this.currentQuestion) {
+                  console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+                  this.reloadCurrentQuestion().then(() => {
+                      this.ensureOptionsToDisplay();
+                      this.renderDisplay();
+                  });
+              } else {
+                  console.log('[onVisibilityChange] Current question exists, restoring options...');
+                  this.ensureOptionsToDisplay();
+                  this.renderDisplay();
+              }
+
+              // Restore feedback and other states
+              this.restoreFeedbackState();
+              this.cdRef.detectChanges();
           }
       } catch (error) {
           console.error('[onVisibilityChange] Error during state restoration:', error);
@@ -1885,45 +1915,57 @@ export class QuizQuestionComponent
   
   private synchronizeOptionBindings(): void {
     try {
-      if (this.optionsToDisplay?.length > 0) {
-        // Synchronize optionBindings with optionsToDisplay
-        this.optionBindings = [...this.optionsToDisplay];
-        console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
-      } else {
-        // Clear optionBindings if no options are available
-        this.optionBindings = [];
-        console.warn('[synchronizeOptionBindings] No options to synchronize. Clearing bindings.');
-      }
+        if (this.optionsToDisplay?.length > 0) {
+            // Create a deep copy of the options
+            this.optionBindings = this.optionsToDisplay.map(option => ({
+                ...option,
+                selected: this.selectedOptionService.isSelectedOption(option)
+            }));
+            console.log('[synchronizeOptionBindings] Synchronized bindings:', this.optionBindings);
+        } else {
+            console.warn('[synchronizeOptionBindings] No options to synchronize');
+            this.optionBindings = [];
+        }
     } catch (error) {
-      console.error('[synchronizeOptionBindings] Error occurred while synchronizing bindings:', error);
-      this.optionBindings = []; // Ensure bindings are cleared in case of an error
+        console.error('[synchronizeOptionBindings] Error:', error);
+        this.optionBindings = [];
     }
-  }
+  } 
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
-      const quizId = this.quizService.getCurrentQuizId();
-      if (!quizId) {
-        throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
-      }
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+            throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
+        }
 
-      const question = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
-      );
+        const question = await firstValueFrom(
+            this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
+        );
 
-      if (question) {
-        console.log('[reloadCurrentQuestion] Question reloaded:', question);
-        this.currentQuestion = question;
-
-        // Ensure options are restored
-        this.restoreOptionsToDisplay();
-      } else {
-        throw new Error('[reloadCurrentQuestion] Failed to reload question.');
-      }
+        if (question) {
+            console.log('[reloadCurrentQuestion] Question reloaded:', question);
+            this.currentQuestion = question;
+            
+            // Ensure options are properly initialized
+            if (Array.isArray(question.options)) {
+                this.optionsToDisplay = question.options.map(option => ({
+                    ...option,
+                    active: option.active ?? true,
+                    feedback: option.feedback ?? undefined,
+                    showIcon: option.showIcon ?? false,
+                    selected: this.selectedOptionService.isSelectedOption(option)
+                }));
+                
+                this.synchronizeOptionBindings();
+            }
+        } else {
+            throw new Error('[reloadCurrentQuestion] Failed to reload question.');
+        }
     } catch (error) {
-      console.error('[reloadCurrentQuestion] Error fetching question:', error);
-      this.currentQuestion = null; // Reset currentQuestion on error
-      this.optionsToDisplay = [];
+        console.error('[reloadCurrentQuestion] Error:', error);
+        this.currentQuestion = null;
+        this.optionsToDisplay = [];
     }
   }
 
@@ -1982,21 +2024,27 @@ export class QuizQuestionComponent
 
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[ensureOptionsToDisplay] Options are missing. Attempting to restore...');
-      if (this.currentQuestion?.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-          ...option,
-          active: option.active ?? true,
-          feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false
-        }));
-        this.synchronizeOptionBindings();
-        console.log('[ensureOptionsToDisplay] Options restored:', this.optionsToDisplay);
-      } else {
-        console.error('[ensureOptionsToDisplay] No options available to restore.');
-      }
+        console.log('[ensureOptionsToDisplay] Attempting to restore options...');
+        
+        if (this.currentQuestion?.options) {
+            // Create a new array with all necessary properties
+            this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+                ...option,
+                active: option.active ?? true,
+                feedback: option.feedback ?? undefined,
+                showIcon: option.showIcon ?? false,
+                selected: this.selectedOptionService.isSelectedOption(option)
+            }));
+
+            // Ensure bindings are synchronized
+            this.synchronizeOptionBindings();
+            
+            console.log('[ensureOptionsToDisplay] Options restored:', this.optionsToDisplay);
+        } else {
+            console.warn('[ensureOptionsToDisplay] No options available in current question');
+        }
     } else {
-      console.log('[ensureOptionsToDisplay] Options are already available.');
+        console.log('[ensureOptionsToDisplay] Options already available:', this.optionsToDisplay);
     }
   }
 
