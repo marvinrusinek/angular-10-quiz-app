@@ -422,7 +422,6 @@ export class QuizQuestionComponent
               this.restoreOptionsToDisplay();
           }
       }
-      setTimeout(() => this.cdRef.detectChanges());
   }
 
   private renderDisplay(): void {
@@ -1910,12 +1909,6 @@ export class QuizQuestionComponent
         console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
         this.synchronizeOptionBindings();
-
-        // Force UI update if changes occur outside Angular’s lifecycle
-        setTimeout(() => {
-          console.log('[restoreOptionsToDisplay] Forcing change detection.');
-          this.cdRef.detectChanges();
-        });
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
         this.optionsToDisplay = [];
