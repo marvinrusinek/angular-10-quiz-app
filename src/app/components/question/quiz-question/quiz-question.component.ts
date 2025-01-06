@@ -1656,6 +1656,7 @@ export class QuizQuestionComponent
     try {
       // Ensure the current question is loaded
       if (!this.currentQuestion) {
+        console.warn('[onOptionClicked] Current question is missing. Loading question...');
         await this.loadCurrentQuestion();
       }
   
@@ -1681,12 +1682,14 @@ export class QuizQuestionComponent
         this.currentQuestionIndex,
         option.optionId
       );
+      console.log('[onOptionClicked] Option tracked successfully:', option);
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(
           this.currentQuestion
         )
       );
+      console.log('[onOptionClicked] isMultipleAnswer:', isMultipleAnswer);
   
       // Prevent further input for single-answer questions
       /* if (this.handleSingleAnswerLock(isMultipleAnswer)) {
@@ -1708,8 +1711,11 @@ export class QuizQuestionComponent
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
+
+      // Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
   
+      // Allow UI changes to propagate before rendering
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
@@ -1788,27 +1794,49 @@ export class QuizQuestionComponent
   }
 
   private applyOptionFeedback(option: Option): void {
-    this.showFeedback = true;
-  
-    if (option.correct) {
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-        ...opt,
-        active: opt.correct, // Correct options remain active
-        feedback: opt.correct ? undefined : 'x', // Feedback for incorrect options
-        showIcon: opt.correct || opt.showIcon // Show icon for correct options
-      }));
-    } else {
-      this.optionsToDisplay = this.optionsToDisplay.map(opt =>
-        opt === option
-          ? { ...opt, feedback: 'x', showIcon: true, active: false } // Feedback and disable for selected incorrect
-          : { ...opt, active: opt.correct, showIcon: opt.showIcon || opt.correct } // Maintain correct options
-      );
-    }
-  
-    console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
+    try {
+        this.showFeedback = true;
 
-    // Synchronize optionBindings after feedback
-    this.synchronizeOptionBindings();
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[applyOptionFeedback] optionsToDisplay is empty. Cannot apply feedback.');
+            return;
+        }
+
+        console.log('[applyOptionFeedback] Initial optionsToDisplay:', this.optionsToDisplay);
+
+        if (option.correct) {
+            console.log('[applyOptionFeedback] Correct option selected:', option);
+
+            // Update options for correct selection
+            this.optionsToDisplay = this.optionsToDisplay.map((opt) => ({
+                ...opt,
+                active: opt.correct, // Only correct options remain active
+                feedback: opt.correct ? undefined : 'x', // Feedback for incorrect options
+                showIcon: opt.correct || opt.showIcon, // Show icon for correct options
+            }));
+        } else {
+            console.log('[applyOptionFeedback] Incorrect option selected:', option);
+
+            // Update options for incorrect selection
+            this.optionsToDisplay = this.optionsToDisplay.map((opt) =>
+                opt === option
+                    ? { ...opt, active: false, feedback: 'x', showIcon: true } // Disable selected incorrect option
+                    : { ...opt, active: opt.correct, showIcon: opt.showIcon || opt.correct } // Maintain correct options
+            );
+        }
+
+        console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
+
+        // Synchronize optionBindings
+        this.synchronizeOptionBindings();
+
+        console.log('[applyOptionFeedback] Synchronized optionBindings:', this.optionBindings);
+
+        // Trigger UI update
+        this.cdRef.detectChanges();
+    } catch (error) {
+        console.error('[applyOptionFeedback] Error applying feedback:', error);
+    }
   }
   
   private synchronizeOptionBindings(): void {
