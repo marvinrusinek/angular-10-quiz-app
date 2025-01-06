@@ -397,14 +397,12 @@ export class QuizQuestionComponent
                   console.warn('[onVisibilityChange] Current question missing. Reloading...');
                   this.reloadCurrentQuestion().then(() => {
                       this.restoreOptionsToDisplay(); // Ensure options are restored after reloading
-                      this.cdRef.detectChanges(); // Trigger UI updates
                   });
               } else {
                   this.restoreOptionsToDisplay();
-                  this.cdRef.detectChanges(); // Trigger UI updates
               }
 
-              this.renderDisplay();
+              this.cdRef.detectChanges(); // Ensure template updates
           }
       } catch (error) {
           console.error('[onVisibilityChange] Error restoring state:', error);
@@ -1848,6 +1846,7 @@ export class QuizQuestionComponent
       console.error('[synchronizeOptionBindings] Error occurred while synchronizing bindings:', error);
       this.optionBindings = []; // Ensure bindings are cleared in case of an error
     }
+    this.cdRef.detectChanges();
   }
 
   private async reloadCurrentQuestion(): Promise<void> {
