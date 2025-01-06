@@ -394,18 +394,14 @@ export class QuizQuestionComponent
         this.restoreQuizState();
 
         if (!this.currentQuestion) {
-          console.warn('[onVisibilityChange] Current question missing. Reloading...');
-          await this.reloadCurrentQuestion(); // Reload the current question if missing
+          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+          await this.reloadCurrentQuestion(); // Reload the current question if it is missing
         }
 
-        if (this.currentQuestion?.options?.length > 0) {
-          console.log('[onVisibilityChange] Restoring options for the current question...');
-          this.restoreOptionsToDisplay(); // Ensure options are restored
-        } else {
-          console.warn('[onVisibilityChange] No options found for the current question.');
-        }
+        console.log('[onVisibilityChange] Restoring options for the current question...');
+        this.restoreOptionsToDisplay(); // Restore optionsToDisplay state
 
-        this.renderDisplay(); // Ensure display reflects the restored state
+        this.renderDisplay(); // Update the display to reflect restored state
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error restoring state:', error);
@@ -1874,6 +1870,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[reloadCurrentQuestion] Error fetching question:', error);
       this.currentQuestion = null; // Reset currentQuestion on error
+      this.optionsToDisplay = [];
     }
   }
 
