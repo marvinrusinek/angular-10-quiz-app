@@ -410,17 +410,25 @@ export class QuizQuestionComponent
   } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-      console.log('[onVisibilityChange] Triggered. Visibility:', document.visibilityState);
-      if (document.visibilityState === 'visible') {
-          console.log('[onVisibilityChange] Restoring state...');
-          if (!this.currentQuestion) {
-              console.warn('[onVisibilityChange] No current question. Reloading...');
-              this.reloadCurrentQuestion().then(() => {
+      try {
+          if (document.visibilityState === 'visible') {
+              console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+
+              if (!this.currentQuestion) {
+                  console.warn('[onVisibilityChange] Current question missing. Reloading...');
+                  this.reloadCurrentQuestion().then(() => {
+                      console.log('[onVisibilityChange] Reloaded question. Restoring options...');
+                      this.restoreOptionsToDisplay();
+                  });
+              } else {
+                  console.log('[onVisibilityChange] Restoring options for existing question...');
                   this.restoreOptionsToDisplay();
-              });
-          } else {
-              this.restoreOptionsToDisplay();
+              }
+
+              this.renderDisplay();
           }
+      } catch (error) {
+          console.error('[onVisibilityChange] Error restoring state:', error);
       }
   }
 
@@ -1908,7 +1916,11 @@ export class QuizQuestionComponent
 
         console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
 
-        this.synchronizeOptionBindings();
+        if (this.optionsToDisplay?.length > 0) {
+          this.synchronizeOptionBindings();
+        } else {
+            console.warn('[restoreOptionsToDisplay] No options to synchronize.');
+        }
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
         this.optionsToDisplay = [];
