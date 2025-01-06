@@ -1946,19 +1946,18 @@ export class QuizQuestionComponent
         if (question) {
             console.log('[reloadCurrentQuestion] Question reloaded:', question);
             this.currentQuestion = question;
-            
-            // Ensure options are properly initialized
-            if (Array.isArray(question.options)) {
-                this.optionsToDisplay = question.options.map(option => ({
-                    ...option,
-                    active: option.active ?? true,
-                    feedback: option.feedback ?? undefined,
-                    showIcon: option.showIcon ?? false,
-                    selected: this.selectedOptionService.isSelectedOption(option)
-                }));
-                
-                this.synchronizeOptionBindings();
-            }
+
+            // Ensure options are initialized
+            this.optionsToDisplay = question.options.map(option => ({
+                ...option,
+                active: option.active ?? true,
+                feedback: option.feedback ?? undefined,
+                showIcon: option.showIcon ?? false,
+                selected: this.selectedOptionService.isSelectedOption(option)
+            }));
+
+            console.log('[reloadCurrentQuestion] Options restored:', this.optionsToDisplay);
+            this.synchronizeOptionBindings();
         } else {
             throw new Error('[reloadCurrentQuestion] Failed to reload question.');
         }
@@ -1966,6 +1965,7 @@ export class QuizQuestionComponent
         console.error('[reloadCurrentQuestion] Error:', error);
         this.currentQuestion = null;
         this.optionsToDisplay = [];
+        this.optionBindings = [];
     }
   }
 
@@ -2023,28 +2023,26 @@ export class QuizQuestionComponent
   }
 
   private ensureOptionsToDisplay(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.log('[ensureOptionsToDisplay] Attempting to restore options...');
-        
-        if (this.currentQuestion?.options) {
-            // Create a new array with all necessary properties
-            this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+    try {
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.log('[ensureOptionsToDisplay] Restoring options from currentQuestion...');
+            this.optionsToDisplay = this.currentQuestion?.options?.map(option => ({
                 ...option,
                 active: option.active ?? true,
                 feedback: option.feedback ?? undefined,
                 showIcon: option.showIcon ?? false,
                 selected: this.selectedOptionService.isSelectedOption(option)
-            }));
+            })) || [];
 
-            // Ensure bindings are synchronized
             this.synchronizeOptionBindings();
-            
             console.log('[ensureOptionsToDisplay] Options restored:', this.optionsToDisplay);
         } else {
-            console.warn('[ensureOptionsToDisplay] No options available in current question');
+            console.log('[ensureOptionsToDisplay] Options already available:', this.optionsToDisplay);
         }
-    } else {
-        console.log('[ensureOptionsToDisplay] Options already available:', this.optionsToDisplay);
+    } catch (error) {
+        console.error('[ensureOptionsToDisplay] Error restoring options:', error);
+        this.optionsToDisplay = [];
+        this.optionBindings = [];
     }
   }
 
