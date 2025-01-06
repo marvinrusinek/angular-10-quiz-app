@@ -1806,6 +1806,9 @@ export class QuizQuestionComponent
     }
   
     console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
+
+    // Synchronize optionBindings after feedback
+    this.synchronizeOptionBindings();
   }
   
   private synchronizeOptionBindings(): void {
