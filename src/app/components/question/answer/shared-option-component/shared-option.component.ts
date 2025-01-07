@@ -122,7 +122,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -143,6 +143,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+      this.initializeOptionBindings();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -894,55 +902,53 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
 
   initializeOptionBindings(): void {
-    // Fetch the current question by index
-    this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
-      next: (question) => {
-        if (!question) {
-          console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
-          return;
-        }
+    console.log('[initializeOptionBindings] Starting initialization.');
   
-        this.currentQuestion = question;
-        console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
+    // Clear existing bindings to avoid duplicates
+    this.optionBindings = [];
   
-        // Retrieve correct options for the current question
-        const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[initializeOptionBindings] No options to display. Aborting initialization.');
+      return;
+    }
   
-        if (!correctOptions || correctOptions.length === 0) {
-          console.warn('[initializeOptionBindings] No correct options defined. Skipping feedback generation.');
-          return;
-        }
+    console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
   
-        console.log('[initializeOptionBindings] Correct options:', correctOptions);
+    // Ensure `currentQuestion` is valid
+    if (!this.currentQuestion) {
+      console.error('[initializeOptionBindings] No current question available.');
+      return;
+    }
   
-        // Ensure optionsToDisplay is defined and populated
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
-          return;
-        }
+    // Retrieve correct options for the current question
+    const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
   
-        console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[initializeOptionBindings] No correct options defined.');
+    }
   
-        // Map optionsToDisplay to initialize optionBindings
-        this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-          const optionBinding = this.getOptionBindings(option, idx);
+    console.log('[initializeOptionBindings] Correct options:', correctOptions);
   
-          // Generate feedback for each option
-          option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+    // Map `optionsToDisplay` to create `optionBindings`
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isCorrect = correctOptions.some((correctOption) => correctOption.optionId === option.optionId);
+      const feedback = isCorrect ? 'Correct answer!' : 'No feedback available.';
   
-          console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
+      const optionBinding = {
+        type: this.isMultipleChoice ? 'multiple' : 'single',
+        option: option,
+        feedback,
+        selected: option.selected || false,
+        active: option.active ?? true,
+      };
   
-          // Return the created option binding
-          return optionBinding;
-        });
+      console.log(`[initializeOptionBindings] Created option binding for option ${option.optionId}:`, optionBinding);
   
-        console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
-      },
-      error: (err) => {
-        console.error('[initializeOptionBindings] Error fetching current question:', err);
-      },
+      return optionBinding;
     });
-  }
+  
+    console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+  }  
 
   generateFeedbackForOptions(
     correctOptions: Option[],
