@@ -877,6 +877,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
                 this.currentQuestion = question;
                 console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
 
+                // Reset `optionsToDisplay` and `optionBindings` to avoid duplication
+                this.optionsToDisplay = [];
+                this.optionBindings = [];
+
                 // Retrieve correct options for the current question
                 const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
                 if (!correctOptions || correctOptions.length === 0) {
@@ -886,22 +890,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
                 console.log('[initializeOptionBindings] Correct options:', correctOptions);
 
                 // Validate `optionsToDisplay`
-                if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-                    console.warn('[initializeOptionBindings] No options to display. Attempting to restore...');
-                    this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-                        ...option,
-                        active: option.active ?? true,
-                        feedback: option.feedback ?? undefined,
-                        showIcon: option.showIcon ?? false,
-                    }));
-                    console.log('[initializeOptionBindings] Restored optionsToDisplay:', this.optionsToDisplay);
-                }
-
-                if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-                    console.error('[initializeOptionBindings] Options to display could not be restored. Aborting.');
-                    this.optionBindings = [];
+                if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+                    console.error('[initializeOptionBindings] No options found in the current question. Aborting.');
                     return;
                 }
+
+                this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+                    ...option,
+                    active: option.active ?? true,
+                    feedback: option.feedback ?? undefined,
+                    showIcon: option.showIcon ?? false,
+                }));
 
                 console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
 
@@ -919,6 +918,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
                 });
 
                 console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+
+                // Ensure UI updates
+                this.cdRef.detectChanges();
             } catch (error) {
                 console.error('[initializeOptionBindings] Unexpected error during initialization:', error);
                 this.optionsToDisplay = [];
