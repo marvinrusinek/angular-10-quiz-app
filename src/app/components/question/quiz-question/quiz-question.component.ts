@@ -440,33 +440,32 @@ export class QuizQuestionComponent
   } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-      try {
-          if (document.visibilityState === 'visible') {
-              console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
               
-              // First restore the quiz state
-              this.restoreQuizState();
+        // First restore the quiz state
+        this.restoreQuizState();
 
-              // Then ensure we have a valid current question
-              if (!this.currentQuestion) {
-                  console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-                  this.reloadCurrentQuestion().then(() => {
-                      this.ensureOptionsToDisplay();
-                      this.renderDisplay();
-                  });
-              } else {
-                  console.log('[onVisibilityChange] Current question exists, restoring options...');
-                  this.ensureOptionsToDisplay();
-                  this.renderDisplay();
-              }
+        // Then ensure we have a valid current question
+        if (!this.currentQuestion) {
+          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+          this.reloadCurrentQuestion().then(() => {
+            this.ensureOptionsToDisplay();
+            this.renderDisplay();
+          });
+        } else {
+          console.log('[onVisibilityChange] Current question exists, restoring options...');
+          this.ensureOptionsToDisplay();
+          this.renderDisplay();
+        }
 
-              // Restore feedback and other states
-              this.restoreFeedbackState();
-              this.cdRef.detectChanges();
-          }
-      } catch (error) {
-          console.error('[onVisibilityChange] Error during state restoration:', error);
+        // Restore feedback and other states
+        this.restoreFeedbackState();
       }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
   }
 
   private setOptionsToDisplay(): void {
