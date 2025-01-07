@@ -125,7 +125,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
+      console.log('[SharedOptionComponent] Restoring bindings on visibility change.');
       this.initializeOptionBindings();
+      this.cdRef.detectChanges();
     } else {
       console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
