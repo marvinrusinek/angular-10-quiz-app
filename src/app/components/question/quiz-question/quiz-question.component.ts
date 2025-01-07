@@ -438,7 +438,7 @@ export class QuizQuestionComponent
           console.error('[onVisibilityChange] Error during state restoration:', error);
       }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -466,6 +466,36 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+      try {
+          if (document.visibilityState === 'visible') {
+              console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+              
+              // First restore the quiz state
+              this.restoreQuizState();
+
+              // Then handle question and options restoration
+              if (!this.currentQuestion) {
+                  console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+                  this.reloadCurrentQuestion().then(() => {
+                      this.restoreOptionsToDisplay();
+                      this.restoreFeedbackState();
+                      this.renderDisplay();
+                  });
+              } else {
+                  console.log('[onVisibilityChange] Current question exists, restoring options...');
+                  this.restoreOptionsToDisplay();
+                  this.restoreFeedbackState();
+                  this.renderDisplay();
+              }
+
+              this.cdRef.detectChanges();
+          }
+      } catch (error) {
+          console.error('[onVisibilityChange] Error during state restoration:', error);
+      }
   }
 
   private setOptionsToDisplay(): void {
@@ -1968,7 +1998,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private restoreOptionsToDisplay(): void {
+  /* private restoreOptionsToDisplay(): void {
     try {
         if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
             console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
@@ -1989,19 +2019,43 @@ export class QuizQuestionComponent
 
         this.synchronizeOptionBindings();
 
-        /* if (this.optionsToDisplay?.length > 0) {
-          this.synchronizeOptionBindings();
-        } else {
-            console.warn('[restoreOptionsToDisplay] No options to synchronize.');
-        } */
+        //if (this.optionsToDisplay?.length > 0) {
+        //  this.synchronizeOptionBindings();
+        //} else {
+        //    console.warn('[restoreOptionsToDisplay] No options to synchronize.');
+        //}
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
         this.optionsToDisplay = [];
         this.optionBindings = [];
     }
+  } */
+  private restoreOptionsToDisplay(): void {
+    try {
+        if (!this.currentQuestion?.options) {
+            console.warn('[restoreOptionsToDisplay] No options available in current question.');
+            return;
+        }
+
+        // Create a new array with restored options
+        this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+            ...option,
+            active: option.active ?? true,
+            feedback: option.feedback ?? undefined,
+            showIcon: option.showIcon ?? false,
+            selected: this.selectedOptionService.isSelectedOption(option)
+        }));
+
+        // Ensure option bindings are synchronized
+        this.synchronizeOptionBindings();
+        
+        console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
+    } catch (error) {
+        console.error('[restoreOptionsToDisplay] Error restoring options:', error);
+    }
   }
   
-  private restoreFeedbackState(): void {
+  /* private restoreFeedbackState(): void {
     try {
       if (!this.currentQuestion || !this.optionsToDisplay.length) {
         console.warn('[restoreFeedbackState] Missing current question or options to display.');
@@ -2019,6 +2073,42 @@ export class QuizQuestionComponent
       this.synchronizeOptionBindings(); // Ensure bindings are synchronized
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
+    }
+  } */
+  private restoreFeedbackState(): void {
+    try {
+        if (!this.optionsToDisplay?.length) {
+            console.warn('[restoreFeedbackState] No options to restore feedback for.');
+            return;
+        }
+
+        const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
+        
+        this.optionsToDisplay = this.optionsToDisplay.map(option => {
+            const isSelected = this.selectedOptionService.isSelectedOption(option);
+            return {
+                ...option,
+                feedback: isAnswered ? (option.correct ? undefined : 'x') : undefined,
+                showIcon: isAnswered && (option.correct || isSelected),
+                active: !isAnswered || option.correct
+            };
+        });
+
+        // Update feedback visibility states
+        if (isAnswered) {
+            this.showFeedback = true;
+            this.optionsToDisplay.forEach(option => {
+                this.showFeedbackForOption[option.optionId] = 
+                    option.correct || this.selectedOptionService.isSelectedOption(option);
+            });
+        }
+
+        console.log('[restoreFeedbackState] Feedback state restored:', {
+            optionsToDisplay: this.optionsToDisplay,
+            showFeedbackForOption: this.showFeedbackForOption
+        });
+    } catch (error) {
+        console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
   }
 
