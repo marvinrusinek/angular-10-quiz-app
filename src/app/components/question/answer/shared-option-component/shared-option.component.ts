@@ -864,75 +864,37 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
 
   initializeOptionBindings(): void {
-    this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
-        next: (question) => {
-            try {
-                if (!question) {
-                    console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
-                    this.optionsToDisplay = [];
-                    this.optionBindings = [];
-                    return;
-                }
+    try {
+        if (this.optionBindings && this.optionBindings.length > 0) {
+            console.warn('[initializeOptionBindings] Option bindings already initialized. Skipping.');
+            return;
+        }
 
-                this.currentQuestion = question;
-                console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
-
-                // Reset `optionsToDisplay` and `optionBindings` to avoid duplication
-                this.optionsToDisplay = [];
-                this.optionBindings = [];
-
-                // Retrieve correct options for the current question
-                const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-                if (!correctOptions || correctOptions.length === 0) {
-                    console.warn('[initializeOptionBindings] No correct options defined. Skipping feedback generation.');
-                }
-
-                console.log('[initializeOptionBindings] Correct options:', correctOptions);
-
-                // Validate `optionsToDisplay`
-                if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-                    console.error('[initializeOptionBindings] No options found in the current question. Aborting.');
-                    return;
-                }
-
-                this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-                    ...option,
-                    active: option.active ?? true,
-                    feedback: option.feedback ?? undefined,
-                    showIcon: option.showIcon ?? false,
-                }));
-
-                console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
-
-                // Map optionsToDisplay to initialize optionBindings
-                this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-                    const optionBinding = this.getOptionBindings(option, idx);
-
-                    // Generate feedback for each option
-                    option.feedback =
-                        this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ??
-                        'No feedback available.';
-                    console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
-
-                    return optionBinding;
-                });
-
-                console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
-
-                // Ensure UI updates
-                this.cdRef.detectChanges();
-            } catch (error) {
-                console.error('[initializeOptionBindings] Unexpected error during initialization:', error);
-                this.optionsToDisplay = [];
-                this.optionBindings = [];
-            }
-        },
-        error: (err) => {
-            console.error('[initializeOptionBindings] Error fetching current question:', err);
-            this.optionsToDisplay = [];
+        if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+            console.error('[initializeOptionBindings] Current question or options are invalid.');
             this.optionBindings = [];
-        },
-    });
+            this.optionsToDisplay = [];
+            return;
+        }
+
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+            ...option,
+            active: option.active ?? true,
+            feedback: option.feedback ?? undefined,
+            showIcon: option.showIcon ?? false,
+        }));
+
+        this.optionBindings = this.optionsToDisplay.map((option) => ({
+            ...option,
+            selected: this.selectedOptionService.isSelectedOption(option),
+        }));
+
+        console.log('[initializeOptionBindings] Initialized optionBindings:', this.optionBindings);
+    } catch (error) {
+        console.error('[initializeOptionBindings] Error:', error);
+        this.optionsToDisplay = [];
+        this.optionBindings = [];
+    }
   }
 
   generateFeedbackForOptions(
