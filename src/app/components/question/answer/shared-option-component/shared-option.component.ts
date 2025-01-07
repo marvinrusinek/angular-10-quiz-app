@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -118,6 +118,16 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
+    }
+  }
+
+  // Handle visibility changes to restore state
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
+      this.initializeOptionBindings();
+    } else {
+      console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
   }
 
