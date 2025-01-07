@@ -125,9 +125,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
-      console.log('[SharedOptionComponent] Restoring bindings on visibility change.');
       this.initializeOptionBindings();
-      this.cdRef.detectChanges();
     } else {
       console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
@@ -864,37 +862,54 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
 
   initializeOptionBindings(): void {
-    try {
-        if (this.optionBindings && this.optionBindings.length > 0) {
-            console.warn('[initializeOptionBindings] Option bindings already initialized. Skipping.');
-            return;
+    // Fetch the current question by index
+    this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
+      next: (question) => {
+        if (!question) {
+          console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
+          return;
         }
-
-        if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-            console.error('[initializeOptionBindings] Current question or options are invalid.');
-            this.optionBindings = [];
-            this.optionsToDisplay = [];
-            return;
+  
+        this.currentQuestion = question;
+        console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
+  
+        // Retrieve correct options for the current question
+        const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+  
+        if (!correctOptions || correctOptions.length === 0) {
+          console.warn('[initializeOptionBindings] No correct options defined. Skipping feedback generation.');
+          return;
         }
-
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-            ...option,
-            active: option.active ?? true,
-            feedback: option.feedback ?? undefined,
-            showIcon: option.showIcon ?? false,
-        }));
-
-        this.optionBindings = this.optionsToDisplay.map((option) => ({
-            ...option,
-            selected: this.selectedOptionService.isSelectedOption(option),
-        }));
-
-        console.log('[initializeOptionBindings] Initialized optionBindings:', this.optionBindings);
-    } catch (error) {
-        console.error('[initializeOptionBindings] Error:', error);
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
-    }
+  
+        console.log('[initializeOptionBindings] Correct options:', correctOptions);
+  
+        // Ensure optionsToDisplay is defined and populated
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
+          return;
+        }
+  
+        console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
+  
+        // Map optionsToDisplay to initialize optionBindings
+        this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+          const optionBinding = this.getOptionBindings(option, idx);
+  
+          // Generate feedback for each option
+          option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+  
+          console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
+  
+          // Return the created option binding
+          return optionBinding;
+        });
+  
+        console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+      },
+      error: (err) => {
+        console.error('[initializeOptionBindings] Error fetching current question:', err);
+      },
+    });
   }
 
   generateFeedbackForOptions(
