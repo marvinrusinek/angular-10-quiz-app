@@ -490,8 +490,6 @@ export class QuizQuestionComponent
                   this.restoreFeedbackState();
                   this.renderDisplay();
               }
-
-              this.cdRef.detectChanges();
           }
       } catch (error) {
           console.error('[onVisibilityChange] Error during state restoration:', error);
