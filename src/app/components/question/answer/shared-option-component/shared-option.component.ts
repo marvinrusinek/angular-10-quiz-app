@@ -197,7 +197,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         highlightCorrectAfterIncorrect: false, // Adjust if necessary
         allOptions: [...this.optionsToDisplay], // Include all options
         appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio', // Set type for highlighting
-        appHighlightReset: false // Default reset state
+        appHighlightReset: false, // Default reset state
+        appResetBackground: false, // Add missing property with default value
+        optionsToDisplay: [...this.optionsToDisplay], // Add missing property with default value
+        checked: false, // Add missing property with default value
+        change: () => {} // Add missing property with a default empty function
       }));
   
       console.log('[SharedOptionComponent] Option bindings synchronized:', this.optionBindings);
