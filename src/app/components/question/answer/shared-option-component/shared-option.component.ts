@@ -169,7 +169,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.synchronizeOptionBindings();
   }
 
-  private synchronizeOptionBindings(): void {
+  private async synchronizeOptionBindings(): Promise<void> {
     try {
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[SharedOptionComponent] No options to synchronize. Clearing bindings.');
@@ -177,7 +177,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         return;
       }
 
-      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion);
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
   
       console.log('[SharedOptionComponent] Synchronizing option bindings.');
   
