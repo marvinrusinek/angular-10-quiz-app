@@ -156,31 +156,32 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private synchronizeOptionBindings(): void {
     try {
-      if (this.optionsToDisplay?.length > 0) {
-        // Map optionsToDisplay to optionBindings
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[synchronizeOptionBindings] No options to synchronize.');
+            this.optionBindings = [];
+            return;
+        }
+
         this.optionBindings = this.optionsToDisplay.map(option => ({
-          type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single',
-          option: option,
-          feedback: option.feedback || 'No feedback available',
-          isSelected: option.selected || false,
-          active: option.active ?? true,
-          appHighlightOption: false,
-          isCorrect: option.correct || false,
-          showFeedback: false,
-          showFeedbackForOption: {},
-          highlightCorrectAfterIncorrect: false,
-          allOptions: [],
-          appHighlightInputType: '',
-          appHighlightReset: false,
+            type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single',
+            option: option,
+            feedback: option.feedback || 'No feedback available',
+            isSelected: !!option.selected, // Ensure boolean
+            active: option.active ?? true,
+            appHighlightOption: '', // Provide valid string or computed value
+            isCorrect: !!option.correct, // Ensure boolean
+            showFeedback: false, // Adjust if necessary
+            showFeedbackForOption: {}, // Provide a default or computed value
+            highlightCorrectAfterIncorrect: false, // Default or computed value
+            allOptions: [...this.optionsToDisplay], // Provide all options
+            appHighlightInputType: '', // Default or computed value
+            appHighlightReset: false // Default or computed value
         }));
-        console.log('[SharedOptionComponent] Synchronized optionBindings:', this.optionBindings);
-      } else {
-        console.warn('[SharedOptionComponent] No options to synchronize');
-        this.optionBindings = [];
-      }
+
+        console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
     } catch (error) {
-      console.error('[SharedOptionComponent] Error during synchronization:', error);
-      this.optionBindings = [];
+        console.error('[synchronizeOptionBindings] Error:', error);
+        this.optionBindings = [];
     }
   }
   
