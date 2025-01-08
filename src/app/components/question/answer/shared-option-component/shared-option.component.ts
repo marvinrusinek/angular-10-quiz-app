@@ -149,26 +149,36 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      if (this.isRestoringState) {
-        console.log('[onVisibilityChange] State restoration already in progress. Skipping...');
-        return;
-      }
-  
-      this.isRestoringState = true;
-  
-      try {
+    try {
+      if (document.visibilityState === 'visible') {
+        if (this.isRestoringState) {
+          console.log('[onVisibilityChange] State restoration already in progress. Skipping...');
+          return;
+        }
+
+        this.isRestoringState = true;
+
         console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-        this.restoreOptionsToDisplay();
+
+        // Ensure options are restored
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.warn('[onVisibilityChange] No options available. Attempting restoration...');
+          this.restoreOptionsToDisplay();
+        }
+
+        // Reinitialize bindings to reflect the restored state
         this.initializeOptionBindings();
+
         console.log('[onVisibilityChange] State restored successfully.');
-      } catch (error) {
-        console.error('[onVisibilityChange] Error during state restoration:', error);
-      } finally {
-        this.isRestoringState = false;
+      } else {
+        console.log('[onVisibilityChange] Tab is hidden. No actions needed.');
       }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during visibility change handling:', error);
+    } finally {
+      this.isRestoringState = false;
     }
-  }  
+  }
 
   private restoreOptionsToDisplay(): void {
     try {
