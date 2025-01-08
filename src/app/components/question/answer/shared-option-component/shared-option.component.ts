@@ -303,6 +303,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       ariaLabel: optionBinding.ariaLabel,
       isSelected: optionBinding.isSelected,
       isCorrect: optionBinding.isCorrect,
+      feedback: optionBinding.feedback,
       showFeedback: optionBinding.showFeedback,
       showFeedbackForOption: optionBinding.showFeedbackForOption,
       highlightCorrectAfterIncorrect: optionBinding.highlightCorrectAfterIncorrect,
