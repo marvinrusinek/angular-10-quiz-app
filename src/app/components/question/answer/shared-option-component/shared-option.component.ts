@@ -133,7 +133,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -147,29 +147,64 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+
+        // Restore optionsToDisplay if not already set
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.log('[onVisibilityChange] Restoring optionsToDisplay...');
+          this.restoreOptionsToDisplay();
+        } else {
+          console.log('[onVisibilityChange] optionsToDisplay is already set:', this.optionsToDisplay);
+        }
+
+        // Reinitialize option bindings
+        this.synchronizeOptionBindings();
+
+        // Force UI refresh
+        setTimeout(() => {
+          console.log('[onVisibilityChange] Forcing change detection...');
+          this.cdRef.detectChanges();
+        }, 0);
+
+        console.log('[onVisibilityChange] State restoration complete.');
+      } else {
+        console.log('[onVisibilityChange] Tab is hidden.');
+      }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
   }
 
   private restoreOptionsToDisplay(): void {
-    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-      console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
+    try {
+      if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+        console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
+        this.optionsToDisplay = [];
+        return;
+      }
+  
+      // Map options with default values if necessary
+      this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+        ...option,
+        active: option.active ?? true,
+        feedback: option.feedback ?? 'No feedback available.',
+        showIcon: option.showIcon ?? false,
+        selected: option.selected ?? false
+      }));
+  
+      console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+  
+    } catch (error) {
+      console.error('[restoreOptionsToDisplay] Error restoring options:', error);
       this.optionsToDisplay = [];
-      this.optionBindings = [];
-      return;
     }
-  
-    this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-      ...option,
-      active: option.active ?? true,
-      feedback: option.feedback || 'No feedback available.',
-      showIcon: option.showIcon ?? false,
-      selected: option.selected ?? false,
-    }));
-  
-    console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
-  
-    this.synchronizeOptionBindings();
   }
-
+  
   private async synchronizeOptionBindings(): Promise<void> {
     try {
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
