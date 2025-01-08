@@ -1050,17 +1050,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       const optionBinding: OptionBindings = {
         type: isMultipleChoice ? 'multiple' : 'single', // Set type based on question type
         option: option,
-        feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
+        feedback: feedbackMap[option.optionId] ?? feedback, // Use feedback map or fallback
         isSelected: option.selected || false, // Default to false if not already selected
         active: option.active ?? true, // Default to active if undefined
-        appHighlightOption: false, // Adjust as per your application's logic
+        appHighlightOption: false,
         isCorrect: isCorrect,
-        showFeedback: false, // Adjust as per your application's logic
-        showFeedbackForOption: {}, // Adjust as per your application's logic
+        showFeedback: false,
+        showFeedbackForOption: {},
         highlightCorrectAfterIncorrect: false, // Default value
         allOptions: [...this.optionsToDisplay], // Include all options
         appHighlightInputType: isMultipleChoice ? 'checkbox' : 'radio', // Set 'checkbox' or 'radio'
-        appHighlightReset: false // Default value
+        appHighlightReset: false, // Default value
+        appResetBackground: false, // Default value for reset background
+        optionsToDisplay: this.optionsToDisplay, // Ensure the options are included
+        checked: false, // Default to false for checkbox/radio state
+        change: () => {}, // Placeholder for change handler if required
+        disabled: false, // Default value for disabled state
+        ariaLabel: `Option ${option.optionId}` // Example for ariaLabel
       };
     
       console.log(`[initializeOptionBindings] Created option binding for option ${option.optionId}:`, optionBinding);
