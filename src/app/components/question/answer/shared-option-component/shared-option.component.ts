@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -11,7 +10,6 @@ import { QuestionType } from '../../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
@@ -72,7 +70,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   constructor(
     private quizService: QuizService,
-    private quizQuestionManagerService: QuizQuestionManagerService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
@@ -125,135 +122,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  /* @HostListener('window:visibilitychange', [])
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
       this.initializeOptionBindings();
     } else {
       console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-        this.restoreOptionsToDisplay();
-        this.initializeOptionBindings();
-        console.log('[onVisibilityChange] State restoration complete.');
-      } else {
-        console.log('[onVisibilityChange] Tab is hidden.');
-      }
-    } catch (error) {
-      console.error('[onVisibilityChange] Error during state restoration:', error);
-    }
-  } */
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-
-        // Restore optionsToDisplay if not already set
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.log('[onVisibilityChange] Restoring optionsToDisplay...');
-          this.restoreOptionsToDisplay();
-        } else {
-          console.log('[onVisibilityChange] optionsToDisplay is already set:', this.optionsToDisplay);
-        }
-
-        // Reinitialize option bindings
-        if (this.optionsToDisplay?.length > 0) {
-          console.log('[onVisibilityChange] Options restored successfully:', this.optionsToDisplay);
-          this.synchronizeOptionBindings();
-        } else {
-          console.warn('[onVisibilityChange] No options available to synchronize.');
-        }
-
-        // Force UI refresh
-        setTimeout(() => {
-          console.log('[onVisibilityChange] Forcing change detection...');
-          this.cdRef.detectChanges();
-        }, 0);
-
-        console.log('[onVisibilityChange] State restoration complete.');
-      } else {
-        console.log('[onVisibilityChange] Tab is hidden.');
-      }
-    } catch (error) {
-      console.error('[onVisibilityChange] Error during state restoration:', error);
-    }
-  } */
-
-  private restoreOptionsToDisplay(): void {
-    try {
-      if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-        console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
-        this.optionsToDisplay = [];
-        return;
-      }
-  
-      // Map options with default values if necessary
-      this.optionsToDisplay = this.currentQuestion.options.map(option => ({
-        ...option,
-        active: option.active ?? true,
-        feedback: option.feedback ?? 'No feedback available.',
-        showIcon: option.showIcon ?? false,
-        selected: option.selected ?? false
-      }));
-  
-      console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
-  
-    } catch (error) {
-      console.error('[restoreOptionsToDisplay] Error restoring options:', error);
-      this.optionsToDisplay = [];
-    }
   }
-  
-  private async synchronizeOptionBindings(): Promise<void> {
-    try {
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[SharedOptionComponent] No options to synchronize. Clearing bindings.');
-        this.optionBindings = [];
-        return;
-      }
-
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-      );
-  
-      console.log('[SharedOptionComponent] Synchronizing option bindings.');
-  
-        this.optionBindings = this.optionsToDisplay.map((option) => ({
-          type: isMultipleAnswer ? 'multiple' : 'single', // Determine type
-          option: option,
-          feedback: option.feedback ?? 'No feedback available.', // Default feedback if not provided
-          isSelected: !!option.selected, // Ensure boolean value
-          active: option.active ?? true, // Default to true if active is undefined
-          appHighlightOption: false, // Adjust according to app logic
-          isCorrect: !!option.correct, // Ensure boolean
-          showFeedback: false, // Default feedback visibility
-          showFeedbackForOption: {}, // Default or computed feedback state
-          highlightCorrectAfterIncorrect: false, // Adjust if necessary
-          allOptions: [...this.optionsToDisplay], // Include all options
-          appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio', // Set type for highlighting
-          appHighlightReset: false, // Default reset state
-          appResetBackground: false, // Add missing property with default value
-          optionsToDisplay: [...this.optionsToDisplay], // Add missing property with default value
-          checked: false, // Add missing property with default value
-          change: () => {}, // Add missing property with a default empty function
-          disabled: !option.active, // Set disabled based on the option's active state
-          ariaLabel: option.text || 'Option' // Provide a meaningful ARIA label
-        }));
-  
-      console.log('[SharedOptionComponent] Option bindings synchronized:', this.optionBindings);
-    } catch (error) {
-      console.error('[SharedOptionComponent] Error during option bindings synchronization:', error);
-      this.optionBindings = []; // Clear bindings on error
-    }
-  }
-  
-  
 
   initializeFromConfig(): void {
     if (!this.config) {
@@ -338,11 +214,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
-      appHighlightOption: false,
+      appHighlightOption: '',
       ariaLabel: optionBinding.ariaLabel,
       isSelected: optionBinding.isSelected,
       isCorrect: optionBinding.isCorrect,
-      feedback: optionBinding.feedback,
       showFeedback: optionBinding.showFeedback,
       showFeedbackForOption: optionBinding.showFeedbackForOption,
       highlightCorrectAfterIncorrect: optionBinding.highlightCorrectAfterIncorrect,
@@ -933,14 +808,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         ...option,
         feedback: option.feedback
       },
-      feedback: option.feedback,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       type: this.type,
-      appHighlightOption: false,
+      appHighlightOption: '',
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
