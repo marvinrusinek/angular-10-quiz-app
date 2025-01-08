@@ -122,7 +122,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  /* @HostListener('window:visibilitychange', [])
+  @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -143,14 +143,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
-    }
-  } */
-  @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is visible. Restoring options and feedback...');
-      this.restoreOptionsToDisplay();
-      // this.restoreFeedbackState();
     }
   }
 
