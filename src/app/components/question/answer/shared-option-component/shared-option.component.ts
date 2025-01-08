@@ -28,7 +28,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionSelected = new EventEmitter<{ option: Option, index: number, checked: boolean }>();
   @Output() optionChanged = new EventEmitter<Option>();
   @Input() currentQuestion: QuizQuestion;
-  @Input() options: Option[] = [];
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -66,7 +65,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
-  private isRestoringState = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -124,185 +122,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        console.log('[SharedOptionComponent] Tab is visible. Restoring states...');
-        
-        // Ensure options are restored if missing
-        this.ensureOptionsToDisplay();
-
-        // Reinitialize bindings
-        if (this.optionsToDisplay?.length > 0) {
-          this.initializeOptionBindings();
-          console.log('[SharedOptionComponent] Options and bindings restored on visibility change.');
-        } else {
-          console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
-        }
-      } else {
-        console.log('[SharedOptionComponent] Tab is hidden.');
-      }
-    } catch (error) {
-      console.error('[SharedOptionComponent] Error during visibility change handling:', error);
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        if (this.isRestoringState) {
-          console.log('[onVisibilityChange] State restoration already in progress. Skipping...');
-          return;
-        }
-
-        this.isRestoringState = true;
-
-        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-
-        // Ensure options are restored
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.warn('[onVisibilityChange] No options available. Attempting restoration...');
-          this.restoreOptionsToDisplay();
-        }
-
-        // Reinitialize bindings to reflect the restored state
-        this.initializeOptionBindings();
-
-        console.log('[onVisibilityChange] State restored successfully.');
-      } else {
-        console.log('[onVisibilityChange] Tab is hidden. No actions needed.');
-      }
-    } catch (error) {
-      console.error('[onVisibilityChange] Error during visibility change handling:', error);
-    } finally {
-      this.isRestoringState = false;
+    if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
+      this.initializeOptionBindings();
+    } else {
+      console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
   }
 
-  private restoreOptionsToDisplay(): void {
-    try {
-      console.log('[restoreOptionsToDisplay] Restoring options...');
-      
-      if (!this.options || this.options.length === 0) {
-        console.warn('[restoreOptionsToDisplay] No options available to restore.');
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
-        return;
-      }
-  
-      const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-      const feedbackMap = this.generateFeedbackForOptions(correctOptions, this.options);
-  
-      // Clear previous options and bindings
-      this.optionsToDisplay = [];
-      this.optionBindings = [];
-  
-      this.optionsToDisplay = this.options.map((option) => ({
-        ...option,
-        active: option.active ?? true,
-        // feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
-        // feedback: option.feedback || this.generateFeedbackForOptions([option], this.currentQuestion.options),
-        feedback: Array.isArray(option.feedback)
-          ? option.feedback.join(', ') // Convert array to a string
-          : option.feedback || this.generateFeedbackForOptions([option], this.currentQuestion.options).join(', '), // Ensure feedback is a string
-        showIcon: option.showIcon ?? false,
-        selected: option.selected ?? false,
-      }));
-  
-      console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
-    } catch (error) {
-      console.error('[restoreOptionsToDisplay] Error restoring options:', error);
-    }
-  }  
-  
-  private generateFeedbackForOptions(
-    correctOptions: Option[],
-    optionsToDisplay: Option[]
-  ): string[] {
-    if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
-      console.warn('[generateFeedbackForOptions] No correct options available.');
-      return optionsToDisplay.map(() => 'No feedback available.');
-    }
-  
-    const correctMessage =
-      this.quizService.setCorrectMessage(correctOptions, optionsToDisplay) ||
-      'Correct answer!';
-  
-    const feedback = optionsToDisplay.map((option) => {
-      const isCorrect = correctOptions.some(
-        (correctOption) => correctOption.optionId === option.optionId
-      );
-  
-      console.log(
-        `[generateFeedbackForOptions] OptionId: ${option.optionId}, IsCorrect: ${isCorrect}, Feedback: ${
-          isCorrect ? correctMessage : 'Incorrect answer.'
-        }`
-      );
-  
-      return isCorrect ? correctMessage : 'Incorrect answer.';
-    });
-  
-    console.log('[generateFeedbackForOptions] Final feedback:', feedback);
-  
-    return feedback;
-  }
-  
-  private synchronizeOptionBindings(): void {
-    try {
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[synchronizeOptionBindings] No options to synchronize.');
-        this.optionBindings = [];
-        return;
-      }
-
-      this.optionBindings = this.optionsToDisplay.map(option => ({
-        type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Determine question type
-        option: option,
-        feedback: option.feedback || 'No feedback available', // Use existing feedback or default
-        isSelected: !!option.selected, // Ensure boolean for selection
-        active: option.active ?? true, // Default active to true if undefined
-        appHighlightOption: false, // Use a valid boolean value
-        isCorrect: !!option.correct, // Ensure boolean for correctness
-        showFeedback: false, // Default feedback visibility
-        showFeedbackForOption: {}, // Provide default or computed feedback state
-        highlightCorrectAfterIncorrect: false, // Default or computed value
-        allOptions: [...this.optionsToDisplay], // Include all options
-        appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Determine input type
-        appHighlightReset: false, // Default reset value
-        appResetBackground: false, // Default reset background
-        optionsToDisplay: this.optionsToDisplay, // Include options for display
-        checked: !!option.selected, // Ensure checkbox/radio state
-        change: () => {}, // Placeholder function for change handler
-        disabled: false, // Default to not disabled
-        ariaLabel: `Option ${option.optionId || ''}` // Accessibility label
-      }));
-      
-      console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
-    } catch (error) {
-      console.error('[synchronizeOptionBindings] Error:', error);
-      this.optionBindings = [];
-    }
-  }
-  
-
-  private ensureOptionsToDisplay(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
-      if (this.currentQuestion?.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-          ...option,
-          active: option.active ?? true,
-          feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false
-        }));
-        console.log('[SharedOptionComponent] Restored optionsToDisplay:', this.optionsToDisplay);
-      } else {
-        console.error('[SharedOptionComponent] No options available in the current question.');
-      }
-    }
-  }
-  
   initializeFromConfig(): void {
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
@@ -386,11 +214,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
-      appHighlightOption: false,
+      appHighlightOption: '',
       ariaLabel: optionBinding.ariaLabel,
       isSelected: optionBinding.isSelected,
       isCorrect: optionBinding.isCorrect,
-      feedback: optionBinding.feedback,
       showFeedback: optionBinding.showFeedback,
       showFeedbackForOption: optionBinding.showFeedbackForOption,
       highlightCorrectAfterIncorrect: optionBinding.highlightCorrectAfterIncorrect,
@@ -981,14 +808,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         ...option,
         feedback: option.feedback
       },
-      feedback: option.feedback,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       type: this.type,
-      appHighlightOption: false,
+      appHighlightOption: '',
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
@@ -1036,73 +862,67 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }  
 
   initializeOptionBindings(): void {
-    console.log('[initializeOptionBindings] Starting initialization.');
+    // Fetch the current question by index
+    this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
+      next: (question) => {
+        if (!question) {
+          console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
+          return;
+        }
   
-    // Clear existing bindings to avoid duplicates
-    this.optionBindings = [];
+        this.currentQuestion = question;
+        console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
   
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[initializeOptionBindings] No options to display. Aborting initialization.');
-      return;
-    }
+        // Retrieve correct options for the current question
+        const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
   
-    console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
+        if (!correctOptions || correctOptions.length === 0) {
+          console.warn('[initializeOptionBindings] No correct options defined. Skipping feedback generation.');
+          return;
+        }
   
-    // Ensure `currentQuestion` is valid
-    if (!this.currentQuestion) {
-      console.error('[initializeOptionBindings] No current question available.');
-      return;
-    }
+        console.log('[initializeOptionBindings] Correct options:', correctOptions);
+  
+        // Ensure optionsToDisplay is defined and populated
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
+          return;
+        }
+  
+        console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
+  
+        // Map optionsToDisplay to initialize optionBindings
+        this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+          const optionBinding = this.getOptionBindings(option, idx);
+  
+          // Generate feedback for each option
+          option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+  
+          console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
+  
+          // Return the created option binding
+          return optionBinding;
+        });
+  
+        console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+      },
+      error: (err) => {
+        console.error('[initializeOptionBindings] Error fetching current question:', err);
+      },
+    });
+  }
 
-    // Determine if the question is multiple-choice
-    const isMultipleChoice = this.currentQuestion.type === QuestionType.MultipleAnswer || false;
-  
-    // Retrieve correct options for the current question
-    const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-  
+  generateFeedbackForOptions(
+    correctOptions: Option[],
+    optionsToDisplay: Option[]
+  ): string {
     if (!correctOptions || correctOptions.length === 0) {
-      console.warn('[initializeOptionBindings] No correct options defined.');
+      console.error('Correct options are not set or empty:', correctOptions);
+      return 'No correct answers found for the current question.';
     }
   
-    console.log('[initializeOptionBindings] Correct options:', correctOptions);
-
-    // Generate feedback for all options
-    const feedbackMap = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-  
-    // Map `optionsToDisplay` to create `optionBindings`
-    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      const isCorrect = correctOptions.some((correctOption) => correctOption.optionId === option.optionId);
-      const feedback = option.feedback ?? (isCorrect ? 'Correct answer!' : 'Incorrect answer.');
-    
-      const optionBinding: OptionBindings = {
-        type: isMultipleChoice ? 'multiple' : 'single', // Set type based on question type
-        option: option,
-        // feedback: feedbackMap[option.optionId] ?? feedback, // Use feedback map or fallback
-        feedback: option.feedback ?? 'No feedback available.',
-        isSelected: option.selected || false, // Default to false if not already selected
-        active: option.active ?? true, // Default to active if undefined
-        appHighlightOption: false,
-        isCorrect: isCorrect,
-        showFeedback: false,
-        showFeedbackForOption: {},
-        highlightCorrectAfterIncorrect: false, // Default value
-        allOptions: [...this.optionsToDisplay], // Include all options
-        appHighlightInputType: isMultipleChoice ? 'checkbox' : 'radio', // Set 'checkbox' or 'radio'
-        appHighlightReset: false, // Default value
-        appResetBackground: false, // Default value for reset background
-        optionsToDisplay: this.optionsToDisplay, // Ensure the options are included
-        checked: false, // Default to false for checkbox/radio state
-        change: () => {}, // Placeholder for change handler if required
-        disabled: false, // Default value for disabled state
-        ariaLabel: `Option ${option.optionId}` // Example for ariaLabel
-      };
-    
-      console.log(`[initializeOptionBindings] Created option binding for option ${option.optionId}:`, optionBinding);
-    
-      return optionBinding;
-    });    
-  
-    console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+    const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
+    return correctMessage;
   }
 
   initializeFeedbackBindings(): void { 
