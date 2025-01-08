@@ -10,6 +10,7 @@ import { QuestionType } from '../../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
@@ -70,6 +71,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   constructor(
     private quizService: QuizService,
+    private quizQuestionManagerService: QuizQuestionManagerService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
@@ -174,6 +176,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.optionBindings = [];
         return;
       }
+
+      const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion);
   
       console.log('[SharedOptionComponent] Synchronizing option bindings.');
   
