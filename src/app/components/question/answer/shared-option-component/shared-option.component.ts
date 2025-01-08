@@ -1067,7 +1067,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       const optionBinding: OptionBindings = {
         type: isMultipleChoice ? 'multiple' : 'single', // Set type based on question type
         option: option,
-        feedback: feedbackMap[option.optionId] ?? feedback, // Use feedback map or fallback
+        // feedback: feedbackMap[option.optionId] ?? feedback, // Use feedback map or fallback
+        feedback: option.feedback ?? 'No feedback available.',
         isSelected: option.selected || false, // Default to false if not already selected
         active: option.active ?? true, // Default to active if undefined
         appHighlightOption: false,
