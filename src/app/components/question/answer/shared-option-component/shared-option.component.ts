@@ -229,32 +229,38 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private synchronizeOptionBindings(): void {
     try {
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[synchronizeOptionBindings] No options to synchronize.');
-            this.optionBindings = [];
-            return;
-        }
-
-        this.optionBindings = this.optionsToDisplay.map(option => ({
-            type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single',
-            option: option,
-            feedback: option.feedback || 'No feedback available',
-            isSelected: !!option.selected, // Ensure boolean
-            active: option.active ?? true,
-            appHighlightOption: '', // Provide valid string or computed value
-            isCorrect: !!option.correct, // Ensure boolean
-            showFeedback: false, // Adjust if necessary
-            showFeedbackForOption: {}, // Provide a default or computed value
-            highlightCorrectAfterIncorrect: false, // Default or computed value
-            allOptions: [...this.optionsToDisplay], // Provide all options
-            appHighlightInputType: '', // Default or computed value
-            appHighlightReset: false // Default or computed value
-        }));
-
-        console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
-    } catch (error) {
-        console.error('[synchronizeOptionBindings] Error:', error);
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[synchronizeOptionBindings] No options to synchronize.');
         this.optionBindings = [];
+        return;
+      }
+
+      this.optionBindings = this.optionsToDisplay.map(option => ({
+        type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Determine question type
+        option: option,
+        feedback: option.feedback || 'No feedback available', // Use existing feedback or default
+        isSelected: !!option.selected, // Ensure boolean for selection
+        active: option.active ?? true, // Default active to true if undefined
+        appHighlightOption: false, // Use a valid boolean value
+        isCorrect: !!option.correct, // Ensure boolean for correctness
+        showFeedback: false, // Default feedback visibility
+        showFeedbackForOption: {}, // Provide default or computed feedback state
+        highlightCorrectAfterIncorrect: false, // Default or computed value
+        allOptions: [...this.optionsToDisplay], // Include all options
+        appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Determine input type
+        appHighlightReset: false, // Default reset value
+        appResetBackground: false, // Default reset background
+        optionsToDisplay: this.optionsToDisplay, // Include options for display
+        checked: !!option.selected, // Ensure checkbox/radio state
+        change: () => {}, // Placeholder function for change handler
+        disabled: false, // Default to not disabled
+        ariaLabel: `Option ${option.optionId || ''}` // Accessibility label
+      }));
+      
+      console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
+    } catch (error) {
+      console.error('[synchronizeOptionBindings] Error:', error);
+      this.optionBindings = [];
     }
   }
   
