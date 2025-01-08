@@ -151,7 +151,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     try {
       if (document.visibilityState === 'visible') {
         this.initializeOptionBindings();
-        this.restoreOptionsToDisplay(); // Restore options when tab is visible
+        this.restoreOptionsToDisplay();
       }
     } catch (error) {
       console.error('[SharedOptionComponent] Error in onVisibilityChange:', error);
