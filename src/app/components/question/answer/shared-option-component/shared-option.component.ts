@@ -1035,7 +1035,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isCorrect = correctOptions.some((correctOption) => correctOption.optionId === option.optionId);
       const feedback = option.feedback ?? (isCorrect ? 'Correct answer!' : 'Incorrect answer.');
-  
+    
       const optionBinding: OptionBindings = {
         type: isMultipleChoice ? 'multiple' : 'single', // Set type based on question type
         option: option,
@@ -1046,13 +1046,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         isCorrect: isCorrect,
         showFeedback: false, // Adjust as per your application's logic
         showFeedbackForOption: {}, // Adjust as per your application's logic
-        // Add default values for other properties as needed
+        highlightCorrectAfterIncorrect: false, // Default value
+        allOptions: [...this.optionsToDisplay], // Include all options
+        appHighlightInputType: '', // Default value
+        appHighlightReset: false, // Default value
+        appHighlightEnableAutoCorrect: false, // Default value
+        appHighlightActiveOnClick: false, // Default value
+        appHighlightShowAllCorrect: false, // Default value
+        appHighlightImmediateFeedback: false, // Default value
       };
-  
+    
       console.log(`[initializeOptionBindings] Created option binding for option ${option.optionId}:`, optionBinding);
-  
+    
       return optionBinding;
-    });
+    });    
   
     console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
   }
