@@ -200,7 +200,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         appResetBackground: false, // Default or computed value
         optionsToDisplay: [...this.optionsToDisplay], // Pass all options
         checked: option.selected ?? false, // Default to option's selected state
-        change: () => this.handleOptionChange(option), // Callback for option change
+        change: () => {}
       }));
   
       console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
