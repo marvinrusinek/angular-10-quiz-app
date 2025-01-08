@@ -28,6 +28,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   @Output() optionSelected = new EventEmitter<{ option: Option, index: number, checked: boolean }>();
   @Output() optionChanged = new EventEmitter<Option>();
   @Input() currentQuestion: QuizQuestion;
+  @Input() options: Option[] = [];
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -147,12 +148,59 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-      this.initializeOptionBindings();
-      this.cdRef.detectChanges();
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[SharedOptionComponent] Tab is visible. Restoring options...');
+        this.initializeOptionBindings();
+        this.restoreOptionsToDisplay(); // Restore options when tab is visible
+      }
+    } catch (error) {
+      console.error('[SharedOptionComponent] Error in onVisibilityChange:', error);
     }
   }
+
+  private restoreOptionsToDisplay(): void {
+    try {
+      if (!this.options || this.options.length === 0) {
+        console.warn('[SharedOptionComponent] No options available to restore.');
+        this.optionsToDisplay = [];
+        this.synchronizeOptionBindings(); // Clear bindings when no options are available
+        return;
+      }
+  
+      this.optionsToDisplay = this.options.map((option) => ({
+        ...option,
+        active: option.active ?? true, // Default to active if undefined
+        feedback: option.feedback ?? undefined, // Preserve feedback if present
+        showIcon: option.showIcon ?? false, // Preserve icon state if present
+        selected: option.selected ?? false, // Maintain selected state
+      }));
+  
+      console.log('[SharedOptionComponent] Restored optionsToDisplay:', this.optionsToDisplay);
+  
+      this.synchronizeOptionBindings(); // Synchronize with restored options
+    } catch (error) {
+      console.error('[SharedOptionComponent] Error restoring options:', error);
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
+    }
+  }
+  
+  private generateFeedbackForOptions(
+    correctOptions: Option[],
+    optionsToDisplay: Option[]
+  ): string[] {
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[SharedOptionComponent] No correct options available for feedback generation.');
+      return optionsToDisplay.map(() => 'No feedback available.');
+    }
+  
+    return optionsToDisplay.map((option) =>
+      correctOptions.some((correct) => correct.optionId === option.optionId)
+        ? 'Correct answer!'
+        : 'Incorrect answer.'
+    );
+  }  
 
   private synchronizeOptionBindings(): void {
     try {
