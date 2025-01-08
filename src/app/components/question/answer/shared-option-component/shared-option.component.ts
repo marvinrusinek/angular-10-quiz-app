@@ -122,14 +122,85 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
       this.initializeOptionBindings();
     } else {
       console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+        this.restoreOptionsToDisplay();
+        this.initializeOptionBindings();
+        console.log('[onVisibilityChange] State restoration complete.');
+      } else {
+        console.log('[onVisibilityChange] Tab is hidden.');
+      }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
   }
+
+  private restoreOptionsToDisplay(): void {
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+      console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
+      return;
+    }
+  
+    this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+      ...option,
+      active: option.active ?? true,
+      feedback: option.feedback || 'No feedback available.',
+      showIcon: option.showIcon ?? false,
+      selected: option.selected ?? false,
+    }));
+  
+    console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+  
+    this.synchronizeOptionBindings();
+  }
+
+  private synchronizeOptionBindings(): void {
+    try {
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[SharedOptionComponent] No options to synchronize. Clearing bindings.');
+        this.optionBindings = [];
+        return;
+      }
+  
+      console.log('[SharedOptionComponent] Synchronizing option bindings.');
+  
+      this.optionBindings = this.optionsToDisplay.map((option) => ({
+        type: this.isMultipleChoice ? 'multiple' : 'single', // Determine type
+        option: option,
+        feedback: option.feedback ?? 'No feedback available.', // Default feedback if not provided
+        isSelected: !!option.selected, // Ensure boolean value
+        active: option.active ?? true, // Default to true if active is undefined
+        appHighlightOption: false, // Adjust according to app logic
+        isCorrect: !!option.correct, // Ensure boolean
+        showFeedback: false, // Default feedback visibility
+        showFeedbackForOption: {}, // Default or computed feedback state
+        highlightCorrectAfterIncorrect: false, // Adjust if necessary
+        allOptions: [...this.optionsToDisplay], // Include all options
+        appHighlightInputType: this.isMultipleChoice ? 'checkbox' : 'radio', // Set type for highlighting
+        appHighlightReset: false // Default reset state
+      }));
+  
+      console.log('[SharedOptionComponent] Option bindings synchronized:', this.optionBindings);
+    } catch (error) {
+      console.error('[SharedOptionComponent] Error during option bindings synchronization:', error);
+      this.optionBindings = []; // Clear bindings on error
+    }
+  }
+  
+  
 
   initializeFromConfig(): void {
     if (!this.config) {
