@@ -179,24 +179,44 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   private restoreOptionsToDisplay(): void {
-    if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
-      console.warn('[restoreOptionsToDisplay] No current question or options available.');
-      this.optionsToDisplay = [];
-      this.optionBindings = [];
+    // Use a flag to prevent multiple restorations
+    if (this.optionsRestored) {
+      console.log('[restoreOptionsToDisplay] Options already restored. Skipping...');
       return;
     }
-  
-    this.optionsToDisplay = this.currentQuestion.options.map(option => ({
-      ...option,
-      active: option.active ?? true, // Default to true
-      feedback: option.feedback ?? 'No feedback available.', // Restore feedback
-      showIcon: option.showIcon ?? false, // Preserve icon state
-      selected: option.selected ?? false, // Restore selection state
-      highlight: option.highlight ?? false, // Restore highlight state
-    }));
-  
-    console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
-    this.synchronizeOptionBindings();
+
+    try {
+      if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
+        console.warn('[restoreOptionsToDisplay] No current question or options available.');
+        this.optionsToDisplay = [];
+        this.optionBindings = [];
+        return;
+      }
+
+      // Restore options with proper states
+      this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+        ...option,
+        active: option.active ?? true, // Default to true
+        feedback: option.feedback ?? 'No feedback available.', // Restore feedback
+        showIcon: option.showIcon ?? false, // Preserve icon state
+        selected: option.selected ?? false, // Restore selection state
+        highlight: option.highlight ?? false, // Restore highlight state
+      }));
+
+      console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+
+      // Synchronize bindings
+      this.synchronizeOptionBindings();
+
+      // Mark as restored
+      this.optionsRestored = true;
+
+      console.log('[restoreOptionsToDisplay] Options restored successfully.');
+    } catch (error) {
+      console.error('[restoreOptionsToDisplay] Error during restoration:', error);
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
+    }
   }
 
   private synchronizeOptionBindings(): void {
