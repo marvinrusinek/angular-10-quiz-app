@@ -182,7 +182,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.log('[SharedOptionComponent] Synchronizing option bindings.');
   
       this.optionBindings = this.optionsToDisplay.map((option) => ({
-        type: this.isMultipleChoice ? 'multiple' : 'single', // Determine type
+        type: isMultipleAnswer ? 'multiple' : 'single', // Determine type
         option: option,
         feedback: option.feedback ?? 'No feedback available.', // Default feedback if not provided
         isSelected: !!option.selected, // Ensure boolean value
@@ -193,7 +193,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         showFeedbackForOption: {}, // Default or computed feedback state
         highlightCorrectAfterIncorrect: false, // Adjust if necessary
         allOptions: [...this.optionsToDisplay], // Include all options
-        appHighlightInputType: this.isMultipleChoice ? 'checkbox' : 'radio', // Set type for highlighting
+        appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio', // Set type for highlighting
         appHighlightReset: false // Default reset state
       }));
   
