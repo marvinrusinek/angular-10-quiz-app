@@ -224,29 +224,24 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.warn(
         '[generateFeedbackForOptions] No correct options available for feedback generation.'
       );
-      return optionsToDisplay.map(
-        () => 'No correct answers found for the current question.'
-      );
+      return optionsToDisplay.map(() => 'No correct answers found for the current question.');
     }
   
-    // Generate the correct message once to avoid redundant calls
     const correctMessage =
       this.quizService.setCorrectMessage(correctOptions, optionsToDisplay) ||
       'Correct answer!';
   
-    // Generate feedback for each option
-    const feedback = optionsToDisplay.map((option) => {
+    return optionsToDisplay.map((option) => {
       const isCorrect = correctOptions.some(
         (correctOption) => correctOption.optionId === option.optionId
       );
   
+      console.log(
+        `[generateFeedbackForOptions] Option: ${option.optionId}, isCorrect: ${isCorrect}`
+      );
+  
       return isCorrect ? correctMessage : 'Incorrect answer.';
     });
-  
-    // Log feedback for debugging
-    console.log('[generateFeedbackForOptions] Generated feedback:', feedback);
-  
-    return feedback;
   }
   
   private synchronizeOptionBindings(): void {
