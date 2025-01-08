@@ -1048,12 +1048,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         showFeedbackForOption: {}, // Adjust as per your application's logic
         highlightCorrectAfterIncorrect: false, // Default value
         allOptions: [...this.optionsToDisplay], // Include all options
-        appHighlightInputType: '', // Default value
-        appHighlightReset: false, // Default value
-        appHighlightEnableAutoCorrect: false, // Default value
-        appHighlightActiveOnClick: false, // Default value
-        appHighlightShowAllCorrect: false, // Default value
-        appHighlightImmediateFeedback: false, // Default value
+        appHighlightInputType: isMultipleChoice ? 'checkbox' : 'radio', // Set 'checkbox' or 'radio'
+        appHighlightReset: false // Default value
       };
     
       console.log(`[initializeOptionBindings] Created option binding for option ${option.optionId}:`, optionBinding);
