@@ -7,6 +7,7 @@ export interface OptionBindings {
   appHighlightOption: boolean;
   option: Option;
   isCorrect: boolean;
+  feedback: string;
   showFeedback: boolean;
   showFeedbackForOption: { [key: number]: boolean };
   highlightCorrectAfterIncorrect: boolean;
