@@ -151,6 +151,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       if (document.visibilityState === 'visible') {
         console.log('[SharedOptionComponent] Tab is visible. Restoring states...');
 
+        // Ensure options are restored
+        this.ensureOptionsToDisplay();
+
         // Restore options if missing or incomplete
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn('[SharedOptionComponent] No optionsToDisplay found. Attempting to restore...');
@@ -176,14 +179,17 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
       console.warn('[restoreOptionsToDisplay] No current question or options available.');
       this.optionsToDisplay = [];
+      this.optionBindings = [];
       return;
     }
   
     this.optionsToDisplay = this.currentQuestion.options.map(option => ({
       ...option,
-      active: option.active ?? true,
-      feedback: option.feedback || 'No feedback available.', // Default feedback
-      showIcon: option.showIcon ?? false
+      active: option.active ?? true, // Default to true
+      feedback: option.feedback ?? 'No feedback available.', // Restore feedback
+      showIcon: option.showIcon ?? false, // Preserve icon state
+      selected: option.selected ?? false, // Restore selection state
+      highlight: option.highlight ?? false, // Restore highlight state
     }));
   
     console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
