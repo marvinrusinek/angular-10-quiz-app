@@ -148,7 +148,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error('[onVisibilityChange] Error during state restoration:', error);
     }
   } */
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -183,7 +183,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
     }
-  }
+  } */
 
   private restoreOptionsToDisplay(): void {
     try {
@@ -224,7 +224,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       console.log('[SharedOptionComponent] Synchronizing option bindings.');
   
-      if (this.optionsToDisplay?.length > 0) {
         this.optionBindings = this.optionsToDisplay.map((option) => ({
           type: isMultipleAnswer ? 'multiple' : 'single', // Determine type
           option: option,
@@ -246,7 +245,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           disabled: !option.active, // Set disabled based on the option's active state
           ariaLabel: option.text || 'Option' // Provide a meaningful ARIA label
         }));
-      }
   
       console.log('[SharedOptionComponent] Option bindings synchronized:', this.optionBindings);
     } catch (error) {
