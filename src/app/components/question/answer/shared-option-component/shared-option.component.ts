@@ -206,17 +206,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string[] {
-    if (!correctOptions || correctOptions.length === 0) {
+    if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
       console.warn('[SharedOptionComponent] No correct options available for feedback generation.');
-      return optionsToDisplay.map(() => 'No feedback available.');
+      return optionsToDisplay.map(() => 'No correct answers found for the current question.');
     }
   
-    return optionsToDisplay.map((option) =>
-      correctOptions.some((correct) => correct.optionId === option.optionId)
-        ? 'Correct answer!'
-        : 'Incorrect answer.'
-    );
-  }  
+    return optionsToDisplay.map((option) => {
+      const isCorrect = correctOptions.some(
+        (correctOption) => correctOption.optionId === option.optionId
+      );
+  
+      // Use the setCorrectMessage method if available for correct answers
+      if (isCorrect) {
+        const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
+        return correctMessage || 'Correct answer!';
+      }
+  
+      return 'Incorrect answer.';
+    });
+  }
+  
 
   private synchronizeOptionBindings(): void {
     try {
@@ -1058,20 +1067,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });    
   
     console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
-  }
-  
-
-  generateFeedbackForOptions(
-    correctOptions: Option[],
-    optionsToDisplay: Option[]
-  ): string {
-    if (!correctOptions || correctOptions.length === 0) {
-      console.error('Correct options are not set or empty:', correctOptions);
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
-    return correctMessage;
   }
 
   initializeFeedbackBindings(): void { 
