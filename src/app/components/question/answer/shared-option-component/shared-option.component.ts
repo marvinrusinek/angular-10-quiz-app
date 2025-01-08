@@ -122,28 +122,47 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (document.visibilityState === 'visible' && this.optionsToDisplay?.length > 0) {
-      this.initializeOptionBindings();
-    } else {
-      console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-      try {
-        this.restoreOptionsToDisplay(); // Ensure options are restored
-        this.synchronizeOptionBindings(); // Sync bindings if needed
-        console.log('[onVisibilityChange] State restoration complete.');
-      } catch (error) {
-        console.error('[onVisibilityChange] Error restoring states:', error);
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[SharedOptionComponent] Tab is visible. Restoring states...');
+        
+        // Ensure options are restored if missing
+        this.ensureOptionsToDisplay();
+
+        // Reinitialize bindings
+        if (this.optionsToDisplay?.length > 0) {
+          this.initializeOptionBindings();
+          console.log('[SharedOptionComponent] Options and bindings restored on visibility change.');
+        } else {
+          console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
+        }
+      } else {
+        console.log('[SharedOptionComponent] Tab is hidden.');
       }
+    } catch (error) {
+      console.error('[SharedOptionComponent] Error during visibility change handling:', error);
     }
   }
 
+  private ensureOptionsToDisplay(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
+      if (this.currentQuestion?.options) {
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: option.active ?? true,
+          feedback: option.feedback ?? undefined,
+          showIcon: option.showIcon ?? false
+        }));
+        console.log('[SharedOptionComponent] Restored optionsToDisplay:', this.optionsToDisplay);
+      } else {
+        console.error('[SharedOptionComponent] No options available in the current question.');
+      }
+    }
+  }
+  
   initializeFromConfig(): void {
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
