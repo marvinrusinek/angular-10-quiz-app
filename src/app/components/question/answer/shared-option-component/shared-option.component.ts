@@ -144,6 +144,72 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  private restoreOptionsToDisplay(): void {
+    try {
+      if (!this.currentQuestion || !this.currentQuestion.options?.length) {
+        console.warn('[restoreOptionsToDisplay] Current question or options are missing.');
+        this.optionsToDisplay = [];
+        this.optionBindings = [];
+        return;
+      }
+  
+      // Restore `optionsToDisplay` with preserved or default states
+      this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+        ...option,
+        active: option.active ?? true, // Default to active if undefined
+        feedback: option.feedback ?? 'No feedback available.', // Ensure feedback is set
+        showIcon: option.showIcon ?? false, // Default to false if undefined
+        selected: option.selected ?? false, // Default to not selected
+      }));
+  
+      console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+  
+      // Synchronize bindings after restoring options
+      this.synchronizeOptionBindings();
+    } catch (error) {
+      console.error('[restoreOptionsToDisplay] Error restoring options:', error);
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
+    }
+  }
+
+  private synchronizeOptionBindings(): void {
+    try {
+      if (!this.optionsToDisplay?.length) {
+        console.warn('[synchronizeOptionBindings] No options to synchronize.');
+        this.optionBindings = [];
+        return;
+      }
+  
+      this.optionBindings = this.optionsToDisplay.map(option => ({
+        type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Set type
+        option: option,
+        feedback: option.feedback ?? 'No feedback available.', // Default feedback
+        isSelected: !!option.selected, // Ensure boolean
+        active: option.active ?? true, // Default active state
+        appHighlightOption: false, // Adjust for app logic
+        isCorrect: !!option.correct, // Ensure boolean
+        showFeedback: false, // Adjust based on app logic
+        showFeedbackForOption: {}, // Default or computed value
+        highlightCorrectAfterIncorrect: false, // Default or computed value
+        allOptions: [...this.optionsToDisplay], // Provide all options
+        appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Highlight type
+        appHighlightReset: false, // Default reset value
+        disabled: false, // Default disabled state
+        ariaLabel: `Option ${option.text}`, // Accessible label
+        appResetBackground: false, // Default or computed value
+        optionsToDisplay: [...this.optionsToDisplay], // Pass all options
+        checked: option.selected ?? false, // Default to option's selected state
+        change: () => this.handleOptionChange(option), // Callback for option change
+      }));
+  
+      console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
+    } catch (error) {
+      console.error('[synchronizeOptionBindings] Error synchronizing bindings:', error);
+      this.optionBindings = [];
+    }
+  }
+
   initializeFromConfig(): void {
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
