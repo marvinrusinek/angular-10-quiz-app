@@ -202,7 +202,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         ...option,
         active: option.active ?? true,
         // feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
-        feedback: option.feedback ?? 'No feedback available.', // Restore feedback
+        // feedback: option.feedback || this.generateFeedbackForOptions([option], this.currentQuestion.options),
+        feedback: Array.isArray(option.feedback)
+          ? option.feedback.join(', ') // Convert array to a string
+          : option.feedback || this.generateFeedbackForOptions([option], this.currentQuestion.options).join(', '), // Ensure feedback is a string
         showIcon: option.showIcon ?? false,
         selected: option.selected ?? false,
       }));
@@ -218,26 +221,34 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     optionsToDisplay: Option[]
   ): string[] {
     if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
-      console.warn('[SharedOptionComponent] No correct options available for feedback generation.');
-      return optionsToDisplay.map(() => 'No correct answers found for the current question.');
+      console.warn(
+        '[generateFeedbackForOptions] No correct options available for feedback generation.'
+      );
+      return optionsToDisplay.map(
+        () => 'No correct answers found for the current question.'
+      );
     }
   
-    return optionsToDisplay.map((option) => {
+    // Generate the correct message once to avoid redundant calls
+    const correctMessage =
+      this.quizService.setCorrectMessage(correctOptions, optionsToDisplay) ||
+      'Correct answer!';
+  
+    // Generate feedback for each option
+    const feedback = optionsToDisplay.map((option) => {
       const isCorrect = correctOptions.some(
         (correctOption) => correctOption.optionId === option.optionId
       );
   
-      // Use the setCorrectMessage method if available for correct answers
-      if (isCorrect) {
-        const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
-        return correctMessage || 'Correct answer!';
-      }
-  
-      return 'Incorrect answer.';
+      return isCorrect ? correctMessage : 'Incorrect answer.';
     });
+  
+    // Log feedback for debugging
+    console.log('[generateFeedbackForOptions] Generated feedback:', feedback);
+  
+    return feedback;
   }
   
-
   private synchronizeOptionBindings(): void {
     try {
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
