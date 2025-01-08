@@ -159,8 +159,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       if (this.optionsToDisplay?.length > 0) {
         // Map optionsToDisplay to optionBindings
         this.optionBindings = this.optionsToDisplay.map(option => ({
-          ...option,
-          selected: this.isSelectedOption(option) // Adjust if you have a service or helper
+          type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single',
+          option: option,
+          feedback: option.feedback || 'No feedback available',
+          isSelected: option.selected || false,
+          active: option.active ?? true,
+          appHighlightOption: false,
+          isCorrect: option.correct || false,
+          showFeedback: false,
+          showFeedbackForOption: {},
+          highlightCorrectAfterIncorrect: false,
+          allOptions: [],
+          appHighlightInputType: '',
+          appHighlightReset: false,
         }));
         console.log('[SharedOptionComponent] Synchronized optionBindings:', this.optionBindings);
       } else {
