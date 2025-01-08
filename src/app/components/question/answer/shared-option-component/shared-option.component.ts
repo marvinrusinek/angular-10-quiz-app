@@ -66,6 +66,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
+  private isRestoringState = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -148,15 +149,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        this.initializeOptionBindings();
-        this.restoreOptionsToDisplay();
+    if (document.visibilityState === 'visible') {
+      if (this.isRestoringState) {
+        console.log('[onVisibilityChange] State restoration already in progress. Skipping...');
+        return;
       }
-    } catch (error) {
-      console.error('[SharedOptionComponent] Error in onVisibilityChange:', error);
+  
+      this.isRestoringState = true;
+  
+      try {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+        this.restoreOptionsToDisplay();
+        this.initializeOptionBindings();
+        console.log('[onVisibilityChange] State restored successfully.');
+      } catch (error) {
+        console.error('[onVisibilityChange] Error during state restoration:', error);
+      } finally {
+        this.isRestoringState = false;
+      }
     }
-  }
+  }  
 
   private restoreOptionsToDisplay(): void {
     try {
