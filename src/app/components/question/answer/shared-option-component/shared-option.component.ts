@@ -219,27 +219,29 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       console.log('[SharedOptionComponent] Synchronizing option bindings.');
   
-      this.optionBindings = this.optionsToDisplay.map((option) => ({
-        type: isMultipleAnswer ? 'multiple' : 'single', // Determine type
-        option: option,
-        feedback: option.feedback ?? 'No feedback available.', // Default feedback if not provided
-        isSelected: !!option.selected, // Ensure boolean value
-        active: option.active ?? true, // Default to true if active is undefined
-        appHighlightOption: false, // Adjust according to app logic
-        isCorrect: !!option.correct, // Ensure boolean
-        showFeedback: false, // Default feedback visibility
-        showFeedbackForOption: {}, // Default or computed feedback state
-        highlightCorrectAfterIncorrect: false, // Adjust if necessary
-        allOptions: [...this.optionsToDisplay], // Include all options
-        appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio', // Set type for highlighting
-        appHighlightReset: false, // Default reset state
-        appResetBackground: false, // Add missing property with default value
-        optionsToDisplay: [...this.optionsToDisplay], // Add missing property with default value
-        checked: false, // Add missing property with default value
-        change: () => {}, // Add missing property with a default empty function
-        disabled: !option.active, // Set disabled based on the option's active state
-        ariaLabel: option.text || 'Option' // Provide a meaningful ARIA label
-      }));
+      if (this.optionsToDisplay?.length > 0) {
+        this.optionBindings = this.optionsToDisplay.map((option) => ({
+          type: isMultipleAnswer ? 'multiple' : 'single', // Determine type
+          option: option,
+          feedback: option.feedback ?? 'No feedback available.', // Default feedback if not provided
+          isSelected: !!option.selected, // Ensure boolean value
+          active: option.active ?? true, // Default to true if active is undefined
+          appHighlightOption: false, // Adjust according to app logic
+          isCorrect: !!option.correct, // Ensure boolean
+          showFeedback: false, // Default feedback visibility
+          showFeedbackForOption: {}, // Default or computed feedback state
+          highlightCorrectAfterIncorrect: false, // Adjust if necessary
+          allOptions: [...this.optionsToDisplay], // Include all options
+          appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio', // Set type for highlighting
+          appHighlightReset: false, // Default reset state
+          appResetBackground: false, // Add missing property with default value
+          optionsToDisplay: [...this.optionsToDisplay], // Add missing property with default value
+          checked: false, // Add missing property with default value
+          change: () => {}, // Add missing property with a default empty function
+          disabled: !option.active, // Set disabled based on the option's active state
+          ariaLabel: option.text || 'Option' // Provide a meaningful ARIA label
+        }));
+      }
   
       console.log('[SharedOptionComponent] Option bindings synchronized:', this.optionBindings);
     } catch (error) {
