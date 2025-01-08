@@ -4,7 +4,7 @@ import { MatRadioButton } from '@angular/material/radio';
 import { Option } from './Option.model';
 
 export interface OptionBindings {
-  appHighlightOption: string;
+  appHighlightOption: boolean;
   option: Option;
   isCorrect: boolean;
   showFeedback: boolean;

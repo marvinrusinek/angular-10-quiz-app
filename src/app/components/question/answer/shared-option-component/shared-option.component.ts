@@ -939,6 +939,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error('[initializeOptionBindings] No current question available.');
       return;
     }
+
+    // Determine if the question is multiple-choice
+    const isMultipleChoice = this.currentQuestion.type === QuestionType.MultipleAnswer || false;
   
     // Retrieve correct options for the current question
     const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
@@ -952,14 +955,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     // Map `optionsToDisplay` to create `optionBindings`
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isCorrect = correctOptions.some((correctOption) => correctOption.optionId === option.optionId);
-      const feedback = isCorrect ? 'Correct answer!' : 'No feedback available.';
+      const feedback = option.feedback ?? (isCorrect ? 'Correct answer!' : 'Incorrect answer.');
   
-      const optionBinding = {
-        type: this.isMultipleChoice ? 'multiple' : 'single',
+      const optionBinding: OptionBindings = {
+        type: isMultipleChoice ? 'multiple' : 'single', // Set type based on question type
         option: option,
         feedback,
-        selected: option.selected || false,
-        active: option.active ?? true,
+        isSelected: option.selected || false, // Default to false if not already selected
+        active: option.active ?? true, // Default to active if undefined
+        appHighlightOption: false, // Adjust as per your application's logic
+        isCorrect: isCorrect,
+        showFeedback: false, // Adjust as per your application's logic
+        showFeedbackForOption: {}, // Adjust as per your application's logic
+        // Add default values for other properties as needed
       };
   
       console.log(`[initializeOptionBindings] Created option binding for option ${option.optionId}:`, optionBinding);
@@ -968,7 +976,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     });
   
     console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
-  }  
+  }
+  
 
   generateFeedbackForOptions(
     correctOptions: Option[],
