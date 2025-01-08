@@ -224,9 +224,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
   }
   
-  
-
-
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
