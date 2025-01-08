@@ -163,7 +163,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
 
         // Reinitialize option bindings
-        this.synchronizeOptionBindings();
+        if (this.optionsToDisplay?.length > 0) {
+          console.log('[onVisibilityChange] Options restored successfully:', this.optionsToDisplay);
+          this.synchronizeOptionBindings();
+        } else {
+          console.warn('[onVisibilityChange] No options available to synchronize.');
+        }
 
         // Force UI refresh
         setTimeout(() => {
