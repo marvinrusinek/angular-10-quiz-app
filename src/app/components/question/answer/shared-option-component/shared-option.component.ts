@@ -154,6 +154,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  private synchronizeOptionBindings(): void {
+    try {
+      if (this.optionsToDisplay?.length > 0) {
+        // Map optionsToDisplay to optionBindings
+        this.optionBindings = this.optionsToDisplay.map(option => ({
+          ...option,
+          selected: this.isSelectedOption(option) // Adjust if you have a service or helper
+        }));
+        console.log('[SharedOptionComponent] Synchronized optionBindings:', this.optionBindings);
+      } else {
+        console.warn('[SharedOptionComponent] No options to synchronize');
+        this.optionBindings = [];
+      }
+    } catch (error) {
+      console.error('[SharedOptionComponent] Error during synchronization:', error);
+      this.optionBindings = [];
+    }
+  }
+  
+
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
