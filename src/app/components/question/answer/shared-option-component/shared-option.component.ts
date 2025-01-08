@@ -122,7 +122,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -144,10 +144,36 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[SharedOptionComponent] Tab is visible. Restoring states...');
+
+        // Restore options if missing or incomplete
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.warn('[SharedOptionComponent] No optionsToDisplay found. Attempting to restore...');
+          this.restoreOptionsToDisplay();
+        }
+
+        // Reinitialize bindings if necessary
+        if (this.optionsToDisplay?.length > 0) {
+          this.initializeOptionBindings();
+          console.log('[SharedOptionComponent] Options and bindings restored successfully.');
+        } else {
+          console.warn('[SharedOptionComponent] No options available after restoration.');
+        }
+      } else {
+        console.log('[SharedOptionComponent] Tab is hidden.');
+      }
+    } catch (error) {
+      console.error('[SharedOptionComponent] Error during visibility change handling:', error);
+    }
   }
 
   private restoreOptionsToDisplay(): void {
-    if (!this.currentQuestion?.options) {
+    if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
       console.warn('[restoreOptionsToDisplay] No current question or options available.');
       this.optionsToDisplay = [];
       return;
@@ -157,7 +183,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       ...option,
       active: option.active ?? true,
       feedback: option.feedback || 'No feedback available.', // Default feedback
-      showIcon: option.showIcon ?? false,
+      showIcon: option.showIcon ?? false
     }));
   
     console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
@@ -170,9 +196,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.optionBindings = [];
       return;
     }
+
+    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
   
     this.optionBindings = this.optionsToDisplay.map(option => ({
-      type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Set type
+      type: isMultipleAnswer ? 'multiple' : 'single',
       option: option,
       feedback: option.feedback ?? 'No feedback available.', // Default feedback
       isSelected: !!option.selected, // Ensure boolean
@@ -183,7 +211,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       showFeedbackForOption: {}, // Default or computed value
       highlightCorrectAfterIncorrect: false, // Default or computed value
       allOptions: [...this.optionsToDisplay], // Provide all options
-      appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Highlight type
+      appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
       appHighlightReset: false, // Default reset value
       disabled: false, // Default disabled state
       ariaLabel: `Option ${option.text}`, // Accessible label
