@@ -172,30 +172,35 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private restoreOptionsToDisplay(): void {
     try {
+      console.log('[restoreOptionsToDisplay] Restoring options...');
+      
       if (!this.options || this.options.length === 0) {
-        console.warn('[SharedOptionComponent] No options available to restore.');
+        console.warn('[restoreOptionsToDisplay] No options available to restore.');
         this.optionsToDisplay = [];
-        this.synchronizeOptionBindings(); // Clear bindings when no options are available
+        this.optionBindings = [];
         return;
       }
   
-      this.optionsToDisplay = this.options.map((option) => ({
-        ...option,
-        active: option.active ?? true, // Default to active if undefined
-        feedback: option.feedback ?? undefined, // Preserve feedback if present
-        showIcon: option.showIcon ?? false, // Preserve icon state if present
-        selected: option.selected ?? false, // Maintain selected state
-      }));
+      const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+      const feedbackMap = this.generateFeedbackForOptions(correctOptions, this.options);
   
-      console.log('[SharedOptionComponent] Restored optionsToDisplay:', this.optionsToDisplay);
-  
-      this.synchronizeOptionBindings(); // Synchronize with restored options
-    } catch (error) {
-      console.error('[SharedOptionComponent] Error restoring options:', error);
+      // Clear previous options and bindings
       this.optionsToDisplay = [];
       this.optionBindings = [];
+  
+      this.optionsToDisplay = this.options.map((option) => ({
+        ...option,
+        active: option.active ?? true,
+        feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
+        showIcon: option.showIcon ?? false,
+        selected: option.selected ?? false,
+      }));
+  
+      console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[restoreOptionsToDisplay] Error restoring options:', error);
     }
-  }
+  }  
   
   private generateFeedbackForOptions(
     correctOptions: Option[],
