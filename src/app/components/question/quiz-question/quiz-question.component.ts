@@ -2053,7 +2053,7 @@ export class QuizQuestionComponent
     }
   }
   
-  /* private restoreFeedbackState(): void {
+  private restoreFeedbackState(): void {
     try {
       if (!this.currentQuestion || !this.optionsToDisplay.length) {
         console.warn('[restoreFeedbackState] Missing current question or options to display.');
@@ -2072,8 +2072,8 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
-  } */
-  private restoreFeedbackState(): void {
+  }
+  /* private restoreFeedbackState(): void {
     try {
         if (!this.optionsToDisplay?.length) {
             console.warn('[restoreFeedbackState] No options to restore feedback for.');
@@ -2108,7 +2108,7 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
-  }
+  } */
 
   private ensureOptionsToDisplay(): void {
     try {
