@@ -201,7 +201,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       this.optionsToDisplay = this.options.map((option) => ({
         ...option,
         active: option.active ?? true,
-        feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
+        // feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
+        feedback: option.feedback ?? 'No feedback available.', // Restore feedback
         showIcon: option.showIcon ?? false,
         selected: option.selected ?? false,
       }));
