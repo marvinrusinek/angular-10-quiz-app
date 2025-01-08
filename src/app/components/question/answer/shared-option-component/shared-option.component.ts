@@ -201,7 +201,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         appResetBackground: false, // Add missing property with default value
         optionsToDisplay: [...this.optionsToDisplay], // Add missing property with default value
         checked: false, // Add missing property with default value
-        change: () => {} // Add missing property with a default empty function
+        change: () => {}, // Add missing property with a default empty function
+        disabled: !option.active, // Set disabled based on the option's active state
+        ariaLabel: option.text || 'Option' // Provide a meaningful ARIA label
       }));
   
       console.log('[SharedOptionComponent] Option bindings synchronized:', this.optionBindings);
