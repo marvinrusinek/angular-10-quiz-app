@@ -292,7 +292,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
-      appHighlightOption: '',
+      appHighlightOption: false,
       ariaLabel: optionBinding.ariaLabel,
       isSelected: optionBinding.isSelected,
       isCorrect: optionBinding.isCorrect,
@@ -892,7 +892,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
       type: this.type,
-      appHighlightOption: '',
+      appHighlightOption: false,
       appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
