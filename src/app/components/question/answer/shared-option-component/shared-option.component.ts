@@ -122,7 +122,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -144,7 +144,68 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
     }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      console.log('[onVisibilityChange] Tab is visible. Restoring options and feedback...');
+      this.restoreOptionsToDisplay();
+      // this.restoreFeedbackState();
+    }
   }
+
+  private restoreOptionsToDisplay(): void {
+    if (!this.currentQuestion?.options) {
+      console.warn('[restoreOptionsToDisplay] No current question or options available.');
+      this.optionsToDisplay = [];
+      return;
+    }
+  
+    this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+      ...option,
+      active: option.active ?? true,
+      feedback: option.feedback || 'No feedback available.', // Default feedback
+      showIcon: option.showIcon ?? false,
+    }));
+  
+    console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
+    this.synchronizeOptionBindings();
+  }
+
+  private synchronizeOptionBindings(): void {
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[synchronizeOptionBindings] No options to synchronize.');
+      this.optionBindings = [];
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map(option => ({
+      type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Set type
+      option: option,
+      feedback: option.feedback ?? 'No feedback available.', // Default feedback
+      isSelected: !!option.selected, // Ensure boolean
+      active: option.active ?? true, // Default active state
+      appHighlightOption: false, // Adjust for app logic
+      isCorrect: !!option.correct, // Ensure boolean
+      showFeedback: false, // Adjust based on app logic
+      showFeedbackForOption: {}, // Default or computed value
+      highlightCorrectAfterIncorrect: false, // Default or computed value
+      allOptions: [...this.optionsToDisplay], // Provide all options
+      appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Highlight type
+      appHighlightReset: false, // Default reset value
+      disabled: false, // Default disabled state
+      ariaLabel: `Option ${option.text}`, // Accessible label
+      appResetBackground: false, // Default or computed value
+      optionsToDisplay: [...this.optionsToDisplay], // Pass all options
+      checked: option.selected ?? false, // Default to option's selected state
+      change: () => {}
+    }));
+  
+    console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
+  }
+  
+  
+
 
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
