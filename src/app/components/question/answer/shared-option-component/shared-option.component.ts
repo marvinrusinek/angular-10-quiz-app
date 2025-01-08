@@ -1011,6 +1011,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   
     console.log('[initializeOptionBindings] Correct options:', correctOptions);
+
+    // Generate feedback for all options
+    const feedbackMap = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
     // Map `optionsToDisplay` to create `optionBindings`
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
@@ -1020,7 +1023,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       const optionBinding: OptionBindings = {
         type: isMultipleChoice ? 'multiple' : 'single', // Set type based on question type
         option: option,
-        feedback,
+        feedback: feedbackMap[option.optionId] ?? 'No feedback available.',
         isSelected: option.selected || false, // Default to false if not already selected
         active: option.active ?? true, // Default to active if undefined
         appHighlightOption: false, // Adjust as per your application's logic
