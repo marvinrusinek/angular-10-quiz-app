@@ -113,27 +113,10 @@ export class HighlightOptionDirective implements OnChanges {
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   // Listen for visibility changes
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      console.log('[HighlightOptionDirective] Before re-applying highlight:', this.option);
-      this.updateHighlight();
-      console.log('[HighlightOptionDirective] After re-applying highlight:', this.option);
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('[SharedOptionComponent] Tab is visible. Re-applying highlights...');
-
-      // Trigger highlight updates for all options
-      this.optionsToDisplay.forEach((option) => {
-        if (option.highlight) {
-          console.log('[onVisibilityChange] Highlighting option:', option);
-        }
-      });
-
-      this.cdRef.detectChanges(); // Ensure UI updates
+      this.updateHighlight();
     }
   }
 
