@@ -38,7 +38,7 @@ export class HighlightOptionDirective implements OnChanges {
     private userPreferenceService: UserPreferenceService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('Current inputs:', {
       optionBinding: this.optionBinding,
       isAnswered: this.isAnswered,
@@ -94,7 +94,78 @@ export class HighlightOptionDirective implements OnChanges {
     } else {
       console.log('No relevant changes detected, skipping highlight update');
     }
-  }  
+  }  */
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('[HighlightOptionDirective] Current inputs:', {
+      optionBinding: this.optionBinding,
+      isAnswered: this.isAnswered,
+      showFeedback: this.showFeedback,
+    });
+  
+    // Check if relevant inputs have changed
+    if (
+      changes.option ||
+      changes.showFeedback ||
+      changes.isSelected ||
+      changes.appHighlightReset
+    ) {
+      try {
+        // Ensure `currentOptions` are properly initialized
+        this.quizService.currentOptions.subscribe((currentOptions) => {
+          if (!Array.isArray(currentOptions) || currentOptions.length === 0) {
+            console.warn(
+              '[HighlightOptionDirective] Invalid or empty currentOptions:',
+              currentOptions
+            );
+            return;
+          }
+  
+          // Ensure `currentQuestionIndex` is valid
+          if (
+            this.quizService.currentQuestionIndex === undefined ||
+            this.quizService.currentQuestionIndex < 0
+          ) {
+            console.error(
+              '[HighlightOptionDirective] Invalid currentQuestionIndex:',
+              this.quizService.currentQuestionIndex
+            );
+            return;
+          }
+  
+          // Check if all correct answers are selected
+          this.selectedOptionService
+            .areAllCorrectAnswersSelected(
+              currentOptions,
+              this.quizService.currentQuestionIndex
+            )
+            .then((result) => {
+              this.areAllCorrectAnswersSelected = result;
+  
+              console.log(
+                '[HighlightOptionDirective] areAllCorrectAnswersSelected:',
+                this.areAllCorrectAnswersSelected
+              );
+  
+              // Update highlight based on current state
+              this.updateHighlight();
+            })
+            .catch((error) => {
+              console.error(
+                '[HighlightOptionDirective] Error while checking correct answers:',
+                error
+              );
+            });
+        });
+      } catch (error) {
+        console.error('[HighlightOptionDirective] Error in ngOnChanges:', error);
+      }
+    } else {
+      console.log(
+        '[HighlightOptionDirective] No relevant changes detected, skipping highlight update'
+      );
+    }
+  }
+  
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
@@ -111,7 +182,6 @@ export class HighlightOptionDirective implements OnChanges {
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
       console.log('[SharedOptionComponent] Tab is visible. Re-applying highlights...');
-      this.restoreOptionsToDisplay();
 
       // Trigger highlight updates for all options
       this.optionsToDisplay.forEach((option) => {
