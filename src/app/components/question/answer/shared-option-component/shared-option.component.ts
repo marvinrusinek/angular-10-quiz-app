@@ -138,6 +138,11 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn('[SharedOptionComponent] No optionsToDisplay found. Attempting to restore...');
           this.restoreOptionsToDisplay();
+
+          // Emit an event or notify child components to update highlights
+          this.optionsToDisplay.forEach(option => {
+            option.highlight = option.selected; // Update highlight based on selected state
+          });
         }
 
         // Reinitialize bindings if necessary
