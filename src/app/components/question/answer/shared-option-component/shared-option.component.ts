@@ -176,7 +176,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         feedback: option.feedback ?? 'No feedback available.', // Restore feedback
         showIcon: option.showIcon ?? false, // Preserve icon state
         selected: option.selected ?? false, // Restore selection state
-        highlight: option.highlight ?? false, // Restore highlight state
+        highlight: option.highlight ?? false // Restore highlight state
       }));
 
       console.log('[restoreOptionsToDisplay] Restored optionsToDisplay:', this.optionsToDisplay);
@@ -210,7 +210,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       feedback: option.feedback ?? 'No feedback available.', // Default feedback
       isSelected: !!option.selected, // Ensure boolean
       active: option.active ?? true, // Default active state
-      appHighlightOption: false, // Adjust for app logic
+      appHighlightOption: option.highlight, // Adjust for app logic
       isCorrect: !!option.correct, // Ensure boolean
       showFeedback: false, // Adjust based on app logic
       showFeedbackForOption: {}, // Default or computed value
