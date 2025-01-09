@@ -125,29 +125,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   // Handle visibility changes to restore state
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        console.log('[SharedOptionComponent] Tab is visible. Restoring states...');
-        
-        // Ensure options are restored if missing
-        this.ensureOptionsToDisplay();
-
-        // Reinitialize bindings
-        if (this.optionsToDisplay?.length > 0) {
-          this.initializeOptionBindings();
-          console.log('[SharedOptionComponent] Options and bindings restored on visibility change.');
-        } else {
-          console.warn('[SharedOptionComponent] No options available to restore on visibility change.');
-        }
-      } else {
-        console.log('[SharedOptionComponent] Tab is hidden.');
-      }
-    } catch (error) {
-      console.error('[SharedOptionComponent] Error during visibility change handling:', error);
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
@@ -166,7 +143,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         // Reinitialize bindings if necessary
         if (this.optionsToDisplay?.length > 0) {
           this.initializeOptionBindings();
-          console.log('[SharedOptionComponent] Options and bindings restored successfully.');
         } else {
           console.warn('[SharedOptionComponent] No options available after restoration.');
         }
