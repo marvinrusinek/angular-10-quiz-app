@@ -1922,49 +1922,6 @@ export class QuizQuestionComponent
     }
   } */
 
-  private ensureOptionsToDisplay(): void {
-    try {
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.log('[ensureOptionsToDisplay] Restoring options from currentQuestion...');
-            this.optionsToDisplay = this.currentQuestion?.options?.map(option => ({
-                ...option,
-                active: option.active ?? true,
-                feedback: option.feedback ?? undefined,
-                showIcon: option.showIcon ?? false,
-                selected: this.selectedOptionService.isSelectedOption(option)
-            })) || [];
-
-            console.log('[ensureOptionsToDisplay] Options restored:', this.optionsToDisplay);
-        } else {
-            console.log('[ensureOptionsToDisplay] Options already available:', this.optionsToDisplay);
-        }
-    } catch (error) {
-        console.error('[ensureOptionsToDisplay] Error restoring options:', error);
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
-    }
-  }
-
-  private ensureOptionsAreAvailable(): void {
-    try {
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[ensureOptionsAreAvailable] No options available. Reinitializing...');
-        this.optionsToDisplay = this.currentQuestion?.options?.map((option) => ({
-          ...option,
-          active: option.active ?? true, // Default active to true
-          feedback: option.feedback ?? undefined, // Preserve or reset feedback
-          showIcon: option.showIcon ?? false // Preserve or reset icon state
-        })) || [];
-    
-        console.log('[ensureOptionsAreAvailable] Options reinitialized:', this.optionsToDisplay);
-      } else {
-        console.log('[ensureOptionsAreAvailable] Options are already available.');
-      }
-    } catch (error) {
-      console.error('[ensureOptionsAreAvailable] Error ensuring options availability:', error);
-    }
-  }
-
   private generateFeedbackForOption(option: Option): string {
     if (option.correct) {
       return this.correctMessage || 'Correct answer!';
