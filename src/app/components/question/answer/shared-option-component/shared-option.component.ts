@@ -141,13 +141,13 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         }
 
         // Reapply highlights
-        this.optionsToDisplay.forEach(option => {
+        for (const option of this.optionsToDisplay) {
           if (option.selected) {
             option.highlight = true; // Highlight selected options
           } else {
             option.highlight = false; // Clear highlight for others
           }
-        });
+        }        
 
         // Trigger UI update
         this.cdRef.detectChanges();
