@@ -512,8 +512,6 @@ export class QuizQuestionComponent
     }));
 
     console.log('[setOptionsToDisplay] Updated optionsToDisplay:', this.optionsToDisplay);
-
-    // this.synchronizeOptionBindings(); // Ensure bindings are in sync
     console.log('[setOptionsToDisplay] Updated optionBindings:', this.optionBindings);
   }
 
@@ -1169,7 +1167,6 @@ export class QuizQuestionComponent
 
       if (!this.currentQuestion) {
         this.optionsToDisplay = [];
-        // this.synchronizeOptionBindings();
         throw new Error(
           'No question found for index ${this.currentQuestionIndex}'
         );
@@ -1984,7 +1981,6 @@ export class QuizQuestionComponent
             }));
 
             console.log('[reloadCurrentQuestion] Options restored:', this.optionsToDisplay);
-            // this.synchronizeOptionBindings();
         } else {
             throw new Error('[reloadCurrentQuestion] Failed to reload question.');
         }
@@ -2044,9 +2040,6 @@ export class QuizQuestionComponent
             selected: this.selectedOptionService.isSelectedOption(option)
         }));
 
-        // Ensure option bindings are synchronized
-        // this.synchronizeOptionBindings();
-        
         console.log('[restoreOptionsToDisplay] Options restored:', this.optionsToDisplay);
     } catch (error) {
         console.error('[restoreOptionsToDisplay] Error restoring options:', error);
@@ -2068,7 +2061,6 @@ export class QuizQuestionComponent
       }));
   
       console.log('[restoreFeedbackState] Restored options with feedback:', this.optionsToDisplay);
-      // this.synchronizeOptionBindings(); // Ensure bindings are synchronized
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
@@ -2122,7 +2114,6 @@ export class QuizQuestionComponent
                 selected: this.selectedOptionService.isSelectedOption(option)
             })) || [];
 
-            // this.synchronizeOptionBindings();
             console.log('[ensureOptionsToDisplay] Options restored:', this.optionsToDisplay);
         } else {
             console.log('[ensureOptionsToDisplay] Options already available:', this.optionsToDisplay);
@@ -2145,7 +2136,6 @@ export class QuizQuestionComponent
           showIcon: option.showIcon ?? false // Preserve or reset icon state
         })) || [];
     
-        // this.synchronizeOptionBindings(); // Ensure optionBindings are in sync
         console.log('[ensureOptionsAreAvailable] Options reinitialized:', this.optionsToDisplay);
       } else {
         console.log('[ensureOptionsAreAvailable] Options are already available.');
