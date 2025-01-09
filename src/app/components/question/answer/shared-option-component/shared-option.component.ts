@@ -140,14 +140,8 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           this.restoreOptionsToDisplay();
         }
 
-        // Reapply highlights
-        for (const option of this.optionsToDisplay) {
-          if (option.selected) {
-            option.highlight = true; // Highlight selected options
-          } else {
-            option.highlight = false; // Clear highlight for others
-          }
-        }        
+        // Preserve option highlighting
+        this.preserveOptionHighlighting();
 
         // Trigger UI update
         this.cdRef.detectChanges();
@@ -158,6 +152,23 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
+    }
+  }
+
+  private ensureOptionsToDisplay(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
+      if (this.currentQuestion?.options) {
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: option.active ?? true,
+          feedback: option.feedback ?? undefined,
+          showIcon: option.showIcon ?? false
+        }));
+        console.log('[SharedOptionComponent] Restored optionsToDisplay:', this.optionsToDisplay);
+      } else {
+        console.error('[SharedOptionComponent] No options available in the current question.');
+      }
     }
   }
 
@@ -235,22 +246,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
     console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
   }
-  
-  private ensureOptionsToDisplay(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
-      if (this.currentQuestion?.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-          ...option,
-          active: option.active ?? true,
-          feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false
-        }));
-        console.log('[SharedOptionComponent] Restored optionsToDisplay:', this.optionsToDisplay);
+
+  preserveOptionHighlighting(): void {
+    for (const option of this.optionsToDisplay) {
+      if (option.selected) {
+        option.highlight = true; // Highlight selected options
       } else {
-        console.error('[SharedOptionComponent] No options available in the current question.');
+        option.highlight = false; // Clear highlight for others
       }
-    }
+    }  
   }
   
   initializeFromConfig(): void {
