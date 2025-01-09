@@ -138,19 +138,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn('[SharedOptionComponent] No optionsToDisplay found. Attempting to restore...');
           this.restoreOptionsToDisplay();
-
-          // Emit an event or notify child components to update highlights
-          this.optionsToDisplay.forEach(option => {
-            option.highlight = option.selected; // Update highlight based on selected state
-          });
         }
+
+        // Update highlight based on the restored state
+        this.optionsToDisplay.forEach(option => {
+          if (option.selected) {
+            option.highlight = true; // Ensure highlight is set for selected options
+          } else {
+            option.highlight = false; // Clear highlight for unselected options
+          }
+        });
 
         // Reinitialize bindings if necessary
         if (this.optionsToDisplay?.length > 0) {
           this.initializeOptionBindings();
+          console.log('[SharedOptionComponent] Options and bindings restored successfully.');
         } else {
           console.warn('[SharedOptionComponent] No options available after restoration.');
         }
+
+        this.cdRef.detectChanges(); // Ensure UI reflects restored states
       } else {
         console.log('[SharedOptionComponent] Tab is hidden.');
       }
