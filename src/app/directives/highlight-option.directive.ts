@@ -112,14 +112,6 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  // Listen for visibility changes
-  @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      this.updateHighlight();
-    }
-  }
-
   @HostListener('click', ['$event'])
   onClick(event: Event): void {
     try {
