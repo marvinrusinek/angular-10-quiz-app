@@ -98,6 +98,15 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
+  // Listen for visibility changes
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      console.log('[HighlightOptionDirective] Tab is visible. Re-applying highlight...');
+      this.updateHighlight();
+    }
+  }
+
   @HostListener('click', ['$event'])
   onClick(event: Event): void {
     try {
