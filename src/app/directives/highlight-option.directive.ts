@@ -99,11 +99,28 @@ export class HighlightOptionDirective implements OnChanges {
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   // Listen for visibility changes
+  /* @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      console.log('[HighlightOptionDirective] Before re-applying highlight:', this.option);
+      this.updateHighlight();
+      console.log('[HighlightOptionDirective] After re-applying highlight:', this.option);
+    }
+  } */
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      console.log('[HighlightOptionDirective] Tab is visible. Re-applying highlight...');
-      this.updateHighlight();
+      console.log('[SharedOptionComponent] Tab is visible. Re-applying highlights...');
+      this.restoreOptionsToDisplay();
+
+      // Trigger highlight updates for all options
+      this.optionsToDisplay.forEach((option) => {
+        if (option.highlight) {
+          console.log('[onVisibilityChange] Highlighting option:', option);
+        }
+      });
+
+      this.cdRef.detectChanges(); // Ensure UI updates
     }
   }
 
@@ -143,6 +160,16 @@ export class HighlightOptionDirective implements OnChanges {
       option: this.option
     });
 
+    // If the option is already highlighted, reapply the highlight color
+    if (this.option?.highlight) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+      console.log('[updateHighlight] Re-applying stored highlight:', this.option);
+      this.setBackgroundColor(color);
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+      return;
+    }
+
     // Highlight only the selected option (green for correct, red for incorrect)
     if (this.isSelected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
@@ -160,6 +187,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setPointerEvents('none'); // Disable interactions for deactivated options
       this.renderer.addClass(this.el.nativeElement, 'deactivated-option'); // Add deactivation class
       this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed'); // Set cursor for deactivated options
+      // this.option.highlight = false; // Ensure the highlight state is cleared
       return;
     }
 
