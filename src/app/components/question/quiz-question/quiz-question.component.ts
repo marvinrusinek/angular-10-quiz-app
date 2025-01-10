@@ -696,11 +696,40 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
-    if (question.options) {
-      this.optionsToDisplay = question.options;
-    } else {
-      console.warn('No options found for the question:', question);
+    if (!question?.options || question.options.length === 0) {
+        console.warn('[loadOptionsForQuestion] No options found for the question:', question);
+        this.optionsToDisplay = [];
+        return;
     }
+
+    // Load options into `optionsToDisplay`
+    this.optionsToDisplay = question.options.map(option => ({
+        ...option,
+        selected: option.selected || false, // Ensure `selected` is boolean
+        active: option.active ?? true, // Default to active if undefined
+        feedback: option.feedback ?? 'No feedback available.', // Provide default feedback
+    }));
+
+    console.log('[loadOptionsForQuestion] Loaded options:', this.optionsToDisplay);
+
+    // Apply feedback to the loaded options
+    this.applyOptionFeedbackToOptions();
+  }
+
+  private applyOptionFeedbackToOptions(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToOptions] No options available to apply feedback.');
+        return;
+    }
+
+    // Apply feedback to each option
+    this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+        ...option,
+        feedback: option.correct ? 'Correct answer!' : 'Incorrect answer.', // Adjust logic as needed
+        showIcon: option.correct || option.selected, // Show icons for correct or selected options
+    }));
+
+    console.log('[applyOptionFeedbackToOptions] Feedback applied to all options:', this.optionsToDisplay);
   }
 
   // Conditional method to update the explanation only if the question is answered
