@@ -326,12 +326,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
-      if (option.selected) {
-        option.highlight = true; // Highlight selected options
-      } else {
-        option.highlight = false; // Clear highlight for others
-      }
-    }  
+      // Set highlight based on whether the option is selected
+      option.highlight = option.selected;
+
+      // Show icons for correct options or selected options
+      option.showIcon = option.correct || option.selected;
+    }
   }
   
   initializeFromConfig(): void {
