@@ -696,24 +696,19 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
-    if (!question?.options || question.options.length === 0) {
-        console.warn('[loadOptionsForQuestion] No options found for the question:', question);
-        this.optionsToDisplay = [];
-        return;
-    }
-
-    // Load options into `optionsToDisplay`
-    this.optionsToDisplay = question.options.map(option => ({
+    if (question.options) {
+      this.optionsToDisplay = question.options.map(option => ({
         ...option,
-        selected: option.selected || false, // Ensure `selected` is boolean
-        active: option.active ?? true, // Default to active if undefined
-        feedback: option.feedback ?? 'No feedback available.', // Provide default feedback
-    }));
-
-    console.log('[loadOptionsForQuestion] Loaded options:', this.optionsToDisplay);
-
-    // Apply feedback to the loaded options
-    this.applyOptionFeedbackToOptions();
+        feedback: option.feedback ?? 'No feedback available.',
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+      }));
+      console.log('[loadOptionsForQuestion] Options loaded:', this.optionsToDisplay);
+    } else {
+      console.warn('No options found for the question:', question);
+      this.optionsToDisplay = [];
+    }
   }
 
   private applyOptionFeedbackToOptions(): void {
