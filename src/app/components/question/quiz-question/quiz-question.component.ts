@@ -1812,23 +1812,36 @@ export class QuizQuestionComponent
   private applyOptionFeedback(option: Option): void {
     this.showFeedback = true;
   
+    // Check if the selected option is correct
     if (option.correct) {
+      // Mark only correct options as active, and deactivate incorrect ones
       this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
         ...opt,
-        active: opt.correct, // Correct options remain active
-        feedback: opt.correct ? undefined : 'x', // Feedback for incorrect options
-        showIcon: opt.correct // Show icon for correct options
+        active: opt.correct, // Keep correct options active
+        feedback: opt.correct ? undefined : 'Incorrect answer!', // Feedback for incorrect options
+        showIcon: !opt.correct, // Show 'close' icon for incorrect options
+        highlight: opt === option // Highlight the selected option
       }));
     } else {
+      // Handle incorrect selection
       this.optionsToDisplay = this.optionsToDisplay.map(opt =>
         opt === option
-          ? { ...opt, feedback: 'x', showIcon: true, active: false } // Feedback and disable for selected incorrect
-          : { ...opt, active: opt.correct, showIcon: opt.showIcon || opt.correct } // Maintain correct options
+          ? {
+              ...opt,
+              feedback: 'Incorrect answer!', // Add feedback for selected incorrect option
+              showIcon: true, // Show 'close' icon for the selected incorrect option
+              active: false // Deactivate the incorrect selected option
+            }
+          : {
+              ...opt,
+              active: opt.correct, // Keep correct options active
+              showIcon: opt.correct // Ensure icons are displayed for correct options
+            }
       );
     }
   
-    console.log('[applyOptionFeedback] Final optionsToDisplay:', this.optionsToDisplay);
-  }
+    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
+  }  
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
