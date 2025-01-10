@@ -1809,7 +1809,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private applyOptionFeedback(option: Option): void {
+  /* private applyOptionFeedback(option: Option): void {
     this.showFeedback = true;
   
     // Check if the selected option is correct
@@ -1841,7 +1841,29 @@ export class QuizQuestionComponent
     }
   
     console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
-  }  
+  } */
+  private applyOptionFeedback(selectedOption: Option): void {
+    this.showFeedback = true;
+  
+    this.optionsToDisplay = this.optionsToDisplay.map(option => {
+      if (option === selectedOption) {
+        return {
+          ...option,
+          active: option.correct, // Correct option remains active, incorrect gets disabled
+          feedback: option.correct ? 'Correct answer!' : 'Incorrect answer!',
+          showIcon: true, // Show feedback icon for selected option
+        };
+      }
+      return {
+        ...option,
+        active: option.correct, // Disable incorrect options
+        showIcon: option.correct, // Show icon for correct options only
+      };
+    });
+  
+    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
+  }
+  
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {

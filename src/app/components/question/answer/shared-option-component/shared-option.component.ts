@@ -155,6 +155,32 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
+  applyOptionFeedback(selectedOption: Option): void {
+    console.log('[SharedOptionComponent] Applying feedback for selected option:', selectedOption);
+  
+    this.optionsToDisplay = this.optionsToDisplay.map(option => {
+      if (option === selectedOption) {
+        return {
+          ...option,
+          active: option.correct, // Keep active if correct, disable otherwise
+          feedback: option.correct ? 'Correct answer!' : 'Incorrect answer!',
+          showIcon: true, // Show feedback icon for selected option
+        };
+      }
+      return {
+        ...option,
+        active: option.correct, // Disable incorrect options
+        showIcon: option.correct, // Show icon for correct options only
+      };
+    });
+  
+    console.log('[SharedOptionComponent] Updated optionsToDisplay after feedback:', this.optionsToDisplay);
+  
+    // Update bindings or other UI states if necessary
+    this.synchronizeOptionBindings(); // Ensure bindings are in sync with optionsToDisplay
+  }
+  
+
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
