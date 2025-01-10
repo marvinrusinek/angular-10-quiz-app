@@ -155,30 +155,81 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
   }
 
-  applyOptionFeedback(selectedOption: Option): void {
-    console.log('[SharedOptionComponent] Applying feedback for selected option:', selectedOption);
+  private applyOptionFeedback(option: Option): void {
+    console.log('[applyOptionFeedback] Received option:', option);
   
-    this.optionsToDisplay = this.optionsToDisplay.map(option => {
-      if (option === selectedOption) {
+    // Enable feedback display
+    this.showFeedback = true;
+  
+    // Update options
+    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+      if (opt === option) {
+        // Selected option
         return {
-          ...option,
-          active: option.correct, // Keep active if correct, disable otherwise
-          feedback: option.correct ? 'Correct answer!' : 'Incorrect answer!',
-          showIcon: true, // Show feedback icon for selected option
+          ...opt,
+          feedback: opt.correct ? 'Correct!' : 'Incorrect!',
+          showIcon: true, // Always show an icon for the selected option
+          active: opt.correct, // Disable if incorrect
         };
       }
+  
+      if (opt.correct) {
+        // Correct options remain active
+        return {
+          ...opt,
+          active: true, // Keep correct options enabled
+          showIcon: true, // Show icon for correct options
+          feedback: opt.feedback ?? 'Correct!', // Ensure feedback for correct options
+        };
+      }
+  
+      // Incorrect options other than the selected one are deactivated
       return {
-        ...option,
-        active: option.correct, // Disable incorrect options
-        showIcon: option.correct, // Show icon for correct options only
+        ...opt,
+        active: false, // Deactivate incorrect options
+        showIcon: false, // Do not show icon for non-selected incorrect options
       };
     });
   
-    console.log('[SharedOptionComponent] Updated optionsToDisplay after feedback:', this.optionsToDisplay);
+    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
   
-    // Update bindings or other UI states if necessary
-    this.synchronizeOptionBindings(); // Ensure bindings are in sync with optionsToDisplay
+    // Refresh UI
+    this.refreshUIStates();
   }
+
+  private refreshUIStates(): void {
+    try {
+      console.log('[refreshUIStates] Refreshing UI states.');
+  
+      // Update bindings or notify child components about state changes
+      if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+        this.optionBindings = this.optionsToDisplay.map((option) => ({
+          type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Set the type
+          option: option,
+          feedback: option.feedback || 'No feedback available.', // Set feedback
+          isSelected: !!option.selected, // Ensure a boolean value
+          active: option.active ?? true, // Default to true if undefined
+          appHighlightOption: option.highlight || false, // Preserve the highlight state
+          isCorrect: !!option.correct, // Ensure a boolean value
+          showFeedback: !!option.showIcon, // Use `showIcon` to determine feedback visibility
+          allOptions: [...this.optionsToDisplay], // Include all options
+          appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Input type
+          appHighlightReset: false, // Default to false
+        }));
+  
+        console.log('[refreshUIStates] Option bindings updated:', this.optionBindings);
+      } else {
+        console.warn('[refreshUIStates] No options to refresh.');
+      }
+  
+      // Trigger change detection if necessary
+      this.cdRef.detectChanges();
+  
+    } catch (error) {
+      console.error('[refreshUIStates] Error refreshing UI states:', error);
+    }
+  }
+  
   
 
   private ensureOptionsToDisplay(): void {
