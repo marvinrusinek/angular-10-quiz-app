@@ -604,6 +604,19 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         inputElement.focus(); // Ensure the element gains focus
   
         const selectedOption = optionBinding.option as SelectedOption;
+
+        // Ensure selectedOption is valid
+        if (!selectedOption) {
+          console.warn('[updateOptionAndUI] No selected option provided.');
+          return;
+        }
+
+        // Call applyOptionFeedback to update optionsToDisplay
+        this.applyOptionFeedback(selectedOption);
+
+        // Additional logic if needed
+        this.refreshUIStates(); // Ensure UI is refreshed after updates
+
         const checked = inputElement.checked;
         const optionId = this.getOptionId(selectedOption, index);
         const questionIndex = this.quizService.currentQuestionIndex;
