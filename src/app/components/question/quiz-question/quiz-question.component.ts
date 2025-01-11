@@ -721,19 +721,20 @@ export class QuizQuestionComponent
 
   private applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[applyOptionFeedbackToOptions] No options available to apply feedback.');
+      console.warn('[applyOptionFeedbackToAllOptions] No options available to apply feedback.');
       return;
     }
-
+  
     // Apply feedback to each option
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
-      feedback: option.correct ? 'Correct answer!' : 'Incorrect answer.', // Adjust logic as needed
+      feedback: option.feedback ?? (option.correct ? 'Correct answer!' : 'Incorrect answer.'), // Preserve existing feedback if available
       showIcon: option.correct || option.selected, // Show icons for correct or selected options
+      highlight: option.highlight ?? option.selected, // Highlight selected options
     }));
-
-    console.log('[applyOptionFeedbackToOptions] Feedback applied to all options:', this.optionsToDisplay);
-  }
+  
+    console.log('[applyOptionFeedbackToAllOptions] Feedback applied to all options:', this.optionsToDisplay);
+  }  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
