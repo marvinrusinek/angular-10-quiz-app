@@ -324,7 +324,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
   }
 
-  preserveOptionHighlighting(): void {
+  /* preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       // Set highlight based on whether the option is selected
       option.highlight = option.selected;
@@ -332,7 +332,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       // Show icons for correct options or selected options
       option.showIcon = option.correct || option.selected;
     }
-  }
+  } */
+  preserveOptionHighlighting(): void {
+    for (const option of this.optionsToDisplay) {
+      // Highlight selected options, correct options should remain highlighted
+      option.highlight = option.selected && (option.correct || option.highlight);
+      option.showIcon = option.correct || option.selected; // Show icons for correct or selected options
+    }
+  }  
   
   initializeFromConfig(): void {
     if (!this.config) {
