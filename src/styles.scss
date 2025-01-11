@@ -107,12 +107,6 @@ mat-card {
   cursor: not-allowed !important; // change cursor to indicate unclickable state
 }
 
-button:disabled {
-  background-color: #e0e0e0;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
 .preload {
   position: absolute;
   top: 50%;
