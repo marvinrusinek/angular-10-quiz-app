@@ -349,7 +349,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       }
     }
   } */
-  preserveOptionHighlighting(): void {
+  /* preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.correct && option.selected) {
         option.highlight = true; // Highlight selected and correct options
@@ -362,7 +362,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         option.showIcon = false; // Hide icons for unselected options
       }
     }
-  }  
+  } */
+  preserveOptionHighlighting(): void {
+    for (const option of this.optionsToDisplay) {
+      if (option.selected) {
+        // Highlight selected options
+        option.highlight = true;
+        option.showIcon = option.correct; // Show 'check' icon if the option is correct
+      } else {
+        // Clear highlight and icons for unselected options
+        option.highlight = false;
+        option.showIcon = false;
+      }
+    }
+  }
   
   initializeFromConfig(): void {
     if (!this.config) {
