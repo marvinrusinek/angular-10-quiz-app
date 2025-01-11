@@ -112,7 +112,7 @@ export class HighlightOptionDirective implements OnChanges {
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
-  /* @HostListener('click', ['$event'])
+  @HostListener('click', ['$event'])
   onClick(event: Event): void {
     try {
       this.ngZone.run(() => {
@@ -136,33 +136,9 @@ export class HighlightOptionDirective implements OnChanges {
     } catch (error) {
       console.error('Error in onClick:', error);
     }
-  } */
-  @HostListener('click', ['$event'])
-  onClick(event: Event): void {
-    try {
-      this.ngZone.run(() => {
-        event.stopPropagation(); // Prevent event bubbling
-
-        // Check if the option is inactive or already highlighted
-        if (!this.option || this.option.highlight || this.option.active === false) {
-          console.info('[onClick] Deactivated or already highlighted option clicked. No action taken:', this.option);
-          return;
-        }
-
-        // Emit the optionClicked event
-        console.log('[onClick] Valid option clicked:', this.option);
-        this.optionClicked.emit(this.option);
-
-        // Update the highlight state
-        this.option.highlight = true; // Set highlight for the clicked option
-        this.updateHighlight(); // Apply the visual highlight
-      });
-    } catch (error) {
-      console.error('[onClick] Error:', error);
-    }
   }
 
-  /* updateHighlight(): void {
+  updateHighlight(): void {
     // Debugging state
     console.log('[updateHighlight] Triggered with:', {
       isCorrect: this.isCorrect,
@@ -209,63 +185,11 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation class
     this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer'); // Restore pointer for active options
 
-    // if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
-    //  this.highlightCorrectAnswers();
-    //} else {
-    //  this.setBackgroundColor(color);
-    //}
-  } */
-  updateHighlight(): void {
-    // Debugging state
-    console.log('[updateHighlight] Triggered with:', {
-      isCorrect: this.isCorrect,
-      isSelected: this.isSelected,
-      highlight: this.option?.highlight,
-      active: this.option?.active,
-      option: this.option
-    });
-  
-    if (!this.option) {
-      console.warn('[updateHighlight] Option is undefined or null.');
-      return;
-    }
-  
-    // If the option is already highlighted, reapply the highlight color
-    if (this.option.highlight) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
+    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    } else {
       this.setBackgroundColor(color);
-      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
-      console.log('[updateHighlight] Re-applied highlight for option:', this.option);
-      return;
     }
-  
-    // Highlight selected options (correct or incorrect)
-    if (this.isSelected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
-      this.setBackgroundColor(color);
-      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
-      console.log('[updateHighlight] Highlighted selected option:', this.option);
-      return;
-    }
-  
-    // Grey out incorrect and inactive options
-    if (!this.isCorrect && !this.option.active) {
-      this.setBackgroundColor('#a3a3a3'); // Grey background for deactivated options
-      this.setPointerEvents('none'); // Disable interactions
-      this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
-      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed');
-      console.log('[updateHighlight] Deactivated incorrect option:', this.option);
-      return;
-    }
-  
-    // Reset state for unselected options
-    this.setBackgroundColor('white'); // Default white background
-    this.setPointerEvents('auto'); // Enable interactions
-    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-    this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
-    console.log('[updateHighlight] Reset highlight for option:', this.option);
   }
 
   private highlightCorrectAnswers(): void {
