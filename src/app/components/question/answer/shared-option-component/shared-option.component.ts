@@ -324,57 +324,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     console.log('[synchronizeOptionBindings] Synchronized optionBindings:', this.optionBindings);
   }
 
-  /* preserveOptionHighlighting(): void {
-    for (const option of this.optionsToDisplay) {
-      // Set highlight based on whether the option is selected
-      option.highlight = option.selected;
-
-      // Show icons for correct options or selected options
-      option.showIcon = option.correct || option.selected;
-    }
-  } */
-  /* preserveOptionHighlighting(): void {
-    for (const option of this.optionsToDisplay) {
-      // Highlight selected options, correct options should remain highlighted
-      option.highlight = option.selected && (option.correct || option.highlight);
-      option.showIcon = option.correct || option.selected; // Show icons for correct or selected options
-    }
-  } */
-  /* preserveOptionHighlighting(): void {
+  preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
         option.highlight = true; // Highlight selected options
       } else {
         option.highlight = false; // Clear highlight for others
       }
-    }
-  } */
-  /* preserveOptionHighlighting(): void {
-    for (const option of this.optionsToDisplay) {
-      if (option.correct && option.selected) {
-        option.highlight = true; // Highlight selected and correct options
-        option.showIcon = true;  // Display 'check' icon for correct options
-      } else if (option.selected) {
-        option.highlight = true; // Highlight selected but incorrect options
-        option.showIcon = false; // Do not show 'check' icon for incorrect options
-      } else {
-        option.highlight = false; // Clear highlight for unselected options
-        option.showIcon = false; // Hide icons for unselected options
-      }
-    }
-  } */
-  preserveOptionHighlighting(): void {
-    for (const option of this.optionsToDisplay) {
-      if (option.selected) {
-        // Highlight selected options
-        option.highlight = true;
-        option.showIcon = option.correct; // Show 'check' icon if the option is correct
-      } else {
-        // Clear highlight and icons for unselected options
-        option.highlight = false;
-        option.showIcon = false;
-      }
-    }
+    }  
   }
   
   initializeFromConfig(): void {
@@ -647,19 +604,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         inputElement.focus(); // Ensure the element gains focus
   
         const selectedOption = optionBinding.option as SelectedOption;
-
-        // Ensure selectedOption is valid
-        if (!selectedOption) {
-          console.warn('[updateOptionAndUI] No selected option provided.');
-          return;
-        }
-
-        // Call applyOptionFeedback to update optionsToDisplay
-        this.applyOptionFeedback(selectedOption);
-
-        // Additional logic if needed
-        this.refreshUIStates(); // Ensure UI is refreshed after updates
-
         const checked = inputElement.checked;
         const optionId = this.getOptionId(selectedOption, index);
         const questionIndex = this.quizService.currentQuestionIndex;
@@ -1068,7 +1012,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         ...option,
         feedback: option.feedback
       },
-      feedback: option.feedback,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
