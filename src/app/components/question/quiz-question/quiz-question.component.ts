@@ -697,22 +697,18 @@ export class QuizQuestionComponent
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
     if (question.options) {
-      // Populate optionsToDisplay with necessary defaults
       this.optionsToDisplay = question.options.map(option => ({
         ...option,
-        feedback: option.feedback ?? '', // Leave feedback empty for initialization
-        showIcon: option.showIcon ?? false, // Default icon state
-        active: option.active ?? true, // Default to active
-        selected: option.selected ?? false, // Default to unselected
-        highlight: option.highlight ?? false, // Add highlight if not already present
+        feedback: option.feedback ?? (option.correct ? 'Correct answer!' : 'Incorrect answer.'), // Ensure feedback is set
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
       }));
   
-      console.log('[loadOptionsForQuestion] Options loaded:', this.optionsToDisplay);
-  
-      // Apply feedback logic (if necessary) after loading options
+      // Apply feedback to all options immediately after loading
       this.applyOptionFeedbackToAllOptions();
   
-      console.log('[loadOptionsForQuestion] Feedback applied:', this.optionsToDisplay);
+      console.log('[loadOptionsForQuestion] Options loaded with feedback:', this.optionsToDisplay);
     } else {
       console.warn('No options found for the question:', question);
       this.optionsToDisplay = [];
