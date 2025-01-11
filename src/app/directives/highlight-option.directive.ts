@@ -185,11 +185,11 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation class
     this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer'); // Restore pointer for active options
 
-    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+    /* if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
     } else {
       this.setBackgroundColor(color);
-    }
+    } */
   }
 
   private highlightCorrectAnswers(): void {
