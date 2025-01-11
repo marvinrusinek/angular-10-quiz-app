@@ -702,7 +702,7 @@ export class QuizQuestionComponent
         feedback: option.feedback ?? (option.correct ? 'Correct answer!' : 'Incorrect answer.'), // Ensure feedback is set
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
-        selected: option.selected ?? false,
+        selected: option.selected ?? false
       }));
   
       // Apply feedback to all options immediately after loading
