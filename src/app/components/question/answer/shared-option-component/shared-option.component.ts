@@ -333,13 +333,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       option.showIcon = option.correct || option.selected;
     }
   } */
-  preserveOptionHighlighting(): void {
+  /* preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       // Highlight selected options, correct options should remain highlighted
       option.highlight = option.selected && (option.correct || option.highlight);
       option.showIcon = option.correct || option.selected; // Show icons for correct or selected options
     }
-  }  
+  } */
+  preserveOptionHighlighting(): void {
+    for (const option of this.optionsToDisplay) {
+      if (option.selected) {
+        option.highlight = true; // Highlight selected options
+      } else {
+        option.highlight = false; // Clear highlight for others
+      }
+    }
+  }
   
   initializeFromConfig(): void {
     if (!this.config) {
