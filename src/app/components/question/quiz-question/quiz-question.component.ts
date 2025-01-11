@@ -697,31 +697,39 @@ export class QuizQuestionComponent
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
     if (question.options) {
+      // Populate optionsToDisplay with necessary defaults
       this.optionsToDisplay = question.options.map(option => ({
         ...option,
-        feedback: option.feedback ?? 'No feedback available.',
-        showIcon: option.showIcon ?? false,
-        active: option.active ?? true,
-        selected: option.selected ?? false,
+        feedback: option.feedback ?? '', // Leave feedback empty for initialization
+        showIcon: option.showIcon ?? false, // Default icon state
+        active: option.active ?? true, // Default to active
+        selected: option.selected ?? false, // Default to unselected
+        highlight: option.highlight ?? false, // Add highlight if not already present
       }));
+  
       console.log('[loadOptionsForQuestion] Options loaded:', this.optionsToDisplay);
+  
+      // Apply feedback logic (if necessary) after loading options
+      this.applyOptionFeedbackToAllOptions();
+  
+      console.log('[loadOptionsForQuestion] Feedback applied:', this.optionsToDisplay);
     } else {
       console.warn('No options found for the question:', question);
       this.optionsToDisplay = [];
     }
-  }
+  }  
 
-  private applyOptionFeedbackToOptions(): void {
+  private applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToOptions] No options available to apply feedback.');
-        return;
+      console.warn('[applyOptionFeedbackToOptions] No options available to apply feedback.');
+      return;
     }
 
     // Apply feedback to each option
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-        ...option,
-        feedback: option.correct ? 'Correct answer!' : 'Incorrect answer.', // Adjust logic as needed
-        showIcon: option.correct || option.selected, // Show icons for correct or selected options
+      ...option,
+      feedback: option.correct ? 'Correct answer!' : 'Incorrect answer.', // Adjust logic as needed
+      showIcon: option.correct || option.selected, // Show icons for correct or selected options
     }));
 
     console.log('[applyOptionFeedbackToOptions] Feedback applied to all options:', this.optionsToDisplay);
