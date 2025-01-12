@@ -681,7 +681,8 @@ export class QuizQuestionComponent
       return;
     }
 
-    this.optionsToDisplay = []; // Clear previous options
+    // Clear previous options to avoid stale data
+    this.optionsToDisplay = [];
 
     // Set the current question and render it
     this.setCurrentQuestion(question);
@@ -693,6 +694,7 @@ export class QuizQuestionComponent
     // Wait to ensure the question is fully rendered before updating explanation
     setTimeout(() => {
       this.updateExplanationIfAnswered(index, question);
+      
       // Emit the event after rendering the question
       this.questionRenderComplete.emit();
     }, 100);
