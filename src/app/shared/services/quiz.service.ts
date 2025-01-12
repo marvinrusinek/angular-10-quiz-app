@@ -1287,7 +1287,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* setCorrectMessage(
+  setCorrectMessage(
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
@@ -1321,52 +1321,6 @@ export class QuizService implements OnDestroy {
 
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     return correctMessage || 'Correct answer information is not available.';
-  } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
-      console.warn('[setCorrectMessage] No correct options provided.');
-      return 'No correct answers found for the current question.';
-    }
-
-    if (!Array.isArray(optionsToDisplay) || optionsToDisplay.length === 0) {
-      console.warn('[setCorrectMessage] No options to display provided.');
-      return 'No options available for feedback.';
-    }
-
-    console.log('[setCorrectMessage] Correct options:', correctOptions);
-    console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
-
-    // Map correct options to their indices in optionsToDisplay
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase()
-      );
-
-      if (originalIndex === -1) {
-        console.warn('[setCorrectMessage] Correct option not found in optionsToDisplay:', correctOption.text);
-      }
-
-      return originalIndex !== -1 ? originalIndex + 1 : undefined; // Convert to 1-based index
-    });
-
-    // Filter out undefined indices and ensure unique indices
-    const uniqueIndices = [...new Set(correctOptionIndices.filter((index) => index !== undefined))];
-
-    if (uniqueIndices.length === 0) {
-      console.warn('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
-      return 'No correct answers found for the current question.';
-    }
-
-    // Build the correct message
-    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings =
-      uniqueIndices.length > 1
-        ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-        : `${uniqueIndices[0]}`;
-
-    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
-    console.log('[setCorrectMessage] Generated message:', correctMessage);
-    return correctMessage;
   }
 
   getCorrectOptionsForCurrentQuestion(question: QuizQuestion): Option[] {
