@@ -1395,7 +1395,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.prepareFeedback();
 
       // Apply feedback to options after loading the question
-      this.applyFeedback();
+      // this.applyFeedback();
+      this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
 
       this.isNavigatedByUrl = false;
     } else {
@@ -1443,8 +1444,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Apply feedback after loading options
     this.prepareFeedback();
 
-     // Apply feedback to options after loading the question
-     this.applyFeedback();
+    // Apply feedback to options after loading the question
+    // this.applyFeedback();
+    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
 
     // Fetch explanation text
     this.fetchFormattedExplanationText(index);
