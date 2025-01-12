@@ -717,7 +717,7 @@ export class QuizQuestionComponent
     }
   }  
 
-  private applyOptionFeedbackToAllOptions(): void {
+  public applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[applyOptionFeedbackToAllOptions] No options available to apply feedback.');
       return;
