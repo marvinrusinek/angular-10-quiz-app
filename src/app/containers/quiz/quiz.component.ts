@@ -1439,6 +1439,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const explanationObj =
         this.explanationTextService.formattedExplanations[index];
       this.explanationToDisplay = explanationObj?.explanation ?? 'No explanation available for this question.';
+
+      // Confirm feedback application here
+      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
     } else {
       this.explanationToDisplay = 'No explanation available for this question.';
       console.error('Missing formatted explanation for index:', index);
