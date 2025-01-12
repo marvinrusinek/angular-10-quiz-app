@@ -726,9 +726,7 @@ export class QuizQuestionComponent
     // Apply feedback to each option
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
-      feedback: option.correct
-        ? 'Correct answer!'
-        : 'Incorrect answer.', // Feedback logic
+      feedback: option.correct ? 'Correct answer!' : 'Incorrect answer.',
       showIcon: option.correct || option.selected, // Show icons for correct or selected options
       highlight: option.highlight ?? option.selected // Highlight selected options
     }));
