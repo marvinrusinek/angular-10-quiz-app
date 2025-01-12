@@ -723,13 +723,22 @@ export class QuizQuestionComponent
       return;
     }
   
-    // Apply feedback to each option
-    this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-      ...option,
-      feedback: option.correct ? 'Correct answer!' : 'Incorrect answer.',
-      showIcon: option.correct || option.selected, // Show icons for correct or selected options
-      highlight: option.highlight ?? option.selected // Highlight selected options
-    }));
+    // Apply feedback and update properties for each option
+    this.optionsToDisplay = this.optionsToDisplay.map(option => {
+      const feedback = option.correct ? 'Correct answer!' : 'Incorrect answer.';
+      const showIcon = option.correct || option.selected;
+      const highlight = option.highlight ?? option.selected; // Preserve existing highlight or use selected state
+
+      const updatedOption = {
+          ...option,
+          feedback,
+          showIcon,
+          highlight,
+      };
+
+      console.log('[applyOptionFeedbackToAllOptions] Updated option:', updatedOption);
+      return updatedOption;
+    });
   
     console.log('[applyOptionFeedbackToAllOptions] Feedback applied to all options:', this.optionsToDisplay);
   }  
