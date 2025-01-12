@@ -681,20 +681,20 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Clear previous options to avoid stale data
+    // Clear existing options and set current question
     this.optionsToDisplay = [];
-
-    // Set the current question and render it
     this.setCurrentQuestion(question);
+
+    // Load options and apply feedback
     this.loadOptionsForQuestion(question);
 
     // Ensure feedback is applied for all options
-    this.applyOptionFeedbackToAllOptions();
+    // this.applyOptionFeedbackToAllOptions();
 
     // Wait to ensure the question is fully rendered before updating explanation
     setTimeout(() => {
       this.updateExplanationIfAnswered(index, question);
-      
+
       // Emit the event after rendering the question
       this.questionRenderComplete.emit();
     }, 100);
@@ -704,7 +704,7 @@ export class QuizQuestionComponent
     if (question.options) {
       this.optionsToDisplay = question.options.map(option => ({
         ...option,
-        feedback: option.feedback ?? (option.correct ? 'Correct answer!' : 'Incorrect answer.'), // Ensure feedback is set
+        feedback: option.feedback ?? 'No feedback available.',
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false
