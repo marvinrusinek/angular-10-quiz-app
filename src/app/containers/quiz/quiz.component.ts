@@ -1391,12 +1391,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetExplanationText();
       this.loadQuestionByRouteIndex(adjustedIndex);
 
-      // Ensure feedback is applied
-      if (this.quizQuestionComponent) {
-        this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
-      } else {
-        console.error('quizQuestionComponent is not initialized.');
-      }
+      // Prepare and display feedback
+      this.prepareFeedback();
 
       this.isNavigatedByUrl = false;
     } else {
@@ -1431,11 +1427,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
 
     // Apply feedback after options are loaded
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
-    } else {
-      console.error('quizQuestionComponent is not initialized.');
-    }
+    this.prepareFeedback();
 
     // Fetch explanation text
     this.fetchFormattedExplanationText(index);
@@ -1712,9 +1704,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
 
   private prepareFeedback(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[prepareFeedback] No options available to prepare feedback.');
+      return;
+    }
+
     this.showFeedback = true;
-    this.cdRef.detectChanges(); // Ensure change detection
-    console.log('Feedback prepared and displayed.');
+
+    // Trigger change detection to update UI
+    this.cdRef.detectChanges();
+    console.log('[prepareFeedback] Feedback prepared and displayed for options:', this.optionsToDisplay);
   }
 
   private initializeQuizBasedOnRouteParams(): void {
