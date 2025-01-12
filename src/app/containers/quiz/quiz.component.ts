@@ -1429,9 +1429,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Apply feedback after options are loaded
     this.prepareFeedback();
 
-    // Apply feedback to all options
-    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-
     // Fetch explanation text
     this.fetchFormattedExplanationText(index);
   }
@@ -1445,7 +1442,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = explanationObj?.explanation ?? 'No explanation available for this question.';
 
       // Confirm feedback application here
-      this.prepareFeedback();
+      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
     } else {
       this.explanationToDisplay = 'No explanation available for this question.';
       console.error('Missing formatted explanation for index:', index);
