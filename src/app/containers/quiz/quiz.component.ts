@@ -1414,6 +1414,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     const question = this.quiz.questions[index];
     this.questionToDisplay = question.questionText;
+
+    // Initialize optionsToDisplay with default values if not already set
     this.optionsToDisplay = question.options.map(option => ({
       ...option,
       feedback: option.feedback ?? 'No feedback available.',
@@ -1426,7 +1428,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       (opt) => opt.correct
     );
 
-    // Apply feedback after options are loaded
+    // Apply feedback after loading options
     this.prepareFeedback();
 
     // Fetch explanation text
