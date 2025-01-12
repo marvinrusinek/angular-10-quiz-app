@@ -1390,6 +1390,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.previousIndex = adjustedIndex;
       this.resetExplanationText();
       this.loadQuestionByRouteIndex(adjustedIndex);
+
+      // Ensure feedback is applied
+      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
+
       this.isNavigatedByUrl = false;
     } else {
       console.log('No index change detected, still on index:', adjustedIndex);
@@ -1763,6 +1767,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           if (question) {
             this.currentQuiz = this.quizService.getActiveQuiz();
             this.currentQuestion = question;
+            this.optionsToDisplay = question.options;
+
+            // Ensure feedback is applied for the first question
+            this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
           } else {
             console.error('No question data available after fetch.');
           }
