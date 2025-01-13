@@ -746,7 +746,7 @@ export class QuizQuestionComponent
   
     console.log('[applyOptionFeedbackToAllOptions] Feedback applied to all options:', this.optionsToDisplay);
   } */
-  public applyOptionFeedbackToAllOptions(): void {
+  /* public applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[applyOptionFeedbackToAllOptions] No options available.');
       return;
@@ -775,6 +775,45 @@ export class QuizQuestionComponent
       };
     });
   
+    console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
+  } */
+  public applyOptionFeedbackToAllOptions(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] No options available.');
+        return;
+    }
+
+    const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+    console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
+    console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+
+    // Fallback if no correct options are found
+    if (correctOptions.length === 0) {
+        console.error('No correct options found. Applying fallback feedback logic.');
+    }
+
+    // Generate feedback for each option with fallback logic
+    const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) || 
+        this.optionsToDisplay.map((option) => 
+            option.correct ? 'Default correct feedback' : 'Default incorrect feedback'
+        );
+
+    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => {
+        const isCorrect = correctOptions.some(
+            (correctOption) => correctOption.optionId === option.optionId
+        );
+
+        // Fallback logic for undefined feedback
+        const feedback = feedbackList[index] ?? (isCorrect ? 'Correct answer!' : 'Incorrect answer.');
+
+        return {
+            ...option,
+            feedback,
+            showIcon: option.selected || isCorrect,
+            highlight: option.selected,
+        };
+    });
+
     console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
   }
   
