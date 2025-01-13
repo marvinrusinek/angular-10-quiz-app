@@ -53,6 +53,7 @@ export class FeedbackService {
     ]; // Remove duplicates and undefined
 
     if (uniqueIndices.length === 0) {
+      console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
       return 'No correct answers found for the current question.';
     }
 
