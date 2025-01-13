@@ -674,8 +674,6 @@ export class QuizQuestionComponent
     }
 
     const question = this.questionsArray[index];
-
-    // Proceed only if the question exists
     if (!question) {
       console.warn(`No question data available at index: ${index}`);
       return;
