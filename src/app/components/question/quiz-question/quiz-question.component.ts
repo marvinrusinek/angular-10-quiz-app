@@ -746,35 +746,34 @@ export class QuizQuestionComponent
   
     console.log('[applyOptionFeedbackToAllOptions] Feedback applied to all options:', this.optionsToDisplay);
   } */
-  applyOptionFeedbackToAllOptions(): void {
+  public applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[applyOptionFeedbackToAllOptions] No options available.');
       return;
     }
   
-    // Extract correct options
     const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+    console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
     console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
-    // Update options with feedback
+    if (correctOptions.length === 0) {
+      console.error('No correct options found. Feedback cannot be applied.');
+    }
+  
     this.optionsToDisplay = this.optionsToDisplay.map((option) => {
       const isCorrect = correctOptions.some(
         (correctOption) => correctOption.optionId === option.optionId
       );
   
-      const feedback = isCorrect
-        ? 'Correct answer!'
-        : 'Incorrect answer.';
-  
       return {
         ...option,
-        feedback, // Add feedback
-        showIcon: option.selected || isCorrect, // Show icon for selected or correct options
-        highlight: option.selected, // Highlight selected options
+        feedback: isCorrect ? 'Correct answer!' : 'Incorrect answer.',
+        showIcon: option.selected || isCorrect,
+        highlight: option.selected,
       };
     });
   
-    console.log('[applyOptionFeedbackToAllOptions] Updated options with feedback:', this.optionsToDisplay);
+    console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
   }
   
   // Conditional method to update the explanation only if the question is answered
