@@ -759,15 +759,17 @@ export class QuizQuestionComponent
     if (correctOptions.length === 0) {
       console.error('No correct options found. Feedback cannot be applied.');
     }
+
+    const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-    this.optionsToDisplay = this.optionsToDisplay.map((option) => {
+    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => {
       const isCorrect = correctOptions.some(
         (correctOption) => correctOption.optionId === option.optionId
       );
-  
+
       return {
         ...option,
-        feedback: isCorrect ? 'Correct answer!' : 'Incorrect answer.',
+        feedback: feedbackList[index],
         showIcon: option.selected || isCorrect,
         highlight: option.selected,
       };
