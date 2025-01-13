@@ -9,6 +9,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
+import { FeedbackService } from '../../../shared/services/feedback.service';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
@@ -54,6 +55,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   constructor(
     protected fb: FormBuilder,
     protected dynamicComponentService: DynamicComponentService,
+    protected feedbackService: FeedbackService,
     protected quizService: QuizService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
@@ -327,7 +329,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (!correctOptions) {
       correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
     }
-    this.correctMessage = this.quizService.setCorrectMessage(
+    this.correctMessage = this.feedbackService.setCorrectMessage(
       correctOptions,
       this.optionsToDisplay
     );
