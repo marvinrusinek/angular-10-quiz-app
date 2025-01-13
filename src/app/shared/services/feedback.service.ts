@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Option } from '../../shared/models/Option.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class FeedbackService {
   public generateFeedbackForOptions(
@@ -25,6 +25,7 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
+  // potentially replace with function from QuizService...
   private setCorrectMessage(
     correctOptions: Option[],
     optionsToDisplay: Option[]
