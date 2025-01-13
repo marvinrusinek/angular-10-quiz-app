@@ -37,12 +37,12 @@ export class FeedbackService {
     }
 
     const correctOptionIndices = correctOptions.map((correctOption) => {
-      /* const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.text.trim() === correctOption.text.trim()
-      ); */
       const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.optionId === correctOption.optionId
+        (option) => option.text.trim() === correctOption.text.trim()
       );
+      /* const originalIndex = optionsToDisplay.findIndex(
+        (option) => option.optionId === correctOption.optionId
+      ); */
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
 
