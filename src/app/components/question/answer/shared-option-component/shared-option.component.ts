@@ -1102,7 +1102,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           const optionBinding = this.getOptionBindings(option, idx);
   
           // Generate feedback for each option
-          option.feedback = this.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+          option.feedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
   
           console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
   
@@ -1116,24 +1116,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         console.error('[initializeOptionBindings] Error fetching current question:', err);
       },
     });
-  }
-
-  generateFeedbackForOptions(
-    correctOptions: Option[],
-    optionsToDisplay: Option[]
-  ): string {
-    console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
-    console.log('[generateFeedbackForOptions] optionsToDisplay:', optionsToDisplay);
-  
-    if (!correctOptions || correctOptions.length === 0) {
-      console.error('[generateFeedbackForOptions] No correct options found.');
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctMessage = this.feedbackService.setCorrectMessage(correctOptions, optionsToDisplay);
-    console.log('[generateFeedbackForOptions] Correct message generated:', correctMessage);
-  
-    return correctMessage || 'Feedback generation failed.';
   }
 
   initializeFeedbackBindings(): void { 
