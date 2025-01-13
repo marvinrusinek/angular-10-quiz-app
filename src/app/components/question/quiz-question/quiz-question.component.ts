@@ -14,6 +14,7 @@ import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
+import { FeedbackService } from '../../../shared/services/feedback.service';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
@@ -209,6 +210,7 @@ export class QuizQuestionComponent
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
+    protected feedbackService: FeedbackService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetStateService: ResetStateService,
     protected selectedOptionService: SelectedOptionService,
@@ -1280,7 +1282,7 @@ export class QuizQuestionComponent
 
   private async generateFeedbackText(question: QuizQuestion): Promise<string> {
     const correctOptions = question.options.filter((option) => option.correct);
-    return this.quizService.setCorrectMessage(
+    return this.feedbackService.setCorrectMessage(
       correctOptions,
       this.optionsToDisplay
     );
@@ -2531,7 +2533,7 @@ export class QuizQuestionComponent
         const correctOptions = questionData.options.filter(
           (opt) => opt.correct
         );
-        this.correctMessage = this.quizService.setCorrectMessage(
+        this.correctMessage = this.feedbackService.setCorrectMessage(
           correctOptions,
           this.optionsToDisplay
         );
@@ -3550,7 +3552,7 @@ export class QuizQuestionComponent
 
     // Retrieve correct answers and set correct message
     const correctAnswers = this.optionsToDisplay.filter((opt) => opt.correct);
-    this.quizService.setCorrectMessage(correctAnswers, this.optionsToDisplay);
+    this.feedbackService.setCorrectMessage(correctAnswers, this.optionsToDisplay);
   }
 
   unselectOption(): void {
@@ -4139,7 +4141,7 @@ export class QuizQuestionComponent
   private updateCorrectAnswersAndMessage(): void {
     if (this.currentQuestion) {
       this.getCorrectAnswers();
-      this.correctMessage = this.quizService.setCorrectMessage(
+      this.correctMessage = this.feedbackService.setCorrectMessage(
         this.quizService.correctAnswerOptions,
         this.optionsToDisplay
       );
