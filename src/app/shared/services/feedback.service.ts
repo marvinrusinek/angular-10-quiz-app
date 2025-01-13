@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 
+import { Option } from '../../shared/models/Option.model';
+
 @Injectable({
   providedIn: 'root',
 })
 export class FeedbackService {
-  generateFeedbackForOptions(
+  public generateFeedbackForOptions(
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
