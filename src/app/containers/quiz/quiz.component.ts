@@ -1394,10 +1394,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Prepare and display feedback
       this.prepareFeedback();
 
-      // Apply feedback to options after loading the question
-      // this.applyFeedback();
-      this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-
       this.isNavigatedByUrl = false;
     } else {
       console.log('No index change detected, still on index:', adjustedIndex);
@@ -1407,15 +1403,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   resetExplanationText(): void {
     this.explanationToDisplay = '';
   }
-
-  private applyFeedback(): void {
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
-      console.log('[QuizComponent] Feedback applied to current question options.');
-    } else {
-      console.warn('[QuizComponent] QuizQuestionComponent is not initialized. Cannot apply feedback.');
-    }
-  }  
 
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
@@ -1443,10 +1430,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Apply feedback after loading options
     this.prepareFeedback();
-
-    // Apply feedback to options after loading the question
-    // this.applyFeedback();
-    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
 
     // Fetch explanation text
     this.fetchFormattedExplanationText(index);
@@ -1720,7 +1703,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log('Correct Answer Options:', correctAnswerOptions);
     });
-  }  
+  } 
 
   private prepareFeedback(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -1729,6 +1712,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     this.showFeedback = true;
+
+    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
 
     // Trigger change detection to update UI
     this.cdRef.detectChanges();
