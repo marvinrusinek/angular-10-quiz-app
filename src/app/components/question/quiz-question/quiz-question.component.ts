@@ -718,11 +718,14 @@ export class QuizQuestionComponent
     }
   }  
 
-  public applyOptionFeedbackToAllOptions(): void {
+  /* public applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[applyOptionFeedbackToAllOptions] No options available to apply feedback.');
       return;
     }
+
+    const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+    console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
     // Apply feedback and update properties for each option
     this.optionsToDisplay = this.optionsToDisplay.map(option => {
@@ -742,8 +745,38 @@ export class QuizQuestionComponent
     });
   
     console.log('[applyOptionFeedbackToAllOptions] Feedback applied to all options:', this.optionsToDisplay);
-  }  
-
+  } */
+  applyOptionFeedbackToAllOptions(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[applyOptionFeedbackToAllOptions] No options available.');
+      return;
+    }
+  
+    // Extract correct options
+    const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+    console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+  
+    // Update options with feedback
+    this.optionsToDisplay = this.optionsToDisplay.map((option) => {
+      const isCorrect = correctOptions.some(
+        (correctOption) => correctOption.optionId === option.optionId
+      );
+  
+      const feedback = isCorrect
+        ? 'Correct answer!'
+        : 'Incorrect answer.';
+  
+      return {
+        ...option,
+        feedback, // Add feedback
+        showIcon: option.selected || isCorrect, // Show icon for selected or correct options
+        highlight: option.selected, // Highlight selected options
+      };
+    });
+  
+    console.log('[applyOptionFeedbackToAllOptions] Updated options with feedback:', this.optionsToDisplay);
+  }
+  
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
     index: number,
