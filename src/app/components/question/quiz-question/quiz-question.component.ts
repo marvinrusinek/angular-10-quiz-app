@@ -704,7 +704,8 @@ export class QuizQuestionComponent
         feedback: option.feedback ?? 'No feedback available.',
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
-        selected: option.selected ?? false
+        selected: option.selected ?? false,
+        correct: option.correct ?? false
       }));
   
       // Apply feedback to all options immediately after loading

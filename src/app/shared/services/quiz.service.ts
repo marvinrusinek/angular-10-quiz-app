@@ -1287,7 +1287,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* setCorrectMessage(
+  setCorrectMessage(
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
@@ -1321,37 +1321,7 @@ export class QuizService implements OnDestroy {
 
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     return correctMessage || 'Correct answer information is not available.';
-  } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('[setCorrectMessage] Correct options:', correctOptions);
-    console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
-  
-    if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
-      console.error('[setCorrectMessage] No valid correct options provided.');
-      return 'No correct answers found for the current question.';
-    }
-  
-    const correctOptionIndices = correctOptions
-      .map(correctOption => {
-        const index = optionsToDisplay.findIndex(
-          option => option.optionId === correctOption.optionId
-        );
-        return index !== -1 ? index + 1 : undefined; // Convert to 1-based index
-      })
-      .filter(index => index !== undefined);
-  
-    if (correctOptionIndices.length === 0) {
-      console.error('[setCorrectMessage] No matching indices found for correct options.');
-      return 'No correct answers found for the current question.';
-    }
-  
-    const optionsText =
-      correctOptionIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = correctOptionIndices.join(', ');
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
   }
-  
 
   getCorrectOptionsForCurrentQuestion(question: QuizQuestion): Option[] {
     if (!question) {
