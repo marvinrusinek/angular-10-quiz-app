@@ -9,6 +9,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuestionType } from '../../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
@@ -72,6 +73,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   optionTextStyle = { color: 'black' };
 
   constructor(
+    private feedbackService: FeedbackService,
     private quizService: QuizService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
@@ -1056,7 +1058,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       options: options,
       question: question,
       selectedOption: option,
-      correctMessage: this.quizService.setCorrectMessage(this.quizService.correctOptions, this.optionsToDisplay) ?? 'No correct message available',
+      correctMessage: this.feedbackService.setCorrectMessage(this.quizService.correctOptions, this.optionsToDisplay) ?? 'No correct message available',
       feedback: option.feedback ?? 'No feedback available',
       showFeedback: showFeedback,
       idx: idx
@@ -1128,7 +1130,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       return 'No correct answers found for the current question.';
     }
   
-    const correctMessage = this.quizService.setCorrectMessage(correctOptions, optionsToDisplay);
+    const correctMessage = this.feedbackService.setCorrectMessage(correctOptions, optionsToDisplay);
     console.log('[generateFeedbackForOptions] Correct message generated:', correctMessage);
   
     return correctMessage || 'Feedback generation failed.';
