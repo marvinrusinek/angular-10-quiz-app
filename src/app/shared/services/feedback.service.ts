@@ -25,23 +25,49 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  // potentially replace with function from QuizService...
-  private setCorrectMessage(
+  setCorrectMessage(
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
-    // Logic for correct message generation
-    const correctIndices = correctOptions.map(opt =>
-      optionsToDisplay.indexOf(opt) + 1
-    );
+    console.log('[setCorrectMessage] correctOptions:', correctOptions);
+    console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
 
-    if (correctIndices.length === 0) {
+    if (!correctOptions || correctOptions.length === 0) {
       return 'No correct answers found for the current question.';
     }
 
-    const optionsText = correctIndices.length > 1 ? 'answers are Options' : 'answer is Option';
-    const correctOptionsString = correctIndices.join(', ');
+    const correctOptionIndices = correctOptions.map((correctOption) => {
+      /* const originalIndex = optionsToDisplay.findIndex(
+        (option) => option.text.trim() === correctOption.text.trim()
+      ); */
+      const originalIndex = optionsToDisplay.findIndex(
+        (option) => option.optionId === correctOption.optionId
+      );
+      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
+    });
 
-    return `The correct ${optionsText} ${correctOptionsString}.`;
+    console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
+
+    const uniqueIndices = [
+      ...new Set(correctOptionIndices.filter((index) => index !== undefined)),
+    ]; // Remove duplicates and undefined
+
+    if (uniqueIndices.length === 0) {
+      return 'No correct answers found for the current question.';
+    }
+
+    const optionsText =
+      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings =
+      uniqueIndices.length > 1
+        ? uniqueIndices.slice(0, -1).join(', ') +
+          ' and ' +
+          uniqueIndices.slice(-1)
+        : `${uniqueIndices[0]}`;
+
+    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
+    console.log('[setCorrectMessage] Generated correct message:', correctMessage);
+
+    return correctMessage || 'Correct answer information is not available.';
   }
 }
