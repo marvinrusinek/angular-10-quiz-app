@@ -131,12 +131,17 @@ export class FeedbackService {
     }
   
     const correctOptionIndices = correctOptions.map(correctOption => {
-      /* const originalIndex = optionsToDisplay.findIndex(
-        option => option.optionId === correctOption.optionId // Ensure proper matching
-      ); */
-      const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.text.trim() === correctOption.text.trim()
-      );
+      const originalIndex = optionsToDisplay.findIndex(option => {
+        const isMatching = option.optionId === correctOption.optionId; // Match by ID
+        if (!isMatching) {
+          console.warn(
+            `[setCorrectMessage] Option mismatch: Correct option: ${JSON.stringify(
+              correctOption
+            )}, Current option: ${JSON.stringify(option)}`
+          );
+        }
+        return isMatching;
+      });
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 for 1-based indexing
     });
   
@@ -145,7 +150,7 @@ export class FeedbackService {
     const uniqueIndices = correctOptionIndices.filter(index => index !== undefined);
     if (uniqueIndices.length === 0) {
       console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
-      return 'testNo correct answers found for the current question.';
+      return 'No correct answers found for the current question.';
     }
   
     const optionsText =
@@ -161,6 +166,6 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
     return correctMessage;
-  }   
+  }    
 }
 
