@@ -1392,7 +1392,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.loadQuestionByRouteIndex(adjustedIndex);
 
       // Prepare and display feedback
-      this.prepareFeedback();
+      setTimeout(() => {
+        this.prepareFeedback(); // Call after options are loaded
+      }, 100); // Add slight delay to ensure options are loaded
 
       this.isNavigatedByUrl = false;
     } else {
