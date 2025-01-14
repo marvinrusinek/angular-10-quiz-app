@@ -132,7 +132,7 @@ export class FeedbackService {
   
     const correctOptionIndices = correctOptions.map(correctOption => {
       const originalIndex = optionsToDisplay.findIndex(
-        option => option.optionId === correctOption.optionId
+        option => option.optionId === correctOption.optionId // Ensure proper matching
       );
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 for 1-based indexing
     });
@@ -158,6 +158,6 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
     return correctMessage;
-  }  
+  }   
 }
 
