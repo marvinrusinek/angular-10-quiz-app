@@ -1740,16 +1740,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    // Apply feedback to all options
-    //if (this.quizQuestionComponent) {
-    //  console.log('[prepareFeedback] Applying feedback to options.');
     this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-    //} else {
-    // console.error('[prepareFeedback] quizQuestionComponent is not initialized.');
-    //}
-
-    // Enable feedback display
-    this.showFeedback = true;
+    this.showFeedback = true; // Enable feedback display
 
     // Trigger change detection to update the UI
     this.cdRef.detectChanges();
