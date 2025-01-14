@@ -837,7 +837,9 @@ export class QuizQuestionComponent
     // Apply feedback only to the selected option
     this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
       ...option,
-      feedback: feedbackList[index] || 'No feedback available.',
+      feedback: option.selected
+        ? (feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
+        : null, // Feedback only for selected options
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
       highlight: option.selected // Highlight only the selected option
     }));
