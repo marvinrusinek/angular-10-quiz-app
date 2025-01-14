@@ -1420,7 +1420,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Initialize optionsToDisplay with default values if not already set
     this.optionsToDisplay = question.options.map(option => ({
       ...option,
-      feedback: option.feedback ?? 'No feedback available.',
+      feedback: option.feedback ?? 'No feedback available.', // Default feedback
       showIcon: option.showIcon ?? false,
       active: option.active ?? true,
       selected: option.selected ?? false,
@@ -1433,16 +1433,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn('[loadQuestionByRouteIndex] No correct answers defined for this question:', question);
     }
 
-    // Ensure feedback is applied only after options are fully initialized
-    setTimeout(() => {
-      try {
-        this.prepareFeedback();
-        console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
-      } catch (error) {
-        console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
-      }
-    }, 50); // Add a small delay to ensure options are rendered
-    
+    // Ensure feedback is applied after options are initialized
+    try {
+      this.prepareFeedback(); // Apply feedback to options
+      console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
+    } catch (error) {
+      console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
+    }
 
     // Fetch explanation text
     this.fetchFormattedExplanationText(index);
