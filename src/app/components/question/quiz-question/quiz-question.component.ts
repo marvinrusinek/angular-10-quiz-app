@@ -779,7 +779,7 @@ export class QuizQuestionComponent
   
     console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
   } */
-  public applyOptionFeedbackToAllOptions(): void {
+  /* public applyOptionFeedbackToAllOptions(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No options available.');
         return;
@@ -815,6 +815,31 @@ export class QuizQuestionComponent
             highlight: option.selected,
         };
     });
+
+    console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
+  } */
+  public applyOptionFeedbackToAllOptions(): void {
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[applyOptionFeedbackToAllOptions] No options available.');
+      return;
+    }
+
+    const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+    console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
+    console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+
+    if (correctOptions.length === 0) {
+      console.error('[applyOptionFeedbackToAllOptions] No correct options found. Feedback cannot be applied.');
+    }
+
+    const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+      ...option,
+      feedback: feedbackList[index],
+      showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
+      highlight: option.selected,
+    }));
 
     console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
   }
