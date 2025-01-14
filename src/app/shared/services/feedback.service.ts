@@ -126,20 +126,20 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
   
     if (!correctOptions || correctOptions.length === 0) {
-      console.warn('[setCorrectMessage] No correct options available.');
+      console.error('[setCorrectMessage] No correct options available.');
       return 'No correct answers found for the current question.';
     }
   
-    const correctOptionIndices = correctOptions.map((correctOption) => {
+    const correctOptionIndices = correctOptions.map(correctOption => {
       const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.optionId === correctOption.optionId
+        option => option.optionId === correctOption.optionId
       );
-      return originalIndex !== -1 ? originalIndex + 1 : undefined;
+      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 for 1-based indexing
     });
   
     console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
   
-    const uniqueIndices = correctOptionIndices.filter((index) => index !== undefined);
+    const uniqueIndices = correctOptionIndices.filter(index => index !== undefined);
     if (uniqueIndices.length === 0) {
       console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
       return 'No correct answers found for the current question.';
