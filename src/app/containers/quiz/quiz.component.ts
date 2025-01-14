@@ -1707,7 +1707,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   } 
 
-  private prepareFeedback(): void {
+  /* private prepareFeedback(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[prepareFeedback] No options available to prepare feedback.');
       return;
@@ -1720,6 +1720,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Trigger change detection to update UI
     this.cdRef.detectChanges();
     console.log('[prepareFeedback] Feedback prepared and displayed for options:', this.optionsToDisplay);
+  } */
+  private prepareFeedback(): void {
+    console.log('[prepareFeedback] Triggered.');
+
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.warn('[prepareFeedback] No options available to prepare feedback.');
+      return;
+    }
+
+    // Apply feedback to all options
+    if (this.quizQuestionComponent) {
+      console.log('[prepareFeedback] Applying feedback to options.');
+      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
+    } else {
+      console.error('[prepareFeedback] quizQuestionComponent is not initialized.');
+    }
+
+    // Enable feedback display
+    this.showFeedback = true;
+
+    // Trigger change detection to update the UI
+    this.cdRef.detectChanges();
+
+    console.log('[prepareFeedback] Feedback prepared for options:', this.optionsToDisplay);
   }
 
   private initializeQuizBasedOnRouteParams(): void {
