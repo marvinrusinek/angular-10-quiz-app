@@ -251,6 +251,9 @@ export class FeedbackService {
         ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
         : `${uniqueIndices[0]}`;
   
-    return `The correct ${optionsText} ${optionStrings}.`;
+    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
+    console.log('[setCorrectMessage] Generated correct message:', correctMessage);
+      
+    return correctMessage;
   }
 }
