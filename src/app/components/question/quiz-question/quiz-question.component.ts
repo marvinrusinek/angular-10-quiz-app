@@ -823,28 +823,22 @@ export class QuizQuestionComponent
       console.warn('[applyOptionFeedbackToAllOptions] No options available.');
       return;
     }
-
+  
     const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-    console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
     console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-
-    // Fallback if no correct options
-    if (correctOptions.length === 0) {
-      console.error('[applyOptionFeedbackToAllOptions] No correct options found. Feedback cannot be applied.');
-    }
-
-    // Generate feedback for all options
-    const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-
-    // Map feedback and other properties to options
-    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+  
+    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+    console.log('[applyOptionFeedbackToAllOptions] Generated feedback message:', feedbackMessage);
+  
+    // Apply feedback only to the selected option
+    this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
       ...option,
-      feedback: feedbackList[index] || 'No feedback available.', // Ensure fallback feedback
+      feedback: option.selected ? feedbackMessage : '', // Display feedback only for the selected option
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-      highlight: option.selected
+      highlight: option.selected // Highlight only the selected option
     }));
-
-    console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
+  
+    console.log('[applyOptionFeedbackToAllOptions] Updated options with feedback:', this.optionsToDisplay);
   }
   
   // Conditional method to update the explanation only if the question is answered
