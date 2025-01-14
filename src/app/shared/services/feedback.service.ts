@@ -131,8 +131,11 @@ export class FeedbackService {
     }
   
     const correctOptionIndices = correctOptions.map(correctOption => {
-      const originalIndex = optionsToDisplay.findIndex(
+      /* const originalIndex = optionsToDisplay.findIndex(
         option => option.optionId === correctOption.optionId // Ensure proper matching
+      ); */
+      const originalIndex = optionsToDisplay.findIndex(
+        (option) => option.text.trim() === correctOption.text.trim()
       );
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 for 1-based indexing
     });
