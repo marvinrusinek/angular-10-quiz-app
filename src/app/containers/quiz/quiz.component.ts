@@ -1731,19 +1731,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private prepareFeedback(): void {
     console.log('[prepareFeedback] Triggered.');
-
+  
+    // Validate that options are available for feedback preparation
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[prepareFeedback] No options available to prepare feedback.');
       return;
     }
-
-    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-    this.showFeedback = true; // Enable feedback display
-
-    // Trigger change detection to update the UI
-    this.cdRef.detectChanges();
-
-    console.log('[prepareFeedback] Feedback prepared for options:', this.optionsToDisplay);
+  
+    try {
+      // Apply feedback to options through QuizQuestionComponent
+      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
+      this.showFeedback = true; // Enable feedback display
+  
+      // Trigger change detection to update the UI
+      this.cdRef.detectChanges();
+  
+      console.log('[prepareFeedback] Feedback successfully prepared for options:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[prepareFeedback] Error while applying feedback:', error);
+    }
   }
 
   private initializeQuizBasedOnRouteParams(): void {
