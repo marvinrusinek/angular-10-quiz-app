@@ -134,7 +134,7 @@ export class FeedbackService {
   
     return correctMessage || 'Correct answer information is not available.';
   }  */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
     console.log('[setCorrectMessage] correctOptions:', correctOptions);
     console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
   
@@ -179,5 +179,40 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
     return correctMessage;
+  }  */
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    if (!correctOptions || correctOptions.length === 0) {
+      console.error('[setCorrectMessage] No correct options provided.');
+      return 'No correct answers found for the current question.';
+    }
+  
+    const correctOptionIndices = correctOptions.map((correctOption) => {
+      const originalIndex = optionsToDisplay.findIndex(
+        (option) =>
+          option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase() ||
+          option.optionId === correctOption.optionId
+      );
+      return originalIndex !== -1 ? originalIndex + 1 : undefined; // Use 1-based indexing for display
+    });
+  
+    const uniqueIndices = [
+      ...new Set(correctOptionIndices.filter((index) => index !== undefined)),
+    ];
+  
+    if (uniqueIndices.length === 0) {
+      console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
+      console.log('[setCorrectMessage] Correct options:', correctOptions);
+      console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
+      return 'No correct answers found for the current question.';
+    }
+  
+    const optionsText =
+      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings =
+      uniqueIndices.length > 1
+        ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
+        : `${uniqueIndices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
   }  
 }
