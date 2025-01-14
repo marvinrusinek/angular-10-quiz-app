@@ -25,7 +25,7 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(
+  /* setCorrectMessage(
     correctOptions: Option[],
     optionsToDisplay: Option[]
   ): string {
@@ -40,9 +40,9 @@ export class FeedbackService {
       const originalIndex = optionsToDisplay.findIndex(
         (option) => option.text.trim() === correctOption.text.trim()
       );
-      /* const originalIndex = optionsToDisplay.findIndex(
-        (option) => option.optionId === correctOption.optionId
-      ); */
+      // const originalIndex = optionsToDisplay.findIndex(
+      //  (option) => option.optionId === correctOption.optionId
+      //);
       return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 to make it 1-based index for display
     });
 
@@ -70,5 +70,55 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
 
     return correctMessage || 'Correct answer information is not available.';
-  }
+  } */
+  setCorrectMessage(
+    correctOptions: Option[],
+    optionsToDisplay: Option[]
+  ): string {
+    console.log('[setCorrectMessage] correctOptions:', correctOptions);
+    console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
+  
+    if (!correctOptions || correctOptions.length === 0) {
+      return 'No correct answers found for the current question.';
+    }
+  
+    // Attempt matching by optionId first
+    const correctOptionIndices = correctOptions.map((correctOption) => {
+      const originalIndex = optionsToDisplay.findIndex(
+        (option) => option.optionId === correctOption.optionId
+      );
+  
+      if (originalIndex !== -1) return originalIndex + 1; // 1-based index
+  
+      // Fallback to matching by text if optionId doesn't match
+      return optionsToDisplay.findIndex(
+        (option) => option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase()
+      ) + 1; // Convert to 1-based index
+    });
+  
+    console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
+  
+    const uniqueIndices = [
+      ...new Set(correctOptionIndices.filter((index) => index > 0)),
+    ]; // Remove duplicates and invalid matches
+  
+    if (uniqueIndices.length === 0) {
+      console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
+      return 'No correct answers found for the current question.';
+    }
+  
+    const optionsText =
+      uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings =
+      uniqueIndices.length > 1
+        ? uniqueIndices.slice(0, -1).join(', ') +
+          ' and ' +
+          uniqueIndices.slice(-1)
+        : `${uniqueIndices[0]}`;
+  
+    const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
+    console.log('[setCorrectMessage] Generated correct message:', correctMessage);
+  
+    return correctMessage || 'Correct answer information is not available.';
+  }  
 }
