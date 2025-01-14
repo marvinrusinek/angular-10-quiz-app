@@ -832,13 +832,15 @@ export class QuizQuestionComponent
       console.error('[applyOptionFeedbackToAllOptions] No correct options found. Feedback cannot be applied.');
     }
 
+    // Generate feedback for all options
     const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
+    // Map feedback and other properties to options
     this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
       ...option,
-      feedback: feedbackList[index],
+      feedback: feedbackList[index] || 'No feedback available.', // Ensure fallback feedback
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-      highlight: option.selected,
+      highlight: option.selected
     }));
 
     console.log('[applyOptionFeedbackToAllOptions] Options with feedback:', this.optionsToDisplay);
