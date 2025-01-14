@@ -229,6 +229,7 @@ export class QuizQuestionComponent
     super(
       fb,
       dynamicComponentService,
+      feedbackService,
       quizService,
       quizStateService,
       selectedOptionService,
