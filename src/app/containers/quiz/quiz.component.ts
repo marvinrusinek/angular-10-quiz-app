@@ -1433,14 +1433,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn('[loadQuestionByRouteIndex] No correct answers defined for this question:', question);
     }
 
-    // Apply feedback after loading options
-    // Apply feedback after options are loaded
-    try {
-      this.prepareFeedback();
-      console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
-    } catch (error) {
-      console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
-    }
+    // Ensure feedback is applied only after options are fully initialized
+    setTimeout(() => {
+      try {
+        this.prepareFeedback();
+        console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
+      } catch (error) {
+        console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
+      }
+    }, 50); // Add a small delay to ensure options are rendered
+    
 
     // Fetch explanation text
     this.fetchFormattedExplanationText(index);
