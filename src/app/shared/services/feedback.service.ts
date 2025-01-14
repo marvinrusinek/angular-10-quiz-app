@@ -122,8 +122,8 @@ export class FeedbackService {
     return correctMessage || 'Correct answer information is not available.';
   }  */
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('[setCorrectMessage] Correct options:', correctOptions);
-    console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
+    console.log('[setCorrectMessage] correctOptions:', correctOptions);
+    console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
   
     if (!correctOptions || correctOptions.length === 0) {
       console.error('[setCorrectMessage] No correct options available.');
@@ -132,22 +132,22 @@ export class FeedbackService {
   
     const correctOptionIndices = correctOptions.map(correctOption => {
       const originalIndex = optionsToDisplay.findIndex(option => {
-        const isMatching = option.optionId === correctOption.optionId; // Match by ID
-        if (!isMatching) {
-          console.warn(
-            `[setCorrectMessage] Option mismatch: Correct option: ${JSON.stringify(
-              correctOption
-            )}, Current option: ${JSON.stringify(option)}`
-          );
-        }
+        const isMatching =
+          option.optionId === correctOption.optionId ||
+          option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase(); // Match by ID or text
         return isMatching;
       });
-      return originalIndex !== -1 ? originalIndex + 1 : undefined; // +1 for 1-based indexing
+  
+      if (originalIndex === -1) {
+        console.warn('[setCorrectMessage] Correct option not found in optionsToDisplay:', correctOption);
+      }
+  
+      return originalIndex !== -1 ? originalIndex + 1 : undefined; // Use 1-based index
     });
   
-    console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
-  
     const uniqueIndices = correctOptionIndices.filter(index => index !== undefined);
+    console.log('[setCorrectMessage] Correct option indices:', uniqueIndices);
+  
     if (uniqueIndices.length === 0) {
       console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
       return 'No correct answers found for the current question.';
@@ -166,6 +166,5 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
     return correctMessage;
-  }    
+  }  
 }
-
