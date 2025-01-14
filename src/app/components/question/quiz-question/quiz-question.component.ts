@@ -828,6 +828,7 @@ export class QuizQuestionComponent
     console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
     console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
 
+    // Fallback if no correct options
     if (correctOptions.length === 0) {
       console.error('[applyOptionFeedbackToAllOptions] No correct options found. Feedback cannot be applied.');
     }
