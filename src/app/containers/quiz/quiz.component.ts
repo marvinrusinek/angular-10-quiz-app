@@ -1441,7 +1441,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
     }
 
-    // Fetch explanation text
+    // Fetch explanation text for the current question
     this.fetchFormattedExplanationText(index);
   }
 
