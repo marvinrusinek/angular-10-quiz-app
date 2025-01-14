@@ -1424,7 +1424,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       showIcon: option.showIcon ?? false,
       active: option.active ?? true,
       selected: option.selected ?? false,
-      correct: option.correct ?? false
+      correct: option.correct ?? false,
+      optionId: option.optionId ?? option.text.trim()
     }));
 
     // Check if correct answers are available for the question
