@@ -826,6 +826,10 @@ export class QuizQuestionComponent
   
     const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
     console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+    if (!correctOptions || correctOptions.length === 0) {
+      console.error('[applyOptionFeedbackToAllOptions] No correct options available.');
+      console.log('[applyOptionFeedbackToAllOptions] Defaulting to first option for feedback as fallback.');
+    }
   
     const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
     console.log('[applyOptionFeedbackToAllOptions] Generated feedback message:', feedbackMessage);
