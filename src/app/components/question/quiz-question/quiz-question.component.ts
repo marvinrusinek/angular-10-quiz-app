@@ -688,6 +688,7 @@ export class QuizQuestionComponent
 
     // Load options and apply feedback
     this.loadOptionsForQuestion(question);
+    this.applyOptionFeedbackToAllOptions(); // Apply feedback immediately after loading options
 
     // Wait to ensure the question is fully rendered before updating explanation
     setTimeout(() => {
