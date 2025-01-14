@@ -12,16 +12,29 @@ export class FeedbackService {
   ): string {
     console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
     console.log('[generateFeedbackForOptions] optionsToDisplay:', optionsToDisplay);
-
+  
     if (!correctOptions || correctOptions.length === 0) {
       console.error('[generateFeedbackForOptions] No correct options found.');
       return 'No correct answers found for the current question.';
     }
-
+  
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.error('[generateFeedbackForOptions] No options to display found.');
+      return 'No options available to generate feedback.';
+    }
+  
     // Use logic from setCorrectMessage or directly here
     const correctMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+  
+    if (!correctMessage || correctMessage.trim() === '') {
+      console.warn(
+        '[generateFeedbackForOptions] Fallback triggered: Feedback generation failed.'
+      );
+      return 'Unable to determine feedback for the current question.';
+    }
+  
     console.log('[generateFeedbackForOptions] Correct message generated:', correctMessage);
-
+  
     return correctMessage || 'Feedback generation failed.';
   }
 
