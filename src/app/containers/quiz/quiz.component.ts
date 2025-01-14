@@ -1741,12 +1741,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     // Apply feedback to all options
-    if (this.quizQuestionComponent) {
-      console.log('[prepareFeedback] Applying feedback to options.');
-      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
-    } else {
-      console.error('[prepareFeedback] quizQuestionComponent is not initialized.');
-    }
+    //if (this.quizQuestionComponent) {
+    //  console.log('[prepareFeedback] Applying feedback to options.');
+    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+    //} else {
+    // console.error('[prepareFeedback] quizQuestionComponent is not initialized.');
+    //}
 
     // Enable feedback display
     this.showFeedback = true;
