@@ -831,13 +831,13 @@ export class QuizQuestionComponent
       console.log('[applyOptionFeedbackToAllOptions] Defaulting to first option for feedback as fallback.');
     }
   
-    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-    console.log('[applyOptionFeedbackToAllOptions] Generated feedback message:', feedbackMessage);
+    const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+    console.log('[applyOptionFeedbackToAllOptions] Feedback list:', feedbackList);
   
     // Apply feedback only to the selected option
-    this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
       ...option,
-      feedback: option.selected ? feedbackMessage : '', // Display feedback only for the selected option
+      feedback: feedbackList[index] || 'No feedback available.',
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
       highlight: option.selected // Highlight only the selected option
     }));
