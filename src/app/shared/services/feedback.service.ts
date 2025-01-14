@@ -125,6 +125,11 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Correct options:', correctOptions);
     console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
   
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[setCorrectMessage] No correct options available.');
+      return 'No correct answers found for the current question.';
+    }
+  
     const correctOptionIndices = correctOptions.map((correctOption) => {
       const originalIndex = optionsToDisplay.findIndex(
         (option) => option.optionId === correctOption.optionId
@@ -152,8 +157,7 @@ export class FeedbackService {
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
-    return correctMessage || 'Correct answer information is not available.';
-  }
-  
+    return correctMessage;
+  }  
 }
 
