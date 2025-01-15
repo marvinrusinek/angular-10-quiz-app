@@ -237,7 +237,7 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
   
     const uniqueIndices = [
-      ...new Set(correctOptionIndices.filter((index) => index !== undefined)),
+      ...new Set(correctOptionIndices.filter((index) => index !== undefined))
     ];
   
     if (uniqueIndices.length === 0) {
