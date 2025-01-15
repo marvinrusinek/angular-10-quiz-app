@@ -222,7 +222,7 @@ export class FeedbackService {
       return 'No correct answers found for the current question.';
     }
   
-    const correctOptionIndices = correctOptions.map((correctOption) => {
+    /* const correctOptionIndices = correctOptions.map((correctOption) => {
       const originalIndex = optionsToDisplay.findIndex(
         (option) => option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase()
       );
@@ -231,6 +231,23 @@ export class FeedbackService {
         console.warn(`[setCorrectMessage] Correct option "${correctOption.text}" not found in optionsToDisplay.`);
       }
   
+      return originalIndex !== -1 ? originalIndex + 1 : undefined;
+    }); */
+    const correctOptionIndices = correctOptions.map((correctOption) => {
+      const originalIndex = optionsToDisplay.findIndex(
+        (option) => {
+          const isMatch = option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase();
+          if (!isMatch) {
+            console.warn(`[setCorrectMessage] Mismatch: "${option.text}" !== "${correctOption.text}"`);
+          }
+          return isMatch;
+        }
+      );
+    
+      if (originalIndex === -1) {
+        console.warn(`[setCorrectMessage] Correct option "${correctOption.text}" not found in optionsToDisplay.`);
+      }
+    
       return originalIndex !== -1 ? originalIndex + 1 : undefined;
     });
   
