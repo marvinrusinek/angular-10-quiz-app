@@ -841,7 +841,7 @@ export class QuizQuestionComponent
         ? (feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
         : null, // Feedback only for selected options */
       feedback: option.selected
-        ? feedbackList[index] || 'No feedback available.'
+        ? feedbackList[optionIndex] || 'No feedback available.'
         : null,
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
       highlight: option.selected // Highlight only the selected option
