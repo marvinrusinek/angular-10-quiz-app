@@ -1428,7 +1428,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure optionId is a number: use existing number or fallback to index-based generation
       optionId: typeof option.optionId === 'number' 
         ? option.optionId 
-        : optionIndex
+        : optionIndex + 1 // Use 1-based index for readability
     }));
 
     // Check if correct answers are available for the question
