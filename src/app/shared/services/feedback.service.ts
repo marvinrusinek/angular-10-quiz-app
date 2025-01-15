@@ -254,6 +254,6 @@ export class FeedbackService {
     const correctMessage = `The correct ${optionsText} ${optionStrings}.`;
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
       
-    return correctMessage;
+    return correctMessage || 'Correct answer information is not available.';
   }
 }
