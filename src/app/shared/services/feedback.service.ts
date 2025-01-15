@@ -235,20 +235,17 @@ export class FeedbackService {
     }); */
     const correctOptionIndices = correctOptions.map((correctOption) => {
       const originalIndex = optionsToDisplay.findIndex(
-        (option) => {
-          const isMatch = option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase();
-          if (!isMatch) {
-            console.warn(`[setCorrectMessage] Mismatch: "${option.text}" !== "${correctOption.text}"`);
-          }
-          return isMatch;
-        }
+        (option) =>
+          option.text.trim().toLowerCase() === correctOption.text.trim().toLowerCase()
       );
     
       if (originalIndex === -1) {
-        console.warn(`[setCorrectMessage] Correct option "${correctOption.text}" not found in optionsToDisplay.`);
+        console.warn(
+          `[setCorrectMessage] Correct option "${correctOption.text}" not found in optionsToDisplay.`
+        );
       }
     
-      return originalIndex !== -1 ? originalIndex + 1 : undefined;
+      return originalIndex !== -1 ? originalIndex + 1 : undefined; // Use 1-based index
     });
   
     console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
