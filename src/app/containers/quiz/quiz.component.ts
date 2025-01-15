@@ -1408,17 +1408,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
-  loadQuestionByRouteIndex(index: number): void {
-    if (!this.quiz || index < 0 || index >= this.quiz.questions.length) {
-      console.error('Question index out of bounds:', index);
+  loadQuestionByRouteIndex(questionIndex: number): void {
+    if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+      console.error('Question index out of bounds:', questionIndex);
       return;
     }
 
-    const question = this.quiz.questions[index];
+    const question = this.quiz.questions[questionIndex];
     this.questionToDisplay = question.questionText;
 
     // Initialize optionsToDisplay with default values if not already set
-    this.optionsToDisplay = question.options.map((option, index) => ({
+    this.optionsToDisplay = question.options.map((option, optionIndex) => ({
       ...option,
       feedback: option.feedback ?? 'No feedback available.', // Default feedback
       showIcon: option.showIcon ?? false,
@@ -1428,7 +1428,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure optionId is a number: use existing number or fallback to index-based generation
       optionId: typeof option.optionId === 'number' 
         ? option.optionId 
-        : index
+        : optionIndex
     }));
 
     // Check if correct answers are available for the question
@@ -1446,7 +1446,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     // Fetch explanation text for the current question
-    this.fetchFormattedExplanationText(index);
+    this.fetchFormattedExplanationText(questionIndex);
   }
 
   fetchFormattedExplanationText(index: number): void {
