@@ -835,10 +835,10 @@ export class QuizQuestionComponent
     console.log('[applyOptionFeedbackToAllOptions] Feedback list:', feedbackList);
   
     // Apply feedback only to the selected option
-    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+    this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
       ...option,
       feedback: option.selected
-        ? (feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
+        ? (feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
         : null, // Feedback only for selected options
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
       highlight: option.selected // Highlight only the selected option
