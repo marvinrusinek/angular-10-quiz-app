@@ -1418,14 +1418,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.questionToDisplay = question.questionText;
 
     // Initialize optionsToDisplay with default values if not already set
-    this.optionsToDisplay = question.options.map(option => ({
+    this.optionsToDisplay = question.options.map((option, index) => ({
       ...option,
       feedback: option.feedback ?? 'No feedback available.', // Default feedback
       showIcon: option.showIcon ?? false,
       active: option.active ?? true,
       selected: option.selected ?? false,
       correct: option.correct ?? false,
-      optionId: typeof option.optionId === 'number' ? option.optionId : Number(option.text.trim().length)
+      // Ensure optionId is a number: use existing number or fallback to index-based generation
+      optionId: typeof option.optionId === 'number' 
+        ? option.optionId 
+        : index
     }));
 
     // Check if correct answers are available for the question
