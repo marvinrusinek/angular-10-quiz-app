@@ -1446,7 +1446,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     // Fetch explanation text for the current question
-    this.fetchFormattedExplanationText(questionIndex);
+    try {
+      this.fetchFormattedExplanationText(questionIndex);
+      console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
+    } catch (error) {
+      console.error('[loadQuestionByRouteIndex] Error fetching explanation text:', error);
+    }
   }
 
   fetchFormattedExplanationText(index: number): void {
