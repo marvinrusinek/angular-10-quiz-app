@@ -361,47 +361,35 @@ export class FeedbackService {
     return correctMessage;
   } */
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    // Add these debug logs
     console.log('=== setCorrectMessage START ===');
-    console.log('correctOptions:', JSON.stringify(correctOptions, null, 2));
-    console.log('optionsToDisplay:', JSON.stringify(optionsToDisplay, null, 2));
     
-    // Simple direct comparison first
-    const matches = correctOptions.map(correct => {
-      const matchIndex = optionsToDisplay.findIndex(option => 
-        JSON.stringify(correct) === JSON.stringify(option)
-      );
-      return matchIndex !== -1 ? matchIndex + 1 : undefined;
-    });
-  
-    console.log('Direct comparison matches:', matches);
-  
-    if (matches.some(m => m !== undefined)) {
-      const validIndices = matches.filter(m => m !== undefined).sort();
-      const optionsText = validIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-      const optionStrings = validIndices.length > 1
-        ? validIndices.slice(0, -1).join(', ') + ' and ' + validIndices.slice(-1)
-        : `${validIndices[0]}`;
-  
-      return `The correct ${optionsText} ${optionStrings}.`;
+    // If correctOptions is empty, try to extract them from optionsToDisplay
+    if (!correctOptions?.length && optionsToDisplay?.length) {
+      correctOptions = optionsToDisplay.filter(option => option.correct === true);
     }
   
-    // If direct comparison fails, try simpler matching
-    const indices = correctOptions.map(correct => {
-      return optionsToDisplay.findIndex(option => 
-        option.text?.trim().toLowerCase() === correct.text?.trim().toLowerCase()
-      );
-    }).filter(idx => idx !== -1).map(idx => idx + 1);
-  
-    if (indices.length) {
-      const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
-      const optionStrings = indices.length > 1
-        ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
-        : `${indices[0]}`;
-  
-      return `The correct ${optionsText} ${optionStrings}.`;
+    if (!correctOptions?.length) {
+      console.error('No correct options found');
+      return 'No correct answers found for the current question.';
     }
   
-    return 'No correct answers found for the current question.';
+    // Get indices of correct answers (1-based)
+    const indices = optionsToDisplay
+      .map((option, index) => option.correct ? index + 1 : undefined)
+      .filter(index => index !== undefined);
+  
+    if (!indices.length) {
+      console.error('No correct indices found');
+      return 'No correct answers found for the current question.';
+    }
+  
+    console.log('Found correct indices:', indices);
+  
+    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = indices.length > 1
+      ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
+      : `${indices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
   }
 }
