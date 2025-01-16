@@ -72,7 +72,7 @@ export class FeedbackService {
       return '';
     }
   } */
-  setCorrectMessage(optionsToDisplay: Option[]): string {
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string { 
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
       return '';
