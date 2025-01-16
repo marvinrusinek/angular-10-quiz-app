@@ -1058,7 +1058,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       options: options,
       question: question,
       selectedOption: option,
-      correctMessage: this.feedbackService.setCorrectMessage(this.quizService.correctOptions, this.optionsToDisplay) ?? 'No correct message available',
+      correctMessage: this.feedbackService.setCorrectMessage(this.optionsToDisplay) ?? 'No correct message available',
       feedback: option.feedback ?? 'No feedback available',
       showFeedback: showFeedback,
       idx: idx
