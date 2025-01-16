@@ -40,12 +40,7 @@ export class FeedbackService {
   
     try {
       // Ensure we have valid data
-      const validOptions = optionsToDisplay.filter(option => 
-        option && 
-        typeof option === 'object' && 
-        'text' in option && 
-        'correct' in option
-      );
+      const validOptions = optionsToDisplay.filter(this.isValidOption);
   
       if (validOptions.length !== optionsToDisplay.length) {
         console.warn('Some options are not fully loaded');
@@ -63,17 +58,26 @@ export class FeedbackService {
         return 'No correct answers found for the current question.';
       }
   
-      const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
-      const optionStrings = indices.length > 1
-        ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
-        : `${indices[0]}`;
-  
-      const result = `The correct ${optionsText} ${optionStrings}.`;
+      const result = this.formatFeedbackMessage(indices);
       console.log('Generated feedback:', result);
       return result;
     } catch (error) {
       console.error('Error generating feedback:', error);
       return '';  // Return empty string on error
     }
+  }
+
+  // Helper functions
+  private isValidOption(option: any): option is Option {
+    return option && typeof option === 'object' && 'text' in option && 'correct' in option;
+  }
+  
+  private formatFeedbackMessage(indices: number[]): string {
+    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = indices.length > 1
+      ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
+      : `${indices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
   }
 }
