@@ -58,10 +58,6 @@ export class FeedbackService {
       }
   
       // Get indices of correct answers (1-based)
-      /* const indices = validOptions
-        .map((option, index) => option.correct ? index + 1 : undefined)
-        .filter((index): index is number => index !== undefined)
-        .sort((a, b) => a - b); */
       const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
