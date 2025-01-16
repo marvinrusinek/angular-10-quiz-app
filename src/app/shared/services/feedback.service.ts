@@ -69,9 +69,6 @@ export class FeedbackService {
     return `The correct ${optionsText} ${optionStrings}.`;
   } */
   setCorrectMessage(optionsToDisplay: Option[]): string {
-    console.log('=== setCorrectMessage START ===');
-    console.log('Input optionsToDisplay:', optionsToDisplay);
-  
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
@@ -97,9 +94,6 @@ export class FeedbackService {
         .map((option, index) => option.correct ? index + 1 : undefined)
         .filter((index): index is number => index !== undefined)
         .sort((a, b) => a - b);
-  
-      console.log('Found correct indices:', indices);
-  
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
@@ -113,7 +107,6 @@ export class FeedbackService {
       const result = `The correct ${optionsText} ${optionStrings}.`;
       console.log('Generated feedback:', result);
       return result;
-  
     } catch (error) {
       console.error('Error generating feedback:', error);
       return '';  // Return empty string on error
