@@ -3615,8 +3615,7 @@ export class QuizQuestionComponent
     });
 
     // Retrieve correct answers and set correct message
-    const correctAnswers = this.optionsToDisplay.filter((opt) => opt.correct);
-    this.feedbackService.setCorrectMessage(correctAnswers, this.optionsToDisplay);
+    this.feedbackService.setCorrectMessage(this.optionsToDisplay);
   }
 
   unselectOption(): void {
