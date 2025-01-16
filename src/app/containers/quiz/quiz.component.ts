@@ -1417,10 +1417,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const question = this.quiz.questions[questionIndex];
     this.questionToDisplay = question.questionText;
 
-    // Assign option IDs dynamically if needed
+    // Assign option IDs dynamically
     const optionsWithIds = this.quizService.assignOptionIds(question.options);
 
-    // Initialize optionsToDisplay with default values if not already set
+    // Initialize optionsToDisplay with default values
     this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
       ...option,
       feedback: option.feedback ?? 'No feedback available.', // Default feedback
