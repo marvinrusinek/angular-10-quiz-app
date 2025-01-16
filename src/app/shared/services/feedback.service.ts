@@ -360,7 +360,7 @@ export class FeedbackService {
   
     return correctMessage;
   } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
     console.log('=== setCorrectMessage START ===');
     
     // If correctOptions is empty, try to extract them from optionsToDisplay
@@ -380,6 +380,56 @@ export class FeedbackService {
   
     if (!indices.length) {
       console.error('No correct indices found');
+      return 'No correct answers found for the current question.';
+    }
+  
+    console.log('Found correct indices:', indices);
+  
+    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = indices.length > 1
+      ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
+      : `${indices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
+  } */
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    console.log('=== setCorrectMessage START ===');
+    
+    // Validate input array
+    if (!Array.isArray(optionsToDisplay) || !optionsToDisplay.length) {
+      console.warn('Invalid or empty optionsToDisplay array');
+      return 'No correct answers found for the current question.';
+    }
+  
+    // Ensure all options have the required properties
+    const isValidData = optionsToDisplay.every(option => 
+      option.hasOwnProperty('text') && 
+      option.hasOwnProperty('correct') && 
+      option.hasOwnProperty('optionId')
+    );
+  
+    if (!isValidData) {
+      console.warn('Options data not fully loaded');
+      return 'No correct answers found for the current question.';
+    }
+  
+    // Extract correct options if not provided
+    if (!correctOptions?.length) {
+      correctOptions = optionsToDisplay.filter(option => option.correct === true);
+    }
+  
+    if (!correctOptions.length) {
+      console.warn('No correct options found');
+      return 'No correct answers found for the current question.';
+    }
+  
+    // Get indices of correct answers (1-based)
+    const indices = optionsToDisplay
+      .map((option, index) => option.correct ? index + 1 : undefined)
+      .filter(index => index !== undefined);
+  
+    if (!indices.length) {
+      console.warn('No correct indices found');
       return 'No correct answers found for the current question.';
     }
   
