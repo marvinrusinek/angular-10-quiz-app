@@ -38,8 +38,8 @@ export class FeedbackService {
     }
   
     try {
-      const validCorrectOptions = (correctOptions || []).filter(this.isValidOption);
-      const validDisplayOptions = (optionsToDisplay || []).filter(this.isValidOption);
+      const validCorrectOptions = correctOptions.filter(this.isValidOption);
+      const validDisplayOptions = optionsToDisplay.filter(this.isValidOption);
   
       if (validCorrectOptions.length !== correctOptions.length || 
           validDisplayOptions.length !== optionsToDisplay.length) {
