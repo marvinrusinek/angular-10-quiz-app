@@ -32,21 +32,18 @@ export class FeedbackService {
   }
 
   setCorrectMessage(optionsToDisplay: Option[]): string | null {
-    // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet.');
-      return null; // Return null instead of an empty string
+      return null;
     }
   
     try {
-      // Validate options
       const validOptions = optionsToDisplay.filter(this.isValidOption);
       if (validOptions.length !== optionsToDisplay.length) {
         console.warn('Some options are not fully loaded.');
-        return null; // Wait for valid data
+        return null;
       }
   
-      // Get indices of correct answers (1-based)
       const indices = validOptions
         .map((option, index) => (option.correct ? index + 1 : null))
         .filter((index): index is number => index !== null)
@@ -57,22 +54,26 @@ export class FeedbackService {
         return 'No correct answers found for the current question.';
       }
   
-      // Generate feedback message
-      const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
-      const optionStrings = indices.length > 1
-        ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
-        : `${indices[0]}`;
-  
-      const result = `The correct ${optionsText} ${optionStrings}.`;
+      const result = this.formatFeedbackMessage(indices);
       console.log('Generated feedback:', result);
       return result;
+  
     } catch (error) {
       console.error('Error generating feedback:', error);
-      return null; // Return null on error
+      return null;
     }
   }
   
   private isValidOption(option: any): option is Option {
     return option && typeof option === 'object' && 'text' in option && 'correct' in option;
-  }  
+  }
+  
+  private formatFeedbackMessage(indices: number[]): string {
+    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = indices.length > 1
+      ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
+      : `${indices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
+  }
 }
