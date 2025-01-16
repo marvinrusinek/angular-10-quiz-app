@@ -377,7 +377,7 @@ export class FeedbackService {
       if (originalIndex === -1) {
         console.warn(`[setCorrectMessage] Mismatch: Correct optionId not found in optionsToDisplay`, {
           correctOption,
-          optionsToDisplay,
+          optionsToDisplay
         });
       }
   
