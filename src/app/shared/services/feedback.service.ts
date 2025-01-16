@@ -19,7 +19,7 @@ export class FeedbackService {
     }
   
     // Use logic from setCorrectMessage or directly here
-    const correctMessage = this.setCorrectMessage(optionsToDisplay);
+    const correctMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
     if (!correctMessage || correctMessage.trim() === '') {
       console.warn(
@@ -31,13 +31,9 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('=== setCorrectMessage START ===');
-    console.log('Input correctOptions:', correctOptions);
-    console.log('Input optionsToDisplay:', optionsToDisplay);
-  
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
     if (!correctOptions?.length || !optionsToDisplay?.length) {
-      console.warn('Options not loaded yet');
+      console.warn('Options not loaded yet.');
       return '';
     }
   
@@ -47,7 +43,7 @@ export class FeedbackService {
   
       if (validCorrectOptions.length !== correctOptions.length || 
           validDisplayOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded');
+        console.warn('Some options are not fully loaded.');
         return '';
       }
   
@@ -62,10 +58,8 @@ export class FeedbackService {
         .filter((index): index is number => index !== undefined)
         .sort((a, b) => a - b);
   
-      console.log('Found correct indices:', indices);
-  
       if (!indices.length) {
-        console.warn('No correct indices found');
+        console.warn('No correct indices found.');
         return 'No correct answers found for the current question.';
       }
   
