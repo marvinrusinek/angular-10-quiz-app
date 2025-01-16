@@ -2012,7 +2012,8 @@ export class QuizService implements OnDestroy {
   
     return options.map((option, index) => ({
       ...option,
-      optionId: option.optionId ?? index // If optionId is missing, assign index as optionId
+      // Assign optionId only if it's not a valid number
+      optionId: typeof option.optionId === 'number' ? option.optionId : index + 1, // Use 1-based index for readability
     }));
   }
 
