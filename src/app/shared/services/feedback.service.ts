@@ -312,7 +312,7 @@ export class FeedbackService {
   
     return correctMessage || 'Correct answer information is not available.';
   } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
     console.log('[setCorrectMessage] correctOptions:', correctOptions);
     console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
   
@@ -359,5 +359,53 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
     return correctMessage;
+  } */
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    console.log('[setCorrectMessage] Input correctOptions:', JSON.stringify(correctOptions));
+    console.log('[setCorrectMessage] Input optionsToDisplay:', JSON.stringify(optionsToDisplay));
+  
+    if (!correctOptions?.length || !optionsToDisplay?.length) {
+      console.error('[setCorrectMessage] Missing or empty options arrays');
+      return 'No correct answers found for the current question.';
+    }
+  
+    const correctOptionIndices = correctOptions.map((correctOption) => {
+      // Try matching by optionId first
+      let matchIndex = optionsToDisplay.findIndex(
+        (option) => option.optionId && correctOption.optionId && 
+        option.optionId === correctOption.optionId
+      );
+  
+      // If no match by ID, try matching by normalized text
+      if (matchIndex === -1) {
+        matchIndex = optionsToDisplay.findIndex(
+          (option) => option.text?.trim().toLowerCase() === correctOption.text?.trim().toLowerCase()
+        );
+      }
+  
+      if (matchIndex === -1) {
+        console.warn(`[setCorrectMessage] No match found for correct option:`, 
+          JSON.stringify(correctOption));
+      }
+  
+      return matchIndex !== -1 ? matchIndex + 1 : undefined;
+    });
+  
+    console.log('[setCorrectMessage] Mapped indices:', correctOptionIndices);
+  
+    const uniqueIndices = [...new Set(correctOptionIndices.filter(Boolean))].sort((a, b) => a - b);
+    console.log('[setCorrectMessage] Unique sorted indices:', uniqueIndices);
+  
+    if (!uniqueIndices.length) {
+      console.error('[setCorrectMessage] No valid matches found');
+      return 'No correct answers found for the current question.';
+    }
+  
+    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+    const optionStrings = uniqueIndices.length > 1
+      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
+      : `${uniqueIndices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
   }
 }
