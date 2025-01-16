@@ -34,7 +34,7 @@ export class FeedbackService {
   setCorrectMessage(optionsToDisplay: Option[]): string | null {
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
-      console.warn('Options not loaded yet');
+      console.warn('Options not loaded yet.');
       return null; // Return null instead of an empty string
     }
   
@@ -42,7 +42,7 @@ export class FeedbackService {
       // Validate options
       const validOptions = optionsToDisplay.filter(this.isValidOption);
       if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded');
+        console.warn('Some options are not fully loaded.');
         return null; // Wait for valid data
       }
   
@@ -53,7 +53,7 @@ export class FeedbackService {
         .sort((a, b) => a - b);
   
       if (!indices.length) {
-        console.warn('No correct indices found');
+        console.warn('No correct indices found.');
         return 'No correct answers found for the current question.';
       }
   
