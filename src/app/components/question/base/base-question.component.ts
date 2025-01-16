@@ -325,8 +325,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }  
 
-  updateCorrectMessageForQuestion(): void {
-    this.correctMessage = this.feedbackService.setCorrectMessage(this.optionsToDisplay);
+  updateCorrectMessageForQuestion(correctOptions?: Option[]): void {
+    if (!correctOptions) {
+      correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+    }
+    this.correctMessage = this.feedbackService.setCorrectMessage(
+      correctOptions,
+      this.optionsToDisplay
+    );
     this.correctMessageChange.emit(this.correctMessage);
     this.cdRef.detectChanges();
   }
