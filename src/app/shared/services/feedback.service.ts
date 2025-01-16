@@ -31,41 +31,36 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(optionsToDisplay: Option[]): string {
+  setCorrectMessage(optionsToDisplay: Option[]): string | null {
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
-      return '';  // Return empty string instead of error message
+      return null; // Return null instead of an empty string
     }
   
     try {
-      // Ensure we have valid data
-      const validOptions = optionsToDisplay.filter(option => 
-        option && 
-        typeof option === 'object' && 
-        'text' in option && 
-        'correct' in option
-      );
-  
+      // Validate options
+      const validOptions = optionsToDisplay.filter(this.isValidOption);
       if (validOptions.length !== optionsToDisplay.length) {
         console.warn('Some options are not fully loaded');
-        return '';  // Return empty string to wait for valid data
+        return null; // Wait for valid data
       }
   
       // Get indices of correct answers (1-based)
       const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 }))
-        .filter(item => item.option.correct)
-        .map(item => item.index)
-        .sort();
+        .map((option, index) => (option.correct ? index + 1 : null))
+        .filter((index): index is number => index !== null)
+        .sort((a, b) => a - b);
+  
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
       }
   
+      // Generate feedback message
       const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
       const optionStrings = indices.length > 1
-        ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
+        ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
         : `${indices[0]}`;
   
       const result = `The correct ${optionsText} ${optionStrings}.`;
@@ -73,7 +68,11 @@ export class FeedbackService {
       return result;
     } catch (error) {
       console.error('Error generating feedback:', error);
-      return '';  // Return empty string on error
+      return null; // Return null on error
     }
   }
+  
+  private isValidOption(option: any): option is Option {
+    return option && typeof option === 'object' && 'text' in option && 'correct' in option;
+  }  
 }
