@@ -316,7 +316,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.quizService.setCorrectOptions(correctOptions);
   
       // Update the correct message for the question
-      this.updateCorrectMessageForQuestion(correctOptions);
+      this.updateCorrectMessageForQuestion();
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
@@ -325,14 +325,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }  
 
-  updateCorrectMessageForQuestion(correctOptions?: Option[]): void {
-    if (!correctOptions) {
-      correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-    }
-    this.correctMessage = this.feedbackService.setCorrectMessage(
-      correctOptions,
-      this.optionsToDisplay
-    );
+  updateCorrectMessageForQuestion(): void {
+    this.correctMessage = this.feedbackService.setCorrectMessage(this.optionsToDisplay);
     this.correctMessageChange.emit(this.correctMessage);
     this.cdRef.detectChanges();
   }
