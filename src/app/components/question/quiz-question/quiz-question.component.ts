@@ -2600,13 +2600,7 @@ export class QuizQuestionComponent
         this.displayExplanation = true;
 
         // Set the correct message using the QuizService method
-        const correctOptions = questionData.options.filter(
-          (opt) => opt.correct
-        );
-        this.correctMessage = this.feedbackService.setCorrectMessage(
-          correctOptions,
-          this.optionsToDisplay
-        );
+        this.correctMessage = this.feedbackService.setCorrectMessage(this.optionsToDisplay);
         console.log(
           'QuizQuestionComponent - Correct Message set:',
           this.correctMessage
