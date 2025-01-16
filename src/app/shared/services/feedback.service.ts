@@ -58,10 +58,15 @@ export class FeedbackService {
       }
   
       // Get indices of correct answers (1-based)
-      const indices = validOptions
+      /* const indices = validOptions
         .map((option, index) => option.correct ? index + 1 : undefined)
         .filter((index): index is number => index !== undefined)
-        .sort((a, b) => a - b);
+        .sort((a, b) => a - b); */
+      const indices = validOptions
+        .map((option, index) => ({ option, index: index + 1 }))
+        .filter(item => item.option.correct)
+        .map(item => item.index)
+        .sort();
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
