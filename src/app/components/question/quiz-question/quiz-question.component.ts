@@ -1352,8 +1352,12 @@ export class QuizQuestionComponent
     }
   }
 
-  private async generateFeedbackText(): Promise<string> {
-    return this.feedbackService.setCorrectMessage(this.optionsToDisplay);
+  private async generateFeedbackText(question: QuizQuestion): Promise<string> {
+    const correctOptions = question.options.filter((option) => option.correct);
+    return this.feedbackService.setCorrectMessage(
+      correctOptions,
+      this.optionsToDisplay
+    );
   }
 
   private resetTexts(): void {
