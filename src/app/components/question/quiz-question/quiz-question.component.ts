@@ -3623,7 +3623,8 @@ export class QuizQuestionComponent
     });
 
     // Retrieve correct answers and set correct message
-    this.feedbackService.setCorrectMessage(this.optionsToDisplay);
+    const correctAnswers = this.optionsToDisplay.filter((opt) => opt.correct);
+    this.feedbackService.setCorrectMessage(correctAnswers, this.optionsToDisplay);
   }
 
   unselectOption(): void {
