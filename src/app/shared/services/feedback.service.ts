@@ -361,66 +361,47 @@ export class FeedbackService {
     return correctMessage;
   } */
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('[setCorrectMessage] Raw inputs:', {
-      correctOptions,
-      optionsToDisplay
+    // Add these debug logs
+    console.log('=== setCorrectMessage START ===');
+    console.log('correctOptions:', JSON.stringify(correctOptions, null, 2));
+    console.log('optionsToDisplay:', JSON.stringify(optionsToDisplay, null, 2));
+    
+    // Simple direct comparison first
+    const matches = correctOptions.map(correct => {
+      const matchIndex = optionsToDisplay.findIndex(option => 
+        JSON.stringify(correct) === JSON.stringify(option)
+      );
+      return matchIndex !== -1 ? matchIndex + 1 : undefined;
     });
   
-    // Wait for both arrays to be populated
-    if (!Array.isArray(correctOptions) || !Array.isArray(optionsToDisplay)) {
-      console.warn('[setCorrectMessage] Inputs are not arrays yet');
-      return 'No correct answers found for the current question.';
+    console.log('Direct comparison matches:', matches);
+  
+    if (matches.some(m => m !== undefined)) {
+      const validIndices = matches.filter(m => m !== undefined).sort();
+      const optionsText = validIndices.length === 1 ? 'answer is Option' : 'answers are Options';
+      const optionStrings = validIndices.length > 1
+        ? validIndices.slice(0, -1).join(', ') + ' and ' + validIndices.slice(-1)
+        : `${validIndices[0]}`;
+  
+      return `The correct ${optionsText} ${optionStrings}.`;
     }
   
-    // Ensure we have non-empty arrays with valid data
-    if (!correctOptions.length || !optionsToDisplay.length) {
-      console.warn('[setCorrectMessage] Empty arrays received');
-      return 'No correct answers found for the current question.';
+    // If direct comparison fails, try simpler matching
+    const indices = correctOptions.map(correct => {
+      return optionsToDisplay.findIndex(option => 
+        option.text?.trim().toLowerCase() === correct.text?.trim().toLowerCase()
+      );
+    }).filter(idx => idx !== -1).map(idx => idx + 1);
+  
+    if (indices.length) {
+      const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+      const optionStrings = indices.length > 1
+        ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
+        : `${indices[0]}`;
+  
+      return `The correct ${optionsText} ${optionStrings}.`;
     }
   
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      // Try to find a match using multiple strategies
-      const matchingOption = optionsToDisplay.find(option => {
-        // Try exact matches first
-        if (correctOption.optionId && option.optionId) {
-          if (correctOption.optionId === option.optionId) return true;
-        }
-        
-        if (correctOption.text && option.text) {
-          // Try exact text match
-          if (correctOption.text.trim() === option.text.trim()) return true;
-          
-          // Try case-insensitive match
-          if (correctOption.text.trim().toLowerCase() === option.text.trim().toLowerCase()) return true;
-          
-          // Try removing all whitespace
-          if (correctOption.text.replace(/\s+/g, '') === option.text.replace(/\s+/g, '')) return true;
-        }
-        
-        return false;
-      });
-  
-      if (matchingOption) {
-        return optionsToDisplay.indexOf(matchingOption) + 1;
-      }
-      
-      console.warn('[setCorrectMessage] No match found for:', correctOption);
-      return undefined;
-    });
-  
-    const uniqueIndices = [...new Set(correctOptionIndices.filter(Boolean))].sort((a, b) => a - b);
-    console.log('[setCorrectMessage] Found indices:', uniqueIndices);
-  
-    if (!uniqueIndices.length) {
-      console.error('[setCorrectMessage] No matches found after all attempts');
-      return 'No correct answers found for the current question.';
-    }
-  
-    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = uniqueIndices.length > 1
-      ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
-      : `${uniqueIndices[0]}`;
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
+    return 'No correct answers found for the current question.';
   }
 }
