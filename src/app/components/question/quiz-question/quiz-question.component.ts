@@ -4212,7 +4212,11 @@ export class QuizQuestionComponent
   // Helper method to update correct answers and message
   private updateCorrectAnswersAndMessage(): void {
     if (this.currentQuestion) {
-      this.correctMessage = this.feedbackService.setCorrectMessage(this.optionsToDisplay);
+      this.getCorrectAnswers();
+      this.correctMessage = this.feedbackService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.optionsToDisplay
+      );
     } else {
       console.warn(
         'QuizQuestionComponent - ngOnChanges - Question is undefined when trying to get correct answers.'
