@@ -31,47 +31,6 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
-    if (!correctOptions?.length || !optionsToDisplay?.length) {
-      console.warn('Options not loaded yet.');
-      return '';
-    }
-  
-    try {
-      const validCorrectOptions = correctOptions.filter(this.isValidOption);
-      const validDisplayOptions = optionsToDisplay.filter(this.isValidOption);
-  
-      if (validCorrectOptions.length !== correctOptions.length || 
-          validDisplayOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded.');
-        return '';
-      }
-  
-      // Find indices of correct options in the display options array
-      const indices = validDisplayOptions
-        .map((option, index) => {
-          const isCorrect = validCorrectOptions.some(
-            correctOption => correctOption.text === option.text && option.correct
-          );
-          return isCorrect ? index + 1 : undefined;
-        })
-        .filter((index): index is number => index !== undefined)
-        .sort((a, b) => a - b);
-  
-      if (!indices.length) {
-        console.warn('No correct indices found.');
-        return 'No correct answers found for the current question.';
-      }
-  
-      const result = this.formatFeedbackMessage(indices);
-      console.log('Generated feedback:', result);
-      return result;
-  
-    } catch (error) {
-      console.error('Error generating feedback:', error);
-      return '';
-    }
-  }
   /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
     if (!correctOptions?.length || !optionsToDisplay?.length) {
       console.warn('Options not loaded yet.');
@@ -113,6 +72,47 @@ export class FeedbackService {
       return '';
     }
   } */
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
+    if (!correctOptions?.length || !optionsToDisplay?.length) {
+      console.warn('Options not loaded yet.');
+      return '';
+    }
+  
+    try {
+      const validCorrectOptions = correctOptions.filter(this.isValidOption);
+      const validDisplayOptions = optionsToDisplay.filter(this.isValidOption);
+  
+      if (validCorrectOptions.length !== correctOptions.length || 
+          validDisplayOptions.length !== optionsToDisplay.length) {
+        console.warn('Some options are not fully loaded.');
+        return '';
+      }
+  
+      // Find indices of correct options in the display options array
+      const indices = validDisplayOptions
+        .map((option, index) => {
+          const isCorrect = validCorrectOptions.some(
+            correctOption => correctOption.text === option.text && option.correct
+          );
+          return isCorrect ? index + 1 : undefined;
+        })
+        .filter((index): index is number => index !== undefined)
+        .sort((a, b) => a - b);
+  
+      if (!indices.length) {
+        console.warn('No correct indices found.');
+        return 'No correct answers found for the current question.';
+      }
+  
+      const result = this.formatFeedbackMessage(indices);
+      console.log('Generated feedback:', result);
+      return result;
+  
+    } catch (error) {
+      console.error('Error generating feedback:', error);
+      return '';
+    }
+  }
   
   // Helper functions
   private isValidOption(option: any): option is Option {
