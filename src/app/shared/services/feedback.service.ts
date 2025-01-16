@@ -394,52 +394,53 @@ export class FeedbackService {
   } */
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
     console.log('=== setCorrectMessage START ===');
-    
-    // Validate input array
-    if (!Array.isArray(optionsToDisplay) || !optionsToDisplay.length) {
-      console.warn('Invalid or empty optionsToDisplay array');
-      return 'No correct answers found for the current question.';
+    console.log('Input optionsToDisplay:', optionsToDisplay);
+  
+    // Wait for data to be properly loaded
+    if (!optionsToDisplay?.length) {
+      console.warn('Options not loaded yet');
+      return '';  // Return empty string instead of error message
     }
   
-    // Ensure all options have the required properties
-    const isValidData = optionsToDisplay.every(option => 
-      option.hasOwnProperty('text') && 
-      option.hasOwnProperty('correct') && 
-      option.hasOwnProperty('optionId')
-    );
+    try {
+      // Ensure we have valid data
+      const validOptions = optionsToDisplay.filter(option => 
+        option && 
+        typeof option === 'object' && 
+        'text' in option && 
+        'correct' in option
+      );
   
-    if (!isValidData) {
-      console.warn('Options data not fully loaded');
-      return 'No correct answers found for the current question.';
+      if (validOptions.length !== optionsToDisplay.length) {
+        console.warn('Some options are not fully loaded');
+        return '';  // Return empty string to wait for valid data
+      }
+  
+      // Get indices of correct answers (1-based)
+      const indices = validOptions
+        .map((option, index) => option.correct ? index + 1 : undefined)
+        .filter((index): index is number => index !== undefined)
+        .sort((a, b) => a - b);
+  
+      console.log('Found correct indices:', indices);
+  
+      if (!indices.length) {
+        console.warn('No correct indices found');
+        return 'No correct answers found for the current question.';
+      }
+  
+      const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+      const optionStrings = indices.length > 1
+        ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
+        : `${indices[0]}`;
+  
+      const result = `The correct ${optionsText} ${optionStrings}.`;
+      console.log('Generated feedback:', result);
+      return result;
+  
+    } catch (error) {
+      console.error('Error generating feedback:', error);
+      return '';  // Return empty string on error
     }
-  
-    // Extract correct options if not provided
-    if (!correctOptions?.length) {
-      correctOptions = optionsToDisplay.filter(option => option.correct === true);
-    }
-  
-    if (!correctOptions.length) {
-      console.warn('No correct options found');
-      return 'No correct answers found for the current question.';
-    }
-  
-    // Get indices of correct answers (1-based)
-    const indices = optionsToDisplay
-      .map((option, index) => option.correct ? index + 1 : undefined)
-      .filter(index => index !== undefined);
-  
-    if (!indices.length) {
-      console.warn('No correct indices found');
-      return 'No correct answers found for the current question.';
-    }
-  
-    console.log('Found correct indices:', indices);
-  
-    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = indices.length > 1
-      ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
-      : `${indices[0]}`;
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
   }
 }
