@@ -312,7 +312,7 @@ export class FeedbackService {
   
     return correctMessage || 'Correct answer information is not available.';
   } */
-  /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
     console.log('[setCorrectMessage] correctOptions:', correctOptions);
     console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
   
@@ -359,34 +359,5 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated correct message:', correctMessage);
   
     return correctMessage;
-  } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('[setCorrectMessage] Correct options:', correctOptions);
-    console.log('[setCorrectMessage] Options to display:', optionsToDisplay);
-  
-    const correctOptionIndices = correctOptions.map((correctOption) => {
-      const match = optionsToDisplay.find(
-        (option) => option.optionId === correctOption.optionId
-      );
-  
-      if (!match) {
-        console.warn(`[setCorrectMessage] No match found for correctOption:`, correctOption);
-      }
-  
-      return match ? optionsToDisplay.indexOf(match) + 1 : undefined; // 1-based index
-    });
-  
-    console.log('[setCorrectMessage] Correct option indices:', correctOptionIndices);
-  
-    const uniqueIndices = [...new Set(correctOptionIndices.filter(index => index !== undefined))];
-  
-    if (uniqueIndices.length === 0) {
-      console.error('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
-      return 'No correct answers found for the current question.';
-    }
-  
-    const optionsText = uniqueIndices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = uniqueIndices.join(', ');
-    return `The correct ${optionsText} ${optionStrings}.`;
-  }  
+  }
 }
