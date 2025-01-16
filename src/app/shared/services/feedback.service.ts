@@ -7,10 +7,7 @@ export class FeedbackService {
   public generateFeedbackForOptions(
     correctOptions: Option[],
     optionsToDisplay: Option[]
-  ): string {
-    console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
-    console.log('[generateFeedbackForOptions] optionsToDisplay:', optionsToDisplay);
-  
+  ): string {  
     if (!correctOptions || correctOptions.length === 0) {
       console.error('[generateFeedbackForOptions] No correct options found.');
       return 'No correct answers found for the current question.';
@@ -30,8 +27,6 @@ export class FeedbackService {
       );
       return 'Unable to determine feedback for the current question.';
     }
-  
-    console.log('[generateFeedbackForOptions] Correct message generated:', correctMessage);
   
     return correctMessage || 'Feedback generation failed.';
   }
