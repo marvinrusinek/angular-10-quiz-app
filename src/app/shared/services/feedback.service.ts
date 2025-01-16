@@ -22,7 +22,7 @@ export class FeedbackService {
     }
   
     // Use logic from setCorrectMessage or directly here
-    const correctMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+    const correctMessage = this.setCorrectMessage(optionsToDisplay);
   
     if (!correctMessage || correctMessage.trim() === '') {
       console.warn(
