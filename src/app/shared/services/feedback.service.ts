@@ -31,24 +31,39 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(optionsToDisplay: Option[]): string {
-    if (!optionsToDisplay?.length) {
-      console.warn('Options not loaded yet.');
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    console.log('=== setCorrectMessage START ===');
+    console.log('Input correctOptions:', correctOptions);
+    console.log('Input optionsToDisplay:', optionsToDisplay);
+  
+    if (!correctOptions?.length || !optionsToDisplay?.length) {
+      console.warn('Options not loaded yet');
       return '';
     }
   
     try {
-      const validOptions = optionsToDisplay.filter(this.isValidOption);
+      const validCorrectOptions = correctOptions.filter(this.isValidOption);
+      const validDisplayOptions = optionsToDisplay.filter(this.isValidOption);
   
-      if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded.');
+      if (validCorrectOptions.length !== correctOptions.length || 
+          validDisplayOptions.length !== optionsToDisplay.length) {
+        console.warn('Some options are not fully loaded');
         return '';
       }
   
-      const indices = validOptions
-        .map((option, index) => option.correct ? index + 1 : undefined)
+      // Find indices of correct options in the display options array
+      const indices = validDisplayOptions
+        .map((option, index) => {
+          const isCorrect = validCorrectOptions.some(
+            correctOption => correctOption.text === option.text && option.correct
+          );
+          return isCorrect ? index + 1 : undefined;
+        })
         .filter((index): index is number => index !== undefined)
         .sort((a, b) => a - b);
+  
+      console.log('Found correct indices:', indices);
+  
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
