@@ -36,38 +36,6 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('=== setCorrectMessage START ===');
-    
-    // If correctOptions is empty, try to extract them from optionsToDisplay
-    if (!correctOptions?.length && optionsToDisplay?.length) {
-      correctOptions = optionsToDisplay.filter(option => option.correct === true);
-    }
-  
-    if (!correctOptions?.length) {
-      console.error('No correct options found');
-      return 'No correct answers found for the current question.';
-    }
-  
-    // Get indices of correct answers (1-based)
-    const indices = optionsToDisplay
-      .map((option, index) => option.correct ? index + 1 : undefined)
-      .filter(index => index !== undefined);
-  
-    if (!indices.length) {
-      console.error('No correct indices found');
-      return 'No correct answers found for the current question.';
-    }
-  
-    console.log('Found correct indices:', indices);
-  
-    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = indices.length > 1
-      ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
-      : `${indices[0]}`;
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
-  } */
   setCorrectMessage(optionsToDisplay: Option[]): string {
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
