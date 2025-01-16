@@ -361,78 +361,58 @@ export class FeedbackService {
     return correctMessage;
   } */
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    // Debug input validation
-    console.log('[setCorrectMessage] START ----------------');
-    console.log('[setCorrectMessage] correctOptions type:', typeof correctOptions);
-    console.log('[setCorrectMessage] correctOptions isArray:', Array.isArray(correctOptions));
-    console.log('[setCorrectMessage] optionsToDisplay type:', typeof optionsToDisplay);
-    console.log('[setCorrectMessage] optionsToDisplay isArray:', Array.isArray(optionsToDisplay));
-    
-    // Detailed input logging
-    console.log('[setCorrectMessage] correctOptions:', correctOptions?.map(opt => ({
-      id: opt.optionId,
-      text: opt.text,
-      normalized: opt.text?.trim().toLowerCase()
-    })));
-    
-    console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay?.map(opt => ({
-      id: opt.optionId,
-      text: opt.text,
-      normalized: opt.text?.trim().toLowerCase()
-    })));
+    console.log('[setCorrectMessage] Raw inputs:', {
+      correctOptions,
+      optionsToDisplay
+    });
   
-    if (!correctOptions?.length || !optionsToDisplay?.length) {
-      console.error('[setCorrectMessage] Arrays empty or undefined:', {
-        correctOptionsLength: correctOptions?.length,
-        optionsToDisplayLength: optionsToDisplay?.length
-      });
+    // Wait for both arrays to be populated
+    if (!Array.isArray(correctOptions) || !Array.isArray(optionsToDisplay)) {
+      console.warn('[setCorrectMessage] Inputs are not arrays yet');
+      return 'No correct answers found for the current question.';
+    }
+  
+    // Ensure we have non-empty arrays with valid data
+    if (!correctOptions.length || !optionsToDisplay.length) {
+      console.warn('[setCorrectMessage] Empty arrays received');
       return 'No correct answers found for the current question.';
     }
   
     const correctOptionIndices = correctOptions.map((correctOption) => {
-      // Debug each comparison attempt
-      console.log('\nTrying to match correct option:', {
-        id: correctOption.optionId,
-        text: correctOption.text,
-        normalized: correctOption.text?.trim().toLowerCase()
-      });
-  
-      // Try exact ID match first
-      if (correctOption.optionId) {
-        const idMatch = optionsToDisplay.findIndex(
-          option => option.optionId === correctOption.optionId
-        );
-        if (idMatch !== -1) {
-          console.log('Found match by ID at index:', idMatch);
-          return idMatch + 1;
+      // Try to find a match using multiple strategies
+      const matchingOption = optionsToDisplay.find(option => {
+        // Try exact matches first
+        if (correctOption.optionId && option.optionId) {
+          if (correctOption.optionId === option.optionId) return true;
         }
-      }
-  
-      // Try text match
-      const textMatch = optionsToDisplay.findIndex(option => {
-        const match = option.text?.trim().toLowerCase() === correctOption.text?.trim().toLowerCase();
-        console.log('Comparing:', {
-          correctText: correctOption.text?.trim().toLowerCase(),
-          optionText: option.text?.trim().toLowerCase(),
-          matches: match
-        });
-        return match;
+        
+        if (correctOption.text && option.text) {
+          // Try exact text match
+          if (correctOption.text.trim() === option.text.trim()) return true;
+          
+          // Try case-insensitive match
+          if (correctOption.text.trim().toLowerCase() === option.text.trim().toLowerCase()) return true;
+          
+          // Try removing all whitespace
+          if (correctOption.text.replace(/\s+/g, '') === option.text.replace(/\s+/g, '')) return true;
+        }
+        
+        return false;
       });
   
-      if (textMatch === -1) {
-        console.warn('No match found for option:', correctOption);
-      } else {
-        console.log('Found match by text at index:', textMatch);
+      if (matchingOption) {
+        return optionsToDisplay.indexOf(matchingOption) + 1;
       }
-  
-      return textMatch !== -1 ? textMatch + 1 : undefined;
+      
+      console.warn('[setCorrectMessage] No match found for:', correctOption);
+      return undefined;
     });
   
     const uniqueIndices = [...new Set(correctOptionIndices.filter(Boolean))].sort((a, b) => a - b);
-    console.log('[setCorrectMessage] Final indices:', uniqueIndices);
+    console.log('[setCorrectMessage] Found indices:', uniqueIndices);
   
     if (!uniqueIndices.length) {
-      console.error('[setCorrectMessage] No valid matches found after all attempts');
+      console.error('[setCorrectMessage] No matches found after all attempts');
       return 'No correct answers found for the current question.';
     }
   
@@ -441,8 +421,6 @@ export class FeedbackService {
       ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
       : `${uniqueIndices[0]}`;
   
-    const result = `The correct ${optionsText} ${optionStrings}.`;
-    console.log('[setCorrectMessage] END with result:', result);
-    return result;
+    return `The correct ${optionsText} ${optionStrings}.`;
   }
 }
