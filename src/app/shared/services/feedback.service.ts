@@ -31,17 +31,14 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(optionsToDisplay: Option[]): string {
-    console.log('=== setCorrectMessage START ===');
-    console.log('Input optionsToDisplay:', optionsToDisplay);
-  
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
       return '';
     }
   
     try {
-      const validOptions = optionsToDisplay.filter(this.isValidOption.bind(this));
+      const validOptions = optionsToDisplay.filter(this.isValidOption);
   
       if (validOptions.length !== optionsToDisplay.length) {
         console.warn('Some options are not fully loaded');
