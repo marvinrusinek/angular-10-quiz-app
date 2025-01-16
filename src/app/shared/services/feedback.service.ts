@@ -19,7 +19,7 @@ export class FeedbackService {
     }
   
     // Use logic from setCorrectMessage or directly here
-    const correctMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+    const correctMessage = this.setCorrectMessage(optionsToDisplay);
   
     if (!correctMessage || correctMessage.trim() === '') {
       console.warn(
@@ -31,100 +31,49 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  /* setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
-    if (!correctOptions?.length || !optionsToDisplay?.length) {
-      console.warn('Options not loaded yet.');
-      return '';
+  setCorrectMessage(optionsToDisplay: Option[]): string {
+    // Wait for data to be properly loaded
+    if (!optionsToDisplay?.length) {
+      console.warn('Options not loaded yet');
+      return '';  // Return empty string instead of error message
     }
   
     try {
-      const validCorrectOptions = correctOptions.filter(this.isValidOption);
-      const validDisplayOptions = optionsToDisplay.filter(this.isValidOption);
+      // Ensure we have valid data
+      const validOptions = optionsToDisplay.filter(option => 
+        option && 
+        typeof option === 'object' && 
+        'text' in option && 
+        'correct' in option
+      );
   
-      if (validCorrectOptions.length !== correctOptions.length || 
-          validDisplayOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded.');
-        return '';
+      if (validOptions.length !== optionsToDisplay.length) {
+        console.warn('Some options are not fully loaded');
+        return '';  // Return empty string to wait for valid data
       }
   
-      // Find indices of correct options in the display options array
-      const indices = validDisplayOptions
-        .map((option, index) => {
-          const isCorrect = validCorrectOptions.some(
-            correctOption => correctOption.text === option.text && option.correct
-          );
-          return isCorrect ? index + 1 : undefined;
-        })
-        .filter((index): index is number => index !== undefined)
-        .sort((a, b) => a - b);
-  
+      // Get indices of correct answers (1-based)
+      const indices = validOptions
+        .map((option, index) => ({ option, index: index + 1 }))
+        .filter(item => item.option.correct)
+        .map(item => item.index)
+        .sort();
       if (!indices.length) {
-        console.warn('No correct indices found.');
+        console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
       }
   
-      const result = this.formatFeedbackMessage(indices);
+      const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+      const optionStrings = indices.length > 1
+        ? indices.slice(0, -1).join(', ') + ' and ' + indices.slice(-1)
+        : `${indices[0]}`;
+  
+      const result = `The correct ${optionsText} ${optionStrings}.`;
       console.log('Generated feedback:', result);
       return result;
-  
     } catch (error) {
       console.error('Error generating feedback:', error);
-      return '';
+      return '';  // Return empty string on error
     }
-  } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {  
-    if (!correctOptions?.length || !optionsToDisplay?.length) {
-      console.warn('Options not loaded yet.');
-      return '';
-    }
-  
-    try {
-      const validCorrectOptions = correctOptions.filter(this.isValidOption);
-      const validDisplayOptions = optionsToDisplay.filter(this.isValidOption);
-  
-      if (validCorrectOptions.length !== correctOptions.length || 
-          validDisplayOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded.');
-        return '';
-      }
-  
-      // Find indices of correct options in the display options array
-      const indices = validDisplayOptions
-        .map((option, index) => {
-          const isCorrect = validCorrectOptions.some(
-            correctOption => correctOption.text === option.text && option.correct
-          );
-          return isCorrect ? index + 1 : undefined;
-        })
-        .filter((index): index is number => index !== undefined)
-        .sort((a, b) => a - b);
-  
-      if (!indices.length) {
-        console.warn('No correct indices found.');
-        return 'No correct answers found for the current question.';
-      }
-  
-      const result = this.formatFeedbackMessage(indices);
-      console.log('Generated feedback:', result);
-      return result;
-  
-    } catch (error) {
-      console.error('Error generating feedback:', error);
-      return '';
-    }
-  }
-  
-  // Helper functions
-  private isValidOption(option: any): option is Option {
-    return option && typeof option === 'object' && 'text' in option && 'correct' in option;
-  }
-  
-  private formatFeedbackMessage(indices: number[]): string {
-    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
-    const optionStrings = indices.length > 1
-      ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
-      : `${indices[0]}`;
-  
-    return `The correct ${optionsText} ${optionStrings}.`;
   }
 }
