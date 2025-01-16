@@ -361,43 +361,78 @@ export class FeedbackService {
     return correctMessage;
   } */
   setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    console.log('[setCorrectMessage] Input correctOptions:', JSON.stringify(correctOptions));
-    console.log('[setCorrectMessage] Input optionsToDisplay:', JSON.stringify(optionsToDisplay));
+    // Debug input validation
+    console.log('[setCorrectMessage] START ----------------');
+    console.log('[setCorrectMessage] correctOptions type:', typeof correctOptions);
+    console.log('[setCorrectMessage] correctOptions isArray:', Array.isArray(correctOptions));
+    console.log('[setCorrectMessage] optionsToDisplay type:', typeof optionsToDisplay);
+    console.log('[setCorrectMessage] optionsToDisplay isArray:', Array.isArray(optionsToDisplay));
+    
+    // Detailed input logging
+    console.log('[setCorrectMessage] correctOptions:', correctOptions?.map(opt => ({
+      id: opt.optionId,
+      text: opt.text,
+      normalized: opt.text?.trim().toLowerCase()
+    })));
+    
+    console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay?.map(opt => ({
+      id: opt.optionId,
+      text: opt.text,
+      normalized: opt.text?.trim().toLowerCase()
+    })));
   
     if (!correctOptions?.length || !optionsToDisplay?.length) {
-      console.error('[setCorrectMessage] Missing or empty options arrays');
+      console.error('[setCorrectMessage] Arrays empty or undefined:', {
+        correctOptionsLength: correctOptions?.length,
+        optionsToDisplayLength: optionsToDisplay?.length
+      });
       return 'No correct answers found for the current question.';
     }
   
     const correctOptionIndices = correctOptions.map((correctOption) => {
-      // Try matching by optionId first
-      let matchIndex = optionsToDisplay.findIndex(
-        (option) => option.optionId && correctOption.optionId && 
-        option.optionId === correctOption.optionId
-      );
+      // Debug each comparison attempt
+      console.log('\nTrying to match correct option:', {
+        id: correctOption.optionId,
+        text: correctOption.text,
+        normalized: correctOption.text?.trim().toLowerCase()
+      });
   
-      // If no match by ID, try matching by normalized text
-      if (matchIndex === -1) {
-        matchIndex = optionsToDisplay.findIndex(
-          (option) => option.text?.trim().toLowerCase() === correctOption.text?.trim().toLowerCase()
+      // Try exact ID match first
+      if (correctOption.optionId) {
+        const idMatch = optionsToDisplay.findIndex(
+          option => option.optionId === correctOption.optionId
         );
+        if (idMatch !== -1) {
+          console.log('Found match by ID at index:', idMatch);
+          return idMatch + 1;
+        }
       }
   
-      if (matchIndex === -1) {
-        console.warn(`[setCorrectMessage] No match found for correct option:`, 
-          JSON.stringify(correctOption));
+      // Try text match
+      const textMatch = optionsToDisplay.findIndex(option => {
+        const match = option.text?.trim().toLowerCase() === correctOption.text?.trim().toLowerCase();
+        console.log('Comparing:', {
+          correctText: correctOption.text?.trim().toLowerCase(),
+          optionText: option.text?.trim().toLowerCase(),
+          matches: match
+        });
+        return match;
+      });
+  
+      if (textMatch === -1) {
+        console.warn('No match found for option:', correctOption);
+      } else {
+        console.log('Found match by text at index:', textMatch);
       }
   
-      return matchIndex !== -1 ? matchIndex + 1 : undefined;
+      return textMatch !== -1 ? textMatch + 1 : undefined;
     });
   
-    console.log('[setCorrectMessage] Mapped indices:', correctOptionIndices);
-  
     const uniqueIndices = [...new Set(correctOptionIndices.filter(Boolean))].sort((a, b) => a - b);
-    console.log('[setCorrectMessage] Unique sorted indices:', uniqueIndices);
+    console.log('[setCorrectMessage] Final indices:', uniqueIndices);
   
     if (!uniqueIndices.length) {
-      console.error('[setCorrectMessage] No valid matches found');
+      console.error('[setCorrectMessage] No valid matches found after all attempts');
       return 'No correct answers found for the current question.';
     }
   
@@ -406,6 +441,8 @@ export class FeedbackService {
       ? uniqueIndices.slice(0, -1).join(', ') + ' and ' + uniqueIndices.slice(-1)
       : `${uniqueIndices[0]}`;
   
-    return `The correct ${optionsText} ${optionStrings}.`;
+    const result = `The correct ${optionsText} ${optionStrings}.`;
+    console.log('[setCorrectMessage] END with result:', result);
+    return result;
   }
 }
