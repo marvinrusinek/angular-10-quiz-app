@@ -33,7 +33,7 @@ export class FeedbackService {
 
   setCorrectMessage(optionsToDisplay: Option[]): string {
     if (!optionsToDisplay?.length) {
-      console.warn('Options not loaded yet');
+      console.warn('Options not loaded yet.');
       return '';
     }
   
@@ -41,7 +41,7 @@ export class FeedbackService {
       const validOptions = optionsToDisplay.filter(this.isValidOption);
   
       if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded');
+        console.warn('Some options are not fully loaded.');
         return '';
       }
   
@@ -49,9 +49,6 @@ export class FeedbackService {
         .map((option, index) => option.correct ? index + 1 : undefined)
         .filter((index): index is number => index !== undefined)
         .sort((a, b) => a - b);
-  
-      console.log('Found correct indices:', indices);
-  
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
