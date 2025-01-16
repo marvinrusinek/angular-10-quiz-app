@@ -1331,9 +1331,7 @@ export class QuizQuestionComponent
       const explanationTextPromise = this.prepareAndSetExplanationText(
         this.currentQuestionIndex
       );
-      const feedbackTextPromise = this.generateFeedbackText(
-        this.currentQuestion
-      );
+      const feedbackTextPromise = this.generateFeedbackText();
 
       // Fetch both texts in parallel
       const [explanationText, feedbackText] = await Promise.all([
