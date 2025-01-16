@@ -31,26 +31,32 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(optionsToDisplay: Option[]): string | null {
+  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    console.log('=== setCorrectMessage START ===');
+    console.log('Input optionsToDisplay:', optionsToDisplay);
+  
     if (!optionsToDisplay?.length) {
-      console.warn('Options not loaded yet.');
-      return null;
+      console.warn('Options not loaded yet');
+      return '';
     }
   
     try {
-      const validOptions = optionsToDisplay.filter(this.isValidOption);
+      const validOptions = optionsToDisplay.filter(this.isValidOption.bind(this));
+  
       if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded.');
-        return null;
+        console.warn('Some options are not fully loaded');
+        return '';
       }
   
       const indices = validOptions
-        .map((option, index) => (option.correct ? index + 1 : null))
-        .filter((index): index is number => index !== null)
+        .map((option, index) => option.correct ? index + 1 : undefined)
+        .filter((index): index is number => index !== undefined)
         .sort((a, b) => a - b);
   
+      console.log('Found correct indices:', indices);
+  
       if (!indices.length) {
-        console.warn('No correct indices found.');
+        console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
       }
   
@@ -60,10 +66,11 @@ export class FeedbackService {
   
     } catch (error) {
       console.error('Error generating feedback:', error);
-      return null;
+      return '';
     }
   }
   
+  // Helper functions
   private isValidOption(option: any): option is Option {
     return option && typeof option === 'object' && 'text' in option && 'correct' in option;
   }
