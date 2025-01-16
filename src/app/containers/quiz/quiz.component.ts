@@ -1431,13 +1431,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure optionId is a number: use existing number or fallback to index-based generation
       optionId: typeof option.optionId === 'number' 
         ? option.optionId
-        : optionIndex + 1, // Fallback to 1-based index
+        : optionIndex + 1 // Fallback to 1-based index
     }));
 
-    // Check if correct answers are available for the question
-    this.shouldDisplayCorrectAnswers = question.options.some(opt => opt.correct);
-    if (!this.shouldDisplayCorrectAnswers) {
-      console.warn('[loadQuestionByRouteIndex] No correct answers defined for this question:', question);
+    // Check for correct answers in optionsToDisplay
+    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+    console.log('[loadQuestionByRouteIndex] Correct options:', correctOptions);
+
+    if (!correctOptions.length) {
+      console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
     }
 
     // Apply feedback after ensuring options are initialized
