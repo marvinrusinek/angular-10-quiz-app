@@ -68,7 +68,7 @@ export class FeedbackService {
   
     return `The correct ${optionsText} ${optionStrings}.`;
   } */
-  setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  setCorrectMessage(optionsToDisplay: Option[]): string {
     console.log('=== setCorrectMessage START ===');
     console.log('Input optionsToDisplay:', optionsToDisplay);
   
