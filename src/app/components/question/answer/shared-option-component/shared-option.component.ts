@@ -205,7 +205,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
       // Update bindings or notify child components about state changes
       if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-        this.optionBindings = this.optionsToDisplay.map((option) => ({
+        this.optionBindings = this.optionsToDisplay.map((option, index) => ({
           type: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'multiple' : 'single', // Set the type
           option: option,
           feedback: option.feedback || 'No feedback available.', // Set feedback
@@ -217,6 +217,14 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           allOptions: [...this.optionsToDisplay], // Include all options
           appHighlightInputType: this.currentQuestion?.type === QuestionType.MultipleAnswer ? 'checkbox' : 'radio', // Input type
           appHighlightReset: false, // Default to false
+          showFeedbackForOption: { [index]: false }, // Default to false
+          highlightCorrectAfterIncorrect: false, // Default to false
+          appResetBackground: false, // Default to false
+          optionsToDisplay: this.optionsToDisplay, // Include optionsToDisplay
+          checked: !!option.selected, // Use `selected` for `checked`
+          change: () => this.optionChanged.emit(option),
+          disabled: false, // Default to false, or derive from `option` if applicable
+          ariaLabel: option.text || 'Option'
         }));
   
         console.log('[refreshUIStates] Option bindings updated:', this.optionBindings);
