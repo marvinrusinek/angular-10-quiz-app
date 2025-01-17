@@ -1731,20 +1731,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   } 
 
-  /* private prepareFeedback(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[prepareFeedback] No options available to prepare feedback.');
-      return;
-    }
-
-    this.showFeedback = true;
-
-    this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-
-    // Trigger change detection to update UI
-    this.cdRef.detectChanges();
-    console.log('[prepareFeedback] Feedback prepared and displayed for options:', this.optionsToDisplay);
-  } */
   private prepareFeedback(): void {
     console.log('[prepareFeedback] Triggered.');
   
