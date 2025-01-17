@@ -1677,59 +1677,67 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Log received questionData
     console.log('Initializing question with data:', this.data);
   
-    // Subscribe to current options
-    this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
-      if (!options || options.length === 0) {
-        console.error('No options received. Ensure data flow is correct.');
-        return;
-      }
+    // Subscribe to current options with filter and take
+    this.quizStateService.currentOptions$
+      .pipe(
+        filter((options: Option[]) => options && options.length > 0), // Only process non-empty options
+        take(1) // Automatically unsubscribe after the first valid emission
+      )
+      .subscribe({
+        next: (options: Option[]) => {
+          console.log('Received options from currentOptions$:', options);
   
-      console.log('Received options from currentOptions$:', options);
+          // Create currentQuestion object
+          const currentQuestion: QuizQuestion = {
+            questionText: this.data.questionText,
+            options: options.map((option) => ({
+              ...option,
+              correct: option.correct ?? false, // Default to false if `correct` is undefined
+            })),
+            explanation: this.explanationTextService.formattedExplanationSubject.getValue(),
+            type: this.quizDataService.questionType as QuestionType,
+          };
+          this.question = currentQuestion;
   
-      // Create currentQuestion object
-      const currentQuestion: QuizQuestion = {
-        questionText: this.data.questionText,
-        options: options.map((option) => ({
-          ...option,
-          correct: option.correct ?? false, // Default to false if `correct` is undefined
-        })),
-        explanation: this.explanationTextService.formattedExplanationSubject.getValue(),
-        type: this.quizDataService.questionType as QuestionType,
-      };
-      this.question = currentQuestion;
+          // Filter correct answers
+          const correctAnswerOptions = currentQuestion.options.filter(
+            (option: Option) => option.correct
+          );
   
-      // Filter correct answers
-      const correctAnswerOptions = currentQuestion.options.filter(
-        (option: Option) => option.correct
-      );
+          if (correctAnswerOptions.length === 0) {
+            console.error(
+              `No correct options found for question: "${currentQuestion.questionText}". Options:`,
+              currentQuestion.options
+            );
+            return; // Exit early to avoid setting invalid correct answers
+          }
   
-      if (correctAnswerOptions.length === 0) {
-        console.error(
-          `No correct options found for question: "${currentQuestion.questionText}". Options:`,
-          currentQuestion.options
-        );
-        return; // Exit early to avoid setting invalid correct answers
-      }
+          // Set correct answers if valid options are found
+          this.quizService
+            .setCorrectAnswers(currentQuestion, correctAnswerOptions)
+            .subscribe({
+              next: () => {
+                this.prepareFeedback();
+              },
+              error: (err) => {
+                console.error('Error setting correct answers:', err);
+              },
+            });
   
-      // Set correct answers if valid options are found
-      this.quizService
-        .setCorrectAnswers(currentQuestion, correctAnswerOptions)
-        .subscribe({
-          next: () => {
-            this.prepareFeedback();
-          },
-          error: (err) => {
-            console.error('Error setting correct answers:', err);
-          },
-        });
+          // Mark correct answers as loaded
+          this.quizService.setCorrectAnswersLoaded(true);
+          this.quizService.correctAnswersLoadedSubject.next(true);
   
-      // Mark correct answers as loaded
-      this.quizService.setCorrectAnswersLoaded(true);
-      this.quizService.correctAnswersLoadedSubject.next(true);
-  
-      console.log('Correct Answer Options:', correctAnswerOptions);
-    });
-  } 
+          console.log('Correct Answer Options:', correctAnswerOptions);
+        },
+        error: (err) => {
+          console.error('Error subscribing to currentOptions$:', err);
+        },
+        complete: () => {
+          console.log('Subscription to currentOptions$ completed after first valid emission.');
+        },
+      });
+  }
 
   private prepareFeedback(): void {
     console.log('[prepareFeedback] Triggered.');
