@@ -1756,7 +1756,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       // Apply feedback to options through QuizQuestionComponent
-      this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
+      this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
       this.showFeedback = true; // Enable feedback display
   
       // Trigger change detection to update the UI
