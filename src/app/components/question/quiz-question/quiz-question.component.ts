@@ -1064,7 +1064,7 @@ export class QuizQuestionComponent
     }
   }
 
-  public async loadQuestion(signal?: AbortSignal): Promise<void> {
+  /* public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     this.resetQuestionStateBeforeNavigation();
     this.resetExplanation();
     this.resetTexts();
@@ -1143,7 +1143,91 @@ export class QuizQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
     }
-  }
+  } */
+  public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    this.resetQuestionStateBeforeNavigation();
+    this.resetExplanation();
+    this.resetTexts();
+  
+    this.isLoading = true;
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setAnswered(false);
+  
+    this.timerService.startTimer(this.timerService.timePerQuestion, true);
+  
+    // Clear previous data
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+    this.feedbackText = '';
+  
+    this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
+    this.forceQuestionDisplay = true; // Reset to enforce question text by default
+    this.readyForExplanationDisplay = false;
+    this.isExplanationReady = false; // Prevent explanation until allowed
+    this.isExplanationLocked = true; // Block explanation display until user interaction
+    this.currentExplanationText = '';
+    this.ensureQuestionTextDisplay();
+    console.log(
+      `Initialized question ${this.currentQuestionIndex} to default question text.`
+    );
+  
+    try {
+      // Ensure a valid quiz ID is available
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) throw new Error('No active quiz ID found');
+  
+      // Fetch the current question by index
+      this.currentQuestion = await firstValueFrom(
+        this.quizService.getCurrentQuestionByIndex(
+          quizId,
+          this.currentQuestionIndex
+        )
+      );
+  
+      if (!this.currentQuestion) {
+        this.optionsToDisplay = [];
+        throw new Error(
+          `No question found for index ${this.currentQuestionIndex}`
+        );
+      }
+  
+      // Assign optionIds if missing
+      this.currentQuestion.options = this.quizService.assignOptionIds(
+        this.currentQuestion?.options ?? []
+      );
+  
+      // Set the options to display for the current question
+      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        ...option,
+        active: true, // Default all options to active initially
+        feedback: undefined, // Reset feedback
+        showIcon: false, // Reset icons
+      })) || [];
+  
+      // Abort handling
+      if (signal?.aborted) {
+        console.log('Load question operation aborted.');
+        this.timerService.stopTimer();
+        return false;
+      }
+  
+      // Display explanation only if the question is answered
+      await this.handleExplanationDisplay();
+  
+      // Update the selection message
+      this.updateSelectionMessage(false);
+  
+      // Successfully loaded the question
+      return true;
+    } catch (error) {
+      console.error('Error loading question:', error);
+      this.feedbackText = 'Error loading question. Please try again.';
+      return false;
+    } finally {
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
+    }
+  }  
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
