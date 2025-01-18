@@ -380,6 +380,14 @@ export class QuizQuestionComponent
           this.renderDisplay();
         } else {
           console.error('[onVisibilityChange] Current question is missing and could not be restored.');
+          this.loadCurrentQuestion().then((loaded) => {
+            if (loaded) {
+              this.restoreFeedbackState();
+              this.renderDisplay();
+            } else {
+              console.error('[onVisibilityChange] Failed to reload current question.');
+            }
+          });
         }
       }
     } catch (error) {
