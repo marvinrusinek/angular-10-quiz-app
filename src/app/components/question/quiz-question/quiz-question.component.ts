@@ -369,29 +369,29 @@ export class QuizQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
-      try {
-          if (document.visibilityState === 'visible') {
-              console.log('[onVisibilityChange] Tab is visible. Restoring states...');
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
               
-              // First restore the quiz state
-              this.restoreQuizState();
+        // First restore the quiz state
+        this.restoreQuizState();
 
-              // Then handle question and options restoration
-              if (!this.currentQuestion) {
-                  console.warn('[onVisibilityChange] Current question is missing. Reloading...');
-                  this.reloadCurrentQuestion().then(() => {
-                      this.restoreFeedbackState();
-                      this.renderDisplay();
-                  });
-              } else {
-                  console.log('[onVisibilityChange] Current question exists, restoring options...');
-                  this.restoreFeedbackState();
-                  this.renderDisplay();
-              }
-          }
-      } catch (error) {
-          console.error('[onVisibilityChange] Error during state restoration:', error);
+        // Then handle question and options restoration
+        if (!this.currentQuestion) {
+          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
+          this.reloadCurrentQuestion().then(() => {
+            this.restoreFeedbackState();
+            this.renderDisplay();
+          });
+        } else {
+          console.log('[onVisibilityChange] Current question exists, restoring options...');
+          this.restoreFeedbackState();
+          this.renderDisplay();
+        }
       }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
   }
 
   private setOptionsToDisplay(): void {
