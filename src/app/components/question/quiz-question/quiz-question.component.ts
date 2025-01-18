@@ -1972,42 +1972,6 @@ export class QuizQuestionComponent
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
   }
-  /* private restoreFeedbackState(): void {
-    try {
-        if (!this.optionsToDisplay?.length) {
-            console.warn('[restoreFeedbackState] No options to restore feedback for.');
-            return;
-        }
-
-        const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
-        
-        this.optionsToDisplay = this.optionsToDisplay.map(option => {
-            const isSelected = this.selectedOptionService.isSelectedOption(option);
-            return {
-                ...option,
-                feedback: isAnswered ? (option.correct ? undefined : 'x') : undefined,
-                showIcon: isAnswered && (option.correct || isSelected),
-                active: !isAnswered || option.correct
-            };
-        });
-
-        // Update feedback visibility states
-        if (isAnswered) {
-            this.showFeedback = true;
-            this.optionsToDisplay.forEach(option => {
-                this.showFeedbackForOption[option.optionId] = 
-                    option.correct || this.selectedOptionService.isSelectedOption(option);
-            });
-        }
-
-        console.log('[restoreFeedbackState] Feedback state restored:', {
-            optionsToDisplay: this.optionsToDisplay,
-            showFeedbackForOption: this.showFeedbackForOption
-        });
-    } catch (error) {
-        console.error('[restoreFeedbackState] Error restoring feedback state:', error);
-    }
-  } */
 
   private generateFeedbackForOption(option: Option): string {
     if (option.correct) {
