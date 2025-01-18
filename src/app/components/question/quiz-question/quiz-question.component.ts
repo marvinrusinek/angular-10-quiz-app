@@ -375,7 +375,14 @@ export class QuizQuestionComponent
         this.restoreQuizState();
 
         // Then handle question and options restoration
-        if (!this.currentQuestion) {
+        if (this.currentQuestion) {
+          this.restoreFeedbackState();
+          this.renderDisplay();
+        } else {
+          console.error('[onVisibilityChange] Current question is missing and could not be restored.');
+        }
+
+        /* if (!this.currentQuestion) {
           this.reloadCurrentQuestion().then(() => {
             if (this.currentQuestion) {
               this.restoreFeedbackState();
@@ -387,7 +394,7 @@ export class QuizQuestionComponent
         } else {
           this.restoreFeedbackState();
           this.renderDisplay();
-        }
+        } */
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
