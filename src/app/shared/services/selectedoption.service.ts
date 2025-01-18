@@ -446,6 +446,8 @@ export class SelectedOptionService {
         if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
           if (this.selectedOptionsMap.size === 0) {
             console.warn('[updateAnsweredState] selectedOptionsMap is empty. Using default options.');
+          } else if (!this.selectedOptionsMap.has(questionIndex)) {
+            console.warn(`[updateAnsweredState] No entry in selectedOptionsMap for questionIndex: ${questionIndex}. Using default options.`);
           }
           questionOptions = this.getDefaultOptions();
         }
@@ -476,7 +478,7 @@ export class SelectedOptionService {
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
-  }
+  }  
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
