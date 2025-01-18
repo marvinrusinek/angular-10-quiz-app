@@ -31,7 +31,7 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
@@ -65,7 +65,46 @@ export class FeedbackService {
       console.error('Error generating feedback:', error);
       return '';  // Return empty string on error
     }
+  } */
+  setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    if (!correctOptions?.length) {
+      console.warn('[setCorrectMessage] Correct options not provided.');
+      return 'No correct answers available.';
+    }
+  
+    if (!optionsToDisplay?.length) {
+      console.warn('[setCorrectMessage] Options not loaded yet.');
+      return 'No options available.';
+    }
+  
+    try {
+      console.log('[setCorrectMessage] correctOptions:', correctOptions);
+      console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
+  
+      // Match correctOptions against optionsToDisplay to find correct indices
+      const indices = correctOptions
+        .map((correctOption) => {
+          const index = optionsToDisplay.findIndex(
+            (option) => option.optionId === correctOption.optionId
+          );
+          return index >= 0 ? index + 1 : null;
+        })
+        .filter((index) => index !== null)
+        .sort((a, b) => a - b);
+  
+      if (!indices.length) {
+        console.warn('[setCorrectMessage] No matching correct options found.');
+        return 'No correct answers found for the current question.';
+      }
+  
+      const result = this.formatFeedbackMessage(indices);
+      return result;
+    } catch (error) {
+      console.error('[setCorrectMessage] Error generating feedback:', error);
+      return 'Unable to determine feedback.';
+    }
   }
+  
 
   // Helper functions
   private isValidOption(option: any): option is Option {
