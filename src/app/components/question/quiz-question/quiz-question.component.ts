@@ -1063,7 +1063,7 @@ export class QuizQuestionComponent
       this.selectionMessage = newMessage;
     }
   }
-  
+
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     this.resetQuestionStateBeforeNavigation();
     this.resetExplanation();
@@ -1087,9 +1087,6 @@ export class QuizQuestionComponent
     this.isExplanationLocked = true; // Block explanation display until user interaction
     this.currentExplanationText = '';
     this.ensureQuestionTextDisplay();
-    console.log(
-      `Initialized question ${this.currentQuestionIndex} to default question text.`
-    );
   
     try {
       // Ensure a valid quiz ID is available
