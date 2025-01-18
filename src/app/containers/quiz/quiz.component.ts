@@ -975,8 +975,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     try {
-      console.log('Fetching quiz data for quizId::>>', this.quizId);
-
       // Fetch quiz data using quizId
       const quiz = await firstValueFrom(
         this.quizDataService.getQuiz(this.quizId).pipe(take(1), takeUntil(this.destroy$))
