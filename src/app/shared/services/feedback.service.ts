@@ -68,7 +68,7 @@ export class FeedbackService {
   }
 
   // Helper functions
-  private isValidOption(option: any): option is Option {
+  private isValidOption(option: Option): option is Option {
     return option && typeof option === 'object' && 'text' in option && 'correct' in option;
   }
   
