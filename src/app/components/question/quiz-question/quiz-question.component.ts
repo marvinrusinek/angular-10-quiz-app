@@ -833,7 +833,6 @@ export class QuizQuestionComponent
     }
   
     const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-    console.log('[applyOptionFeedbackToAllOptions] Feedback list:', feedbackList);
   
     // Apply feedback only to the selected option
     this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
@@ -841,14 +840,9 @@ export class QuizQuestionComponent
       feedback: option.selected
         ? (feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
         : null, // Feedback only for selected options
-      /* feedback: option.selected
-        ? feedbackList[optionIndex] || 'No feedback available.'
-        : null, */
       showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
       highlight: option.selected // Highlight only the selected option
     }));
-  
-    console.log('[applyOptionFeedbackToAllOptions] Updated options with feedback:', this.optionsToDisplay);
   }
   
   // Conditional method to update the explanation only if the question is answered
