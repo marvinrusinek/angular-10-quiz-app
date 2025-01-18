@@ -1111,8 +1111,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           // Generate feedback for each option
           option.feedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
   
-          console.log(`[initializeOptionBindings] Generated feedback for option ${option.optionId}:`, option.feedback);
-  
           // Return the created option binding
           return optionBinding;
         });
