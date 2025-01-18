@@ -1248,48 +1248,54 @@ export class QuizQuestionComponent
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
-    const questionsLoaded = await this.ensureQuestionsLoaded();
-    if (!questionsLoaded) return false;
-
+    // Validate current question index
     if (
-      this.currentQuestionIndex >= 0 &&
-      this.currentQuestionIndex < this.questions.length
+      this.currentQuestionIndex < 0 ||
+      this.currentQuestionIndex >= this.questions.length
     ) {
-      try {
-        const questionData = await firstValueFrom(
-          this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-        );
-        if (questionData) {
-          // Assign unique IDs to options for consistent identification
-          questionData.options = this.quizService.assignOptionIds(
-            questionData.options
-          );
-
-          // Set the initial active states for options (default: all active)
-          questionData.options = this.quizService.assignOptionActiveStates(
-            questionData.options,
-            false
-          );
-
-          this.currentQuestion = questionData;
-          this.optionsToDisplay = questionData.options;
-          console.log(`Loaded data for Question ${this.currentQuestionIndex}`);
-          return true;
-        } else {
-          console.error(
-            `Question data not found for index: ${this.currentQuestionIndex}`
-          );
-          return false;
-        }
-      } catch (error) {
-        console.error('Error fetching question data:', error);
-        return false;
-      }
-    } else {
-      console.error(`Invalid question index: ${this.currentQuestionIndex}`);
+      console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
       return false;
     }
-  }
+  
+    // Ensure questions are loaded
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) {
+      console.error('[loadCurrentQuestion] Failed to load questions.');
+      return false;
+    }
+  
+    try {
+      // Fetch question data
+      const questionData = await firstValueFrom(
+        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+      );
+  
+      if (questionData) {
+        console.log(`[loadCurrentQuestion] Loaded data for question index: ${this.currentQuestionIndex}`);
+        
+        // Assign unique IDs to options for consistent identification
+        questionData.options = this.quizService.assignOptionIds(questionData.options);
+  
+        // Set the initial active states for options (default: all active)
+        questionData.options = this.quizService.assignOptionActiveStates(
+          questionData.options,
+          false
+        );
+  
+        // Set current question and options
+        this.currentQuestion = questionData;
+        this.optionsToDisplay = questionData.options ?? [];
+        console.log(`[loadCurrentQuestion] Options to display:`, this.optionsToDisplay);
+        return true;
+      } else {
+        console.error(`[loadCurrentQuestion] No data found for question index: ${this.currentQuestionIndex}`);
+        return false;
+      }
+    } catch (error) {
+      console.error('[loadCurrentQuestion] Error fetching question data:', error);
+      return false;
+    }
+  }  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
