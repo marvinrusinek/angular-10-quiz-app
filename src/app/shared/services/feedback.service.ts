@@ -78,10 +78,6 @@ export class FeedbackService {
     }
   
     try {
-      console.log('[setCorrectMessage] correctOptions:', correctOptions);
-      console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
-  
-      // Match correctOptions against optionsToDisplay to find correct indices
       const indices = correctOptions
         .map((correctOption) => {
           const index = optionsToDisplay.findIndex(
@@ -90,7 +86,7 @@ export class FeedbackService {
           return index >= 0 ? index + 1 : null;
         })
         .filter((index) => index !== null)
-        .sort((a, b) => a - b);
+        .sort((a, b) => a! - b!);
   
       if (!indices.length) {
         console.warn('[setCorrectMessage] No matching correct options found.');
@@ -98,6 +94,7 @@ export class FeedbackService {
       }
   
       const result = this.formatFeedbackMessage(indices);
+      console.log('[setCorrectMessage] Generated feedback:', result);
       return result;
     } catch (error) {
       console.error('[setCorrectMessage] Error generating feedback:', error);
