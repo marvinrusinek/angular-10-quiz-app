@@ -372,7 +372,7 @@ export class QuizQuestionComponent
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-              
+        
         // First restore the quiz state
         this.restoreQuizState();
 
@@ -380,8 +380,12 @@ export class QuizQuestionComponent
         if (!this.currentQuestion) {
           console.warn('[onVisibilityChange] Current question is missing. Reloading...');
           this.reloadCurrentQuestion().then(() => {
-            this.restoreFeedbackState();
-            this.renderDisplay();
+            if (this.currentQuestion) {
+              this.restoreFeedbackState();
+              this.renderDisplay();
+            } else {
+              console.error('[onVisibilityChange] Failed to reload current question.');
+            }
           });
         } else {
           console.log('[onVisibilityChange] Current question exists, restoring options...');
