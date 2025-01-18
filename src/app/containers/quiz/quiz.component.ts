@@ -908,11 +908,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /*************** Shuffle and initialize questions ******************/
   private initializeQuestions(): void {
     this.questions = this.quizService.getShuffledQuestions();
+  
+    if (!this.questions || this.questions.length === 0) {
+      console.error('[initializeQuestions] No questions received.');
+      return;
+    }
+  
     console.log(
       'Shuffled questions received in component:',
       this.questions.map((q) => q.questionText)
     );
-  }
+  }  
 
   /*************** ngOnInit barrel functions ******************/
   private initializeRouteParameters(): void {
