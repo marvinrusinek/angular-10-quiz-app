@@ -39,7 +39,7 @@ export class FeedbackService {
     
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
-      console.warn('Options not loaded yet');
+      console.warn('[setCorrectMessage] Options not loaded yet. Retrying...');
       return '';  // Return empty string instead of error message
     }
   
