@@ -1968,8 +1968,6 @@ export class QuizQuestionComponent
         feedback: option.feedback || this.generateFeedbackForOption(option), // Restore or regenerate feedback
         showIcon: option.correct || option.showIcon // Ensure icons are displayed for correct options
       }));
-  
-      console.log('[restoreFeedbackState] Restored options with feedback:', this.optionsToDisplay);
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
