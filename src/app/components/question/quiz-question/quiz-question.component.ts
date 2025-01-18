@@ -429,9 +429,6 @@ export class QuizQuestionComponent
       // Display explanation text only if mode is 'explanation' and the question is answered
       this.setExplanationText(); // Set the explanation text before displaying
       this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
-      console.log(
-        `[renderDisplay] Displaying explanation text for question ${this.currentQuestionIndex}`
-      );
     } else {
       // Fallback to displaying question text in all other cases
       this.ensureQuestionTextDisplay();
