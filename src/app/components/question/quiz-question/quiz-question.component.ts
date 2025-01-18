@@ -713,8 +713,6 @@ export class QuizQuestionComponent
   
       // Apply feedback to all options immediately after loading
       this.applyOptionFeedbackToAllOptions();
-  
-      console.log('[loadOptionsForQuestion] Options loaded with feedback:', this.optionsToDisplay);
     } else {
       console.warn('No options found for the question:', question);
       this.optionsToDisplay = [];
