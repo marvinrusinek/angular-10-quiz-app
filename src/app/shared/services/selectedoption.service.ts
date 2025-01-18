@@ -478,7 +478,8 @@ export class SelectedOptionService {
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
-  }  
+  }
+  
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
