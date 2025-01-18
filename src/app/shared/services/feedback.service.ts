@@ -31,7 +31,7 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(optionsToDisplay: Option[]): string {
+  setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
