@@ -255,7 +255,7 @@ export class QuizQuestionComponent
       );
 
       // Initial component setups
-      this.initializeComponent();
+      await this.initializeComponent();
       this.initializeComponentState();
 
       // Initialize quiz data and routing
@@ -944,16 +944,24 @@ export class QuizQuestionComponent
     );
   }
 
-  private initializeComponent(): void {
-    // Load the first question or current question
-    this.loadQuestion();
-
-    // Set the initial message for the first question
-    if (this.currentQuestionIndex === 0) {
-      this.setInitialMessage();
+  private async initializeComponent(): Promise<void> {
+    try {
+      // Load the first or current question
+      const loaded = await this.loadQuestion();
+      if (!loaded) {
+        console.error('[initializeComponent] Failed to load the initial question.');
+        return;
+      }
+  
+      // Set the initial message for the first question
+      if (this.currentQuestionIndex === 0) {
+        this.setInitialMessage();
+      }
+    } catch (error) {
+      console.error('[initializeComponent] Error during initialization:', error);
     }
   }
-
+  
   async loadDynamicComponent(): Promise<void> {
     try {
       if (!this.dynamicAnswerContainer) {
