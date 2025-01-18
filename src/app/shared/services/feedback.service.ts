@@ -81,7 +81,6 @@ export class FeedbackService {
       console.log('[setCorrectMessage] correctOptions:', JSON.stringify(correctOptions, null, 2));
       console.log('[setCorrectMessage] optionsToDisplay:', JSON.stringify(optionsToDisplay, null, 2));
   
-      // Match correct options using optionId
       const indices = correctOptions
         .map((correctOption) => {
           const index = optionsToDisplay.findIndex(
@@ -89,7 +88,7 @@ export class FeedbackService {
           );
           if (index === -1) {
             console.warn(
-              `[setCorrectMessage] No match found for correct optionId ${correctOption.optionId} in optionsToDisplay.`
+              `[setCorrectMessage] Correct optionId ${correctOption.optionId} not found in optionsToDisplay.`
             );
           }
           return index >= 0 ? index + 1 : null; // Convert to 1-based index
@@ -102,7 +101,6 @@ export class FeedbackService {
         return 'No correct answers found for the current question.';
       }
   
-      // Generate feedback
       const result = this.formatFeedbackMessage(indices);
       console.log('[setCorrectMessage] Generated feedback:', result);
       return result;
