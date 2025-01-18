@@ -19,7 +19,7 @@ export class FeedbackService {
     }
   
     // Use logic from setCorrectMessage or directly here
-    const correctMessage = this.setCorrectMessage(optionsToDisplay);
+    const correctMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
     if (!correctMessage || correctMessage.trim() === '') {
       console.warn(
@@ -67,48 +67,50 @@ export class FeedbackService {
     }
   } */
   setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    // Ensure options are loaded
     if (!optionsToDisplay?.length) {
       console.warn('[setCorrectMessage] Options not loaded yet.');
-      return ''; // Return empty string to wait for valid data
+      return 'No options available.';
     }
   
-    // Ensure correct options are provided
     if (!correctOptions?.length) {
-      console.warn('[setCorrectMessage] Correct options not provided or empty.');
-      return 'No correct answers available for the current question.';
+      console.warn('[setCorrectMessage] Correct options not provided.');
+      return 'No correct answers available.';
     }
   
     try {
-      // Validate options in optionsToDisplay
-      const validOptions = optionsToDisplay.filter(this.isValidOption);
-  
+      // Validate options
+      const validOptions = optionsToDisplay.filter((option) => this.isValidOption(option));
       if (validOptions.length !== optionsToDisplay.length) {
         console.warn('[setCorrectMessage] Some options are not fully loaded.');
-        return ''; // Return empty string to wait for valid data
+        return 'Incomplete options. Unable to generate feedback.';
       }
   
-      // Get indices of correct answers (1-based) using correctOptions
+      // Match correct options to optionsToDisplay
       const indices = correctOptions
         .map((correctOption) => {
-          const index = validOptions.findIndex(option => option.id === correctOption.id);
+          const index = validOptions.findIndex((option) => option.optionId === correctOption.optionId);
+          if (index === -1) {
+            console.warn(
+              `[setCorrectMessage] Correct option ID ${correctOption.optionId} not found in optionsToDisplay.`
+            );
+          }
           return index >= 0 ? index + 1 : null; // Convert to 1-based index
         })
-        .filter((index) => index !== null) // Remove nulls (not found)
-        .sort((a, b) => a! - b!); // Sort indices
+        .filter((index) => index !== null) // Remove null indices
+        .sort((a, b) => a! - b!);
   
       if (!indices.length) {
-        console.warn('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
+        console.warn('[setCorrectMessage] No matching correct options found.');
         return 'No correct answers found for the current question.';
       }
   
-      // Generate feedback message
+      // Generate feedback
       const result = this.formatFeedbackMessage(indices);
       console.log('[setCorrectMessage] Generated feedback:', result);
       return result;
     } catch (error) {
       console.error('[setCorrectMessage] Error generating feedback:', error);
-      return ''; // Return empty string on error
+      return 'Unable to determine feedback.';
     }
   }  
 
