@@ -31,7 +31,7 @@ export class FeedbackService {
     return correctMessage || 'Feedback generation failed.';
   }
 
-  setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
@@ -65,7 +65,52 @@ export class FeedbackService {
       console.error('Error generating feedback:', error);
       return '';  // Return empty string on error
     }
-  }
+  } */
+  setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    // Ensure options are loaded
+    if (!optionsToDisplay?.length) {
+      console.warn('[setCorrectMessage] Options not loaded yet.');
+      return ''; // Return empty string to wait for valid data
+    }
+  
+    // Ensure correct options are provided
+    if (!correctOptions?.length) {
+      console.warn('[setCorrectMessage] Correct options not provided or empty.');
+      return 'No correct answers available for the current question.';
+    }
+  
+    try {
+      // Validate options in optionsToDisplay
+      const validOptions = optionsToDisplay.filter(this.isValidOption);
+  
+      if (validOptions.length !== optionsToDisplay.length) {
+        console.warn('[setCorrectMessage] Some options are not fully loaded.');
+        return ''; // Return empty string to wait for valid data
+      }
+  
+      // Get indices of correct answers (1-based) using correctOptions
+      const indices = correctOptions
+        .map((correctOption) => {
+          const index = validOptions.findIndex(option => option.id === correctOption.id);
+          return index >= 0 ? index + 1 : null; // Convert to 1-based index
+        })
+        .filter((index) => index !== null) // Remove nulls (not found)
+        .sort((a, b) => a! - b!); // Sort indices
+  
+      if (!indices.length) {
+        console.warn('[setCorrectMessage] No matching correct options found in optionsToDisplay.');
+        return 'No correct answers found for the current question.';
+      }
+  
+      // Generate feedback message
+      const result = this.formatFeedbackMessage(indices);
+      console.log('[setCorrectMessage] Generated feedback:', result);
+      return result;
+    } catch (error) {
+      console.error('[setCorrectMessage] Error generating feedback:', error);
+      return ''; // Return empty string on error
+    }
+  }  
 
   // Helper functions
   private isValidOption(option: any): option is Option {
