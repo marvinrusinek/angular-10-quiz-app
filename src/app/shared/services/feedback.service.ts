@@ -81,36 +81,29 @@ export class FeedbackService {
       console.log('[setCorrectMessage] correctOptions:', JSON.stringify(correctOptions, null, 2));
       console.log('[setCorrectMessage] optionsToDisplay:', JSON.stringify(optionsToDisplay, null, 2));
   
-      const validOptions = optionsToDisplay.filter((option) => this.isValidOption(option));
-      if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('[setCorrectMessage] Some options are not fully loaded.');
-        return 'Incomplete options. Unable to generate feedback.';
-      }
-  
-      const matchedIndices: number[] = [];
-      const seenIds = new Set<string>(); // Track used IDs to prevent duplicates
-  
-      correctOptions.forEach((correctOption) => {
-        const index = validOptions.findIndex(
-          (option) => option.id === correctOption.id && !seenIds.has(option.id)
-        );
-  
-        if (index >= 0) {
-          matchedIndices.push(index + 1); // Convert to 1-based index
-          seenIds.add(correctOption.id); // Mark the ID as used
-        } else {
-          console.warn(
-            `[setCorrectMessage] Correct option ID ${correctOption.id} not found or already matched.`
+      // Match correct options using optionId
+      const indices = correctOptions
+        .map((correctOption) => {
+          const index = optionsToDisplay.findIndex(
+            (option) => option.optionId === correctOption.optionId
           );
-        }
-      });
+          if (index === -1) {
+            console.warn(
+              `[setCorrectMessage] No match found for correct optionId ${correctOption.optionId} in optionsToDisplay.`
+            );
+          }
+          return index >= 0 ? index + 1 : null; // Convert to 1-based index
+        })
+        .filter((index) => index !== null) // Remove unmatched indices
+        .sort((a, b) => a! - b!); // Sort indices
   
-      if (!matchedIndices.length) {
+      if (!indices.length) {
         console.warn('[setCorrectMessage] No matching correct options found.');
         return 'No correct answers found for the current question.';
       }
   
-      const result = this.formatFeedbackMessage(matchedIndices);
+      // Generate feedback
+      const result = this.formatFeedbackMessage(indices);
       console.log('[setCorrectMessage] Generated feedback:', result);
       return result;
     } catch (error) {
@@ -118,6 +111,7 @@ export class FeedbackService {
       return 'Unable to determine feedback.';
     }
   }
+  
   
 
   // Helper functions
