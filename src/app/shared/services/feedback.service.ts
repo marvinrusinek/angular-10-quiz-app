@@ -32,12 +32,6 @@ export class FeedbackService {
   }
 
   setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    // Ensure correctOptions is provided and non-empty
-    if (!correctOptions || !correctOptions.length) {
-      console.warn('[setCorrectMessage] No correct options provided.');
-      return 'No correct answers available.';
-    }
-
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
       console.warn('Options not loaded yet');
