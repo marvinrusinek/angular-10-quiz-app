@@ -91,7 +91,7 @@ export class FeedbackService {
       // Get indices of correct answers (1-based) using correctOptions
       const indices = correctOptions
         .map((correctOption) => {
-          const index = validOptions.findIndex(option => option.id === correctOption.id);
+          const index = validOptions.findIndex(option => option.optionId === correctOption.optionId);
           return index >= 0 ? index + 1 : null; // Convert to 1-based index
         })
         .filter((index) => index !== null) // Remove nulls (not found)
