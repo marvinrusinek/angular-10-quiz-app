@@ -74,8 +74,14 @@ export class FeedbackService {
   }
 
   // Helper functions
-  private isValidOption(option: any): option is Option {
-    return option && typeof option === 'object' && 'text' in option && 'correct' in option;
+  private isValidOption(option: Option): option is Option {
+    return (
+      option &&
+      typeof option === 'object' &&
+      'optionId' in option && typeof option.optionId === 'string' &&
+      'text' in option && typeof option.text === 'string' &&
+      'correct' in option && typeof option.correct === 'boolean'
+    );
   }
   
   private formatFeedbackMessage(indices: number[]): string {
