@@ -91,10 +91,10 @@ export class FeedbackService {
       // Match correct options to optionsToDisplay
       const indices = correctOptions
         .map((correctOption) => {
-          const index = validOptions.findIndex((option) => option.id === correctOption.id);
+          const index = validOptions.findIndex((option) => option.optionId === correctOption.optionId);
           if (index === -1) {
             console.warn(
-              `[setCorrectMessage] Correct option ID ${correctOption.id} not found in optionsToDisplay.`
+              `[setCorrectMessage] Correct option ID ${correctOption.optionId} not found in optionsToDisplay.`
             );
           }
           return index >= 0 ? index + 1 : null; // Convert to 1-based index
