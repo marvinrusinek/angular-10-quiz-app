@@ -444,7 +444,9 @@ export class SelectedOptionService {
   
         questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
         if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-          console.warn('[updateAnsweredState] No options in selectedOptionsMap. Using default options.');
+          if (this.selectedOptionsMap.size === 0) {
+            console.warn('[updateAnsweredState] selectedOptionsMap is empty. Using default options.');
+          }
           questionOptions = this.getDefaultOptions();
         }
       }
