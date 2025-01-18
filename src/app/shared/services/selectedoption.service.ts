@@ -563,7 +563,7 @@ export class SelectedOptionService {
 
     return allCorrectSelected;
   } */
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
     return new Promise((resolve) => {
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
@@ -607,7 +607,52 @@ export class SelectedOptionService {
   
       resolve(allCorrectSelected);
     });
-  }  
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
+        resolve(false);
+        return;
+      }
+  
+      // Ensure all options have a valid `correct` and `optionId` property
+      const validOptions = questionOptions.map((option, index) => ({
+        ...option,
+        correct: option.correct ?? false, // Default `correct` to false if undefined
+        optionId: option.optionId ?? index + 1, // Assign unique `optionId` if missing
+      }));
+  
+      console.log('[areAllCorrectAnswersSelected] Validated Options:', validOptions);
+  
+      // Extract correct option IDs
+      const correctOptionIds = validOptions
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+
+      if (correctOptionIds.length === 0) {
+        console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
+        resolve(false); // No correct options to validate
+        return;
+      }
+  
+      // Retrieve selected options for the current question index
+      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+      const selectedOptionIds = selectedOptions.map((option) => option.optionId);
+  
+      // Validate that all correct options are selected
+      const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
+  
+      console.log('[areAllCorrectAnswersSelected] Validation Details:', {
+        questionIndex,
+        correctOptionIds,
+        selectedOptionIds,
+        allCorrectSelected,
+      });
+  
+      resolve(allCorrectSelected);
+    });
+  }
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
