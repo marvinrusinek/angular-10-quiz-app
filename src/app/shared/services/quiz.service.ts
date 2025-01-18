@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
   firstValueFrom,
+  from,
   Observable,
   of,
   Subject,
@@ -1653,8 +1654,9 @@ export class QuizService implements OnDestroy {
       });
   }
 
-  getShuffledQuestions(): QuizQuestion[] {
-    return this.shuffledQuestions;
+  getShuffledQuestions(): Observable<QuizQuestion[]> {
+    const questionsPromise: Promise<QuizQuestion[]> = this.fetchQuizQuestions(this.quizId);
+    return from(questionsPromise); // Convert the promise to an observable
   }
 
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
