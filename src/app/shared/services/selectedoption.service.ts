@@ -428,7 +428,7 @@ export class SelectedOptionService {
     }
   }
   
-  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+  /* updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
       // Validate inputs
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
@@ -478,7 +478,67 @@ export class SelectedOptionService {
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
-  }
+  } */
+  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+    try {
+      // Validate inputs
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.info('[updateAnsweredState] No options provided. Attempting fallback.');
+  
+        if (questionIndex < 0) {
+          questionIndex = this.getFallbackQuestionIndex();
+          if (questionIndex < 0) {
+            console.error('[updateAnsweredState] Invalid fallback question index:', questionIndex);
+            return;
+          }
+        }
+  
+        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+          if (this.selectedOptionsMap.size === 0) {
+            console.info('[updateAnsweredState] selectedOptionsMap is empty. Using default options without warning.');
+          } else if (!this.selectedOptionsMap.has(questionIndex)) {
+            console.warn(`[updateAnsweredState] No entry for questionIndex: ${questionIndex}. Using default options.`);
+          }
+          questionOptions = this.getDefaultOptions();
+        }
+      }
+  
+      // Final validation of options
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.error('[updateAnsweredState] Unable to proceed. No valid options available.');
+        return;
+      }
+  
+      // Validate and normalize options
+      const validatedOptions = questionOptions.map((option, index) => ({
+        ...option,
+        correct: option.correct ?? false,
+        optionId: option.optionId ?? index + 1,
+      }));
+  
+      console.log('[updateAnsweredState] Validated Options:', validatedOptions);
+  
+      // Determine answered state
+      const isAnswered = validatedOptions.some((option) => option.selected);
+      this.isAnsweredSubject.next(isAnswered);
+  
+      // Validate if all correct answers are selected
+      this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
+        .then((allCorrectAnswersSelected) => {
+          if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+            console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
+            this.stopTimer$.next();
+            this.stopTimerEmitted = true;
+          }
+        })
+        .catch((error) => {
+          console.error('[updateAnsweredState] Error checking correct answers:', error);
+        });
+    } catch (error) {
+      console.error('[updateAnsweredState] Unhandled error:', error);
+    }
+  }  
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
@@ -505,16 +565,16 @@ export class SelectedOptionService {
       }
   
       // Ensure all options have a valid `correct` and `optionId` property
-      const validOptions = questionOptions.map((option, index) => ({
+      const validatedOptions = questionOptions.map((option, index) => ({
         ...option,
         correct: option.correct ?? false, // Default `correct` to false if undefined
         optionId: option.optionId ?? index + 1, // Assign unique `optionId` if missing
       }));
   
-      console.log('[areAllCorrectAnswersSelected] Validated Options:', validOptions);
+      console.log('[areAllCorrectAnswersSelected] Validated Options:', validatedOptions);
   
       // Extract correct option IDs
-      const correctOptionIds = validOptions
+      const correctOptionIds = validatedOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
 
