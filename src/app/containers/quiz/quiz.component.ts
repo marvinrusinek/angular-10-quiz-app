@@ -911,6 +911,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     if (!this.questions || this.questions.length === 0) {
       console.error('[initializeQuestions] No questions received.');
+      // Show a fallback message to the user
+      this.errorMessage = 'No questions available. Please try again later.';
       return;
     }
   
