@@ -371,8 +371,6 @@ export class QuizQuestionComponent
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
-        console.log('[onVisibilityChange] Tab is visible. Restoring states...');
-        
         // First restore the quiz state
         this.restoreQuizState();
 
