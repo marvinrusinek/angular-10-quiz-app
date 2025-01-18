@@ -1248,6 +1248,12 @@ export class QuizQuestionComponent
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
+    // Check if questions array is loaded
+    if (!this.questions || this.questions.length === 0) {
+      console.error('[loadCurrentQuestion] No questions available.');
+      return false;
+    }
+
     // Validate current question index
     if (
       this.currentQuestionIndex < 0 ||
