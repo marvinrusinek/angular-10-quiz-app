@@ -78,7 +78,10 @@ export class FeedbackService {
     }
   
     try {
-      // Validate options
+      // Log inputs for debugging
+      console.log('[setCorrectMessage] correctOptions:', JSON.stringify(correctOptions, null, 2));
+      console.log('[setCorrectMessage] optionsToDisplay:', JSON.stringify(optionsToDisplay, null, 2));
+  
       const validOptions = optionsToDisplay.filter((option) => this.isValidOption(option));
       if (validOptions.length !== optionsToDisplay.length) {
         console.warn('[setCorrectMessage] Some options are not fully loaded.');
@@ -88,10 +91,10 @@ export class FeedbackService {
       // Match correct options to optionsToDisplay
       const indices = correctOptions
         .map((correctOption) => {
-          const index = validOptions.findIndex((option) => option.optionId === correctOption.optionId);
+          const index = validOptions.findIndex((option) => option.id === correctOption.id);
           if (index === -1) {
             console.warn(
-              `[setCorrectMessage] Correct option ID ${correctOption.optionId} not found in optionsToDisplay.`
+              `[setCorrectMessage] Correct option ID ${correctOption.id} not found in optionsToDisplay.`
             );
           }
           return index >= 0 ? index + 1 : null; // Convert to 1-based index
