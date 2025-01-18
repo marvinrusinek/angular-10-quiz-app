@@ -577,6 +577,8 @@ export class SelectedOptionService {
         correct: option.correct ?? false, // Default `correct` to false
         optionId: option.optionId ?? index // Ensure `optionId` is set
       }));
+
+      console.log('[areAllCorrectAnswersSelected] Validated Options:', validOptions); // Log all options
   
       // Filter correct options
       const correctOptionIds = validOptions.filter(o => o.correct).map(o => o.optionId);
