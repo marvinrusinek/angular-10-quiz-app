@@ -1102,8 +1102,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
           return;
         }
   
-        console.log('[initializeOptionBindings] Options to display before binding:', this.optionsToDisplay);
-  
         // Map optionsToDisplay to initialize optionBindings
         this.optionBindings = this.optionsToDisplay.map((option, idx) => {
           const optionBinding = this.getOptionBindings(option, idx);
