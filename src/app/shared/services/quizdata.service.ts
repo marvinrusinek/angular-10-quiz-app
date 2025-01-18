@@ -143,9 +143,6 @@ export class QuizDataService implements OnDestroy {
           })),
         }));
       }),
-      tap((questions) => {
-        console.log('[QuizDataService] Questions fetched:', questions);
-      }),
       catchError(error => {
         console.error('Error fetching questions for quiz:', error);
         return of([]);

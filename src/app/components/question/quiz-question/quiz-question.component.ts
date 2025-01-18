@@ -1144,7 +1144,7 @@ export class QuizQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
     }
-  }  
+  }
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
