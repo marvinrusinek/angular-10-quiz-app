@@ -49,7 +49,6 @@ export class FeedbackService {
   
       // Check if all options are valid
       if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('[setCorrectMessage] Some options are invalid.');
         return ''; // Return early if some options are not valid
       }
   
