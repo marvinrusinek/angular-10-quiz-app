@@ -255,7 +255,7 @@ export class QuizQuestionComponent
       );
 
       // Initial component setups
-      await this.initializeComponent();
+      this.initializeComponent();
       this.initializeComponentState();
 
       // Initialize quiz data and routing
