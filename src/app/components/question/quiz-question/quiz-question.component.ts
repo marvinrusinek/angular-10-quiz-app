@@ -397,23 +397,22 @@ export class QuizQuestionComponent
 
   private setOptionsToDisplay(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-        console.warn('[setOptionsToDisplay] No valid options in current question.');
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
-        return;
+      console.warn('[setOptionsToDisplay] No valid options in current question.');
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
+      return;
     }
 
     this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-        ...option,
-        active: option.active ?? true,
-        feedback: option.feedback ?? undefined,
-        showIcon: option.showIcon ?? false
+      ...option,
+      active: option.active ?? true,
+      feedback: option.feedback ?? undefined,
+      showIcon: option.showIcon ?? false
     }));
 
     console.log('[setOptionsToDisplay] Updated optionsToDisplay:', this.optionsToDisplay);
     console.log('[setOptionsToDisplay] Updated optionBindings:', this.optionBindings);
   }
-
 
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
