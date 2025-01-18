@@ -44,12 +44,12 @@ export class FeedbackService {
     }
   
     try {
-      // Ensure we have valid data
+      // Filter valid options to ensure we have valid data
       const validOptions = optionsToDisplay.filter(this.isValidOption);
   
+      // Check if all options are valid
       if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('Some options are not fully loaded');
-        return '';  // Return empty string to wait for valid data
+        return ''; // Return early if some options are not valid
       }
   
       // Get indices of correct answers (1-based)
