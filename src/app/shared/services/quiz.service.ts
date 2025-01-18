@@ -1595,44 +1595,49 @@ export class QuizService implements OnDestroy {
 
   setCheckedShuffle(isChecked: boolean): void {
     this.checkedShuffle.next(isChecked);
+  
+    if (!this.quizId) {
+      console.error('[setCheckedShuffle] No quizId set.');
+      return;
+    }
+  
     this.fetchAndShuffleQuestions(this.quizId);
-  }
+  }  
 
   fetchAndShuffleQuestions(quizId: string): void {
     if (!quizId) {
-      console.error('Received null or undefined quizId');
+      console.error('[fetchAndShuffleQuestions] Received null or undefined quizId');
       return;
     }
-
+  
     this.http
       .get<any>(this.quizUrl)
       .pipe(
         map((response) => {
           const quizzes = response.quizzes || response;
-          const foundQuiz = quizzes.find(
-            (quiz: Quiz) => quiz.quizId === quizId
-          );
+          const foundQuiz = quizzes.find((quiz: Quiz) => quiz.quizId === quizId);
+  
           if (!foundQuiz) {
-            throw new Error(`Quiz with ID ${quizId} not found.`);
+            throw new Error(`[fetchAndShuffleQuestions] Quiz with ID ${quizId} not found.`);
           }
+  
           return foundQuiz.questions;
         }),
         tap((questions) => {
-          if (this.checkedShuffle && questions.length > 0) {
-            console.log(
-              'Questions before shuffle in service:',
-              questions.map((q) => q.questionText)
-            );
-            Utils.shuffleArray(questions);
-            console.log(
-              'Questions after shuffle in service:',
-              questions.map((q) => q.questionText)
-            );
+          if (questions && questions.length > 0) {
+            console.log('[fetchAndShuffleQuestions] Questions before shuffle:', questions);
+  
+            if (this.checkedShuffle.getValue()) { // Ensure checkedShuffle is resolved
+              Utils.shuffleArray(questions);
+              console.log('[fetchAndShuffleQuestions] Questions after shuffle:', questions);
+            }
+  
             this.shuffledQuestions = questions; // Store shuffled questions
           }
         }),
         catchError((error) => {
-          console.error('Failed to fetch or process questions:', error);
+          console.error('[fetchAndShuffleQuestions] Failed to fetch or process questions:', error);
+          this.shuffledQuestions = []; // Fallback to an empty array
           return throwError(() => new Error('Error processing quizzes'));
         })
       )
@@ -1640,11 +1645,11 @@ export class QuizService implements OnDestroy {
         next: (questions: QuizQuestion[]) => {
           this.questionsSubject.next(questions);
           console.log(
-            'Emitting shuffled questions from service:',
-            questions.map((q) => q.questionText)
+            '[fetchAndShuffleQuestions] Emitting shuffled questions:',
+            questions
           );
         },
-        error: (error) => console.error('Error in subscription:', error),
+        error: (error) => console.error('[fetchAndShuffleQuestions] Error in subscription:', error),
       });
   }
 
@@ -1653,34 +1658,37 @@ export class QuizService implements OnDestroy {
   }
 
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
-    if (this.checkedShuffle && questions && questions.length > 0) {
-      const shuffledQuestions = Utils.shuffleArray([...questions]); // Shuffle a copy to maintain immutability
-      this.questionDataSubject.next(shuffledQuestions); // Emit the shuffled questions
-      return shuffledQuestions;
-    } else {
-      console.log('Skipping shuffle or no questions available.');
-      return questions;
+    if (this.checkedShuffle.getValue() && questions && questions.length > 0) {
+      return Utils.shuffleArray([...questions]); // Shuffle a copy for immutability
     }
+    console.log('[shuffleQuestions] Skipping shuffle or no questions available.');
+    return questions;
   }
-
+  
   shuffleAnswers(answers: Option[]): Option[] {
-    if (this.checkedShuffle && answers && answers.length > 0) {
-      return Utils.shuffleArray(answers);
-    } else {
-      console.log('Skipping shuffle or no answers available.');
+    if (this.checkedShuffle.getValue() && answers && answers.length > 0) {
+      return Utils.shuffleArray([...answers]);
     }
+    console.log('[shuffleAnswers] Skipping shuffle or no answers available.');
     return answers;
-  }
+  }  
 
   shuffleQuestionsAndAnswers(quizId: string): void {
-    this.fetchAndShuffleQuestions(quizId); // Fetch and shuffle questions
-    this.questionsSubject.pipe(take(1)).subscribe((questions) => {
-      const typedQuestions = questions as QuizQuestion[];
-      for (const question of typedQuestions) {
-        question.options = this.shuffleAnswers(question.options); // Shuffle answers
+    this.fetchAndShuffleQuestions(quizId);
+  
+    this.questionsSubject.pipe(take(1)).subscribe((questions: QuizQuestion[]) => {
+      if (!questions || questions.length === 0) {
+        console.warn('[shuffleQuestionsAndAnswers] No questions available to shuffle.');
+        return;
       }
-      this.questionsSubject.next(typedQuestions); // Emit updated questions with shuffled answers
-      console.log('Questions and answers shuffled for quiz ID:', quizId);
+  
+      const updatedQuestions = questions.map((question) => ({
+        ...question,
+        options: this.shuffleAnswers(question.options), // Shuffle a copy of options
+      }));
+  
+      this.questionsSubject.next(updatedQuestions);
+      console.log('[shuffleQuestionsAndAnswers] Questions and answers shuffled for quiz ID:', quizId);
     });
   }
 
