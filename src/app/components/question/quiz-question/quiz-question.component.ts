@@ -388,7 +388,6 @@ export class QuizQuestionComponent
             }
           });
         } else {
-          console.log('[onVisibilityChange] Current question exists, restoring options...');
           this.restoreFeedbackState();
           this.renderDisplay();
         }
