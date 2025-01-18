@@ -1919,37 +1919,37 @@ export class QuizQuestionComponent
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-            throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
-        }
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) {
+        throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
+      }
 
-        const question = await firstValueFrom(
-            this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
-        );
+      const question = await firstValueFrom(
+        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
+      );
 
-        if (question) {
-            console.log('[reloadCurrentQuestion] Question reloaded:', question);
-            this.currentQuestion = question;
+      if (question) {
+        console.log('[reloadCurrentQuestion] Question reloaded:', question);
+        this.currentQuestion = question;
 
-            // Ensure options are initialized
-            this.optionsToDisplay = question.options.map(option => ({
-                ...option,
-                active: option.active ?? true,
-                feedback: option.feedback ?? undefined,
-                showIcon: option.showIcon ?? false,
-                selected: this.selectedOptionService.isSelectedOption(option)
-            }));
+        // Ensure options are initialized
+        this.optionsToDisplay = question.options.map(option => ({
+          ...option,
+          active: option.active ?? true,
+          feedback: option.feedback ?? undefined,
+          showIcon: option.showIcon ?? false,
+          selected: this.selectedOptionService.isSelectedOption(option)
+        }));
 
-            console.log('[reloadCurrentQuestion] Options restored:', this.optionsToDisplay);
-        } else {
-            throw new Error('[reloadCurrentQuestion] Failed to reload question.');
-        }
+        console.log('[reloadCurrentQuestion] Options restored:', this.optionsToDisplay);
+      } else {
+        throw new Error('[reloadCurrentQuestion] Failed to reload question.');
+      }
     } catch (error) {
-        console.error('[reloadCurrentQuestion] Error:', error);
-        this.currentQuestion = null;
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
+      console.error('[reloadCurrentQuestion] Error:', error);
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
     }
   }
 
