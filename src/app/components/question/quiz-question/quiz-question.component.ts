@@ -376,7 +376,6 @@ export class QuizQuestionComponent
 
         // Then handle question and options restoration
         if (!this.currentQuestion) {
-          console.warn('[onVisibilityChange] Current question is missing. Reloading...');
           this.reloadCurrentQuestion().then(() => {
             if (this.currentQuestion) {
               this.restoreFeedbackState();
