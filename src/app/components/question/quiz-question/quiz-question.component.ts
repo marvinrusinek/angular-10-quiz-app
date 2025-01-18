@@ -1721,7 +1721,6 @@ export class QuizQuestionComponent
     try {
       // Ensure the current question is loaded
       if (!this.currentQuestion) {
-        console.warn('[onOptionClicked] Current question is missing. Attempting to load...');
         const loaded = await this.loadCurrentQuestion();
         if (!loaded) {
           console.error('[onOptionClicked] Unable to load current question.');
