@@ -624,7 +624,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         this.selectedOptionService.isAnsweredSubject.next(true);
   
         // Check if the option state changes correctly
-        if (!this.handleOptionState(optionBinding, optionId, index, checked, inputElement)) return;
+        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
 
         // Update the active state of options
         this.updateOptionActiveStates(optionBinding);
@@ -674,8 +674,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     optionBinding: OptionBindings,
     optionId: number,
     index: number,
-    checked: boolean,
-    element: MatCheckbox | MatRadioButton
+    checked: boolean
   ): boolean {
     if (optionBinding.isSelected) {
       console.log('Option already selected:', optionBinding.option);
