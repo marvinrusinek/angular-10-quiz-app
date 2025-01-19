@@ -643,7 +643,10 @@ export class SelectedOptionService {
       }
   
       // Retrieve selected options for the current question index
-      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+      const selectedOptions = (this.selectedOptionsMap.get(questionIndex) || []).map((option, index) => ({
+        ...option,
+        optionId: option.optionId ?? index + 1, // Ensure valid optionId
+      }));
 
       const selectedOptionIds = selectedOptions.map((option) => option.optionId);
       console.log('[areAllCorrectAnswersSelected] Selected Option IDs:', selectedOptionIds);
