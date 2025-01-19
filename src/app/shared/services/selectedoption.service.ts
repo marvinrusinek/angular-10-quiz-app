@@ -634,6 +634,7 @@ export class SelectedOptionService {
       const correctOptionIds = normalizedOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
+      console.log('[areAllCorrectAnswersSelected] Extracted Correct Option IDs:', correctOptionIds);
   
       if (correctOptionIds.length === 0) {
         console.warn(`[areAllCorrectAnswersSelected] No correct options defined for question index: ${questionIndex}`);
