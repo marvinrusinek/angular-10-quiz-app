@@ -682,7 +682,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
+  /* async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       if (!quizId) {
         console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
@@ -733,6 +733,66 @@ export class QuizService implements OnDestroy {
       return quiz.questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
+      return [];
+    }
+  } */
+  async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
+    try {
+      if (!quizId) {
+        console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
+        throw new Error('Quiz ID is not provided or is empty');
+      }
+  
+      // Fetch quizzes from the API
+      const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
+      const quiz = quizzes.find((q) => q.quizId === quizId);
+  
+      if (!quiz) {
+        throw new Error(`Quiz with ID ${quizId} not found`);
+      }
+  
+      console.log('[fetchQuizQuestions] Raw Questions:', JSON.stringify(quiz.questions, null, 2));
+  
+      // Normalize questions and options
+      quiz.questions = quiz.questions.map((question, qIndex) => {
+        if (question.options) {
+          question.options = question.options.map((option, oIndex) => ({
+            ...option,
+            optionId: option.optionId ?? oIndex + 1, // Ensure optionId is set
+            correct: option.correct ?? false, // Default `correct` to false if undefined
+          }));
+        } else {
+          console.error(`[fetchQuizQuestions] No options found for question: "${question.questionText}"`);
+          question.options = []; // Set empty array to avoid further errors
+        }
+  
+        console.log('[fetchQuizQuestions] Normalized Option:', {
+          questionText: question.questionText,
+          options: question.options.map(({ text, optionId, correct }) => ({ text, optionId, correct })),
+        });
+  
+        return question;
+      });
+  
+      console.log('[fetchQuizQuestions] Normalized Questions:', JSON.stringify(quiz.questions, null, 2));
+  
+      // Shuffle questions and options if needed
+      if (this.checkedShuffle.getValue()) {
+        Utils.shuffleArray(quiz.questions);
+        for (const question of quiz.questions) {
+          if (question.options) {
+            Utils.shuffleArray(question.options);
+          }
+        }
+      }
+  
+      // Emit the normalized questions
+      this.questionsSubject.next(quiz.questions);
+      console.log('[fetchQuizQuestions] Emitted Questions:', JSON.stringify(quiz.questions, null, 2));
+  
+      return quiz.questions;
+    } catch (error) {
+      console.error('[fetchQuizQuestions] Error fetching quiz questions:', error);
       return [];
     }
   }  
