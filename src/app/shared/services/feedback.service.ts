@@ -72,11 +72,6 @@ export class FeedbackService {
       return '';  // Return empty string on error
     }
   }
-
-  // Helper functions
-  private isValidOption(option: Option): option is Option {
-    return option && typeof option === 'object' && 'text' in option && 'correct' in option;
-  }
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
