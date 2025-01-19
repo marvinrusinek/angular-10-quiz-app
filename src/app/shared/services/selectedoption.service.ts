@@ -522,11 +522,13 @@ export class SelectedOptionService {
   
       // Determine answered state
       const isAnswered = validatedOptions.some((option) => option.selected);
+      console.log('[updateAnsweredState] Is Question Answered:', isAnswered);
       this.isAnsweredSubject.next(isAnswered);
 
       // Validate if all correct answers are selected
       this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
         .then((allCorrectAnswersSelected) => {
+          console.log('[updateAnsweredState] Are All Correct Answers Selected:', allCorrectAnswersSelected);
           if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
             console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
             this.stopTimer$.next();
