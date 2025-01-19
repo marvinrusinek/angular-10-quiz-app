@@ -682,60 +682,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
-    try {
-      if (!quizId) {
-        console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
-        throw new Error('Quiz ID is not provided or is empty');
-      }
-  
-      // Fetch quizzes from the API
-      const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
-      const quiz = quizzes.find((q) => q.quizId === quizId);
-  
-      if (!quiz) {
-        throw new Error(`Quiz with ID ${quizId} not found`);
-      }
-
-      console.log('[fetchQuizQuestions] Raw Questions:', JSON.stringify(quiz.questions, null, 2));
-  
-      // Normalize questions and options
-      for (const [qIndex, question] of quiz.questions.entries()) {
-        if (question.options) {
-          question.options = question.options.map((option, oIndex) => ({
-            ...option,
-            optionId: option.optionId ?? oIndex + 1, // Ensure optionId is set
-            correct: option.correct ?? false // Default `correct` to false if undefined
-          }));
-        } else {
-          console.error(
-            `Options are not properly defined for question: ${question.questionText}`
-          );
-        }
-      }
-
-      console.log('[fetchQuizQuestions] Normalized Questions:', JSON.stringify(quiz.questions, null, 2));
-  
-      // Shuffle questions and options if needed
-      if (this.checkedShuffle.getValue()) {
-        Utils.shuffleArray(quiz.questions);
-        for (const question of quiz.questions) {
-          if (question.options) {
-            Utils.shuffleArray(question.options);
-          }
-        }
-      }
-  
-      // Emit the normalized questions
-      this.questionsSubject.next(quiz.questions);
-      console.log('[fetchQuizQuestions] Emitted Questions:', JSON.stringify(quiz.questions, null, 2));
-
-      return quiz.questions;
-    } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      return [];
-    }
-  } */
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       if (!quizId) {
@@ -751,8 +697,6 @@ export class QuizService implements OnDestroy {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
   
-      console.log('[fetchQuizQuestions] Raw Questions:', quiz.questions);
-  
       // Normalize questions and options
       for (const question of quiz.questions) {
         if (question.options) {
@@ -766,11 +710,9 @@ export class QuizService implements OnDestroy {
         }
       }
   
-      console.log('[fetchQuizQuestions] Normalized Questions:', quiz.questions);
-  
       // Shuffle questions and options if needed
       if (this.checkedShuffle.getValue()) {
-        console.log('[fetchQuizQuestions] Shuffling questions and options...');
+        console.info('[fetchQuizQuestions] Shuffling questions and options...');
         Utils.shuffleArray(quiz.questions); // Shuffle questions
   
         for (const question of quiz.questions) {
@@ -779,8 +721,6 @@ export class QuizService implements OnDestroy {
           }
         }
       }
-  
-      console.log('[fetchQuizQuestions] After Shuffling (if enabled):', quiz.questions);
   
       // Emit the normalized and shuffled questions
       this.questionsSubject.next(quiz.questions);
