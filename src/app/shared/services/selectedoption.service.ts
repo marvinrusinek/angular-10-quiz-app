@@ -623,7 +623,7 @@ export class SelectedOptionService {
       // Normalize options to ensure `correct` is defined
       const normalizedOptions = questionOptions.map((option, index) => ({
         ...option,
-        correct: option.correct ?? false,
+        correct: !!option.correct,
         optionId: option.optionId ?? index + 1,
       }));
   
