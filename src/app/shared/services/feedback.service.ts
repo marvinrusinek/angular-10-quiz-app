@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Option } from '../../shared/models/Option.model';
+import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackService {
@@ -45,7 +46,7 @@ export class FeedbackService {
   
     try {
       // Filter valid options to ensure we have valid data
-      const validOptions = optionsToDisplay.filter(this.isValidOption);
+      const validOptions = optionsToDisplay.filter(isValidOption);
   
       // Check if all options are valid
       if (validOptions.length !== optionsToDisplay.length) {
