@@ -572,7 +572,8 @@ export class SelectedOptionService {
       }
   
       // Validate options using `isValidOption` and correct any missing properties
-      const validOptions = questionOptions.filter(isValidOption);
+      const validOptions = questionOptions.filter((option) => option && typeof option.correct === 'boolean');
+      // const validOptions = questionOptions.filter(isValidOption);
       if (validOptions.length !== questionOptions.length) {
         console.info('[areAllCorrectAnswersSelected] Some options are invalid but will be corrected.');
       }
