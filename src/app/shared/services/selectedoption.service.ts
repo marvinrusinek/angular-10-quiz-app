@@ -522,7 +522,13 @@ export class SelectedOptionService {
       // Determine answered state
       const isAnswered = validatedOptions.some((option) => option.selected);
       this.isAnsweredSubject.next(isAnswered);
-  
+
+      // Check if all correct answers are selected
+      if (typeof this.areAllCorrectAnswersSelected !== 'function') {
+        console.error('[updateAnsweredState] areAllCorrectAnswersSelected is not a function');
+        return;
+      }
+        
       // Validate if all correct answers are selected
       this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
         .then((allCorrectAnswersSelected) => {
