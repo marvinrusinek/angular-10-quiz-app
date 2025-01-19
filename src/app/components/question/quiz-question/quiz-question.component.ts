@@ -379,7 +379,6 @@ export class QuizQuestionComponent
           this.restoreFeedbackState();
           this.renderDisplay();
         } else {
-          console.error('[onVisibilityChange] Current question is missing and could not be restored.');
           this.loadCurrentQuestion().then((loaded) => {
             if (loaded) {
               this.restoreFeedbackState();
