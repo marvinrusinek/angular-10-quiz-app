@@ -564,8 +564,13 @@ export class SelectedOptionService {
         return;
       }
   
-      // Ensure all options have a valid `correct` and `optionId` property
-      const validatedOptions = questionOptions.map((option, index) => ({
+      // Validate options using `isValidOption` and correct any missing properties
+      const validOptions = questionOptions.filter(this.isValidOption);
+      if (validOptions.length !== questionOptions.length) {
+        console.warn('[areAllCorrectAnswersSelected] Some options are invalid but will be corrected.');
+      }
+  
+      const validatedOptions = validOptions.map((option, index) => ({
         ...option,
         correct: option.correct ?? false, // Default `correct` to false if undefined
         optionId: option.optionId ?? index + 1, // Assign unique `optionId` if missing
@@ -577,7 +582,7 @@ export class SelectedOptionService {
       const correctOptionIds = validatedOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
-
+  
       if (correctOptionIds.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
         resolve(false); // No correct options to validate
@@ -600,7 +605,7 @@ export class SelectedOptionService {
   
       resolve(allCorrectSelected);
     });
-  }
+  }  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
