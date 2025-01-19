@@ -480,7 +480,7 @@ export class SelectedOptionService {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
   } */
-  /* updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
       // Validate inputs
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
@@ -541,79 +541,7 @@ export class SelectedOptionService {
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
-  } */
-  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    try {
-      console.log('[updateAnsweredState] Initial questionOptions:', questionOptions);
-      console.log('[updateAnsweredState] Received questionIndex:', questionIndex);
-  
-      // Fallback if no options are provided
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.warn('[updateAnsweredState] No options provided. Falling back.');
-  
-        if (questionIndex < 0) {
-          questionIndex = this.getFallbackQuestionIndex();
-          console.log('[updateAnsweredState] Fallback questionIndex:', questionIndex);
-  
-          if (questionIndex < 0) {
-            console.error('[updateAnsweredState] Invalid fallback question index:', questionIndex);
-            return;
-          }
-        }
-  
-        console.log('[updateAnsweredState] Full selectedOptionsMap:', this.selectedOptionsMap);
-        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
-        console.log(`[updateAnsweredState] Options retrieved for index ${questionIndex}:`, questionOptions);
-  
-        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-          const defaultOptions = this.getDefaultOptions();
-          console.log('[updateAnsweredState] Default options returned:', defaultOptions);
-  
-          if (!Array.isArray(defaultOptions) || defaultOptions.length === 0) {
-            console.error('[updateAnsweredState] No valid options available even after fallback.');
-            return;
-          }
-  
-          questionOptions = defaultOptions;
-        }
-      }
-  
-      // Validate and normalize options
-      const validatedOptions = questionOptions.map((option, index) => ({
-        ...option,
-        correct: option.correct ?? false,
-        optionId: option.optionId ?? index + 1,
-      }));
-  
-      console.log('[updateAnsweredState] Validated questionOptions:', validatedOptions);
-  
-      if (validatedOptions.length === 0) {
-        console.error('[updateAnsweredState] No valid options available even after fallback.');
-        return;
-      }
-  
-      // Determine answered state
-      const isAnswered = validatedOptions.some((option) => option.selected);
-      this.isAnsweredSubject.next(isAnswered);
-  
-      this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
-        .then((allCorrectAnswersSelected) => {
-          console.log('[updateAnsweredState] All Correct Answers Selected:', allCorrectAnswersSelected);
-  
-          if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-            console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
-            this.stopTimer$.next();
-            this.stopTimerEmitted = true;
-          }
-        })
-        .catch((error) => {
-          console.error('[updateAnsweredState] Error checking correct answers:', error);
-        });
-    } catch (error) {
-      console.error('[updateAnsweredState] Unhandled Error:', error);
-    }
   }
-  
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
@@ -681,7 +609,7 @@ export class SelectedOptionService {
       resolve(allCorrectSelected);
     });
   } */
-  /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
     return new Promise((resolve) => {
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
@@ -740,64 +668,7 @@ export class SelectedOptionService {
   
       resolve(allCorrectSelected);
     });
-  }  */
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
-    return new Promise((resolve) => {
-      console.log('[areAllCorrectAnswersSelected] Raw Question Options:', questionOptions);
-  
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
-        resolve(false);
-        return;
-      }
-  
-      // Normalize and validate options
-      const normalizedOptions = questionOptions.map((option, index) => ({
-        ...option,
-        correct: option.correct ?? false,
-        optionId: option.optionId ?? index + 1,
-      }));
-  
-      console.log('[areAllCorrectAnswersSelected] Normalized Options:', normalizedOptions);
-  
-      // Extract correct option IDs
-      const correctOptionIds = normalizedOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-  
-      console.log('[areAllCorrectAnswersSelected] Extracted Correct Option IDs:', correctOptionIds);
-  
-      if (correctOptionIds.length === 0) {
-        console.warn(`[areAllCorrectAnswersSelected] No correct options defined for question index: ${questionIndex}`);
-        resolve(false);
-        return;
-      }
-  
-      // Retrieve selected options for the current question index
-      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-      const selectedOptionIds = selectedOptions.map((option) => option.optionId);
-  
-      console.log('[areAllCorrectAnswersSelected] Selected Option IDs:', selectedOptionIds);
-  
-      if (selectedOptionIds.length === 0) {
-        console.info('[areAllCorrectAnswersSelected] No options selected for question index:', questionIndex);
-        resolve(false);
-        return;
-      }
-  
-      // Validate that all correct options are selected
-      const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
-  
-      console.log('[areAllCorrectAnswersSelected] Validation Details:', {
-        questionIndex,
-        correctOptionIds,
-        selectedOptionIds,
-        allCorrectSelected,
-      });
-  
-      resolve(allCorrectSelected);
-    });
-  }  
+  }
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
