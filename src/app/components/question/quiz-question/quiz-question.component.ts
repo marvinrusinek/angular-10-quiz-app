@@ -1737,56 +1737,47 @@ export class QuizQuestionComponent
   
       // Validate the event and option
       if (!event.option || !this.validateOption(event)) {
-        console.info('ℹ️ [onOptionClicked] Invalid option or event detected.');
+        console.info('[onOptionClicked] Invalid option or event detected.');
         return;
       }
   
-      const option = event.option;
+      const selectedOption = {
+        ...event.option,
+        optionId: event.option?.optionId ?? event.index + 1, // Ensure valid optionId
+      };
   
-      // Validate optionId
-      if (option.optionId === null) {
-        console.error('❌ [onOptionClicked] optionId is undefined:', option);
-        return;
+      console.log('[onOptionClicked] Selected Option:', selectedOption);
+  
+      // Update selectedOptionsMap
+      const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
+      const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
+  
+      if (event.checked) {
+        updatedOptions.push(selectedOption);
       }
+      this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      // Prevent processing for disabled options
-      // if (!option.active) return;
-  
-      // Track selected option
-      this.selectedOptionService.addSelectedOptionIndex(
-        this.currentQuestionIndex,
-        option.optionId
-      );
-      console.log('[onOptionClicked] Option tracked successfully:', option);
+      console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
   
       const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(
-          this.currentQuestion
-        )
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
       console.log('[onOptionClicked] isMultipleAnswer:', isMultipleAnswer);
   
-      // Prevent further input for single-answer questions
-      /* if (this.handleSingleAnswerLock(isMultipleAnswer)) {
-        console.warn('Input locked for single-answer question.');
-        return;
-      } */
-  
       // Apply feedback and handle option logic
-      this.applyOptionFeedback(option);
+      this.applyOptionFeedback(selectedOption);
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-      // Handle multiple-answer-specific logic
       if (isMultipleAnswer) {
-        await this.stopTimerIfApplicable(isMultipleAnswer, option);
-        await this.handleMultipleAnswerTimerLogic(option);
+        await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
+        await this.handleMultipleAnswerTimerLogic(selectedOption);
       }
   
       // Update UI states and flags
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
-
+  
       // Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
   
@@ -1799,9 +1790,9 @@ export class QuizQuestionComponent
       // Handle additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
-      console.error('❌ [onOptionClicked] Unhandled error:', error);
+      console.error('[onOptionClicked] Unhandled error:', error);
     }
-  }
+  }  
 
   // ====================== Helper Functions ======================
 
