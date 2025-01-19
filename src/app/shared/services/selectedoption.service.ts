@@ -6,6 +6,7 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
@@ -571,7 +572,7 @@ export class SelectedOptionService {
       }
   
       // Validate options using `isValidOption` and correct any missing properties
-      const validOptions = questionOptions.filter(this.isValidOption);
+      const validOptions = questionOptions.filter(isValidOption);
       if (validOptions.length !== questionOptions.length) {
         console.warn('[areAllCorrectAnswersSelected] Some options are invalid but will be corrected.');
       }
