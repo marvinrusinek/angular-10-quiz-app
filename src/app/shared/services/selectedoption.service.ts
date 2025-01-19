@@ -544,7 +544,8 @@ export class SelectedOptionService {
   } */
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
-      console.log('[updateAnsweredState] Initial Options:', questionOptions);
+      console.log('[updateAnsweredState] Input Options:', questionOptions);
+      console.log('[updateAnsweredState] Selected Options Map:', this.selectedOptionsMap);
   
       // Fallback if no options are provided
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
@@ -559,15 +560,22 @@ export class SelectedOptionService {
         }
   
         questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
-        console.log('[updateAnsweredState] Fallback Options from selectedOptionsMap:', questionOptions);
+        console.log(`[updateAnsweredState] Fallback Options for index ${questionIndex}:`, questionOptions);
   
         if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-          console.error('[updateAnsweredState] No valid options available even after fallback.');
-          return;
+          const defaultOptions = this.getDefaultOptions();
+          console.log('[updateAnsweredState] Default Options:', defaultOptions);
+  
+          if (!Array.isArray(defaultOptions) || defaultOptions.length === 0) {
+            console.error('[updateAnsweredState] No valid default options available.');
+            return;
+          }
+  
+          questionOptions = defaultOptions;
         }
       }
   
-      // Normalize and validate options
+      // Validate and normalize options
       const validatedOptions = questionOptions.map((option, index) => ({
         ...option,
         correct: option.correct ?? false,
@@ -576,7 +584,13 @@ export class SelectedOptionService {
   
       console.log('[updateAnsweredState] Validated Options:', validatedOptions);
   
-      // Proceed with answered state and correctness validation
+      // Final check for valid options
+      if (validatedOptions.length === 0) {
+        console.error('[updateAnsweredState] No valid options available even after fallback.');
+        return;
+      }
+  
+      // Determine answered state
       const isAnswered = validatedOptions.some((option) => option.selected);
       this.isAnsweredSubject.next(isAnswered);
   
@@ -597,6 +611,7 @@ export class SelectedOptionService {
       console.error('[updateAnsweredState] Unhandled Error:', error);
     }
   }
+  
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
