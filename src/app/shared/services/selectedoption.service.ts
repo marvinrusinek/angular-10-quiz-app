@@ -545,7 +545,7 @@ export class SelectedOptionService {
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
       console.log('[updateAnsweredState] Initial questionOptions:', questionOptions);
-      console.log('[updateAnsweredState] Received questionIndex:', questionIndex);
+      console.log('[updateAnsweredState] questionIndex:', questionIndex);
   
       // Fallback if no options are provided
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
@@ -612,8 +612,7 @@ export class SelectedOptionService {
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled Error:', error);
     }
-  }
-  
+  }  
 
   private debugSelectedOptionsMap(): void {
     console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
