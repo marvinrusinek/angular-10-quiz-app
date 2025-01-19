@@ -696,6 +696,8 @@ export class QuizService implements OnDestroy {
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
+
+      console.log('[fetchQuizQuestions] Raw Questions:', JSON.stringify(quiz.questions, null, 2));
   
       // Normalize questions and options
       for (const [qIndex, question] of quiz.questions.entries()) {
@@ -711,9 +713,11 @@ export class QuizService implements OnDestroy {
           );
         }
       }
+
+      console.log('[fetchQuizQuestions] Normalized Questions:', JSON.stringify(quiz.questions, null, 2));
   
       // Shuffle questions and options if needed
-      if (this.checkedShuffle.value) {
+      if (this.checkedShuffle.getValue()) {
         Utils.shuffleArray(quiz.questions);
         for (const question of quiz.questions) {
           if (question.options) {
