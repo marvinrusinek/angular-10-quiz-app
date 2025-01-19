@@ -524,14 +524,14 @@ export class SelectedOptionService {
       this.isAnsweredSubject.next(isAnswered);
 
       // Check if all correct answers are selected
-      if (typeof this.areAllCorrectAnswersSelected !== 'function') {
+      /*  (typeof this.areAllCorrectAnswersSelected !== 'function') {
         console.error('[updateAnsweredState] areAllCorrectAnswersSelected is not a function');
         return;
-      }
-        
+      } */
+
       // Validate if all correct answers are selected
       this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
-        .then((allCorrectAnswersSelected) => {
+        ?.then((allCorrectAnswersSelected) => {
           if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
             console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
             this.stopTimer$.next();
