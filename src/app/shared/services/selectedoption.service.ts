@@ -646,6 +646,7 @@ export class SelectedOptionService {
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
 
       const selectedOptionIds = selectedOptions.map((option) => option.optionId);
+      console.log('[areAllCorrectAnswersSelected] Selected Option IDs:', selectedOptionIds);
       if (selectedOptionIds.length === 0) {
         console.info('[areAllCorrectAnswersSelected] No options selected for question index:', questionIndex);
         resolve(false);
