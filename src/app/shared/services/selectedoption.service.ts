@@ -643,7 +643,13 @@ export class SelectedOptionService {
   
       // Retrieve selected options for the current question index
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+
       const selectedOptionIds = selectedOptions.map((option) => option.optionId);
+      if (selectedOptionIds.length === 0) {
+        console.info('[areAllCorrectAnswersSelected] No options selected for question index:', questionIndex);
+        resolve(false);
+        return;
+      }
   
       // Validate that all correct options are selected
       const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
