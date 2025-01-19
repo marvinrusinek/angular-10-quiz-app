@@ -559,56 +559,6 @@ export class SelectedOptionService {
     }
   }
 
-  /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
-    return new Promise((resolve) => {
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
-        resolve(false);
-        return;
-      }
-  
-      // Validate options using `isValidOption` and correct any missing properties
-      const validOptions = questionOptions.filter(isValidOption);
-      if (validOptions.length !== questionOptions.length) {
-        console.info('[areAllCorrectAnswersSelected] Some options are invalid but will be corrected.');
-      }
-  
-      const validatedOptions = validOptions.map((option, index) => ({
-        ...option,
-        correct: option.correct ?? false, // Default `correct` to false if undefined
-        optionId: option.optionId ?? index + 1, // Assign unique `optionId` if missing
-      }));
-  
-      console.log('[areAllCorrectAnswersSelected] Validated Options:', validatedOptions);
-  
-      // Extract correct option IDs
-      const correctOptionIds = validatedOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-  
-      if (correctOptionIds.length === 0) {
-        console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
-        resolve(false); // No correct options to validate
-        return;
-      }
-  
-      // Retrieve selected options for the current question index
-      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-      const selectedOptionIds = selectedOptions.map((option) => option.optionId);
-  
-      // Validate that all correct options are selected
-      const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
-  
-      console.log('[areAllCorrectAnswersSelected] Validation Details:', {
-        questionIndex,
-        correctOptionIds,
-        selectedOptionIds,
-        allCorrectSelected,
-      });
-  
-      resolve(allCorrectSelected);
-    });
-  } */
   areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
     return new Promise((resolve) => {
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
