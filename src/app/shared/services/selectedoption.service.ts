@@ -617,9 +617,6 @@ export class SelectedOptionService {
         return;
       }
   
-      // Log raw question options
-      console.log('[areAllCorrectAnswersSelected] Raw Question Options:', questionOptions);
-  
       // Normalize options to ensure `correct` is defined
       const normalizedOptions = questionOptions.map((option, index) => ({
         ...option,
@@ -627,17 +624,12 @@ export class SelectedOptionService {
         optionId: option.optionId ?? index + 1,
       }));
   
-      // Log normalized options
-      console.log('[areAllCorrectAnswersSelected] Normalized Options:', normalizedOptions);
-  
       // Extract correct option IDs
       const correctOptionIds = normalizedOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
-      console.log('[areAllCorrectAnswersSelected] Extracted Correct Option IDs:', correctOptionIds);
   
       if (correctOptionIds.length === 0) {
-        console.warn(`[areAllCorrectAnswersSelected] No correct options defined for question index: ${questionIndex}`);
         resolve(false);
         return;
       }
@@ -645,8 +637,6 @@ export class SelectedOptionService {
       // Retrieve selected options for the current question index
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
       const selectedOptionIds = selectedOptions.map((option) => option.optionId);
-
-      console.log('[areAllCorrectAnswersSelected] Selected Option IDs:', selectedOptionIds);
       
       if (selectedOptionIds.length === 0) {
         console.info('[areAllCorrectAnswersSelected] No options selected for question index:', questionIndex);
