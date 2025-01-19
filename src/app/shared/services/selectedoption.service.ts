@@ -532,7 +532,7 @@ export class SelectedOptionService {
 
       // Validate if all correct answers are selected
       this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
-        ?.then((allCorrectAnswersSelected) => {
+        .then((allCorrectAnswersSelected) => {
           if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
             console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
             this.stopTimer$.next();
@@ -563,7 +563,7 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+  /* areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
     return new Promise((resolve) => {
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
@@ -572,8 +572,7 @@ export class SelectedOptionService {
       }
   
       // Validate options using `isValidOption` and correct any missing properties
-      const validOptions = questionOptions.filter((option) => option && typeof option.correct === 'boolean');
-      // const validOptions = questionOptions.filter(isValidOption);
+      const validOptions = questionOptions.filter(isValidOption);
       if (validOptions.length !== questionOptions.length) {
         console.info('[areAllCorrectAnswersSelected] Some options are invalid but will be corrected.');
       }
@@ -613,7 +612,54 @@ export class SelectedOptionService {
   
       resolve(allCorrectSelected);
     });
-  }  
+  } */
+  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
+        resolve(false);
+        return;
+      }
+  
+      console.log('[areAllCorrectAnswersSelected] Raw Question Options:', questionOptions);
+  
+      const normalizedOptions = questionOptions.map((option, index) => ({
+        ...option,
+        correct: option.correct ?? false,
+        optionId: option.optionId ?? index + 1,
+      }));
+  
+      console.log('[areAllCorrectAnswersSelected] Normalized Options:', normalizedOptions);
+  
+      const correctOptionIds = normalizedOptions
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+  
+      if (correctOptionIds.length === 0) {
+        console.warn('[areAllCorrectAnswersSelected] No correct options defined for question index:', questionIndex);
+        console.debug('[areAllCorrectAnswersSelected] Normalized Options with Correct:', normalizedOptions);
+        resolve(false);
+        return;
+      }
+  
+      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+      const selectedOptionIds = selectedOptions.map((option) => option.optionId);
+  
+      const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
+  
+      console.log('[areAllCorrectAnswersSelected] Validation Details:', {
+        questionIndex,
+        correctOptionIds,
+        selectedOptionIds,
+        allCorrectSelected,
+      });
+  
+      resolve(allCorrectSelected);
+    });
+  }
+  
+    
+  
 
   setAnswered(isAnswered: boolean): void {
     this.isAnsweredSubject.next(isAnswered);
