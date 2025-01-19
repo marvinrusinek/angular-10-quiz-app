@@ -65,7 +65,6 @@ export class FeedbackService {
       }
   
       const result = this.formatFeedbackMessage(indices);
-      console.log('Generated feedback:', result);
       return result;
     } catch (error) {
       console.error('Error generating feedback:', error);
