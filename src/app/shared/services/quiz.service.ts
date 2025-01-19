@@ -688,26 +688,31 @@ export class QuizService implements OnDestroy {
         console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
         throw new Error('Quiz ID is not provided or is empty');
       }
-
+  
+      // Fetch quizzes from the API
       const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find((q) => q.quizId === quizId);
-
+  
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
-
+  
+      // Normalize questions and options
       for (const [qIndex, question] of quiz.questions.entries()) {
         if (question.options) {
-          for (const [oIndex, option] of question.options.entries()) {
-            option.optionId = oIndex;
-          }
+          question.options = question.options.map((option, oIndex) => ({
+            ...option,
+            optionId: option.optionId ?? oIndex + 1, // Ensure optionId is set
+            correct: option.correct ?? false // Default `correct` to false if undefined
+          }));
         } else {
           console.error(
             `Options are not properly defined for question: ${question.questionText}`
           );
         }
       }
-
+  
+      // Shuffle questions and options if needed
       if (this.checkedShuffle.value) {
         Utils.shuffleArray(quiz.questions);
         for (const question of quiz.questions) {
@@ -716,14 +721,15 @@ export class QuizService implements OnDestroy {
           }
         }
       }
-
+  
+      // Emit the normalized questions
       this.questionsSubject.next(quiz.questions);
       return quiz.questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
       return [];
     }
-  }
+  }  
 
   async fetchAndSetQuestions(
     quizId: string
