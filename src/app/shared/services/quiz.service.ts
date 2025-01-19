@@ -728,6 +728,8 @@ export class QuizService implements OnDestroy {
   
       // Emit the normalized questions
       this.questionsSubject.next(quiz.questions);
+      console.log('[fetchQuizQuestions] Emitted Questions:', JSON.stringify(quiz.questions, null, 2));
+
       return quiz.questions;
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
