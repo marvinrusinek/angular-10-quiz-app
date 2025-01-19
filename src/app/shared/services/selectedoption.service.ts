@@ -480,7 +480,7 @@ export class SelectedOptionService {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
   } */
-  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+  /* updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
       // Validate inputs
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
@@ -540,6 +540,34 @@ export class SelectedOptionService {
         });
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
+    }
+  } */
+  updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
+    try {
+      console.log('[updateAnsweredState] Input Options:', questionOptions);
+  
+      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+        console.warn('[updateAnsweredState] No options provided. Falling back.');
+        questionOptions = this.selectedOptionsMap.get(questionIndex) || [];
+      }
+  
+      const validatedOptions = questionOptions.map((option, index) => ({
+        ...option,
+        correct: option.correct ?? false,
+        optionId: option.optionId ?? index + 1,
+      }));
+  
+      console.log('[updateAnsweredState] Validated Options:', validatedOptions);
+  
+      this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
+        .then((allCorrectAnswersSelected) => {
+          console.log('[updateAnsweredState] Are All Correct Answers Selected:', allCorrectAnswersSelected);
+        })
+        .catch((error) => {
+          console.error('[updateAnsweredState] Error:', error);
+        });
+    } catch (error) {
+      console.error('[updateAnsweredState] Unhandled Error:', error);
     }
   }  
 
