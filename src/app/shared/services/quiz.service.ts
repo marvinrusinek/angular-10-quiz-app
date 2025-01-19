@@ -739,6 +739,7 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       if (!quizId) {
+        console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
         throw new Error('Quiz ID is not provided or is empty');
       }
   
@@ -750,19 +751,22 @@ export class QuizService implements OnDestroy {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
   
-      console.log('[fetchQuizQuestions] Raw Questions:', JSON.stringify(quiz.questions, null, 2));
+      console.log('[fetchQuizQuestions] Raw Questions:', quiz.questions);
   
       // Normalize questions and options
-      quiz.questions = quiz.questions.map((question, qIndex) => ({
-        ...question,
-        options: question.options?.map((option, oIndex) => ({
-          ...option,
-          optionId: option.optionId ?? oIndex + 1, // Ensure optionId starts from 1
-          correct: option.correct ?? false,       // Default correct to false if undefined
-        })) || [],
-      }));
+      for (const question of quiz.questions) {
+        if (question.options) {
+          question.options = question.options.map((option, index) => ({
+            ...option,
+            correct: !!option.correct, // Ensure correct is a boolean
+            optionId: option.optionId ?? index + 1, // Ensure valid optionId
+          }));
+        } else {
+          console.error(`[fetchQuizQuestions] Question ${question.questionText} has no options.`);
+        }
+      }
   
-      console.log('[fetchQuizQuestions] Normalized Questions:', JSON.stringify(quiz.questions, null, 2));
+      console.log('[fetchQuizQuestions] Normalized Questions:', quiz.questions);
   
       // Shuffle questions and options if needed
       if (this.checkedShuffle.getValue()) {
@@ -776,16 +780,16 @@ export class QuizService implements OnDestroy {
         }
       }
   
-      // Emit the normalized questions
-      this.questionsSubject.next(quiz.questions);
-      console.log('[fetchQuizQuestions] Emitted Questions:', JSON.stringify(quiz.questions, null, 2));
+      console.log('[fetchQuizQuestions] After Shuffling (if enabled):', quiz.questions);
   
+      // Emit the normalized and shuffled questions
+      this.questionsSubject.next(quiz.questions);
       return quiz.questions;
     } catch (error) {
-      console.error('[fetchQuizQuestions] Error:', error);
+      console.error('Error in fetchQuizQuestions:', error);
       return [];
     }
-  }
+  }  
 
   async fetchAndSetQuestions(
     quizId: string
