@@ -1164,10 +1164,7 @@ export class QuizQuestionComponent
       if (!this.currentQuestion) {
         this.optionsToDisplay = [];
         console.warn('[loadQuestion] Current question is null or undefined.');
-        throw new Error(
-          `No question found for index ${this.currentQuestionIndex}`
-        );
-        return false;
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
       // Assign optionIds if missing
