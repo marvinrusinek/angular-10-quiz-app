@@ -1349,7 +1349,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private async generateFeedbackText(question: QuizQuestion): Promise<string> {
+  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
       // Validate the input question and options
       if (!question || !Array.isArray(question.options) || question.options.length === 0) {
