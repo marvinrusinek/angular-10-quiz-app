@@ -58,7 +58,7 @@ export class FeedbackService {
         .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
         .map(item => item.index)
-        .sort();
+        .sort((a, b) => a - b);
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
