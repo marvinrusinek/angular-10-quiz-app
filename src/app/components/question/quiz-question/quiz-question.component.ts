@@ -367,7 +367,7 @@ export class QuizQuestionComponent
   }
 
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
@@ -383,6 +383,43 @@ export class QuizQuestionComponent
             if (loaded) {
               this.restoreFeedbackState();
               this.renderDisplay();
+            } else {
+              console.error('[onVisibilityChange] Failed to reload current question.');
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  onVisibilityChange(): void {
+    try {
+      if (document.visibilityState === 'visible') {
+        // First restore the quiz state
+        this.restoreQuizState();
+
+        // Then handle question and options restoration
+        if (this.currentQuestion) {
+          this.restoreFeedbackState();
+          this.renderDisplay();
+
+          // Generate feedback for the current question
+          this.generateFeedbackText(this.currentQuestion).then((feedbackText) => {
+            this.feedbackText = feedbackText;
+            console.log('[onVisibilityChange] Feedback text regenerated:', feedbackText);
+          });
+        } else {
+          this.loadCurrentQuestion().then(async (loaded) => {
+            if (loaded && this.currentQuestion) {
+              this.restoreFeedbackState();
+              this.renderDisplay();
+
+              // Generate feedback for the reloaded question
+              const feedbackText = await this.generateFeedbackText(this.currentQuestion);
+              this.feedbackText = feedbackText;
+              console.log('[onVisibilityChange] Feedback text generated after reloading:', feedbackText);
             } else {
               console.error('[onVisibilityChange] Failed to reload current question.');
             }
