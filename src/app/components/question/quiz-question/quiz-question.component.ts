@@ -1174,8 +1174,12 @@ export class QuizQuestionComponent
       await this.handleExplanationDisplay();
 
       // Generate feedback for the loaded question
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
+      if (this.currentQuestion && this.optionsToDisplay?.length) {
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
+      } else {
+          console.error('[loadQuestion] Failed to generate feedback. Question or options are missing.');
+      }
   
       // Update the selection message
       this.updateSelectionMessage(false);
