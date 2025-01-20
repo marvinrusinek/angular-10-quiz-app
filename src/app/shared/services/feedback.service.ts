@@ -53,12 +53,12 @@ export class FeedbackService {
         return ''; // Return early if some options are not valid
       }
   
-      // Get indices of correct answers (1-based)
+      // Get indices of correct answers (1-based) and sort numerically
       const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
         .map(item => item.index)
-        .sort((a, b) => a - b);
+        .sort((a, b) => a - b); // Numeric sorting
       if (!indices.length) {
         console.warn('No correct indices found');
         return 'No correct answers found for the current question.';
