@@ -959,7 +959,7 @@ export class QuizQuestionComponent
 
       // Generate feedback text after options are loaded
       if (this.optionsToDisplay.length > 0) {
-        this.feedbackText = this.generateFeedbackText();
+        this.feedbackText = this.generateFeedbackText(this.currentQuestion);
         console.log('[initializeComponent] Feedback text initialized:', this.feedbackText);
       } else {
           console.warn('[initializeComponent] Options not available to generate feedback.');
@@ -1125,7 +1125,7 @@ export class QuizQuestionComponent
         ...option,
         active: true, // Default all options to active initially
         feedback: undefined, // Reset feedback
-        showIcon: false, // Reset icons
+        showIcon: false // Reset icons
       })) || [];
   
       // Abort handling
