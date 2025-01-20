@@ -1020,25 +1020,29 @@ export class QuizQuestionComponent
 
   private async initializeComponent(): Promise<void> {
     try {
-      // Load the first or current question
+      // Ensure questions are loaded before proceeding
       const loaded = await this.loadQuestion();
       if (!loaded) {
         console.error('[initializeComponent] Failed to load the initial question.');
         return;
       }
   
-      // Generate feedback for the current question
+      // Validate and generate feedback for the current question
       if (this.currentQuestion) {
         this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[initializeComponent] Feedback text generated for the initial question:', this.feedbackText);
+        console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);
       } else {
-        console.warn('[initializeComponent] Current question is null or undefined after loading.');
+        console.warn('[initializeComponent] Current question is missing after loading.');
+        return;
       }
   
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
+  
+      // Render display to ensure all elements are updated
+      this.renderDisplay();
     } catch (error) {
       console.error('[initializeComponent] Error during initialization:', error);
     }
