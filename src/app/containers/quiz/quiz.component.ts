@@ -1456,7 +1456,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       // Generate feedback text for the current question
-      this.quizQuestionComponent.generateFeedbackText(question)
+      this.quizQuestionComponent?.generateFeedbackText(question)
         .then((feedbackText) => {
           this.feedbackText = feedbackText;
           console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', feedbackText);
