@@ -1035,13 +1035,14 @@ export class QuizQuestionComponent
       }
   
       // Validate and generate feedback for the current question
-      if (this.currentQuestion) {
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);
-      } else {
+      if (!this.currentQuestion) {
         console.warn('[initializeComponent] Current question is missing after loading.');
         return;
       }
+      
+      // Generate feedback for the current question
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+      console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);     
   
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
