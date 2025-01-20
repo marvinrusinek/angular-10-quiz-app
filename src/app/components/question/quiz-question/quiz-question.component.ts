@@ -1026,18 +1026,18 @@ export class QuizQuestionComponent
         console.error('[initializeComponent] Failed to load the initial question.');
         return;
       }
-
-      // Generate feedback text after loading the question
-      if (this.currentQuestion) {
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[initializeComponent] Feedback text generated:', this.feedbackText);
-      } else {
-        console.warn('[initializeComponent] Current question is not set after loading.');
-      }
   
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
+      }
+  
+      // Ensure feedback is generated after the question is loaded
+      if (this.currentQuestion) {
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        console.log('[initializeComponent] Feedback text generated for the initial question:', this.feedbackText);
+      } else {
+        console.warn('[initializeComponent] Current question is null or undefined after loading.');
       }
     } catch (error) {
       console.error('[initializeComponent] Error during initialization:', error);
