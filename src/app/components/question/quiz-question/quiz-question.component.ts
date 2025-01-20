@@ -708,6 +708,7 @@ export class QuizQuestionComponent
   
         // Set the current question
         this.setQuestionFirst(questionIndex);
+        
         // Validate question index
         if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
           console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
