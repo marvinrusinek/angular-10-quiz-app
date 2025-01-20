@@ -700,26 +700,41 @@ export class QuizQuestionComponent
         // Ensure questions are loaded
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-          await this.loadQuestion();
+          await this.loadQuestions();
           if (!this.questionsArray || this.questionsArray.length === 0) {
             console.error('[handleRouteChanges] Questions could not be loaded.');
             return;
           }
         }
   
-        // Set the question and generate feedback
+        // Set the current question
         this.setQuestionFirst(index);
-        if (this.currentQuestion) {
-          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-          console.log('[handleRouteChanges] Feedback generated for question:', this.feedbackText);
-        } else {
-          console.warn('[handleRouteChanges] Current question is not set.');
+        if (!this.currentQuestion) {
+          console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
+          return;
         }
+  
+        console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
+  
+        // Validate and log optionsToDisplay
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: true, // Ensure options are active
+          feedback: undefined, // Reset feedback
+          showIcon: false, // Reset icons
+        }));
+  
+        console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
+  
+        // Regenerate feedback
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
       } catch (error) {
         console.error('[handleRouteChanges] Error handling route change:', error);
       }
     });
   }
+  
 
   private setQuestionFirst(index: number): void {
     // Check if the index is within the valid range of questionsArray
