@@ -956,6 +956,14 @@ export class QuizQuestionComponent
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
+
+      // Generate feedback text after options are loaded
+      if (this.optionsToDisplay.length > 0) {
+        this.feedbackText = this.generateFeedbackText();
+        console.log('[initializeComponent] Feedback text initialized:', this.feedbackText);
+      } else {
+          console.warn('[initializeComponent] Options not available to generate feedback.');
+      }
     } catch (error) {
       console.error('[initializeComponent] Error during initialization:', error);
     }
