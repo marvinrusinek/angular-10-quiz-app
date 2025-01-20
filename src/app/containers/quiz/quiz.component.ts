@@ -1411,55 +1411,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
   loadQuestionByRouteIndex(questionIndex: number): void {
-    if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
-      console.error('Question index out of bounds:', questionIndex);
-      return;
-    }
-
-    const question = this.quiz.questions[questionIndex];
-    this.questionToDisplay = question.questionText;
-
-    // Assign option IDs dynamically
-    const optionsWithIds = this.quizService.assignOptionIds(question.options);
-
-    // Initialize optionsToDisplay with default values
-    this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
-      ...option,
-      feedback: option.feedback ?? 'No feedback available.', // Default feedback
-      showIcon: option.showIcon ?? false,
-      active: option.active ?? true,
-      selected: option.selected ?? false,
-      correct: option.correct ?? false,
-      // Ensure optionId is a number: use existing number or fallback to index-based generation
-      optionId: typeof option.optionId === 'number' 
-        ? option.optionId
-        : optionIndex + 1 // Fallback to 1-based index
-    }));
-
-    // Check for correct answers in optionsToDisplay
-    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-    console.log('[loadQuestionByRouteIndex] Correct options:', correctOptions);
-
-    if (!correctOptions.length) {
-      console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
-    }
-
-    // Apply feedback after ensuring options are initialized
-    setTimeout(() => {
+    try {
+      // Validate question index
+      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+        console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
+        return;
+      }
+  
+      // Get the current question
+      const question = this.quiz.questions[questionIndex];
+      this.questionToDisplay = question.questionText;
+  
+      // Assign option IDs dynamically and normalize options
+      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+      this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
+        ...option,
+        feedback: option.feedback ?? 'No feedback available.', // Default feedback
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+        correct: option.correct ?? false,
+        optionId: typeof option.optionId === 'number' 
+          ? option.optionId 
+          : optionIndex + 1, // Fallback to 1-based index
+      }));
+  
+      console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
+  
+      // Check for correct answers
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      if (!correctOptions.length) {
+        console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
+      } else {
+        console.log('[loadQuestionByRouteIndex] Correct Options:', correctOptions);
+      }
+  
+      // Apply feedback after ensuring options are initialized
       try {
         this.prepareFeedback(); // Apply feedback to options
         console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
       } catch (error) {
         console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
       }
-    }, 50);
-
-    // Fetch explanation text for the current question
-    try {
-      this.fetchFormattedExplanationText(questionIndex);
-      console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
+  
+      // Generate feedback text for the current question
+      this.quizQuestionComponent.generateFeedbackText(question)
+        .then((feedbackText) => {
+          this.feedbackText = feedbackText;
+          console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', feedbackText);
+        })
+        .catch((error) => {
+          console.error('[loadQuestionByRouteIndex] Error generating feedback text:', error);
+        });
+  
+      // Fetch explanation text for the current question
+      try {
+        this.fetchFormattedExplanationText(questionIndex);
+        console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
+      } catch (error) {
+        console.error('[loadQuestionByRouteIndex] Error fetching explanation text:', error);
+      }
     } catch (error) {
-      console.error('[loadQuestionByRouteIndex] Error fetching explanation text:', error);
+      console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
     }
   }
 
