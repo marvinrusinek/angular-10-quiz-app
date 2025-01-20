@@ -1186,17 +1186,13 @@ export class QuizQuestionComponent
         this.timerService.stopTimer();
         return false;
       }
+
+      // Ensure feedback is generated for the question
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+      console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
   
       // Display explanation only if the question is answered
       await this.handleExplanationDisplay();
-
-      // Generate feedback for the loaded question
-      if (this.currentQuestion && this.optionsToDisplay?.length) {
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
-      } else {
-        console.error('[loadQuestion] Failed to generate feedback. Question or options are missing.');
-      }
   
       // Update the selection message
       this.updateSelectionMessage(false);
