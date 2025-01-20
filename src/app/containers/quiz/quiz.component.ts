@@ -203,13 +203,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   ) {
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
-        console.log('Page hidden: Pausing updates.');
-        // Page is now hidden, pause or delay any updates here (if needed)
+        // Pause updates here (if needed)
       } else {
-        console.log('Page visible: Resuming updates.');
-        // Page is now visible, resume updates like updating the question display
-  
-        this.handleVisibilityChange(); // Call the logic to reload question display
+        this.handleVisibilityChange(); // Resume updates
       }
     });
 
