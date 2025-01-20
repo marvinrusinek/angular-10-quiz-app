@@ -1004,12 +1004,14 @@ export class QuizQuestionComponent
         return;
       }
 
-      // Generate feedback for the initial question
+      // Generate feedback text after loading the question
       if (this.currentQuestion) {
         this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[initializeComponent] Feedback text initialized:', this.feedbackText);
+        console.log('[initializeComponent] Feedback text generated:', this.feedbackText);
+      } else {
+        console.warn('[initializeComponent] Current question is not set after loading.');
       }
-
+  
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
