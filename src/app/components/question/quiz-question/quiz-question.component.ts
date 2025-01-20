@@ -700,7 +700,7 @@ export class QuizQuestionComponent
         // Ensure questions are loaded
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-          await this.loadQuestions();
+          await this.loadQuestion();
           if (!this.questionsArray || this.questionsArray.length === 0) {
             console.error('[handleRouteChanges] Questions could not be loaded.');
             return;
