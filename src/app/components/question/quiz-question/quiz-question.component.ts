@@ -398,32 +398,39 @@ export class QuizQuestionComponent
   onVisibilityChange(): void {
     try {
       if (document.visibilityState === 'visible') {
-        // First restore the quiz state
+        // First, restore the quiz state
         this.restoreQuizState();
 
-        // Then handle question and options restoration
         if (this.currentQuestion) {
+          // If the current question exists, regenerate feedback
           this.restoreFeedbackState();
           this.renderDisplay();
 
-          // Generate feedback for the current question
           this.generateFeedbackText(this.currentQuestion).then((feedbackText) => {
             this.feedbackText = feedbackText;
             console.log('[onVisibilityChange] Feedback text regenerated:', feedbackText);
+          }).catch((error) => {
+            console.error('[onVisibilityChange] Error regenerating feedback text:', error);
           });
         } else {
+          // Reload the current question if missing
           this.loadCurrentQuestion().then(async (loaded) => {
             if (loaded && this.currentQuestion) {
               this.restoreFeedbackState();
               this.renderDisplay();
 
-              // Generate feedback for the reloaded question
-              const feedbackText = await this.generateFeedbackText(this.currentQuestion);
-              this.feedbackText = feedbackText;
-              console.log('[onVisibilityChange] Feedback text generated after reloading:', feedbackText);
+              try {
+                const feedbackText = await this.generateFeedbackText(this.currentQuestion);
+                this.feedbackText = feedbackText;
+                console.log('[onVisibilityChange] Feedback text generated after reloading:', feedbackText);
+              } catch (error) {
+                console.error('[onVisibilityChange] Error generating feedback text after reload:', error);
+              }
             } else {
               console.error('[onVisibilityChange] Failed to reload current question.');
             }
+          }).catch((error) => {
+            console.error('[onVisibilityChange] Error reloading current question:', error);
           });
         }
       }
