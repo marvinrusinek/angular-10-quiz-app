@@ -988,13 +988,17 @@ export class QuizQuestionComponent
         console.error('[initializeComponent] Failed to load the initial question.');
         return;
       }
-  
+
+      // Generate feedback for the initial question
+      if (this.currentQuestion) {
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        console.log('[initializeComponent] Feedback text initialized:', this.feedbackText);
+      }
+
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
-
-      this.generateFeedbackText(this.currentQuestion);
     } catch (error) {
       console.error('[initializeComponent] Error during initialization:', error);
     }
