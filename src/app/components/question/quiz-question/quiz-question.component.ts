@@ -1352,7 +1352,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private async generateFeedbackText(question: QuizQuestion): Promise<string> {
+  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
       if (!question || !question.options || question.options.length === 0) {
         console.warn('[generateFeedbackText] Invalid question or options are missing.');
