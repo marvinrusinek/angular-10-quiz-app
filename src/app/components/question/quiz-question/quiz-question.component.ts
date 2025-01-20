@@ -1349,38 +1349,31 @@ export class QuizQuestionComponent
     }
   }
 
-  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+  private async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
-      // Validate the input question and options
-      if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-        console.warn('[generateFeedbackText] Invalid question or missing options:', question);
+      if (!question || !question.options || question.options.length === 0) {
+        console.warn('[generateFeedbackText] Invalid question or options are missing.');
         return 'No feedback available for the current question.';
+      }
+  
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackText] optionsToDisplay is not set.');
+        // Fallback: Use the options from the question directly
+        this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
       }
   
       // Extract correct options
       const correctOptions = question.options.filter((option) => option.correct);
-  
       if (correctOptions.length === 0) {
-        console.info('[generateFeedbackText] No correct options found for the question:', question.questionText);
+        console.info('[generateFeedbackText] No correct options found for the question.');
         return 'No correct answers defined for this question.';
-      }
-  
-      // Validate optionsToDisplay
-      if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackText] optionsToDisplay is not set or empty.');
-        return 'Unable to display feedback at this time.';
       }
   
       // Generate feedback using the feedback service
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-  
-      if (!feedbackText || feedbackText.trim() === '') {
-        console.warn('[generateFeedbackText] Feedback text is empty or undefined.');
-        return 'No feedback generated for the current question.';
-      }
-  
       console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
-      return feedbackText;
+  
+      return feedbackText || 'No feedback generated for the current question.';
     } catch (error) {
       console.error('[generateFeedbackText] Error generating feedback:', error);
       return 'An error occurred while generating feedback. Please try again.';
