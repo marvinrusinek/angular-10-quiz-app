@@ -1131,6 +1131,9 @@ export class QuizQuestionComponent
   
       // Display explanation only if the question is answered
       await this.handleExplanationDisplay();
+
+      // Generate feedback text
+      this.generateFeedbackText(this.currentQuestion);
   
       // Update the selection message
       this.updateSelectionMessage(false);
