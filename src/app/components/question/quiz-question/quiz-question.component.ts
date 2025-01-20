@@ -687,7 +687,7 @@ export class QuizQuestionComponent
 
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-      const index = +params.get('questionIndex') || 0;
+      const questionIndex = +params.get('questionIndex') || 0;
   
       try {
         // Reset state and hide explanation initially
@@ -707,7 +707,14 @@ export class QuizQuestionComponent
         }
   
         // Set the current question
-        this.setQuestionFirst(index);
+        this.setQuestionFirst(questionIndex);
+        // Validate question index
+        if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+          console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
+          return;
+        }
+
+        this.currentQuestion = this.questionsArray[questionIndex];
         if (!this.currentQuestion) {
           console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
           return;
