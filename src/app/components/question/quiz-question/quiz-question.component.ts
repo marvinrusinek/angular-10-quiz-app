@@ -4,6 +4,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, first, map, take, takeUntil, tap } from 'rxjs/operators';
 
+
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
@@ -1329,32 +1330,36 @@ export class QuizQuestionComponent
 
   private async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
-      if (!question || !question.options || question.options.length === 0) {
-        console.warn('[generateFeedbackText] Invalid question or options are missing.');
+      // Validate the input question and options
+      if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+        console.warn('[generateFeedbackText] Invalid question or missing options:', question);
         return 'No feedback available for the current question.';
       }
-
+  
       // Extract correct options
       const correctOptions = question.options.filter((option) => option.correct);
-
+  
       if (correctOptions.length === 0) {
-        console.info('[generateFeedbackText] No correct options found for the question.');
+        console.info('[generateFeedbackText] No correct options found for the question:', question.questionText);
         return 'No correct answers defined for this question.';
       }
-
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackText] optionsToDisplay is not set.');
+  
+      // Validate optionsToDisplay
+      if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackText] optionsToDisplay is not set or empty.');
         return 'Unable to display feedback at this time.';
       }
-
+  
       // Generate feedback using the feedback service
-      const feedbackText = this.feedbackService.setCorrectMessage(
-        correctOptions,
-        this.optionsToDisplay
-      );
-
+      const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+  
+      if (!feedbackText || feedbackText.trim() === '') {
+        console.warn('[generateFeedbackText] Feedback text is empty or undefined.');
+        return 'No feedback generated for the current question.';
+      }
+  
       console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
-      return feedbackText || 'No feedback generated for the current question.';
+      return feedbackText;
     } catch (error) {
       console.error('[generateFeedbackText] Error generating feedback:', error);
       return 'An error occurred while generating feedback. Please try again.';
