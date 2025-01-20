@@ -679,21 +679,36 @@ export class QuizQuestionComponent
   }
 
   private handleRouteChanges(): void {
-    this.activatedRoute.paramMap.subscribe((params) => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       const index = +params.get('questionIndex') || 0;
-
-      // Reset state and hide explanation initially
-      this.resetStateForNewQuestion();
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      this.showExplanationChange.emit(false);
-
-      if (this.questionsArray && this.questionsArray.length > 0) {
+  
+      try {
+        // Reset state and hide explanation initially
+        this.resetStateForNewQuestion();
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(false);
+  
+        // Ensure questions are loaded
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
+          await this.loadQuestions(); // Add a method to fetch and set questions if not ready
+          if (!this.questionsArray || this.questionsArray.length === 0) {
+            console.error('[handleRouteChanges] Questions could not be loaded.');
+            return;
+          }
+        }
+  
+        // Set the question and generate feedback
         this.setQuestionFirst(index);
-      } else {
-        console.warn(
-          'Questions are not ready yet. Skipping explanation update.'
-        );
+        if (this.currentQuestion) {
+          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+          console.log('[handleRouteChanges] Feedback generated for question:', this.feedbackText);
+        } else {
+          console.warn('[handleRouteChanges] Current question is not set.');
+        }
+      } catch (error) {
+        console.error('[handleRouteChanges] Error handling route change:', error);
       }
     });
   }
