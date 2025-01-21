@@ -1491,10 +1491,18 @@ export class QuizQuestionComponent
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
   
-      return feedbackText || 'No feedback generated for the current question.';
+      // Emit the updated feedback text
+      this.feedbackText = feedbackText || 'No feedback generated for the current question.';
+      this.feedbackTextChange.emit(this.feedbackText); // Emit to notify listeners
+      console.log('[generateFeedbackText] Emitted feedbackTextChange:', this.feedbackText);
+  
+      return this.feedbackText;
     } catch (error) {
       console.error('[generateFeedbackText] Error generating feedback:', error);
-      return 'An error occurred while generating feedback. Please try again.';
+      const fallbackText = 'An error occurred while generating feedback. Please try again.';
+      this.feedbackText = fallbackText;
+      this.feedbackTextChange.emit(this.feedbackText); // Emit fallback text
+      return fallbackText;
     }
   }
 
