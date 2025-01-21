@@ -2503,7 +2503,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     // Check if at least one option is selected
-    const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
+    const isAnyOptionSelected = this.selectedOptionService.getSelectedOptions().length > 0;
   
     // Validate that all correct options are selected
     this.selectedOptionService
