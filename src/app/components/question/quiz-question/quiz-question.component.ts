@@ -755,7 +755,7 @@ export class QuizQuestionComponent
         // Ensure questions are loaded
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-          const loaded = await this.loadQuestions(); // Assuming loadQuestions populates questionsArray
+          const loaded = await this.loadQuestion(); // Assuming loadQuestions populates questionsArray
           if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
             console.error('[handleRouteChanges] Questions could not be loaded.');
             return;
@@ -782,7 +782,7 @@ export class QuizQuestionComponent
           ...option,
           active: true, // Ensure options are active
           feedback: undefined, // Reset feedback
-          showIcon: false, // Reset icons
+          showIcon: false // Reset icons
         }));
   
         console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
