@@ -523,58 +523,48 @@ export class QuizQuestionComponent
       // Restore explanation text
       this.currentExplanationText =
         sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
-      console.log('[restoreQuizState] Restored explanation text:', this.currentExplanationText);
+      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   
-      // Restore display mode (default to 'question')
-      const displayMode = sessionStorage.getItem(
-        `displayMode_${this.currentQuestionIndex}`
-      );
-      this.displayState.mode =
-        displayMode === 'explanation' ? 'explanation' : 'question';
-      console.log('[restoreQuizState] Restored display mode:', this.displayState.mode);
-  
-      // Restore options to display
+      // Restore options data
       const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
       if (optionsData) {
         this.optionsToDisplay = JSON.parse(optionsData);
-        console.log('[restoreQuizState] Restored options to display:', this.optionsToDisplay);
+        console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
       } else {
         console.warn('[restoreQuizState] No options data found for restoration.');
-        this.optionsToDisplay = []; // Default to empty array if nothing is stored
+        this.optionsToDisplay = [];
+      }
+  
+      // Restore selected options
+      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
+      if (selectedOptionsData) {
+        const selectedOptions = JSON.parse(selectedOptionsData);
+        for (const option of selectedOptions) {
+          if (option.optionId !== undefined) {
+            this.selectedOptionService.setSelectedOption(option.optionId);
+          } else {
+            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+          }
+        }
+        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+      } else {
+        console.warn('[restoreQuizState] No selected options data found for restoration.');
       }
   
       // Restore feedback text
-      this.feedbackText =
-        sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`) || '';
-      console.log('[restoreQuizState] Restored feedback text:', this.feedbackText);
-  
-      // Restore selected options if applicable
-      const selectedOptionsData = sessionStorage.getItem(
-        `selectedOptions_${this.currentQuestionIndex}`
-      );
-      if (selectedOptionsData) {
-        const selectedOptions = JSON.parse(selectedOptionsData);
-        console.log('[restoreQuizState] Restored selected options data:', selectedOptions);
-      
-        if (Array.isArray(selectedOptions)) {
-          // Use `setSelectedOption` to restore each option
-          for (const option of selectedOptions) {
-            if (option.optionId !== undefined) {
-              this.selectedOptionService.setSelectedOption(option.optionId);
-            } else {
-              console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
-            }
-          }
-        } else {
-          console.error('[restoreQuizState] Invalid selected options format:', selectedOptions);
-        }
+      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
+      if (restoredFeedbackText) {
+        this.feedbackText = restoredFeedbackText;
+        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
       } else {
-        console.warn('[restoreQuizState] No selected options data found for restoration.');
+        console.warn('[restoreQuizState] No feedback text found for restoration.');
+        this.feedbackText = ''; // Default to an empty string
       }
     } catch (error) {
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
-  }
+  }  
   
 
   // Method to initialize `displayMode$` and control the display reactively
