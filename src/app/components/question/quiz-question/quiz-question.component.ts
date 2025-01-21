@@ -1047,7 +1047,7 @@ export class QuizQuestionComponent
       } catch (feedbackError) {
         console.error('[initializeComponent] Error generating feedback:', feedbackError);
         this.feedbackText = 'Unable to generate feedback.';
-      }        
+      }
   
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
