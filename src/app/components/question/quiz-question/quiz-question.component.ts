@@ -1383,6 +1383,7 @@ export class QuizQuestionComponent
         active: true, // Default all options to active initially
         feedback: undefined, // Reset feedback
         showIcon: false, // Reset icons
+        selected: false // Initialize selected state
       })) || [];
   
       console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
