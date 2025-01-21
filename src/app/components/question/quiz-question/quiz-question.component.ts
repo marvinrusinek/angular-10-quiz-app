@@ -1268,18 +1268,32 @@ export class QuizQuestionComponent
     this.ensureQuestionTextDisplay();
   
     try {
-      // Ensure a valid quiz ID is available
-      const quizId = this.quizService.getCurrentQuizId();
-      if (!quizId) throw new Error('No active quiz ID found');
+      // Ensure questionsArray is populated
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('[loadQuestion] Questions array is empty. Fetching questions...');
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+          throw new Error('No active quiz ID found. Cannot fetch questions.');
+        }
   
-      // Fetch the current question by index
-      this.currentQuestion = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(
-          quizId,
-          this.currentQuestionIndex
-        )
-      );
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
+        }
   
+        console.log('[loadQuestion] Questions array successfully fetched:', this.questionsArray);
+      }
+  
+      // Validate current question index
+      if (
+        this.currentQuestionIndex < 0 ||
+        this.currentQuestionIndex >= this.questionsArray.length
+      ) {
+        throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
+      }
+  
+      // Fetch the current question
+      this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!this.currentQuestion) {
         this.optionsToDisplay = [];
         console.warn('[loadQuestion] Current question is null or undefined.');
@@ -1288,7 +1302,7 @@ export class QuizQuestionComponent
   
       // Assign optionIds if missing
       this.currentQuestion.options = this.quizService.assignOptionIds(
-        this.currentQuestion?.options ?? []
+        this.currentQuestion.options ?? []
       );
   
       // Set the options to display for the current question
@@ -1296,16 +1310,18 @@ export class QuizQuestionComponent
         ...option,
         active: true, // Default all options to active initially
         feedback: undefined, // Reset feedback
-        showIcon: false // Reset icons
+        showIcon: false, // Reset icons
       })) || [];
+  
+      console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
   
       // Abort handling
       if (signal?.aborted) {
-        console.log('Load question operation aborted.');
+        console.log('[loadQuestion] Load question operation aborted.');
         this.timerService.stopTimer();
         return false;
       }
-
+  
       // Ensure feedback is generated for the question
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
       console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
@@ -1319,7 +1335,7 @@ export class QuizQuestionComponent
       // Successfully loaded the question
       return true;
     } catch (error) {
-      console.error('Error loading question:', error);
+      console.error('[loadQuestion] Error loading question:', error);
       this.feedbackText = 'Error loading question. Please try again.';
       return false;
     } finally {
