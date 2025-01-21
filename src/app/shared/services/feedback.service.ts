@@ -33,6 +33,10 @@ export class FeedbackService {
   }
 
   setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    // Debugging for inputs
+    console.log('[setCorrectMessage] Received correctOptions:', correctOptions);
+    console.log('[setCorrectMessage] Received optionsToDisplay:', optionsToDisplay);
+
     if (!correctOptions || !correctOptions.length) {
       console.warn('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
