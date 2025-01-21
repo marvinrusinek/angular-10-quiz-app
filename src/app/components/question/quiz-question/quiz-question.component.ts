@@ -1313,25 +1313,19 @@ export class QuizQuestionComponent
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
-    // Check if questions array is loaded
-    if (!this.questions || this.questions.length === 0) {
+    // Ensure questions array is loaded
+    const questionsLoaded = await this.ensureQuestionsLoaded();
+    if (!questionsLoaded) {
       console.error('[loadCurrentQuestion] No questions available.');
       return false;
     }
-
+  
     // Validate current question index
     if (
       this.currentQuestionIndex < 0 ||
       this.currentQuestionIndex >= this.questions.length
     ) {
       console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
-      return false;
-    }
-  
-    // Ensure questions are loaded
-    const questionsLoaded = await this.ensureQuestionsLoaded();
-    if (!questionsLoaded) {
-      console.error('[loadCurrentQuestion] Failed to load questions.');
       return false;
     }
   
@@ -1344,10 +1338,10 @@ export class QuizQuestionComponent
       if (questionData) {
         console.log(`[loadCurrentQuestion] Loaded data for question index: ${this.currentQuestionIndex}`);
         
-        // Assign unique IDs to options for consistent identification
+        // Assign unique IDs to options
         questionData.options = this.quizService.assignOptionIds(questionData.options);
   
-        // Set the initial active states for options (default: all active)
+        // Assign active states for options
         questionData.options = this.quizService.assignOptionActiveStates(
           questionData.options,
           false
