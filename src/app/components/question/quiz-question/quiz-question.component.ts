@@ -57,6 +57,7 @@ export class QuizQuestionComponent
     new EventEmitter<string>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
+  @Output() feedbackTextChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
