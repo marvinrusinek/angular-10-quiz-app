@@ -1087,16 +1087,27 @@ export class QuizQuestionComponent
 
   private async initializeComponent(): Promise<void> {
     try {
-      // Ensure questions are loaded before proceeding
+      // Check if the questions array is loaded
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('[initializeComponent] Questions array is empty. Attempting to load questions.');
-        await this.loadQuestion();
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.error('[initializeComponent] Failed to load questions. Aborting initialization.');
+        console.warn('[initializeComponent] Questions array is empty. Fetching questions...');
+        
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+          console.error('[initializeComponent] Quiz ID is missing. Cannot fetch questions.');
           return;
         }
+  
+        // Fetch questions and populate the array
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error('[initializeComponent] Failed to fetch questions. Aborting initialization.');
+          return;
+        }
+  
+        console.log('[initializeComponent] Questions array successfully fetched:', this.questionsArray);
       }
   
+      // Load the first question
       const loaded = await this.loadQuestion();
       if (!loaded) {
         console.error('[initializeComponent] Failed to load the initial question.');
