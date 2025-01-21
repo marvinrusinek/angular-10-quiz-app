@@ -38,13 +38,13 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Received optionsToDisplay:', optionsToDisplay);
 
     if (!correctOptions || !correctOptions.length) {
-      console.warn('[setCorrectMessage] No correct options provided.');
+      console.info('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
     }
     
     // Wait for data to be properly loaded
     if (!optionsToDisplay?.length) {
-      console.log('[setCorrectMessage] Options not loaded yet. Retrying...');
+      console.info('[setCorrectMessage] Options not loaded yet. Retrying...');
       return '';  // Return empty string instead of error message
     }
   
