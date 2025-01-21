@@ -1087,34 +1087,36 @@ export class QuizQuestionComponent
 
   private async initializeComponent(): Promise<void> {
     try {
-      // Check if the questions array is loaded
+      // Ensure questions are loaded before proceeding
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('[initializeComponent] Questions array is empty. Fetching questions...');
-        
+        console.info('[initializeComponent] Questions array is empty. Fetching questions...');
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-          console.error('[initializeComponent] Quiz ID is missing. Cannot fetch questions.');
+          console.error('[initializeComponent] No active quiz ID found. Aborting initialization.');
           return;
         }
   
-        // Fetch questions and populate the array
         this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.error('[initializeComponent] Failed to fetch questions. Aborting initialization.');
           return;
         }
-  
-        console.log('[initializeComponent] Questions array successfully fetched:', this.questionsArray);
+        console.info('[initializeComponent] Questions array successfully fetched:', this.questionsArray);
       }
   
-      // Load the first question
-      const loaded = await this.loadQuestion();
-      if (!loaded) {
-        console.error('[initializeComponent] Failed to load the initial question.');
+      // Ensure the current question index is valid
+      if (
+        this.currentQuestionIndex < 0 ||
+        this.currentQuestionIndex >= this.questionsArray.length
+      ) {
+        console.error(
+          '[initializeComponent] Invalid currentQuestionIndex:',
+          this.currentQuestionIndex
+        );
         return;
       }
   
-      // Validate and generate feedback for the current question
+      // Set the current question
       this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!this.currentQuestion) {
         console.warn('[initializeComponent] Current question is missing after loading.', {
@@ -1124,18 +1126,26 @@ export class QuizQuestionComponent
         return;
       }
   
+      console.info('[initializeComponent] Current question set:', this.currentQuestion);
+  
+      // Generate feedback for the current question
       try {
         this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);
+        console.info(
+          '[initializeComponent] Feedback text generated for the first question:',
+          this.feedbackText
+        );
       } catch (feedbackError) {
         console.error('[initializeComponent] Error generating feedback:', feedbackError);
         this.feedbackText = 'Unable to generate feedback.';
       }
   
+      // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
   
+      // Render display to ensure all elements are updated
       this.renderDisplay();
     } catch (error) {
       console.error('[initializeComponent] Error during initialization:', error);
