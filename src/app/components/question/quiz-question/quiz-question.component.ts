@@ -1088,6 +1088,15 @@ export class QuizQuestionComponent
   private async initializeComponent(): Promise<void> {
     try {
       // Ensure questions are loaded before proceeding
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('[initializeComponent] Questions array is empty. Attempting to load questions.');
+        await this.loadQuestion();
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error('[initializeComponent] Failed to load questions. Aborting initialization.');
+          return;
+        }
+      }
+  
       const loaded = await this.loadQuestion();
       if (!loaded) {
         console.error('[initializeComponent] Failed to load the initial question.');
@@ -1099,11 +1108,10 @@ export class QuizQuestionComponent
         console.warn('[initializeComponent] Current question is missing after loading.', {
           currentQuestionIndex: this.currentQuestionIndex,
           questionsArray: this.questionsArray,
-        });        
+        });
         return;
       }
-      
-      // Generate feedback for the current question
+  
       try {
         this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
         console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);
@@ -1112,12 +1120,10 @@ export class QuizQuestionComponent
         this.feedbackText = 'Unable to generate feedback.';
       }
   
-      // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
   
-      // Render display to ensure all elements are updated
       this.renderDisplay();
     } catch (error) {
       console.error('[initializeComponent] Error during initialization:', error);
