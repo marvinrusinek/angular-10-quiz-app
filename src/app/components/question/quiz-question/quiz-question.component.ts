@@ -1036,7 +1036,10 @@ export class QuizQuestionComponent
   
       // Validate and generate feedback for the current question
       if (!this.currentQuestion) {
-        console.warn('[initializeComponent] Current question is missing after loading.');
+        console.warn('[initializeComponent] Current question is missing after loading.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+        });        
         return;
       }
       
