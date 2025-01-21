@@ -2263,8 +2263,10 @@ export class QuizQuestionComponent
       // Restore feedback for options
       this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
         ...option,
+        active: true,
         feedback: option.feedback || this.generateFeedbackForOption(option), // Restore or regenerate feedback
-        showIcon: option.correct || option.showIcon // Ensure icons are displayed for correct options
+        showIcon: option.correct || option.showIcon, // Ensure icons are displayed for correct options
+        selected: option.selected ?? false // Use saved state if available
       }));
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
