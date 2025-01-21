@@ -1041,8 +1041,13 @@ export class QuizQuestionComponent
       }
       
       // Generate feedback for the current question
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);     
+      try {
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        console.log('[initializeComponent] Feedback text generated for the first question:', this.feedbackText);
+      } catch (feedbackError) {
+        console.error('[initializeComponent] Error generating feedback:', feedbackError);
+        this.feedbackText = 'Unable to generate feedback.';
+      }        
   
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
