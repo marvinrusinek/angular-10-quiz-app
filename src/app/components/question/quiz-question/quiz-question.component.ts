@@ -549,13 +549,13 @@ export class QuizQuestionComponent
       
         if (Array.isArray(selectedOptions)) {
           // Use `setSelectedOption` to restore each option
-          selectedOptions.forEach((option) => {
+          for (const option of selectedOptions) {
             if (option.optionId !== undefined) {
               this.selectedOptionService.setSelectedOption(option.optionId);
             } else {
               console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
             }
-          });
+          }
         } else {
           console.error('[restoreQuizState] Invalid selected options format:', selectedOptions);
         }
