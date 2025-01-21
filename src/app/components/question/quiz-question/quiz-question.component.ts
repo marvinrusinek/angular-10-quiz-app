@@ -545,8 +545,20 @@ export class QuizQuestionComponent
       );
       if (selectedOptionsData) {
         const selectedOptions = JSON.parse(selectedOptionsData);
-        this.selectedOptionService.setSelectedOptions(selectedOptions);
-        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+        console.log('[restoreQuizState] Restored selected options data:', selectedOptions);
+      
+        if (Array.isArray(selectedOptions)) {
+          // Use `setSelectedOption` to restore each option
+          selectedOptions.forEach((option) => {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+            } else {
+              console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+            }
+          });
+        } else {
+          console.error('[restoreQuizState] Invalid selected options format:', selectedOptions);
+        }
       } else {
         console.warn('[restoreQuizState] No selected options data found for restoration.');
       }
