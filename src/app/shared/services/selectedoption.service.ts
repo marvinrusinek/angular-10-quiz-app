@@ -278,18 +278,22 @@ export class SelectedOptionService {
   }
 
   isSelectedOption(option: Option): boolean {
-    const selectedOption = this.getSelectedOption();
-    const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
+    const selectedOptions = this.getSelectedOptions(); // Updated to use getSelectedOptions()
+    const showFeedbackForOption = this.getShowFeedbackForOption(); // Get feedback data
   
-    // Check if selectedOption is an array (multiple selected options)
-    if (Array.isArray(selectedOption)) {
+    // Check if selectedOptions contains the current option
+    if (Array.isArray(selectedOptions)) {
       // Loop through each selected option and check if the current option is selected
-      return selectedOption.some(opt => opt.optionId === option.optionId && !!showFeedbackForOption[option.optionId]);
+      return selectedOptions.some(
+        (opt) =>
+          opt.optionId === option.optionId && !!showFeedbackForOption[option.optionId]
+      );
     }
   
-    // If selectedOption is a single object, perform a direct comparison
-    return selectedOption?.optionId === option.optionId && !!showFeedbackForOption[option.optionId];
-  }
+    // If selectedOptions is somehow not an array, log a warning
+    console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
+    return false; // Return false if selectedOptions is invalid
+  }  
 
   clearSelectedOption(): void {
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
