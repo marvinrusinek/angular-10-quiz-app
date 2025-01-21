@@ -499,7 +499,7 @@ export class QuizQuestionComponent
     );
   }
 
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     this.currentExplanationText =
       sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) ||
       '';
@@ -508,7 +508,53 @@ export class QuizQuestionComponent
     );
     this.displayState.mode =
       displayMode === 'explanation' ? 'explanation' : 'question';
+  } */
+  private restoreQuizState(): void {
+    try {
+      // Restore explanation text
+      this.currentExplanationText =
+        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
+      console.log('[restoreQuizState] Restored explanation text:', this.currentExplanationText);
+  
+      // Restore display mode (default to 'question')
+      const displayMode = sessionStorage.getItem(
+        `displayMode_${this.currentQuestionIndex}`
+      );
+      this.displayState.mode =
+        displayMode === 'explanation' ? 'explanation' : 'question';
+      console.log('[restoreQuizState] Restored display mode:', this.displayState.mode);
+  
+      // Restore options to display
+      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
+      if (optionsData) {
+        this.optionsToDisplay = JSON.parse(optionsData);
+        console.log('[restoreQuizState] Restored options to display:', this.optionsToDisplay);
+      } else {
+        console.warn('[restoreQuizState] No options data found for restoration.');
+        this.optionsToDisplay = []; // Default to empty array if nothing is stored
+      }
+  
+      // Restore feedback text
+      this.feedbackText =
+        sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`) || '';
+      console.log('[restoreQuizState] Restored feedback text:', this.feedbackText);
+  
+      // Restore selected options if applicable
+      const selectedOptionsData = sessionStorage.getItem(
+        `selectedOptions_${this.currentQuestionIndex}`
+      );
+      if (selectedOptionsData) {
+        const selectedOptions = JSON.parse(selectedOptionsData);
+        this.selectedOptionService.setSelectedOptions(selectedOptions);
+        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+      } else {
+        console.warn('[restoreQuizState] No selected options data found for restoration.');
+      }
+    } catch (error) {
+      console.error('[restoreQuizState] Error restoring quiz state:', error);
+    }
   }
+  
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
