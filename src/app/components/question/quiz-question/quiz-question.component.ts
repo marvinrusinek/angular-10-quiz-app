@@ -2251,6 +2251,9 @@ export class QuizQuestionComponent
 
   private restoreFeedbackState(): void {
     try {
+      console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
+      console.log('[restoreFeedbackState] Options to display:', this.optionsToDisplay);
+
       if (!this.currentQuestion || !this.optionsToDisplay.length) {
         console.warn('[restoreFeedbackState] Missing current question or options to display.');
         return;
