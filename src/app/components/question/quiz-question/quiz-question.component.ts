@@ -1738,8 +1738,10 @@ export class QuizQuestionComponent
             // Initialize the first question
             if (questions && questions.length > 0) {
               this.selectedOptionService.resetAnsweredState();
-              const hasAnswered =
-                this.selectedOptionService.getSelectedOption() !== null;
+
+              const selectedOptions = this.selectedOptionService.getSelectedOptions();
+              const hasAnswered = Array.isArray(selectedOptions) && selectedOptions.length > 0;
+              
               this.selectedOptionService.setAnsweredState(hasAnswered);
               console.log(
                 'Initial answered state for the first question:',
