@@ -1472,39 +1472,41 @@ export class QuizQuestionComponent
 
   public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
+      console.log('[generateFeedbackText] Question received:', question);
+      console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
+  
       if (!question || !question.options || question.options.length === 0) {
         console.warn('[generateFeedbackText] Invalid question or options are missing.');
         return 'No feedback available for the current question.';
       }
   
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackText] optionsToDisplay is not set.');
-        // Fallback: Use the options from the question directly
+        console.warn('[generateFeedbackText] optionsToDisplay is not set. Falling back to question options.');
         this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
       }
   
-      // Extract correct options
       const correctOptions = question.options.filter((option) => option.correct);
       if (correctOptions.length === 0) {
         console.info('[generateFeedbackText] No correct options found for the question.');
         return 'No correct answers defined for this question.';
       }
   
-      // Generate feedback using the feedback service
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
   
-      // Emit the updated feedback text
       this.feedbackText = feedbackText || 'No feedback generated for the current question.';
       this.feedbackTextChange.emit(this.feedbackText); // Emit to notify listeners
       console.log('[generateFeedbackText] Emitted feedbackTextChange:', this.feedbackText);
   
       return this.feedbackText;
     } catch (error) {
-      console.error('[generateFeedbackText] Error generating feedback:', error);
+      console.error('[generateFeedbackText] Error generating feedback:', error, {
+        question,
+        optionsToDisplay: this.optionsToDisplay,
+      });
       const fallbackText = 'An error occurred while generating feedback. Please try again.';
       this.feedbackText = fallbackText;
-      this.feedbackTextChange.emit(this.feedbackText); // Emit fallback text
+      this.feedbackTextChange.emit(this.feedbackText);
       return fallbackText;
     }
   }
