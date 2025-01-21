@@ -399,16 +399,15 @@ export class QuizQuestionComponent
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] Restoring quiz state...');
-        
         await this.restoreQuizState();
 
-        if (this.currentQuestion && this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-          console.log('[onVisibilityChange] Restored current question and options:', {
-            currentQuestion: this.currentQuestion,
-            optionsToDisplay: this.optionsToDisplay,
-          });
+        if (this.currentQuestion) {
+          console.log('[onVisibilityChange] Restored current question:', this.currentQuestion);
 
+          // Restore feedback state
           this.restoreFeedbackState();
+          console.log('[onVisibilityChange] Feedback text restored:', this.feedbackText);
+
           this.renderDisplay();
 
           try {
@@ -419,14 +418,10 @@ export class QuizQuestionComponent
             console.error('[onVisibilityChange] Error generating feedback text:', error);
           }
         } else {
-          console.warn('[onVisibilityChange] Current question or options are missing. Attempting to reload...');
+          console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
           const loaded = await this.loadCurrentQuestion();
-
-          if (loaded && this.currentQuestion && this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-            console.log('[onVisibilityChange] Reloaded current question and options:', {
-              currentQuestion: this.currentQuestion,
-              optionsToDisplay: this.optionsToDisplay,
-            });
+          if (loaded && this.currentQuestion) {
+            console.log('[onVisibilityChange] Reloaded current question:', this.currentQuestion);
 
             this.restoreFeedbackState();
             this.renderDisplay();
@@ -439,7 +434,7 @@ export class QuizQuestionComponent
               console.error('[onVisibilityChange] Error generating feedback text after reload:', error);
             }
           } else {
-            console.error('[onVisibilityChange] Failed to reload current question or options.');
+            console.error('[onVisibilityChange] Failed to reload current question.');
           }
         }
       }
