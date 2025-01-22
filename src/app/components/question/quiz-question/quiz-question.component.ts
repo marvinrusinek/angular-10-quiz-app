@@ -1572,25 +1572,38 @@ export class QuizQuestionComponent
       console.log('[generateFeedbackText] Question received:', question);
       console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
   
+      // Validate the question and its options
       if (!question || !question.options || question.options.length === 0) {
         console.warn('[generateFeedbackText] Invalid question or options are missing.');
         return 'No feedback available for the current question.';
       }
   
+      // Ensure optionsToDisplay is set, falling back to question options if necessary
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[generateFeedbackText] optionsToDisplay is not set. Falling back to question options.');
         this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
+  
+        // Log and validate the restored options
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[generateFeedbackText] Failed to restore valid optionsToDisplay.');
+          return 'No options available to generate feedback.';
+        } else {
+          console.log('[generateFeedbackText] Fallback optionsToDisplay:', this.optionsToDisplay);
+        }
       }
   
+      // Extract correct options from the question
       const correctOptions = question.options.filter((option) => option.correct);
       if (correctOptions.length === 0) {
         console.info('[generateFeedbackText] No correct options found for the question.');
         return 'No correct answers defined for this question.';
       }
   
+      // Generate feedback using the feedback service
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
   
+      // Emit the feedback text
       this.feedbackText = feedbackText || 'No feedback generated for the current question.';
       this.feedbackTextChange.emit(this.feedbackText); // Emit to notify listeners
       console.log('[generateFeedbackText] Emitted feedbackTextChange:', this.feedbackText);
