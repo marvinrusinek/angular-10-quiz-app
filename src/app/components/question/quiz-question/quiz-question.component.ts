@@ -1410,6 +1410,7 @@ export class QuizQuestionComponent
       }
   
       // Validate current question index
+      console.log('[loadQuestion] Current question index:', this.currentQuestionIndex, 'Total questions:', this.questionsArray.length);
       if (
         this.currentQuestionIndex < 0 ||
         this.currentQuestionIndex >= this.questionsArray.length
@@ -1419,6 +1420,8 @@ export class QuizQuestionComponent
   
       // Fetch the current question
       this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+      console.log('[loadQuestion] Current question set:', this.currentQuestion);
+  
       if (!this.currentQuestion) {
         this.optionsToDisplay = [];
         console.warn('[loadQuestion] Current question is null or undefined.');
@@ -1431,13 +1434,10 @@ export class QuizQuestionComponent
       );
   
       // Set the options to display for the current question
-      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-        ...option,
-        active: true, // Default all options to active initially
-        feedback: undefined, // Reset feedback
-        showIcon: false, // Reset icons
-        selected: false // Initialize selected state
-      })) || [];
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options ?? []);
+        console.log('[loadQuestion] Fallback optionsToDisplay initialized:', this.optionsToDisplay);
+      }
   
       console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
   
@@ -1450,7 +1450,7 @@ export class QuizQuestionComponent
   
       // Ensure feedback is generated for the question
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
+      console.log('[loadQuestion] Feedback text successfully generated:', this.feedbackText);
   
       // Display explanation only if the question is answered
       await this.handleExplanationDisplay();
