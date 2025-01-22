@@ -961,6 +961,12 @@ export class QuizQuestionComponent
 
   public applyOptionFeedbackToAllOptions(): void {
     try {
+      // Log current state before fallback
+      console.log('[applyOptionFeedbackToAllOptions] Initial state:', {
+        optionsToDisplay: this.optionsToDisplay,
+        currentQuestion: this.currentQuestion,
+      });
+  
       // Ensure optionsToDisplay is initialized
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No options available. Attempting fallback to current question options.');
