@@ -961,46 +961,41 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Check if currentQuestion is available
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         
-        // Reload currentQuestion
-        const isReloaded = await this.loadQuestion();
-        if (!isReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion.');
-          return;
+        const questionsArrayValid = this.questionsArray && this.questionsArray.length > 0;
+        const validQuestionIndex =
+          this.currentQuestionIndex >= 0 &&
+          this.currentQuestionIndex < (this.questionsArray?.length || 0);
+  
+        if (questionsArrayValid && validQuestionIndex) {
+          this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+          console.log('[applyOptionFeedbackToAllOptions] Fallback: Set currentQuestion from questionsArray:', this.currentQuestion);
+        } else {
+          const loaded = await this.loadQuestion();
+          if (!loaded || !this.currentQuestion) {
+            console.error('[applyOptionFeedbackToAllOptions] Failed to load currentQuestion after retry.');
+            return;
+          }
         }
-        
-        console.log('[applyOptionFeedbackToAllOptions] Reloaded currentQuestion:', this.currentQuestion);
       }
   
-      // Check if optionsToDisplay is available
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        
-        if (this.currentQuestion && this.currentQuestion.options) {
-          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-          console.log('[applyOptionFeedbackToAllOptions] Fallback initialized optionsToDisplay:', this.optionsToDisplay);
-        } else {
-          console.error('[applyOptionFeedbackToAllOptions] Unable to initialize optionsToDisplay. currentQuestion options are invalid.');
-          this.optionsToDisplay = [];
-          return;
-        }
+        this.optionsToDisplay = this.currentQuestion.options ?? [];
       }
   
-      // Extract correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
       if (!correctOptions.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options found. Default feedback will be applied.');
+        console.error('[applyOptionFeedbackToAllOptions] No correct options found.');
+        return;
       }
   
-      // Generate feedback
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Apply feedback and icons to options
       this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
         ...option,
         feedback: option.selected
@@ -1010,7 +1005,7 @@ export class QuizQuestionComponent
         highlight: option.selected,
       }));
   
-      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully to options.');
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully.');
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
