@@ -961,53 +961,39 @@ export class QuizQuestionComponent
 
   public applyOptionFeedbackToAllOptions(): void {
     try {
-      // Log current state before fallback
-      console.log('[applyOptionFeedbackToAllOptions] Initial state:', {
-        optionsToDisplay: this.optionsToDisplay,
-        currentQuestion: this.currentQuestion,
-      });
-  
-      // Ensure optionsToDisplay is initialized
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No options available. Attempting fallback to current question options.');
-  
-        if (this.currentQuestion && this.currentQuestion.options && this.currentQuestion.options.length > 0) {
-          // Fallback: Assign optionsToDisplay from the current question
-          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-          console.log('[applyOptionFeedbackToAllOptions] Fallback options assigned:', this.optionsToDisplay);
-        } else {
-          // Final fallback: Log error and exit
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Setting optionsToDisplay to an empty array.');
-          this.optionsToDisplay = []; // Ensure it's an empty array to avoid undefined issues
-          return; // Exit the method as there are no options to process
-        }
-      }
-  
-      // Ensure currentQuestion is valid before proceeding
-      if (!this.currentQuestion) {
-        console.error('[applyOptionFeedbackToAllOptions] Current question is null or undefined.');
+      // Ensure currentQuestion is properly initialized
+      if (!this.currentQuestion || !this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is not properly initialized.', {
+          currentQuestion: this.currentQuestion,
+        });
         return;
       }
   
+      // Initialize optionsToDisplay if necessary
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+        console.log('[applyOptionFeedbackToAllOptions] Initialized optionsToDisplay from currentQuestion.options:', this.optionsToDisplay);
+      }
+  
       // Extract correct options
-      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
-      if (!correctOptions || correctOptions.length === 0) {
+      if (correctOptions.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
       // Generate feedback for all options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Apply feedback only to the selected option
-      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+      // Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
         feedback: option.selected
-          ? feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.')
-          : null, // Feedback only for selected options
-        showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-        highlight: option.selected, // Highlight only the selected option
+          ? feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.')
+          : null,
+        showIcon: option.selected || correctOptions.some(correctOption => correctOption.optionId === option.optionId),
+        highlight: option.selected,
       }));
   
       console.log('[applyOptionFeedbackToAllOptions] Feedback applied to options:', this.optionsToDisplay);
