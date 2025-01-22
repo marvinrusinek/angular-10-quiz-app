@@ -7,21 +7,22 @@ import { isValidOption } from '../../shared/utils/option-utils';
 export class FeedbackService {
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
+      // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
-        return ['No correct answers available.'];
+        return ['No correct answers available for this question.'];
       }
   
       if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackForOptions] No optionsToDisplay provided.');
-        return ['No options available for feedback.'];
+        console.warn('[generateFeedbackForOptions] No options to display found.');
+        return ['No options available to generate feedback for.'];
       }
   
-      // Generate feedback using setCorrectMessage
+      // Generate feedback using setCorrectMessage, which will provide specific feedback
       const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
       if (!feedback || feedback.trim() === '') {
-        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty. Using fallback.');
+        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
         return optionsToDisplay.map((option) =>
           correctOptions.some((correct) => correct.optionId === option.optionId)
             ? 'Correct answer!'
@@ -29,10 +30,10 @@ export class FeedbackService {
         );
       }
   
-      return feedback.split(';'); // Assuming setCorrectMessage returns a string of feedback separated by `;`.
+      return feedback.split(';');  // Assuming feedback is separated by ';'.
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
-      return ['An error occurred while generating feedback.'];
+      return ['An error occurred while generating feedback. Please try again.'];
     }
   }
 
