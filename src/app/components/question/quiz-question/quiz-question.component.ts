@@ -961,54 +961,63 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      console.log('[applyOptionFeedbackToAllOptions] Starting feedback application...');
+      // Ensure questionsArray is populated
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Attempting to reload...');
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+          console.error('[applyOptionFeedbackToAllOptions] No active quiz ID found. Cannot reload questions.');
+          return;
+        }
   
-      // Step 1: Ensure currentQuestion is loaded
+        // Reload questionsArray
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray. Aborting operation.');
+          return;
+        }
+        console.log('[applyOptionFeedbackToAllOptions] Reloaded questionsArray:', this.questionsArray);
+      }
+  
+      // Ensure currentQuestion is set
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadQuestion();
-        if (!questionReloaded || !this.currentQuestion) {
+        this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+        if (!this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
           });
           return;
         }
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion after reload:', this.currentQuestion);
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
   
-      // Step 2: Ensure optionsToDisplay is populated
+      // Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        if (this.currentQuestion && this.currentQuestion.options) {
-          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-        } else {
-          console.error('[applyOptionFeedbackToAllOptions] No options available to fallback to. Aborting.');
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+        if (!this.optionsToDisplay.length) {
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
           return;
         }
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay after fallback:', this.optionsToDisplay);
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
   
-      // Step 3: Identify correct options
+      // Identify correct options and generate feedback
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       if (!correctOptions.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
-      // Step 4: Generate feedback
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-      if (!feedbackList || feedbackList.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting.');
-        return;
-      }
   
-      // Step 5: Apply feedback to options
-      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+      // Apply feedback and update state
+      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
         ...option,
-        feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
         showIcon: option.correct || option.selected,
         highlight: option.selected,
       }));
@@ -1021,7 +1030,7 @@ export class QuizQuestionComponent
         currentQuestion: this.currentQuestion,
       });
     }
-  }
+  }  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
