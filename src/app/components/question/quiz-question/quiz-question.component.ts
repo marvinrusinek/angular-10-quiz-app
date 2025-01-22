@@ -961,49 +961,64 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      this.currentQuestion = this.quizService.currentQuestion.getValue();
+      console.log('[applyOptionFeedbackToAllOptions] Starting feedback application...');
   
-      // Step 1: Ensure currentQuestion is loaded
+      // Ensure questionsArray is populated
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Attempting to reload...');
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+          console.error('[applyOptionFeedbackToAllOptions] No active quiz ID found. Aborting.');
+          return;
+        }
+  
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray. Aborting.');
+          return;
+        }
+        console.log('[applyOptionFeedbackToAllOptions] questionsArray reloaded:', this.questionsArray);
+      }
+  
+      // Ensure currentQuestion is populated
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadQuestion();
-        if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+        this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+        if (!this.currentQuestion) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
           });
           return;
         }
       }
-  
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
   
-      // Step 2: Ensure optionsToDisplay is populated
+      // Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        if (!this.optionsToDisplay.length) {
           console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
           return;
         }
       }
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay after fallback:', this.optionsToDisplay);
   
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
-  
-      // Step 3: Identify correct options and generate feedback
+      // Identify correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-      if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
       }
   
+      // Generate feedback
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
       if (!feedbackList || feedbackList.length === 0) {
         console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting.');
         return;
       }
   
-      // Step 4: Apply feedback and update optionsToDisplay
+      // Apply feedback
       this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
         feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
