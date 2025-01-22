@@ -961,7 +961,7 @@ export class QuizQuestionComponent
 
   public applyOptionFeedbackToAllOptions(): void {
     try {
-      // Check if options are available
+      // Ensure optionsToDisplay is initialized
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No options available. Attempting fallback to current question options.');
   
@@ -970,14 +970,20 @@ export class QuizQuestionComponent
           this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
           console.log('[applyOptionFeedbackToAllOptions] Fallback options assigned:', this.optionsToDisplay);
         } else {
-          // Final fallback: Log error and set an empty array
+          // Final fallback: Log error and exit
           console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Setting optionsToDisplay to an empty array.');
-          this.optionsToDisplay = [];
+          this.optionsToDisplay = []; // Ensure it's an empty array to avoid undefined issues
           return; // Exit the method as there are no options to process
         }
       }
   
-      // Extract correct options from the available options
+      // Ensure currentQuestion is valid before proceeding
+      if (!this.currentQuestion) {
+        console.error('[applyOptionFeedbackToAllOptions] Current question is null or undefined.');
+        return;
+      }
+  
+      // Extract correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
