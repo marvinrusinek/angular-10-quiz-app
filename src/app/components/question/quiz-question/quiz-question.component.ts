@@ -503,8 +503,6 @@ export class QuizQuestionComponent
           '[saveQuizState] Saved explanation text:',
           this.currentExplanationText
         );
-      } else {
-        console.warn('[saveQuizState] No explanation text to save.');
       }
   
       // Save display mode
@@ -514,8 +512,6 @@ export class QuizQuestionComponent
           this.displayState.mode
         );
         console.log('[saveQuizState] Saved display mode:', this.displayState.mode);
-      } else {
-        console.warn('[saveQuizState] No display mode to save.');
       }
   
       // Save options
@@ -526,8 +522,6 @@ export class QuizQuestionComponent
           JSON.stringify(optionsToSave)
         );
         console.log('[saveQuizState] Saved options data:', optionsToSave);
-      } else {
-        console.warn('[saveQuizState] No options data to save.');
       }
   
       // Save selected options
@@ -538,8 +532,6 @@ export class QuizQuestionComponent
           JSON.stringify(selectedOptions)
         );
         console.log('[saveQuizState] Saved selected options:', selectedOptions);
-      } else {
-        console.warn('[saveQuizState] No selected options to save.');
       }
   
       // Save feedback text
@@ -549,13 +541,11 @@ export class QuizQuestionComponent
           this.feedbackText
         );
         console.log('[saveQuizState] Saved feedback text:', this.feedbackText);
-      } else {
-        console.warn('[saveQuizState] No feedback text to save.');
       }
     } catch (error) {
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
-  }  
+  }
 
   /* private restoreQuizState(): void {
     this.currentExplanationText =
