@@ -970,19 +970,22 @@ export class QuizQuestionComponent
           return;
         }
   
-        // Reload questionsArray
         this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray. Aborting operation.');
           return;
         }
+  
         console.log('[applyOptionFeedbackToAllOptions] Reloaded questionsArray:', this.questionsArray);
       }
   
       // Ensure currentQuestion is set
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+        if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questionsArray.length) {
+          this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+        }
+  
         if (!this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
@@ -990,9 +993,9 @@ export class QuizQuestionComponent
           });
           return;
         }
-      }
   
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+        console.log('[applyOptionFeedbackToAllOptions] Reloaded currentQuestion:', this.currentQuestion);
+      }
   
       // Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
