@@ -961,79 +961,63 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Ensure questionsArray is populated
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Attempting to reload...');
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-          console.error('[applyOptionFeedbackToAllOptions] No active quiz ID found. Cannot reload questions.');
-          return;
-        }
-  
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray. Aborting operation.');
-          return;
-        }
-  
-        console.log('[applyOptionFeedbackToAllOptions] Reloaded questionsArray:', this.questionsArray);
-      }
-  
-      // Ensure currentQuestion is set
-      if (!this.currentQuestion) {
-        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questionsArray.length) {
-          this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
-        }
-  
+        // Step 1: Ensure `currentQuestion` is set
         if (!this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+            const questionReloaded = await this.loadQuestion();
+            if (!questionReloaded || !this.currentQuestion) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+                    currentQuestionIndex: this.currentQuestionIndex,
+                    questionsArray: this.questionsArray,
+                    currentQuestion: this.currentQuestion,
+                });
+                return;
+            }
+        }
+
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+
+        // Step 2: Ensure `optionsToDisplay` is populated
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+            if (this.currentQuestion?.options) {
+                this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+            }
+
+            if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+                console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
+                return;
+            }
+        }
+
+        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
+
+        // Step 3: Identify correct options
+        const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+        if (!correctOptions.length) {
+            console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+        }
+
+        // Step 4: Generate feedback for options
+        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+        // Step 5: Apply feedback to options
+        this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+            ...option,
+            feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+            showIcon: option.correct || option.selected,
+            highlight: option.selected,
+        }));
+
+        console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
+    } catch (error) {
+        console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
-          });
-          return;
-        }
-  
-        console.log('[applyOptionFeedbackToAllOptions] Reloaded currentQuestion:', this.currentQuestion);
-      }
-  
-      // Ensure optionsToDisplay is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-        if (!this.optionsToDisplay.length) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-          return;
-        }
-      }
-  
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
-  
-      // Identify correct options and generate feedback
-      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-      if (!correctOptions.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
-      }
-  
-      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-  
-      // Apply feedback and update state
-      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
-        ...option,
-        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
-        showIcon: option.correct || option.selected,
-        highlight: option.selected,
-      }));
-  
-      console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
-    } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion,
-      });
+            currentQuestion: this.currentQuestion,
+        });
     }
-  }  
+  }
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
@@ -1409,7 +1393,7 @@ export class QuizQuestionComponent
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
-        // Step 1: Reset all states before loading the question
+        // Step 1: Reset states
         this.resetQuestionStateBeforeNavigation();
         this.resetExplanation();
         this.resetTexts();
@@ -1423,7 +1407,7 @@ export class QuizQuestionComponent
         this.currentQuestion = null;
         this.optionsToDisplay = [];
         this.feedbackText = '';
-        this.displayState = { mode: 'question', answered: false }; // Default to question mode
+        this.displayState = { mode: 'question', answered: false };
         this.forceQuestionDisplay = true;
         this.readyForExplanationDisplay = false;
         this.isExplanationReady = false;
@@ -1433,18 +1417,15 @@ export class QuizQuestionComponent
 
         // Step 2: Ensure `questionsArray` is populated
         if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.warn('[loadQuestion] Questions array is empty. Fetching questions...');
+            console.warn('[loadQuestion] questionsArray is empty. Fetching questions...');
             const quizId = this.quizService.getCurrentQuizId();
-            if (!quizId) {
-                throw new Error('No active quiz ID found. Cannot fetch questions.');
-            }
+            if (!quizId) throw new Error('No active quiz ID found. Cannot fetch questions.');
 
             this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-            if (!this.questionsArray || this.questionsArray.length === 0) {
-                throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
+            if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
+                throw new Error('[loadQuestion] Failed to fetch valid questions.');
             }
-
-            console.log('[loadQuestion] Questions array successfully fetched:', this.questionsArray);
+            console.log('[loadQuestion] Fetched questionsArray:', this.questionsArray);
         }
 
         // Step 3: Validate `currentQuestionIndex`
@@ -1452,50 +1433,54 @@ export class QuizQuestionComponent
             throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
         }
 
-        // Step 4: Fetch the current question
+        // Step 4: Fetch `currentQuestion`
         const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
         if (!potentialQuestion) {
-            console.warn('[loadQuestion] Current question is null or undefined.');
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+            console.error('[loadQuestion] Unexpected null for currentQuestion.', {
+                currentQuestionIndex: this.currentQuestionIndex,
+                questionsArray: this.questionsArray,
+            });
+            throw new Error(`No valid question found at index ${this.currentQuestionIndex}.`);
         }
-        this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
+        this.currentQuestion = { ...potentialQuestion };
         console.log('[loadQuestion] Loaded currentQuestion:', this.currentQuestion);
 
-        // Step 5: Assign optionIds and validate options
-        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-            console.warn('[loadQuestion] Current question has no options.');
-            this.currentQuestion.options = [];
+        // Step 5: Assign and validate options
+        this.currentQuestion.options = Array.isArray(this.currentQuestion.options)
+            ? this.quizService.assignOptionIds(this.currentQuestion.options)
+            : [];
+        if (this.currentQuestion.options.length === 0) {
+            console.warn('[loadQuestion] No options found for currentQuestion.');
         }
-        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
 
         // Step 6: Initialize `optionsToDisplay`
         this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
             ...option,
-            active: true, // Default all options to active initially
-            feedback: undefined, // Reset feedback
-            showIcon: false, // Reset icons
-            selected: false, // Initialize selected state
+            active: true,
+            feedback: undefined,
+            showIcon: false,
+            selected: false,
         }));
-        console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
+        console.log('[loadQuestion] Initialized optionsToDisplay:', this.optionsToDisplay);
 
-        // Step 7: Abort handling
+        // Step 7: Handle abort signal
         if (signal?.aborted) {
             console.log('[loadQuestion] Load question operation aborted.');
             this.timerService.stopTimer();
             return false;
         }
 
-        // Step 8: Generate feedback for the current question
+        // Step 8: Generate feedback
         this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
+        console.log('[loadQuestion] Generated feedbackText:', this.feedbackText);
 
-        // Step 9: Display explanation if the question is answered
+        // Step 9: Handle explanation display
         await this.handleExplanationDisplay();
 
-        // Step 10: Update the selection message
+        // Step 10: Update selection message
         this.updateSelectionMessage(false);
 
-        // Step 11: Indicate successful load
+        // Success
         return true;
     } catch (error) {
         console.error('[loadQuestion] Error loading question:', error, {
