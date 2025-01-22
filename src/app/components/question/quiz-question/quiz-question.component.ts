@@ -961,64 +961,57 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Ensure currentQuestion is loaded
-      if (!this.currentQuestion) {
-        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        
-        const reloaded = await this.loadQuestion();
-        if (!reloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+        // Step 1: Ensure currentQuestion is loaded
+        if (!this.currentQuestion) {
+            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+            const questionReloaded = await this.loadQuestion();
+            if (!questionReloaded || !this.currentQuestion) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+                    currentQuestionIndex: this.currentQuestionIndex,
+                    questionsArray: this.questionsArray,
+                    currentQuestion: this.currentQuestion,
+                });
+                return;
+            }
+        }
+
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+
+        // Step 2: Ensure optionsToDisplay is populated
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+            this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+            if (!this.optionsToDisplay.length) {
+                console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
+                return;
+            }
+        }
+
+        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
+
+        // Step 3: Identify correct options and generate feedback
+        const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+        if (!correctOptions.length) {
+            console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+        }
+
+        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+        // Step 4: Apply feedback and update state
+        this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+            ...option,
+            feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+            showIcon: option.correct || option.selected,
+            highlight: option.selected,
+        }));
+
+        console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
+    } catch (error) {
+        console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
             currentQuestion: this.currentQuestion,
-          });
-          return;
-        }
-      }
-  
-      console.log('[applyOptionFeedbackToAllOptions] Successfully reloaded currentQuestion:', this.currentQuestion);
-  
-      // Ensure optionsToDisplay is initialized
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        if (this.currentQuestion?.options?.length > 0) {
-          this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-            ...option,
-            active: true,
-            feedback: undefined,
-            showIcon: false,
-            selected: false,
-          }));
-          console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay set:', this.optionsToDisplay);
-        } else {
-          console.error('[applyOptionFeedbackToAllOptions] No valid options to fallback to. Aborting operation.');
-          return;
-        }
-      }
-  
-      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-  
-      if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options found. Feedback may be incomplete.');
-      }
-  
-      // Generate and apply feedback
-      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-        ...option,
-        feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
-        showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-        highlight: option.selected,
-      }));
-  
-      console.log('[applyOptionFeedbackToAllOptions] Updated optionsToDisplay with feedback:', this.optionsToDisplay);
-    } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion,
-      });
+        });
     }
   }
   
