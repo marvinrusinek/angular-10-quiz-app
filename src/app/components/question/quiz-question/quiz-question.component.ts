@@ -964,14 +964,16 @@ export class QuizQuestionComponent
       // Check if options are available
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No options available. Attempting fallback to current question options.');
-        
-        if (this.currentQuestion && this.currentQuestion.options) {
+  
+        if (this.currentQuestion && this.currentQuestion.options && this.currentQuestion.options.length > 0) {
           // Fallback: Assign optionsToDisplay from the current question
           this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
           console.log('[applyOptionFeedbackToAllOptions] Fallback options assigned:', this.optionsToDisplay);
         } else {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to.');
-          return;
+          // Final fallback: Log error and set an empty array
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Setting optionsToDisplay to an empty array.');
+          this.optionsToDisplay = [];
+          return; // Exit the method as there are no options to process
         }
       }
   
@@ -980,7 +982,7 @@ export class QuizQuestionComponent
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
       if (!correctOptions || correctOptions.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] No correct options available. Defaulting to feedback for the first option as fallback.');
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
       // Generate feedback for all options
@@ -1001,7 +1003,6 @@ export class QuizQuestionComponent
       console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
   }
-  
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
