@@ -961,44 +961,37 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Ensure currentQuestion is initialized
       if (!this.currentQuestion) {
-        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is not properly initialized.', {
-          currentQuestion: this.currentQuestion,
-        });
-        console.log('[applyOptionFeedbackToAllOptions] Attempting to reload current question...');
+        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const loaded = await this.loadQuestion();
         if (!loaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to load currentQuestion.');
+          console.error('[applyOptionFeedbackToAllOptions] Failed to load currentQuestion after retry.');
           return;
         }
       }
   
-      // Ensure optionsToDisplay is initialized
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No options available. Falling back...');
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         this.optionsToDisplay = this.currentQuestion.options ?? [];
-        console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay:', this.optionsToDisplay);
       }
   
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
-      if (!correctOptions || correctOptions.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] No correct options available.');
+      if (!correctOptions.length) {
+        console.error('[applyOptionFeedbackToAllOptions] No correct options found.');
         return;
       }
   
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Apply feedback only to the selected option
       this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
         ...option,
         feedback: option.selected
           ? (feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
-          : null, // Feedback only for selected options
-        showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-        highlight: option.selected, // Highlight only the selected option
+          : null,
+        showIcon: option.selected || correctOptions.some((opt) => opt.optionId === option.optionId),
+        highlight: option.selected,
       }));
   
       console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully.');
