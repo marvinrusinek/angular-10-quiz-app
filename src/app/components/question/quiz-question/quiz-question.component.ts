@@ -547,16 +547,6 @@ export class QuizQuestionComponent
     }
   }
 
-  /* private restoreQuizState(): void {
-    this.currentExplanationText =
-      sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) ||
-      '';
-    const displayMode = sessionStorage.getItem(
-      `displayMode_${this.currentQuestionIndex}`
-    );
-    this.displayState.mode =
-      displayMode === 'explanation' ? 'explanation' : 'question';
-  } */
   private restoreQuizState(): void {
     try {
       // Restore explanation text
@@ -568,8 +558,15 @@ export class QuizQuestionComponent
       // Restore options data
       const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
       if (optionsData) {
-        this.optionsToDisplay = JSON.parse(optionsData);
-        console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
+        try {
+          this.optionsToDisplay = JSON.parse(optionsData);
+          // Ensure all options have necessary properties
+          this.optionsToDisplay = this.quizService.assignOptionIds(this.optionsToDisplay);
+          console.log('[restoreQuizState] Restored and validated optionsToDisplay:', this.optionsToDisplay);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing options data:', error);
+          this.optionsToDisplay = [];
+        }
       } else {
         console.warn('[restoreQuizState] No options data found for restoration.');
         this.optionsToDisplay = [];
@@ -578,15 +575,19 @@ export class QuizQuestionComponent
       // Restore selected options
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
       if (selectedOptionsData) {
-        const selectedOptions = JSON.parse(selectedOptionsData);
-        for (const option of selectedOptions) {
-          if (option.optionId !== undefined) {
-            this.selectedOptionService.setSelectedOption(option.optionId);
-          } else {
-            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+        try {
+          const selectedOptions = JSON.parse(selectedOptionsData);
+          for (const option of selectedOptions) {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+            } else {
+              console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+            }
           }
+          console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing selected options data:', error);
         }
-        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
       } else {
         console.warn('[restoreQuizState] No selected options data found for restoration.');
       }
@@ -603,8 +604,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
-  }  
-  
+  }
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
