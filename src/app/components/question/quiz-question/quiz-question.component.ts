@@ -1418,7 +1418,7 @@ export class QuizQuestionComponent
     this.ensureQuestionTextDisplay();
   
     try {
-      // Ensure questionsArray is populated
+      // Step 1: Ensure questionsArray is populated
       if (!this.questionsArray || this.questionsArray.length === 0) {
         console.warn('[loadQuestion] Questions array is empty. Fetching questions...');
         const quizId = this.quizService.getCurrentQuizId();
@@ -1434,8 +1434,7 @@ export class QuizQuestionComponent
         console.log('[loadQuestion] Questions array successfully fetched:', this.questionsArray);
       }
   
-      // Validate current question index
-      console.log('[loadQuestion] Current question index:', this.currentQuestionIndex, 'Total questions:', this.questionsArray.length);
+      // Step 2: Validate current question index
       if (
         this.currentQuestionIndex < 0 ||
         this.currentQuestionIndex >= this.questionsArray.length
@@ -1443,50 +1442,55 @@ export class QuizQuestionComponent
         throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
       }
   
-      // Fetch the current question
+      // Step 3: Fetch the current question
       this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
-      console.log('[loadQuestion] Current question set:', this.currentQuestion);
-  
       if (!this.currentQuestion) {
-        this.optionsToDisplay = [];
         console.warn('[loadQuestion] Current question is null or undefined.');
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
-      // Assign optionIds if missing
+      console.log('[loadQuestion] Loaded currentQuestion:', this.currentQuestion);
+  
+      // Step 4: Assign optionIds if missing
       this.currentQuestion.options = this.quizService.assignOptionIds(
         this.currentQuestion.options ?? []
       );
   
-      // Set the options to display for the current question
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options ?? []);
-        console.log('[loadQuestion] Fallback optionsToDisplay initialized:', this.optionsToDisplay);
-      }
+      // Step 5: Set the options to display for the current question
+      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        ...option,
+        active: true, // Default all options to active initially
+        feedback: undefined, // Reset feedback
+        showIcon: false, // Reset icons
+        selected: false, // Initialize selected state
+      }));
   
       console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
   
-      // Abort handling
+      // Step 6: Abort handling
       if (signal?.aborted) {
         console.log('[loadQuestion] Load question operation aborted.');
         this.timerService.stopTimer();
         return false;
       }
   
-      // Ensure feedback is generated for the question
+      // Step 7: Ensure feedback is generated for the question
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      console.log('[loadQuestion] Feedback text successfully generated:', this.feedbackText);
+      console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
   
-      // Display explanation only if the question is answered
+      // Step 8: Display explanation only if the question is answered
       await this.handleExplanationDisplay();
   
-      // Update the selection message
+      // Step 9: Update the selection message
       this.updateSelectionMessage(false);
   
-      // Successfully loaded the question
+      // Step 10: Successfully loaded the question
       return true;
     } catch (error) {
-      console.error('[loadQuestion] Error loading question:', error);
+      console.error('[loadQuestion] Error loading question:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+      });
       this.feedbackText = 'Error loading question. Please try again.';
       return false;
     } finally {
