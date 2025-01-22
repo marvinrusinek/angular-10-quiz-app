@@ -494,23 +494,49 @@ export class QuizQuestionComponent
   private saveQuizState(): void {
     try {
       // Save explanation text
-      sessionStorage.setItem(`explanationText_${this.currentQuestionIndex}`, this.currentExplanationText);
+      if (this.currentExplanationText) {
+        sessionStorage.setItem(
+          `explanationText_${this.currentQuestionIndex}`,
+          this.currentExplanationText
+        );
+        console.log(
+          '[saveQuizState] Saved explanation text:',
+          this.currentExplanationText
+        );
+      } else {
+        console.warn('[saveQuizState] No explanation text to save.');
+      }
   
       // Save display mode
-      sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, this.displayState.mode);
+      if (this.displayState.mode) {
+        sessionStorage.setItem(
+          `displayMode_${this.currentQuestionIndex}`,
+          this.displayState.mode
+        );
+        console.log('[saveQuizState] Saved display mode:', this.displayState.mode);
+      } else {
+        console.warn('[saveQuizState] No display mode to save.');
+      }
   
       // Save options
-      if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-        sessionStorage.setItem(`options_${this.currentQuestionIndex}`, JSON.stringify(this.optionsToDisplay));
-        console.log('[saveQuizState] Saved options data:', this.optionsToDisplay);
+      const optionsToSave = this.optionsToDisplay || [];
+      if (optionsToSave.length > 0) {
+        sessionStorage.setItem(
+          `options_${this.currentQuestionIndex}`,
+          JSON.stringify(optionsToSave)
+        );
+        console.log('[saveQuizState] Saved options data:', optionsToSave);
       } else {
         console.warn('[saveQuizState] No options data to save.');
       }
   
       // Save selected options
-      const selectedOptions = this.selectedOptionService.getSelectedOptions();
-      if (selectedOptions && selectedOptions.length > 0) {
-        sessionStorage.setItem(`selectedOptions_${this.currentQuestionIndex}`, JSON.stringify(selectedOptions));
+      const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
+      if (selectedOptions.length > 0) {
+        sessionStorage.setItem(
+          `selectedOptions_${this.currentQuestionIndex}`,
+          JSON.stringify(selectedOptions)
+        );
         console.log('[saveQuizState] Saved selected options:', selectedOptions);
       } else {
         console.warn('[saveQuizState] No selected options to save.');
@@ -518,7 +544,10 @@ export class QuizQuestionComponent
   
       // Save feedback text
       if (this.feedbackText) {
-        sessionStorage.setItem(`feedbackText_${this.currentQuestionIndex}`, this.feedbackText);
+        sessionStorage.setItem(
+          `feedbackText_${this.currentQuestionIndex}`,
+          this.feedbackText
+        );
         console.log('[saveQuizState] Saved feedback text:', this.feedbackText);
       } else {
         console.warn('[saveQuizState] No feedback text to save.');
