@@ -961,7 +961,6 @@ export class QuizQuestionComponent
 
   public applyOptionFeedbackToAllOptions(): void {
     try {
-      // Ensure currentQuestion is properly initialized
       if (!this.currentQuestion || !this.currentQuestion.options || this.currentQuestion.options.length === 0) {
         console.error('[applyOptionFeedbackToAllOptions] currentQuestion is not properly initialized.', {
           currentQuestion: this.currentQuestion,
@@ -975,18 +974,13 @@ export class QuizQuestionComponent
         console.log('[applyOptionFeedbackToAllOptions] Initialized optionsToDisplay from currentQuestion.options:', this.optionsToDisplay);
       }
   
-      // Extract correct options
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-  
       if (correctOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options found.');
       }
   
-      // Generate feedback for all options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Apply feedback to options
       this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
         feedback: option.selected
