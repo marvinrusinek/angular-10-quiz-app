@@ -963,10 +963,21 @@ export class QuizQuestionComponent
     try {
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const loaded = await this.loadQuestion();
-        if (!loaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to load currentQuestion after retry.');
-          return;
+        
+        const questionsArrayValid = this.questionsArray && this.questionsArray.length > 0;
+        const validQuestionIndex =
+          this.currentQuestionIndex >= 0 &&
+          this.currentQuestionIndex < (this.questionsArray?.length || 0);
+  
+        if (questionsArrayValid && validQuestionIndex) {
+          this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+          console.log('[applyOptionFeedbackToAllOptions] Fallback: Set currentQuestion from questionsArray:', this.currentQuestion);
+        } else {
+          const loaded = await this.loadQuestion();
+          if (!loaded || !this.currentQuestion) {
+            console.error('[applyOptionFeedbackToAllOptions] Failed to load currentQuestion after retry.');
+            return;
+          }
         }
       }
   
