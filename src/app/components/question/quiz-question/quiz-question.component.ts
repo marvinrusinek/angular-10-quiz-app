@@ -961,9 +961,10 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Validate or reload currentQuestion
+      // Ensure currentQuestion is loaded
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+        
         const reloaded = await this.loadQuestion();
         if (!reloaded || !this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
@@ -975,16 +976,18 @@ export class QuizQuestionComponent
         }
       }
   
-      // Validate optionsToDisplay
+      console.log('[applyOptionFeedbackToAllOptions] Successfully reloaded currentQuestion:', this.currentQuestion);
+  
+      // Ensure optionsToDisplay is initialized
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back to currentQuestion options...');
-        if (this.currentQuestion.options?.length > 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+        if (this.currentQuestion?.options?.length > 0) {
           this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
             ...option,
+            active: true,
             feedback: undefined,
             showIcon: false,
             selected: false,
-            active: true
           }));
           console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay set:', this.optionsToDisplay);
         } else {
@@ -993,24 +996,20 @@ export class QuizQuestionComponent
         }
       }
   
-      // Extract correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
-      // Handle case where no correct options are available
       if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback.');
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options found. Feedback may be incomplete.');
       }
   
-      // Generate feedback for all options
+      // Generate and apply feedback
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-  
-      // Apply feedback to each option
       this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
         feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
         showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-        highlight: option.selected  // Highlight only the selected option
+        highlight: option.selected,
       }));
   
       console.log('[applyOptionFeedbackToAllOptions] Updated optionsToDisplay with feedback:', this.optionsToDisplay);
