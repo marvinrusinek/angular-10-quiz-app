@@ -961,58 +961,59 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-        this.currentQuestion = this.quizService.currentQuestion.getValue();
-        // Step 1: Ensure currentQuestion is loaded
-        if (!this.currentQuestion) {
-            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-            const questionReloaded = await this.loadQuestion();
-            if (!questionReloaded || !this.currentQuestion) {
-                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
-                    currentQuestionIndex: this.currentQuestionIndex,
-                    questionsArray: this.questionsArray,
-                    currentQuestion: this.currentQuestion,
-                });
-                return;
-            }
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
-
-        // Step 2: Ensure optionsToDisplay is populated
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-            this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-            if (!this.optionsToDisplay.length) {
-                console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-                return;
-            }
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
-
-        // Step 3: Identify correct options and generate feedback
-        const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-        if (!correctOptions.length) {
-            console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
-        }
-
-        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-
-        // Step 4: Apply feedback and update state
-        this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
-            ...option,
-            feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
-            showIcon: option.correct || option.selected,
-            highlight: option.selected,
-        }));
-
-        console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
-    } catch (error) {
-        console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+      this.currentQuestion = this.quizService.currentQuestion.getValue();
+        
+      // Ensure currentQuestion is loaded
+      if (!this.currentQuestion) {
+        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+        const questionReloaded = await this.loadQuestion();
+        if (!questionReloaded || !this.currentQuestion) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
-        });
+            currentQuestion: this.currentQuestion
+          });
+          return;
+        }
+      }
+
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+
+      // Ensure optionsToDisplay is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+        if (!this.optionsToDisplay.length) {
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
+          return;
+        }
+      }
+
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
+
+      // Identify correct options and generate feedback
+      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+      }
+
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+      // Apply feedback and update state
+      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+        ...option,
+        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        showIcon: option.correct || option.selected,
+        highlight: option.selected,
+      }));
+
+      console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
     }
   }
   
