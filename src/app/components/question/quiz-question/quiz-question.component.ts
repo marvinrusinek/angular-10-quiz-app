@@ -961,19 +961,24 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Validate currentQuestion
+      // Validate or reload currentQuestion
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const reloaded = await this.loadQuestion();
         if (!reloaded || !this.currentQuestion) {
-          throw new Error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.');
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            questionsArray: this.questionsArray,
+            currentQuestion: this.currentQuestion,
+          });
+          return;
         }
       }
   
       // Validate optionsToDisplay
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back to currentQuestion options...');
-        if (this.currentQuestion?.options?.length > 0) {
+        if (this.currentQuestion.options?.length > 0) {
           this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
             ...option,
             feedback: undefined,
@@ -983,20 +988,18 @@ export class QuizQuestionComponent
           }));
           console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay set:', this.optionsToDisplay);
         } else {
-          throw new Error('[applyOptionFeedbackToAllOptions] No valid options to fallback to. Aborting operation.');
+          console.error('[applyOptionFeedbackToAllOptions] No valid options to fallback to. Aborting operation.');
+          return;
         }
       }
-  
-      // Log currentQuestion and optionsToDisplay for debugging
-      console.log('[applyOptionFeedbackToAllOptions] Current question:', this.currentQuestion);
-      console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
   
       // Extract correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
+      // Handle case where no correct options are available
       if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback.');
       }
   
       // Generate feedback for all options
