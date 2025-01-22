@@ -399,17 +399,20 @@ export class QuizQuestionComponent
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] Restoring quiz state...');
+
+        // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
 
         if (this.currentQuestion) {
           console.log('[onVisibilityChange] Restored current question:', this.currentQuestion);
 
-          // Restore feedback state
+          // Ensure feedback state and display are restored after quiz state restoration
           this.restoreFeedbackState();
-          console.log('[onVisibilityChange] Feedback text restored:', this.feedbackText);
+          console.log('[onVisibilityChange] Feedback state restored:', this.feedbackText);
 
           this.renderDisplay();
 
+          // Regenerate feedback for the current question
           try {
             const feedbackText = await this.generateFeedbackText(this.currentQuestion);
             this.feedbackText = feedbackText;
@@ -419,10 +422,13 @@ export class QuizQuestionComponent
           }
         } else {
           console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
+          
+          // Reload the current question if not restored
           const loaded = await this.loadCurrentQuestion();
           if (loaded && this.currentQuestion) {
             console.log('[onVisibilityChange] Reloaded current question:', this.currentQuestion);
 
+            // Restore feedback and render display after reloading the question
             this.restoreFeedbackState();
             this.renderDisplay();
 
@@ -442,8 +448,6 @@ export class QuizQuestionComponent
       console.error('[onVisibilityChange] Error during state restoration:', error);
     }
   }
-
-
 
   private setOptionsToDisplay(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
@@ -956,30 +960,48 @@ export class QuizQuestionComponent
   }  
 
   public applyOptionFeedbackToAllOptions(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[applyOptionFeedbackToAllOptions] No options available.');
-      return;
+    try {
+      // Check if options are available
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] No options available. Attempting fallback to current question options.');
+        
+        if (this.currentQuestion && this.currentQuestion.options) {
+          // Fallback: Assign optionsToDisplay from the current question
+          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+          console.log('[applyOptionFeedbackToAllOptions] Fallback options assigned:', this.optionsToDisplay);
+        } else {
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to.');
+          return;
+        }
+      }
+  
+      // Extract correct options from the available options
+      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+  
+      if (!correctOptions || correctOptions.length === 0) {
+        console.error('[applyOptionFeedbackToAllOptions] No correct options available. Defaulting to feedback for the first option as fallback.');
+      }
+  
+      // Generate feedback for all options
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      // Apply feedback only to the selected option
+      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+        ...option,
+        feedback: option.selected
+          ? feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.')
+          : null, // Feedback only for selected options
+        showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
+        highlight: option.selected, // Highlight only the selected option
+      }));
+  
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied to options:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
-  
-    const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-    console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-    if (!correctOptions || correctOptions.length === 0) {
-      console.error('[applyOptionFeedbackToAllOptions] No correct options available.');
-      console.log('[applyOptionFeedbackToAllOptions] Defaulting to first option for feedback as fallback.');
-    }
-  
-    const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-  
-    // Apply feedback only to the selected option
-    this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
-      ...option,
-      feedback: option.selected
-        ? (feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'))
-        : null, // Feedback only for selected options
-      showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-      highlight: option.selected // Highlight only the selected option
-    }));
   }
+  
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
