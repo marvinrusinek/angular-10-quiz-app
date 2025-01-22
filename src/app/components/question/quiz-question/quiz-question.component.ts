@@ -1395,108 +1395,106 @@ export class QuizQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
-    this.resetQuestionStateBeforeNavigation();
-    this.resetExplanation();
-    this.resetTexts();
-  
-    this.isLoading = true;
-    this.quizStateService.setLoading(true);
-    this.quizStateService.setAnswered(false);
-  
-    this.timerService.startTimer(this.timerService.timePerQuestion, true);
-  
-    // Clear previous data
-    this.currentQuestion = null;
-    this.optionsToDisplay = [];
-    this.feedbackText = '';
-  
-    this.displayState = { mode: 'question', answered: false }; // Ensure question mode is default
-    this.forceQuestionDisplay = true; // Reset to enforce question text by default
-    this.readyForExplanationDisplay = false;
-    this.isExplanationReady = false; // Prevent explanation until allowed
-    this.isExplanationLocked = true; // Block explanation display until user interaction
-    this.currentExplanationText = '';
-    this.ensureQuestionTextDisplay();
-  
     try {
-      // Step 1: Ensure questionsArray is populated
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('[loadQuestion] Questions array is empty. Fetching questions...');
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-          throw new Error('No active quiz ID found. Cannot fetch questions.');
-        }
-  
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        // Step 1: Reset all states before loading the question
+        this.resetQuestionStateBeforeNavigation();
+        this.resetExplanation();
+        this.resetTexts();
+
+        this.isLoading = true;
+        this.quizStateService.setLoading(true);
+        this.quizStateService.setAnswered(false);
+        this.timerService.startTimer(this.timerService.timePerQuestion, true);
+
+        // Clear previous data
+        this.currentQuestion = null;
+        this.optionsToDisplay = [];
+        this.feedbackText = '';
+        this.displayState = { mode: 'question', answered: false }; // Default to question mode
+        this.forceQuestionDisplay = true;
+        this.readyForExplanationDisplay = false;
+        this.isExplanationReady = false;
+        this.isExplanationLocked = true;
+        this.currentExplanationText = '';
+        this.ensureQuestionTextDisplay();
+
+        // Step 2: Ensure `questionsArray` is populated
         if (!this.questionsArray || this.questionsArray.length === 0) {
-          throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
+            console.warn('[loadQuestion] Questions array is empty. Fetching questions...');
+            const quizId = this.quizService.getCurrentQuizId();
+            if (!quizId) {
+                throw new Error('No active quiz ID found. Cannot fetch questions.');
+            }
+
+            this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+            if (!this.questionsArray || this.questionsArray.length === 0) {
+                throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
+            }
+
+            console.log('[loadQuestion] Questions array successfully fetched:', this.questionsArray);
         }
-  
-        console.log('[loadQuestion] Questions array successfully fetched:', this.questionsArray);
-      }
-  
-      // Step 2: Validate current question index
-      if (
-        this.currentQuestionIndex < 0 ||
-        this.currentQuestionIndex >= this.questionsArray.length
-      ) {
-        throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
-      }
-  
-      // Step 3: Fetch the current question
-      this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
-      if (!this.currentQuestion) {
-        console.warn('[loadQuestion] Current question is null or undefined.');
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
-  
-      console.log('[loadQuestion] Loaded currentQuestion:', this.currentQuestion);
-  
-      // Step 4: Assign optionIds if missing
-      this.currentQuestion.options = this.quizService.assignOptionIds(
-        this.currentQuestion.options ?? []
-      );
-  
-      // Step 5: Set the options to display for the current question
-      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-        ...option,
-        active: true, // Default all options to active initially
-        feedback: undefined, // Reset feedback
-        showIcon: false, // Reset icons
-        selected: false, // Initialize selected state
-      }));
-  
-      console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
-  
-      // Step 6: Abort handling
-      if (signal?.aborted) {
-        console.log('[loadQuestion] Load question operation aborted.');
-        this.timerService.stopTimer();
-        return false;
-      }
-  
-      // Step 7: Ensure feedback is generated for the question
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
-  
-      // Step 8: Display explanation only if the question is answered
-      await this.handleExplanationDisplay();
-  
-      // Step 9: Update the selection message
-      this.updateSelectionMessage(false);
-  
-      // Step 10: Successfully loaded the question
-      return true;
+
+        // Step 3: Validate `currentQuestionIndex`
+        if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+            throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
+        }
+
+        // Step 4: Fetch the current question
+        const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+        if (!potentialQuestion) {
+            console.warn('[loadQuestion] Current question is null or undefined.');
+            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+        }
+        this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
+        console.log('[loadQuestion] Loaded currentQuestion:', this.currentQuestion);
+
+        // Step 5: Assign optionIds and validate options
+        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+            console.warn('[loadQuestion] Current question has no options.');
+            this.currentQuestion.options = [];
+        }
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+
+        // Step 6: Initialize `optionsToDisplay`
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+            ...option,
+            active: true, // Default all options to active initially
+            feedback: undefined, // Reset feedback
+            showIcon: false, // Reset icons
+            selected: false, // Initialize selected state
+        }));
+        console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
+
+        // Step 7: Abort handling
+        if (signal?.aborted) {
+            console.log('[loadQuestion] Load question operation aborted.');
+            this.timerService.stopTimer();
+            return false;
+        }
+
+        // Step 8: Generate feedback for the current question
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
+
+        // Step 9: Display explanation if the question is answered
+        await this.handleExplanationDisplay();
+
+        // Step 10: Update the selection message
+        this.updateSelectionMessage(false);
+
+        // Step 11: Indicate successful load
+        return true;
     } catch (error) {
-      console.error('[loadQuestion] Error loading question:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-      });
-      this.feedbackText = 'Error loading question. Please try again.';
-      return false;
+        console.error('[loadQuestion] Error loading question:', error, {
+            currentQuestionIndex: this.currentQuestionIndex,
+            questionsArray: this.questionsArray,
+            currentQuestion: this.currentQuestion,
+        });
+        this.feedbackText = 'Error loading question. Please try again.';
+        return false;
     } finally {
-      this.isLoading = false;
-      this.quizStateService.setLoading(false);
+        this.isLoading = false;
+        this.quizStateService.setLoading(false);
     }
   }
 
