@@ -961,6 +961,7 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
+        this.currentQuestion = this.quizService.currentQuestion.getValue();
         // Step 1: Ensure currentQuestion is loaded
         if (!this.currentQuestion) {
             console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
