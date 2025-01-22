@@ -10,45 +10,36 @@ export class FeedbackService {
     optionsToDisplay: Option[]
   ): string {
     try {
-      // Validate correct options
+      // Check if correctOptions are valid
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options found.');
         return 'No correct answers defined for the current question.';
       }
   
-      // Validate options to display
+      // Check if optionsToDisplay are valid
       if (!optionsToDisplay || optionsToDisplay.length === 0) {
         console.warn('[generateFeedbackForOptions] No optionsToDisplay provided. Falling back...');
-        // Fallback: Generate feedback for each option using correctOptions
-        const fallbackFeedback = optionsToDisplay.map((option) =>
-          correctOptions.some((correct) => correct.optionId === option.optionId)
-            ? 'Correct answer!'
-            : 'Incorrect answer.'
-        );
-        console.log('[generateFeedbackForOptions] Fallback feedback:', fallbackFeedback);
-        return fallbackFeedback.join(' ') || 'No options available to generate feedback.';
+        return 'No options available to generate feedback.';
       }
   
-      // Use the logic from setCorrectMessage if defined
+      // Use setCorrectMessage logic
       const correctMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
       if (!correctMessage || correctMessage.trim() === '') {
-        console.warn(
-          '[generateFeedbackForOptions] Fallback triggered: Feedback generation failed.'
-        );
-        // Fallback: Generate feedback for each option using correctOptions
+        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty. Using fallback.');
         const fallbackFeedback = optionsToDisplay.map((option) =>
           correctOptions.some((correct) => correct.optionId === option.optionId)
             ? 'Correct answer!'
             : 'Incorrect answer.'
         );
         console.log('[generateFeedbackForOptions] Fallback feedback:', fallbackFeedback);
-        return fallbackFeedback.join(' ') || 'Unable to determine feedback for the current question.';
+        return fallbackFeedback.join(' ') || 'Unable to generate feedback for options.';
       }
   
-      return correctMessage || 'Feedback generation completed with no valid message.';
+      console.log('[generateFeedbackForOptions] Feedback generated successfully:', correctMessage);
+      return correctMessage;
     } catch (error) {
-      console.error('[generateFeedbackForOptions] Error generating feedback:', error, {
+      console.error('[generateFeedbackForOptions] Error:', error, {
         correctOptions,
         optionsToDisplay,
       });
