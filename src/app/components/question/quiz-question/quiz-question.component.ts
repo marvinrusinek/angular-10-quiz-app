@@ -984,7 +984,7 @@ export class QuizQuestionComponent
             feedback: undefined,
             showIcon: false,
             selected: false,
-            active: true,
+            active: true
           }));
           console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay set:', this.optionsToDisplay);
         } else {
@@ -1010,7 +1010,7 @@ export class QuizQuestionComponent
         ...option,
         feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
         showIcon: option.selected || correctOptions.some((correctOption) => correctOption.optionId === option.optionId),
-        highlight: option.selected, // Highlight only the selected option
+        highlight: option.selected  // Highlight only the selected option
       }));
   
       console.log('[applyOptionFeedbackToAllOptions] Updated optionsToDisplay with feedback:', this.optionsToDisplay);
