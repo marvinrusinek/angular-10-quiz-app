@@ -961,10 +961,9 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Step 1: Load current question from the service
       this.currentQuestion = this.quizService.currentQuestion.getValue();
   
-      // Step 2: Ensure currentQuestion is loaded
+      // Step 1: Ensure currentQuestion is loaded
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const questionReloaded = await this.loadQuestion();
@@ -980,11 +979,11 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
   
-      // Step 3: Ensure optionsToDisplay is populated
+      // Step 2: Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-        if (!this.optionsToDisplay.length) {
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
           return;
         }
@@ -992,30 +991,28 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
   
-      // Step 4: Identify correct options
+      // Step 3: Identify correct options and generate feedback
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-      if (!correctOptions.length) {
+      if (!correctOptions || correctOptions.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
-      // Step 5: Generate feedback
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
       if (!feedbackList || feedbackList.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting operation.');
+        console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting.');
         return;
       }
   
-      // Step 6: Apply feedback and update optionsToDisplay
-      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+      // Step 4: Apply feedback and update optionsToDisplay
+      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
-        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
         showIcon: option.correct || option.selected,
         highlight: option.selected,
       }));
   
       console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
     } catch (error) {
-      // Step 7: Log errors
       console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
         currentQuestionIndex: this.currentQuestionIndex,
         questionsArray: this.questionsArray,
