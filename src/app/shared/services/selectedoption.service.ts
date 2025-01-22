@@ -260,13 +260,10 @@ export class SelectedOptionService {
     this.updateSelectedOptions(currentQuestionIndex, option.optionId, 'add');
   }
 
-  /* getSelectedOption(): SelectedOption | SelectedOption[] {
-    return this.selectedOptionSubject.getValue();
-  } */
   getSelectedOptions(): SelectedOption[] {
     const selectedOptions = this.selectedOptionSubject.getValue();
     return Array.isArray(selectedOptions) ? selectedOptions : selectedOptions ? [selectedOptions] : [];
-  }  
+  }
 
   // Method to get the current option selected state
   getCurrentOptionSelectedState(): boolean {
