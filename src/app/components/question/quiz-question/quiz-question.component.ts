@@ -961,50 +961,52 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-        // Step 1: Ensure `currentQuestion` is set
+        // Ensure `questionsArray` is populated
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+            console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Reloading...');
+            const reloadSuccess = await this.loadQuestion();
+            if (!reloadSuccess || !this.questionsArray.length) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray.');
+                return;
+            }
+        }
+
+        // Ensure `currentQuestion` is populated
         if (!this.currentQuestion) {
-            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-            const questionReloaded = await this.loadQuestion();
-            if (!questionReloaded || !this.currentQuestion) {
-                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
-                    currentQuestionIndex: this.currentQuestionIndex,
-                    questionsArray: this.questionsArray,
-                    currentQuestion: this.currentQuestion,
-                });
+            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Reloading...');
+            const reloadSuccess = await this.loadQuestion();
+            if (!reloadSuccess || !this.currentQuestion) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion.');
                 return;
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+        console.log('[applyOptionFeedbackToAllOptions] Current question:', this.currentQuestion);
 
-        // Step 2: Ensure `optionsToDisplay` is populated
+        // Ensure `optionsToDisplay` is populated
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-            if (this.currentQuestion?.options) {
-                this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-            }
-
-            if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-                console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
+            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Reloading...');
+            this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+            if (!this.optionsToDisplay.length) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload optionsToDisplay.');
                 return;
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
+        console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
 
-        // Step 3: Identify correct options
+        // Generate feedback
         const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
         if (!correctOptions.length) {
             console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
         }
 
-        // Step 4: Generate feedback for options
         const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
-        // Step 5: Apply feedback to options
-        this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+        // Apply feedback and update state
+        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
             ...option,
-            feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+            feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
             showIcon: option.correct || option.selected,
             highlight: option.selected,
         }));
