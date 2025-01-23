@@ -961,17 +961,7 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-        // Ensure `questionsArray` is populated
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Attempting to reload...');
-            const reloadSuccess = await this.loadQuestion();
-            if (!reloadSuccess || !this.questionsArray.length) {
-                console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray.');
-                return;
-            }
-        }
-
-        // Ensure `currentQuestion` is loaded
+        // Step 1: Ensure `currentQuestion` is set
         if (!this.currentQuestion) {
             console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
             const questionReloaded = await this.loadQuestion();
@@ -985,29 +975,33 @@ export class QuizQuestionComponent
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] Current question after reload:', this.currentQuestion);
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
 
-        // Ensure `optionsToDisplay` is populated
+        // Step 2: Ensure `optionsToDisplay` is populated
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-            this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-            if (!this.optionsToDisplay.length) {
+            if (this.currentQuestion?.options) {
+                this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+            }
+
+            if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
                 console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
                 return;
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay after fallback:', this.optionsToDisplay);
+        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
 
-        // Identify correct options and generate feedback
+        // Step 3: Identify correct options
         const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
         if (!correctOptions.length) {
             console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
         }
 
+        // Step 4: Generate feedback for options
         const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
-        // Apply feedback and update state
+        // Step 5: Apply feedback to options
         this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
             ...option,
             feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
