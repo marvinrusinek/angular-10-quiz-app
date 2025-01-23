@@ -964,14 +964,14 @@ export class QuizQuestionComponent
         // Step 1: Ensure `currentQuestion` is set
         if (!this.currentQuestion) {
             console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-            const questionReloaded = await this.loadQuestion();
+            const questionReloaded = await this.loadCurrentQuestion(); // Changed to loadCurrentQuestion
             if (!questionReloaded || !this.currentQuestion) {
                 console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
                     currentQuestionIndex: this.currentQuestionIndex,
                     questionsArray: this.questionsArray,
                     currentQuestion: this.currentQuestion,
                 });
-                return;
+                return; // Exit early if currentQuestion is still not set
             }
         }
 
@@ -986,7 +986,7 @@ export class QuizQuestionComponent
 
             if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
                 console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-                return;
+                return; // Exit early if optionsToDisplay is still not set
             }
         }
 
