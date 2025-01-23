@@ -963,7 +963,7 @@ export class QuizQuestionComponent
     try {
         // Ensure `questionsArray` is populated
         if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Reloading...');
+            console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Attempting to reload...');
             const reloadSuccess = await this.loadQuestion();
             if (!reloadSuccess || !this.questionsArray.length) {
                 console.error('[applyOptionFeedbackToAllOptions] Failed to reload questionsArray.');
@@ -971,31 +971,35 @@ export class QuizQuestionComponent
             }
         }
 
-        // Ensure `currentQuestion` is populated
+        // Ensure `currentQuestion` is loaded
         if (!this.currentQuestion) {
-            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Reloading...');
-            const reloadSuccess = await this.loadQuestion();
-            if (!reloadSuccess || !this.currentQuestion) {
-                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion.');
+            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+            const questionReloaded = await this.loadQuestion();
+            if (!questionReloaded || !this.currentQuestion) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+                    currentQuestionIndex: this.currentQuestionIndex,
+                    questionsArray: this.questionsArray,
+                    currentQuestion: this.currentQuestion,
+                });
                 return;
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] Current question:', this.currentQuestion);
+        console.log('[applyOptionFeedbackToAllOptions] Current question after reload:', this.currentQuestion);
 
         // Ensure `optionsToDisplay` is populated
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Reloading...');
+            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
             this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
             if (!this.optionsToDisplay.length) {
-                console.error('[applyOptionFeedbackToAllOptions] Failed to reload optionsToDisplay.');
+                console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
                 return;
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
+        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay after fallback:', this.optionsToDisplay);
 
-        // Generate feedback
+        // Identify correct options and generate feedback
         const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
         if (!correctOptions.length) {
             console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
@@ -1004,9 +1008,9 @@ export class QuizQuestionComponent
         const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
         // Apply feedback and update state
-        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+        this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
             ...option,
-            feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+            feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
             showIcon: option.correct || option.selected,
             highlight: option.selected,
         }));
