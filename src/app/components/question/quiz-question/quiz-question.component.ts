@@ -1421,28 +1421,33 @@ export class QuizQuestionComponent
             const quizId = this.quizService.getCurrentQuizId();
             if (!quizId) throw new Error('No active quiz ID found. Cannot fetch questions.');
 
-            this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-            if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
-                throw new Error('[loadQuestion] Failed to fetch valid questions.');
+            try {
+                this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+                if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
+                    throw new Error('[loadQuestion] Failed to fetch valid questions.');
+                }
+                console.log('[loadQuestion] Fetched questionsArray:', this.questionsArray);
+            } catch (fetchError) {
+                console.error('[loadQuestion] Error fetching questions:', fetchError);
+                throw fetchError;
             }
-            console.log('[loadQuestion] Fetched questionsArray:', this.questionsArray);
         }
 
         // Step 3: Validate `currentQuestionIndex`
         if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
-            throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
+            console.warn(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}. Falling back to first question.`);
+            this.currentQuestionIndex = 0; // Fallback to first question
         }
 
         // Step 4: Fetch `currentQuestion`
-        const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-        if (!potentialQuestion) {
+        this.currentQuestion = this.questionsArray[this.currentQuestionIndex] ?? null;
+        if (!this.currentQuestion) {
             console.error('[loadQuestion] Unexpected null for currentQuestion.', {
                 currentQuestionIndex: this.currentQuestionIndex,
                 questionsArray: this.questionsArray,
             });
             throw new Error(`No valid question found at index ${this.currentQuestionIndex}.`);
         }
-        this.currentQuestion = { ...potentialQuestion };
         console.log('[loadQuestion] Loaded currentQuestion:', this.currentQuestion);
 
         // Step 5: Assign and validate options
@@ -1450,7 +1455,8 @@ export class QuizQuestionComponent
             ? this.quizService.assignOptionIds(this.currentQuestion.options)
             : [];
         if (this.currentQuestion.options.length === 0) {
-            console.warn('[loadQuestion] No options found for currentQuestion.');
+            console.warn('[loadQuestion] No options found for currentQuestion. Initializing empty options.');
+            this.currentQuestion.options = []; // Fallback to empty array
         }
 
         // Step 6: Initialize `optionsToDisplay`
@@ -1471,8 +1477,12 @@ export class QuizQuestionComponent
         }
 
         // Step 8: Generate feedback
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[loadQuestion] Generated feedbackText:', this.feedbackText);
+        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+            console.warn('[loadQuestion] Cannot generate feedback due to missing options.');
+        } else {
+            this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+            console.log('[loadQuestion] Generated feedbackText:', this.feedbackText);
+        }
 
         // Step 9: Handle explanation display
         await this.handleExplanationDisplay();
