@@ -1020,45 +1020,24 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      console.log('[applyOptionFeedbackToAllOptions] Starting feedback application...');
-      
-      // Step 1: Ensure `questionsArray` is populated
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] questionsArray is empty. Attempting to reload...');
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-          console.error('[applyOptionFeedbackToAllOptions] No active quiz ID found. Aborting.');
-          return;
-        }
-  
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to fetch questionsArray. Aborting.', {
-            questionsArray: this.questionsArray,
-          });
-          return;
-        }
-  
-        console.log('[applyOptionFeedbackToAllOptions] Reloaded questionsArray:', this.questionsArray);
-      }
-  
-      // Step 2: Ensure `currentQuestion` is set
+      // Step 1: Ensure `currentQuestion` is set
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadCurrentQuestion(); // This method should ensure currentQuestion is set.
+        const questionReloaded = await this.loadCurrentQuestion();
+  
         if (!questionReloaded || !this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
             currentQuestion: this.currentQuestion,
           });
-          return;
+          return; // Exit early
         }
-  
-        console.log('[applyOptionFeedbackToAllOptions] Reloaded currentQuestion successfully:', this.currentQuestion);
       }
   
-      // Step 3: Ensure `optionsToDisplay` is populated
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+  
+      // Step 2: Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         if (this.currentQuestion?.options) {
@@ -1070,22 +1049,22 @@ export class QuizQuestionComponent
             currentQuestionIndex: this.currentQuestionIndex,
             currentQuestion: this.currentQuestion,
           });
-          return;
+          return; // Exit early
         }
       }
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
   
-      // Step 4: Identify correct options
+      // Step 3: Identify correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
-      // Step 5: Generate feedback for options
+      // Step 4: Generate feedback for options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Step 6: Apply feedback to options
+      // Step 5: Apply feedback to options
       this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
         ...option,
         feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
