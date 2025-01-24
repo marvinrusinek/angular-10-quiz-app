@@ -1131,10 +1131,11 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Ensure `currentQuestion` is loaded
+      // Step 1: Ensure `currentQuestion` is set
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const questionReloaded = await this.loadCurrentQuestion();
+  
         if (!questionReloaded || !this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
@@ -1145,9 +1146,9 @@ export class QuizQuestionComponent
         }
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] Current question:', this.currentQuestion);
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion is loaded:', this.currentQuestion);
   
-      // Ensure `optionsToDisplay` is populated
+      // Step 2: Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         if (this.currentQuestion?.options) {
@@ -1155,26 +1156,23 @@ export class QuizQuestionComponent
         }
   
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            currentQuestion: this.currentQuestion,
-          });
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
           return; // Exit early
         }
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] Options to display:', this.optionsToDisplay);
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
   
-      // Identify correct options
+      // Step 3: Identify correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
-      // Generate feedback for options
+      // Step 4: Generate feedback for options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Apply feedback to options
+      // Step 5: Apply feedback to options
       this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
         ...option,
         feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
@@ -1677,7 +1675,7 @@ export class QuizQuestionComponent
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     try {
-      // Ensure questions are loaded
+      // Ensure questions array is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
       if (!questionsLoaded) {
         console.error('[loadCurrentQuestion] No questions available.');
@@ -1685,36 +1683,34 @@ export class QuizQuestionComponent
       }
   
       // Validate current question index
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questions.length) {
+      if (
+        this.currentQuestionIndex < 0 ||
+        this.currentQuestionIndex >= this.questions.length
+      ) {
         console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
         return false;
       }
   
-      // Fetch the current question
+      // Fetch current question
       const questionData = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
   
       if (questionData) {
-        console.log(`[loadCurrentQuestion] Loaded data for question index: ${this.currentQuestionIndex}`);
-  
-        // Assign unique IDs and validate options
-        questionData.options = this.quizService.assignOptionIds(questionData.options || []);
-  
-        // Set current question and options
+        console.log('[loadCurrentQuestion] Successfully loaded currentQuestion:', questionData);
         this.currentQuestion = questionData;
-        this.optionsToDisplay = questionData.options || [];
-        console.log('[loadCurrentQuestion] Current question set successfully:', this.currentQuestion);
+        this.optionsToDisplay = this.quizService.assignOptionIds(questionData.options || []);
         return true;
       } else {
-        console.error(`[loadCurrentQuestion] No data found for question index: ${this.currentQuestionIndex}`);
+        console.error('[loadCurrentQuestion] Failed to fetch question data.');
         return false;
       }
     } catch (error) {
-      console.error('[loadCurrentQuestion] Error loading current question:', error);
+      console.error('[loadCurrentQuestion] Error loading question:', error);
       return false;
     }
   }
+  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
