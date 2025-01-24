@@ -1767,25 +1767,37 @@ export class QuizQuestionComponent
   }
 
   private async ensureCurrentQuestionLoaded(): Promise<boolean> {
-    if (this.currentQuestion) {
-      console.log('[ensureCurrentQuestionLoaded] currentQuestion is already loaded:', this.currentQuestion);
+    try {
+      // Step 1: Check if `currentQuestion` is already set
+      if (this.currentQuestion) {
+        console.log('[ensureCurrentQuestionLoaded] currentQuestion is already loaded:', this.currentQuestion);
+        return true;
+      }
+  
+      // Step 2: Reload the current question if missing
+      console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
+      const questionReloaded = await this.loadCurrentQuestion();
+  
+      // Step 3: Validate if reloading was successful
+      if (!questionReloaded || !this.currentQuestion) {
+        console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion. Aborting operation.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+          currentQuestion: this.currentQuestion,
+        });
+        return false;
+      }
+  
+      console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
       return true;
-    }
-  
-    console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
-  
-    // Attempt to reload the question
-    const questionReloaded = await this.loadCurrentQuestion();
-    if (!questionReloaded || !this.currentQuestion) {
-      console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion.', {
+    } catch (error) {
+      console.error('[ensureCurrentQuestionLoaded] Error during question load:', error, {
         currentQuestionIndex: this.currentQuestionIndex,
         questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
       });
       return false;
     }
-  
-    console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
-    return true;
   }
 
   private async handleExplanationDisplay(): Promise<void> {
