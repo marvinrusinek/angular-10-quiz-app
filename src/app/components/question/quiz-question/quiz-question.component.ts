@@ -1131,24 +1131,18 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Step 1: Explicitly set `currentQuestion` if missing
+      // Step 1: Ensure `currentQuestion` is set
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        
-        // Attempt to get the current question from the service
-        this.currentQuestion = this.quizService.currentQuestion.getValue();
+        const questionReloaded = await this.loadCurrentQuestion();
   
-        // Fallback: Reload current question if still null
-        if (!this.currentQuestion) {
-          const questionReloaded = await this.loadCurrentQuestion();
-          if (!questionReloaded || !this.currentQuestion) {
-            console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
-              currentQuestionIndex: this.currentQuestionIndex,
-              questionsArray: this.questionsArray,
-              currentQuestion: this.currentQuestion,
-            });
-            return; // Exit early if `currentQuestion` is still not set
-          }
+        if (!questionReloaded || !this.currentQuestion) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            questionsArray: this.questionsArray,
+            currentQuestion: this.currentQuestion,
+          });
+          return; // Exit early
         }
       }
   
@@ -1157,18 +1151,13 @@ export class QuizQuestionComponent
       // Step 2: Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        
-        // Assign `optionsToDisplay` from `currentQuestion` options
         if (this.currentQuestion?.options) {
           this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
         }
   
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            currentQuestion: this.currentQuestion,
-          });
-          return; // Exit early if `optionsToDisplay` is still not set
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
+          return; // Exit early
         }
       }
   
@@ -1200,6 +1189,7 @@ export class QuizQuestionComponent
       });
     }
   }
+  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
@@ -1685,42 +1675,41 @@ export class QuizQuestionComponent
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     try {
-      // Ensure questions array is loaded
+      // Step 1: Ensure `questionsArray` is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
       if (!questionsLoaded) {
-        console.error('[loadCurrentQuestion] No questions available.');
+        console.error('[loadCurrentQuestion] Failed to load questionsArray.');
         return false;
       }
   
-      // Validate current question index
-      if (
-        this.currentQuestionIndex < 0 ||
-        this.currentQuestionIndex >= this.questions.length
-      ) {
+      // Step 2: Validate `currentQuestionIndex`
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
         console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
         return false;
       }
   
-      // Fetch current question
-      const questionData = await firstValueFrom(
-        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-      );
-  
-      if (questionData) {
-        console.log('[loadCurrentQuestion] Successfully loaded currentQuestion:', questionData);
-        this.currentQuestion = questionData;
-        this.optionsToDisplay = this.quizService.assignOptionIds(questionData.options || []);
-        return true;
-      } else {
-        console.error('[loadCurrentQuestion] Failed to fetch question data.');
+      // Step 3: Fetch `currentQuestion`
+      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!potentialQuestion) {
+        console.error('[loadCurrentQuestion] Question data is null or undefined.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+        });
         return false;
       }
+  
+      // Step 4: Assign `currentQuestion`
+      this.currentQuestion = { ...potentialQuestion };
+      console.log('[loadCurrentQuestion] Successfully set currentQuestion:', this.currentQuestion);
+  
+      // Step 5: Ensure options have unique IDs
+      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+      return true;
     } catch (error) {
-      console.error('[loadCurrentQuestion] Error loading question:', error);
+      console.error('[loadCurrentQuestion] Unexpected error:', error);
       return false;
     }
   }
-  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
