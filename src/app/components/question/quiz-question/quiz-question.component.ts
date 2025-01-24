@@ -1156,7 +1156,7 @@ export class QuizQuestionComponent
             currentQuestionIndex: this.currentQuestionIndex,
             currentQuestion: this.currentQuestion,
           });
-          return;
+          return; // Exit early
         }
       }
   
