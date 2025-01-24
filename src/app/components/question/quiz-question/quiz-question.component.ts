@@ -1131,61 +1131,51 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Step 1: Ensure `currentQuestion` is loaded
-      const currentQuestionLoaded = await this.ensureCurrentQuestionLoaded();
-      if (!currentQuestionLoaded || !this.currentQuestion) {
-        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is not loaded. Aborting operation.', {
-          currentQuestionIndex: this.currentQuestionIndex,
-          questionsArray: this.questionsArray,
-          currentQuestion: this.currentQuestion,
-        });
-        return;
-      }
-  
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
-  
-      // Step 2: Ensure `optionsToDisplay` is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        if (this.currentQuestion?.options && this.currentQuestion.options.length > 0) {
-          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-          console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay set:', this.optionsToDisplay);
-        } else {
-          console.error('[applyOptionFeedbackToAllOptions] No options available to fallback to. Aborting.');
-          return;
+        // Step 1: Ensure `currentQuestion` is loaded
+        const currentQuestionLoaded = await this.ensureCurrentQuestionLoaded();
+        if (!currentQuestionLoaded || !this.currentQuestion) {
+            console.error('[applyOptionFeedbackToAllOptions] currentQuestion is not loaded. Aborting operation.', {
+                currentQuestionIndex: this.currentQuestionIndex,
+                questionsArray: this.questionsArray,
+                currentQuestion: this.currentQuestion,
+            });
+            return;
         }
-      }
-  
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
-  
-      // Step 3: Identify correct options
-      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
-      if (!correctOptions.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
-      }
-  
-      // Step 4: Generate feedback for options
-      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-  
-      // Step 5: Apply feedback to options
-      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
-        ...option,
-        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
-        showIcon: option.correct || option.selected,
-        highlight: option.selected,
-      }));
-  
-      console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
+
+        // Ensure optionsToDisplay is initialized
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Initializing from currentQuestion options.');
+            this.initializeOptionsToDisplay(); // Call the new method to initialize options
+        }
+
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+        // ... existing code ...
     } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion,
-      });
+        console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+            currentQuestionIndex: this.currentQuestionIndex,
+            questionsArray: this.questionsArray,
+            currentQuestion: this.currentQuestion,
+        });
     }
   }
-  
-  
+
+  // Method to initialize optionsToDisplay
+  private initializeOptionsToDisplay(): void {
+    if (this.currentQuestion && this.currentQuestion.options) {
+        this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+            ...option,
+            active: true,
+            feedback: option.feedback ?? 'No feedback available.',
+            showIcon: option.showIcon ?? false,
+            selected: option.selected ?? false,
+            correct: option.correct ?? false,
+        }));
+        console.log('[initializeOptionsToDisplay] optionsToDisplay initialized:', this.optionsToDisplay);
+    } else {
+        console.warn('[initializeOptionsToDisplay] No options available to initialize.');
+        this.optionsToDisplay = []; // Fallback to an empty array if no options are available
+    }
+  }
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
@@ -1250,16 +1240,16 @@ export class QuizQuestionComponent
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error(
-        'Attempted to set a null or undefined question in setCurrentQuestion.'
-      );
-      this.question = null;
-      this.optionsToDisplay = [];
-      return; // Exit early to avoid further errors
+        console.error(
+            'Attempted to set a null or undefined question in setCurrentQuestion.'
+        );
+        this.question = null;
+        this.optionsToDisplay = []; // Reset optionsToDisplay when question is null
+        return; // Exit early to avoid further errors
     }
 
     this.question = question;
-    this.optionsToDisplay = question.options || []; // Safely set options if available
+    this.initializeOptionsToDisplay(); // Initialize optionsToDisplay whenever the question is set
   }
 
   private setupSubscriptions(): void {
