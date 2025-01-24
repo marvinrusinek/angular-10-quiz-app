@@ -904,40 +904,44 @@ export class QuizQuestionComponent
     });
   }
   
-  
-
   private setQuestionFirst(index: number): void {
-    // Check if the index is within the valid range of questionsArray
-    if (
-      !this.questionsArray ||
-      index < 0 ||
-      index >= this.questionsArray.length
-    ) {
-      console.warn(`Question not found at index: ${index}`);
-      return;
+    try {
+      // Check if the index is within the valid range of questionsArray
+      if (
+        !this.questionsArray ||
+        index < 0 ||
+        index >= this.questionsArray.length
+      ) {
+        console.warn(`Question not found at index: ${index}`);
+        return;
+      }
+
+      const question = this.questionsArray[index];
+      if (!question) {
+        console.warn(`No question data available at index: ${index}`);
+        return;
+      }
+
+      // Clear existing options and set current question
+      this.optionsToDisplay = [];
+      this.setCurrentQuestion(question);
+
+      // Load options for the current question
+      this.loadOptionsForQuestion(question).then(() => {
+        // Apply feedback after options are successfully loaded
+        this.applyOptionFeedbackToAllOptions();
+      });
+
+      // Wait to ensure the question is fully rendered before updating explanation
+      setTimeout(() => {
+        this.updateExplanationIfAnswered(index, question);
+
+        // Emit the event after rendering the question
+        this.questionRenderComplete.emit();
+      }, 100);
+    } catch (error) {
+      console.error('[setQuestionFirst] Error setting question:', error);
     }
-
-    const question = this.questionsArray[index];
-    if (!question) {
-      console.warn(`No question data available at index: ${index}`);
-      return;
-    }
-
-    // Clear existing options and set current question
-    this.optionsToDisplay = [];
-    this.setCurrentQuestion(question);
-
-    // Load options and apply feedback
-    this.loadOptionsForQuestion(question);
-    this.applyOptionFeedbackToAllOptions(); // Apply feedback immediately after loading options
-
-    // Wait to ensure the question is fully rendered before updating explanation
-    setTimeout(() => {
-      this.updateExplanationIfAnswered(index, question);
-
-      // Emit the event after rendering the question
-      this.questionRenderComplete.emit();
-    }, 100);
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
