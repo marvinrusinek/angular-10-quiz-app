@@ -1715,27 +1715,38 @@ export class QuizQuestionComponent
   }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
-    if (this.isLoadingInProgress) {
-      console.log('Waiting for ongoing loading process...');
-      while (this.isLoadingInProgress) {
+    try {
+      // Step 1: Wait for ongoing loading processes
+      if (this.isLoadingInProgress) {
+        console.log('[ensureQuestionsLoaded] Waiting for ongoing loading process...');
         await new Promise((resolve) => setTimeout(resolve, 100));
+        return this.isQuizLoaded;
       }
-      return this.isQuizLoaded;
-    }
-
-    if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
+  
+      // Step 2: Return true if already loaded
+      if (this.isQuizLoaded && this.questions && this.questions.length > 0) {
+        console.log('[ensureQuestionsLoaded] Questions are already loaded.');
+        return true;
+      }
+  
+      // Step 3: Start loading process
+      this.isLoadingInProgress = true;
+      const loadedSuccessfully = await this.loadQuizData();
+      this.isLoadingInProgress = false;
+  
+      if (!loadedSuccessfully) {
+        console.error('[ensureQuestionsLoaded] Failed to load questions.');
+        return false;
+      }
+  
+      console.log('[ensureQuestionsLoaded] Questions successfully loaded:', this.questions);
       return true;
+    } catch (error) {
+      // Step 4: Handle unexpected errors
+      console.error('[ensureQuestionsLoaded] Error ensuring questions are loaded:', error);
+      this.isLoadingInProgress = false; // Reset state in case of errors
+      return false;
     }
-
-    this.isLoadingInProgress = true;
-    const loadedSuccessfully = await this.loadQuizData();
-    this.isLoadingInProgress = false;
-
-    if (!loadedSuccessfully) {
-      console.error('Failed to load questions.');
-    }
-
-    return loadedSuccessfully;
   }
 
   private async handleExplanationDisplay(): Promise<void> {
