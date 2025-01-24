@@ -904,7 +904,7 @@ export class QuizQuestionComponent
     });
   }
   
-  private setQuestionFirst(index: number): void {
+  /* private setQuestionFirst(index: number): void {
     try {
       // Check if the index is within the valid range of questionsArray
       if (
@@ -942,7 +942,50 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[setQuestionFirst] Error setting question:', error);
     }
+  } */
+  private async setQuestionFirst(index: number): Promise<void> {
+    // Check if the index is within the valid range of questionsArray
+    if (
+      !this.questionsArray ||
+      index < 0 ||
+      index >= this.questionsArray.length
+    ) {
+      console.warn(`[setQuestionFirst] Question not found at index: ${index}`);
+      return;
+    }
+  
+    const question = this.questionsArray[index];
+    if (!question) {
+      console.warn(`[setQuestionFirst] No question data available at index: ${index}`);
+      return;
+    }
+  
+    // Clear existing options and set current question
+    this.optionsToDisplay = [];
+    this.setCurrentQuestion(question);
+  
+    // Wait for currentQuestion to be fully loaded before applying feedback
+    const questionLoaded = await this.loadCurrentQuestion();
+    if (!questionLoaded || !this.currentQuestion) {
+      console.error('[setQuestionFirst] Failed to load current question. Aborting feedback application.');
+      return;
+    }
+  
+    console.log('[setQuestionFirst] Successfully set currentQuestion:', this.currentQuestion);
+  
+    // Load options and apply feedback
+    this.loadOptionsForQuestion(this.currentQuestion);
+    await this.applyOptionFeedbackToAllOptions(); // Apply feedback only after confirming question is loaded
+  
+    // Wait to ensure the question is fully rendered before updating explanation
+    setTimeout(() => {
+      this.updateExplanationIfAnswered(index, this.currentQuestion);
+  
+      // Emit the event after rendering the question
+      this.questionRenderComplete.emit();
+    }, 100);
   }
+  
 
   public async loadOptionsForQuestion(question: QuizQuestion): Promise<void> {
     try {
