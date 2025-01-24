@@ -1775,13 +1775,12 @@ export class QuizQuestionComponent
         return true;
       }
   
-      // Step 2: Reload the current question if missing
+      // Step 2: Attempt to reload `currentQuestion`
       console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
       const questionReloaded = await this.loadCurrentQuestion();
   
-      // Step 3: Validate if reloading was successful
       if (!questionReloaded || !this.currentQuestion) {
-        console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion. Aborting operation.', {
+        console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion.', {
           currentQuestionIndex: this.currentQuestionIndex,
           questionsArray: this.questionsArray,
           currentQuestion: this.currentQuestion,
