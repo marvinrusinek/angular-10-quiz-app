@@ -1131,23 +1131,19 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Step 1: Ensure `currentQuestion` is set
-      if (!this.currentQuestion) {
-        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadCurrentQuestion(); // Ensure `currentQuestion` is reloaded
-        if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
-          });
-          return; // Exit early if `currentQuestion` is still not set
-        }
+      // Ensure `currentQuestion` is loaded
+      const questionIsLoaded = await this.ensureCurrentQuestionLoaded();
+      if (!questionIsLoaded) {
+        console.error('[applyOptionFeedbackToAllOptions] Aborting operation: currentQuestion is still missing.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+        });
+        return;
       }
   
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
   
-      // Step 2: Ensure `optionsToDisplay` is populated
+      // Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         if (this.currentQuestion?.options) {
@@ -1155,26 +1151,26 @@ export class QuizQuestionComponent
         }
   
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting operation.', {
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.', {
             currentQuestionIndex: this.currentQuestionIndex,
             currentQuestion: this.currentQuestion,
           });
-          return; // Exit early if `optionsToDisplay` is still empty
+          return;
         }
       }
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
   
-      // Step 3: Identify correct options
+      // Identify correct options
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
-      // Step 4: Generate feedback for options
+      // Generate feedback for options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Step 5: Apply feedback to options
+      // Apply feedback to options
       this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
         ...option,
         feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
@@ -1191,7 +1187,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
@@ -1764,6 +1759,26 @@ export class QuizQuestionComponent
       this.isLoadingInProgress = false; // Reset state in case of errors
       return false;
     }
+  }
+
+  private async ensureCurrentQuestionLoaded(): Promise<boolean> {
+    if (this.currentQuestion) {
+      console.log('[ensureCurrentQuestionLoaded] currentQuestion is already loaded:', this.currentQuestion);
+      return true;
+    }
+  
+    console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
+    const questionReloaded = await this.loadCurrentQuestion();
+    if (!questionReloaded || !this.currentQuestion) {
+      console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion.', {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+      });
+      return false;
+    }
+  
+    console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
+    return true;
   }
 
   private async handleExplanationDisplay(): Promise<void> {
