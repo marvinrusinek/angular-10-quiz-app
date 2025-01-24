@@ -1134,12 +1134,12 @@ export class QuizQuestionComponent
       // Step 1: Ensure `currentQuestion` is loaded
       const questionIsLoaded = await this.ensureCurrentQuestionLoaded();
       if (!questionIsLoaded) {
-        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is still missing after reloading.', {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is still missing after reload.', {
           currentQuestionIndex: this.currentQuestionIndex,
           questionsArray: this.questionsArray,
           currentQuestion: this.currentQuestion,
         });
-        return;
+        return; // Exit if `currentQuestion` is not available
       }
   
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
@@ -1156,7 +1156,7 @@ export class QuizQuestionComponent
             currentQuestionIndex: this.currentQuestionIndex,
             currentQuestion: this.currentQuestion,
           });
-          return;
+          return; // Exit if `optionsToDisplay` cannot be populated
         }
       }
   
@@ -1778,19 +1778,25 @@ export class QuizQuestionComponent
   
       // Step 2: Attempt to reload `currentQuestion`
       console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
-      const questionReloaded = await this.loadCurrentQuestion();
-  
-      if (!questionReloaded || !this.currentQuestion) {
-        console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion.', {
-          currentQuestionIndex: this.currentQuestionIndex,
-          questionsArray: this.questionsArray,
-          currentQuestion: this.currentQuestion,
-        });
-        return false;
+      let retries = 3; // Retry limit
+      while (retries > 0) {
+        const questionReloaded = await this.loadCurrentQuestion();
+        if (questionReloaded && this.currentQuestion) {
+          console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
+          return true;
+        }
+        retries--;
+        console.warn(`[ensureCurrentQuestionLoaded] Retry attempt ${3 - retries} failed.`);
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Delay before retry
       }
   
-      console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
-      return true;
+      // Step 3: If retries are exhausted, log the failure
+      console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion after retries.', {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
+      return false;
     } catch (error) {
       console.error('[ensureCurrentQuestionLoaded] Error during question load:', error, {
         currentQuestionIndex: this.currentQuestionIndex,
