@@ -944,24 +944,27 @@ export class QuizQuestionComponent
     }
   }
 
-  public loadOptionsForQuestion(question: QuizQuestion): void {
-    if (question.options) {
-      this.optionsToDisplay = question.options.map(option => ({
-        ...option,
-        feedback: option.feedback ?? 'No feedback available.',
-        showIcon: option.showIcon ?? false,
-        active: option.active ?? true,
-        selected: option.selected ?? false,
-        correct: option.correct ?? false
-      }));
-  
-      // Apply feedback to all options immediately after loading
-      this.applyOptionFeedbackToAllOptions();
-    } else {
-      console.warn('No options found for the question:', question);
-      this.optionsToDisplay = [];
+  public async loadOptionsForQuestion(question: QuizQuestion): Promise<void> {
+    try {
+      if (question.options && question.options.length > 0) {
+        // Step 1: Transform and initialize optionsToDisplay
+        this.optionsToDisplay = question.options.map(option => ({
+          ...option,
+          feedback: option.feedback ?? 'No feedback available.',
+          showIcon: option.showIcon ?? false,
+          active: option.active ?? true,
+          selected: option.selected ?? false,
+          correct: option.correct ?? false
+        }));
+        console.log('[loadOptionsForQuestion] Options loaded:', this.optionsToDisplay);
+      } else {
+        console.warn('[loadOptionsForQuestion] No options found for the question:', question);
+        this.optionsToDisplay = [];
+      }
+    } catch (error) {
+      console.error('[loadOptionsForQuestion] Error loading options for question:', error);
     }
-  }  
+  }
 
   /* public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
