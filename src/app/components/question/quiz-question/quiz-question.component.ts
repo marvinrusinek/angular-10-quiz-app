@@ -1675,41 +1675,42 @@ export class QuizQuestionComponent
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     try {
-      // Step 1: Ensure `questionsArray` is loaded
+      // Ensure questions array is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
       if (!questionsLoaded) {
-        console.error('[loadCurrentQuestion] Failed to load questionsArray.');
+        console.error('[loadCurrentQuestion] No questions available.');
         return false;
       }
   
-      // Step 2: Validate `currentQuestionIndex`
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+      // Validate current question index
+      if (
+        this.currentQuestionIndex < 0 ||
+        this.currentQuestionIndex >= this.questions.length
+      ) {
         console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
         return false;
       }
   
-      // Step 3: Fetch `currentQuestion`
-      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-      if (!potentialQuestion) {
-        console.error('[loadCurrentQuestion] Question data is null or undefined.', {
-          currentQuestionIndex: this.currentQuestionIndex,
-          questionsArray: this.questionsArray,
-        });
+      // Fetch current question
+      const questionData = await firstValueFrom(
+        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+      );
+  
+      if (questionData) {
+        console.log('[loadCurrentQuestion] Successfully loaded currentQuestion:', questionData);
+        this.currentQuestion = questionData;
+        this.optionsToDisplay = this.quizService.assignOptionIds(questionData.options || []);
+        return true;
+      } else {
+        console.error('[loadCurrentQuestion] Failed to fetch question data.');
         return false;
       }
-  
-      // Step 4: Assign `currentQuestion`
-      this.currentQuestion = { ...potentialQuestion };
-      console.log('[loadCurrentQuestion] Successfully set currentQuestion:', this.currentQuestion);
-  
-      // Step 5: Ensure options have unique IDs
-      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-      return true;
     } catch (error) {
-      console.error('[loadCurrentQuestion] Unexpected error:', error);
+      console.error('[loadCurrentQuestion] Error loading question:', error);
       return false;
     }
   }
+  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
