@@ -1134,14 +1134,14 @@ export class QuizQuestionComponent
       // Step 1: Ensure `currentQuestion` is set
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadCurrentQuestion();
+        const questionReloaded = await this.loadCurrentQuestion(); // Ensure `currentQuestion` is reloaded
         if (!questionReloaded || !this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
             currentQuestion: this.currentQuestion,
           });
-          return; // Exit early if currentQuestion cannot be loaded
+          return; // Exit early if `currentQuestion` is still not set
         }
       }
   
@@ -1155,11 +1155,11 @@ export class QuizQuestionComponent
         }
   
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.', {
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             currentQuestion: this.currentQuestion,
           });
-          return; // Exit early if optionsToDisplay is still not set
+          return; // Exit early if `optionsToDisplay` is still empty
         }
       }
   
@@ -1191,7 +1191,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
   
 
   // Conditional method to update the explanation only if the question is answered
@@ -1680,7 +1679,7 @@ export class QuizQuestionComponent
     try {
       // Step 1: Ensure `questionsArray` is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
-      if (!questionsLoaded) {
+      if (!questionsLoaded || !this.questionsArray || this.questionsArray.length === 0) {
         console.error('[loadCurrentQuestion] No questions available.');
         return false;
       }
@@ -1691,25 +1690,43 @@ export class QuizQuestionComponent
         return false;
       }
   
-      // Step 3: Fetch `currentQuestion`
+      // Step 3: Fetch the current question
       const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!potentialQuestion) {
-        console.error('[loadCurrentQuestion] currentQuestion is null or undefined.', {
+        console.warn('[loadCurrentQuestion] Current question is null or undefined.', {
           currentQuestionIndex: this.currentQuestionIndex,
           questionsArray: this.questionsArray,
         });
         return false;
       }
   
-      // Step 4: Assign `currentQuestion`
-      this.currentQuestion = { ...potentialQuestion };
-      console.log('[loadCurrentQuestion] Successfully set currentQuestion:', this.currentQuestion);
+      this.currentQuestion = { ...potentialQuestion }; // Assign a copy of the question
+      console.log('[loadCurrentQuestion] Loaded currentQuestion:', this.currentQuestion);
   
-      // Step 5: Assign unique IDs to options
-      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-      return true;
+      // Step 4: Assign option IDs and validate options
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.warn('[loadCurrentQuestion] No options found for currentQuestion.');
+        this.currentQuestion.options = [];
+      }
+      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+  
+      // Step 5: Initialize `optionsToDisplay`
+      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        ...option,
+        active: true,
+        feedback: undefined,
+        showIcon: false,
+        selected: false,
+      }));
+      console.log('[loadCurrentQuestion] Initialized optionsToDisplay:', this.optionsToDisplay);
+  
+      return true; // Success
     } catch (error) {
-      console.error('[loadCurrentQuestion] Unexpected error:', error);
+      console.error('[loadCurrentQuestion] Error loading current question:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
       return false;
     }
   }
