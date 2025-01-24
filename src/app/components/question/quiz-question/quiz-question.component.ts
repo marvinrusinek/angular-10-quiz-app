@@ -1636,54 +1636,70 @@ export class QuizQuestionComponent
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
-    // Ensure questions array is loaded
-    const questionsLoaded = await this.ensureQuestionsLoaded();
-    if (!questionsLoaded) {
-      console.error('[loadCurrentQuestion] No questions available.');
-      return false;
-    }
-  
-    // Validate current question index
-    if (
-      this.currentQuestionIndex < 0 ||
-      this.currentQuestionIndex >= this.questions.length
-    ) {
-      console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
-      return false;
-    }
-  
     try {
-      // Fetch question data
+      console.log('[loadCurrentQuestion] Starting...');
+  
+      // Step 1: Ensure questions array is loaded
+      const questionsLoaded = await this.ensureQuestionsLoaded();
+      if (!questionsLoaded || !this.questions || this.questions.length === 0) {
+        console.error('[loadCurrentQuestion] Questions array is not loaded or empty.', {
+          questionsArray: this.questions,
+        });
+        return false;
+      }
+  
+      // Step 2: Validate current question index
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questions.length) {
+        console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`, {
+          questionsArray: this.questions,
+          currentQuestionIndex: this.currentQuestionIndex,
+        });
+        return false;
+      }
+  
+      // Step 3: Fetch the current question
       const questionData = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
   
-      if (questionData) {
-        console.log(`[loadCurrentQuestion] Loaded data for question index: ${this.currentQuestionIndex}`);
-        
-        // Assign unique IDs to options
-        questionData.options = this.quizService.assignOptionIds(questionData.options);
-  
-        // Assign active states for options
-        questionData.options = this.quizService.assignOptionActiveStates(
-          questionData.options,
-          false
-        );
-  
-        // Set current question and options
-        this.currentQuestion = questionData;
-        this.optionsToDisplay = questionData.options ?? [];
-        console.log(`[loadCurrentQuestion] Options to display:`, this.optionsToDisplay);
-        return true;
-      } else {
-        console.error(`[loadCurrentQuestion] No data found for question index: ${this.currentQuestionIndex}`);
+      if (!questionData) {
+        console.error(`[loadCurrentQuestion] No question data found at index: ${this.currentQuestionIndex}`, {
+          questionsArray: this.questions,
+          currentQuestionIndex: this.currentQuestionIndex,
+        });
         return false;
       }
+  
+      console.log('[loadCurrentQuestion] Loaded question data:', questionData);
+  
+      // Step 4: Assign IDs and active states to options
+      questionData.options = this.quizService.assignOptionIds(questionData.options || []);
+      questionData.options = this.quizService.assignOptionActiveStates(
+        questionData.options,
+        false
+      );
+  
+      if (!questionData.options || questionData.options.length === 0) {
+        console.warn('[loadCurrentQuestion] No options available for the current question.');
+      }
+  
+      // Step 5: Update `currentQuestion` and `optionsToDisplay`
+      this.currentQuestion = questionData;
+      this.optionsToDisplay = questionData.options || [];
+      console.log('[loadCurrentQuestion] Updated currentQuestion and optionsToDisplay:', {
+        currentQuestion: this.currentQuestion,
+        optionsToDisplay: this.optionsToDisplay,
+      });
+  
+      return true; // Successfully loaded the question
     } catch (error) {
-      console.error('[loadCurrentQuestion] Error fetching question data:', error);
+      console.error('[loadCurrentQuestion] Error loading current question:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questions,
+      });
       return false;
     }
-  }  
+  }
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
