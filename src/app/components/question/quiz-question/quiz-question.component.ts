@@ -1081,6 +1081,7 @@ export class QuizQuestionComponent
       });
     }
   }
+  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
