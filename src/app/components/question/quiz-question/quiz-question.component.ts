@@ -1673,24 +1673,25 @@ export class QuizQuestionComponent
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     try {
-      // Ensure `questionsArray` is loaded
+      // Step 1: Ensure `questionsArray` is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
       if (!questionsLoaded) {
         console.error('[loadCurrentQuestion] Failed to load questionsArray.');
         return false;
       }
   
-      // Validate `currentQuestionIndex`
+      // Step 2: Validate `currentQuestionIndex`
       if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questions.length) {
         console.error('[loadCurrentQuestion] Invalid question index:', this.currentQuestionIndex);
         return false;
       }
   
-      // Fetch the question
+      // Step 3: Fetch the question
       const questionData = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
   
+      // Step 4: Validate the fetched question
       if (!questionData) {
         console.error('[loadCurrentQuestion] No data found for question index:', this.currentQuestionIndex);
         return false;
@@ -1698,7 +1699,7 @@ export class QuizQuestionComponent
   
       console.log('[loadCurrentQuestion] Loaded question data:', questionData);
   
-      // Assign `currentQuestion` and validate
+      // Step 5: Set `currentQuestion` and validate options
       this.currentQuestion = questionData || null;
       if (!this.currentQuestion) {
         console.error('[loadCurrentQuestion] currentQuestion is null or undefined after loading.', {
