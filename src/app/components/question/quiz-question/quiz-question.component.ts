@@ -1770,40 +1770,54 @@ export class QuizQuestionComponent
 
   private async ensureCurrentQuestionLoaded(): Promise<boolean> {
     try {
-      // Step 1: Check if `currentQuestion` is already set
-      if (this.currentQuestion) {
-        console.log('[ensureCurrentQuestionLoaded] currentQuestion is already loaded:', this.currentQuestion);
-        return true;
-      }
-  
-      // Step 2: Attempt to reload `currentQuestion`
-      console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
-      let retries = 3; // Retry limit
-      while (retries > 0) {
-        const questionReloaded = await this.loadCurrentQuestion();
-        if (questionReloaded && this.currentQuestion) {
-          console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
-          return true;
+        // Step 1: Check if `currentQuestion` is already loaded
+        if (this.currentQuestion) {
+            console.log('[ensureCurrentQuestionLoaded] currentQuestion is already loaded:', this.currentQuestion);
+            return true;
         }
-        retries--;
-        console.warn(`[ensureCurrentQuestionLoaded] Retry attempt ${3 - retries} failed.`);
-        await new Promise((resolve) => setTimeout(resolve, 100)); // Delay before retry
-      }
-  
-      // Step 3: If retries are exhausted, log the failure
-      console.error('[ensureCurrentQuestionLoaded] Failed to reload currentQuestion after retries.', {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion,
-      });
-      return false;
+
+        console.warn('[ensureCurrentQuestionLoaded] currentQuestion is missing. Attempting to reload...');
+
+        // Step 2: Validate `questionsArray` is loaded
+        const questionsLoaded = await this.ensureQuestionsLoaded();
+        if (!questionsLoaded) {
+            console.error('[ensureCurrentQuestionLoaded] Failed to load questions.');
+            return false;
+        }
+
+        // Step 3: Validate `currentQuestionIndex`
+        if (
+            this.currentQuestionIndex < 0 ||
+            this.currentQuestionIndex >= this.questionsArray.length
+        ) {
+            console.error(`[ensureCurrentQuestionLoaded] Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
+            return false;
+        }
+
+        // Step 4: Fetch the question for the current index
+        const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+        if (!potentialQuestion) {
+            console.error('[ensureCurrentQuestionLoaded] No question found at current index:', this.currentQuestionIndex);
+            return false;
+        }
+
+        // Step 5: Assign the current question
+        this.currentQuestion = { ...potentialQuestion };
+        console.log('[ensureCurrentQuestionLoaded] Successfully reloaded currentQuestion:', this.currentQuestion);
+
+        // Ensure options are populated if needed
+        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+            this.currentQuestion.options = [];
+            console.warn('[ensureCurrentQuestionLoaded] No options found for currentQuestion.');
+        }
+
+        // Step 6: Assign IDs to options if necessary
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+
+        return true;
     } catch (error) {
-      console.error('[ensureCurrentQuestionLoaded] Error during question load:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion,
-      });
-      return false;
+        console.error('[ensureCurrentQuestionLoaded] Error reloading currentQuestion:', error);
+        return false;
     }
   }
 
