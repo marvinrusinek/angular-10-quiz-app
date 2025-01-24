@@ -1131,18 +1131,24 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-      // Step 1: Ensure `currentQuestion` is set
+      // Step 1: Explicitly set `currentQuestion` if missing
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadCurrentQuestion();
+        
+        // Attempt to get the current question from the service
+        this.currentQuestion = this.quizService.currentQuestion.getValue();
   
-        if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
-          });
-          return; // Exit early
+        // Fallback: Reload current question if still null
+        if (!this.currentQuestion) {
+          const questionReloaded = await this.loadCurrentQuestion();
+          if (!questionReloaded || !this.currentQuestion) {
+            console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+              currentQuestionIndex: this.currentQuestionIndex,
+              questionsArray: this.questionsArray,
+              currentQuestion: this.currentQuestion,
+            });
+            return; // Exit early if `currentQuestion` is still not set
+          }
         }
       }
   
@@ -1151,13 +1157,18 @@ export class QuizQuestionComponent
       // Step 2: Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+        
+        // Assign `optionsToDisplay` from `currentQuestion` options
         if (this.currentQuestion?.options) {
           this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
         }
   
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-          return; // Exit early
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            currentQuestion: this.currentQuestion,
+          });
+          return; // Exit early if `optionsToDisplay` is still not set
         }
       }
   
@@ -1189,7 +1200,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
