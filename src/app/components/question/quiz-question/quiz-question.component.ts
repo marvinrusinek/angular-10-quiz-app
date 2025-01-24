@@ -1135,18 +1135,17 @@ export class QuizQuestionComponent
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const questionReloaded = await this.loadCurrentQuestion();
-  
         if (!questionReloaded || !this.currentQuestion) {
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
             currentQuestion: this.currentQuestion,
           });
-          return; // Exit early
+          return; // Exit early if currentQuestion cannot be loaded
         }
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion is loaded:', this.currentQuestion);
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
   
       // Step 2: Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -1156,8 +1155,11 @@ export class QuizQuestionComponent
         }
   
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-          return; // Exit early
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            currentQuestion: this.currentQuestion,
+          });
+          return; // Exit early if optionsToDisplay is still not set
         }
       }
   
@@ -1189,6 +1191,7 @@ export class QuizQuestionComponent
       });
     }
   }
+  
   
 
   // Conditional method to update the explanation only if the question is answered
@@ -1675,42 +1678,41 @@ export class QuizQuestionComponent
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
     try {
-      // Ensure questions array is loaded
+      // Step 1: Ensure `questionsArray` is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
       if (!questionsLoaded) {
         console.error('[loadCurrentQuestion] No questions available.');
         return false;
       }
   
-      // Validate current question index
-      if (
-        this.currentQuestionIndex < 0 ||
-        this.currentQuestionIndex >= this.questions.length
-      ) {
+      // Step 2: Validate `currentQuestionIndex`
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
         console.error(`[loadCurrentQuestion] Invalid question index: ${this.currentQuestionIndex}`);
         return false;
       }
   
-      // Fetch current question
-      const questionData = await firstValueFrom(
-        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-      );
-  
-      if (questionData) {
-        console.log('[loadCurrentQuestion] Successfully loaded currentQuestion:', questionData);
-        this.currentQuestion = questionData;
-        this.optionsToDisplay = this.quizService.assignOptionIds(questionData.options || []);
-        return true;
-      } else {
-        console.error('[loadCurrentQuestion] Failed to fetch question data.');
+      // Step 3: Fetch `currentQuestion`
+      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!potentialQuestion) {
+        console.error('[loadCurrentQuestion] currentQuestion is null or undefined.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+        });
         return false;
       }
+  
+      // Step 4: Assign `currentQuestion`
+      this.currentQuestion = { ...potentialQuestion };
+      console.log('[loadCurrentQuestion] Successfully set currentQuestion:', this.currentQuestion);
+  
+      // Step 5: Assign unique IDs to options
+      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+      return true;
     } catch (error) {
-      console.error('[loadCurrentQuestion] Error loading question:', error);
+      console.error('[loadCurrentQuestion] Unexpected error:', error);
       return false;
     }
   }
-  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
