@@ -1134,7 +1134,7 @@ export class QuizQuestionComponent
       // Step 1: Ensure `currentQuestion` is loaded
       const questionIsLoaded = await this.ensureCurrentQuestionLoaded();
       if (!questionIsLoaded) {
-        console.error('[applyOptionFeedbackToAllOptions] Aborting: currentQuestion is still missing.', {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is still missing after reloading.', {
           currentQuestionIndex: this.currentQuestionIndex,
           questionsArray: this.questionsArray,
           currentQuestion: this.currentQuestion,
@@ -1156,7 +1156,7 @@ export class QuizQuestionComponent
             currentQuestionIndex: this.currentQuestionIndex,
             currentQuestion: this.currentQuestion,
           });
-          return; // Exit early
+          return;
         }
       }
   
@@ -1168,7 +1168,7 @@ export class QuizQuestionComponent
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
   
-      // Step 4: Generate feedback
+      // Step 4: Generate feedback for options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
       // Step 5: Apply feedback to options
@@ -1686,12 +1686,12 @@ export class QuizQuestionComponent
         return false;
       }
   
-      // Step 3: Fetch the question
+      // Step 3: Fetch the current question
       const questionData = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
   
-      // Step 4: Validate the fetched question
+      // Step 4: Validate and set `currentQuestion`
       if (!questionData) {
         console.error('[loadCurrentQuestion] No data found for question index:', this.currentQuestionIndex);
         return false;
@@ -1731,6 +1731,7 @@ export class QuizQuestionComponent
       return false;
     }
   }
+  
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     try {
