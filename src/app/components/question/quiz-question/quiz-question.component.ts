@@ -846,61 +846,52 @@ export class QuizQuestionComponent
   } */
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-      const questionIndex = +params.get('questionIndex') || 0;
-  
-      try {
-        // Reset state and hide explanation initially
-        this.resetStateForNewQuestion();
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(false);
-  
-        // Ensure questions are loaded
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-          const loaded = await this.loadQuestion(); // Assuming loadQuestions populates questionsArray
-          if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
-            console.error('[handleRouteChanges] Questions could not be loaded.');
-            return;
-          }
-        }
-  
-        // Validate question index
-        if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-          console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
-          return;
-        }
-  
-        // Set the current question
-        this.currentQuestion = this.questionsArray[questionIndex];
-        if (!this.currentQuestion) {
-          console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
-          return;
-        }
-  
-        console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
-  
-        // Set up options to display
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-          ...option,
-          active: true, // Ensure options are active
-          feedback: undefined, // Reset feedback
-          showIcon: false // Reset icons
-        }));
-  
-        console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
-  
-        // Generate feedback text
+        const questionIndex = +params.get('questionIndex') || 0;
+
         try {
-          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-          console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
-        } catch (feedbackError) {
-          console.error('[handleRouteChanges] Error generating feedback text:', feedbackError);
-          this.feedbackText = 'Unable to generate feedback for the current question.';
+            // Reset state and hide explanation initially
+            this.resetStateForNewQuestion();
+            this.explanationToDisplay = '';
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(false);
+
+            // Ensure questions are loaded
+            if (!this.questionsArray || this.questionsArray.length === 0) {
+                console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
+                const loaded = await this.loadQuestion(); // Assuming loadQuestions populates questionsArray
+                if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
+                    console.error('[handleRouteChanges] Questions could not be loaded.');
+                    return;
+                }
+            }
+
+            // Validate question index
+            if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+                console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
+                return;
+            }
+
+            // Set the current question
+            this.setCurrentQuestion(this.questionsArray[questionIndex]); // Use the setCurrentQuestion method
+
+            console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
+
+            // Set up options to display
+            this.initializeOptionsToDisplay(); // Call the method to initialize optionsToDisplay
+
+            console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
+
+            // Generate feedback text
+            try {
+                this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+                console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
+            } catch (feedbackError) {
+                console.error('[handleRouteChanges] Error generating feedback text:', feedbackError);
+                this.feedbackText = 'Unable to generate feedback for the current question.';
+            }
+        } catch (error) {
+            console.error('[handleRouteChanges] Error handling route change:', error);
         }
-      } catch (error) {
-        console.error('[handleRouteChanges] Error handling route change:', error);
-      }
     });
   }
   
