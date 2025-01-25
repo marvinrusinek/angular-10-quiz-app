@@ -4866,17 +4866,56 @@ export class QuizQuestionComponent
     index: number,
     checked: boolean
   ): void {
-    this.selectedOptionService.setOptionSelected(true);
-    this.selectedOptionService.isAnsweredSubject.next(true);
-
-    if (!this.explanationLocked) {
-      this.explanationLocked = true;
-      this.fetchAndSetExplanationText(this.currentQuestionIndex);
+    try {
+      if (!option || option.optionId === undefined) {
+        console.warn('[updateSelectionState] Invalid option received:', { option, index, checked });
+        return;
+      }
+  
+      console.log('[updateSelectionState] Updating selection state for option:', { option, index, checked });
+  
+      // Ensure the selectedOptionsMap is updated
+      const existingOptions =
+        this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
+  
+      const updatedOptions = existingOptions.filter(o => o.optionId !== option.optionId);
+  
+      if (checked) {
+        updatedOptions.push({
+          ...option,
+          selected: true, // Ensure the selected state is explicitly set
+        });
+      }
+  
+      this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
+  
+      console.log('[updateSelectionState] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
+  
+      // Update additional selection flags
+      this.selectedOptionService.setOptionSelected(updatedOptions.length > 0);
+      this.selectedOptionService.isAnsweredSubject.next(updatedOptions.length > 0);
+  
+      // Fetch and lock the explanation if it's not already locked
+      if (!this.explanationLocked) {
+        this.explanationLocked = true;
+        this.fetchAndSetExplanationText(this.currentQuestionIndex);
+      }
+  
+      // Reset explanation and toggle option state
+      this.resetExplanation();
+      this.toggleOptionState(option, index);
+  
+      // Emit the option selected event for further processing
+      this.emitOptionSelected(option, index);
+  
+      console.log('[updateSelectionState] Selection state updated successfully for:', { option, index, checked });
+    } catch (error) {
+      console.error('[updateSelectionState] Error updating selection state:', error, {
+        option,
+        index,
+        checked,
+      });
     }
-
-    this.resetExplanation();
-    this.toggleOptionState(option, index);
-    this.emitOptionSelected(option, index);
   }
 
   private async performOptionProcessing(
