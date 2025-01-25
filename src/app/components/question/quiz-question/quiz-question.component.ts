@@ -2146,7 +2146,7 @@ export class QuizQuestionComponent
       return fallbackText;
     }
   } */
-  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+  /* public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
       console.log('[generateFeedbackText] Question received:', question);
       console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
@@ -2204,7 +2204,73 @@ export class QuizQuestionComponent
       this.feedbackTextChange.emit(this.feedbackText);
       return fallbackText;
     }
+  } */
+  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+    try {
+      console.log('[generateFeedbackText] Question received:', question);
+      console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
+  
+      // Step 1: Validate the question and its options
+      if (!question || !question.options || question.options.length === 0) {
+        console.warn('[generateFeedbackText] Invalid question or missing options.');
+        return 'No feedback available for the current question.';
+      }
+  
+      // Step 2: Ensure `optionsToDisplay` is initialized
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackText] optionsToDisplay is not set. Initializing from question options.');
+        this.optionsToDisplay = this.quizService.assignOptionIds([...question.options]);
+  
+        // Verify successful initialization
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[generateFeedbackText] Failed to initialize optionsToDisplay from question options.');
+          return 'No options available to generate feedback.';
+        }
+        console.log('[generateFeedbackText] Initialized optionsToDisplay:', this.optionsToDisplay);
+      }
+  
+      // Step 3: Check for mismatched options
+      if (this.optionsToDisplay.length !== question.options.length) {
+        console.warn('[generateFeedbackText] Mismatch detected: optionsToDisplay length does not match question.options length. Re-syncing.');
+        this.optionsToDisplay = this.quizService.assignOptionIds([...question.options]);
+      }
+  
+      // Step 4: Extract correct options
+      const correctOptions = question.options.filter((option) => option.correct);
+      if (!correctOptions.length) {
+        console.info('[generateFeedbackText] No correct options found for this question.');
+        return 'No correct answers defined for this question.';
+      }
+  
+      // Step 5: Generate feedback using the feedback service
+      const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+  
+      // Step 6: Handle empty feedback
+      if (!feedbackText || feedbackText.trim() === '') {
+        console.warn('[generateFeedbackText] Feedback generation returned empty or null. Using fallback.');
+        return 'Feedback could not be generated for the current question.';
+      }
+  
+      console.log('[generateFeedbackText] Feedback generated successfully:', feedbackText);
+  
+      // Step 7: Emit and return feedback
+      this.feedbackText = feedbackText;
+      this.feedbackTextChange.emit(this.feedbackText);
+      console.log('[generateFeedbackText] Feedback emitted successfully:', this.feedbackText);
+  
+      return this.feedbackText;
+    } catch (error) {
+      console.error('[generateFeedbackText] Error during feedback generation:', error, {
+        question,
+        optionsToDisplay: this.optionsToDisplay,
+      });
+      const fallbackText = 'An error occurred while generating feedback. Please try again.';
+      this.feedbackText = fallbackText;
+      this.feedbackTextChange.emit(this.feedbackText);
+      return fallbackText;
+    }
   }
+  
   
   
 
@@ -2890,7 +2956,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private restoreFeedbackState(): void {
+  /* private restoreFeedbackState(): void {
     try {
       console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
       console.log('[restoreFeedbackState] Options to display:', this.optionsToDisplay);
@@ -2911,7 +2977,101 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
+  } */
+  /* private restoreFeedbackState(): void {
+    try {
+      console.log('[restoreFeedbackState] Restoring feedback state...');
+      console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
+      console.log('[restoreFeedbackState] Options to display:', this.optionsToDisplay);
+  
+      // Step 1: Ensure `currentQuestion` is valid
+      if (!this.currentQuestion) {
+        console.warn('[restoreFeedbackState] Missing current question. Attempting to restore...');
+        this.currentQuestion = this.quizService.currentQuestion.getValue(); // Attempt to restore from service
+        if (!this.currentQuestion) {
+          console.error('[restoreFeedbackState] Failed to restore current question.');
+          return; // Exit early if currentQuestion is still null
+        }
+        console.log('[restoreFeedbackState] Restored current question:', this.currentQuestion);
+      }
+  
+      // Step 2: Ensure `optionsToDisplay` is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[restoreFeedbackState] optionsToDisplay is missing. Attempting to restore...');
+        if (this.currentQuestion.options && this.currentQuestion.options.length > 0) {
+          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+        } else {
+          console.error('[restoreFeedbackState] Failed to restore optionsToDisplay. Current question has no options.');
+          return; // Exit early if optionsToDisplay cannot be restored
+        }
+        console.log('[restoreFeedbackState] Restored optionsToDisplay:', this.optionsToDisplay);
+      }
+  
+      // Step 3: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+        ...option,
+        active: true, // Ensure all options are active
+        feedback: option.feedback || this.generateFeedbackForOption(option), // Restore or regenerate feedback
+        showIcon: option.correct || option.showIcon, // Ensure correct options display icons
+        selected: option.selected ?? false // Restore selection state if available
+      }));
+  
+      console.log('[restoreFeedbackState] Feedback state restored successfully:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[restoreFeedbackState] Error restoring feedback state:', error);
+    }
+  } */
+  private restoreQuizState(): void {
+    try {
+      console.log('[restoreQuizState] Restoring quiz state...');
+  
+      // Restore explanation text
+      this.currentExplanationText =
+        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
+      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+  
+      // Restore options data
+      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
+      if (optionsData) {
+        this.optionsToDisplay = JSON.parse(optionsData);
+        console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
+      } else {
+        console.warn('[restoreQuizState] No options data found for restoration.');
+        this.optionsToDisplay = []; // Initialize to empty array if no data is found
+      }
+  
+      // Restore selected options
+      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
+      if (selectedOptionsData) {
+        const selectedOptions = JSON.parse(selectedOptionsData);
+        for (const option of selectedOptions) {
+          if (option.optionId !== undefined) {
+            this.selectedOptionService.setSelectedOption(option.optionId);
+          } else {
+            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+          }
+        }
+        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+      } else {
+        console.warn('[restoreQuizState] No selected options data found for restoration.');
+      }
+  
+      // Restore feedback text
+      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
+      if (restoredFeedbackText) {
+        this.feedbackText = restoredFeedbackText;
+        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
+      } else {
+        console.warn('[restoreQuizState] No feedback text found for restoration.');
+        this.feedbackText = ''; // Default to an empty string
+      }
+    } catch (error) {
+      console.error('[restoreQuizState] Error restoring quiz state:', error);
+    }
   }
+  
+  
 
   private generateFeedbackForOption(option: Option): string {
     if (option.correct) {
