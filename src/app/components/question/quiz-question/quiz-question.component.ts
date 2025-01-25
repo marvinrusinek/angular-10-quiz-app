@@ -1974,7 +1974,7 @@ export class QuizQuestionComponent
     }
   }
 
-  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+  /* public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
       console.log('[generateFeedbackText] Question received:', question);
       console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
@@ -2026,7 +2026,68 @@ export class QuizQuestionComponent
       this.feedbackTextChange.emit(this.feedbackText);
       return fallbackText;
     }
-  }
+  } */
+  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+    try {
+      console.log('[generateFeedbackText] Question received:', question);
+      console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
+  
+      // Step 1: Validate the question and its options
+      if (!question || !question.options || question.options.length === 0) {
+        console.warn('[generateFeedbackText] Invalid question or options are missing.');
+        return 'No feedback available for the current question.';
+      }
+  
+      // Step 2: Ensure optionsToDisplay is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackText] optionsToDisplay is not set. Falling back to question options.');
+  
+        // Fallback to the question's options
+        this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
+  
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[generateFeedbackText] Failed to restore valid optionsToDisplay. Aborting feedback generation.');
+          return 'No options available to generate feedback.';
+        }
+  
+        console.log('[generateFeedbackText] Fallback optionsToDisplay successfully set:', this.optionsToDisplay);
+      }
+  
+      // Step 3: Extract correct options from the question
+      const correctOptions = question.options.filter((option) => option.correct);
+      if (correctOptions.length === 0) {
+        console.info('[generateFeedbackText] No correct options found for the question.');
+        return 'No correct answers defined for this question.';
+      }
+  
+      // Step 4: Generate feedback using the feedback service
+      const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+  
+      // Log feedback generation
+      if (!feedbackText || feedbackText.trim() === '') {
+        console.warn('[generateFeedbackText] Feedback generation returned empty or null. Defaulting to fallback text.');
+        return 'Feedback generation failed for the current question.';
+      }
+  
+      console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
+  
+      // Step 5: Emit the feedback text
+      this.feedbackText = feedbackText;
+      this.feedbackTextChange.emit(this.feedbackText); // Emit feedback to notify listeners
+      console.log('[generateFeedbackText] Emitted feedbackTextChange:', this.feedbackText);
+  
+      return this.feedbackText;
+    } catch (error) {
+      console.error('[generateFeedbackText] Error generating feedback:', error, {
+        question,
+        optionsToDisplay: this.optionsToDisplay,
+      });
+      const fallbackText = 'An error occurred while generating feedback. Please try again.';
+      this.feedbackText = fallbackText;
+      this.feedbackTextChange.emit(this.feedbackText); // Emit fallback feedback
+      return fallbackText;
+    }
+  }  
 
   private resetTexts(): void {
     this.explanationTextSubject.next('');
