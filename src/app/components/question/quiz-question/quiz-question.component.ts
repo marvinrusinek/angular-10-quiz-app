@@ -3970,7 +3970,7 @@ export class QuizQuestionComponent
     checked: boolean;
   }): Promise<void> {
     try {
-      // Ensure the current question is loaded
+      // Step 1: Ensure the current question is loaded
       if (!this.currentQuestion) {
         const loaded = await this.loadCurrentQuestion();
         if (!loaded) {
@@ -3979,7 +3979,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // Validate the event and option
+      // Step 2: Validate the event and option
       if (!event.option || !this.validateOption(event)) {
         console.info('[onOptionClicked] Invalid option or event detected.');
         return;
@@ -3992,8 +3992,9 @@ export class QuizQuestionComponent
   
       console.log('[onOptionClicked] Selected Option:', selectedOption);
   
-      // Update selectedOptionsMap
-      const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
+      // Step 3: Update selectedOptionsMap
+      const existingOptions =
+        this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
       const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
   
       if (event.checked) {
@@ -4003,29 +4004,33 @@ export class QuizQuestionComponent
   
       console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
   
+      // Step 4: Apply feedback and update `optionsToDisplay`
+      this.applyOptionFeedback(selectedOption);
+      console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+      // Step 5: Ensure `optionsToDisplay` and `selectedOptions` are valid before saving
+      const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
+      const areOptionsValid = this.optionsToDisplay && this.optionsToDisplay.length > 0;
+      const areSelectedOptionsValid = selectedOptions && selectedOptions.length > 0;
+  
+      if (areOptionsValid || areSelectedOptionsValid) {
+        this.saveQuizState();
+      } else {
+        console.warn('[onOptionClicked] No valid options or selected options to save.');
+      }
+  
+      // Step 6: Handle multiple-answer logic
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
       console.log('[onOptionClicked] isMultipleAnswer:', isMultipleAnswer);
-  
-      // Apply feedback and handle option logic
-      this.applyOptionFeedback(selectedOption);
-      console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-
-      // Ensure options and selected options are valid before saving
-      if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-        // Save the updated state
-        this.saveQuizState();
-      } else {
-        console.warn('[onOptionClicked] No valid options to save.');
-      }
   
       if (isMultipleAnswer) {
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
         await this.handleMultipleAnswerTimerLogic(selectedOption);
       }
   
-      // Update UI states and flags
+      // Step 7: Update UI states and flags
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
@@ -4039,12 +4044,13 @@ export class QuizQuestionComponent
         this.renderDisplay();
       });
   
-      // Handle additional processing
+      // Step 8: Handle additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
-  }  
+  }
+  
 
   // ====================== Helper Functions ======================
 
