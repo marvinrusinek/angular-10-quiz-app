@@ -4171,41 +4171,44 @@ export class QuizQuestionComponent
   
     console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
   }
-  
 
-  private async reloadCurrentQuestion(): Promise<void> {
+  private async reloadCurrentQuestion(): Promise<boolean> {
     try {
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
-        throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
+        console.error('[reloadCurrentQuestion] No active quiz ID found.');
+        return false; // Return false if quizId is not found
       }
-
+  
       const question = await firstValueFrom(
         this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
       );
-
+  
       if (question) {
         console.log('[reloadCurrentQuestion] Question reloaded:', question);
         this.currentQuestion = question;
-
+  
         // Ensure options are initialized
         this.optionsToDisplay = question.options.map(option => ({
           ...option,
           active: option.active ?? true,
           feedback: option.feedback ?? undefined,
           showIcon: option.showIcon ?? false,
-          selected: this.selectedOptionService.isSelectedOption(option)
+          selected: this.selectedOptionService.isSelectedOption(option),
         }));
-
+  
         console.log('[reloadCurrentQuestion] Options restored:', this.optionsToDisplay);
+        return true; // Successfully reloaded the question
       } else {
-        throw new Error('[reloadCurrentQuestion] Failed to reload question.');
+        console.error('[reloadCurrentQuestion] Failed to reload question.');
+        return false; // Return false if question is not reloaded
       }
     } catch (error) {
       console.error('[reloadCurrentQuestion] Error:', error);
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.optionBindings = [];
+      return false; // Return false on error
     }
   }
 
