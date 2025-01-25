@@ -3973,13 +3973,30 @@ export class QuizQuestionComponent
       // Step 1: Ensure the current question is loaded
       if (!this.currentQuestion) {
         const loaded = await this.loadCurrentQuestion();
-        if (!loaded) {
+        if (!loaded || !this.currentQuestion) {
           console.error('[onOptionClicked] Unable to load current question.');
           return;
         }
       }
   
-      // Step 2: Validate the event and option
+      // Step 2: Ensure optionsToDisplay is initialized
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[onOptionClicked] optionsToDisplay is empty. Reinitializing from current question options.');
+  
+        if (this.currentQuestion?.options && this.currentQuestion.options.length > 0) {
+          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+          console.log('[onOptionClicked] Reinitialized optionsToDisplay:', this.optionsToDisplay);
+        }
+  
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[onOptionClicked] Failed to initialize optionsToDisplay. Aborting operation.');
+          return;
+        }
+      }
+  
+      console.log('[onOptionClicked] optionsToDisplay is valid:', this.optionsToDisplay);
+  
+      // Step 3: Validate the event and option
       if (!event.option || !this.validateOption(event)) {
         console.info('[onOptionClicked] Invalid option or event detected.');
         return;
@@ -3991,21 +4008,6 @@ export class QuizQuestionComponent
       };
   
       console.log('[onOptionClicked] Selected Option:', selectedOption);
-  
-      // Step 3: Ensure `optionsToDisplay` is initialized
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] optionsToDisplay is empty. Reinitializing from current question options.');
-  
-        // Validate and assign options from `currentQuestion`
-        if (this.currentQuestion?.options && this.currentQuestion.options.length > 0) {
-          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-        } else {
-          console.error('[onOptionClicked] currentQuestion.options is missing or invalid.');
-          return; // Exit early if no options can be initialized
-        }
-      }
-  
-      console.log('[onOptionClicked] Initialized optionsToDisplay:', this.optionsToDisplay);
   
       // Step 4: Update selectedOptionsMap
       const existingOptions =
@@ -4019,20 +4021,18 @@ export class QuizQuestionComponent
   
       console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
   
-      // Step 5: Apply feedback and update `optionsToDisplay`
+      // Step 5: Apply feedback and update optionsToDisplay
       this.applyOptionFeedback(selectedOption);
+  
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-      // Step 6: Ensure valid options before saving
+      // Step 6: Ensure valid data before saving the state
       const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
       if (this.optionsToDisplay.length > 0 || selectedOptions.length > 0) {
         console.log('[onOptionClicked] Saving state with valid options and selected options.');
         this.saveQuizState();
       } else {
-        console.warn('[onOptionClicked] No valid options or selected options to save.', {
-          optionsToDisplay: this.optionsToDisplay,
-          selectedOptions: selectedOptions,
-        });
+        console.warn('[onOptionClicked] No valid options or selected options to save.');
       }
   
       // Step 7: Handle multiple-answer logic
@@ -4065,8 +4065,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
-  }
-  
+  }  
 
   // ====================== Helper Functions ======================
 
