@@ -1023,20 +1023,21 @@ export class QuizQuestionComponent
         );
         console.log('[saveQuizState] Saved options data:', this.optionsToDisplay);
       } else {
-        console.warn('[saveQuizState] No options data to save.');
+        console.info('[saveQuizState] No options data to save.'); // Changed to info for less noise
       }
   
       // Save selected options
       const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
-      if (selectedOptions.length > 0) {
-        sessionStorage.setItem(
-          `selectedOptions_${this.currentQuestionIndex}`,
-          JSON.stringify(selectedOptions)
-        );
-        console.log('[saveQuizState] Saved selected options:', selectedOptions);
-      } else {
-        console.warn('[saveQuizState] No selected options to save.');
+      if (!selectedOptions || selectedOptions.length === 0) {
+        console.info('[saveQuizState] No selected options to save.'); // Changed to info for less noise
+        return; // Exit early if there are no selected options to save
       }
+  
+      sessionStorage.setItem(
+        `selectedOptions_${this.currentQuestionIndex}`,
+        JSON.stringify(selectedOptions)
+      );
+      console.log('[saveQuizState] Saved selected options:', selectedOptions);
   
       // Save feedback text
       if (this.feedbackText) {
@@ -1049,7 +1050,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
-  }
+  }  
 
   /* private restoreQuizState(): void {
     try {
@@ -4790,8 +4791,14 @@ export class QuizQuestionComponent
         // Update the selection state
         this.updateSelectionState(option, index, checked);
 
-        // Debugging: Log the selected options before saving
-        console.log('[handleAdditionalProcessing] Selected options before saving:', this.selectedOptionService.getSelectedOptions());
+        // Ensure selected options are updated before saving
+        const selectedOptions = this.selectedOptionService.getSelectedOptions();
+        if (selectedOptions && selectedOptions.length > 0) {
+          // Save quiz state only if there are valid selected options
+          this.saveQuizState();
+        } else {
+          console.info('[handleAdditionalProcessing] No selected options to save.');
+        }
 
         // Perform additional processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
