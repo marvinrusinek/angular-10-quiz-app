@@ -2027,7 +2027,7 @@ export class QuizQuestionComponent
       return fallbackText;
     }
   } */
-  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+  /* public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
       console.log('[generateFeedbackText] Question received:', question);
       console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
@@ -2087,7 +2087,75 @@ export class QuizQuestionComponent
       this.feedbackTextChange.emit(this.feedbackText); // Emit fallback feedback
       return fallbackText;
     }
-  }  
+  }  */
+  public async generateFeedbackText(question: QuizQuestion): Promise<string> {
+    try {
+      console.log('[generateFeedbackText] Question received:', question);
+      console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
+  
+      // Step 1: Validate the question and its options
+      if (!question || !question.options || question.options.length === 0) {
+        console.warn('[generateFeedbackText] Invalid question or options are missing.');
+        return 'No feedback available for the current question.';
+      }
+  
+      // Step 2: Ensure `optionsToDisplay` is set, fallback only if absolutely necessary
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackText] optionsToDisplay is not set. Falling back to question options.');
+        this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
+  
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[generateFeedbackText] Failed to restore valid optionsToDisplay.');
+          return 'No options available to generate feedback.';
+        }
+  
+        console.log('[generateFeedbackText] Fallback optionsToDisplay successfully set:', this.optionsToDisplay);
+      }
+  
+      // Step 3: Light-touch validation for significant mismatches
+      if (
+        !this.optionsToDisplay.every((opt) => question.options.some((qOpt) => qOpt.optionId === opt.optionId)) ||
+        this.optionsToDisplay.length !== question.options.length
+      ) {
+        console.warn('[generateFeedbackText] Mismatch in options detected. Proceeding with caution.');
+      }
+  
+      // Step 4: Extract correct options
+      const correctOptions = question.options.filter((option) => option.correct);
+      if (correctOptions.length === 0) {
+        console.info('[generateFeedbackText] No correct options found for the question.');
+        return 'No correct answers defined for this question.';
+      }
+  
+      // Step 5: Generate feedback
+      const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+  
+      // Step 6: Validate feedback generation
+      if (!feedbackText || feedbackText.trim() === '') {
+        console.warn('[generateFeedbackText] Feedback generation returned empty or null. Using fallback.');
+        return 'Feedback generation failed for the current question.';
+      }
+  
+      console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
+  
+      // Step 7: Emit the feedback
+      this.feedbackText = feedbackText;
+      this.feedbackTextChange.emit(this.feedbackText);
+      console.log('[generateFeedbackText] Emitted feedbackTextChange:', this.feedbackText);
+  
+      return this.feedbackText;
+    } catch (error) {
+      console.error('[generateFeedbackText] Error generating feedback:', error, {
+        question,
+        optionsToDisplay: this.optionsToDisplay,
+      });
+      const fallbackText = 'An error occurred while generating feedback. Please try again.';
+      this.feedbackText = fallbackText;
+      this.feedbackTextChange.emit(this.feedbackText);
+      return fallbackText;
+    }
+  }
+  
 
   private resetTexts(): void {
     this.explanationTextSubject.next('');
