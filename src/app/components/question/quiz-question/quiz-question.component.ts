@@ -495,7 +495,7 @@ export class QuizQuestionComponent
     this.isExplanationLocked = false;
   }
 
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
       // Save explanation text
       if (this.currentExplanationText) {
@@ -549,7 +549,79 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
+  } */
+  private saveQuizState(): void {
+    try {
+      console.log('[saveQuizState] Saving quiz state...');
+  
+      // Save explanation text
+      if (this.currentExplanationText?.trim()) {
+        sessionStorage.setItem(
+          `explanationText_${this.currentQuestionIndex}`,
+          this.currentExplanationText
+        );
+        console.log(
+          '[saveQuizState] Saved explanation text:',
+          this.currentExplanationText
+        );
+      } else {
+        console.warn(
+          '[saveQuizState] No explanation text to save. Skipping explanation text.'
+        );
+      }
+  
+      // Save display mode
+      if (this.displayState.mode) {
+        sessionStorage.setItem(
+          `displayMode_${this.currentQuestionIndex}`,
+          this.displayState.mode
+        );
+        console.log('[saveQuizState] Saved display mode:', this.displayState.mode);
+      } else {
+        console.warn('[saveQuizState] Display mode is missing or empty.');
+      }
+  
+      // Save options
+      const optionsToSave = this.optionsToDisplay || [];
+      if (optionsToSave.length > 0) {
+        sessionStorage.setItem(
+          `options_${this.currentQuestionIndex}`,
+          JSON.stringify(optionsToSave)
+        );
+        console.log('[saveQuizState] Saved options data:', optionsToSave);
+      } else {
+        console.warn('[saveQuizState] No options to save.');
+      }
+  
+      // Save selected options
+      const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
+      if (selectedOptions.length > 0) {
+        sessionStorage.setItem(
+          `selectedOptions_${this.currentQuestionIndex}`,
+          JSON.stringify(selectedOptions)
+        );
+        console.log('[saveQuizState] Saved selected options:', selectedOptions);
+      } else {
+        console.warn('[saveQuizState] No selected options to save.');
+      }
+  
+      // Save feedback text
+      if (this.feedbackText?.trim()) {
+        sessionStorage.setItem(
+          `feedbackText_${this.currentQuestionIndex}`,
+          this.feedbackText
+        );
+        console.log('[saveQuizState] Saved feedback text:', this.feedbackText);
+      } else {
+        console.warn('[saveQuizState] Feedback text is empty or missing. Skipping save.');
+      }
+  
+      console.log('[saveQuizState] Quiz state saved successfully.');
+    } catch (error) {
+      console.error('[saveQuizState] Error saving quiz state:', error);
+    }
   }
+  
 
   /* private restoreQuizState(): void {
     try {
@@ -3122,7 +3194,7 @@ export class QuizQuestionComponent
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
   } */
-  private restoreFeedbackState(): void {
+  /* private restoreFeedbackState(): void {
     try {
       console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
       console.log('[restoreFeedbackState] Options to display:', this.optionsToDisplay);
@@ -3154,7 +3226,35 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
+  } */
+  private restoreFeedbackState(): void {
+    try {
+      console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
+      console.log('[restoreFeedbackState] Options to display:', this.optionsToDisplay);
+  
+      // Step 1: Ensure optionsToDisplay is restored
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[restoreFeedbackState] optionsToDisplay is missing. Attempting to restore...');
+        this.restoreQuizState(); // Attempt to restore the quiz state first
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[restoreFeedbackState] Failed to restore optionsToDisplay. Aborting.');
+          return;
+        }
+      }
+  
+      // Step 2: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+        ...option,
+        feedback: option.feedback || this.generateFeedbackForOption(option),
+        showIcon: option.correct || option.showIcon,
+        selected: option.selected ?? false,
+      }));
+      console.log('[restoreFeedbackState] Restored feedback state:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[restoreFeedbackState] Error restoring feedback state:', error);
+    }
   }
+  
   
 
   private generateFeedbackForOption(option: Option): string {
