@@ -4005,6 +4005,11 @@ export class QuizQuestionComponent
       console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
   
       // Step 4: Apply feedback and update `optionsToDisplay`
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[onOptionClicked] optionsToDisplay is empty. Reinitializing from current question options.');
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+      }
+  
       this.applyOptionFeedback(selectedOption);
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
@@ -4014,9 +4019,13 @@ export class QuizQuestionComponent
       const areSelectedOptionsValid = selectedOptions && selectedOptions.length > 0;
   
       if (areOptionsValid || areSelectedOptionsValid) {
+        console.log('[onOptionClicked] Saving state with valid options and selected options.');
         this.saveQuizState();
       } else {
-        console.warn('[onOptionClicked] No valid options or selected options to save.');
+        console.warn('[onOptionClicked] No valid options or selected options to save.', {
+          optionsToDisplay: this.optionsToDisplay,
+          selectedOptions: selectedOptions,
+        });
       }
   
       // Step 6: Handle multiple-answer logic
@@ -4050,7 +4059,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] Unhandled error:', error);
     }
   }
-  
 
   // ====================== Helper Functions ======================
 
