@@ -1760,19 +1760,31 @@ export class QuizQuestionComponent
       // Restore selected options
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
       if (selectedOptionsData) {
-        const selectedOptions = JSON.parse(selectedOptionsData);
-        for (const option of selectedOptions) {
-          if (option.optionId !== undefined) {
-            this.selectedOptionService.setSelectedOption(option.optionId);
-          } else {
-            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+        try {
+          const selectedOptions = JSON.parse(selectedOptionsData);
+
+          // Validate and ensure optionId for all selected options
+          const validatedOptions = selectedOptions.map((option, index) => ({
+            ...option,
+            optionId: option.optionId ?? index + 1, // Assign a fallback optionId if undefined
+          }));
+
+          for (const option of validatedOptions) {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+            } else {
+              console.info('[restoreQuizState] Skipping option with undefined optionId:', option);
+            }
           }
+
+          console.log('[restoreQuizState] Restored and validated selected options:', validatedOptions);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing selected options data:', error);
         }
-        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
       } else {
-        console.warn('[restoreQuizState] No selected options data found for restoration.');
+        console.info('[restoreQuizState] No selected options data found for restoration.');
       }
-  
+
       // Restore feedback text
       const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
       if (restoredFeedbackText) {
@@ -1789,7 +1801,6 @@ export class QuizQuestionComponent
       return false; // Indicate failure
     }
   }  
-  
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
