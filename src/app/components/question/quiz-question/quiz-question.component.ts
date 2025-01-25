@@ -400,45 +400,28 @@ export class QuizQuestionComponent
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] Restoring quiz state...');
 
-        // Ensure quiz state is restored before proceeding
-        await this.restoreQuizState();
+        // Step 1: Ensure quiz state is restored
+        const stateRestored = await this.restoreQuizState();
 
-        if (this.currentQuestion) {
+        if (stateRestored && this.currentQuestion) {
           console.log('[onVisibilityChange] Restored current question:', this.currentQuestion);
 
-          // Ensure feedback state and display are restored after quiz state restoration
-          this.restoreFeedbackState();
-          console.log('[onVisibilityChange] Feedback state restored:', this.feedbackText);
+          // Step 2: Restore feedback and render display
+          this.restoreAndRenderFeedbackState();
 
-          this.renderDisplay();
-
-          // Regenerate feedback for the current question
-          try {
-            const feedbackText = await this.generateFeedbackText(this.currentQuestion);
-            this.feedbackText = feedbackText;
-            console.log('[onVisibilityChange] Feedback text regenerated:', feedbackText);
-          } catch (error) {
-            console.error('[onVisibilityChange] Error generating feedback text:', error);
-          }
+          // Step 3: Regenerate feedback text
+          await this.regenerateFeedbackText();
         } else {
           console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
-          
-          // Reload the current question if not restored
-          const loaded = await this.loadCurrentQuestion();
-          if (loaded && this.currentQuestion) {
+
+          // Reload the current question
+          const questionReloaded = await this.loadCurrentQuestion();
+          if (questionReloaded && this.currentQuestion) {
             console.log('[onVisibilityChange] Reloaded current question:', this.currentQuestion);
 
-            // Restore feedback and render display after reloading the question
-            this.restoreFeedbackState();
-            this.renderDisplay();
-
-            try {
-              const feedbackText = await this.generateFeedbackText(this.currentQuestion);
-              this.feedbackText = feedbackText;
-              console.log('[onVisibilityChange] Feedback text generated after reload:', feedbackText);
-            } catch (error) {
-              console.error('[onVisibilityChange] Error generating feedback text after reload:', error);
-            }
+            // Restore feedback and render display after reload
+            this.restoreAndRenderFeedbackState();
+            await this.regenerateFeedbackText();
           } else {
             console.error('[onVisibilityChange] Failed to reload current question.');
           }
@@ -446,6 +429,28 @@ export class QuizQuestionComponent
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
+  }
+
+  // Centralize feedback restoration and rendering
+  private restoreAndRenderFeedbackState(): void {
+    try {
+      this.restoreFeedbackState();
+      console.log('[restoreAndRenderFeedbackState] Feedback state restored:', this.feedbackText);
+      this.renderDisplay();
+    } catch (error) {
+      console.error('[restoreAndRenderFeedbackState] Error restoring feedback state:', error);
+    }
+  }
+
+  // Regenerate feedback text for the current question
+  private async regenerateFeedbackText(): Promise<void> {
+    try {
+      const feedbackText = await this.generateFeedbackText(this.currentQuestion);
+      this.feedbackText = feedbackText;
+      console.log('[regenerateFeedbackText] Feedback text regenerated:', feedbackText);
+    } catch (error) {
+      console.error('[regenerateFeedbackText] Error generating feedback text:', error);
     }
   }
 
