@@ -1794,7 +1794,7 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
   } */
-  /* private async restoreQuizState(): Promise<boolean> {
+  private async restoreQuizState(): Promise<boolean> {
     try {
       console.log('[restoreQuizState] Restoring quiz state...');
   
@@ -1845,61 +1845,7 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
       return false; // Indicate failure
     }
-  } */
-  private async restoreQuizState(): Promise<boolean> {
-    try {
-      console.log('[restoreQuizState] Restoring quiz state...');
-  
-      // Restore explanation text
-      this.currentExplanationText =
-        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
-      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-  
-      // Restore options data
-      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
-      if (optionsData) {
-        this.optionsToDisplay = JSON.parse(optionsData);
-        console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
-      } else {
-        console.warn('[restoreQuizState] No options data found for restoration. Falling back to currentQuestion options.');
-        this.optionsToDisplay = this.currentQuestion?.options || [];
-      }
-  
-      // Restore selected options
-      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
-      if (selectedOptionsData) {
-        const selectedOptions = JSON.parse(selectedOptionsData);
-        for (const option of selectedOptions) {
-          if (option.optionId !== undefined) {
-            this.selectedOptionService.setSelectedOption(option.optionId);
-          } else {
-            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
-          }
-        }
-        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
-      } else {
-        console.warn('[restoreQuizState] No selected options data found for restoration.');
-      }
-  
-      // Restore feedback text
-      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
-      if (restoredFeedbackText) {
-        this.feedbackText = restoredFeedbackText;
-        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
-      } else {
-        console.warn('[restoreQuizState] No feedback text found for restoration.');
-        this.feedbackText = ''; // Default to an empty string
-      }
-  
-      // If we reach here, state restoration was successful
-      return true;
-    } catch (error) {
-      console.error('[restoreQuizState] Error restoring quiz state:', error);
-      return false; // Indicate failure
-    }
-  }
-  
+  }  
   
 
   // Method to initialize `displayMode$` and control the display reactively
