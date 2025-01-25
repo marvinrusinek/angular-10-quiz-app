@@ -872,12 +872,16 @@ export class QuizQuestionComponent
             }
 
             // Set the current question
-            this.setCurrentQuestion(this.questionsArray[questionIndex]); // Use the setCurrentQuestion method
+            this.currentQuestion = this.questionsArray[questionIndex];
+            if (!this.currentQuestion) {
+                console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
+                return;
+            }
 
             console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
 
             // Set up options to display
-            this.initializeOptionsToDisplay(); // Call the method to initialize optionsToDisplay
+            this.initializeOptionsToDisplay(); // Ensure optionsToDisplay is initialized
 
             console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
 
@@ -893,7 +897,7 @@ export class QuizQuestionComponent
             console.error('[handleRouteChanges] Error handling route change:', error);
         }
     });
-  }
+  } 
   
   /* private setQuestionFirst(index: number): void {
     try {
