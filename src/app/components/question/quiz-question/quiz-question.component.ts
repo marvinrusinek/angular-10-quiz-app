@@ -4015,6 +4015,7 @@ export class QuizQuestionComponent
       if (event.checked) {
         updatedOptions.push(selectedOption);
       }
+  
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
       console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
@@ -4024,7 +4025,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-      // Step 6: Validate options and save state
+      // Step 6: Validate selected options and save state
       const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
       if (this.optionsToDisplay.length > 0 || selectedOptions.length > 0) {
         console.log('[onOptionClicked] Saving state with valid options and selected options.');
@@ -4064,7 +4065,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] Unhandled error:', error);
     }
   }
-  
 
   // ====================== Helper Functions ======================
 
