@@ -4796,7 +4796,7 @@ export class QuizQuestionComponent
         // Perform additional processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
 
-        // Save quiz state
+        // Save quiz state (single responsibility for saving)
         this.saveQuizState();
 
         console.log('Option processing completed for:', {
