@@ -1001,7 +1001,7 @@ export class QuizQuestionComponent
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
   } */
-  /* private saveQuizState(): void {
+  private saveQuizState(): void {
     try {
       // Save explanation text
       if (this.currentExplanationText) {
@@ -1056,64 +1056,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
-  } */
-  private saveQuizState(): void {
-    try {
-      // Save explanation text
-      if (this.currentExplanationText) {
-        sessionStorage.setItem(
-          `explanationText_${this.currentQuestionIndex}`,
-          this.currentExplanationText
-        );
-        console.log('[saveQuizState] Saved explanation text:', this.currentExplanationText);
-      }
-  
-      // Save display mode
-      if (this.displayState.mode) {
-        sessionStorage.setItem(
-          `displayMode_${this.currentQuestionIndex}`,
-          this.displayState.mode
-        );
-        console.log('[saveQuizState] Saved display mode:', this.displayState.mode);
-      }
-  
-      // Save options
-      if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-        sessionStorage.setItem(
-          `options_${this.currentQuestionIndex}`,
-          JSON.stringify(this.optionsToDisplay)
-        );
-        console.log('[saveQuizState] Saved options data:', this.optionsToDisplay);
-      } else {
-        console.warn('[saveQuizState] No options data to save.');
-      }
-  
-      // Save selected options
-      const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
-      if (selectedOptions.length > 0) {
-        sessionStorage.setItem(
-          `selectedOptions_${this.currentQuestionIndex}`,
-          JSON.stringify(selectedOptions)
-        );
-        console.log('[saveQuizState] Saved selected options:', selectedOptions);
-      } else {
-        console.warn('[saveQuizState] No selected options to save.');
-      }
-  
-      // Save feedback text
-      if (this.feedbackText) {
-        sessionStorage.setItem(
-          `feedbackText_${this.currentQuestionIndex}`,
-          this.feedbackText
-        );
-        console.log('[saveQuizState] Saved feedback text:', this.feedbackText);
-      } else {
-        console.warn('[saveQuizState] No feedback text to save.');
-      }
-    } catch (error) {
-      console.error('[saveQuizState] Error saving quiz state:', error);
-    }
-  }
+  }  
 
   /* private restoreQuizState(): void {
     try {
