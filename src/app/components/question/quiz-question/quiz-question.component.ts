@@ -3960,6 +3960,9 @@ export class QuizQuestionComponent
       // Apply feedback and handle option logic
       this.applyOptionFeedback(selectedOption);
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+
+      // Save the updated state after applying feedback
+      this.saveQuizState();
   
       if (isMultipleAnswer) {
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
