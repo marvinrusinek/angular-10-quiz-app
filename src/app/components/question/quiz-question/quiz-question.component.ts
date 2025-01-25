@@ -3995,7 +3995,7 @@ export class QuizQuestionComponent
   
       // Step 3: Ensure `optionsToDisplay` is initialized
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] optionsToDisplay is empty. Initializing from current question options.');
+        console.info('[onOptionClicked] optionsToDisplay is empty. Initializing from current question options.');
         if (this.currentQuestion?.options) {
           this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
           console.log('[onOptionClicked] Initialized optionsToDisplay:', this.optionsToDisplay);
