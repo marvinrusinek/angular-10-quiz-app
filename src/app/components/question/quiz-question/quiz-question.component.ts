@@ -3986,9 +3986,7 @@ export class QuizQuestionComponent
         if (this.currentQuestion?.options && this.currentQuestion.options.length > 0) {
           this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
           console.log('[onOptionClicked] Reinitialized optionsToDisplay:', this.optionsToDisplay);
-        }
-  
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        } else {
           console.error('[onOptionClicked] Failed to initialize optionsToDisplay. Aborting operation.');
           return;
         }
@@ -4026,7 +4024,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-      // Step 6: Ensure valid data before saving the state
+      // Step 6: Validate options and save state
       const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
       if (this.optionsToDisplay.length > 0 || selectedOptions.length > 0) {
         console.log('[onOptionClicked] Saving state with valid options and selected options.');
@@ -4065,7 +4063,8 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
-  }  
+  }
+  
 
   // ====================== Helper Functions ======================
 
