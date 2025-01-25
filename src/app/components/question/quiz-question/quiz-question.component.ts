@@ -3483,7 +3483,7 @@ export class QuizQuestionComponent
       // Generate feedback
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       if (!feedbackText || feedbackText.trim() === '') {
-        console.warn('[generateFeedbackText] Feedback generation returned empty. Using fallback.');
+        console.info('[generateFeedbackText] Feedback generation returned empty. Using fallback.');
         return 'Feedback unavailable for this question.';
       }
   
