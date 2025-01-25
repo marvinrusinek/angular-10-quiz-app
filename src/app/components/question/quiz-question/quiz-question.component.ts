@@ -4798,6 +4798,9 @@ export class QuizQuestionComponent
         // Update the selection state
         this.updateSelectionState(option, index, checked);
 
+        // Debugging: Log the selected options before saving
+        console.log('[handleAdditionalProcessing] Selected options before saving:', this.selectedOptionService.getSelectedOptions());
+
         // Perform additional processing
         this.performOptionProcessing(option, index, checked, isMultipleAnswer);
 
