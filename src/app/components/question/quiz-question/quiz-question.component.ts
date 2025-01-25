@@ -820,7 +820,7 @@ export class QuizQuestionComponent
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
   } */
-  private saveQuizState(): void {
+  /* private saveQuizState(): void {
     try {
       // Save explanation text
       if (this.currentExplanationText) {
@@ -876,7 +876,67 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[saveQuizState] Error saving quiz state:', error);
     }
+  } */
+  private saveQuizState(): void {
+    try {
+      console.log('[saveQuizState] Saving quiz state for question index:', this.currentQuestionIndex);
+  
+      // Save explanation text
+      if (this.currentExplanationText) {
+        sessionStorage.setItem(
+          `explanationText_${this.currentQuestionIndex}`,
+          this.currentExplanationText
+        );
+        console.log('[saveQuizState] Saved explanation text:', this.currentExplanationText);
+      }
+  
+      // Save display mode
+      if (this.displayState.mode) {
+        sessionStorage.setItem(
+          `displayMode_${this.currentQuestionIndex}`,
+          this.displayState.mode
+        );
+        console.log('[saveQuizState] Saved display mode:', this.displayState.mode);
+      }
+  
+      // Save options
+      if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+        sessionStorage.setItem(
+          `options_${this.currentQuestionIndex}`,
+          JSON.stringify(this.optionsToDisplay)
+        );
+        console.log('[saveQuizState] Saved options data:', this.optionsToDisplay);
+      } else {
+        console.warn('[saveQuizState] No options to save.');
+      }
+  
+      // Save selected options
+      const selectedOptions = this.selectedOptionService.getSelectedOptions() || [];
+      if (selectedOptions.length > 0) {
+        sessionStorage.setItem(
+          `selectedOptions_${this.currentQuestionIndex}`,
+          JSON.stringify(selectedOptions)
+        );
+        console.log('[saveQuizState] Saved selected options:', selectedOptions);
+      } else {
+        console.warn('[saveQuizState] No selected options to save.');
+      }
+  
+      // Save feedback text
+      if (this.feedbackText) {
+        sessionStorage.setItem(
+          `feedbackText_${this.currentQuestionIndex}`,
+          this.feedbackText
+        );
+        console.log('[saveQuizState] Saved feedback text:', this.feedbackText);
+      } else {
+        console.warn('[saveQuizState] No feedback text to save.');
+      }
+    } catch (error) {
+      console.error('[saveQuizState] Error saving quiz state:', error);
+    }
   }
+  
   
   
 
@@ -1444,7 +1504,7 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     try {
       console.log('[restoreQuizState] Restoring quiz state for question index:', this.currentQuestionIndex);
   
@@ -1521,7 +1581,80 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
+  } */
+  private restoreQuizState(): void {
+    try {
+      console.log('[restoreQuizState] Restoring quiz state for question index:', this.currentQuestionIndex);
+  
+      // Restore explanation text
+      this.currentExplanationText =
+        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
+      if (this.currentExplanationText) {
+        console.log('[restoreQuizState] Restored explanation text:', this.currentExplanationText);
+      } else {
+        console.warn('[restoreQuizState] No explanation text found for restoration.');
+      }
+  
+      // Restore display mode
+      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+      console.log('[restoreQuizState] Restored display mode:', this.displayState.mode);
+  
+      // Restore options
+      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
+      if (optionsData) {
+        try {
+          this.optionsToDisplay = JSON.parse(optionsData);
+          console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing options data:', error);
+          this.optionsToDisplay = [];
+        }
+      } else {
+        console.warn('[restoreQuizState] No options data found for restoration. Falling back to currentQuestion options.');
+        if (this.currentQuestion?.options) {
+          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+          console.log('[restoreQuizState] Fallback initialized optionsToDisplay:', this.optionsToDisplay);
+        } else {
+          console.error('[restoreQuizState] No valid options found in currentQuestion.');
+          this.optionsToDisplay = [];
+        }
+      }
+  
+      // Restore selected options
+      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
+      if (selectedOptionsData) {
+        try {
+          const selectedOptions = JSON.parse(selectedOptionsData);
+          for (const option of selectedOptions) {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+            } else {
+              console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+            }
+          }
+          console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing selected options data:', error);
+        }
+      } else {
+        console.warn('[restoreQuizState] No selected options data found for restoration.');
+      }
+  
+      // Restore feedback text
+      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
+      if (restoredFeedbackText) {
+        this.feedbackText = restoredFeedbackText;
+        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
+      } else {
+        console.warn('[restoreQuizState] No feedback text found for restoration.');
+        this.feedbackText = ''; // Default to an empty string
+      }
+    } catch (error) {
+      console.error('[restoreQuizState] Error restoring quiz state:', error);
+    }
   }
+  
   
   
   
