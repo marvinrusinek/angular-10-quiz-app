@@ -4883,11 +4883,6 @@ export class QuizQuestionComponent
   
       console.log('[updateSelectionState] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
   
-      // Save the quiz state after updating selectedOptionsMap
-      if (updatedOptions.length > 0) {
-        this.saveQuizState(); // Call saveQuizState only when there are selected options
-      }
-  
       // Update additional selection flags
       this.selectedOptionService.setOptionSelected(updatedOptions.length > 0);
       this.selectedOptionService.isAnsweredSubject.next(updatedOptions.length > 0);
