@@ -1385,7 +1385,7 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
   } */
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     try {
       console.log('[restoreQuizState] Restoring quiz state for question index:', this.currentQuestionIndex);
   
@@ -1443,7 +1443,86 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
+  } */
+  private restoreQuizState(): void {
+    try {
+      console.log('[restoreQuizState] Restoring quiz state for question index:', this.currentQuestionIndex);
+  
+      // Restore explanation text
+      this.currentExplanationText =
+        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
+      if (this.currentExplanationText) {
+        console.log('[restoreQuizState] Restored explanation text:', this.currentExplanationText);
+      } else {
+        console.warn('[restoreQuizState] No explanation text found for restoration.');
+      }
+  
+      // Restore display mode
+      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+      console.log('[restoreQuizState] Restored display mode:', this.displayState.mode);
+  
+      // Restore options
+      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
+      if (optionsData) {
+        try {
+          this.optionsToDisplay = JSON.parse(optionsData);
+          console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
+  
+          // Validate options structure
+          if (!Array.isArray(this.optionsToDisplay) || !this.optionsToDisplay.length) {
+            console.warn('[restoreQuizState] Restored options are empty or invalid. Falling back.');
+            throw new Error('Invalid options structure.');
+          }
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing options data:', error);
+          this.optionsToDisplay = [];
+        }
+      } else {
+        console.warn('[restoreQuizState] No options data found for restoration. Falling back to currentQuestion options.');
+        if (this.currentQuestion?.options) {
+          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+          console.log('[restoreQuizState] Fallback initialized optionsToDisplay:', this.optionsToDisplay);
+        } else {
+          console.error('[restoreQuizState] No valid options found in currentQuestion.');
+          this.optionsToDisplay = [];
+        }
+      }
+  
+      // Restore selected options
+      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
+      if (selectedOptionsData) {
+        try {
+          const selectedOptions = JSON.parse(selectedOptionsData);
+          for (const option of selectedOptions) {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+            } else {
+              console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
+            }
+          }
+          console.log('[restoreQuizState] Restored selected options:', selectedOptions);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing selected options data:', error);
+        }
+      } else {
+        console.warn('[restoreQuizState] No selected options data found for restoration.');
+      }
+  
+      // Restore feedback text
+      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
+      if (restoredFeedbackText) {
+        this.feedbackText = restoredFeedbackText;
+        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
+      } else {
+        console.warn('[restoreQuizState] No feedback text found for restoration.');
+        this.feedbackText = ''; // Default to an empty string
+      }
+    } catch (error) {
+      console.error('[restoreQuizState] Error restoring quiz state:', error);
+    }
   }
+  
   
   
   
