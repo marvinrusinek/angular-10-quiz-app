@@ -3961,8 +3961,13 @@ export class QuizQuestionComponent
       this.applyOptionFeedback(selectedOption);
       console.log('[applyOptionFeedback] Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
 
-      // Save the updated state after applying feedback
-      this.saveQuizState();
+      // Ensure options and selected options are valid before saving
+      if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+        // Save the updated state
+        this.saveQuizState();
+      } else {
+        console.warn('[onOptionClicked] No valid options to save.');
+      }
   
       if (isMultipleAnswer) {
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
