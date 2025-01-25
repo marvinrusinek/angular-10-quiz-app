@@ -553,41 +553,44 @@ export class QuizQuestionComponent
 
   private restoreQuizState(): void {
     try {
-      // Restore explanation text
+      console.log('[restoreQuizState] Restoring quiz state...');
+  
+      // Step 1: Restore explanation text and display mode
       this.currentExplanationText =
         sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
       const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
       this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   
-      // Restore options data
+      // Step 2: Restore options data
       const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
       if (optionsData) {
         try {
           this.optionsToDisplay = JSON.parse(optionsData);
-          // Ensure all options have necessary properties
+  
+          // Validate and assign IDs to ensure all options are consistent
           this.optionsToDisplay = this.quizService.assignOptionIds(this.optionsToDisplay);
           console.log('[restoreQuizState] Restored and validated optionsToDisplay:', this.optionsToDisplay);
         } catch (error) {
           console.error('[restoreQuizState] Error parsing options data:', error);
-          this.optionsToDisplay = [];
+          this.optionsToDisplay = []; // Fallback to an empty array
         }
       } else {
         console.warn('[restoreQuizState] No options data found for restoration.');
-        this.optionsToDisplay = [];
+        this.optionsToDisplay = []; // Fallback to an empty array
       }
   
-      // Restore selected options
+      // Step 3: Restore selected options
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
       if (selectedOptionsData) {
         try {
           const selectedOptions = JSON.parse(selectedOptionsData);
-          for (const option of selectedOptions) {
+          selectedOptions.forEach((option) => {
             if (option.optionId !== undefined) {
               this.selectedOptionService.setSelectedOption(option.optionId);
             } else {
               console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
             }
-          }
+          });
           console.log('[restoreQuizState] Restored selected options:', selectedOptions);
         } catch (error) {
           console.error('[restoreQuizState] Error parsing selected options data:', error);
@@ -596,7 +599,7 @@ export class QuizQuestionComponent
         console.warn('[restoreQuizState] No selected options data found for restoration.');
       }
   
-      // Restore feedback text
+      // Step 4: Restore feedback text
       const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
       if (restoredFeedbackText) {
         this.feedbackText = restoredFeedbackText;
@@ -608,7 +611,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
-  }
+  }  
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
@@ -2978,7 +2981,7 @@ export class QuizQuestionComponent
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
   } */
-  /* private restoreFeedbackState(): void {
+  private restoreFeedbackState(): void {
     try {
       console.log('[restoreFeedbackState] Restoring feedback state...');
       console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
@@ -3020,57 +3023,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreFeedbackState] Error restoring feedback state:', error);
     }
-  } */
-  private restoreQuizState(): void {
-    try {
-      console.log('[restoreQuizState] Restoring quiz state...');
-  
-      // Restore explanation text
-      this.currentExplanationText =
-        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
-      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
-      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-  
-      // Restore options data
-      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
-      if (optionsData) {
-        this.optionsToDisplay = JSON.parse(optionsData);
-        console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
-      } else {
-        console.warn('[restoreQuizState] No options data found for restoration.');
-        this.optionsToDisplay = []; // Initialize to empty array if no data is found
-      }
-  
-      // Restore selected options
-      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
-      if (selectedOptionsData) {
-        const selectedOptions = JSON.parse(selectedOptionsData);
-        for (const option of selectedOptions) {
-          if (option.optionId !== undefined) {
-            this.selectedOptionService.setSelectedOption(option.optionId);
-          } else {
-            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
-          }
-        }
-        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
-      } else {
-        console.warn('[restoreQuizState] No selected options data found for restoration.');
-      }
-  
-      // Restore feedback text
-      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
-      if (restoredFeedbackText) {
-        this.feedbackText = restoredFeedbackText;
-        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
-      } else {
-        console.warn('[restoreQuizState] No feedback text found for restoration.');
-        this.feedbackText = ''; // Default to an empty string
-      }
-    } catch (error) {
-      console.error('[restoreQuizState] Error restoring quiz state:', error);
-    }
   }
-  
   
 
   private generateFeedbackForOption(option: Option): string {
