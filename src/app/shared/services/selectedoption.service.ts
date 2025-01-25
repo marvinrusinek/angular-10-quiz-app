@@ -679,7 +679,10 @@ export class SelectedOptionService {
       console.log('[getFallbackQuestionIndex] Using fallback index from selectedOptionsMap:', keys[0]);
       return keys[0];
     }
-    console.warn('[getFallbackQuestionIndex] No keys in selectedOptionsMap. Defaulting to 0.');
+  
+    console.info(
+      '[getFallbackQuestionIndex] No keys found in selectedOptionsMap. Defaulting to 0. This may indicate no options were selected yet.'
+    );
     return 0;
-  }
+  }  
 }
