@@ -400,30 +400,31 @@ export class QuizQuestionComponent
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] Restoring quiz state...');
 
-        // Step 1: Ensure quiz state is restored
+        // Ensure quiz state is restored
         const stateRestored = await this.restoreQuizState();
 
         if (stateRestored && this.currentQuestion) {
           console.log('[onVisibilityChange] Restored current question:', this.currentQuestion);
 
-          // Step 2: Restore feedback and render display
+          // Restore feedback state and render display
           this.restoreAndRenderFeedbackState();
 
-          // Step 3: Regenerate feedback text
+          // Regenerate feedback for the current question
           await this.regenerateFeedbackText();
         } else {
           console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
 
-          // Reload the current question
-          const questionReloaded = await this.loadCurrentQuestion();
-          if (questionReloaded && this.currentQuestion) {
+          // Attempt to reload the current question
+          const questionReloaded = await this.reloadCurrentQuestion();
+
+          if (questionReloaded) {
             console.log('[onVisibilityChange] Reloaded current question:', this.currentQuestion);
 
             // Restore feedback and render display after reload
             this.restoreAndRenderFeedbackState();
             await this.regenerateFeedbackText();
           } else {
-            console.error('[onVisibilityChange] Failed to reload current question.');
+            console.error('[onVisibilityChange] Failed to reload current question. Aborting.');
           }
         }
       }
@@ -1736,74 +1737,58 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
   } */
-  private restoreQuizState(): void {
+  private async restoreQuizState(): Promise<boolean> {
     try {
-      console.log('[restoreQuizState] Starting restoration for question index:', this.currentQuestionIndex);
+      console.log('[restoreQuizState] Restoring quiz state...');
   
       // Restore explanation text
       this.currentExplanationText =
         sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
-      console.log('[restoreQuizState] Restored explanation text:', this.currentExplanationText);
-  
-      // Restore display mode
       const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
       this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
-      console.log('[restoreQuizState] Restored display mode:', this.displayState.mode);
   
-      // Restore options
+      // Restore options data
       const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
       if (optionsData) {
-        try {
-          this.optionsToDisplay = JSON.parse(optionsData);
-          console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
-        } catch (error) {
-          console.error('[restoreQuizState] Error parsing options data:', error);
-          this.optionsToDisplay = [];
-        }
+        this.optionsToDisplay = JSON.parse(optionsData);
+        console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
       } else {
-        console.warn('[restoreQuizState] No options data found for restoration. Falling back to currentQuestion options.');
-        if (this.currentQuestion?.options) {
-          this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
-          console.log('[restoreQuizState] Fallback optionsToDisplay from currentQuestion:', this.optionsToDisplay);
-        } else {
-          console.error('[restoreQuizState] No valid options found in currentQuestion.');
-          this.optionsToDisplay = [];
-        }
+        console.warn('[restoreQuizState] No options data found for restoration. Falling back.');
+        this.optionsToDisplay = this.currentQuestion?.options || [];
       }
   
       // Restore selected options
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
       if (selectedOptionsData) {
-        try {
-          const selectedOptions = JSON.parse(selectedOptionsData);
-          console.log('[restoreQuizState] Restored selected options:', selectedOptions);
-          for (const option of selectedOptions) {
-            if (option.optionId !== undefined) {
-              this.selectedOptionService.setSelectedOption(option.optionId);
-            } else {
-              console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
-            }
+        const selectedOptions = JSON.parse(selectedOptionsData);
+        for (const option of selectedOptions) {
+          if (option.optionId !== undefined) {
+            this.selectedOptionService.setSelectedOption(option.optionId);
+          } else {
+            console.warn('[restoreQuizState] Skipping option with undefined optionId:', option);
           }
-        } catch (error) {
-          console.error('[restoreQuizState] Error parsing selected options data:', error);
         }
+        console.log('[restoreQuizState] Restored selected options:', selectedOptions);
       } else {
         console.warn('[restoreQuizState] No selected options data found for restoration.');
       }
   
       // Restore feedback text
-      const feedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
-      if (feedbackText) {
-        this.feedbackText = feedbackText;
-        console.log('[restoreQuizState] Restored feedback text:', this.feedbackText);
+      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
+      if (restoredFeedbackText) {
+        this.feedbackText = restoredFeedbackText;
+        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
       } else {
         console.warn('[restoreQuizState] No feedback text found for restoration.');
         this.feedbackText = ''; // Default to an empty string
       }
+  
+      return true; // Indicate success
     } catch (error) {
       console.error('[restoreQuizState] Error restoring quiz state:', error);
+      return false; // Indicate failure
     }
-  }
+  }  
   
 
   // Method to initialize `displayMode$` and control the display reactively
