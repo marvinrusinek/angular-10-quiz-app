@@ -844,103 +844,63 @@ export class QuizQuestionComponent
       }
     });
   } */
-  /* private handleRouteChanges(): void {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-        const questionIndex = +params.get('questionIndex') || 0;
-
-        try {
-            // Reset state and hide explanation initially
-            this.resetStateForNewQuestion();
-            this.explanationToDisplay = '';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            this.showExplanationChange.emit(false);
-
-            // Ensure questions are loaded
-            if (!this.questionsArray || this.questionsArray.length === 0) {
-                console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-                const loaded = await this.loadQuestion(); // Assuming loadQuestions populates questionsArray
-                if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
-                    console.error('[handleRouteChanges] Questions could not be loaded.');
-                    return;
-                }
-            }
-
-            // Validate question index
-            if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-                console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
-                return;
-            }
-
-            // Set the current question
-            this.currentQuestion = this.questionsArray[questionIndex];
-            if (!this.currentQuestion) {
-                console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
-                return;
-            }
-
-            console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
-
-            // Set up options to display
-            this.initializeOptionsToDisplay(); // Ensure optionsToDisplay is initialized
-
-            console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
-
-            // Generate feedback text
-            try {
-                this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-                console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
-            } catch (feedbackError) {
-                console.error('[handleRouteChanges] Error generating feedback text:', feedbackError);
-                this.feedbackText = 'Unable to generate feedback for the current question.';
-            }
-        } catch (error) {
-            console.error('[handleRouteChanges] Error handling route change:', error);
-        }
-    });
-  } */
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-        const questionIndex = +params.get('questionIndex') || 0;
-
-        try {
-            // Reset state and hide explanation initially
-            this.resetStateForNewQuestion();
-            this.explanationToDisplay = '';
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            this.showExplanationChange.emit(false);
-
-            // Ensure questions are loaded
-            if (!this.questionsArray || this.questionsArray.length === 0) {
-                console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-                const loaded = await this.loadQuestion(); // Assuming loadQuestions populates questionsArray
-                if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
-                    console.error('[handleRouteChanges] Questions could not be loaded.');
-                    return;
-                }
-            }
-
-            // Validate question index
-            if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-                console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
-                return;
-            }
-
-            // Set the current question
-            this.setCurrentQuestion(this.questionsArray[questionIndex]); // Use the setCurrentQuestion method
-
-            console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
-
-            // Generate feedback text
-            try {
-                this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-                console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
-            } catch (feedbackError) {
-                console.error('[handleRouteChanges] Error generating feedback text:', feedbackError);
-                this.feedbackText = 'Unable to generate feedback for the current question.';
-            }
-        } catch (error) {
-            console.error('[handleRouteChanges] Error handling route change:', error);
+      const questionIndex = +params.get('questionIndex') || 0;
+  
+      try {
+        // Reset state and hide explanation initially
+        this.resetStateForNewQuestion();
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(false);
+  
+        // Ensure questions are loaded
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
+          const loaded = await this.loadQuestion(); // Assuming loadQuestions populates questionsArray
+          if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
+            console.error('[handleRouteChanges] Questions could not be loaded.');
+            return;
+          }
         }
+  
+        // Validate question index
+        if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+          console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
+          return;
+        }
+  
+        // Set the current question
+        this.currentQuestion = this.questionsArray[questionIndex];
+        if (!this.currentQuestion) {
+          console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
+          return;
+        }
+  
+        console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
+  
+        // Set up options to display
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: true, // Ensure options are active
+          feedback: undefined, // Reset feedback
+          showIcon: false // Reset icons
+        }));
+  
+        console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
+  
+        // Generate feedback text
+        try {
+          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+          console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
+        } catch (feedbackError) {
+          console.error('[handleRouteChanges] Error generating feedback text:', feedbackError);
+          this.feedbackText = 'Unable to generate feedback for the current question.';
+        }
+      } catch (error) {
+        console.error('[handleRouteChanges] Error handling route change:', error);
+      }
     });
   }
   
@@ -1169,85 +1129,135 @@ export class QuizQuestionComponent
       });
     }
   } */
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> {
+    try {
+      console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
+  
+      // Step 1: Ensure `currentQuestion` is loaded
+      const questionLoaded = await this.ensureCurrentQuestionLoaded();
+      if (!questionLoaded || !this.currentQuestion) {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to reload.');
+        return;
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+  
+      // Step 2: Ensure `currentQuestion.options` is valid
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion.options is missing or empty. Aborting.');
+        return;
+      }
+  
+      // Step 3: Ensure `optionsToDisplay` is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options);
+  
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting.');
+          return;
+        }
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', this.optionsToDisplay);
+  
+      // Step 4: Identify correct options
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+      }
+  
+      // Step 5: Generate feedback for options
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      // Step 6: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+        ...option,
+        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        showIcon: option.correct || option.selected,
+        highlight: option.selected,
+      }));
+  
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
+    }
+  } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
-        // Step 1: Ensure `currentQuestion` is loaded
-        const currentQuestionLoaded = await this.ensureCurrentQuestionLoaded();
-        if (!currentQuestionLoaded || !this.currentQuestion) {
-            console.error('[applyOptionFeedbackToAllOptions] currentQuestion is not loaded. Aborting operation.', {
-                currentQuestionIndex: this.currentQuestionIndex,
-                questionsArray: this.questionsArray,
-                currentQuestion: this.currentQuestion,
-            });
-            return;
-        }
-
-        // Ensure optionsToDisplay is initialized
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Initializing from currentQuestion options.');
-            this.initializeOptionsToDisplay(); // Call the new method to initialize options
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
-        // ... existing code ...
-    } catch (error) {
-        console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
-            currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
+      console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
+  
+      // Step 1: Ensure `currentQuestion` is loaded
+      const questionLoaded = await this.ensureCurrentQuestionLoaded();
+      if (!questionLoaded || !this.currentQuestion) {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to reload.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+          currentQuestion: this.currentQuestion,
         });
+        return; // Exit early
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion loaded:', this.currentQuestion);
+  
+      // Step 2: Ensure `optionsToDisplay` is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+        if (this.currentQuestion?.options?.length > 0) {
+          // Fallback: Assign IDs and initialize options
+          this.optionsToDisplay = this.quizService.assignOptionIds(
+            this.currentQuestion.options.map(option => ({
+              ...option,
+              active: true,
+              feedback: undefined,
+              showIcon: false,
+              selected: false,
+            }))
+          );
+          console.log('[applyOptionFeedbackToAllOptions] Fallback optionsToDisplay initialized:', this.optionsToDisplay);
+        }
+  
+        // Validate fallback initialization
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting.');
+          return; // Exit early
+        }
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
+  
+      // Step 3: Identify correct options
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+      }
+  
+      // Step 4: Generate feedback for options
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      // Step 5: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+        ...option,
+        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        showIcon: option.correct || option.selected,
+        highlight: option.selected,
+      }));
+  
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
     }
   }
-
-  // Method to initialize optionsToDisplay
-  /* private initializeOptionsToDisplay(): void {
-    if (this.currentQuestion && this.currentQuestion.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map(option => ({
-            ...option,
-            active: true,
-            feedback: option.feedback ?? 'No feedback available.',
-            showIcon: option.showIcon ?? false,
-            selected: option.selected ?? false,
-            correct: option.correct ?? false,
-        }));
-        console.log('[initializeOptionsToDisplay] optionsToDisplay initialized:', this.optionsToDisplay);
-    } else {
-        console.warn('[initializeOptionsToDisplay] No options available to initialize.');
-        this.optionsToDisplay = []; // Fallback to an empty array if no options are available
-    }
-  } */
-  /* private initializeOptionsToDisplay(): void {
-    if (this.currentQuestion && this.currentQuestion.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map(option => ({
-            ...option,
-            active: true,
-            feedback: option.feedback ?? 'No feedback available.',
-            showIcon: option.showIcon ?? false,
-            selected: option.selected ?? false,
-            correct: option.correct ?? false,
-        }));
-        console.log('[initializeOptionsToDisplay] optionsToDisplay initialized:', this.optionsToDisplay);
-    } else {
-        console.warn('[initializeOptionsToDisplay] No options available to initialize.');
-        this.optionsToDisplay = []; // Fallback to an empty array if no options are available
-    }
-  } */
-  private initializeOptionsToDisplay(): void {
-    if (this.currentQuestion && this.currentQuestion.options && this.currentQuestion.options.length > 0) {
-        this.optionsToDisplay = this.currentQuestion.options.map(option => ({
-            ...option,
-            active: true,
-            feedback: option.feedback ?? 'No feedback available.',
-            showIcon: option.showIcon ?? false,
-            selected: option.selected ?? false,
-            correct: option.correct ?? false,
-        }));
-        console.log('[initializeOptionsToDisplay] optionsToDisplay initialized:', this.optionsToDisplay);
-    } else {
-        console.warn('[initializeOptionsToDisplay] No options available to initialize.');
-        this.optionsToDisplay = []; // Fallback to an empty array if no options are available
-    }
-  }
+    
+  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
@@ -1312,16 +1322,16 @@ export class QuizQuestionComponent
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-        console.error(
-            'Attempted to set a null or undefined question in setCurrentQuestion.'
-        );
-        this.question = null;
-        this.optionsToDisplay = []; // Reset optionsToDisplay when question is null
-        return; // Exit early to avoid further errors
+      console.error(
+        'Attempted to set a null or undefined question in setCurrentQuestion.'
+      );
+      this.question = null;
+      this.optionsToDisplay = [];
+      return; // Exit early to avoid further errors
     }
 
     this.question = question;
-    this.initializeOptionsToDisplay(); // Initialize optionsToDisplay whenever the question is set
+    this.optionsToDisplay = question.options || []; // Safely set options if available
   }
 
   private setupSubscriptions(): void {
@@ -1828,7 +1838,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private async ensureCurrentQuestionLoaded(): Promise<boolean> {
+  /* private async ensureCurrentQuestionLoaded(): Promise<boolean> {
     try {
       // Step 1: Check if `currentQuestion` is already set
       if (this.currentQuestion) {
@@ -1884,7 +1894,48 @@ export class QuizQuestionComponent
       });
       return false;
     }
-  }  
+  } */
+  private async ensureCurrentQuestionLoaded(): Promise<boolean> {
+    if (this.currentQuestion) {
+      console.log('[ensureCurrentQuestionLoaded] currentQuestion is already set:', this.currentQuestion);
+      return true;
+    }
+  
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+      console.warn('[ensureCurrentQuestionLoaded] questionsArray is empty. Reloading...');
+      const questionsLoaded = await this.ensureQuestionsLoaded();
+      if (!questionsLoaded || this.questionsArray.length === 0) {
+        console.error('[ensureCurrentQuestionLoaded] Failed to reload questionsArray.');
+        return false;
+      }
+    }
+  
+    if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+      console.error('[ensureCurrentQuestionLoaded] Invalid currentQuestionIndex:', this.currentQuestionIndex);
+      return false;
+    }
+  
+    this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+    if (!this.currentQuestion) {
+      console.error('[ensureCurrentQuestionLoaded] Failed to set currentQuestion.');
+      return false;
+    }
+  
+    // Initialize `optionsToDisplay`
+    this.optionsToDisplay = this.quizService.assignOptionIds(
+      this.currentQuestion.options.map(option => ({
+        ...option,
+        active: true,
+        feedback: undefined,
+        showIcon: false,
+        selected: false,
+      }))
+    );
+    console.log('[ensureCurrentQuestionLoaded] optionsToDisplay initialized:', this.optionsToDisplay);
+  
+    return true;
+  }
+  
 
   private async handleExplanationDisplay(): Promise<void> {
     if (this.isAnswered) {
