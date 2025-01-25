@@ -4004,7 +4004,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // Step 4: Update `selectedOptionsMap`
+      // Step 4: Update `selectedOptionsMap` and validate
       const existingOptions =
         this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
       const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
@@ -4012,17 +4012,15 @@ export class QuizQuestionComponent
       if (event.checked) {
         updatedOptions.push(selectedOption);
       }
-      this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
-  
-      // Step 5: Validate selected options before saving
-      const selectedOptions = this.selectedOptionService.getSelectedOptions();
-      if (!selectedOptions || selectedOptions.length === 0) {
+      if (updatedOptions.length === 0) {
         console.warn('[onOptionClicked] No selected options to save.');
+      } else {
+        this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
+        console.log('[onOptionClicked] Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
       }
   
-      // Step 6: Save the quiz state
+      // Step 5: Save quiz state only if valid options and selected options exist
       if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
         console.log('[onOptionClicked] Saving quiz state...');
         this.saveQuizState();
@@ -4030,12 +4028,13 @@ export class QuizQuestionComponent
         console.warn('[onOptionClicked] No valid options to save.');
       }
   
-      // Step 7: Additional processing
+      // Step 6: Check if the question is a multiple-answer question
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
       console.log('[onOptionClicked] isMultipleAnswer:', isMultipleAnswer);
   
+      // Step 7: Apply feedback and additional processing
       this.applyOptionFeedback(selectedOption);
   
       if (isMultipleAnswer) {
@@ -4060,6 +4059,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] Unhandled error:', error);
     }
   }
+  
 
   // ====================== Helper Functions ======================
 
