@@ -4791,6 +4791,9 @@ export class QuizQuestionComponent
         // Update the selection state
         this.updateSelectionState(option, index, checked);
 
+        // Perform additional processing
+        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
+
         // Ensure selected options are updated before saving
         const selectedOptions = this.selectedOptionService.getSelectedOptions();
         if (selectedOptions && selectedOptions.length > 0) {
@@ -4799,9 +4802,6 @@ export class QuizQuestionComponent
         } else {
           console.info('[handleAdditionalProcessing] No selected options to save.');
         }
-
-        // Perform additional processing
-        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
 
         // Save quiz state (single responsibility for saving)
         this.saveQuizState();
