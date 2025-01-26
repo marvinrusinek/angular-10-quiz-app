@@ -83,33 +83,27 @@ export class FeedbackService {
     }
   
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.warn('[setCorrectMessage] optionsToDisplay is empty. Attempting to initialize...');
-      this.optionsToDisplay = this.quizService.assignOptionIds(
-        this.currentQuestion?.options.map((option, index) => ({
-          ...option,
-          optionId: option.optionId ?? index + 1,
-          text: option.text || '',
-          correct: option.correct ?? false, // Ensure `correct` is initialized
-        })) || []
-      );
-      optionsToDisplay = this.optionsToDisplay;
+      console.warn('[setCorrectMessage] optionsToDisplay is empty. Cannot generate feedback.');
+      return '';
     }
   
+    // Filter valid options and check for any invalid ones
     const validOptions = optionsToDisplay.filter(isValidOption);
     const invalidOptions = optionsToDisplay.filter((option) => !isValidOption(option));
   
     if (invalidOptions.length > 0) {
-      console.warn('[setCorrectMessage] Some options are invalid. Proceeding with valid options only.', {
+      console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
         invalidOptions,
       });
     }
   
     if (validOptions.length === 0) {
-      console.warn('[setCorrectMessage] All options are invalid. Returning default feedback.');
+      console.warn('[setCorrectMessage] No valid options available. Returning default feedback.');
       return 'No valid options available for feedback.';
     }
   
     try {
+      // Generate indices of correct answers (1-based)
       const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
         .filter((item) => item.option.correct)
