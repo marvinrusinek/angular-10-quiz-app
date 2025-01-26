@@ -2644,9 +2644,14 @@ export class QuizQuestionComponent
       // Step 4: Generate feedback for options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Fallback for feedback mismatch
+      // Validate feedback length
       if (!feedbackList || feedbackList.length !== this.optionsToDisplay.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Using default feedback.');
+        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Using default feedback.', {
+          feedbackList,
+          optionsToDisplay: this.optionsToDisplay,
+        });
+  
+        // Apply default feedback
         this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
           ...option,
           feedback: correctOptions.some((correct) => correct.optionId === option.optionId)
@@ -2655,6 +2660,7 @@ export class QuizQuestionComponent
           showIcon: option.correct || option.selected,
           highlight: option.selected,
         }));
+  
         return;
       }
   
@@ -2675,8 +2681,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
-  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
