@@ -6657,7 +6657,7 @@ export class QuizQuestionComponent
     try {
       // Step 1: Ensure `questionsArray` is loaded
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.warn('[ensureQuestionIsFullyLoaded] Questions array is empty. Attempting to reload...');
+        console.info('[ensureQuestionIsFullyLoaded] Questions array is empty. Attempting to reload...');
         await this.loadQuizData();
   
         // Re-check if `questionsArray` is populated
