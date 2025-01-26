@@ -404,28 +404,30 @@ export class QuizQuestionComponent
 
         if (stateRestored && this.currentQuestion) {
           console.log('[onVisibilityChange] Restored current question:', this.currentQuestion);
-
+        
           // Restore feedback state and render display
           this.restoreAndRenderFeedbackState();
-
+        
           // Regenerate feedback for the current question
           await this.regenerateFeedbackText();
         } else {
-          console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
-
+          console.info('[onVisibilityChange] Current question is missing. Attempting to reload...');
+        
           // Attempt to reload the current question
           const questionReloaded = await this.reloadCurrentQuestion();
-
-          if (questionReloaded) {
+        
+          if (questionReloaded && this.currentQuestion) {
             console.log('[onVisibilityChange] Reloaded current question:', this.currentQuestion);
-
+        
             // Restore feedback and render display after reload
             this.restoreAndRenderFeedbackState();
             await this.regenerateFeedbackText();
+          } else if (!this.currentQuestion) {
+            console.error('[onVisibilityChange] Failed to reload current question. Current question is still missing.');
           } else {
             console.error('[onVisibilityChange] Failed to reload current question. Aborting.');
           }
-        }
+        }        
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
