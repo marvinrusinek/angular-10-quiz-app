@@ -2616,9 +2616,8 @@ export class QuizQuestionComponent
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize from currentQuestion options...');
         if (this.currentQuestion?.options?.length > 0) {
-          // Initialize optionsToDisplay from currentQuestion options
           this.optionsToDisplay = this.quizService.assignOptionIds(
-            this.currentQuestion.options.map(option => ({
+            this.currentQuestion.options.map((option) => ({
               ...option,
               active: true,
               feedback: undefined,
@@ -2626,20 +2625,18 @@ export class QuizQuestionComponent
               selected: false,
             }))
           );
-          console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized from currentQuestion options:', this.optionsToDisplay);
         }
   
-        // Validate that optionsToDisplay was successfully initialized
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting feedback application.');
-          return; // Exit early if initialization failed
+          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting.');
+          return;
         }
       }
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
   
       // Step 3: Identify correct options
-      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
       }
@@ -2647,19 +2644,24 @@ export class QuizQuestionComponent
       // Step 4: Generate feedback for options
       const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
-      // Ensure the feedback list matches the options length
+      // Fallback for feedback mismatch
       if (!feedbackList || feedbackList.length !== this.optionsToDisplay.length) {
-        console.error('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Aborting feedback application.', {
-          feedbackList,
-          optionsToDisplay: this.optionsToDisplay,
-        });
-        return; // Exit early if there's a mismatch
+        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Using default feedback.');
+        this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+          ...option,
+          feedback: correctOptions.some((correct) => correct.optionId === option.optionId)
+            ? 'Correct answer!'
+            : 'Incorrect answer.',
+          showIcon: option.correct || option.selected,
+          highlight: option.selected,
+        }));
+        return;
       }
   
       // Step 5: Apply feedback to options
-      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
-        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        feedback: feedbackList[index],
         showIcon: option.correct || option.selected,
         highlight: option.selected,
       }));
@@ -2673,6 +2675,7 @@ export class QuizQuestionComponent
       });
     }
   }
+  
   
 
   // Conditional method to update the explanation only if the question is answered
