@@ -6484,13 +6484,13 @@ export class QuizQuestionComponent
         `[fetchAndSetExplanationText] Error fetching explanation for question ${questionIndex}:`,
         error
       );
-      this.handleExplanationError(questionIndex);
+      this.handleExplanationError();
     }
   }
   
   
 
-  private handleExplanationError(questionIndex: number): void {
+  private handleExplanationError(): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
