@@ -6400,97 +6400,74 @@ export class QuizQuestionComponent
       this.handleExplanationError(questionIndex);
     }
   } */
-  public async fetchAndSetExplanationText(
-    questionIndex: number
-  ): Promise<void> {
+  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndSetExplanationText] Fetching explanation for question ${questionIndex}`);
   
     // Clear any previous explanation state
     this.resetExplanation();
   
     try {
-      // Ensure the questions array is loaded
+      // Ensure questionsArray is loaded
       const questionsLoaded = await this.ensureQuestionsLoaded();
-  
-      // Exit early if loading was unsuccessful or if `questionsArray` is invalid
-      if (
-        !questionsLoaded ||
-        !Array.isArray(this.questionsArray) ||
-        this.questionsArray.length === 0
-      ) {
+      if (!questionsLoaded || !this.questionsArray || this.questionsArray.length === 0) {
         console.error(
           '[fetchAndSetExplanationText] Failed to load questions or questionsArray is empty. Aborting explanation fetch.'
         );
         return;
       }
   
-      // Validate the question index
-      if (
-        questionIndex < 0 ||
-        questionIndex >= this.questionsArray.length ||
-        !this.questionsArray[questionIndex]
-      ) {
+      // Validate the specified questionIndex
+      if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
         console.error(
-          `[fetchAndSetExplanationText] Invalid question index: ${questionIndex}.`
+          `[fetchAndSetExplanationText] Invalid questionIndex: ${questionIndex}. Must be between 0 and ${this.questionsArray.length - 1}.`
         );
         return;
       }
   
-      // Ensure the specific question data is fully loaded
-      console.log(`[fetchAndSetExplanationText] Ensuring question is fully loaded for index: ${questionIndex}`);
+      // Ensure the question is fully loaded
       const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(questionIndex);
-  
       if (!questionFullyLoaded) {
         console.error(
           `[fetchAndSetExplanationText] Failed to ensure question is fully loaded for index: ${questionIndex}.`
         );
-  
-        // Attempt a fallback reload of the current question
-        console.log('[fetchAndSetExplanationText] Attempting fallback reload for current question...');
-        const fallbackReloaded = await this.reloadCurrentQuestion();
-        if (!fallbackReloaded) {
-          console.error(
-            `[fetchAndSetExplanationText] Fallback reload failed for question index: ${questionIndex}.`
-          );
-          return;
-        }
-        console.log(
-          `[fetchAndSetExplanationText] Fallback reload succeeded for question index: ${questionIndex}.`
-        );
-      }
-  
-      // Ensure currentQuestion is set after loading
-      if (!this.currentQuestion) {
-        console.error('[fetchAndSetExplanationText] currentQuestion is null after reload.');
         return;
       }
   
-      // Fetch and set explanation text
-      console.log(`[fetchAndSetExplanationText] Preparing explanation text for question ${questionIndex}`);
-      const explanationText = await this.prepareAndSetExplanationText(questionIndex);
-  
-      if (this.isQuestionAnswered(questionIndex)) {
-        this.currentQuestionIndex = questionIndex;
-        this.explanationToDisplay = explanationText || 'No explanation available';
-        this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        console.log(
-          `[fetchAndSetExplanationText] Explanation set for question ${questionIndex}:`,
-          explanationText.substring(0, 50) + '...'
-        );
-      } else {
-        console.log(
-          `[fetchAndSetExplanationText] Skipping explanation for unanswered question ${questionIndex}.`
-        );
-      }
-    } catch (error) {
-      console.error(
-        `[fetchAndSetExplanationText] Error fetching explanation for question ${questionIndex}:`,
-        error
+      // Prepare and fetch explanation text
+      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex)).pipe(
+        debounceTime(100) // Smooth out updates
       );
+  
+      explanation$.subscribe({
+        next: (explanationText: string) => {
+          if (this.isQuestionAnswered(questionIndex)) {
+            this.currentQuestionIndex = questionIndex;
+            this.explanationToDisplay = explanationText || 'No explanation available';
+            this.explanationTextService.updateFormattedExplanation(this.explanationToDisplay);
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            console.log(
+              `[fetchAndSetExplanationText] Explanation set for question ${questionIndex}:`,
+              explanationText.substring(0, 50) + '...'
+            );
+          } else {
+            console.log(
+              `[fetchAndSetExplanationText] Skipping explanation for unanswered question ${questionIndex}.`
+            );
+          }
+        },
+        error: (error) => {
+          console.error(
+            `[fetchAndSetExplanationText] Error fetching explanation for question ${questionIndex}:`,
+            error
+          );
+          this.handleExplanationError();
+        },
+      });
+    } catch (error) {
+      console.error(`[fetchAndSetExplanationText] Error fetching explanation for question ${questionIndex}:`, error);
       this.handleExplanationError();
     }
-  }
+  }  
   
   private handleExplanationError(): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
