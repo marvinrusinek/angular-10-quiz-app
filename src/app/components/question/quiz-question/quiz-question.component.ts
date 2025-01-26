@@ -6488,8 +6488,6 @@ export class QuizQuestionComponent
     }
   }
   
-  
-
   private handleExplanationError(): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
