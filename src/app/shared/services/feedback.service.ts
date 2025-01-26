@@ -130,10 +130,10 @@ export class FeedbackService {
   
     try {
       // Validate optionsToDisplay
-      const validOptions = optionsToDisplay.filter(this.isValidOption);
+      const validOptions = optionsToDisplay.filter(isValidOption);
   
       if (validOptions.length !== optionsToDisplay.length) {
-        const invalidOptions = optionsToDisplay.filter((opt) => !this.isValidOption(opt));
+        const invalidOptions = optionsToDisplay.filter((opt) => !isValidOption(opt));
         console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
           invalidOptions,
         });
