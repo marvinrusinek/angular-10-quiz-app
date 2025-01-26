@@ -77,49 +77,50 @@ export class FeedbackService {
     }
   } */
   setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    if (!correctOptions || !correctOptions.length) {
+      console.info('[setCorrectMessage] No correct options provided.');
+      return 'No correct answers available.';
+    }
+  
+    // Ensure optionsToDisplay is valid
+    if (!optionsToDisplay || !optionsToDisplay.length) {
+      console.info('[setCorrectMessage] optionsToDisplay is not loaded or empty.');
+      return ''; // Return empty string as a fallback
+    }
+  
     try {
-      // Step 1: Validate `correctOptions`
-      if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
-        console.info('[setCorrectMessage] No correct options provided.');
-        return 'No correct answers available.';
+      // Filter valid options and log invalid ones
+      const validOptions = optionsToDisplay.filter(option => isValidOption(option));
+      const invalidOptions = optionsToDisplay.filter(option => !isValidOption(option));
+  
+      if (invalidOptions.length > 0) {
+        console.warn('[setCorrectMessage] Some options are invalid. Returning empty feedback.', {
+          invalidOptions,
+        });
+        return ''; // Return empty string if there are invalid options
       }
   
-      // Step 2: Validate `optionsToDisplay`
-      if (!Array.isArray(optionsToDisplay) || optionsToDisplay.length === 0) {
-        console.info('[setCorrectMessage] Options to display not loaded yet. Returning empty feedback.');
-        return ''; // Early exit if options are not loaded
-      }
-  
-      // Step 3: Filter and validate options
-      const validOptions = optionsToDisplay.filter(isValidOption);
-      if (validOptions.length !== optionsToDisplay.length) {
-        console.warn('[setCorrectMessage] Some options are invalid. Returning empty feedback.');
-        return ''; // Return early if there are invalid options
-      }
-  
-      // Step 4: Find correct answer indices (1-based) and sort them numerically
+      // Get indices of correct answers (1-based) and sort numerically
       const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 })) // Map options to 1-based indices
-        .filter(item => item.option.correct) // Keep only correct options
-        .map(item => item.index) // Extract the indices
-        .sort((a, b) => a - b); // Sort numerically
+        .map((option, index) => ({ option, index: index + 1 }))
+        .filter(item => item.option.correct)
+        .map(item => item.index)
+        .sort((a, b) => a - b); // Numeric sorting
   
-      // Step 5: Handle cases with no correct indices
-      if (indices.length === 0) {
+      if (!indices.length) {
         console.warn('[setCorrectMessage] No correct indices found.');
-        return 'No correct answers defined for this question.';
+        return 'No correct answers found for the current question.';
       }
   
-      // Step 6: Format the feedback message
+      // Format feedback message
       const result = this.formatFeedbackMessage(indices);
-      console.log('[setCorrectMessage] Generated feedback message:', result);
       return result;
     } catch (error) {
-      // Catch unexpected errors
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
     }
-  }  
+  }
+  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
