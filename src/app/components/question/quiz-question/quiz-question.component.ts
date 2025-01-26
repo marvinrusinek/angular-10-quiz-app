@@ -1790,7 +1790,9 @@ export class QuizQuestionComponent
         this.feedbackText = restoredFeedbackText;
         console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
       } else {
-        console.warn('[restoreQuizState] No feedback text found for restoration.');
+        console.info(
+          '[restoreQuizState] No feedback text found for restoration. This might be expected for unanswered questions or newly loaded data. Defaulting to empty.'
+        );
         this.feedbackText = ''; // Default to an empty string
       }
   
