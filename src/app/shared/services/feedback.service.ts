@@ -77,47 +77,43 @@ export class FeedbackService {
     }
   } */
   setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    if (!correctOptions || !correctOptions.length) {
+    if (!correctOptions || correctOptions.length === 0) {
       console.info('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
     }
   
-    if (!optionsToDisplay || !optionsToDisplay.length) {
-      console.info('[setCorrectMessage] optionsToDisplay is not loaded or empty.');
-      return ''; // Return empty string as a fallback
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.warn('[setCorrectMessage] optionsToDisplay is empty. Attempting to initialize...');
+      this.optionsToDisplay = this.quizService.assignOptionIds(
+        this.currentQuestion?.options.map((option, index) => ({
+          ...option,
+          optionId: option.optionId ?? index + 1,
+          text: option.text || '',
+          correct: option.correct ?? false, // Ensure `correct` is initialized
+        })) || []
+      );
+      optionsToDisplay = this.optionsToDisplay;
+    }
+  
+    const validOptions = optionsToDisplay.filter(isValidOption);
+    const invalidOptions = optionsToDisplay.filter((option) => !isValidOption(option));
+  
+    if (invalidOptions.length > 0) {
+      console.warn('[setCorrectMessage] Some options are invalid. Proceeding with valid options only.', {
+        invalidOptions,
+      });
+    }
+  
+    if (validOptions.length === 0) {
+      console.warn('[setCorrectMessage] All options are invalid. Returning default feedback.');
+      return 'No valid options available for feedback.';
     }
   
     try {
-      // Filter valid options and log invalid ones
-      const validOptions = optionsToDisplay.filter(option => isValidOption(option));
-      const invalidOptions = optionsToDisplay.filter(option => !isValidOption(option));
-  
-      if (invalidOptions.length > 0) {
-        console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
-          invalidOptions,
-        });
-  
-        // Attempt to fix invalid options by assigning defaults
-        const fixedOptions = invalidOptions.map((option, index) => ({
-          ...option,
-          optionId: option.optionId ?? index + 1, // Assign default optionId if missing
-          correct: option.correct ?? false,      // Default to false if missing
-        }));
-  
-        // Revalidate after fixing
-        validOptions.push(...fixedOptions.filter(isValidOption));
-      }
-  
-      if (!validOptions.length) {
-        console.warn('[setCorrectMessage] No valid options after fixing invalid ones.');
-        return ''; // Return empty if still no valid options
-      }
-  
-      // Get indices of correct answers (1-based) and sort numerically
       const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
-        .filter(item => item.option.correct)
-        .map(item => item.index)
+        .filter((item) => item.option.correct)
+        .map((item) => item.index)
         .sort((a, b) => a - b);
   
       if (!indices.length) {
@@ -125,16 +121,12 @@ export class FeedbackService {
         return 'No correct answers found for the current question.';
       }
   
-      // Format feedback message
-      const result = this.formatFeedbackMessage(indices);
-      return result;
+      return this.formatFeedbackMessage(indices);
     } catch (error) {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
     }
   }
-  
-  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
