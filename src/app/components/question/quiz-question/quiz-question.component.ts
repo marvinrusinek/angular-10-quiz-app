@@ -2457,7 +2457,7 @@ export class QuizQuestionComponent
       });
     }
   } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
@@ -2525,9 +2525,76 @@ export class QuizQuestionComponent
         currentQuestion: this.currentQuestion,
       });
     }
-  }
-    
+  } */
+  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+    try {
+      console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
+      // Step 1: Ensure `currentQuestion` is fully loaded
+      const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
+      if (!questionFullyLoaded || !this.currentQuestion) {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to fully load.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+          currentQuestion: this.currentQuestion,
+        });
+        return; // Exit early if question is not loaded
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion fully loaded:', this.currentQuestion);
+  
+      // Step 2: Ensure `optionsToDisplay` is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize from currentQuestion options...');
+        if (this.currentQuestion?.options?.length > 0) {
+          // Initialize optionsToDisplay from currentQuestion options
+          this.optionsToDisplay = this.quizService.assignOptionIds(
+            this.currentQuestion.options.map(option => ({
+              ...option,
+              active: true,
+              feedback: undefined,
+              showIcon: false,
+              selected: false,
+            }))
+          );
+          console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized from currentQuestion options:', this.optionsToDisplay);
+        }
+  
+        // Validate that optionsToDisplay was successfully initialized
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting feedback application.');
+          return; // Exit early if initialization failed
+        }
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
+  
+      // Step 3: Identify correct options
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
+      }
+  
+      // Step 4: Generate feedback for options
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      // Step 5: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, optionIndex) => ({
+        ...option,
+        feedback: feedbackList[optionIndex] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        showIcon: option.correct || option.selected,
+        highlight: option.selected,
+      }));
+  
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
+    }
+  }  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
@@ -3165,7 +3232,7 @@ export class QuizQuestionComponent
       return false;
     }
   } */
-  private async ensureCurrentQuestionLoaded(): Promise<boolean> {
+  /* private async ensureCurrentQuestionLoaded(): Promise<boolean> {
     if (this.currentQuestion) {
       console.log('[ensureCurrentQuestionLoaded] currentQuestion is already set:', this.currentQuestion);
       return true;
@@ -3204,8 +3271,44 @@ export class QuizQuestionComponent
     console.log('[ensureCurrentQuestionLoaded] optionsToDisplay initialized:', this.optionsToDisplay);
   
     return true;
-  }
+  } */
+  private async ensureCurrentQuestionLoaded(): Promise<boolean> {
+    try {
+      console.log('[ensureCurrentQuestionLoaded] Ensuring current question is loaded...');
   
+      // Reload questionsArray if not initialized or empty
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.warn('[ensureCurrentQuestionLoaded] questionsArray is empty. Reloading...');
+        const questionsLoaded = await this.ensureQuestionsLoaded();
+        if (!questionsLoaded || !this.questionsArray || this.questionsArray.length === 0) {
+          console.error('[ensureCurrentQuestionLoaded] Failed to reload questionsArray.');
+          return false;
+        }
+      }
+  
+      // Validate currentQuestionIndex
+      if (
+        this.currentQuestionIndex < 0 ||
+        this.currentQuestionIndex >= this.questionsArray.length
+      ) {
+        console.error(`[ensureCurrentQuestionLoaded] Invalid currentQuestionIndex: ${this.currentQuestionIndex}`);
+        return false;
+      }
+  
+      // Reload currentQuestion
+      this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!this.currentQuestion) {
+        console.error('[ensureCurrentQuestionLoaded] Failed to set currentQuestion.');
+        return false;
+      }
+  
+      console.log('[ensureCurrentQuestionLoaded] Current question loaded:', this.currentQuestion);
+      return true;
+    } catch (error) {
+      console.error('[ensureCurrentQuestionLoaded] Error:', error);
+      return false;
+    }
+  }  
 
   private async handleExplanationDisplay(): Promise<void> {
     if (this.isAnswered) {
@@ -6551,51 +6654,62 @@ export class QuizQuestionComponent
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<boolean> {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error('Questions array is not loaded yet. Loading questions...');
-      await this.loadQuizData(); // Ensure the data is loaded
-  
-      // Re-check if the questions are loaded after the loading step
+    try {
+      // Step 1: Ensure `questionsArray` is loaded
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.error('Questions array still not loaded after loading attempt.');
-        return false; // Indicate failure
+        console.warn('[ensureQuestionIsFullyLoaded] Questions array is empty. Attempting to reload...');
+        await this.loadQuizData();
+  
+        // Re-check if `questionsArray` is populated
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error('[ensureQuestionIsFullyLoaded] Questions array still empty after reload attempt.');
+          return false; // Indicate failure
+        }
       }
-    }
   
-    if (index < 0 || index >= this.questionsArray.length) {
-      console.error(
-        `Invalid index ${index}. Must be between 0 and ${this.questionsArray.length - 1}.`
-      );
-      return false; // Indicate invalid index
-    }
+      // Step 2: Validate `index` range
+      if (index < 0 || index >= this.questionsArray.length) {
+        console.error(
+          `[ensureQuestionIsFullyLoaded] Invalid index: ${index}. Valid range: 0-${this.questionsArray.length - 1}`
+        );
+        return false; // Indicate invalid index
+      }
   
-    return new Promise((resolve) => {
-      let subscription: Subscription | undefined;
+      // Step 3: Fetch question and ensure it is valid
+      return new Promise((resolve) => {
+        let subscription: Subscription | undefined;
   
-      try {
-        subscription = this.quizService.getQuestionByIndex(index).subscribe({
-          next: (question) => {
-            if (question && question.questionText) {
-              console.log(`Question loaded for index ${index}:`, question);
+        try {
+          subscription = this.quizService.getQuestionByIndex(index).subscribe({
+            next: (question) => {
+              if (question && question.questionText) {
+                console.log(`[ensureQuestionIsFullyLoaded] Question loaded for index ${index}:`, question);
+                this.currentQuestion = question; // Set `currentQuestion`
+                this.optionsToDisplay = question.options ?? []; // Initialize `optionsToDisplay`
+                subscription?.unsubscribe();
+                resolve(true); // Successfully loaded
+              } else {
+                console.error(`[ensureQuestionIsFullyLoaded] No valid question found at index: ${index}`);
+                resolve(false); // Indicate failure to load a valid question
+              }
+            },
+            error: (err) => {
+              console.error(`[ensureQuestionIsFullyLoaded] Error loading question at index ${index}:`, err);
               subscription?.unsubscribe();
-              resolve(true); // Successfully loaded
-            } else {
-              console.error(`No valid question at index ${index}`);
-              resolve(false); // Indicate failure to load a valid question
-            }
-          },
-          error: (err) => {
-            console.error(`Error loading question at index ${index}:`, err);
-            subscription?.unsubscribe();
-            resolve(false); // Indicate failure due to error
-          },
-        });
-      } catch (error) {
-        console.error(`Unexpected error while loading question at index ${index}:`, error);
-        resolve(false); // Indicate failure due to unexpected error
-      }
-    });
+              resolve(false); // Indicate failure due to error
+            },
+          });
+        } catch (error) {
+          console.error(`[ensureQuestionIsFullyLoaded] Unexpected error while loading question at index ${index}:`, error);
+          resolve(false); // Indicate failure due to unexpected error
+        }
+      });
+    } catch (error) {
+      console.error('[ensureQuestionIsFullyLoaded] Unhandled error:', error);
+      return false; // Indicate failure
+    }
   }
+  
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     console.log(`Fetching explanation for question index: ${questionIndex}`);
