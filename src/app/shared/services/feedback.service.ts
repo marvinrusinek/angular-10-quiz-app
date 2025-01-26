@@ -49,10 +49,10 @@ export class FeedbackService {
         return [];
       }
   
-      // Generate feedback using setCorrectMessage, which will provide specific feedback
+      // Generate feedback using setCorrectMessage
       const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
-      // Validate feedback and ensure it matches optionsToDisplay length
+      // Split feedback into an array and validate its length
       const feedbackArray = feedback?.split(';') ?? [];
       if (feedbackArray.length !== optionsToDisplay.length) {
         console.warn('[generateFeedbackForOptions] Feedback length mismatch. Falling back to default feedback.', {
@@ -61,7 +61,7 @@ export class FeedbackService {
           correctOptions,
         });
   
-        // Fallback to default feedback with the same length as optionsToDisplay
+        // Fallback: Ensure feedback is generated for each option in optionsToDisplay
         return optionsToDisplay.map((option) =>
           correctOptions.some((correct) => correct.optionId === option.optionId)
             ? 'Correct answer!'
@@ -73,11 +73,10 @@ export class FeedbackService {
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
   
-      // Return a fallback feedback array with a generic message for each option
+      // Fallback: Return a generic message for each option in case of an error
       return optionsToDisplay.map(() => 'An error occurred while generating feedback.');
     }
   }
-  
 
   /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || !correctOptions.length) {
