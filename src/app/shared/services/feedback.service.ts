@@ -82,7 +82,6 @@ export class FeedbackService {
       return 'No correct answers available.';
     }
   
-    // Ensure optionsToDisplay is valid
     if (!optionsToDisplay || !optionsToDisplay.length) {
       console.info('[setCorrectMessage] optionsToDisplay is not loaded or empty.');
       return ''; // Return empty string as a fallback
@@ -94,10 +93,24 @@ export class FeedbackService {
       const invalidOptions = optionsToDisplay.filter(option => !isValidOption(option));
   
       if (invalidOptions.length > 0) {
-        console.warn('[setCorrectMessage] Some options are invalid. Returning empty feedback.', {
+        console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
           invalidOptions,
         });
-        return ''; // Return empty string if there are invalid options
+  
+        // Attempt to fix invalid options by assigning defaults
+        const fixedOptions = invalidOptions.map((option, index) => ({
+          ...option,
+          optionId: option.optionId ?? index + 1, // Assign default optionId if missing
+          correct: option.correct ?? false,      // Default to false if missing
+        }));
+  
+        // Revalidate after fixing
+        validOptions.push(...fixedOptions.filter(isValidOption));
+      }
+  
+      if (!validOptions.length) {
+        console.warn('[setCorrectMessage] No valid options after fixing invalid ones.');
+        return ''; // Return empty if still no valid options
       }
   
       // Get indices of correct answers (1-based) and sort numerically
@@ -105,7 +118,7 @@ export class FeedbackService {
         .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
         .map(item => item.index)
-        .sort((a, b) => a - b); // Numeric sorting
+        .sort((a, b) => a - b);
   
       if (!indices.length) {
         console.warn('[setCorrectMessage] No correct indices found.');
@@ -120,6 +133,7 @@ export class FeedbackService {
       return ''; // Return empty string on error
     }
   }
+  
   
   
   private formatFeedbackMessage(indices: number[]): string {
