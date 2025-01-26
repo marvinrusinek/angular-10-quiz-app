@@ -1738,7 +1738,7 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
     }
   } */
-  private async restoreQuizState(): Promise<boolean> {
+  /* private async restoreQuizState(): Promise<boolean> {
     try {
       console.log('[restoreQuizState] Restoring quiz state...');
   
@@ -1803,7 +1803,82 @@ export class QuizQuestionComponent
       console.error('[restoreQuizState] Error restoring quiz state:', error);
       return false; // Indicate failure
     }
-  }  
+  } */
+  private async restoreQuizState(): Promise<boolean> {
+    try {
+      console.log('[restoreQuizState] Restoring quiz state...');
+  
+      // Restore explanation text
+      this.currentExplanationText =
+        sessionStorage.getItem(`explanationText_${this.currentQuestionIndex}`) || '';
+      const displayMode = sessionStorage.getItem(`displayMode_${this.currentQuestionIndex}`);
+      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+  
+      // Restore options data
+      const optionsData = sessionStorage.getItem(`options_${this.currentQuestionIndex}`);
+      if (optionsData) {
+        try {
+          this.optionsToDisplay = JSON.parse(optionsData);
+          console.log('[restoreQuizState] Restored options data:', this.optionsToDisplay);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing options data:', error);
+          this.optionsToDisplay = []; // Reset to empty if parsing fails
+        }
+      } else {
+        console.info('[restoreQuizState] No options data found for restoration. Falling back to current question options.');
+        this.optionsToDisplay = this.currentQuestion?.options
+          ? this.quizService.assignOptionIds(this.currentQuestion.options)
+          : [];
+        console.log('[restoreQuizState] Fallback options initialized:', this.optionsToDisplay);
+      }
+  
+      // Restore selected options
+      const selectedOptionsData = sessionStorage.getItem(`selectedOptions_${this.currentQuestionIndex}`);
+      if (selectedOptionsData) {
+        try {
+          const selectedOptions = JSON.parse(selectedOptionsData);
+  
+          // Validate and ensure optionId for all selected options
+          const validatedOptions = selectedOptions.map((option, index) => ({
+            ...option,
+            optionId: option.optionId ?? index + 1, // Assign fallback optionId if undefined
+          }));
+  
+          for (const option of validatedOptions) {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+            } else {
+              console.info('[restoreQuizState] Skipping option with undefined optionId:', option);
+            }
+          }
+  
+          console.log('[restoreQuizState] Restored and validated selected options:', validatedOptions);
+        } catch (error) {
+          console.error('[restoreQuizState] Error parsing selected options data:', error);
+        }
+      } else {
+        console.info('[restoreQuizState] No selected options data found for restoration.');
+      }
+  
+      // Restore feedback text
+      const restoredFeedbackText = sessionStorage.getItem(`feedbackText_${this.currentQuestionIndex}`);
+      if (restoredFeedbackText) {
+        this.feedbackText = restoredFeedbackText;
+        console.log('[restoreQuizState] Restored feedback text:', restoredFeedbackText);
+      } else {
+        console.info(
+          '[restoreQuizState] No feedback text found for restoration. This might be expected for unanswered questions or newly loaded data. Defaulting to empty.'
+        );
+        this.feedbackText = ''; // Default to an empty string
+      }
+  
+      return true; // Indicate success
+    } catch (error) {
+      console.error('[restoreQuizState] Error restoring quiz state:', error);
+      return false; // Indicate failure
+    }
+  }
+  
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
