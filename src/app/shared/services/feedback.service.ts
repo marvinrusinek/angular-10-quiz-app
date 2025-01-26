@@ -5,7 +5,7 @@ import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackService {
-  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
@@ -34,53 +34,6 @@ export class FeedbackService {
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
-    }
-  } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
-    try {
-      // Ensure correct options and options to display are present
-      if (!Array.isArray(correctOptions) || correctOptions.length === 0) {
-        console.warn('[generateFeedbackForOptions] No correct options provided.');
-        return optionsToDisplay.map(() => 'No correct answers available for this question.');
-      }
-  
-      if (!Array.isArray(optionsToDisplay) || optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackForOptions] No options to display found.');
-        return ['No options available to generate feedback for.'];
-      }
-  
-      // Generate feedback using setCorrectMessage
-      const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
-  
-      // Validate feedback
-      if (!feedback || typeof feedback !== 'string' || feedback.trim() === '') {
-        console.warn(
-          '[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...'
-        );
-        return optionsToDisplay.map((option) =>
-          correctOptions.some((correct) => correct.optionId === option.optionId)
-            ? 'Correct answer!'
-            : 'Incorrect answer.'
-        );
-      }
-  
-      // Split feedback into an array and validate the result
-      const feedbackArray = feedback.split(';').map((text) => text.trim());
-      if (feedbackArray.length !== optionsToDisplay.length) {
-        console.warn(
-          '[generateFeedbackForOptions] Feedback length mismatch. Falling back to default feedback.'
-        );
-        return optionsToDisplay.map((option) =>
-          correctOptions.some((correct) => correct.optionId === option.optionId)
-            ? 'Correct answer!'
-            : 'Incorrect answer.'
-        );
-      }
-  
-      return feedbackArray;
-    } catch (error) {
-      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
-      return optionsToDisplay.map(() => 'An error occurred while generating feedback. Please try again.');
     }
   }
 
