@@ -38,7 +38,7 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
-      // Ensure correct options and options to display are present
+      // Ensure correct options and options to display are valid
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
         return optionsToDisplay.map(() => 'No correct answers available.');
@@ -53,7 +53,7 @@ export class FeedbackService {
       const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
       // Split feedback into an array and validate its length
-      const feedbackArray = feedback?.split(';') ?? [];
+      const feedbackArray = feedback?.split(';').map((item) => item.trim()) ?? [];
       if (feedbackArray.length !== optionsToDisplay.length) {
         console.warn('[generateFeedbackForOptions] Feedback length mismatch. Falling back to default feedback.', {
           feedbackArray,
@@ -117,48 +117,45 @@ export class FeedbackService {
       return '';  // Return empty string on error
     }
   } */
-  setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    if (!correctOptions || correctOptions.length === 0) {
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    if (!correctOptions || !correctOptions.length) {
       console.info('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
     }
   
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.warn('[setCorrectMessage] optionsToDisplay is empty. Cannot generate feedback.');
-      return '';
-    }
-  
-    // Filter valid options and check for any invalid ones
-    const validOptions = optionsToDisplay.filter(isValidOption);
-    const invalidOptions = optionsToDisplay.filter((option) => !isValidOption(option));
-  
-    if (invalidOptions.length > 0) {
-      console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
-        invalidOptions,
-      });
-    }
-  
-    if (validOptions.length === 0) {
-      console.warn('[setCorrectMessage] No valid options available. Returning default feedback.');
-      return 'No valid options available for feedback.';
+      console.info('[setCorrectMessage] Options not loaded yet. Retrying...');
+      return ''; // Return empty string if options are missing
     }
   
     try {
-      // Generate indices of correct answers (1-based)
+      // Validate optionsToDisplay
+      const validOptions = optionsToDisplay.filter(this.isValidOption);
+  
+      if (validOptions.length !== optionsToDisplay.length) {
+        const invalidOptions = optionsToDisplay.filter((opt) => !this.isValidOption(opt));
+        console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
+          invalidOptions,
+        });
+        return ''; // Return empty feedback for invalid options
+      }
+  
+      // Get indices of correct answers (1-based) and sort numerically
       const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
-        .filter((item) => item.option.correct)
+        .filter((item) => correctOptions.some((correct) => correct.optionId === item.option.optionId))
         .map((item) => item.index)
         .sort((a, b) => a - b);
   
-      if (!indices.length) {
-        console.warn('[setCorrectMessage] No correct indices found.');
+      if (indices.length === 0) {
+        console.warn('[setCorrectMessage] No matching correct options found.');
         return 'No correct answers found for the current question.';
       }
   
+      // Generate feedback message
       return this.formatFeedbackMessage(indices);
     } catch (error) {
-      console.error('[setCorrectMessage] Error generating feedback:', error);
+      console.error('[setCorrectMessage] Error generating feedback message:', error);
       return ''; // Return empty string on error
     }
   }
