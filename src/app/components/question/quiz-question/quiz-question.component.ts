@@ -6420,7 +6420,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Check if `questionIndex` is within valid bounds
+      // Validate the question index
       if (
         questionIndex < 0 ||
         questionIndex >= this.questionsArray.length ||
@@ -6433,23 +6433,38 @@ export class QuizQuestionComponent
       }
   
       // Ensure the specific question data is fully loaded
+      console.log(`[fetchAndSetExplanationText] Ensuring question is fully loaded for index: ${questionIndex}`);
       const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(questionIndex);
   
       if (!questionFullyLoaded) {
         console.error(
           `[fetchAndSetExplanationText] Failed to ensure question is fully loaded for index: ${questionIndex}.`
         );
+  
+        // Attempt a fallback reload of the current question
+        console.log('[fetchAndSetExplanationText] Attempting fallback reload for current question...');
+        const fallbackReloaded = await this.reloadCurrentQuestion();
+        if (!fallbackReloaded) {
+          console.error(
+            `[fetchAndSetExplanationText] Fallback reload failed for question index: ${questionIndex}.`
+          );
+          return;
+        }
+        console.log(
+          `[fetchAndSetExplanationText] Fallback reload succeeded for question index: ${questionIndex}.`
+        );
+      }
+  
+      // Ensure currentQuestion is set after loading
+      if (!this.currentQuestion) {
+        console.error('[fetchAndSetExplanationText] currentQuestion is null after reload.');
         return;
       }
   
-      // Prepare and fetch explanation text using observable
-      const explanation$ = from(this.prepareAndSetExplanationText(questionIndex))
-        .pipe(debounceTime(100)) // Smooth out updates
-        .toPromise();
+      // Fetch and set explanation text
+      console.log(`[fetchAndSetExplanationText] Preparing explanation text for question ${questionIndex}`);
+      const explanationText = await this.prepareAndSetExplanationText(questionIndex);
   
-      const explanationText = await explanation$;
-  
-      // Check if the question is answered before setting explanation
       if (this.isQuestionAnswered(questionIndex)) {
         this.currentQuestionIndex = questionIndex;
         this.explanationToDisplay = explanationText || 'No explanation available';
@@ -6471,7 +6486,9 @@ export class QuizQuestionComponent
       );
       this.handleExplanationError(questionIndex);
     }
-  }  
+  }
+  
+  
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
@@ -6479,51 +6496,49 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(true);
   }
 
-  private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
+  private async ensureQuestionIsFullyLoaded(index: number): Promise<boolean> {
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error('Questions array is not loaded yet. Loading questions...');
       await this.loadQuizData(); // Ensure the data is loaded
-
+  
       // Re-check if the questions are loaded after the loading step
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.error(
-          'Questions array still not loaded after loading attempt.'
-        );
-        throw new Error('Failed to load questions array.');
+        console.error('Questions array still not loaded after loading attempt.');
+        return false; // Indicate failure
       }
     }
-
+  
     if (index < 0 || index >= this.questionsArray.length) {
       console.error(
-        `Invalid index ${index}. Must be between 0 and ${
-          this.questionsArray.length - 1
-        }.`
+        `Invalid index ${index}. Must be between 0 and ${this.questionsArray.length - 1}.`
       );
-      throw new Error(`Invalid index ${index}. No such question exists.`);
+      return false; // Indicate invalid index
     }
-
-    return new Promise((resolve, reject) => {
+  
+    return new Promise((resolve) => {
       let subscription: Subscription | undefined;
-
+  
       try {
         subscription = this.quizService.getQuestionByIndex(index).subscribe({
           next: (question) => {
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
               subscription?.unsubscribe();
-              resolve(); // Successfully loaded
+              resolve(true); // Successfully loaded
             } else {
-              reject(new Error(`No valid question at index ${index}`));
+              console.error(`No valid question at index ${index}`);
+              resolve(false); // Indicate failure to load a valid question
             }
           },
           error: (err) => {
             console.error(`Error loading question at index ${index}:`, err);
             subscription?.unsubscribe();
-            reject(err);
+            resolve(false); // Indicate failure due to error
           },
         });
       } catch (error) {
-        reject(error); // Reject for unexpected error
+        console.error(`Unexpected error while loading question at index ${index}:`, error);
+        resolve(false); // Indicate failure due to unexpected error
       }
     });
   }
