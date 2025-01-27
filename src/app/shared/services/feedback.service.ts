@@ -158,7 +158,6 @@ export class FeedbackService {
     console.log('[setCorrectMessage] Generated feedback message:', result);
     return result;
   }
-
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
