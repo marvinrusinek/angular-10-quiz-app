@@ -41,7 +41,7 @@ export class FeedbackService {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
-        return optionsToDisplay.map(() => 'No correct answers available for this question.');
+        return ['No correct answers available for this question.'];
       }
   
       if (!optionsToDisplay || optionsToDisplay.length === 0) {
@@ -49,49 +49,24 @@ export class FeedbackService {
         return ['No options available to generate feedback for.'];
       }
   
-      // Generate feedback using setCorrectMessage
-      const feedbackMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+      // Generate feedback using setCorrectMessage, which will provide specific feedback
+      const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
-      if (!feedbackMessage || feedbackMessage.trim() === '') {
+      if (!feedback || feedback.trim() === '') {
         console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
-        return optionsToDisplay.map(option =>
-          correctOptions.some(correct => correct.optionId === option.optionId)
-            ? `Correct answer: Option ${option.optionId}.`
-            : 'Incorrect answer.'
-        );
-      }
-  
-      // Create a feedback list with the correct feedback for each option
-      const feedbackList = optionsToDisplay.map(option =>
-        correctOptions.some(correct => correct.optionId === option.optionId)
-          ? feedbackMessage
-          : 'Incorrect answer.'
-      );
-  
-      // Validate feedback list length
-      if (feedbackList.length !== optionsToDisplay.length) {
-        console.warn('[generateFeedbackForOptions] Feedback list length mismatch. Falling back to default feedback.', {
-          feedbackList,
-          optionsToDisplay,
-          correctOptions,
-        });
-  
-        // Fallback to default feedback
-        return optionsToDisplay.map(option =>
-          correctOptions.some(correct => correct.optionId === option.optionId)
+        return optionsToDisplay.map((option) =>
+          correctOptions.some((correct) => correct.optionId === option.optionId)
             ? 'Correct answer!'
             : 'Incorrect answer.'
         );
       }
   
-      console.log('[generateFeedbackForOptions] Feedback list generated successfully:', feedbackList);
-      return feedbackList;
+      return feedback.split(';');  // Assuming feedback is separated by ';'.
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
-      return optionsToDisplay.map(() => 'An error occurred while generating feedback.');
+      return ['An error occurred while generating feedback. Please try again.'];
     }
   }
-  
   
   
 
@@ -148,10 +123,8 @@ export class FeedbackService {
     try {
       // Filter valid options
       const validOptions = optionsToDisplay.filter(isValidOption);
-  
-      // Get indices of correct options
       const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 })) // 1-based index
+        .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
         .map(item => item.index)
         .sort((a, b) => a - b);
@@ -161,7 +134,6 @@ export class FeedbackService {
         return ''; // No correct options found
       }
   
-      // Format the feedback message
       const result = this.formatFeedbackMessage(indices);
       console.log('[setCorrectMessage] Generated feedback:', result);
       return result;
@@ -170,7 +142,6 @@ export class FeedbackService {
       return ''; // Return empty string on error
     }
   }
-  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
