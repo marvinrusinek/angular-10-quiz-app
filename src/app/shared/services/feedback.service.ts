@@ -154,12 +154,9 @@ export class FeedbackService {
     }
 
     // Generate feedback message using indices
-    const feedbackMessage = `Correct answers are: ${indices.join(', ')}`;
-    return optionsToDisplay.map(option =>
-        correctOptions.some(correct => correct.optionId === option.optionId)
-            ? feedbackMessage
-            : ''
-    ).join(';'); // Semicolon-separated feedback for all options
+    const result = this.formatFeedbackMessage(indices);
+    console.log('[setCorrectMessage] Generated feedback message:', result);
+    return result;
   }
 
   
