@@ -2882,7 +2882,7 @@ export class QuizQuestionComponent
   
       // Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize...');
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize from currentQuestion options...');
         if (this.currentQuestion?.options?.length > 0) {
           this.optionsToDisplay = this.quizService.assignOptionIds(
             this.currentQuestion.options.map((option) => ({
@@ -2893,12 +2893,10 @@ export class QuizQuestionComponent
               selected: false,
             }))
           );
-          console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', this.optionsToDisplay);
-        }
-  
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting.');
-          return;
+          console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized from currentQuestion options:', this.optionsToDisplay);
+        } else {
+          console.error('[applyOptionFeedbackToAllOptions] currentQuestion.options is empty. Aborting feedback application.');
+          return; // Exit if options cannot be initialized
         }
       }
   
