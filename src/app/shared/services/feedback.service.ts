@@ -145,12 +145,9 @@ export class FeedbackService {
         .map(item => item.index)
         .sort((a, b) => a - b); // Numeric sorting
 
-    if (indices.length === 0) {
-        console.warn('[setCorrectMessage] No matching correct options found.', {
-            correctOptions,
-            optionsToDisplay,
-        });
-        return optionsToDisplay.map(() => '').join(';'); // Default empty feedback
+    if (!indices.length) {
+      console.warn('No correct indices found');
+      return 'No correct answers found for the current question.';
     }
 
     // Generate feedback message using indices
