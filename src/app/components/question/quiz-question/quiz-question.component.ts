@@ -2594,8 +2594,8 @@ export class QuizQuestionComponent
         currentQuestion: this.currentQuestion,
       });
     }
-  }  */
- /*  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  } */
+  /*  public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
