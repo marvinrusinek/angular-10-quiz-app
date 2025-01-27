@@ -140,10 +140,10 @@ export class FeedbackService {
 
     // Map valid options to their indices
     const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 })) // Use 1-based index
-        .filter(item => correctOptions.some(correct => correct.optionId === item.option.optionId))
+        .map((option, index) => ({ option, index: index + 1 }))
+        .filter(item => item.option.correct)
         .map(item => item.index)
-        .sort((a, b) => a - b); // Sort numerically
+        .sort((a, b) => a - b); // Numeric sorting
 
     if (indices.length === 0) {
         console.warn('[setCorrectMessage] No matching correct options found.', {
