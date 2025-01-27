@@ -38,41 +38,28 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
-        // Ensure correct options and options to display are present
-        if (!correctOptions || correctOptions.length === 0) {
-            console.warn('[generateFeedbackForOptions] No correct options provided.');
-            return optionsToDisplay.map(() => 'No correct answers available.');
-        }
-
-        if (!optionsToDisplay || optionsToDisplay.length === 0) {
-            console.warn('[generateFeedbackForOptions] No options to display found.');
-            return ['No options available to generate feedback for.'];
-        }
-
-        // Generate feedback using setCorrectMessage
-        const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
-
-        // Split feedback into an array and validate its length
-        const feedbackArray = feedback ? feedback.split(';') : [];
-        if (feedbackArray.length !== optionsToDisplay.length) {
-            console.warn('[generateFeedbackForOptions] Feedback length mismatch. Falling back to default feedback.', {
-                feedbackArray,
-                optionsToDisplay,
-                correctOptions,
-            });
-
-            // Fallback to default feedback
-            return optionsToDisplay.map((option) =>
-                correctOptions.some((correct) => correct.optionId === option.optionId)
-                    ? 'Correct answer!'
-                    : 'Incorrect answer.'
-            );
-        }
-
-        return feedbackArray;
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[generateFeedbackForOptions] No correct options provided.');
+        return optionsToDisplay.map(() => 'No correct answers available for this question.');
+      }
+  
+      if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackForOptions] No options to display found.');
+        return ['No options available to generate feedback for.'];
+      }
+  
+      // Generate feedback for correct options
+      const feedbackMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+  
+      // Apply the correct feedback to all options
+      return optionsToDisplay.map(option =>
+        correctOptions.some(correct => correct.optionId === option.optionId)
+          ? feedbackMessage || `You're right! The correct answer is Option ${option.optionId}`
+          : 'Incorrect answer.'
+      );
     } catch (error) {
-        console.error('[generateFeedbackForOptions] Error generating feedback:', error);
-        return ['An error occurred while generating feedback. Please try again.'];
+      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      return optionsToDisplay.map(() => 'An error occurred while generating feedback.');
     }
   }
 
@@ -116,44 +103,37 @@ export class FeedbackService {
     }
   } */
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    console.log('[setCorrectMessage] Invoked with:', { correctOptions, optionsToDisplay });
     if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[setCorrectMessage] No correct options provided.');
-        return optionsToDisplay?.map(() => '').join(';') || '';
+      console.warn('[setCorrectMessage] No correct options provided.');
+      return 'No correct answers available.';
     }
-
+  
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn('[setCorrectMessage] Options to display are not loaded.');
-        return ''; // Exit early
+      console.warn('[setCorrectMessage] optionsToDisplay is missing.');
+      return ''; // Return an empty string
     }
-
-    // Filter valid options and log invalid options
-    const validOptions = optionsToDisplay.filter(isValidOption);
-    const invalidOptions = optionsToDisplay.filter((opt) => !isValidOption(opt));
-
-    if (invalidOptions.length > 0) {
-        console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
-            invalidOptions,
-        });
-        return validOptions.map(() => '').join(';');
-    }
-
-    // Map valid options to their indices
-    const indices = validOptions
+  
+    try {
+      // Filter valid options
+      const validOptions = optionsToDisplay.filter(isValidOption);
+      const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
         .map(item => item.index)
-        .sort((a, b) => a - b); // Numeric sorting
-
-    if (!indices.length) {
-      console.warn('No correct indices found');
-      return 'No correct answers found for the current question.';
+        .sort((a, b) => a - b);
+  
+      if (!indices.length) {
+        console.warn('[setCorrectMessage] No matching correct options found.');
+        return ''; // No correct options found
+      }
+  
+      const result = this.formatFeedbackMessage(indices);
+      console.log('[setCorrectMessage] Generated feedback:', result);
+      return result;
+    } catch (error) {
+      console.error('[setCorrectMessage] Error generating feedback:', error);
+      return ''; // Return empty string on error
     }
-
-    // Generate feedback message using indices
-    const result = this.formatFeedbackMessage(indices);
-    console.log('[setCorrectMessage] Generated feedback message:', result);
-    return result;
   }
   
   private formatFeedbackMessage(indices: number[]): string {
