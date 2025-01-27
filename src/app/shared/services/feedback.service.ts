@@ -36,7 +36,7 @@ export class FeedbackService {
       return ['An error occurred while generating feedback. Please try again.'];
     }
   } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
@@ -66,7 +66,60 @@ export class FeedbackService {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
     }
+  } */
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+    try {
+      // Ensure correct options and options to display are present
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[generateFeedbackForOptions] No correct options provided.');
+        return optionsToDisplay.map(() => 'No correct answers available.');
+      }
+  
+      if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackForOptions] No options to display found.');
+        return [];
+      }
+  
+      // Generate feedback using setCorrectMessage
+      const feedbackMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+  
+      if (!feedbackMessage || feedbackMessage.trim() === '') {
+        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty. Falling back to default feedback.');
+  
+        // Fallback to default feedback generation
+        return optionsToDisplay.map(option =>
+          correctOptions.some(correct => correct.optionId === option.optionId)
+            ? 'Correct answer!'
+            : 'Incorrect answer.'
+        );
+      }
+  
+      // Split feedback into an array
+      const feedbackArray = feedbackMessage.split(';').map(msg => msg.trim());
+  
+      // Ensure feedback length matches optionsToDisplay
+      if (feedbackArray.length !== optionsToDisplay.length) {
+        console.warn('[generateFeedbackForOptions] Feedback length mismatch. Falling back to default feedback.', {
+          feedbackArray,
+          optionsToDisplay,
+          correctOptions,
+        });
+  
+        // Fallback to default feedback
+        return optionsToDisplay.map(option =>
+          correctOptions.some(correct => correct.optionId === option.optionId)
+            ? 'Correct answer!'
+            : 'Incorrect answer.'
+        );
+      }
+  
+      return feedbackArray;
+    } catch (error) {
+      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      return optionsToDisplay.map(() => 'Error generating feedback.');
+    }
   }
+  
   
   
 
@@ -109,7 +162,7 @@ export class FeedbackService {
       return '';  // Return empty string on error
     }
   } */
-  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       console.warn('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
@@ -141,7 +194,41 @@ export class FeedbackService {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
     }
+  } */
+  public setCorrectMessage(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    try {
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[setCorrectMessage] No correct options provided.');
+        return '';
+      }
+  
+      if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[setCorrectMessage] optionsToDisplay is missing.');
+        return '';
+      }
+  
+      // Filter valid options
+      const validOptions = optionsToDisplay.filter(isValidOption);
+  
+      // Find indices of correct options (1-based)
+      const indices = validOptions
+        .map((option, index) => ({ option, index: index + 1 }))
+        .filter(item => correctOptions.some(correct => correct.optionId === item.option.optionId))
+        .map(item => item.index)
+        .sort((a, b) => a - b);
+  
+      if (indices.length === 0) {
+        console.warn('[setCorrectMessage] No matching correct options found.');
+        return '';
+      }
+  
+      return this.formatFeedbackMessage(indices);
+    } catch (error) {
+      console.error('[setCorrectMessage] Error generating feedback:', error);
+      return '';
+    }
   }
+  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
