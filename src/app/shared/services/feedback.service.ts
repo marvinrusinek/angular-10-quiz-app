@@ -48,13 +48,10 @@ export class FeedbackService {
         return ['No options available to generate feedback for.'];
       }
   
-      // Generate feedback for correct options
-      const feedbackMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
-  
-      // Apply the correct feedback to all options
+      // Generate feedback for each option in `optionsToDisplay`
       return optionsToDisplay.map(option =>
         correctOptions.some(correct => correct.optionId === option.optionId)
-          ? feedbackMessage || `You're right! The correct answer is Option ${option.optionId}`
+          ? `You're right! The correct answer is Option ${option.optionId}.`
           : 'Incorrect answer.'
       );
     } catch (error) {
@@ -62,6 +59,7 @@ export class FeedbackService {
       return optionsToDisplay.map(() => 'An error occurred while generating feedback.');
     }
   }
+  
 
   /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || !correctOptions.length) {
