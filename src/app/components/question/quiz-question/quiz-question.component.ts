@@ -3110,14 +3110,22 @@ export class QuizQuestionComponent
   }
 
   private applyFallbackFeedback(correctOptions: Option[]): void {
-    this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-      ...option,
-      feedback: correctOptions.some(correct => correct.optionId === option.optionId)
-        ? 'Correct answer!'
-        : 'Incorrect answer.',
-    }));
+    this.optionsToDisplay = this.optionsToDisplay.map(option => {
+      if (correctOptions.some(correct => correct.optionId === option.optionId)) {
+        return {
+          ...option,
+          feedback: `You're right! The correct answer is Option ${option.optionId}.`,
+        };
+      } else {
+        return {
+          ...option,
+          feedback: 'Incorrect answer.',
+        };
+      }
+    });
     console.log('[applyFallbackFeedback] Fallback feedback applied:', this.optionsToDisplay);
   }
+  
   
   
   

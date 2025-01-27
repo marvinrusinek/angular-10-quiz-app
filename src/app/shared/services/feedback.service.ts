@@ -81,10 +81,11 @@ export class FeedbackService {
     // Generate feedback for each option
     return optionsToDisplay.map(option =>
       correctOptions.some(correct => correct.optionId === option.optionId)
-        ? `Option ${option.optionId} is correct!`
-        : `Option ${option.optionId} is incorrect.`
+        ? `You're right! The correct answer is Option ${option.optionId}.`
+        : 'Incorrect answer.'
     );
   }
+  
   
   
   
