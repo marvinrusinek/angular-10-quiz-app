@@ -2766,7 +2766,7 @@ export class QuizQuestionComponent
       });
     }
   } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
@@ -2847,6 +2847,91 @@ export class QuizQuestionComponent
       }
   
       // Step 5: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+        ...option,
+        feedback: feedbackList[index],
+        showIcon: option.correct || option.selected,
+        highlight: option.selected,
+      }));
+  
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
+    }
+  } */
+  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+    try {
+      console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
+  
+      // Ensure `currentQuestion` is fully loaded
+      const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
+      if (!questionFullyLoaded || !this.currentQuestion) {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to fully load.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+          currentQuestion: this.currentQuestion,
+        });
+        return;
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion fully loaded:', this.currentQuestion);
+  
+      // Ensure `optionsToDisplay` is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize...');
+        if (this.currentQuestion?.options?.length > 0) {
+          this.optionsToDisplay = this.quizService.assignOptionIds(
+            this.currentQuestion.options.map((option) => ({
+              ...option,
+              active: true,
+              feedback: undefined,
+              showIcon: false,
+              selected: false,
+            }))
+          );
+          console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', this.optionsToDisplay);
+        }
+  
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting.');
+          return;
+        }
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
+  
+      // Identify correct options
+      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
+      }
+  
+      // Generate feedback
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      // Validate feedbackList length
+      if (feedbackList.length !== this.optionsToDisplay.length) {
+        console.error('[applyOptionFeedbackToAllOptions] Feedback list length mismatch detected. Applying fallback feedback.', {
+          feedbackList,
+          optionsToDisplay: this.optionsToDisplay,
+          correctOptions,
+        });
+  
+        // Apply fallback feedback
+        this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+          ...option,
+          feedback: correctOptions.some((correct) => correct.optionId === option.optionId)
+            ? `You're right! The correct answer is Option ${option.optionId}.`
+            : 'Incorrect answer.',
+        }));
+        return;
+      }
+  
+      // Apply feedback to options
       this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
         feedback: feedbackList[index],
