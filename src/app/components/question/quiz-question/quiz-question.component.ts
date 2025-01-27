@@ -2681,7 +2681,7 @@ export class QuizQuestionComponent
       });
     }
   } */
-  /* public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
@@ -2765,87 +2765,7 @@ export class QuizQuestionComponent
         currentQuestion: this.currentQuestion,
       });
     }
-  } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
-    try {
-      console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
-  
-      // Step 1: Ensure `currentQuestion` is fully loaded
-      const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
-      if (!questionFullyLoaded || !this.currentQuestion) {
-        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to fully load.', {
-          currentQuestionIndex: this.currentQuestionIndex,
-          questionsArray: this.questionsArray,
-          currentQuestion: this.currentQuestion,
-        });
-        return;
-      }
-  
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion fully loaded:', this.currentQuestion);
-  
-      // Step 2: Ensure `optionsToDisplay` is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize from currentQuestion options...');
-        this.optionsToDisplay = this.quizService.assignOptionIds(
-          this.currentQuestion.options.map(option => ({
-            ...option,
-            active: true,
-            feedback: undefined,
-            showIcon: false,
-            selected: false,
-          }))
-        );
-        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized from currentQuestion options:', this.optionsToDisplay);
-      }
-  
-      // Validate that optionsToDisplay was successfully initialized
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] Failed to initialize optionsToDisplay. Aborting feedback application.');
-        return;
-      }
-  
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
-  
-      // Step 3: Identify correct options
-      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-  
-      // Step 4: Generate feedback for options
-      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-  
-      // Ensure feedback list matches optionsToDisplay
-      if (feedbackList.length !== this.optionsToDisplay.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Using default feedback.', {
-          feedbackList,
-          optionsToDisplay: this.optionsToDisplay,
-          correctOptions,
-        });
-  
-        // Fallback to default feedback
-        this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-          ...option,
-          feedback: correctOptions.some(correct => correct.optionId === option.optionId)
-            ? 'Correct answer!'
-            : 'Incorrect answer.',
-          showIcon: option.correct || option.selected,
-          highlight: option.selected,
-        }));
-        return;
-      }
-  
-      // Step 5: Apply feedback to options
-      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-        ...option,
-        feedback: feedbackList[index],
-        showIcon: option.correct || option.selected,
-        highlight: option.selected,
-      }));
-  
-      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
-    } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
-    }
   }
-  
 
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
