@@ -183,7 +183,6 @@ export class FeedbackService {
     }
   }
   
-  
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
     const optionStrings = indices.length > 1
