@@ -36,7 +36,7 @@ export class FeedbackService {
       return ['An error occurred while generating feedback. Please try again.'];
     }
   } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
@@ -66,7 +66,26 @@ export class FeedbackService {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
     }
+  } */
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[generateFeedbackForOptions] No correct options provided.');
+      return optionsToDisplay.map(() => 'No correct answers available.');
+    }
+  
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.warn('[generateFeedbackForOptions] No options to display.');
+      return [];
+    }
+  
+    // Generate feedback for each option
+    return optionsToDisplay.map(option =>
+      correctOptions.some(correct => correct.optionId === option.optionId)
+        ? `Option ${option.optionId} is correct!`
+        : `Option ${option.optionId} is incorrect.`
+    );
   }
+  
   
   
   
@@ -110,7 +129,7 @@ export class FeedbackService {
       return '';  // Return empty string on error
     }
   } */
-  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       console.warn('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
@@ -142,7 +161,34 @@ export class FeedbackService {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
     }
+  } */
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[setCorrectMessage] No correct options provided.');
+      return '';
+    }
+  
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.warn('[setCorrectMessage] optionsToDisplay is missing.');
+      return '';
+    }
+  
+    const indices = optionsToDisplay
+      .map((option, index) => ({ option, index: index + 1 }))
+      .filter(item => item.option.correct)
+      .map(item => item.index)
+      .sort((a, b) => a - b);
+  
+    if (!indices.length) {
+      console.warn('[setCorrectMessage] No matching correct options found.');
+      return '';
+    }
+  
+    const result = `The correct options are: ${indices.join(', ')}.`;
+    console.log('[setCorrectMessage] Generated feedback:', result);
+    return result;
   }
+  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
