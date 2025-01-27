@@ -2863,7 +2863,7 @@ export class QuizQuestionComponent
       });
     }
   } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> {
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
@@ -2945,7 +2945,91 @@ export class QuizQuestionComponent
         currentQuestion: this.currentQuestion,
       });
     }
+  } */
+  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+    try {
+      console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
+  
+      // Step 1: Ensure `currentQuestion` is fully loaded
+      const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
+      if (!questionFullyLoaded || !this.currentQuestion) {
+        console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to fully load.', {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionsArray: this.questionsArray,
+          currentQuestion: this.currentQuestion,
+        });
+        return; // Exit early if question is not loaded
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion fully loaded:', this.currentQuestion);
+  
+      // Step 2: Ensure `optionsToDisplay` is populated
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize from currentQuestion options...');
+        if (this.currentQuestion?.options?.length > 0) {
+          this.optionsToDisplay = this.quizService.assignOptionIds(
+            this.currentQuestion.options.map((option) => ({
+              ...option,
+              active: true,
+              feedback: undefined,
+              showIcon: false,
+              selected: false,
+            }))
+          );
+          console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized from currentQuestion options:', this.optionsToDisplay);
+        } else {
+          console.error('[applyOptionFeedbackToAllOptions] currentQuestion.options is empty. Aborting feedback application.');
+          return; // Exit if options cannot be initialized
+        }
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
+  
+      // Step 3: Identify correct options
+      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
+      }
+  
+      // Step 4: Generate feedback for options
+      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      // Validate feedbackList length
+      if (feedbackList.length !== this.optionsToDisplay.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Falling back to default feedback.', {
+          feedbackList,
+          optionsToDisplay: this.optionsToDisplay,
+          correctOptions,
+        });
+  
+        // Apply fallback feedback
+        this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
+          ...option,
+          feedback: correctOptions.some((correct) => correct.optionId === option.optionId)
+            ? `You're right! The correct answer is Option ${option.optionId}.`
+            : 'Incorrect answer.',
+        }));
+        return;
+      }
+  
+      // Step 5: Apply feedback to options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+        ...option,
+        feedback: feedbackList[index],
+        showIcon: option.correct || option.selected,
+        highlight: option.selected,
+      }));
+  
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion,
+      });
+    }
   }
+  
   
 
   // Conditional method to update the explanation only if the question is answered
