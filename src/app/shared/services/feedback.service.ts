@@ -36,7 +36,7 @@ export class FeedbackService {
       return ['An error occurred while generating feedback. Please try again.'];
     }
   } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
@@ -66,7 +66,47 @@ export class FeedbackService {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
     }
+  } */
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+    try {
+      // Ensure correct options and options to display are present
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[generateFeedbackForOptions] No correct options provided.');
+        return optionsToDisplay.map(() => 'No correct answers available for this question.');
+      }
+  
+      if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackForOptions] No options to display found.');
+        return ['No options available to generate feedback for.'];
+      }
+  
+      // Generate feedback for all options in `optionsToDisplay`
+      const feedbackList = optionsToDisplay.map((option) => {
+        if (correctOptions.some((correct) => correct.optionId === option.optionId)) {
+          return `You're right! The correct answer is Option ${option.optionId}.`;
+        } else {
+          return 'Incorrect answer.';
+        }
+      });
+  
+      console.log('[generateFeedbackForOptions] Generated feedback list:', feedbackList);
+  
+      // Validate the length of the feedbackList
+      if (feedbackList.length !== optionsToDisplay.length) {
+        console.warn('[generateFeedbackForOptions] Feedback list length mismatch detected.', {
+          feedbackList,
+          optionsToDisplay,
+          correctOptions,
+        });
+      }
+  
+      return feedbackList;
+    } catch (error) {
+      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      return optionsToDisplay.map(() => 'An error occurred while generating feedback.');
+    }
   }
+  
   
   
 
