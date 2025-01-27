@@ -116,16 +116,18 @@ export class FeedbackService {
     }
   } */
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    if (!correctOptions || !correctOptions.length) {
+    console.log('[setCorrectMessage] Invoked with:', { correctOptions, optionsToDisplay });
+    if (!correctOptions || correctOptions.length === 0) {
         console.warn('[setCorrectMessage] No correct options provided.');
-        return '';
+        return optionsToDisplay?.map(() => '').join(';') || '';
     }
 
-    if (!optionsToDisplay?.length) {
-        console.warn('[setCorrectMessage] Options not loaded yet.');
-        return ''; // Return early
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[setCorrectMessage] Options to display are not loaded.');
+        return ''; // Exit early
     }
 
+    // Filter valid options and log invalid options
     const validOptions = optionsToDisplay.filter(isValidOption);
     const invalidOptions = optionsToDisplay.filter((opt) => !isValidOption(opt));
 
@@ -133,22 +135,33 @@ export class FeedbackService {
         console.warn('[setCorrectMessage] Some options are invalid. Returning fallback feedback.', {
             invalidOptions,
         });
-        return '';
+        return validOptions.map(() => '').join(';');
     }
 
-    // Get indices of correct answers
+    // Map valid options to their indices
     const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 }))
-        .filter((item) => correctOptions.some((correct) => correct.optionId === item.option.optionId))
-        .map((item) => item.index);
+        .map((option, index) => ({ option, index: index + 1 })) // Use 1-based index
+        .filter(item => correctOptions.some(correct => correct.optionId === item.option.optionId))
+        .map(item => item.index)
+        .sort((a, b) => a - b); // Sort numerically
 
-    if (!indices.length) {
-        console.warn('[setCorrectMessage] No matching correct options found.');
-        return '';
+    if (indices.length === 0) {
+        console.warn('[setCorrectMessage] No matching correct options found.', {
+            correctOptions,
+            optionsToDisplay,
+        });
+        return optionsToDisplay.map(() => '').join(';'); // Default empty feedback
     }
 
-    return this.formatFeedbackMessage(indices);
+    // Generate feedback message using indices
+    const feedbackMessage = `Correct answers are: ${indices.join(', ')}`;
+    return optionsToDisplay.map(option =>
+        correctOptions.some(correct => correct.optionId === option.optionId)
+            ? feedbackMessage
+            : ''
+    ).join(';'); // Semicolon-separated feedback for all options
   }
+
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
