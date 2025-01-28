@@ -3101,7 +3101,7 @@ export class QuizQuestionComponent
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
-      // Step 1: Ensure `currentQuestion` is fully loaded
+      // Ensure `currentQuestion` is fully loaded
       const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
       if (!questionFullyLoaded || !this.currentQuestion) {
         console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to fully load.', {
@@ -3114,7 +3114,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion fully loaded:', this.currentQuestion);
   
-      // Step 2: Ensure `optionsToDisplay` is populated
+      // Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize...');
         this.optionsToDisplay = this.initializeOptionsFromQuestion();
@@ -3126,7 +3126,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', this.optionsToDisplay);
   
-      // Step 3: Identify correct options
+      // Identify correct options
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
       console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
   
@@ -3135,7 +3135,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Step 4: Generate feedback for correct options
+      // Generate feedback for correct options
       const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
       // Apply feedback to options
