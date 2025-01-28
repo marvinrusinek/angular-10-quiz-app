@@ -3053,6 +3053,7 @@ export class QuizQuestionComponent
           this.optionsToDisplay = this.quizService.assignOptionIds(
             this.currentQuestion.options.map((option) => ({
               ...option,
+              correct: option.correct || false, // Explicitly set `correct: false` if missing
               active: true,
               feedback: undefined,
               showIcon: false,
@@ -3069,36 +3070,20 @@ export class QuizQuestionComponent
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay is ready:', this.optionsToDisplay);
   
       // Identify correct options
-      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      const correctOptions = this.optionsToDisplay.filter((option) => option.correct === true);
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available for feedback generation.');
       }
   
-      // Generate feedback for options
-      const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+      // Generate feedback for correct options
+      const feedback = this.feedbackService.generateFeedbackForOptions(correctOptions);
   
-      // Validate feedbackList length
-      if (feedbackList.length !== this.optionsToDisplay.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Falling back to default feedback.', {
-          feedbackList,
-          optionsToDisplay: this.optionsToDisplay,
-          correctOptions,
-        });
-  
-        // Apply fallback feedback
-        this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
-          ...option,
-          feedback: correctOptions.some((correct) => correct.optionId === option.optionId)
-            ? `You're right! The correct answer is Option ${option.optionId}.`
-            : 'Incorrect answer.',
-        }));
-        return;
-      }
-  
-      // Apply feedback to options
-      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+      // Apply feedback to correct options
+      this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
         ...option,
-        feedback: feedbackList[index],
+        feedback: correctOptions.some((correct) => correct.optionId === option.optionId)
+          ? feedback // Apply feedback to correct options
+          : undefined, // No feedback for incorrect options
         showIcon: option.correct || option.selected,
         highlight: option.selected,
       }));
