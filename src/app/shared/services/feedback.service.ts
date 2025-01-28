@@ -97,7 +97,7 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     try {
-      console.log('[generateFeedbackForOptions] Correct options:', correctOptions);
+      console.log('[generateFeedbackForOptions] Correct options:', JSON.stringify(correctOptions, null, 2));
   
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
@@ -122,6 +122,7 @@ export class FeedbackService {
       return 'An error occurred while generating feedback.';
     }
   }
+  
   
 
   /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
