@@ -1488,10 +1488,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const question = this.quiz.questions[questionIndex];
       this.questionToDisplay = question.questionText;
   
-      // Assign option IDs dynamically and normalize options
+      // Initialize and normalize options
       this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
         ...option,
-        feedback: undefined, // Reset feedback to allow reapplication
+        feedback: undefined, // Reset feedback
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
@@ -1499,17 +1499,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         optionId: typeof option.optionId === 'number' ? option.optionId : optionIndex + 1,
       }));
   
-      console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
+      console.log('[loadQuestionByRouteIndex] Options initialized:', this.optionsToDisplay);
   
       // Apply feedback to options
-      try {
-        this.prepareFeedback(); // Apply feedback logic
-        console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
-      } catch (error) {
-        console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
-      }
+      this.prepareFeedback();
   
-      // Generate feedback text for the current question
+      // Generate feedback text asynchronously
       this.quizQuestionComponent?.generateFeedbackText(question)
         .then((feedbackText) => {
           this.feedbackText = feedbackText;
@@ -1519,17 +1514,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.error('[loadQuestionByRouteIndex] Error generating feedback text:', error);
         });
   
-      // Fetch explanation text for the current question
-      try {
-        this.fetchFormattedExplanationText(questionIndex);
-        console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
-      } catch (error) {
-        console.error('[loadQuestionByRouteIndex] Error fetching explanation text:', error);
-      }
+      // Fetch explanation text
+      this.fetchFormattedExplanationText(questionIndex);
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
     }
   }
+  
   
 
   fetchFormattedExplanationText(index: number): void {
