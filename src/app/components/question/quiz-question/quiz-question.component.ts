@@ -3101,7 +3101,7 @@ export class QuizQuestionComponent
     try {
       console.log('[applyOptionFeedbackToAllOptions] Start applying feedback.');
   
-      // Ensure `currentQuestion` is fully loaded
+      // Step 1: Ensure `currentQuestion` is fully loaded
       const questionFullyLoaded = await this.ensureQuestionIsFullyLoaded(this.currentQuestionIndex);
       if (!questionFullyLoaded || !this.currentQuestion) {
         console.error('[applyOptionFeedbackToAllOptions] currentQuestion is missing or failed to fully load.', {
@@ -3114,7 +3114,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion fully loaded:', this.currentQuestion);
   
-      // Ensure `optionsToDisplay` is populated
+      // Step 2: Ensure `optionsToDisplay` is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Attempting to initialize...');
         this.optionsToDisplay = this.initializeOptionsFromQuestion();
@@ -3126,16 +3126,16 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', this.optionsToDisplay);
   
-      // Identify correct options
+      // Step 3: Identify correct options
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+  
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options found. Skipping feedback application.');
         return;
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
-  
-      // Generate feedback for all options
+      // Step 4: Generate feedback for correct options
       const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
   
       // Apply feedback to options
@@ -3157,7 +3157,7 @@ export class QuizQuestionComponent
       });
     }
   }
-
+  
   private initializeOptionsFromQuestion(): Option[] {
     if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
       console.error('[initializeOptionsFromQuestion] currentQuestion.options is empty.');
@@ -3165,12 +3165,14 @@ export class QuizQuestionComponent
     }
   
     return this.quizService.assignOptionIds(
-      this.currentQuestion.options.map(option => ({
+      this.currentQuestion.options.map((option, index) => ({
         ...option,
+        correct: !!option.correct, // Ensure correct is a boolean
         active: true,
         feedback: undefined,
         showIcon: false,
-        selected: false
+        selected: false,
+        optionId: index + 1 // Assign unique IDs if missing
       }))
     );
   }
