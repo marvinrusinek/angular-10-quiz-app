@@ -3124,11 +3124,11 @@ export class QuizQuestionComponent
         }
       }
   
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', this.optionsToDisplay);
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay initialized:', JSON.stringify(this.optionsToDisplay, null, 2));
   
       // Identify correct options
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+      console.log('[applyOptionFeedbackToAllOptions] Correct options:', JSON.stringify(correctOptions, null, 2));
   
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options found. Skipping feedback application.');
@@ -3148,7 +3148,7 @@ export class QuizQuestionComponent
         highlight: option.selected,
       }));
   
-      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', this.optionsToDisplay);
+      console.log('[applyOptionFeedbackToAllOptions] Feedback applied successfully:', JSON.stringify(this.optionsToDisplay, null, 2));
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
         currentQuestionIndex: this.currentQuestionIndex,
@@ -3157,7 +3157,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
   
   private initializeOptionsFromQuestion(): Option[] {
     if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
