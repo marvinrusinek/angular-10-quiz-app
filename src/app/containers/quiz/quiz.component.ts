@@ -38,7 +38,6 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none'; 
 
-
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
@@ -1412,7 +1411,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
-  /* loadQuestionByRouteIndex(questionIndex: number): void {
+  loadQuestionByRouteIndex(questionIndex: number): void {
     try {
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
@@ -1476,53 +1475,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
     }
-  } */
-  loadQuestionByRouteIndex(questionIndex: number): void {
-    try {
-      // Validate question index
-      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
-        console.error('[loadQuestionByRouteIndex] Invalid question index:', questionIndex);
-        return;
-      }
-  
-      // Load the current question
-      const question = this.quiz.questions[questionIndex];
-      this.questionToDisplay = question.questionText;
-  
-      // Initialize optionsToDisplay
-      this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
-        ...option,
-        feedback: undefined, // Reset feedback for navigation
-        showIcon: option.showIcon ?? false,
-        active: option.active ?? true,
-        selected: option.selected ?? false,
-        correct: option.correct ?? false,
-        optionId: option.optionId ?? optionIndex + 1,
-      }));
-      console.log('[loadQuestionByRouteIndex] Initialized optionsToDisplay:', this.optionsToDisplay);
-  
-      // Trigger feedback preparation
-      this.prepareFeedback();
-  
-      // Trigger feedback text generation
-      this.quizQuestionComponent?.generateFeedbackText(question)
-        .then(feedbackText => {
-          this.feedbackText = feedbackText;
-          console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
-        })
-        .catch(error => {
-          console.error('[loadQuestionByRouteIndex] Error generating feedback text:', error);
-        });
-  
-      // Fetch explanation text
-      this.fetchFormattedExplanationText(questionIndex);
-    } catch (error) {
-      console.error('[loadQuestionByRouteIndex] Error:', error);
-    }
   }
-  
-  
-  
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
