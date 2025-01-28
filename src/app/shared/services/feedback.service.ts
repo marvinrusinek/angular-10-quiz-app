@@ -38,6 +38,9 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
+      console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
+      console.log('[generateFeedbackForOptions] optionsToDisplay:', optionsToDisplay);
+
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
