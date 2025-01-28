@@ -36,7 +36,7 @@ export class FeedbackService {
       return ['An error occurred while generating feedback. Please try again.'];
     }
   } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
@@ -66,12 +66,32 @@ export class FeedbackService {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
     }
+  } */
+  public generateFeedbackForOptions(correctOptions: Option[]): string {
+    try {
+      console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
+  
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[generateFeedbackForOptions] No correct options provided.');
+        return 'No correct answers available for this question.';
+      }
+  
+      // Generate feedback for correct options
+      const correctIndices = correctOptions.map((correct) => correct.optionId);
+      console.log('[generateFeedbackForOptions] correctIndices:', correctIndices);
+  
+      // Validate correctIndices
+      if (correctIndices.some(isNaN)) {
+        console.error('[generateFeedbackForOptions] Invalid optionId values in correctIndices:', correctIndices);
+        return 'An error occurred while generating feedback. Please try again.';
+      }
+  
+      return this.formatFeedbackMessage(correctIndices);
+    } catch (error) {
+      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      return 'An error occurred while generating feedback. Please try again.';
+    }
   }
-  
-  
-  
-  
-  
 
   /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || !correctOptions.length) {
@@ -146,11 +166,32 @@ export class FeedbackService {
     }
   }
   
-  private formatFeedbackMessage(indices: number[]): string {
+  /* private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
     const optionStrings = indices.length > 1
       ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
       : `${indices[0]}`;
+  
+    return `The correct ${optionsText} ${optionStrings}.`;
+  } */
+  private formatFeedbackMessage(indices: number[]): string {
+    console.log('[formatFeedbackMessage] indices:', indices);
+  
+    // Validate indices
+    if (!indices || indices.length === 0 || indices.some(isNaN)) {
+      console.error('[formatFeedbackMessage] Invalid indices array:', indices);
+      return 'An error occurred while generating feedback. Please try again.';
+    }
+  
+    const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
+    
+    // Adjust indices to start from 1
+    const adjustedIndices = indices.map((index) => index + 1);
+    console.log('[formatFeedbackMessage] adjustedIndices:', adjustedIndices);
+  
+    const optionStrings = adjustedIndices.length > 1
+      ? `${adjustedIndices.slice(0, -1).join(', ')} and ${adjustedIndices.slice(-1)}`
+      : `${adjustedIndices[0]}`;
   
     return `The correct ${optionsText} ${optionStrings}.`;
   }
