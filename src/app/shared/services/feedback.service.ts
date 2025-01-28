@@ -121,10 +121,9 @@ export class FeedbackService {
       return this.formatFeedbackMessage(correctIndices);
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error:', error);
-      return 'An error occurred while generating feedback. Please try again.';
+      return 'An error occurred while generating feedback.';
     }
   }
-  
 
   /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || !correctOptions.length) {
@@ -232,7 +231,7 @@ export class FeedbackService {
     try {
       if (!indices || indices.length === 0) {
         console.error('[formatFeedbackMessage] Invalid indices array:', indices);
-        return 'An error occurred while generating feedback.';
+        return 'No correct answers available.';
       }
   
       const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
