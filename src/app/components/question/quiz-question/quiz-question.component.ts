@@ -3158,6 +3158,7 @@ export class QuizQuestionComponent
     }
   }
   
+  
   private initializeOptionsFromQuestion(): Option[] {
     if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
       console.error('[initializeOptionsFromQuestion] currentQuestion.options is empty.');

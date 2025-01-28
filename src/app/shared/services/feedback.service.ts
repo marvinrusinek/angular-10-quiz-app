@@ -97,21 +97,19 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     try {
+      console.log('[generateFeedbackForOptions] Correct options:', correctOptions);
+  
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
         return 'No correct answers available.';
       }
   
-      if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackForOptions] No options to display.');
-        return 'No options available.';
-      }
-  
-      // Get indices of correct options
       const correctIndices = correctOptions.map(option => {
         const index = optionsToDisplay.findIndex(o => o.optionId === option.optionId);
         return index >= 0 ? index + 1 : null; // Adjust to 1-based index
       }).filter(index => index !== null);
+  
+      console.log('[generateFeedbackForOptions] Correct indices:', correctIndices);
   
       if (!correctIndices.length) {
         console.warn('[generateFeedbackForOptions] No matching correct options found.');
@@ -124,6 +122,7 @@ export class FeedbackService {
       return 'An error occurred while generating feedback.';
     }
   }
+  
 
   /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || !correctOptions.length) {
