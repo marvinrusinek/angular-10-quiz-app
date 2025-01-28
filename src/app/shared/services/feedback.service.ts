@@ -69,26 +69,29 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[]): string {
     try {
-      console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
-  
+      console.log('[generateFeedbackForOptions] correctOptions:', JSON.stringify(correctOptions, null, 2));
+
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
         return 'No correct answers available for this question.';
       }
-  
-      // Generate feedback for correct options
-      const correctIndices = correctOptions.map((correct) => correct.optionId);
-      console.log('[generateFeedbackForOptions] correctIndices:', correctIndices);
-  
-      // Validate correctIndices
+
+      // Log optionId values before conversion
+      const rawOptionIds = correctOptions.map((correct) => correct.optionId);
+      console.log('[generateFeedbackForOptions] rawOptionIds:', rawOptionIds);
+
+      // Convert to numbers and validate
+      const correctIndices = rawOptionIds.map((id) => Number(id));
+      console.log('[generateFeedbackForOptions] correctIndices (converted):', correctIndices);
+
       if (correctIndices.some(isNaN)) {
-        console.error('[generateFeedbackForOptions] Invalid optionId values in correctIndices:', correctIndices);
+        console.error('[generateFeedbackForOptions] Invalid optionId values:', correctIndices);
         return 'An error occurred while generating feedback. Please try again.';
       }
-  
+
       return this.formatFeedbackMessage(correctIndices);
     } catch (error) {
-      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      console.error('[generateFeedbackForOptions] Error:', error);
       return 'An error occurred while generating feedback. Please try again.';
     }
   }
