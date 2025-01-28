@@ -1480,46 +1480,46 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
-        console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
+        console.error('[loadQuestionByRouteIndex] Invalid question index:', questionIndex);
         return;
       }
   
-      // Get the current question
+      // Load the current question
       const question = this.quiz.questions[questionIndex];
       this.questionToDisplay = question.questionText;
   
-      // Initialize and normalize options
+      // Initialize optionsToDisplay
       this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
         ...option,
-        feedback: undefined, // Reset feedback
+        feedback: undefined, // Reset feedback for navigation
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
         correct: option.correct ?? false,
-        optionId: typeof option.optionId === 'number' ? option.optionId : optionIndex + 1,
+        optionId: option.optionId ?? optionIndex + 1,
       }));
+      console.log('[loadQuestionByRouteIndex] Initialized optionsToDisplay:', this.optionsToDisplay);
   
-      console.log('[loadQuestionByRouteIndex] Options initialized:', this.optionsToDisplay);
-  
-      // Apply feedback to options
+      // Trigger feedback preparation
       this.prepareFeedback();
   
-      // Generate feedback text asynchronously
+      // Trigger feedback text generation
       this.quizQuestionComponent?.generateFeedbackText(question)
-        .then((feedbackText) => {
+        .then(feedbackText => {
           this.feedbackText = feedbackText;
-          console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', feedbackText);
+          console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('[loadQuestionByRouteIndex] Error generating feedback text:', error);
         });
   
       // Fetch explanation text
       this.fetchFormattedExplanationText(questionIndex);
     } catch (error) {
-      console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
+      console.error('[loadQuestionByRouteIndex] Error:', error);
     }
   }
+  
   
   
 
