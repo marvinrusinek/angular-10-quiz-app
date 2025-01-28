@@ -4294,53 +4294,38 @@ export class QuizQuestionComponent
   } */
   public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
-      console.log('[generateFeedbackText] Current question:', question);
+      console.log('[generateFeedbackText] Received question:', question);
       console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
   
-      // Validate question and options
-      if (!question || !question.options || question.options.length === 0) {
-        console.warn('[generateFeedbackText] Invalid question or options are missing.');
-        return 'No feedback available for this question.';
-      }
-  
+      // Ensure optionsToDisplay is initialized
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackText] optionsToDisplay is not set. Initializing from question options.');
-        this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
-  
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[generateFeedbackText] Failed to initialize optionsToDisplay. Returning fallback feedback.');
-          return 'Unable to generate feedback due to missing options.';
-        }
+        console.warn('[generateFeedbackText] optionsToDisplay is empty. Initializing...');
+        this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []);
+        console.log('[generateFeedbackText] Initialized optionsToDisplay:', this.optionsToDisplay);
       }
   
+      // Extract correct options
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      if (correctOptions.length === 0) {
+        console.warn('[generateFeedbackText] No correct options found.');
+        return 'No correct answers available for this question.';
+      }
       console.log('[generateFeedbackText] Correct options:', correctOptions);
   
-      if (correctOptions.length === 0) {
-        console.warn('[generateFeedbackText] No correct options found for this question.');
-        return 'No correct answers defined for this question.';
-      }
-  
+      // Generate feedback using the feedbackService
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       if (!feedbackText || feedbackText.trim() === '') {
-        console.warn('[generateFeedbackText] Feedback generation returned empty.');
+        console.warn('[generateFeedbackText] Feedback text generation returned empty.');
         return 'Feedback unavailable for this question.';
       }
   
-      console.log('[generateFeedbackText] Generated feedback text:', feedbackText);
+      console.log('[generateFeedbackText] Generated Feedback Text:', feedbackText);
       return feedbackText;
     } catch (error) {
       console.error('[generateFeedbackText] Error generating feedback:', error);
       return 'An error occurred while generating feedback.';
     }
   }
-  
-  
-  
-  
-  
-  
-  
 
   private resetTexts(): void {
     this.explanationTextSubject.next('');
