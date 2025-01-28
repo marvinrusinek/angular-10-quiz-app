@@ -4294,16 +4294,15 @@ export class QuizQuestionComponent
   } */
   public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
-      console.log('[generateFeedbackText] Question received:', question);
+      console.log('[generateFeedbackText] Current question:', question);
       console.log('[generateFeedbackText] Current optionsToDisplay:', this.optionsToDisplay);
   
-      // Validate question and its options
+      // Validate question and options
       if (!question || !question.options || question.options.length === 0) {
         console.warn('[generateFeedbackText] Invalid question or options are missing.');
-        return 'No feedback available for the current question.';
+        return 'No feedback available for this question.';
       }
   
-      // Ensure optionsToDisplay is valid
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[generateFeedbackText] optionsToDisplay is not set. Initializing from question options.');
         this.optionsToDisplay = this.quizService.assignOptionIds(question.options);
@@ -4314,31 +4313,28 @@ export class QuizQuestionComponent
         }
       }
   
-      // Extract correct options
-      const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      console.log('[generateFeedbackText] Correct options:', correctOptions);
+  
       if (correctOptions.length === 0) {
         console.warn('[generateFeedbackText] No correct options found for this question.');
         return 'No correct answers defined for this question.';
       }
   
-      // Generate feedback using feedbackService
       const feedbackText = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
       if (!feedbackText || feedbackText.trim() === '') {
-        console.info('[generateFeedbackText] Feedback generation returned empty. Using fallback.');
+        console.warn('[generateFeedbackText] Feedback generation returned empty.');
         return 'Feedback unavailable for this question.';
       }
   
-      // Emit feedback text
-      this.feedbackText = feedbackText;
-      this.feedbackTextChange.emit(this.feedbackText);
-      console.log('[generateFeedbackText] Feedback text emitted:', this.feedbackText);
-  
-      return this.feedbackText;
+      console.log('[generateFeedbackText] Generated feedback text:', feedbackText);
+      return feedbackText;
     } catch (error) {
       console.error('[generateFeedbackText] Error generating feedback:', error);
       return 'An error occurred while generating feedback.';
     }
   }
+  
   
   
   
