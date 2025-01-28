@@ -1411,7 +1411,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
-  loadQuestionByRouteIndex(questionIndex: number): void {
+  /* loadQuestionByRouteIndex(questionIndex: number): void {
     try {
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
@@ -1475,7 +1475,62 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
     }
+  } */
+  loadQuestionByRouteIndex(questionIndex: number): void {
+    try {
+      // Validate question index
+      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+        console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
+        return;
+      }
+  
+      // Get the current question
+      const question = this.quiz.questions[questionIndex];
+      this.questionToDisplay = question.questionText;
+  
+      // Assign option IDs dynamically and normalize options
+      this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
+        ...option,
+        feedback: undefined, // Reset feedback to allow reapplication
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+        correct: option.correct ?? false,
+        optionId: typeof option.optionId === 'number' ? option.optionId : optionIndex + 1,
+      }));
+  
+      console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
+  
+      // Apply feedback to options
+      try {
+        this.prepareFeedback(); // Apply feedback logic
+        console.log('[loadQuestionByRouteIndex] Feedback applied successfully.');
+      } catch (error) {
+        console.error('[loadQuestionByRouteIndex] Error applying feedback:', error);
+      }
+  
+      // Generate feedback text for the current question
+      this.quizQuestionComponent?.generateFeedbackText(question)
+        .then((feedbackText) => {
+          this.feedbackText = feedbackText;
+          console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', feedbackText);
+        })
+        .catch((error) => {
+          console.error('[loadQuestionByRouteIndex] Error generating feedback text:', error);
+        });
+  
+      // Fetch explanation text for the current question
+      try {
+        this.fetchFormattedExplanationText(questionIndex);
+        console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
+      } catch (error) {
+        console.error('[loadQuestionByRouteIndex] Error fetching explanation text:', error);
+      }
+    } catch (error) {
+      console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
+    }
   }
+  
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
