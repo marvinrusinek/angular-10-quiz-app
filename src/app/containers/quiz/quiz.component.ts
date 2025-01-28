@@ -38,6 +38,7 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none'; 
 
+
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
