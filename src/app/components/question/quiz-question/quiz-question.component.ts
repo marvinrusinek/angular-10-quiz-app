@@ -3172,7 +3172,7 @@ export class QuizQuestionComponent
         feedback: undefined,
         showIcon: false,
         selected: false,
-        optionId: index + 1 // Assign unique IDs if missing
+        optionId: index + 1 // Assign unique IDs
       }))
     );
   }
