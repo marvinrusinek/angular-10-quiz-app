@@ -2484,26 +2484,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Ensure options are available
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[checkIfAnswered] Options not available when checking for answer state.');
-      callback(false);
+      callback(false); // Return false if no options are loaded
       return;
     }
   
-    // Validate and normalize options
-    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-      ...option,
-      optionId: option.optionId ?? index + 1, // Assign a unique ID if missing
-    }));
-  
-    // Log undefined optionIds if any
+    // Validate option structure and log undefined optionIds
     const undefinedOptionIds = this.optionsToDisplay.filter((o) => o.optionId === undefined);
     if (undefinedOptionIds.length > 0) {
       console.error('[checkIfAnswered] Options with undefined optionId found:', undefinedOptionIds);
-      callback(false); // Abort the check since option structure is invalid
-      return;
     }
   
     // Check if at least one option is selected
-    const isAnyOptionSelected = this.selectedOptionService.getSelectedOptions().length > 0;
+    const isAnyOptionSelected = this.selectedOptionService.getSelectedOption() !== null;
   
     // Validate that all correct options are selected
     this.selectedOptionService
@@ -2524,7 +2516,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Return false in case of an error
         callback(false);
       });
-  }
+  }  
 
   private handleTimer(hasAnswered: boolean): void {
     // Stop the timer if the question is already answered
