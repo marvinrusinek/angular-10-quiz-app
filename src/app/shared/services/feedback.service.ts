@@ -45,7 +45,7 @@ export class FeedbackService {
       const rawOptionIds = correctOptions.map(option => option.optionId);
       console.log('[generateFeedbackForOptions] rawOptionIds:', rawOptionIds);
   
-      if (rawOptionIds.some(id => isNaN(id))) {
+      if (rawOptionIds.some(id => typeof id !== 'number' || isNaN(id))) {
         console.error('[generateFeedbackForOptions] Invalid optionId values:', rawOptionIds);
         return ['An error occurred while generating feedback.'];
       }
