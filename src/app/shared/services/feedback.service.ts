@@ -37,6 +37,12 @@ export class FeedbackService {
   } */
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
+      console.log(`\n===== DEBUG: Processing Question =====`);
+      console.log(`Total options to display: ${optionsToDisplay.length}`);
+      
+      // ✅ Log correct options BEFORE processing
+      console.log('Correct Options Before Processing:', correctOptions.map(o => ({ id: o.optionId, text: o.text })));
+  
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
         return Array(optionsToDisplay.length).fill('No correct answers available for this question.');
@@ -47,20 +53,18 @@ export class FeedbackService {
         return [];
       }
   
-      // ✅ Log the data for debugging
+      // ✅ Log options to display
       console.log('Options to Display:', optionsToDisplay.map(o => ({ id: o.optionId, text: o.text })));
-      console.log('Correct Options:', correctOptions.map(o => ({ id: o.optionId, text: o.text })));
   
       return optionsToDisplay.map(option => {
         const isCorrect = correctOptions.some(correct => correct.optionId === option.optionId);
         
+        // ✅ Log each option check
         console.log(`Checking Option ID ${option.optionId}: ${option.text} -> ${isCorrect ? 'Correct' : 'Incorrect'}`);
   
-        if (isCorrect) {
-          return `You're right! The correct answer is Option ${option.optionId}.`;
-        } else {
-          return 'Incorrect answer.';
-        }
+        return isCorrect 
+          ? `You're right! The correct answer is Option ${option.optionId}.`
+          : 'Incorrect answer.';
       });
   
     } catch (error) {
