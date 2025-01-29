@@ -37,48 +37,6 @@ export class FeedbackService {
     }
   }
   
-  
-  
-
-  /* setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    if (!correctOptions || !correctOptions.length) {
-      console.info('[setCorrectMessage] No correct options provided.');
-      return 'No correct answers available.';
-    }
-    
-    // Wait for data to be properly loaded
-    if (!optionsToDisplay?.length) {
-      console.info('[setCorrectMessage] Options not loaded yet. Retrying...');
-      return '';  // Return empty string instead of error message
-    }
-  
-    try {
-      // Filter valid options to ensure we have valid data
-      const validOptions = optionsToDisplay.filter(isValidOption);
-  
-      // Check if all options are valid
-      if (validOptions.length !== optionsToDisplay.length) {
-        return ''; // Return early if some options are not valid
-      }
-  
-      // Get indices of correct answers (1-based) and sort numerically
-      const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 }))
-        .filter(item => item.option.correct)
-        .map(item => item.index)
-        .sort((a, b) => a - b); // Numeric sorting
-      if (!indices.length) {
-        console.warn('No correct indices found');
-        return 'No correct answers found for the current question.';
-      }
-  
-      const result = this.formatFeedbackMessage(indices);
-      return result;
-    } catch (error) {
-      console.error('Error generating feedback:', error);
-      return '';  // Return empty string on error
-    }
-  } */
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       console.warn('[setCorrectMessage] No correct options provided.');
@@ -93,6 +51,8 @@ export class FeedbackService {
     try {
       // Filter valid options
       const validOptions = optionsToDisplay.filter(isValidOption);
+
+      // Get indices of correct answers (1-based) and sort numerically
       const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
         .filter(item => item.option.correct)
