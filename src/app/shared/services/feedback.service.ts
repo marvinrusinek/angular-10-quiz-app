@@ -5,7 +5,7 @@ import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackService {
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
@@ -34,7 +34,42 @@ export class FeedbackService {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
     }
+  } */
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+    try {
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[generateFeedbackForOptions] No correct options provided.');
+        return Array(optionsToDisplay.length).fill('No correct answers available for this question.');
+      }
+  
+      if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackForOptions] No options to display found.');
+        return [];
+      }
+  
+      // ✅ Use `setCorrectMessage` to get a single feedback string
+      const feedbackMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
+  
+      if (!feedbackMessage || feedbackMessage.trim() === '') {
+        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
+        
+        // ✅ Return one feedback message per option
+        return optionsToDisplay.map(option =>
+          correctOptions.some(correct => correct.optionId === option.optionId)
+            ? `You're right! The correct answer is: ${option.text}`
+            : 'Incorrect answer.'
+        );
+      }
+  
+      // ✅ If feedbackMessage is valid, duplicate it for each option
+      return Array(optionsToDisplay.length).fill(feedbackMessage);
+  
+    } catch (error) {
+      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
+    }
   }
+  
   
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
