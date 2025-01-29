@@ -25,12 +25,11 @@ export class FeedbackService {
         console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
         return optionsToDisplay.map((option) =>
           correctOptions.some((correct) => correct.optionId === option.optionId)
-            ? 'Correct answer!'
-            : 'Incorrect answer.'
+            ? 'Correct answer!' : 'Incorrect answer.'
         );
       }
   
-      return feedback.split(';');  // Assuming feedback is separated by ';'.
+      return [feedback];
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
@@ -72,7 +71,6 @@ export class FeedbackService {
       return ''; // Return empty string on error
     }
   }
-  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
