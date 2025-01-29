@@ -1425,24 +1425,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Assign option IDs dynamically and normalize options
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
-
-      // Validate question.options before proceeding
-      if (!question.options || question.options.length === 0) {
-        console.error('[loadQuestionByRouteIndex] No options available for the question:', question);
-        this.optionsToDisplay = [];
-        return; // Exit early if there are no options
-      }
+      console.log('[loadQuestionByRouteIndex] optionsWithIds:', optionsWithIds);
 
       this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
         ...option,
-        feedback: option.feedback ?? 'No feedback available.', // Default feedback
+        feedback: option.feedback ?? 'No feedback available.',
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
-        correct: !!option.correct, // Explicitly cast to boolean
-        optionId: typeof option.optionId === 'number'
+        correct: !!option.correct,
+        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
           ? option.optionId
-          : optionIndex + 1, // Fallback to 1-based index
+          : optionIndex + 1, // Fallback to 1-based index if optionId is invalid
       }));
   
       console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
