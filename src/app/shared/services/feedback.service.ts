@@ -47,28 +47,21 @@ export class FeedbackService {
         return [];
       }
   
-      // ✅ Use `setCorrectMessage` to get a single feedback string
-      const feedbackMessage = this.setCorrectMessage(correctOptions, optionsToDisplay);
-  
-      if (!feedbackMessage || feedbackMessage.trim() === '') {
-        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
-        
-        // ✅ Return one feedback message per option
-        return optionsToDisplay.map(option =>
-          correctOptions.some(correct => correct.optionId === option.optionId)
-            ? `You're right! The correct answer is: ${option.text}`
-            : 'Incorrect answer.'
-        );
-      }
-  
-      // ✅ If feedbackMessage is valid, duplicate it for each option
-      return Array(optionsToDisplay.length).fill(feedbackMessage);
+      // ✅ Generate per-option feedback
+      return optionsToDisplay.map(option => {
+        if (correctOptions.some(correct => correct.optionId === option.optionId)) {
+          return `You're right! The correct answer is Option ${option.optionId}.`;
+        } else {
+          return 'Incorrect answer.';
+        }
+      });
   
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
     }
   }
+  
   
   
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
