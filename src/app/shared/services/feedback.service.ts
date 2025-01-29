@@ -39,39 +39,31 @@ export class FeedbackService {
     try {
       console.log(`\n===== DEBUG: Processing Question =====`);
       console.log(`Total options to display: ${optionsToDisplay.length}`);
-      
-      // ✅ Log correct options BEFORE processing
-      console.log('Correct Options Before Processing:', correctOptions.map(o => ({ id: o.optionId, text: o.text })));
-  
-      if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[generateFeedbackForOptions] No correct options provided.');
-        return Array(optionsToDisplay.length).fill('No correct answers available for this question.');
-      }
-  
-      if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackForOptions] No options to display found.');
-        return [];
-      }
-  
-      // ✅ Log options to display
+      console.log('Correct Option IDs:', correctOptions.map(o => o.optionId));
       console.log('Options to Display:', optionsToDisplay.map(o => ({ id: o.optionId, text: o.text })));
   
-      return optionsToDisplay.map(option => {
-        const isCorrect = correctOptions.some(correct => correct.optionId === option.optionId);
-        
-        // ✅ Log each option check
-        console.log(`Checking Option ID ${option.optionId}: ${option.text} -> ${isCorrect ? 'Correct' : 'Incorrect'}`);
+      // ✅ Call `setCorrectMessage` to generate feedback message
+      const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
-        return isCorrect 
-          ? `You're right! The correct answer is Option ${option.optionId}.`
-          : 'Incorrect answer.';
-      });
+      if (!correctFeedback || correctFeedback.trim() === '') {
+        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
+        
+        // ✅ Provide per-option feedback
+        return optionsToDisplay.map(option =>
+          correctOptions.some(correct => correct.optionId === option.optionId)
+            ? `You're right! The correct answer is Option ${option.optionId}.`
+            : 'Incorrect answer.'
+        );
+      }
+  
+      return [correctFeedback]; // ✅ Return formatted feedback from `setCorrectMessage`
   
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
     }
   }
+  
   
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
