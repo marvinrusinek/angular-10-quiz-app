@@ -959,7 +959,7 @@ export class QuizQuestionComponent
     }
   }  
 
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
       this.currentQuestion = this.quizService.currentQuestion.getValue();
   
@@ -983,6 +983,7 @@ export class QuizQuestionComponent
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+  
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
           return;
@@ -1003,10 +1004,17 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Step 4: Apply feedback and update optionsToDisplay
+      console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
+  
+      // Step 4: Validate feedback list length
+      if (feedbackList.length !== this.optionsToDisplay.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Applying default feedback...');
+      }
+  
+      // Step 5: Apply feedback and update optionsToDisplay
       this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
         ...option,
-        feedback: feedbackList[index] || (option.correct ? 'Correct answer!' : 'Incorrect answer.'),
+        feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
         showIcon: option.correct || option.selected,
         highlight: option.selected,
       }));
