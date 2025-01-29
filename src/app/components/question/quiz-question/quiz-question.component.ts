@@ -1007,8 +1007,17 @@ export class QuizQuestionComponent
       console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
   
       // ✅ Step 4: Validate feedback list length
-      if (feedbackList.length !== this.optionsToDisplay.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Applying default feedback...');
+      if (!feedbackList || feedbackList.length !== this.optionsToDisplay.length) {
+        console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}. Applying default feedback...`);
+  
+        // Fix: Ensure every option gets a feedback message
+        this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+          ...option,
+          feedback: correctOptions.some(correct => correct.optionId === option.optionId)
+            ? `You're right! The correct answer is Option ${option.optionId}.`
+            : 'Incorrect answer.',
+        }));
+        return;
       }
   
       // ✅ Step 5: Apply feedback and update optionsToDisplay
