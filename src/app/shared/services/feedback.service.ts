@@ -12,13 +12,13 @@ export class FeedbackService {
       console.log('Correct Option IDs:', correctOptions.map(o => o.optionId));
       console.log('Options to Display:', optionsToDisplay.map(o => ({ id: o.optionId, text: o.text })));
   
-      // ✅ Call `setCorrectMessage` to generate feedback message
+      // Call `setCorrectMessage` to generate feedback message
       const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
       if (!correctFeedback || correctFeedback.trim() === '') {
         console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
         
-        // ✅ Provide per-option feedback
+        // Provide per-option feedback
         return optionsToDisplay.map(option =>
           correctOptions.some(correct => correct.optionId === option.optionId)
             ? `You're right! The correct answer is Option ${option.optionId}.`
@@ -26,14 +26,13 @@ export class FeedbackService {
         );
       }
   
-      return [correctFeedback]; // ✅ Return formatted feedback from `setCorrectMessage`
+      return [correctFeedback]; // Return formatted feedback from `setCorrectMessage`
   
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
     }
   }
-  
   
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
