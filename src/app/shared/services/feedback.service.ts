@@ -49,7 +49,7 @@ export class FeedbackService {
   
     try {
       // Filter valid options
-      const validOptions = optionsToDisplay.filter(isValidOption);
+      const validOptions = optionsToDisplay.filter(option => this.isValidOption(option) && option.optionId !== undefined);
 
       // Get indices of correct answers (1-based) and sort numerically
       const indices = validOptions
