@@ -47,13 +47,11 @@ export class FeedbackService {
         return [];
       }
   
-      // ✅ Generate per-option feedback
       return optionsToDisplay.map(option => {
-        if (correctOptions.some(correct => correct.optionId === option.optionId)) {
-          return `You're right! The correct answer is Option ${option.optionId}.`;
-        } else {
-          return 'Incorrect answer.';
-        }
+        const isCorrect = correctOptions.some(correct => correct.optionId === option.optionId);
+        return isCorrect 
+          ? `You're right! The correct answer is Option ${option.optionId + 1}.`
+          : 'Incorrect answer.';
       });
   
     } catch (error) {
@@ -61,6 +59,7 @@ export class FeedbackService {
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
     }
   }
+  
   
   
   
