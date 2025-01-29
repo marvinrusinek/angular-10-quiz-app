@@ -40,7 +40,16 @@ export class FeedbackService {
     try {
       console.log('[generateFeedbackForOptions] correctOptions:', correctOptions);
       console.log('[generateFeedbackForOptions] optionsToDisplay:', optionsToDisplay);
-
+  
+      // Validate correct options
+      const rawOptionIds = correctOptions.map(option => option.optionId);
+      console.log('[generateFeedbackForOptions] rawOptionIds:', rawOptionIds);
+  
+      if (rawOptionIds.some(id => isNaN(id))) {
+        console.error('[generateFeedbackForOptions] Invalid optionId values:', rawOptionIds);
+        return ['An error occurred while generating feedback.'];
+      }
+  
       // Ensure correct options and options to display are present
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] No correct options provided.');
@@ -52,7 +61,7 @@ export class FeedbackService {
         return ['No options available to generate feedback for.'];
       }
   
-      // Generate feedback using setCorrectMessage, which will provide specific feedback
+      // Generate feedback using setCorrectMessage
       const feedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
       if (!feedback || feedback.trim() === '') {
@@ -64,12 +73,13 @@ export class FeedbackService {
         );
       }
   
-      return feedback.split(';');  // Assuming feedback is separated by ';'.
+      return feedback.split(';'); // Assuming feedback is separated by ';'.
     } catch (error) {
       console.error('[generateFeedbackForOptions] Error generating feedback:', error);
       return ['An error occurred while generating feedback. Please try again.'];
     }
   }
+  
   
   
 
