@@ -47,11 +47,18 @@ export class FeedbackService {
         return [];
       }
   
+      // ✅ Log to debug incorrect mappings
+      console.log('Options to Display:', optionsToDisplay.map(o => ({ id: o.optionId, text: o.text })));
+      console.log('Correct Options:', correctOptions.map(o => ({ id: o.optionId, text: o.text })));
+  
       return optionsToDisplay.map(option => {
         const isCorrect = correctOptions.some(correct => correct.optionId === option.optionId);
-        return isCorrect 
-          ? `You're right! The correct answer is Option ${option.optionId + 1}.`
-          : 'Incorrect answer.';
+        
+        if (isCorrect) {
+          return `You're right! The correct answer is Option ${option.optionId}.`;
+        } else {
+          return 'Incorrect answer.';
+        }
       });
   
     } catch (error) {
@@ -59,8 +66,6 @@ export class FeedbackService {
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
     }
   }
-  
-  
   
   
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
