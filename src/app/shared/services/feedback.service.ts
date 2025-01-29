@@ -78,7 +78,7 @@ export class FeedbackService {
   }
   
   
-  /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       console.warn('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
@@ -108,45 +108,6 @@ export class FeedbackService {
       const result = this.formatFeedbackMessage(indices);
       console.log('[setCorrectMessage] Generated feedback:', result);
       return result;
-    } catch (error) {
-      console.error('[setCorrectMessage] Error generating feedback:', error);
-      return ''; // Return empty string on error
-    }
-  } */
-  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    if (!correctOptions || correctOptions.length === 0) {
-      console.warn('[setCorrectMessage] No correct options provided.');
-      return 'No correct answers available.';
-    }
-  
-    if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.warn('[setCorrectMessage] optionsToDisplay is missing.');
-      return ''; // Return an empty string
-    }
-  
-    try {
-      // ✅ Step 1: Ensure all options are included
-      const validOptions = optionsToDisplay.filter(option => option && option.optionId !== undefined);
-      const indices = validOptions
-        .map((option, index) => ({ option, index: index + 1 }))
-        .filter(item => item.option.correct)
-        .map(item => item.index)
-        .sort((a, b) => a - b);
-  
-      if (!indices.length) {
-        console.warn('[setCorrectMessage] No matching correct options found.');
-        return ''; // No correct options found
-      }
-  
-      // ✅ Step 2: Ensure the function returns feedback for all options
-      const result = validOptions.map(option =>
-        correctOptions.some(correct => correct.optionId === option.optionId)
-          ? `You're right! The correct answer is Option ${option.optionId}.`
-          : 'Incorrect answer.'
-      );
-  
-      console.log('[setCorrectMessage] Generated feedback:', result);
-      return result.join(';'); // Ensure feedback is properly formatted for splitting
     } catch (error) {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
