@@ -1411,7 +1411,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
-  async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
+  /* async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
@@ -1465,6 +1465,76 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.markForCheck();
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] Error loading question:', error);
+    }
+  } */
+  async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
+    try {
+      // Validate question index
+      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+        console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
+        return;
+      }
+  
+      // Get the current question
+      const question = this.quiz.questions[questionIndex];
+      this.questionToDisplay = question.questionText;
+  
+      // Assign option IDs dynamically and normalize options
+      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+      
+      // Create immutable copy with Object.freeze to prevent race conditions
+      const initialOptions = Object.freeze(optionsWithIds.map((option, optionIndex) => ({
+        ...option,
+        feedback: option.feedback ?? 'No feedback available.',
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+        correct: !!option.correct,
+        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
+          ? option.optionId
+          : optionIndex + 1,
+      })));
+  
+      // Assign in single operation
+      this.optionsToDisplay = [...initialOptions];
+      console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
+  
+      // Check for correct answers
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      if (!correctOptions.length) {
+        console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
+      }
+  
+      // Apply feedback synchronously
+      console.log('[loadQuestionByRouteIndex] Applying feedback...');
+      await this.prepareFeedback();
+  
+      // Parallel async operations with error isolation
+      const [feedbackResult, explanationResult] = await Promise.allSettled([
+        this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
+        this.fetchFormattedExplanationText(questionIndex)
+      ]);
+  
+      // Handle feedback generation result
+      if (feedbackResult.status === 'fulfilled') {
+        this.feedbackText = feedbackResult.value;
+        console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
+      } else {
+        console.error('[loadQuestionByRouteIndex] Feedback generation failed:', feedbackResult.reason);
+        this.feedbackText = 'Could not generate feedback. Please try again.';
+      }
+  
+      // Handle explanation fetch result
+      if (explanationResult.status === 'rejected') {
+        console.error('[loadQuestionByRouteIndex] Explanation fetch failed:', explanationResult.reason);
+      }
+  
+      // Force UI update
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.error('[loadQuestionByRouteIndex] Error loading question:', error);
+      this.feedbackText = 'Error loading question details.';
+      this.cdRef.markForCheck();
     }
   }
 
