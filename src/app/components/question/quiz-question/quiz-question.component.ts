@@ -961,6 +961,8 @@ export class QuizQuestionComponent
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
+      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
+
       this.currentQuestion = this.quizService.currentQuestion.getValue();
 
       // Ensure currentQuestion is loaded
@@ -998,8 +1000,12 @@ export class QuizQuestionComponent
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
       }
 
-      // ✅ Wrap `feedbackList` generation inside `setTimeout`
+      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+
+      // Wrap `feedbackList` generation inside `setTimeout`
       setTimeout(() => {
+        console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
+
         const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
         if (!feedbackList || feedbackList.length === 0) {
@@ -1018,20 +1024,23 @@ export class QuizQuestionComponent
             ...option,
             feedback: correctOptions.some(correct => correct.optionId === option.optionId)
               ? `You're right! The correct answer is Option ${option.optionId}.`
-              : 'Incorrect answer.',
+              : 'Incorrect answer.'
           }));
           return;
         }
 
-        // ✅ Apply feedback and update optionsToDisplay
+        // Apply feedback and update optionsToDisplay
         this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
           ...option,
           feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
           showIcon: option.correct || option.selected,
-          highlight: option.selected,
+          highlight: option.selected
         }));
 
-        console.log('[applyOptionFeedbackToAllOptions] Feedback successfully applied:', this.optionsToDisplay);
+        console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
+
+        // Force UI update to ensure changes are detected
+        this.cdRef.detectChanges();
 
       }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
 
