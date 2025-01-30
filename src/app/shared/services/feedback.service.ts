@@ -7,12 +7,6 @@ import { isValidOption } from '../../shared/utils/option-utils';
 export class FeedbackService {
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
-      console.log(`\n===== DEBUG: Processing Question =====`);
-      console.log(`Total options to display: ${optionsToDisplay.length}`);
-      console.log('Correct Option IDs:', correctOptions.map(o => o.optionId));
-      console.log('Options to Display:', optionsToDisplay.map(o => ({ id: o.optionId, text: o.text })));
-  
-      // Call `setCorrectMessage` to generate feedback message
       const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
   
       if (!correctFeedback || correctFeedback.trim() === '') {
