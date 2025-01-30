@@ -971,7 +971,7 @@ export class QuizQuestionComponent
           console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
+            currentQuestion: this.currentQuestion
           });
           return;
         }
@@ -1036,7 +1036,7 @@ export class QuizQuestionComponent
       console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
         currentQuestionIndex: this.currentQuestionIndex,
         questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion,
+        currentQuestion: this.currentQuestion
       });
     }
   }
