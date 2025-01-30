@@ -1541,80 +1541,79 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-        console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
+      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
 
-        // ✅ Validate question index
-        if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
-            console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
-            return;
-        }
+      // Validate question index
+      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+        console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
+        return;
+      }
 
-        // ✅ Get the current question
-        const question = this.quiz.questions[questionIndex];
-        this.questionToDisplay = question.questionText;
+      // Get the current question
+      const question = this.quiz.questions[questionIndex];
+      this.questionToDisplay = question.questionText;
 
-        // ✅ Assign option IDs dynamically and normalize options
-        const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+      // Assign option IDs dynamically and normalize options
+      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
         
-        // ✅ Create immutable copy to prevent race conditions
-        this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
-            ...option,
-            feedback: 'Loading feedback...',
-            showIcon: option.showIcon ?? false,
-            active: option.active ?? true,
-            selected: option.selected ?? false,
-            correct: !!option.correct,
-            optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
-                ? option.optionId
-                : optionIndex + 1,
-        }));
+      // Create immutable copy to prevent race conditions
+      this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
+        ...option,
+        feedback: 'Loading feedback...',
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+        correct: !!option.correct,
+        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
+          ? option.optionId
+          : optionIndex + 1,
+      }));
 
-        console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
+      console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
 
-        // ✅ Check for correct answers
-        const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-        if (!correctOptions.length) {
-            console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
-        } else {
-            console.log('[loadQuestionByRouteIndex] Correct options identified:', correctOptions);
-        }
+      // Check for correct answers
+      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+      if (!correctOptions.length) {
+        console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
+      } else {
+        console.log('[loadQuestionByRouteIndex] Correct options identified:', correctOptions);
+      }
 
-        // ✅ Ensure feedback is generated **AFTER** options are fully initialized
-        setTimeout(() => {
-            console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            this.applyOptionFeedbackToAllOptions();
-        }, 100);
+      // Ensure feedback is generated **AFTER** options are fully initialized
+      setTimeout(() => {
+        console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
+        this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+      }, 100);
 
-        // ✅ Fetch explanation text and feedback in parallel
-        const [feedbackResult, explanationResult] = await Promise.allSettled([
-            this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
-            this.fetchFormattedExplanationText(questionIndex)
-        ]);
+      // Fetch explanation text and feedback in parallel
+      const [feedbackResult, explanationResult] = await Promise.allSettled([
+        this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
+        this.fetchFormattedExplanationText(questionIndex)
+      ]);
 
-        // ✅ Handle feedback generation result
-        if (feedbackResult.status === 'fulfilled') {
-            this.feedbackText = feedbackResult.value;
-            console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
-        } else {
-            console.error('[loadQuestionByRouteIndex] Feedback generation failed:', feedbackResult.reason);
-            this.feedbackText = 'Could not generate feedback. Please try again.';
-        }
+      // Handle feedback generation result
+      if (feedbackResult.status === 'fulfilled') {
+        this.feedbackText = feedbackResult.value;
+        console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
+      } else {
+        console.error('[loadQuestionByRouteIndex] Feedback generation failed:', feedbackResult.reason);
+        this.feedbackText = 'Could not generate feedback. Please try again.';
+      }
 
-        // ✅ Handle explanation fetch result
-        if (explanationResult.status === 'rejected') {
-            console.error('[loadQuestionByRouteIndex] Explanation fetch failed:', explanationResult.reason);
-        }
+      // Handle explanation fetch result
+      if (explanationResult.status === 'rejected') {
+        console.error('[loadQuestionByRouteIndex] Explanation fetch failed:', explanationResult.reason);
+      }
 
-        // ✅ Ensure UI updates
-        setTimeout(() => {
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
-        }, 200);
-
-    } catch (error) {
-        console.error('[loadQuestionByRouteIndex] Error loading question:', error);
-        this.feedbackText = 'Error loading question details.';
+      // Ensure UI updates
+      setTimeout(() => {
+        this.cdRef.detectChanges();
         this.cdRef.markForCheck();
+      }, 200);
+    } catch (error) {
+      console.error('[loadQuestionByRouteIndex] Error loading question:', error);
+      this.feedbackText = 'Error loading question details.';
+      this.cdRef.markForCheck();
     }
   }
 
