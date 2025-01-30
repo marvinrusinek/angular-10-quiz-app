@@ -963,7 +963,7 @@ export class QuizQuestionComponent
     try {
       this.currentQuestion = this.quizService.currentQuestion.getValue();
   
-      // ✅ Step 1: Ensure currentQuestion is loaded
+      // Ensure currentQuestion is loaded
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const questionReloaded = await this.loadQuestion();
@@ -979,7 +979,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
   
-      // ✅ Step 2: Ensure optionsToDisplay is populated
+      // Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
         this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
@@ -992,7 +992,7 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
   
-      // ✅ Step 3: Identify correct options and generate feedback
+      // Identify correct options and generate feedback
       const correctOptions = this.optionsToDisplay.filter((option) => option.correct);
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
@@ -1006,11 +1006,11 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
   
-      // ✅ Step 4: Validate feedback list length
+      // Validate feedback list length
       if (!feedbackList || feedbackList.length !== this.optionsToDisplay.length) {
         console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}. Applying default feedback...`);
   
-        // Fix: Ensure every option gets a feedback message
+        // Ensure every option gets a feedback message
         this.optionsToDisplay = this.optionsToDisplay.map(option => ({
           ...option,
           feedback: correctOptions.some(correct => correct.optionId === option.optionId)
@@ -1020,7 +1020,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      // ✅ Step 5: Apply feedback and update optionsToDisplay
+      // Apply feedback and update optionsToDisplay
       setTimeout(() => {
         this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
           ...option,
