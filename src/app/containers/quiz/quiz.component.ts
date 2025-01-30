@@ -1411,7 +1411,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function loads the question corresponding to the provided index.
   // It sets the current question and options to display based on the index.
-  loadQuestionByRouteIndex(questionIndex: number): void {
+  async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
@@ -1425,9 +1425,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Assign option IDs dynamically and normalize options
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
-      console.log('[loadQuestionByRouteIndex] optionsWithIds:', optionsWithIds);
-
-      this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
+      
+      // Create immutable copy with Object.freeze to prevent race conditions
+      const initialOptions = Object.freeze(optionsWithIds.map((option, optionIndex) => ({
         ...option,
         feedback: option.feedback ?? 'No feedback available.',
         showIcon: option.showIcon ?? false,
@@ -1436,44 +1436,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correct: !!option.correct,
         optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
           ? option.optionId
-          : optionIndex + 1, // Fallback to 1-based index if optionId is invalid
-      }));
+          : optionIndex + 1,
+      })));
   
+      // Assign in single operation
+      this.optionsToDisplay = [...initialOptions];
       console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
   
       // Check for correct answers
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
       if (!correctOptions.length) {
         console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
-      } else {
-        console.log('[loadQuestionByRouteIndex] Correct Options:', correctOptions);
       }
   
-      // Apply feedback after ensuring options are initialized
-      setTimeout(() => {
-        console.log('[loadQuestionByRouteIndex] Applying feedback...');
-        this.prepareFeedback();
-      }, 50); // Small delay to ensure options are fully initialized before applying feedback
+      // Apply feedback synchronously
+      console.log('[loadQuestionByRouteIndex] Applying feedback...');
+      await this.prepareFeedback(); // Make prepareFeedback async if needed
   
-      // Generate feedback text for the current question
-      this.quizQuestionComponent?.generateFeedbackText(question)
-        .then((feedbackText) => {
-          this.feedbackText = feedbackText;
-          console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', feedbackText);
-        })
-        .catch((error) => {
-          console.error('[loadQuestionByRouteIndex] Error generating feedback text:', error);
-        });
+      // Generate feedback text using Angular's async pipe pattern
+      this.feedbackText = await this.quizQuestionComponent?.generateFeedbackText(question);
+      console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
   
-      // Fetch explanation text for the current question
-      try {
-        this.fetchFormattedExplanationText(questionIndex);
-        console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
-      } catch (error) {
-        console.error('[loadQuestionByRouteIndex] Error fetching explanation text:', error);
-      }
+      // Fetch explanation text
+      await this.fetchFormattedExplanationText(questionIndex);
+      console.log('[loadQuestionByRouteIndex] Explanation text fetched successfully.');
+  
+      // Force UI update
+      this.cdRef.markForCheck();
     } catch (error) {
-      console.error('[loadQuestionByRouteIndex] Error loading question by route index:', error);
+      console.error('[loadQuestionByRouteIndex] Error loading question:', error);
     }
   }
 
