@@ -1566,7 +1566,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correct: !!option.correct,
         optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
           ? option.optionId
-          : optionIndex + 1,
+          : optionIndex + 1
       }));
 
       console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
