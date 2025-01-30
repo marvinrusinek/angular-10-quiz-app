@@ -1490,13 +1490,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correct: !!option.correct,
         optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
           ? option.optionId
-          : optionIndex + 1,
+          : optionIndex + 1
       })));
 
       this.optionsToDisplay = [...initialOptions];
       console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
 
-      // ✅ Check for correct answers
+      // Check for correct answers
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
       if (!correctOptions.length) {
         console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
@@ -1504,13 +1504,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionByRouteIndex] Correct options identified:', correctOptions);
       }
 
-      // ✅ Parallel async operations with error isolation
+      // Parallel async operations with error isolation
       const [feedbackResult, explanationResult] = await Promise.allSettled([
         this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
         this.fetchFormattedExplanationText(questionIndex)
       ]);
 
-      // ✅ Handle feedback generation result
+      // Handle feedback generation result
       if (feedbackResult.status === 'fulfilled') {
         this.feedbackText = feedbackResult.value;
         console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
@@ -1519,18 +1519,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.feedbackText = 'Could not generate feedback. Please try again.';
       }
 
-      // ✅ Handle explanation fetch result
+      // Handle explanation fetch result
       if (explanationResult.status === 'rejected') {
         console.error('[loadQuestionByRouteIndex] Explanation fetch failed:', explanationResult.reason);
       }
 
-      // ✅ Apply option feedback **AFTER** options and correct answers are fully initialized
+      // Apply option feedback **AFTER** options and correct answers are fully initialized
       setTimeout(() => {
         console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-        this.applyOptionFeedbackToAllOptions();
+        this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
       }, 100);
 
-      // ✅ Ensure UI updates
+      // Ensure UI updates
       this.cdRef.markForCheck();
 
     } catch (error) {
