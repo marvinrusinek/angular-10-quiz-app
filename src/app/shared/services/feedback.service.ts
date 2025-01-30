@@ -55,9 +55,8 @@ export class FeedbackService {
         return ''; // No correct options found
       }
   
-      const result = this.formatFeedbackMessage(indices);
-      console.log('[setCorrectMessage] Generated feedback:', result);
-      return result;
+      // Generate proper feedback message
+      return this.formatFeedbackMessage(indices);
     } catch (error) {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
