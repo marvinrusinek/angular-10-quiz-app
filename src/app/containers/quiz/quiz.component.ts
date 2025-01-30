@@ -2545,57 +2545,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuestionDisplayState();
 
     try {
-        // ✅ Load questions for the quiz
-        const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      // Load questions for the quiz
+      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
 
-        if (questions && questions.length > 0) {
-            // ✅ Set first question data immediately
-            this.questions = questions;
-            this.currentQuestion = questions[0];
-            this.currentQuestionIndex = 0;
-            this.questionToDisplay = this.currentQuestion.questionText;
+      if (questions && questions.length > 0) {
+        // Set first question data immediately
+        this.questions = questions;
+        this.currentQuestion = questions[0];
+        this.currentQuestionIndex = 0;
+        this.questionToDisplay = this.currentQuestion.questionText;
 
-            // ✅ Assign optionIds
-            this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-            this.optionsToDisplay = this.currentQuestion.options;
+        // Assign optionIds
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+        this.optionsToDisplay = this.currentQuestion.options;
 
-            // ✅ Ensure options are fully loaded
-            await this.ensureOptionsLoaded();
+        // Ensure options are fully loaded
+        await this.ensureOptionsLoaded();
 
-            // ✅ Check for missing optionIds
-            const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
-            if (missingOptionIds.length > 0) {
-                console.error('Options with undefined optionId found:', missingOptionIds);
-            } else {
-                console.log('All options have valid optionIds.');
-            }
-
-            // ✅ Force Angular to recognize the new options
-            this.cdRef.detectChanges();
-
-            // ✅ Apply feedback for the first question **after options are fully assigned**
-            setTimeout(() => {
-                console.log('[initializeFirstQuestion] Applying feedback for first question...');
-                this.applyOptionFeedbackToAllOptions();
-            }, 100);
-
-            // ✅ Call checkIfAnswered() to track answered state
-            setTimeout(() => {
-                this.checkIfAnswered((hasAnswered) => {
-                    this.handleTimer(hasAnswered);
-                });
-            }, 150);
-
-            // ✅ Ensure UI updates properly
-            setTimeout(() => {
-                this.cdRef.markForCheck();
-            }, 200);
+        // Check for missing optionIds
+        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIds.length > 0) {
+          console.error('Options with undefined optionId found:', missingOptionIds);
         } else {
-            console.warn('No questions available for this quiz.');
-            this.handleNoQuestionsAvailable();
+          console.log('All options have valid optionIds.');
         }
+
+        // Force Angular to recognize the new options
+        this.cdRef.detectChanges();
+
+        // Apply feedback for the first question after options are fully assigned
+        setTimeout(() => {
+          console.log('[initializeFirstQuestion] Applying feedback for first question...');
+          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+        }, 100);
+
+        // Call checkIfAnswered() to track answered state
+        setTimeout(() => {
+          this.checkIfAnswered((hasAnswered) => {
+            this.handleTimer(hasAnswered);
+          });
+        }, 150);
+
+        // Ensure UI updates properly
+        setTimeout(() => {
+          this.cdRef.markForCheck();
+        }, 200);
+      } else {
+        console.warn('No questions available for this quiz.');
+        this.handleNoQuestionsAvailable();
+      }
     } catch (err) {
-        console.error('Error initializing first question:', err);
+      console.error('Error initializing first question:', err);
     }
   }
   
