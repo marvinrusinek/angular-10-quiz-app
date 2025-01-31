@@ -2575,8 +2575,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Apply feedback for the first question after options are fully assigned
         setTimeout(() => {
-          console.log('[initializeFirstQuestion] Applying feedback for first question...');
-          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+          if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+            console.log('[initializeFirstQuestion] ✅ Applying feedback for first question...');
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+          } else {
+            console.warn('[initializeFirstQuestion] ❌ Skipping applyOptionFeedbackToAllOptions because optionsToDisplay is empty.');
+          }
         }, 100);
 
         // Call checkIfAnswered() to track answered state
