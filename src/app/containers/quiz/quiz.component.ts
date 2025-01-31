@@ -2601,7 +2601,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Error initializing first question:', err);
     }
   }
-
   
   // Check if an answer has been selected for the first question.
   checkIfAnswered(callback: (result: boolean) => void = () => {}): void {
