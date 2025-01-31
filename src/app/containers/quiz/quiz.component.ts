@@ -1,3 +1,4 @@
+
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -1498,9 +1499,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
         }
 
-        // ✅ Reset `optionsToDisplay` before loading new question
-        this.optionsToDisplay = [];
-
         // ✅ Get the current question
         const question = this.quiz.questions[questionIndex];
         this.questionToDisplay = question.questionText;
@@ -1508,28 +1506,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Assign option IDs dynamically and normalize options
         const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
         
-        // ✅ Ensure fresh data is used to avoid stale state issues
+        // ✅ Create immutable copy to prevent race conditions
         this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
             ...option,
             feedback: 'Loading feedback...',
-            showIcon: false,
+            showIcon: option.showIcon ?? false,
             active: option.active ?? true,
-            selected: false,
+            selected: option.selected ?? false,
             correct: !!option.correct,
             optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
                 ? option.optionId
-                : optionIndex + 1
+                : optionIndex + 1,
         }));
 
         console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
 
-        // ✅ Ensure feedback is applied AFTER options are fully initialized
+        // ✅ Ensure feedback is generated **AFTER** options are fully initialized
         setTimeout(() => {
             console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
             this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }, 100);
 
-        // ✅ Ensure UI updates to reflect feedback
+        // ✅ Ensure UI updates
         setTimeout(() => {
             this.cdRef.detectChanges();
             this.cdRef.markForCheck();
@@ -1540,6 +1538,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.markForCheck();
     }
   }
+
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
@@ -2546,59 +2545,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuestionDisplayState();
 
     try {
-        console.log('[initializeFirstQuestion] Initializing first question...');
+      // Load questions for the quiz
+      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
 
-        // ✅ Load questions for the quiz
-        const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
+      if (questions && questions.length > 0) {
+        // Set first question data immediately
+        this.questions = questions;
+        this.currentQuestion = questions[0];
+        this.currentQuestionIndex = 0;
+        this.questionToDisplay = this.currentQuestion.questionText;
 
-        if (questions && questions.length > 0) {
-            // ✅ Set first question data immediately
-            this.questions = questions;
-            this.currentQuestion = questions[0];
-            this.currentQuestionIndex = 0;
-            this.questionToDisplay = this.currentQuestion.questionText;
+        // Assign optionIds
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+        this.optionsToDisplay = this.currentQuestion.options;
 
-            // ✅ Reset `optionsToDisplay` to prevent stale state
-            this.optionsToDisplay = [];
+        // Ensure options are fully loaded
+        await this.ensureOptionsLoaded();
 
-            // ✅ Assign optionIds and populate options
-            this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-            this.optionsToDisplay = [...this.currentQuestion.options];
-
-            // ✅ Ensure options are fully loaded
-            await this.ensureOptionsLoaded();
-
-            // ✅ Double-check that `optionsToDisplay` has valid optionIds
-            const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
-            if (missingOptionIds.length > 0) {
-                console.error('Options with undefined optionId found:', missingOptionIds);
-            } else {
-                console.log('All options have valid optionIds.');
-            }
-
-            // ✅ Force Angular to recognize the new options
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
-
-            // ✅ Apply feedback **AFTER** ensuring options are ready
-            setTimeout(() => {
-                console.log('[initializeFirstQuestion] Applying feedback for first question...');
-                this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-            }, 150);
-
-            // ✅ Call checkIfAnswered() to track answered state
-            setTimeout(() => {
-                this.checkIfAnswered((hasAnswered) => {
-                    this.handleTimer(hasAnswered);
-                });
-            }, 200);
-
+        // Check for missing optionIds
+        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIds.length > 0) {
+          console.error('Options with undefined optionId found:', missingOptionIds);
         } else {
-            console.warn('No questions available for this quiz.');
-            this.handleNoQuestionsAvailable();
+          console.log('All options have valid optionIds.');
         }
+
+        // Force Angular to recognize the new options
+        this.cdRef.detectChanges();
+
+        // Apply feedback for the first question after options are fully assigned
+        setTimeout(() => {
+          console.log('[initializeFirstQuestion] Applying feedback for first question...');
+          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+        }, 100);
+
+        // Call checkIfAnswered() to track answered state
+        setTimeout(() => {
+          this.checkIfAnswered((hasAnswered) => {
+            this.handleTimer(hasAnswered);
+          });
+        }, 150);
+
+        // Ensure UI updates properly
+        setTimeout(() => {
+          this.cdRef.markForCheck();
+        }, 200);
+      } else {
+        console.warn('No questions available for this quiz.');
+        this.handleNoQuestionsAvailable();
+      }
     } catch (err) {
-        console.error('Error initializing first question:', err);
+      console.error('Error initializing first question:', err);
     }
   }
   
