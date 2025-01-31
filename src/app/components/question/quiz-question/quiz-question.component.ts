@@ -33,7 +33,7 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent
   extends BaseQuestionComponent
@@ -1091,7 +1091,13 @@ export class QuizQuestionComponent
         console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
       }
 
-      // ✅ Apply feedback with a slight delay to avoid race conditions
+      // ✅ Reset previous feedback
+      this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+        ...option,
+        feedback: '',
+      }));
+
+      // ✅ Apply feedback
       setTimeout(() => {
         console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
 
@@ -1124,13 +1130,6 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
-        // ✅ **Failsafe: Apply feedback AGAIN after 200ms to catch any missed cases**
-        setTimeout(() => {
-          console.log('[applyOptionFeedbackToAllOptions] Re-applying feedback after 200ms to ensure it sticks.');
-          this.cdRef.detectChanges();
-          this.cdRef.markForCheck();
-        }, 200);
-
       }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
 
     } catch (error) {
@@ -1141,7 +1140,6 @@ export class QuizQuestionComponent
       });
     }
   }
-
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
