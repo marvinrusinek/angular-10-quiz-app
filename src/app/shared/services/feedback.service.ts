@@ -59,7 +59,7 @@ export class FeedbackService {
   
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
       console.warn('[setCorrectMessage] optionsToDisplay is missing.');
-      return ''; // Return an empty string
+      return 'Feedback unavailable.';
     }
   
     try {
