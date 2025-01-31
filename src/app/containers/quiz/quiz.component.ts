@@ -1410,7 +1410,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // This function loads the question corresponding to the provided index.
-  async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
+  /* async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
       console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
 
@@ -1486,7 +1486,65 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.feedbackText = 'Error loading question details.';
       this.cdRef.markForCheck();
     }
+  } */
+  async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
+    try {
+        console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
+
+        // ✅ Validate question index
+        if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+            console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
+            return;
+        }
+
+        // ✅ Get the current question
+        const question = this.quiz.questions[questionIndex];
+        this.questionToDisplay = question.questionText;
+
+        // ✅ Assign option IDs dynamically and normalize options
+        const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+        
+        // ✅ Create immutable copy to prevent race conditions
+        this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
+            ...option,
+            feedback: 'Loading feedback...',
+            showIcon: option.showIcon ?? false,
+            active: option.active ?? true,
+            selected: option.selected ?? false,
+            correct: !!option.correct,
+            optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
+                ? option.optionId
+                : optionIndex + 1,
+        }));
+
+        console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
+
+        // ✅ Check for correct answers
+        const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
+        if (!correctOptions.length) {
+            console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
+        } else {
+            console.log('[loadQuestionByRouteIndex] Correct options identified:', correctOptions);
+        }
+
+        // ✅ Ensure feedback is generated **AFTER** options are fully initialized
+        setTimeout(() => {
+            console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+        }, 100);
+
+        // ✅ Ensure UI updates
+        setTimeout(() => {
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+        }, 200);
+
+    } catch (error) {
+        console.error('[loadQuestionByRouteIndex] Error loading question:', error);
+        this.cdRef.markForCheck();
+    }
   }
+
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
