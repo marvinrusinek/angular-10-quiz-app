@@ -1498,6 +1498,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
         }
 
+        // ✅ Reset `optionsToDisplay` before loading new question
+        this.optionsToDisplay = [];
+
         // ✅ Get the current question
         const question = this.quiz.questions[questionIndex];
         this.questionToDisplay = question.questionText;
@@ -1505,13 +1508,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Assign option IDs dynamically and normalize options
         const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
         
-        // ✅ Create immutable copy to prevent race conditions
+        // ✅ Ensure fresh data is used to avoid stale state issues
         this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
             ...option,
             feedback: 'Loading feedback...',
-            showIcon: option.showIcon ?? false,
+            showIcon: false,
             active: option.active ?? true,
-            selected: option.selected ?? false,
+            selected: false,
             correct: !!option.correct,
             optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
                 ? option.optionId
@@ -1520,13 +1523,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
 
-        // ✅ Ensure feedback is generated **AFTER** options are fully initialized
+        // ✅ Ensure feedback is applied AFTER options are fully initialized
         setTimeout(() => {
             console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            this.applyOptionFeedbackToAllOptions();
         }, 100);
 
-        // ✅ Ensure UI updates
+        // ✅ Ensure UI updates to reflect feedback
         setTimeout(() => {
             this.cdRef.detectChanges();
             this.cdRef.markForCheck();
@@ -1537,7 +1540,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.markForCheck();
     }
   }
-
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
