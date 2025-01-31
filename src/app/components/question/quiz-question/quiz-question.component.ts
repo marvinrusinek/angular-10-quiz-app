@@ -1088,7 +1088,7 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
 
-        // ✅ Call `generateFeedbackForOptions()` **only if options exist**
+        // ✅ Call `generateFeedbackForOptions()`
         console.log('[applyOptionFeedbackToAllOptions] Calling generateFeedbackForOptions with:', {
             correctOptions,
             optionsToDisplay: this.optionsToDisplay
@@ -1103,16 +1103,14 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ Generated feedbackList:', feedbackList);
 
-        // ✅ Validate feedback list length
-        if (feedbackList.length !== this.optionsToDisplay.length) {
-            console.warn(`[applyOptionFeedbackToAllOptions] ⚠️ Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}. Skipping update.`);
-            return;
-        }
+        // ✅ Apply **single** feedback message to all options
+        const feedbackMessage = feedbackList[0] || 'Feedback unavailable.'; // Use the first feedback message
+        console.log('[applyOptionFeedbackToAllOptions] ✅ Using feedback message:', feedbackMessage);
 
-        // ✅ Apply feedback and update UI
-        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+        // ✅ Apply the same feedback to all options
+        this.optionsToDisplay = this.optionsToDisplay.map(option => ({
             ...option,
-            feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
+            feedback: feedbackMessage, // Apply the same feedback to all options
             showIcon: option.correct || option.selected,
             highlight: option.selected
         }));
