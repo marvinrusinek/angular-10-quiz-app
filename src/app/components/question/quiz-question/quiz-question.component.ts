@@ -1074,11 +1074,15 @@ export class QuizQuestionComponent
 
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
 
-      // ✅ Ensure optionsToDisplay is populated before applying feedback
+      // ✅ Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Retrying in 100ms...');
-        setTimeout(() => this.applyOptionFeedbackToAllOptions(), 100);
-        return;
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
+        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
+
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
+          return;
+        }
       }
 
       console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
@@ -1087,24 +1091,28 @@ export class QuizQuestionComponent
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
       if (!correctOptions.length) {
         console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
-      } else {
-        console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
       }
 
-      // ✅ Reset previous feedback
+      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
+
+      // ✅ Clear previous feedback before generating new feedback
       this.optionsToDisplay = this.optionsToDisplay.map(option => ({
         ...option,
-        feedback: '',
+        feedback: '', // Clear old feedback
+        showIcon: false,
+        highlight: false
       }));
 
-      // ✅ Apply feedback
+      console.log('[applyOptionFeedbackToAllOptions] Cleared previous feedback.');
+
+      // ✅ Wrap `feedbackList` generation inside `setTimeout`
       setTimeout(() => {
         console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
 
         const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
         if (!feedbackList || feedbackList.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed.');
+          console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting.');
           return;
         }
 
@@ -1112,11 +1120,19 @@ export class QuizQuestionComponent
 
         // ✅ Validate feedback list length
         if (feedbackList.length !== this.optionsToDisplay.length) {
-          console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}.`);
+          console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}. Applying default feedback...`);
+
+          // Ensure every option gets a feedback message
+          this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+            ...option,
+            feedback: correctOptions.some(correct => correct.optionId === option.optionId)
+              ? `You're right! The correct answer is Option ${option.optionId}.`
+              : 'Incorrect answer.'
+          }));
           return;
         }
 
-        // ✅ Apply feedback and update UI
+        // ✅ Apply new feedback and update `optionsToDisplay`
         this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
           ...option,
           feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
@@ -1126,9 +1142,8 @@ export class QuizQuestionComponent
 
         console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
 
-        // ✅ Force UI update
+        // ✅ Force UI update to ensure changes are detected
         this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
 
       }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
 
