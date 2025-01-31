@@ -19,8 +19,8 @@ export class FeedbackService {
       }
 
       if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackForOptions] ❌ No options to display.');
-        return ['No options available to generate feedback for.'];
+        console.warn('[generateFeedbackForOptions] ❌ No options to display. Returning empty.');
+        return [];
       }
 
       // Call `setCorrectMessage` and log the result
@@ -40,12 +40,11 @@ export class FeedbackService {
           );
 
         console.log('[generateFeedbackForOptions] ✅ Using Fallback Feedback:', fallbackFeedback);
-        return fallbackFeedback;
+          return fallbackFeedback;
       }
 
       console.log('[generateFeedbackForOptions] ✅ Final Generated Feedback:', [correctFeedback]);
       return [correctFeedback]; // ✅ Return formatted feedback from `setCorrectMessage`
-
     } catch (error) {
       console.error('[generateFeedbackForOptions] ❌ Error generating feedback:', error);
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
