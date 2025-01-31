@@ -1219,11 +1219,18 @@ export class QuizQuestionComponent
   
       console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
   
+      // Log the currentQuestion.options to verify they exist
+      if (this.currentQuestion && this.currentQuestion.options) {
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion.options:', JSON.stringify(this.currentQuestion.options, null, 2));
+      } else {
+        console.error('[applyOptionFeedbackToAllOptions] ❌ currentQuestion.options is empty or undefined.');
+        return;
+      }
+  
       // ✅ Ensure optionsToDisplay is populated before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Attempting to repopulate...');
-        
-        if (this.currentQuestion && this.currentQuestion.options) {
+        if (this.currentQuestion && this.currentQuestion.options && this.currentQuestion.options.length > 0) {
           this.optionsToDisplay = [...this.currentQuestion.options];
           console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
         } else {
@@ -1232,7 +1239,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // 🚨 Final Check: If `optionsToDisplay` is STILL empty, return early
+      // Final Check: If optionsToDisplay is STILL empty, return early
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
         return;
@@ -1261,23 +1268,11 @@ export class QuizQuestionComponent
         optionsToDisplay: this.optionsToDisplay
       });
   
-      // Option 1: If generateFeedbackForOptions returns an array, extract the first message:
-      /*
-      const feedbackMessages = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-      if (!feedbackMessages || feedbackMessages.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
-        return;
-      }
-      const feedbackMessage = feedbackMessages[0];
-      */
-  
-      // Option 2: If you expect generateFeedbackForOptions to return a single message (a string), use:
       const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
       if (!feedbackMessage || feedbackMessage.trim() === '') {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
         return;
       }
-  
       console.log('[applyOptionFeedbackToAllOptions] ✅ generateFeedbackForOptions returned:', feedbackMessage);
   
       // ✅ Apply feedback to all options
@@ -1297,7 +1292,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
-  }
+  }  
   
 
   
