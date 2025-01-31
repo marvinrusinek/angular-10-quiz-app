@@ -2283,7 +2283,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2355,7 +2355,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] Unhandled error:', error);
     }
-  }  
+  } */
 
   // ====================== Helper Functions ======================
 
