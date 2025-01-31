@@ -134,7 +134,7 @@ export class FeedbackService {
     const message = this.formatFeedbackMessage(indices);
     console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
     return message;
-  }
+  } 
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';

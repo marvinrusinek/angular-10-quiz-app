@@ -1120,7 +1120,7 @@ export class QuizQuestionComponent
       });
     }
   } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
         console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
 
@@ -1200,8 +1200,106 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
+  } */
+  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+    try {
+      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
+  
+      this.currentQuestion = this.quizService.currentQuestion.getValue();
+  
+      // ✅ Ensure currentQuestion is loaded
+      if (!this.currentQuestion) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Attempting to reload...');
+        const questionReloaded = await this.loadQuestion();
+        if (!questionReloaded || !this.currentQuestion) {
+          console.error('[applyOptionFeedbackToAllOptions] ❌ Failed to reload currentQuestion. Aborting.');
+          return;
+        }
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
+  
+      // ✅ Ensure optionsToDisplay is populated before proceeding
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Attempting to repopulate...');
+        
+        if (this.currentQuestion && this.currentQuestion.options) {
+          this.optionsToDisplay = [...this.currentQuestion.options];
+          console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+        } else {
+          console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay. Aborting feedback.');
+          return;
+        }
+      }
+  
+      // 🚨 Final Check: If `optionsToDisplay` is STILL empty, return early
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
+        return;
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay BEFORE calling generateFeedbackForOptions:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+      // ✅ Identify correct options
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
+        return;
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
+  
+      // ✅ Ensure correctOptions and optionsToDisplay exist before proceeding
+      if (!correctOptions.length || !this.optionsToDisplay.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ Skipping feedback generation: correctOptions or optionsToDisplay is missing.');
+        return;
+      }
+  
+      // ✅ Call generateFeedbackForOptions() only when data is valid
+      console.log('[applyOptionFeedbackToAllOptions] Calling generateFeedbackForOptions with:', {
+        correctOptions,
+        optionsToDisplay: this.optionsToDisplay
+      });
+  
+      // Option 1: If generateFeedbackForOptions returns an array, extract the first message:
+      /*
+      const feedbackMessages = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+      if (!feedbackMessages || feedbackMessages.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
+        return;
+      }
+      const feedbackMessage = feedbackMessages[0];
+      */
+  
+      // Option 2: If you expect generateFeedbackForOptions to return a single message (a string), use:
+      const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+      if (!feedbackMessage || feedbackMessage.trim() === '') {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
+        return;
+      }
+  
+      console.log('[applyOptionFeedbackToAllOptions] ✅ generateFeedbackForOptions returned:', feedbackMessage);
+  
+      // ✅ Apply feedback to all options
+      this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+        ...option,
+        feedback: feedbackMessage,
+        showIcon: option.correct || option.selected,
+        highlight: option.selected
+      }));
+  
+      console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
+  
+      // ✅ Force UI update
+      this.cdRef.detectChanges();
+      this.cdRef.markForCheck();
+  
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
+    }
   }
   
+
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
