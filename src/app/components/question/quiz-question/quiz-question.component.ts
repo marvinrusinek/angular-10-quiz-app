@@ -1087,17 +1087,17 @@ export class QuizQuestionComponent
             console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
         }
 
-        // ✅ Clear previous feedback before generating new feedback
+        // ✅ Clear previous feedback before applying new feedback
         this.optionsToDisplay = this.optionsToDisplay.map(option => ({
             ...option,
-            feedback: '',
+            feedback: '', // Clear old feedback
             showIcon: false,
             highlight: false
         }));
 
         console.log('[applyOptionFeedbackToAllOptions] Cleared previous feedback.');
 
-        // ✅ Apply feedback with a slight delay to avoid race conditions
+        // ✅ Apply feedback **AFTER** ensuring options are fully loaded
         setTimeout(() => {
             console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
 
@@ -1130,19 +1130,20 @@ export class QuizQuestionComponent
             this.cdRef.detectChanges();
             this.cdRef.markForCheck();
 
-            // ✅ Failsafe: Apply feedback AGAIN after 200ms to catch any missed cases
+            // ✅ **Failsafe: Apply feedback AGAIN after 200ms to catch any missed cases**
             setTimeout(() => {
                 console.log('[applyOptionFeedbackToAllOptions] Re-applying feedback after 200ms to ensure it sticks.');
                 this.cdRef.detectChanges();
                 this.cdRef.markForCheck();
             }, 200);
 
-        }, 100);
+        }, 150); // Ensures `optionsToDisplay` is fully set before applying feedback
 
     } catch (error) {
         console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
   }
+
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
