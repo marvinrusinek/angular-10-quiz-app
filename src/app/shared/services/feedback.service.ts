@@ -51,7 +51,7 @@ export class FeedbackService {
     }
   }
   
-  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     console.log('[setCorrectMessage] STARTED');
 
     // Log the received data for debugging
@@ -97,6 +97,43 @@ export class FeedbackService {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
     }
+  } */
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    console.log('[setCorrectMessage] STARTED');
+
+    // ✅ Log received data
+    console.log('[setCorrectMessage] Received correctOptions:', correctOptions);
+    console.log('[setCorrectMessage] Received optionsToDisplay:', optionsToDisplay);
+
+    // ✅ Ensure `optionsToDisplay` exists before proceeding
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.error('[setCorrectMessage] ❌ optionsToDisplay is missing. Returning default message.');
+        return 'Feedback unavailable.';
+    }
+
+    // ✅ Ensure `correctOptions` exists before proceeding
+    if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[setCorrectMessage] ❌ No correct options provided. Returning fallback message.');
+        return 'No correct answers available.';
+    }
+
+    // ✅ Process options
+    const validOptions = optionsToDisplay.filter(option => isValidOption(option) && option.optionId !== undefined);
+    const indices = validOptions
+        .map((option, index) => ({ option, index: index + 1 }))
+        .filter(item => item.option.correct)
+        .map(item => item.index)
+        .sort((a, b) => a - b);
+
+    if (!indices.length) {
+        console.warn('[setCorrectMessage] ❌ No matching correct options found.');
+        return 'No correct options found for this question.';
+    }
+
+    // ✅ Generate feedback message
+    const message = this.formatFeedbackMessage(indices);
+    console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
+    return message;
   }
   
   private formatFeedbackMessage(indices: number[]): string {
