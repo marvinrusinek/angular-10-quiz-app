@@ -79,7 +79,10 @@ export class FeedbackService {
       }
   
       // Generate proper feedback message
-      return this.formatFeedbackMessage(indices);
+      const message = this.formatFeedbackMessage(indices);
+      console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
+
+      return message;
     } catch (error) {
       console.error('[setCorrectMessage] Error generating feedback:', error);
       return ''; // Return empty string on error
