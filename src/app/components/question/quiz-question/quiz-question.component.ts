@@ -2386,6 +2386,20 @@ export class QuizQuestionComponent
 
         console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
 
+        // ✅ Ensure optionsToDisplay is populated before proceeding
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
+            if (this.currentQuestion && this.currentQuestion.options) {
+                this.optionsToDisplay = [...this.currentQuestion.options];
+                console.log('[onOptionClicked] ✅ optionsToDisplay repopulated from currentQuestion.options:', JSON.stringify(this.optionsToDisplay, null, 2));
+            } else {
+                console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting click event.');
+                return;
+            }
+        }
+
+        console.log('[onOptionClicked] ✅ optionsToDisplay is available.');
+
         // ✅ Update selectedOptionsMap
         const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
         const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
@@ -2402,12 +2416,6 @@ export class QuizQuestionComponent
         );
         console.log('[onOptionClicked] ✅ isMultipleAnswer:', isMultipleAnswer);
 
-        // ✅ Ensure optionsToDisplay is set before applying feedback
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Skipping applyOptionFeedback.');
-            return;
-        }
-
         // ✅ Apply feedback and handle option logic
         console.log('[onOptionClicked] Calling applyOptionFeedback...');
         this.applyOptionFeedback(selectedOption);
@@ -2416,8 +2424,8 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ optionsToDisplay AFTER applyOptionFeedback:', JSON.stringify(this.optionsToDisplay, null, 2));
 
         if (isMultipleAnswer) {
-          await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
-          await this.handleMultipleAnswerTimerLogic(selectedOption);
+            await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
+            await this.handleMultipleAnswerTimerLogic(selectedOption);
         }
 
         // ✅ Update UI states and flags
