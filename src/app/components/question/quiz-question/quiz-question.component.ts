@@ -1128,7 +1128,7 @@ export class QuizQuestionComponent
 
         // ✅ Ensure currentQuestion is loaded
         if (!this.currentQuestion) {
-            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+            console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Attempting to reload...');
             const questionReloaded = await this.loadQuestion();
             if (!questionReloaded || !this.currentQuestion) {
                 console.error('[applyOptionFeedbackToAllOptions] ❌ Failed to reload currentQuestion. Aborting.');
@@ -1138,10 +1138,9 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
 
-        // ✅ Wait for optionsToDisplay to be populated before continuing
+        // ✅ Exit early if `optionsToDisplay` is not yet available
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Retrying in 100ms...');
-            setTimeout(() => this.applyOptionFeedbackToAllOptions(), 100);
+            console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Function will not proceed.');
             return;
         }
 
@@ -1189,7 +1188,7 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
-  } 
+  }
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
