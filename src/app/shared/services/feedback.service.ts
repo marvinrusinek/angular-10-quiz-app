@@ -11,31 +11,27 @@ export class FeedbackService {
       console.log('[generateFeedbackForOptions] ✅ Correct Options:', correctOptions);
       console.log('[generateFeedbackForOptions] ✅ Options to Display:', optionsToDisplay);
   
-      // Check if correctOptions is empty
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] ❌ No correct options provided.');
         return 'No correct answers available for this question.';
       }
   
-      // Check if optionsToDisplay is empty
       if (!optionsToDisplay || optionsToDisplay.length === 0) {
         console.warn('[generateFeedbackForOptions] ❌ No options to display.');
         return '';
       }
   
-      console.log('[generateFeedbackForOptions] Calling setCorrectMessage...');
+      console.log('[generateFeedbackForOptions] Options to Display before calling setCorrectMessage:', optionsToDisplay);
       const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
       console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
   
-      // If setCorrectMessage returns an empty or whitespace-only string, generate a fallback feedback
       if (!correctFeedback || correctFeedback.trim() === '') {
         console.warn('[generateFeedbackForOptions] ❌ setCorrectMessage returned empty or invalid feedback. Falling back...');
-        // For fallback, here we use the first option that is marked as correct:
-        const fallbackFeedback = optionsToDisplay.find(option =>
+        const fallbackOption = optionsToDisplay.find(option =>
           correctOptions.some(correct => correct.optionId === option.optionId)
         );
-        if (fallbackFeedback) {
-          return `You're right! The correct answer is Option ${fallbackFeedback.optionId}.`;
+        if (fallbackOption) {
+          return `You're right! The correct answer is Option ${fallbackOption.optionId}.`;
         }
         return 'Feedback unavailable.';
       }
