@@ -5,49 +5,46 @@ import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackService {
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     try {
       console.log('[generateFeedbackForOptions] STARTED');
-
       console.log('[generateFeedbackForOptions] ✅ Correct Options:', correctOptions);
       console.log('[generateFeedbackForOptions] ✅ Options to Display:', optionsToDisplay);
-
-      // Check if correctOptions or optionsToDisplay is empty
+  
+      // Check if correctOptions is empty
       if (!correctOptions || correctOptions.length === 0) {
         console.warn('[generateFeedbackForOptions] ❌ No correct options provided.');
-        return ['No correct answers available for this question.'];
+        return 'No correct answers available for this question.';
       }
-
+  
+      // Check if optionsToDisplay is empty
       if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn('[generateFeedbackForOptions] ❌ No options to display. Returning empty.');
-        return [];
+        console.warn('[generateFeedbackForOptions] ❌ No options to display.');
+        return '';
       }
-
-      // Call `setCorrectMessage` and log the result
+  
       console.log('[generateFeedbackForOptions] Calling setCorrectMessage...');
       const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
       console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
-
-      // Check if `setCorrectMessage()` returned valid feedback
+  
+      // If setCorrectMessage returns an empty or whitespace-only string, generate a fallback feedback
       if (!correctFeedback || correctFeedback.trim() === '') {
         console.warn('[generateFeedbackForOptions] ❌ setCorrectMessage returned empty or invalid feedback. Falling back...');
-
-        // Provide per-option fallback feedback
-        const fallbackFeedback = optionsToDisplay.map(option =>
+        // For fallback, here we use the first option that is marked as correct:
+        const fallbackFeedback = optionsToDisplay.find(option =>
           correctOptions.some(correct => correct.optionId === option.optionId)
-            ? `You're right! The correct answer is Option ${option.optionId}.`
-            : 'Incorrect answer.'
-          );
-
-        console.log('[generateFeedbackForOptions] ✅ Using Fallback Feedback:', fallbackFeedback);
-          return fallbackFeedback;
+        );
+        if (fallbackFeedback) {
+          return `You're right! The correct answer is Option ${fallbackFeedback.optionId}.`;
+        }
+        return 'Feedback unavailable.';
       }
-
-      console.log('[generateFeedbackForOptions] ✅ Final Generated Feedback:', [correctFeedback]);
-      return [correctFeedback]; // ✅ Return formatted feedback from `setCorrectMessage`
+  
+      console.log('[generateFeedbackForOptions] ✅ Final Generated Feedback:', correctFeedback);
+      return correctFeedback;
     } catch (error) {
       console.error('[generateFeedbackForOptions] ❌ Error generating feedback:', error);
-      return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
+      return 'An error occurred while generating feedback. Please try again.';
     }
   }
   
