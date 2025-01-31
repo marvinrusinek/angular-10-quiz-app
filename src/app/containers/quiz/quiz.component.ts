@@ -1523,7 +1523,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Ensure feedback is generated **AFTER** options are fully initialized
         setTimeout(() => {
             console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            this.applyOptionFeedbackToAllOptions();
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }, 100);
 
         // ✅ Ensure UI updates
