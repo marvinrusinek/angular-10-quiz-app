@@ -60,13 +60,15 @@ export class FeedbackService {
 
     // Ensure `correctOptions` exists before proceeding
     if (!correctOptions || correctOptions.length === 0) {
-      console.warn('[setCorrectMessage] No correct options provided.');
+      console.warn('[setCorrectMessage] ❌ No correct options provided. Retrying in 50ms...');
+      setTimeout(() => this.setCorrectMessage(correctOptions, this.optionsToDisplay), 50);
       return 'No correct answers available.';
     }
   
     // Ensure `optionsToDisplay` exists before proceeding
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.warn('[setCorrectMessage] optionsToDisplay is missing.');
+      console.warn('[setCorrectMessage] ❌ optionsToDisplay is missing. Retrying in 50ms...');
+      setTimeout(() => this.setCorrectMessage(correctOptions, this.optionsToDisplay), 50);
       return 'Feedback unavailable.';
     }
   
