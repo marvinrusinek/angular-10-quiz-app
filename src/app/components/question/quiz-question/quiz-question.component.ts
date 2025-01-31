@@ -1054,105 +1054,93 @@ export class QuizQuestionComponent
   } */
   public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
-      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
+        console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
 
-      this.currentQuestion = this.quizService.currentQuestion.getValue();
+        this.currentQuestion = this.quizService.currentQuestion.getValue();
 
-      // ✅ Ensure currentQuestion is loaded
-      if (!this.currentQuestion) {
-        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadQuestion();
-        if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting.', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion
-          });
-          return;
+        // ✅ Ensure currentQuestion is loaded
+        if (!this.currentQuestion) {
+            console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+            const questionReloaded = await this.loadQuestion();
+            if (!questionReloaded || !this.currentQuestion) {
+                console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting.');
+                return;
+            }
         }
-      }
 
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
 
-      // ✅ Ensure optionsToDisplay is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-
+        // ✅ Ensure optionsToDisplay is populated before applying feedback
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-          return;
-        }
-      }
-
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
-
-      // ✅ Identify correct options
-      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-      if (!correctOptions.length) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
-      }
-
-      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-
-      // ✅ Clear previous feedback before generating new feedback
-      this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-        ...option,
-        feedback: '', // Clear old feedback
-        showIcon: false,
-        highlight: false
-      }));
-
-      console.log('[applyOptionFeedbackToAllOptions] Cleared previous feedback.');
-
-      // ✅ Wrap `feedbackList` generation inside `setTimeout`
-      setTimeout(() => {
-        console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
-
-        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-
-        if (!feedbackList || feedbackList.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting.');
-          return;
+            console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Retrying in 100ms...');
+            setTimeout(() => this.applyOptionFeedbackToAllOptions(), 100);
+            return;
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
+        console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
 
-        // ✅ Validate feedback list length
-        if (feedbackList.length !== this.optionsToDisplay.length) {
-          console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}. Applying default feedback...`);
+        // ✅ Identify correct options
+        const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+        if (!correctOptions.length) {
+            console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+        } else {
+            console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
+        }
 
-          // Ensure every option gets a feedback message
-          this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+        // ✅ Clear previous feedback before generating new feedback
+        this.optionsToDisplay = this.optionsToDisplay.map(option => ({
             ...option,
-            feedback: correctOptions.some(correct => correct.optionId === option.optionId)
-              ? `You're right! The correct answer is Option ${option.optionId}.`
-              : 'Incorrect answer.'
-          }));
-          return;
-        }
-
-        // ✅ Apply new feedback and update `optionsToDisplay`
-        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-          ...option,
-          feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
-          showIcon: option.correct || option.selected,
-          highlight: option.selected
+            feedback: '',
+            showIcon: false,
+            highlight: false
         }));
 
-        console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
+        console.log('[applyOptionFeedbackToAllOptions] Cleared previous feedback.');
 
-        // ✅ Force UI update to ensure changes are detected
-        this.cdRef.detectChanges();
+        // ✅ Apply feedback with a slight delay to avoid race conditions
+        setTimeout(() => {
+            console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
 
-      }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
+            const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+            if (!feedbackList || feedbackList.length === 0) {
+                console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed.');
+                return;
+            }
+
+            console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
+
+            // ✅ Validate feedback list length
+            if (feedbackList.length !== this.optionsToDisplay.length) {
+                console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}.`);
+                return;
+            }
+
+            // ✅ Apply feedback and update UI
+            this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+                ...option,
+                feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
+                showIcon: option.correct || option.selected,
+                highlight: option.selected
+            }));
+
+            console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
+
+            // ✅ Force UI update
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+
+            // ✅ Failsafe: Apply feedback AGAIN after 200ms to catch any missed cases
+            setTimeout(() => {
+                console.log('[applyOptionFeedbackToAllOptions] Re-applying feedback after 200ms to ensure it sticks.');
+                this.cdRef.detectChanges();
+                this.cdRef.markForCheck();
+            }, 200);
+
+        }, 100);
 
     } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion
-      });
+        console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
   }
   
