@@ -1518,7 +1518,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             correct: !!option.correct,
             optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
                 ? option.optionId
-                : optionIndex + 1,
+                : optionIndex + 1
         }));
 
         console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
@@ -1526,7 +1526,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Ensure feedback is applied AFTER options are fully initialized
         setTimeout(() => {
             console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            this.applyOptionFeedbackToAllOptions();
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }, 100);
 
         // ✅ Ensure UI updates to reflect feedback
