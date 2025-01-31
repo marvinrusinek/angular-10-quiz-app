@@ -1205,10 +1205,10 @@ export class QuizQuestionComponent
     try {
       console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
   
-      // Retrieve the current question.
+      // Retrieve the current question from the service.
       this.currentQuestion = this.quizService.currentQuestion.getValue();
   
-      // Ensure currentQuestion is loaded; if not, try reloading.
+      // Ensure currentQuestion is loaded; if not, attempt a reload.
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Attempting to reload...');
         const questionReloaded = await this.loadQuestion();
@@ -1219,32 +1219,26 @@ export class QuizQuestionComponent
       }
       console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
   
-      // Check that currentQuestion.options exists and is non-empty.
+      // Verify that currentQuestion.options exists and is non-empty.
       if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ currentQuestion.options is empty or undefined.');
         return;
       }
-      console.log(
-        '[applyOptionFeedbackToAllOptions] currentQuestion.options:',
-        JSON.stringify(this.currentQuestion.options, null, 2)
-      );
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion.options:', JSON.stringify(this.currentQuestion.options, null, 2));
   
-      // Always reassign optionsToDisplay from currentQuestion.options.
-      this.optionsToDisplay = [...this.currentQuestion.options];
-      console.log(
-        '[applyOptionFeedbackToAllOptions] Re-assigned optionsToDisplay:',
-        JSON.stringify(this.optionsToDisplay, null, 2)
-      );
+      // Repopulate optionsToDisplay from currentQuestion.options if necessary.
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Repopulating from currentQuestion.options...');
+        this.optionsToDisplay = [...this.currentQuestion.options];
+        console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+      }
   
       // Final check for optionsToDisplay.
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after reassignment. Cannot proceed.');
+        console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
         return;
       }
-      console.log(
-        '[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay BEFORE calling generateFeedbackForOptions:',
-        JSON.stringify(this.optionsToDisplay, null, 2)
-      );
+      console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay BEFORE calling generateFeedbackForOptions:', JSON.stringify(this.optionsToDisplay, null, 2));
   
       // Identify correct options.
       const correctOptions = this.optionsToDisplay.filter(option => option.correct);
@@ -1254,7 +1248,7 @@ export class QuizQuestionComponent
       }
       console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
   
-      // Call generateFeedbackForOptions with the assured optionsToDisplay.
+      // Call generateFeedbackForOptions to generate the feedback message.
       console.log('[applyOptionFeedbackToAllOptions] Calling generateFeedbackForOptions with:', {
         correctOptions,
         optionsToDisplay: this.optionsToDisplay
@@ -1266,17 +1260,14 @@ export class QuizQuestionComponent
       }
       console.log('[applyOptionFeedbackToAllOptions] ✅ generateFeedbackForOptions returned:', feedbackMessage);
   
-      // Apply the feedback to all options.
+      // Apply the feedback message to each option.
       this.optionsToDisplay = this.optionsToDisplay.map(option => ({
         ...option,
         feedback: feedbackMessage,
         showIcon: option.correct || option.selected,
         highlight: option.selected
       }));
-      console.log(
-        `[applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for Q${this.currentQuestionIndex}:`,
-        this.optionsToDisplay
-      );
+      console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
   
       // Force UI update.
       this.cdRef.detectChanges();
@@ -1285,8 +1276,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
-  }
-  
+  }  
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
