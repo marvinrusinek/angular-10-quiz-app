@@ -58,11 +58,13 @@ export class FeedbackService {
     console.log('[setCorrectMessage] correctOptions:', correctOptions);
     console.log('[setCorrectMessage] optionsToDisplay:', optionsToDisplay);
 
+    // Ensure `correctOptions` exists before proceeding
     if (!correctOptions || correctOptions.length === 0) {
       console.warn('[setCorrectMessage] No correct options provided.');
       return 'No correct answers available.';
     }
   
+    // Ensure `optionsToDisplay` exists before proceeding
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
       console.warn('[setCorrectMessage] optionsToDisplay is missing.');
       return 'Feedback unavailable.';
