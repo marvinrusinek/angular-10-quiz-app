@@ -1520,18 +1520,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
 
-        // ✅ Check for correct answers
-        const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-        if (!correctOptions.length) {
-            console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
-        } else {
-            console.log('[loadQuestionByRouteIndex] Correct options identified:', correctOptions);
-        }
-
         // ✅ Ensure feedback is generated **AFTER** options are fully initialized
         setTimeout(() => {
             console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            this.applyOptionFeedbackToAllOptions();
         }, 100);
 
         // ✅ Ensure UI updates
