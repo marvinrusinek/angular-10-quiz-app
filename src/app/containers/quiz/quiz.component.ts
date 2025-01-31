@@ -2554,6 +2554,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = 0;
         this.questionToDisplay = this.currentQuestion.questionText;
 
+        // Reset `optionsToDisplay` to prevent stale state from previous questions
+        this.optionsToDisplay = [];
+
         // Assign optionIds
         this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
         this.optionsToDisplay = this.currentQuestion.options;
