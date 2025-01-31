@@ -959,7 +959,7 @@ export class QuizQuestionComponent
     }
   }  
 
-  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
       console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
 
@@ -1041,6 +1041,88 @@ export class QuizQuestionComponent
 
         // Force UI update to ensure changes are detected
         this.cdRef.detectChanges();
+
+      }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
+
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
+        currentQuestionIndex: this.currentQuestionIndex,
+        questionsArray: this.questionsArray,
+        currentQuestion: this.currentQuestion
+      });
+    }
+  } */
+  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+    try {
+      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
+
+      this.currentQuestion = this.quizService.currentQuestion.getValue();
+
+      // Ensure currentQuestion is loaded
+      if (!this.currentQuestion) {
+        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
+        const questionReloaded = await this.loadQuestion();
+        if (!questionReloaded || !this.currentQuestion) {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+            currentQuestionIndex: this.currentQuestionIndex,
+            questionsArray: this.questionsArray,
+            currentQuestion: this.currentQuestion
+          });
+          return;
+        }
+      }
+
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+
+      // ✅ Ensure optionsToDisplay is populated before applying feedback
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Retrying in 50ms...');
+        setTimeout(() => this.applyOptionFeedbackToAllOptions(), 50);
+        return;
+      }
+
+      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
+
+      // ✅ Identify correct options
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      if (!correctOptions.length) {
+        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
+      } else {
+        console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
+      }
+
+      // ✅ Force feedback application **at the right time**
+      setTimeout(() => {
+        console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
+
+        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+        if (!feedbackList || feedbackList.length === 0) {
+          console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed.');
+          return;
+        }
+
+        console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
+
+        // ✅ Validate feedback list length
+        if (feedbackList.length !== this.optionsToDisplay.length) {
+          console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}.`);
+          return;
+        }
+
+        // ✅ Apply feedback and update UI
+        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+          ...option,
+          feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
+          showIcon: option.correct || option.selected,
+          highlight: option.selected
+        }));
+
+        console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
+
+        // ✅ Force UI update
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
 
       }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
 
