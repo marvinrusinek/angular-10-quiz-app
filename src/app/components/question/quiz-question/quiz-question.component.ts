@@ -1068,7 +1068,7 @@ export class QuizQuestionComponent
             }
         }
 
-        console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
+        console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
 
         // ✅ Ensure optionsToDisplay is populated before applying feedback
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -1088,29 +1088,19 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
 
-        // ✅ Call `generateFeedbackForOptions()`
-        console.log('[applyOptionFeedbackToAllOptions] Calling generateFeedbackForOptions with:', {
+        // ✅ Debug log before calling `setCorrectMessage()`
+        console.log('[applyOptionFeedbackToAllOptions] Calling setCorrectMessage with:', {
             correctOptions,
             optionsToDisplay: this.optionsToDisplay
         });
 
-        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-
-        if (!feedbackList || feedbackList.length === 0) {
-            console.error('[applyOptionFeedbackToAllOptions] ❌ Feedback generation failed! Returning empty.');
-            return;
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] ✅ Generated feedbackList:', feedbackList);
-
-        // ✅ Apply **single** feedback message to all options
-        const feedbackMessage = feedbackList[0] || 'Feedback unavailable.'; // Use the first feedback message
-        console.log('[applyOptionFeedbackToAllOptions] ✅ Using feedback message:', feedbackMessage);
+        const feedbackMessage = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+        console.log('[applyOptionFeedbackToAllOptions] ✅ setCorrectMessage returned:', feedbackMessage);
 
         // ✅ Apply the same feedback to all options
         this.optionsToDisplay = this.optionsToDisplay.map(option => ({
             ...option,
-            feedback: feedbackMessage, // Apply the same feedback to all options
+            feedback: feedbackMessage,
             showIcon: option.correct || option.selected,
             highlight: option.selected
         }));
