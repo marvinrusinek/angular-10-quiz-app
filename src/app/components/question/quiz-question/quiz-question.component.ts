@@ -1058,12 +1058,12 @@ export class QuizQuestionComponent
 
       this.currentQuestion = this.quizService.currentQuestion.getValue();
 
-      // Ensure currentQuestion is loaded
+      // ✅ Ensure currentQuestion is loaded
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
         const questionReloaded = await this.loadQuestion();
         if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
+          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting.', {
             currentQuestionIndex: this.currentQuestionIndex,
             questionsArray: this.questionsArray,
             currentQuestion: this.currentQuestion
@@ -1076,8 +1076,8 @@ export class QuizQuestionComponent
 
       // ✅ Ensure optionsToDisplay is populated before applying feedback
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Retrying in 50ms...');
-        setTimeout(() => this.applyOptionFeedbackToAllOptions(), 50);
+        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Retrying in 100ms...');
+        setTimeout(() => this.applyOptionFeedbackToAllOptions(), 100);
         return;
       }
 
@@ -1091,7 +1091,7 @@ export class QuizQuestionComponent
         console.log('[applyOptionFeedbackToAllOptions] Correct options identified:', correctOptions);
       }
 
-      // ✅ Force feedback application **at the right time**
+      // ✅ Apply feedback with a slight delay to avoid race conditions
       setTimeout(() => {
         console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
 
@@ -1124,6 +1124,13 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
+        // ✅ **Failsafe: Apply feedback AGAIN after 200ms to catch any missed cases**
+        setTimeout(() => {
+          console.log('[applyOptionFeedbackToAllOptions] Re-applying feedback after 200ms to ensure it sticks.');
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+        }, 200);
+
       }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
 
     } catch (error) {
@@ -1134,6 +1141,7 @@ export class QuizQuestionComponent
       });
     }
   }
+
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
