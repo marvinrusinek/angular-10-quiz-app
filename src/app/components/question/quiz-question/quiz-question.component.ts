@@ -2385,6 +2385,25 @@ export class QuizQuestionComponent
             }
         }
 
+        // ✅ Ensure optionsToDisplay is set before proceeding
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
+
+            if (this.currentQuestion && this.currentQuestion.options) {
+                this.optionsToDisplay = [...this.currentQuestion.options];
+                console.log('[onOptionClicked] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+            } else {
+                console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
+                return;
+            }
+        }
+
+        // 🚨 Final Check: If `optionsToDisplay` is STILL empty, return early
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.error('[onOptionClicked] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
+            return;
+        }
+
         // ✅ Validate the event and option
         if (!event.option || !this.validateOption(event)) {
             console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
@@ -2397,20 +2416,6 @@ export class QuizQuestionComponent
         };
 
         console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
-
-        // ✅ Ensure optionsToDisplay is populated before proceeding
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
-            if (this.currentQuestion && this.currentQuestion.options) {
-                this.optionsToDisplay = [...this.currentQuestion.options];
-                console.log('[onOptionClicked] ✅ optionsToDisplay repopulated from currentQuestion.options:', JSON.stringify(this.optionsToDisplay, null, 2));
-            } else {
-                console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting click event.');
-                return;
-            }
-        }
-
-        console.log('[onOptionClicked] ✅ optionsToDisplay is available.');
 
         // ✅ Update selectedOptionsMap
         const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
@@ -2428,7 +2433,7 @@ export class QuizQuestionComponent
         );
         console.log('[onOptionClicked] ✅ isMultipleAnswer:', isMultipleAnswer);
 
-        // ✅ Apply feedback and handle option logic
+        // ✅ Ensure optionsToDisplay is set before applying feedback
         console.log('[onOptionClicked] Calling applyOptionFeedback...');
         this.applyOptionFeedback(selectedOption);
 
@@ -2436,8 +2441,8 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ optionsToDisplay AFTER applyOptionFeedback:', JSON.stringify(this.optionsToDisplay, null, 2));
 
         if (isMultipleAnswer) {
-            await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
-            await this.handleMultipleAnswerTimerLogic(selectedOption);
+          await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
+          await this.handleMultipleAnswerTimerLogic(selectedOption);
         }
 
         // ✅ Update UI states and flags
