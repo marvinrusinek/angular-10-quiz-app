@@ -91,7 +91,7 @@ export class FeedbackService {
       return ''; // Return empty string on error
     }
   } */
-  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     console.log('[setCorrectMessage] STARTED');
 
     // ✅ Log received data
@@ -128,7 +128,37 @@ export class FeedbackService {
     const message = this.formatFeedbackMessage(indices);
     console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
     return message;
-  } 
+  } */
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    console.log('[setCorrectMessage] STARTED');
+    console.log('[setCorrectMessage] Received correctOptions:', correctOptions);
+    console.log('[setCorrectMessage] Received optionsToDisplay:', optionsToDisplay);
+  
+    // Check that optionsToDisplay is provided and nonempty.
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.error('[setCorrectMessage] ❌ optionsToDisplay is missing. Returning default message.');
+      return 'Feedback unavailable.';
+    }
+  
+    // Use filter and map to generate a list of 1-based indices of options marked as correct.
+    const indices = optionsToDisplay
+      .map((option, index) => option.correct ? index + 1 : null)  // If correct, map to index+1; else null.
+      .filter((index): index is number => index !== null)           // Remove null values.
+      .sort((a, b) => a - b);                                        // Sort the indices.
+  
+    if (indices.length === 0) {
+      console.warn('[setCorrectMessage] ❌ No matching correct options found.');
+      return 'No correct options found for this question.';
+    }
+  
+    // Generate and return the feedback message.
+    const message = this.formatFeedbackMessage(indices);
+    console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
+    return message;
+  }
+  
+  
+  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
