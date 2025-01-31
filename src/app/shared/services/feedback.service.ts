@@ -114,7 +114,8 @@ export class FeedbackService {
     const validOptions = optionsToDisplay.filter(option => isValidOption(option) && option.optionId !== undefined);
     const indices = validOptions
         .map((option, index) => ({ option, index: index + 1 }))
-        .filter(item => item.option.correct)
+        // .filter(item => item.option.correct)
+        .filter(item => isValidOption(item.option) && item.option.correct)
         .map(item => item.index)
         .sort((a, b) => a - b);
 

@@ -1201,7 +1201,7 @@ export class QuizQuestionComponent
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
   } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+  /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
       console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
   
@@ -1276,7 +1276,80 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
-  }  
+  } */
+  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+    try {
+      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
+  
+      // Retrieve the current question from the service.
+      this.currentQuestion = this.quizService.currentQuestion.getValue();
+  
+      // Ensure currentQuestion is loaded; if not, attempt to reload.
+      if (!this.currentQuestion) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Attempting to reload...');
+        const questionReloaded = await this.loadQuestion();
+        if (!questionReloaded || !this.currentQuestion) {
+          console.error('[applyOptionFeedbackToAllOptions] ❌ Failed to reload currentQuestion. Aborting.');
+          return;
+        }
+      }
+      console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
+  
+      // Verify that currentQuestion.options exists and is nonempty.
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.error('[applyOptionFeedbackToAllOptions] ❌ currentQuestion.options is empty or undefined.');
+        return;
+      }
+      console.log('[applyOptionFeedbackToAllOptions] currentQuestion.options:', JSON.stringify(this.currentQuestion.options, null, 2));
+  
+      // Unconditionally reassign optionsToDisplay from currentQuestion.options.
+      this.optionsToDisplay = [...this.currentQuestion.options];
+      console.log('[applyOptionFeedbackToAllOptions] Re-assigned optionsToDisplay with length:', this.optionsToDisplay.length);
+      
+      // Final check.
+      if (this.optionsToDisplay.length === 0) {
+        console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after reassignment. Cannot proceed.');
+        return;
+      }
+      
+      // Identify correct options from optionsToDisplay.
+      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+      console.log('[applyOptionFeedbackToAllOptions] Found correctOptions length:', correctOptions.length);
+      if (correctOptions.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
+        return;
+      }
+  
+      // Call generateFeedbackForOptions using the populated arrays.
+      console.log('[applyOptionFeedbackToAllOptions] Calling generateFeedbackForOptions with:', {
+        correctOptions: correctOptions,
+        optionsToDisplay: this.optionsToDisplay
+      });
+      const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+      if (!feedbackMessage || feedbackMessage.trim() === '') {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
+        return;
+      }
+      console.log('[applyOptionFeedbackToAllOptions] generateFeedbackForOptions returned:', feedbackMessage);
+  
+      // Apply the feedback to each option.
+      this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+        ...option,
+        feedback: feedbackMessage,
+        showIcon: option.correct || option.selected,
+        highlight: option.selected
+      }));
+      console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied:`, this.optionsToDisplay);
+  
+      // Force UI update.
+      this.cdRef.detectChanges();
+      this.cdRef.markForCheck();
+  
+    } catch (error) {
+      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
+    }
+  }
+   
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
