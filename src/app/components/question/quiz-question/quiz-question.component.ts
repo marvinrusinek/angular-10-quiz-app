@@ -1070,7 +1070,7 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
 
-        // ✅ Ensure optionsToDisplay is populated before applying feedback
+        // ✅ Wait for optionsToDisplay to be populated before continuing
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Retrying in 100ms...');
             setTimeout(() => this.applyOptionFeedbackToAllOptions(), 100);
@@ -1081,14 +1081,21 @@ export class QuizQuestionComponent
 
         // ✅ Identify correct options
         const correctOptions = this.optionsToDisplay.filter(option => option.correct);
+
         if (!correctOptions.length) {
             console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
             return;
-        } 
+        }
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
 
-        // ✅ Debug log before calling `setCorrectMessage()`
+        // ✅ Ensure `correctOptions` and `optionsToDisplay` are valid before calling `setCorrectMessage()`
+        if (!correctOptions.length || !this.optionsToDisplay.length) {
+            console.warn('[applyOptionFeedbackToAllOptions] ❌ Skipping feedback generation: correctOptions or optionsToDisplay is missing.');
+            return;
+        }
+
+        // ✅ Call `setCorrectMessage()` only if options exist
         console.log('[applyOptionFeedbackToAllOptions] Calling setCorrectMessage with:', {
             correctOptions,
             optionsToDisplay: this.optionsToDisplay
@@ -1097,7 +1104,7 @@ export class QuizQuestionComponent
         const feedbackMessage = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
         console.log('[applyOptionFeedbackToAllOptions] ✅ setCorrectMessage returned:', feedbackMessage);
 
-        // ✅ Apply the same feedback to all options
+        // ✅ Apply the feedback to all options
         this.optionsToDisplay = this.optionsToDisplay.map(option => ({
             ...option,
             feedback: feedbackMessage,
@@ -1114,7 +1121,7 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
-  }
+  } 
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
