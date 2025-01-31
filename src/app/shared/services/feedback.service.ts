@@ -7,23 +7,47 @@ import { isValidOption } from '../../shared/utils/option-utils';
 export class FeedbackService {
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
     try {
+      console.log('[generateFeedbackForOptions] STARTED');
+
+      console.log('[generateFeedbackForOptions] ✅ Correct Options:', correctOptions);
+      console.log('[generateFeedbackForOptions] ✅ Options to Display:', optionsToDisplay);
+
+      // Check if correctOptions or optionsToDisplay is empty
+      if (!correctOptions || correctOptions.length === 0) {
+        console.warn('[generateFeedbackForOptions] ❌ No correct options provided.');
+        return ['No correct answers available for this question.'];
+      }
+
+      if (!optionsToDisplay || optionsToDisplay.length === 0) {
+        console.warn('[generateFeedbackForOptions] ❌ No options to display.');
+        return ['No options available to generate feedback for.'];
+      }
+
+      // Call `setCorrectMessage` and log the result
+      console.log('[generateFeedbackForOptions] Calling setCorrectMessage...');
       const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
-  
+      console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
+
+      // Check if `setCorrectMessage()` returned valid feedback
       if (!correctFeedback || correctFeedback.trim() === '') {
-        console.warn('[generateFeedbackForOptions] setCorrectMessage returned empty or invalid feedback. Falling back...');
-        
-        // Provide per-option feedback
-        return optionsToDisplay.map(option =>
+        console.warn('[generateFeedbackForOptions] ❌ setCorrectMessage returned empty or invalid feedback. Falling back...');
+
+        // Provide per-option fallback feedback
+        const fallbackFeedback = optionsToDisplay.map(option =>
           correctOptions.some(correct => correct.optionId === option.optionId)
             ? `You're right! The correct answer is Option ${option.optionId}.`
             : 'Incorrect answer.'
-        );
+          );
+
+        console.log('[generateFeedbackForOptions] ✅ Using Fallback Feedback:', fallbackFeedback);
+        return fallbackFeedback;
       }
-  
-      return [correctFeedback]; // Return formatted feedback from `setCorrectMessage`
-  
+
+      console.log('[generateFeedbackForOptions] ✅ Final Generated Feedback:', [correctFeedback]);
+      return [correctFeedback]; // ✅ Return formatted feedback from `setCorrectMessage`
+
     } catch (error) {
-      console.error('[generateFeedbackForOptions] Error generating feedback:', error);
+      console.error('[generateFeedbackForOptions] ❌ Error generating feedback:', error);
       return Array(optionsToDisplay.length).fill('An error occurred while generating feedback. Please try again.');
     }
   }
