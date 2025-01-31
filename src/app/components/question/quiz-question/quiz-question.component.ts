@@ -1138,17 +1138,23 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
 
-        // ✅ Check if `optionsToDisplay` is empty and repopulate it
+        // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Attempting to repopulate...');
             
             if (this.currentQuestion && this.currentQuestion.options) {
                 this.optionsToDisplay = [...this.currentQuestion.options];
-                console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated from currentQuestion.options:', JSON.stringify(this.optionsToDisplay, null, 2));
+                console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
             } else {
-                console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay. Aborting.');
+                console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay. Aborting feedback.');
                 return;
             }
+        }
+
+        // 🚨 Final Check: If `optionsToDisplay` is STILL empty, return early
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
+            return;
         }
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay BEFORE calling setCorrectMessage:', JSON.stringify(this.optionsToDisplay, null, 2));
@@ -1162,13 +1168,13 @@ export class QuizQuestionComponent
 
         console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
 
-        // ✅ Ensure both `correctOptions` and `optionsToDisplay` exist before proceeding
+        // ✅ Ensure correctOptions and optionsToDisplay exist before proceeding
         if (!correctOptions.length || !this.optionsToDisplay.length) {
             console.warn('[applyOptionFeedbackToAllOptions] ❌ Skipping feedback generation: correctOptions or optionsToDisplay is missing.');
             return;
         }
 
-        // ✅ Call `setCorrectMessage()` only when data is valid
+        // ✅ Call setCorrectMessage() only when data is valid
         console.log('[applyOptionFeedbackToAllOptions] Calling setCorrectMessage with:', {
             correctOptions,
             optionsToDisplay: this.optionsToDisplay
@@ -1195,7 +1201,6 @@ export class QuizQuestionComponent
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
   }
-  
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
