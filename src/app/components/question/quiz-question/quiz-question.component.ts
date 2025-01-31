@@ -1229,12 +1229,24 @@ export class QuizQuestionComponent
   
       // ✅ Ensure optionsToDisplay is populated before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Attempting to repopulate...');
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Attempting to repopulate from currentQuestion.options...');
         if (this.currentQuestion && this.currentQuestion.options && this.currentQuestion.options.length > 0) {
           this.optionsToDisplay = [...this.currentQuestion.options];
           console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
         } else {
-          console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay. Aborting feedback.');
+          console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay from currentQuestion.options.');
+        }
+      }
+  
+      // Extra repopulation attempt if still empty
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after initial repopulation. Attempting to reload question again...');
+        const questionReloadedAgain = await this.loadQuestion();
+        if (questionReloadedAgain && this.currentQuestion && this.currentQuestion.options && this.currentQuestion.options.length > 0) {
+          this.optionsToDisplay = [...this.currentQuestion.options];
+          console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated after reloading:', JSON.stringify(this.optionsToDisplay, null, 2));
+        } else {
+          console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay even after reloading. Aborting feedback.');
           return;
         }
       }
@@ -1292,9 +1304,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
-  }  
-  
-
+  }
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
