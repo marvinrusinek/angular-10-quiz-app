@@ -1197,74 +1197,91 @@ export class QuizQuestionComponent
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     }
   } */
-  public async applyOptionFeedbackToAllOptions(): Promise<void> { 
-    try {
-      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
-  
-      // Retrieve the current question.
-      this.currentQuestion = this.quizService.currentQuestion.getValue();
-      if (!this.currentQuestion) {
-        console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Reloading...');
-        const questionReloaded = await this.loadQuestion();
-        if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] ❌ Failed to reload currentQuestion. Aborting.');
-          return;
-        }
-      }
-      console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
-  
-      // Verify currentQuestion.options is populated.
-      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] ❌ currentQuestion.options is empty or undefined.');
+  private feedbackProcessing = false; // Prevent multiple calls
+
+public async applyOptionFeedbackToAllOptions(): Promise<void> { 
+    if (this.feedbackProcessing) {
+        console.warn('[applyOptionFeedbackToAllOptions] ❌ Duplicate call detected. Skipping execution.');
         return;
-      }
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion.options:', JSON.stringify(this.currentQuestion.options, null, 2));
-  
-      // Reassign optionsToDisplay from currentQuestion.options.
-      this.optionsToDisplay = [...this.currentQuestion.options];
-      console.log('[applyOptionFeedbackToAllOptions] Assigned optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
-      // Final check before calling feedback generation.
-      console.log('Final optionsToDisplay before generateFeedbackForOptions:', JSON.stringify(this.optionsToDisplay, null, 2));
-      if (this.optionsToDisplay.length === 0) {
-        console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty. Cannot proceed.');
-        return;
-      }
-  
-      // Create local snapshots to guard against accidental mutation.
-      const localOptionsToDisplay = [...this.optionsToDisplay];
-      const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
-      console.log('Local optionsToDisplay:', JSON.stringify(localOptionsToDisplay, null, 2));
-      console.log('Local correctOptions:', JSON.stringify(localCorrectOptions, null, 2));
-      if (localCorrectOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
-        return;
-      }
-  
-      // Call the feedback service using the local copies.
-      const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, localOptionsToDisplay);
-      console.log('[applyOptionFeedbackToAllOptions] Feedback message returned:', feedbackMessage);
-      if (!feedbackMessage || feedbackMessage.trim() === '') {
-        console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
-        return;
-      }
-  
-      // Apply feedback to each option.
-      this.optionsToDisplay = localOptionsToDisplay.map(option => ({
-        ...option,
-        feedback: feedbackMessage,
-        showIcon: option.correct || option.selected,
-        highlight: option.selected
-      }));
-      console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied:`, this.optionsToDisplay);
-  
-      // Force UI update.
-      this.cdRef.detectChanges();
-      this.cdRef.markForCheck();
-    } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
-  }  
+    this.feedbackProcessing = true; // Lock execution
+
+    try {
+        console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
+
+        // Retrieve the current question.
+        this.currentQuestion = this.quizService.currentQuestion.getValue();
+        if (!this.currentQuestion) {
+            console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Reloading...');
+            const questionReloaded = await this.loadQuestion();
+            if (!questionReloaded || !this.currentQuestion) {
+                console.error('[applyOptionFeedbackToAllOptions] ❌ Failed to reload currentQuestion. Aborting.');
+                this.feedbackProcessing = false;
+                return;
+            }
+        }
+        console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
+
+        // Verify currentQuestion.options is populated.
+        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+            console.error('[applyOptionFeedbackToAllOptions] ❌ currentQuestion.options is empty or undefined.');
+            this.feedbackProcessing = false;
+            return;
+        }
+        console.log('[applyOptionFeedbackToAllOptions] currentQuestion.options:', JSON.stringify(this.currentQuestion.options, null, 2));
+
+        // Reassign optionsToDisplay from currentQuestion.options.
+        this.optionsToDisplay = [...this.currentQuestion.options];
+        console.log('[applyOptionFeedbackToAllOptions] Assigned optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+
+        // Final check before calling feedback generation.
+        console.log('Final optionsToDisplay before generateFeedbackForOptions:', JSON.stringify(this.optionsToDisplay, null, 2));
+        if (this.optionsToDisplay.length === 0) {
+            console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty. Cannot proceed.');
+            this.feedbackProcessing = false;
+            return;
+        }
+
+        // Create local snapshots to guard against accidental mutation.
+        const localOptionsToDisplay = [...this.optionsToDisplay];
+        const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
+        console.log('Local optionsToDisplay:', JSON.stringify(localOptionsToDisplay, null, 2));
+        console.log('Local correctOptions:', JSON.stringify(localCorrectOptions, null, 2));
+
+        if (localCorrectOptions.length === 0) {
+            console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
+            this.feedbackProcessing = false;
+            return;
+        }
+
+        // Call the feedback service using the local copies.
+        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, localOptionsToDisplay);
+        console.log('[applyOptionFeedbackToAllOptions] Feedback message returned:', feedbackMessage);
+
+        if (!feedbackMessage || feedbackMessage.trim() === '') {
+            console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
+            this.feedbackProcessing = false;
+            return;
+        }
+
+        // Apply feedback to each option.
+        this.optionsToDisplay = localOptionsToDisplay.map(option => ({
+            ...option,
+            feedback: feedbackMessage,
+            showIcon: option.correct || option.selected,
+            highlight: option.selected
+        }));
+        console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied:`, this.optionsToDisplay);
+
+        // Force UI update.
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
+    } catch (error) {
+        console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
+    } finally {
+        this.feedbackProcessing = false; // Unlock execution for future calls
+    }
+  }
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
