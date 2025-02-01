@@ -78,7 +78,7 @@ export class FeedbackService {
 
     return correctFeedback;
   } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[], questionId: string): string {
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     console.log('[generateFeedbackForOptions] STARTED');
     console.log('[generateFeedbackForOptions] ✅ Correct Options:', JSON.stringify(correctOptions, null, 2));
     console.log('[generateFeedbackForOptions] ✅ Options to Display:', JSON.stringify(optionsToDisplay, null, 2));
@@ -95,8 +95,13 @@ export class FeedbackService {
 
     console.log('[generateFeedbackForOptions] Options to Display before calling setCorrectMessage:', JSON.stringify(optionsToDisplay, null, 2));
 
-    // ✅ Pass `questionId` when calling `setCorrectMessage`
-    const correctFeedback = this.setCorrectMessage(questionId, correctOptions, optionsToDisplay);
+    // **Prevent sending empty arrays to setCorrectMessage**
+    if (optionsToDisplay.length === 0) {
+        console.error('[generateFeedbackForOptions] ❌ BLOCKING CALL: optionsToDisplay is EMPTY!');
+        return 'Feedback unavailable.';
+    }
+
+    const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
     console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
 
     if (!correctFeedback || correctFeedback.trim() === '') {
@@ -227,30 +232,26 @@ export class FeedbackService {
     console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
     return message;
   } */
-  public setCorrectMessage(
-    questionId: string, // ✅ Pass the question ID as a parameter
-    correctOptions?: Option[], 
-    optionsToDisplay?: Option[]
-): string {
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     this.callCount++;
-    console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED for Question ID: ${questionId}`);
+    console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
 
-    // Store the last known correct optionsToDisplay
+    // Store the last known correct optionsToDisplay for debugging
     if (optionsToDisplay && optionsToDisplay.length > 0) {
         this.lastKnownOptions = [...optionsToDisplay];
     }
 
-    console.log(`[setCorrectMessage] Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
-    console.log(`[setCorrectMessage] Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+    console.log(`[setCorrectMessage] CALL #${this.callCount} Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
+    console.log(`[setCorrectMessage] CALL #${this.callCount} Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
 
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
         console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY. STOPPING HERE.`);
         console.error(`[setCorrectMessage] 🟢 Last Known Correct optionsToDisplay BEFORE EMPTY CALL:`, JSON.stringify(this.lastKnownOptions, null, 2));
-        console.trace();
+        console.trace();  // 🔴 This shows exactly WHERE the empty call is coming from.
         return 'Feedback unavailable.';
     }
 
-    console.log(`[setCorrectMessage] ✅ optionsToDisplay for Question ID ${questionId}:`, JSON.stringify(optionsToDisplay, null, 2));
+    console.log(`[setCorrectMessage] ✅ optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
 
     const indices = optionsToDisplay
         .map((option, index) => option.correct ? index + 1 : null)
@@ -263,10 +264,9 @@ export class FeedbackService {
     }
 
     const message = this.formatFeedbackMessage(indices);
-    console.log(`[setCorrectMessage] ✅ Generated Feedback for Question ID ${questionId}:`, message);
+    console.log(`[setCorrectMessage] ✅ Generated Feedback:`, message);
     return message;
   }
-
 
   
   
