@@ -970,28 +970,31 @@ export class QuizQuestionComponent
   
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
-      console.warn(`Question not found at index: ${index}`);
-      return;
+        console.warn(`Question not found at index: ${index}`);
+        return;
     }
 
     const question = this.questionsArray[index];
     if (!question) {
-      console.warn(`No question data available at index: ${index}`);
-      return;
+        console.warn(`No question data available at index: ${index}`);
+        return;
     }
 
-    // Clear existing options and set current question
     this.optionsToDisplay = [];
     this.setCurrentQuestion(question);
-
-    // Only call `loadOptionsForQuestion()`, which already applies feedback
     this.loadOptionsForQuestion(question);
 
-    // No need to call `applyOptionFeedbackToAllOptions()` again!
+    // ✅ Check before applying feedback
+    if (this.lastProcessedQuestionIndex !== index) {
+        console.log('[setQuestionFirst] ✅ Applying feedback now...');
+        this.applyOptionFeedbackToAllOptions();
+    } else {
+        console.warn('[setQuestionFirst] ❌ Feedback already processed. Skipping.');
+    }
 
     setTimeout(() => {
-      this.updateExplanationIfAnswered(index, question);
-      this.questionRenderComplete.emit();
+        this.updateExplanationIfAnswered(index, question);
+        this.questionRenderComplete.emit();
     }, 100);
   }
 
