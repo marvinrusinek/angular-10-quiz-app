@@ -1009,7 +1009,7 @@ export class QuizQuestionComponent
             correct: option.correct ?? false
         }));
 
-        // ✅ Check if this question's feedback was already applied
+        // ✅ Ensure we only apply feedback if necessary
         console.log(`[loadOptionsForQuestion] 🔍 Last Processed Question: ${this.lastProcessedQuestionIndex}, Current Question: ${this.currentQuestionIndex}`);
 
         if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
@@ -1023,7 +1023,6 @@ export class QuizQuestionComponent
         this.optionsToDisplay = [];
     }
   }
-
 
   /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
@@ -1277,6 +1276,7 @@ export class QuizQuestionComponent
 
         // ✅ Move this here to ensure feedback has fully applied before marking as processed
         this.lastProcessedQuestionIndex = this.currentQuestionIndex;
+
     } catch (error) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     } finally {
