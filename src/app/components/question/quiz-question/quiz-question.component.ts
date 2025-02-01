@@ -1209,13 +1209,15 @@ export class QuizQuestionComponent
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
 
+    // 🚨 Capture Call Trace
+    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);
+
     // 🚨 Prevent Duplicate Execution
     if (this.feedbackProcessing) {
-        console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call due to processing flag.`);
+        console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
+        debugger;  // 🚨 This will pause execution if the function is being called unexpectedly
         return;
     }
-
-    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);  // 🔍 Logs WHERE the function is called from
 
     this.feedbackProcessing = true;
 
@@ -1233,11 +1235,12 @@ export class QuizQuestionComponent
         // 🚨 Ensure it doesn't run twice for the same question
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
             console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
+            debugger;  // 🚨 Pause execution to inspect why it's being called multiple times
             this.feedbackProcessing = false;
             return;
         }
 
-        // 🚨 Ensure `optionsToDisplay` is properly populated
+        // 🚨 Ensure `optionsToDisplay` is populated
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY. Attempting to repopulate...`);
 
@@ -1263,7 +1266,7 @@ export class QuizQuestionComponent
             return;
         }
 
-        // 🚨 Only Generate Feedback If Necessary
+        // 🚨 Call `generateFeedbackForOptions()` Only When Necessary
         const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
 
