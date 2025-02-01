@@ -971,12 +971,7 @@ export class QuizQuestionComponent
   
 
   private setQuestionFirst(index: number): void {
-    // Check if the index is within the valid range of questionsArray
-    if (
-      !this.questionsArray ||
-      index < 0 ||
-      index >= this.questionsArray.length
-    ) {
+    if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
       console.warn(`Question not found at index: ${index}`);
       return;
     }
@@ -991,15 +986,13 @@ export class QuizQuestionComponent
     this.optionsToDisplay = [];
     this.setCurrentQuestion(question);
 
-    // Load options and apply feedback
+    // Only call `loadOptionsForQuestion()`, which already applies feedback
     this.loadOptionsForQuestion(question);
-    this.applyOptionFeedbackToAllOptions(); // Apply feedback immediately after loading options
 
-    // Wait to ensure the question is fully rendered before updating explanation
+    // No need to call `applyOptionFeedbackToAllOptions()` again!
+
     setTimeout(() => {
       this.updateExplanationIfAnswered(index, question);
-
-      // Emit the event after rendering the question
       this.questionRenderComplete.emit();
     }, 100);
   }
@@ -1014,14 +1007,20 @@ export class QuizQuestionComponent
         selected: option.selected ?? false,
         correct: option.correct ?? false
       }));
-  
-      // Apply feedback to all options immediately after loading
-      this.applyOptionFeedbackToAllOptions();
+
+      // Check if this question's feedback was already applied
+      if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
+        console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
+        this.applyOptionFeedbackToAllOptions();
+      } else {
+        console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
+      }
     } else {
       console.warn('No options found for the question:', question);
       this.optionsToDisplay = [];
     }
-  }  
+  }
+
 
   /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
@@ -1210,6 +1209,8 @@ export class QuizQuestionComponent
     this.feedbackProcessing = true;
 
     try {
+        console.trace(`[applyOptionFeedbackToAllOptions] TRACE: This function was called from:`);  // 🔴 Logs the function call source
+
         this.currentQuestion = this.quizService.currentQuestion.getValue();
         if (!this.currentQuestion || !this.currentQuestion.options) {
             console.error('[applyOptionFeedbackToAllOptions] ❌ Missing question data.');
@@ -1217,7 +1218,6 @@ export class QuizQuestionComponent
             return;
         }
 
-        // ✅ Log how many times this method has run for the same question
         console.log(`[applyOptionFeedbackToAllOptions] Handling Question ID: ${this.currentQuestionIndex}`);
 
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
@@ -1248,7 +1248,6 @@ export class QuizQuestionComponent
             return;
         }
 
-        // ✅ Call feedback generation function
         const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
         console.log('[applyOptionFeedbackToAllOptions] ✅ Feedback message:', feedbackMessage);
 
@@ -1276,6 +1275,7 @@ export class QuizQuestionComponent
         this.feedbackProcessing = false;
     }
   }
+
 
   
   // Conditional method to update the explanation only if the question is answered
