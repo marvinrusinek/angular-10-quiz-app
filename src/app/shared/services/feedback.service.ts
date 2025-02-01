@@ -7,6 +7,7 @@ import { isValidOption } from '../../shared/utils/option-utils';
 export class FeedbackService {
   private callCount = 0;
   private feedbackCallCount = 0;
+  private lastKnownOptions: Option[] = [];
 
   /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     try {
