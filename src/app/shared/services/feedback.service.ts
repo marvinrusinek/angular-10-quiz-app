@@ -233,7 +233,7 @@ export class FeedbackService {
     return message;
   } */
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    this.callCount++;
+    this.callCount = (this.callCount || 0) + 1; // Ensure callCount starts from 1
     console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
 
     // Store the last known correct optionsToDisplay
@@ -249,7 +249,7 @@ export class FeedbackService {
         console.error(`[setCorrectMessage] 🟢 Last Known Correct optionsToDisplay BEFORE EMPTY CALL:`, JSON.stringify(this.lastKnownOptions, null, 2));
         
         // 🔴 Show exactly where this empty call is coming from
-        console.trace();
+        console.trace();  
 
         return 'Feedback unavailable.';
     }
