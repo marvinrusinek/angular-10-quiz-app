@@ -968,8 +968,6 @@ export class QuizQuestionComponent
     });
   }
   
-  
-
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
       console.warn(`Question not found at index: ${index}`);
