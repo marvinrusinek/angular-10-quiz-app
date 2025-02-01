@@ -1209,13 +1209,12 @@ export class QuizQuestionComponent
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
 
-    // 🚨 Capture Call Trace
+    // 🚨 Log stack trace to find **exactly where it's being called from**
     console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);
 
-    // 🚨 Prevent Duplicate Execution
+    // 🚨 Block duplicate executions
     if (this.feedbackProcessing) {
         console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
-        debugger;  // 🚨 This will pause execution if the function is being called unexpectedly
         return;
     }
 
@@ -1232,11 +1231,9 @@ export class QuizQuestionComponent
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🟢 Handling Question ID: ${this.currentQuestionIndex}`);
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
 
-        // 🚨 Ensure it doesn't run twice for the same question
+        // 🚨 Check if this question has already been processed
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
             console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
-            debugger;  // 🚨 Pause execution to inspect why it's being called multiple times
-            this.feedbackProcessing = false;
             return;
         }
 
