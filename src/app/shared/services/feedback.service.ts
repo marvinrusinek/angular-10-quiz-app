@@ -5,7 +5,10 @@ import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackService {
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  private callCount = 0;
+  private feedbackCallCount = 0;
+
+  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     try {
       console.log('[generateFeedbackForOptions] STARTED');
       console.log('[generateFeedbackForOptions] ✅ Correct Options:', correctOptions);
@@ -25,6 +28,7 @@ export class FeedbackService {
 
       // Create a copy of optionsToDisplay to ensure it is not altered later.
       const optionsCopy = [...optionsToDisplay];
+      console.log('[generateFeedbackForOptions] Options Copy:', JSON.stringify(optionsCopy, null, 2));
   
       console.log('[generateFeedbackForOptions] Options to Display before calling setCorrectMessage:', optionsToDisplay);
       const correctFeedback = this.setCorrectMessage(correctOptions, optionsCopy);
@@ -47,7 +51,33 @@ export class FeedbackService {
       console.error('[generateFeedbackForOptions] ❌ Error generating feedback:', error);
       return 'An error occurred while generating feedback. Please try again.';
     }
+  } */
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
+    this.feedbackCallCount++;  
+    console.log(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} STARTED`);
+
+    console.log(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} ✅ Correct Options:`, JSON.stringify(correctOptions, null, 2));
+    console.log(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} ✅ Options to Display:`, JSON.stringify(optionsToDisplay, null, 2));
+
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} ❌ No correct options provided.`);
+      return 'No correct answers available for this question.';
+    }
+
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.warn(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} ❌ No options to display.`);
+      return '';
+    }
+
+    const optionsCopy = [...optionsToDisplay];
+    console.log(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} ✅ Passing options to setCorrectMessage`, JSON.stringify(optionsCopy, null, 2));
+
+    const correctFeedback = this.setCorrectMessage(correctOptions, optionsCopy);
+    console.log(`[generateFeedbackForOptions] CALL #${this.feedbackCallCount} ✅ setCorrectMessage Returned:`, correctFeedback);
+
+    return correctFeedback;
   }
+
   
   /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     console.log('[setCorrectMessage] STARTED');
@@ -134,7 +164,7 @@ export class FeedbackService {
     console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
     return message;
   } */
-  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+  /* public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     console.log('[setCorrectMessage] STARTED');
     console.log('[setCorrectMessage] Received correctOptions:', correctOptions);
     console.log('[setCorrectMessage] Received optionsToDisplay:', optionsToDisplay);
@@ -166,9 +196,37 @@ export class FeedbackService {
     const message = this.formatFeedbackMessage(indices);
     console.log('[setCorrectMessage] ✅ Generated Feedback:', message);
     return message;
+  } */
+  public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    this.callCount++;  // Track number of calls
+    console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
+
+    if (optionsToDisplay === undefined) {
+      console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is UNDEFINED.`);
+    } else if (optionsToDisplay.length === 0) {
+      console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY.`);
+    } else {
+      console.log(`[setCorrectMessage] CALL #${this.callCount} ✅ optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+    }
+
+    if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      return 'Feedback unavailable.';
+    }
+
+    const indices = optionsToDisplay
+      .map((option, index) => option.correct ? index + 1 : null)
+      .filter((index): index is number => index !== null)
+      .sort((a, b) => a - b);
+
+    if (indices.length === 0) {
+      console.warn(`[setCorrectMessage] CALL #${this.callCount} ❌ No matching correct options found.`);
+      return 'No correct options found for this question.';
+    }
+
+    const message = this.formatFeedbackMessage(indices);
+    console.log(`[setCorrectMessage] CALL #${this.callCount} ✅ Generated Feedback:`, message);
+    return message;
   }
-  
-  
   
   
   private formatFeedbackMessage(indices: number[]): string {
