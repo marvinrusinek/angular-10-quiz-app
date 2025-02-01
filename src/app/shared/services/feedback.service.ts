@@ -89,7 +89,7 @@ export class FeedbackService {
 
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
         console.warn('[generateFeedbackForOptions] ❌ No options to display. STOPPING BEFORE CALLING setCorrectMessage.');
-        return 'Feedback unavailable.'; // 🔴 This prevents calling setCorrectMessage with an empty array
+        return 'Feedback unavailable.';
     }
 
     console.log('[generateFeedbackForOptions] Options to Display before calling setCorrectMessage:', JSON.stringify(optionsToDisplay, null, 2));
@@ -235,12 +235,18 @@ export class FeedbackService {
     this.callCount++;
     console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
 
+    // Store the last known correct optionsToDisplay for debugging
+    if (optionsToDisplay && optionsToDisplay.length > 0) {
+        this.lastKnownOptions = [...optionsToDisplay];
+    }
+
     console.log(`[setCorrectMessage] CALL #${this.callCount} Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
     console.log(`[setCorrectMessage] CALL #${this.callCount} Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
 
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
         console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY. STOPPING HERE.`);
-        console.trace();  // 🔴 This will show exactly WHERE the empty call is coming from
+        console.error(`[setCorrectMessage] 🟢 Last Known Correct optionsToDisplay BEFORE EMPTY CALL:`, JSON.stringify(this.lastKnownOptions, null, 2));
+        console.trace();  // 🔴 This shows exactly WHERE the empty call is coming from.
         return 'Feedback unavailable.';
     }
 
@@ -260,6 +266,7 @@ export class FeedbackService {
     console.log(`[setCorrectMessage] ✅ Generated Feedback:`, message);
     return message;
   }
+
   
   
   private formatFeedbackMessage(indices: number[]): string {
