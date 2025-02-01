@@ -20,9 +20,14 @@ export class FeedbackService {
         console.warn('[generateFeedbackForOptions] ❌ No options to display.');
         return '';
       }
+
+      console.log('[generateFeedbackForOptions] Options to Display before calling setCorrectMessage:', optionsToDisplay);
+
+      // Create a copy of optionsToDisplay to ensure it is not altered later.
+      const optionsCopy = [...optionsToDisplay];
   
       console.log('[generateFeedbackForOptions] Options to Display before calling setCorrectMessage:', optionsToDisplay);
-      const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
+      const correctFeedback = this.setCorrectMessage(correctOptions, optionsCopy);
       console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
   
       if (!correctFeedback || correctFeedback.trim() === '') {
@@ -133,6 +138,12 @@ export class FeedbackService {
     console.log('[setCorrectMessage] STARTED');
     console.log('[setCorrectMessage] Received correctOptions:', correctOptions);
     console.log('[setCorrectMessage] Received optionsToDisplay:', optionsToDisplay);
+
+    // ✅ Ensure `correctOptions` exists before proceeding
+    if (!correctOptions || correctOptions.length === 0) {
+      console.warn('[setCorrectMessage] ❌ No correct options provided. Returning fallback message.');
+      return 'No correct answers available.';
+    } 
   
     // Check that optionsToDisplay is provided and nonempty.
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
