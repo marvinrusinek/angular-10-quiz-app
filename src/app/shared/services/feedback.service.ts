@@ -236,18 +236,21 @@ export class FeedbackService {
     this.callCount++;
     console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
 
-    // Store the last known correct optionsToDisplay for debugging
+    // Store the last known correct optionsToDisplay
     if (optionsToDisplay && optionsToDisplay.length > 0) {
         this.lastKnownOptions = [...optionsToDisplay];
     }
 
-    console.log(`[setCorrectMessage] CALL #${this.callCount} Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
-    console.log(`[setCorrectMessage] CALL #${this.callCount} Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+    console.log(`[setCorrectMessage] Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
+    console.log(`[setCorrectMessage] Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
 
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
         console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY. STOPPING HERE.`);
         console.error(`[setCorrectMessage] 🟢 Last Known Correct optionsToDisplay BEFORE EMPTY CALL:`, JSON.stringify(this.lastKnownOptions, null, 2));
-        console.trace();  // 🔴 This shows exactly WHERE the empty call is coming from.
+        
+        // 🔴 Show exactly where this empty call is coming from
+        console.trace();
+
         return 'Feedback unavailable.';
     }
 
