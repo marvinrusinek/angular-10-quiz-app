@@ -669,10 +669,6 @@ export class QuizQuestionComponent
             console.warn('[restoreQuizState] ❌ No feedback text found for restoration.');
             this.feedbackText = ''; // Default to an empty string
         }
-
-        // ✅ Force UI update
-        this.cdRef.detectChanges();
-
     } catch (error) {
         console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
