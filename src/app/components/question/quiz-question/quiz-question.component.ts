@@ -1198,13 +1198,15 @@ export class QuizQuestionComponent
     }
   } */
   private feedbackProcessing = false; // Prevent multiple calls
+  private lastProcessedQuestionIndex: number | null = null;
 
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+public async applyOptionFeedbackToAllOptions(): Promise<void> {
     if (this.feedbackProcessing) {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.');
         return;
     }
     this.feedbackProcessing = true;
+
     console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
 
     try {
@@ -1214,6 +1216,14 @@ export class QuizQuestionComponent
             this.feedbackProcessing = false;
             return;
         }
+
+        // ✅ Prevent processing the same question multiple times
+        if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
+            console.warn(`[applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
+            this.feedbackProcessing = false;
+            return;
+        }
+        this.lastProcessedQuestionIndex = this.currentQuestionIndex;
 
         console.log(`[applyOptionFeedbackToAllOptions] Handling Question: ${this.currentQuestion.questionText}`);
 
@@ -1266,7 +1276,8 @@ export class QuizQuestionComponent
     } finally {
         this.feedbackProcessing = false;
     }
-  }  
+  }
+
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
