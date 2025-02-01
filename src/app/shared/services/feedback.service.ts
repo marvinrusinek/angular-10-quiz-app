@@ -198,52 +198,38 @@ export class FeedbackService {
     return message;
   } */
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
-    this.callCount++;  // Track number of calls
+    this.callCount++;
     console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
-  
-    console.log(`[setCorrectMessage] Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
-    console.log(`[setCorrectMessage] Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
-  
+
+    console.log(`[setCorrectMessage] CALL #${this.callCount} Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
+    console.log(`[setCorrectMessage] CALL #${this.callCount} Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY.`);
-      return 'Feedback unavailable.';
+        console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY.`);
+        console.trace();  // 🔴 This will print WHERE this function was called from
+        return 'Feedback unavailable.';
     }
-  
+
     if (!correctOptions || correctOptions.length === 0) {
-      console.warn(`[setCorrectMessage] CALL #${this.callCount} ❌ No correct options found.`);
-      return 'No correct answers available.';
+        console.warn(`[setCorrectMessage] CALL #${this.callCount} ❌ No correct options found.`);
+        return 'No correct answers available.';
     }
-  
-    // **Debugging Step: Log Correct Options**
-    console.log(`[setCorrectMessage] Correct options identified:`, JSON.stringify(correctOptions, null, 2));
-  
-    // Ensure `correctOptions` only contains a **single correct option** if the question is single-answer
-    if (correctOptions.length === 1) {
-      console.log(`[setCorrectMessage] ✅ Single correct answer detected`);
-      return `The correct answer is Option 1.`;
-    }
-  
-    // Use filter and map to determine correct option indices
+
+    console.log(`[setCorrectMessage] ✅ optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+
     const indices = optionsToDisplay
-      .map((option, index) => option.correct ? index + 1 : null)
-      .filter((index): index is number => index !== null)
-      .sort((a, b) => a - b);
-  
-    console.log(`[setCorrectMessage] ✅ Correct Option Indices:`, indices);
-  
+        .map((option, index) => option.correct ? index + 1 : null)
+        .filter((index): index is number => index !== null)
+        .sort((a, b) => a - b);
+
     if (indices.length === 0) {
-      console.warn(`[setCorrectMessage] ❌ No matching correct options found.`);
-      return 'No correct options found for this question.';
+        console.warn(`[setCorrectMessage] ❌ No matching correct options found.`);
+        return 'No correct options found for this question.';
     }
-  
-    // **Determine if it's a single-answer question**
-    if (indices.length === 1) {
-      console.log(`[setCorrectMessage] ✅ Single correct answer detected.`);
-      return `The correct answer is Option ${indices[0]}.`;
-    } else {
-      console.log(`[setCorrectMessage] ✅ Multiple correct answers detected.`);
-      return `The correct answers are Options ${indices.join(' and ')}.`;
-    }
+
+    const message = this.formatFeedbackMessage(indices);
+    console.log(`[setCorrectMessage] ✅ Generated Feedback:`, message);
+    return message;
   }
   
   
