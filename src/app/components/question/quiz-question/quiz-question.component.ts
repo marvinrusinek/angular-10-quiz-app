@@ -1209,6 +1209,7 @@ export class QuizQuestionComponent
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
 
+    // 🔹 Prevent duplicate execution
     if (this.feedbackProcessing) {
         console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call due to processing flag.`);
         return;
@@ -1227,22 +1228,27 @@ export class QuizQuestionComponent
         }
 
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🟢 Handling Question ID: ${this.currentQuestionIndex}`);
-
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
 
+        // 🔹 Ensure it doesn't run twice for the same question
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
             console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
             this.feedbackProcessing = false;
             return;
         }
 
-        this.optionsToDisplay = [...this.currentQuestion.options];
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:`, JSON.stringify(this.optionsToDisplay, null, 2));
-
-        if (this.optionsToDisplay.length === 0) {
-            console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty. Cannot proceed.`);
-            this.feedbackProcessing = false;
-            return;
+        // 🔹 Ensure optionsToDisplay is properly populated before applying feedback
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY. Attempting to repopulate from currentQuestion.options...`);
+            
+            if (this.currentQuestion.options && this.currentQuestion.options.length > 0) {
+                this.optionsToDisplay = [...this.currentQuestion.options];
+                console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:`, JSON.stringify(this.optionsToDisplay, null, 2));
+            } else {
+                console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay. Aborting feedback.`);
+                this.feedbackProcessing = false;
+                return;
+            }
         }
 
         const localOptionsToDisplay = [...this.optionsToDisplay];
@@ -1257,6 +1263,7 @@ export class QuizQuestionComponent
             return;
         }
 
+        // 🔹 Call `generateFeedbackForOptions()`
         const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
 
@@ -1266,6 +1273,7 @@ export class QuizQuestionComponent
             return;
         }
 
+        // 🔹 Apply feedback to options
         this.optionsToDisplay = localOptionsToDisplay.map(option => ({
             ...option,
             feedback: feedbackMessage,
@@ -1273,11 +1281,13 @@ export class QuizQuestionComponent
             highlight: option.selected
         }));
 
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback applied for ${this.currentQuestion.questionText}`);
+        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for ${this.currentQuestion.questionText}`);
 
+        // 🔹 Update the UI
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
+        // 🔹 Mark the question as processed **only after feedback has been successfully applied**
         this.lastProcessedQuestionIndex = this.currentQuestionIndex;
 
     } catch (error) {
