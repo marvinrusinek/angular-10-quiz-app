@@ -1201,13 +1201,14 @@ export class QuizQuestionComponent
     console.log(`[applyOptionFeedbackToAllOptions] TRIGGERED for Q${this.currentQuestionIndex}`);
 
     if (this.feedbackProcessing) {
-        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
+        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call due to processing flag.`);
         return;
     }
+
     this.feedbackProcessing = true;
 
     try {
-        console.trace(`[applyOptionFeedbackToAllOptions] TRACE: This function was called from:`);  // 🔴 Logs the function call source
+        console.trace(`[applyOptionFeedbackToAllOptions] TRACE: Called from:`);  // 🔴 Logs where it's being called
 
         this.currentQuestion = this.quizService.currentQuestion.getValue();
         if (!this.currentQuestion || !this.currentQuestion.options) {
@@ -1218,12 +1219,16 @@ export class QuizQuestionComponent
 
         console.log(`[applyOptionFeedbackToAllOptions] Handling Question ID: ${this.currentQuestionIndex}`);
 
+        // 🔍 Debug why it's skipping
+        console.log(`[applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
+
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
             console.warn(`[applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
             this.feedbackProcessing = false;
             return;
         }
-        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store the last processed question index
+
+        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store the last processed question index after validation
 
         this.optionsToDisplay = [...this.currentQuestion.options];
         console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
@@ -1273,8 +1278,6 @@ export class QuizQuestionComponent
         this.feedbackProcessing = false;
     }
   }
-
-
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
