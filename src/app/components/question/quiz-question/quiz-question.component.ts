@@ -997,25 +997,27 @@ export class QuizQuestionComponent
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
     if (question.options) {
-      this.optionsToDisplay = question.options.map(option => ({
-        ...option,
-        feedback: option.feedback ?? 'No feedback available.',
-        showIcon: option.showIcon ?? false,
-        active: option.active ?? true,
-        selected: option.selected ?? false,
-        correct: option.correct ?? false
-      }));
+        this.optionsToDisplay = question.options.map(option => ({
+            ...option,
+            feedback: option.feedback ?? 'No feedback available.',
+            showIcon: option.showIcon ?? false,
+            active: option.active ?? true,
+            selected: option.selected ?? false,
+            correct: option.correct ?? false
+        }));
 
-      // Check if this question's feedback was already applied
-      if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
-        console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
-        this.applyOptionFeedbackToAllOptions();
-      } else {
-        console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
-      }
+        // ✅ Check if this question's feedback was already applied
+        console.log(`[loadOptionsForQuestion] 🔍 Last Processed Question: ${this.lastProcessedQuestionIndex}, Current Question: ${this.currentQuestionIndex}`);
+
+        if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
+            console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
+            this.applyOptionFeedbackToAllOptions();
+        } else {
+            console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
+        }
     } else {
-      console.warn('No options found for the question:', question);
-      this.optionsToDisplay = [];
+        console.warn('No options found for the question:', question);
+        this.optionsToDisplay = [];
     }
   }
 
@@ -1228,8 +1230,6 @@ export class QuizQuestionComponent
             return;
         }
 
-        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store the last processed question index after validation
-
         this.optionsToDisplay = [...this.currentQuestion.options];
         console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
 
@@ -1272,6 +1272,8 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
+        // ✅ Move this here to ensure feedback has fully applied before marking as processed
+        this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } catch (error) {
         console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
     } finally {
