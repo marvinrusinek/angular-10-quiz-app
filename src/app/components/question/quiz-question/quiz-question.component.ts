@@ -1013,7 +1013,6 @@ export class QuizQuestionComponent
             correct: option.correct ?? false
         }));
 
-        // ✅ Ensure we only apply feedback if necessary
         console.log(`[loadOptionsForQuestion] 🔍 Last Processed Question: ${this.lastProcessedQuestionIndex}, Current Question: ${this.currentQuestionIndex}`);
 
         if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
@@ -1027,6 +1026,7 @@ export class QuizQuestionComponent
         this.optionsToDisplay = [];
     }
   }
+  
 
   /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
@@ -1214,7 +1214,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 TRACE: Called from:`);
+    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);
 
     this.feedbackProcessing = true;
 
@@ -1228,7 +1228,6 @@ export class QuizQuestionComponent
 
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🟢 Handling Question ID: ${this.currentQuestionIndex}`);
 
-        // 🔍 Debug why it's skipping
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
 
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
@@ -1279,7 +1278,6 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
-        // ✅ Move this here to ensure feedback has fully applied before marking as processed
         this.lastProcessedQuestionIndex = this.currentQuestionIndex;
 
     } catch (error) {
