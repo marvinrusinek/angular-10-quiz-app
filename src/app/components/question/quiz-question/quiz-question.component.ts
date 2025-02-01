@@ -1200,14 +1200,14 @@ export class QuizQuestionComponent
   private feedbackProcessing = false; // Prevent multiple calls
   private lastProcessedQuestionIndex: number | null = null;
 
-public async applyOptionFeedbackToAllOptions(): Promise<void> {
+  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+    console.log(`[applyOptionFeedbackToAllOptions] TRIGGERED for Q${this.currentQuestionIndex}`);
+
     if (this.feedbackProcessing) {
-        console.warn('[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.');
+        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
         return;
     }
     this.feedbackProcessing = true;
-
-    console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
 
     try {
         this.currentQuestion = this.quizService.currentQuestion.getValue();
@@ -1217,15 +1217,15 @@ public async applyOptionFeedbackToAllOptions(): Promise<void> {
             return;
         }
 
-        // ✅ Prevent processing the same question multiple times
+        // ✅ Log how many times this method has run for the same question
+        console.log(`[applyOptionFeedbackToAllOptions] Handling Question ID: ${this.currentQuestionIndex}`);
+
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
             console.warn(`[applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
             this.feedbackProcessing = false;
             return;
         }
-        this.lastProcessedQuestionIndex = this.currentQuestionIndex;
-
-        console.log(`[applyOptionFeedbackToAllOptions] Handling Question: ${this.currentQuestion.questionText}`);
+        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store the last processed question index
 
         this.optionsToDisplay = [...this.currentQuestion.options];
         console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
@@ -1236,7 +1236,6 @@ public async applyOptionFeedbackToAllOptions(): Promise<void> {
             return;
         }
 
-        // ✅ Create local copies
         const localOptionsToDisplay = [...this.optionsToDisplay];
         const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
 
