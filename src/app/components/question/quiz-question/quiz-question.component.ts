@@ -969,6 +969,8 @@ export class QuizQuestionComponent
   }
   
   private setQuestionFirst(index: number): void {
+    console.log(`[setQuestionFirst] 🔄 Processing Q${index}`);
+
     if (!this.questionsArray || index < 0 || index >= this.questionsArray.length) {
         console.warn(`Question not found at index: ${index}`);
         return;
@@ -999,6 +1001,8 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
+    console.log(`[loadOptionsForQuestion] 🔄 Processing options for Q${this.currentQuestionIndex}`);
+
     if (question.options) {
         this.optionsToDisplay = question.options.map(option => ({
             ...option,
@@ -1202,41 +1206,42 @@ export class QuizQuestionComponent
   private lastProcessedQuestionIndex: number | null = null;
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
-    console.log(`[applyOptionFeedbackToAllOptions] TRIGGERED for Q${this.currentQuestionIndex}`);
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
 
     if (this.feedbackProcessing) {
-        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call due to processing flag.`);
+        console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call due to processing flag.`);
         return;
     }
+
+    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 TRACE: Called from:`);
 
     this.feedbackProcessing = true;
 
     try {
-        console.trace(`[applyOptionFeedbackToAllOptions] TRACE: Called from:`);  // 🔴 Logs where it's being called
-
         this.currentQuestion = this.quizService.currentQuestion.getValue();
         if (!this.currentQuestion || !this.currentQuestion.options) {
-            console.error('[applyOptionFeedbackToAllOptions] ❌ Missing question data.');
+            console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Missing question data.`);
             this.feedbackProcessing = false;
             return;
         }
 
-        console.log(`[applyOptionFeedbackToAllOptions] Handling Question ID: ${this.currentQuestionIndex}`);
+        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🟢 Handling Question ID: ${this.currentQuestionIndex}`);
 
         // 🔍 Debug why it's skipping
-        console.log(`[applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
+        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
 
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
-            console.warn(`[applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
+            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
             this.feedbackProcessing = false;
             return;
         }
 
         this.optionsToDisplay = [...this.currentQuestion.options];
-        console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:`, JSON.stringify(this.optionsToDisplay, null, 2));
 
         if (this.optionsToDisplay.length === 0) {
-            console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty. Cannot proceed.');
+            console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty. Cannot proceed.`);
             this.feedbackProcessing = false;
             return;
         }
@@ -1244,20 +1249,20 @@ export class QuizQuestionComponent
         const localOptionsToDisplay = [...this.optionsToDisplay];
         const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
 
-        console.log('Local optionsToDisplay:', JSON.stringify(localOptionsToDisplay, null, 2));
-        console.log('Local correctOptions:', JSON.stringify(localCorrectOptions, null, 2));
+        console.log(`[${timestamp}] Local optionsToDisplay:`, JSON.stringify(localOptionsToDisplay, null, 2));
+        console.log(`[${timestamp}] Local correctOptions:`, JSON.stringify(localCorrectOptions, null, 2));
 
         if (localCorrectOptions.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available.');
+            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
             this.feedbackProcessing = false;
             return;
         }
 
         const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
-        console.log('[applyOptionFeedbackToAllOptions] ✅ Feedback message:', feedbackMessage);
+        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
 
         if (!feedbackMessage || feedbackMessage.trim() === '') {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.');
+            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
             this.feedbackProcessing = false;
             return;
         }
@@ -1269,7 +1274,7 @@ export class QuizQuestionComponent
             highlight: option.selected
         }));
 
-        console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback applied for ${this.currentQuestion.questionText}`);
+        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback applied for ${this.currentQuestion.questionText}`);
 
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
@@ -1278,11 +1283,12 @@ export class QuizQuestionComponent
         this.lastProcessedQuestionIndex = this.currentQuestionIndex;
 
     } catch (error) {
-        console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
+        console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Error applying feedback:`, error);
     } finally {
         this.feedbackProcessing = false;
     }
   }
+
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
