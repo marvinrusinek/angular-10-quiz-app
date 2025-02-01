@@ -200,34 +200,31 @@ export class FeedbackService {
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
     this.callCount++;  // Track number of calls
     console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
-
-    if (optionsToDisplay === undefined) {
-      console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is UNDEFINED.`);
-    } else if (optionsToDisplay.length === 0) {
-      console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY.`);
-    } else {
-      console.log(`[setCorrectMessage] CALL #${this.callCount} ✅ optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
-    }
-
+  
+    console.log(`[setCorrectMessage] Call Stack:`);
+    console.trace();  // This prints where this function was called from.
+  
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
+      console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY.`);
       return 'Feedback unavailable.';
     }
-
+  
+    console.log(`[setCorrectMessage] CALL #${this.callCount} ✅ optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+  
     const indices = optionsToDisplay
       .map((option, index) => option.correct ? index + 1 : null)
       .filter((index): index is number => index !== null)
       .sort((a, b) => a - b);
-
+  
     if (indices.length === 0) {
       console.warn(`[setCorrectMessage] CALL #${this.callCount} ❌ No matching correct options found.`);
       return 'No correct options found for this question.';
     }
-
+  
     const message = this.formatFeedbackMessage(indices);
     console.log(`[setCorrectMessage] CALL #${this.callCount} ✅ Generated Feedback:`, message);
     return message;
   }
-  
   
   private formatFeedbackMessage(indices: number[]): string {
     const optionsText = indices.length === 1 ? 'answer is Option' : 'answers are Options';
