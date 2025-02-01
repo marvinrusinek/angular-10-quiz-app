@@ -1203,7 +1203,6 @@ export class QuizQuestionComponent
   
       // Retrieve the current question.
       this.currentQuestion = this.quizService.currentQuestion.getValue();
-  
       if (!this.currentQuestion) {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Reloading...');
         const questionReloaded = await this.loadQuestion();
@@ -1221,7 +1220,7 @@ export class QuizQuestionComponent
       }
       console.log('[applyOptionFeedbackToAllOptions] currentQuestion.options:', JSON.stringify(this.currentQuestion.options, null, 2));
   
-      // (Re)assign optionsToDisplay from currentQuestion.options.
+      // Reassign optionsToDisplay from currentQuestion.options.
       this.optionsToDisplay = [...this.currentQuestion.options];
       console.log('[applyOptionFeedbackToAllOptions] Assigned optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   
@@ -1232,16 +1231,18 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Identify correct options.
-      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-      if (correctOptions.length === 0) {
+      // Create local snapshots to guard against accidental mutation.
+      const localOptionsToDisplay = [...this.optionsToDisplay];
+      const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
+      console.log('Local optionsToDisplay:', JSON.stringify(localOptionsToDisplay, null, 2));
+      console.log('Local correctOptions:', JSON.stringify(localCorrectOptions, null, 2));
+      if (localCorrectOptions.length === 0) {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
         return;
       }
   
-      // Call the feedback service.
-      const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+      // Call the feedback service using the local copies.
+      const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, localOptionsToDisplay);
       console.log('[applyOptionFeedbackToAllOptions] Feedback message returned:', feedbackMessage);
       if (!feedbackMessage || feedbackMessage.trim() === '') {
         console.warn('[applyOptionFeedbackToAllOptions] ❌ generateFeedbackForOptions returned empty feedback.');
@@ -1249,7 +1250,7 @@ export class QuizQuestionComponent
       }
   
       // Apply feedback to each option.
-      this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+      this.optionsToDisplay = localOptionsToDisplay.map(option => ({
         ...option,
         feedback: feedbackMessage,
         showIcon: option.correct || option.selected,
@@ -1260,12 +1261,10 @@ export class QuizQuestionComponent
       // Force UI update.
       this.cdRef.detectChanges();
       this.cdRef.markForCheck();
-  
     } catch (error) {
       console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error);
     }
-  }
-  
+  }  
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
