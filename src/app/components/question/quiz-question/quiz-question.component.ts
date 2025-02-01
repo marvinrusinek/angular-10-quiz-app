@@ -1215,7 +1215,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);
+    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);  // 🔴 Find where it's being called
 
     this.feedbackProcessing = true;
 
@@ -1230,16 +1230,14 @@ export class QuizQuestionComponent
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🟢 Handling Question ID: ${this.currentQuestionIndex}`);
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
 
-        // 🔹 Ensure it doesn't run twice for the same question
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
             console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
             this.feedbackProcessing = false;
             return;
         }
 
-        // 🔹 Ensure optionsToDisplay is properly populated before applying feedback
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY. Attempting to repopulate from currentQuestion.options...`);
+            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY. Attempting to repopulate...`);
             
             if (this.currentQuestion.options && this.currentQuestion.options.length > 0) {
                 this.optionsToDisplay = [...this.currentQuestion.options];
@@ -1263,7 +1261,6 @@ export class QuizQuestionComponent
             return;
         }
 
-        // 🔹 Call `generateFeedbackForOptions()`
         const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
 
@@ -1273,7 +1270,6 @@ export class QuizQuestionComponent
             return;
         }
 
-        // 🔹 Apply feedback to options
         this.optionsToDisplay = localOptionsToDisplay.map(option => ({
             ...option,
             feedback: feedbackMessage,
@@ -1283,11 +1279,9 @@ export class QuizQuestionComponent
 
         console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for ${this.currentQuestion.questionText}`);
 
-        // 🔹 Update the UI
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
-        // 🔹 Mark the question as processed **only after feedback has been successfully applied**
         this.lastProcessedQuestionIndex = this.currentQuestionIndex;
 
     } catch (error) {
