@@ -205,14 +205,9 @@ export class FeedbackService {
     console.log(`[setCorrectMessage] CALL #${this.callCount} Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
 
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY.`);
-        console.trace();  // 🔴 This will print WHERE this function was called from
+        console.error(`[setCorrectMessage] CALL #${this.callCount} ❌ optionsToDisplay is EMPTY. STOPPING HERE.`);
+        console.trace();  // 🔴 This will show exactly WHERE the empty call is coming from
         return 'Feedback unavailable.';
-    }
-
-    if (!correctOptions || correctOptions.length === 0) {
-        console.warn(`[setCorrectMessage] CALL #${this.callCount} ❌ No correct options found.`);
-        return 'No correct answers available.';
     }
 
     console.log(`[setCorrectMessage] ✅ optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
