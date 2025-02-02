@@ -1210,86 +1210,51 @@ export class QuizQuestionComponent
   private applyOptionFeedbackCallCount = 0; // Track total calls
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
-    this.applyOptionFeedbackCallCount++; // Track how many times this function is called
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex} (Call #${this.applyOptionFeedbackCallCount})`);
+    console.log(`[applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
 
-    // 🚨 Log function trace to check where it's being called from
-    console.trace(`[applyOptionFeedbackToAllOptions] TRACE: Called from:`);
-
-    // 🚨 Prevent duplicate execution
-    if (this.feedbackProcessing) {
-        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.error(`[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY at start. Skipping feedback processing.`);
         return;
     }
-    this.feedbackProcessing = true;
 
-    try {
-        this.currentQuestion = this.quizService.currentQuestion.getValue();
-        if (!this.currentQuestion || !this.currentQuestion.options) {
-            console.error(`[applyOptionFeedbackToAllOptions] ❌ Missing question data.`);
-            this.feedbackProcessing = false;
-            return;
-        }
+    console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE modification: optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
 
-        console.log(`[applyOptionFeedbackToAllOptions] 🟢 Processing Q${this.currentQuestionIndex}`);
+    const localOptionsToDisplay = [...this.optionsToDisplay]; // Local copy
+    console.log(`[applyOptionFeedbackToAllOptions] 🔍 AFTER LOCAL COPY: localOptionsToDisplay =`, JSON.stringify(localOptionsToDisplay, null, 2));
 
-        // 🚨 Prevent duplicate execution for the same question
-        if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
-            console.warn(`[applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
-            return;
-        }
-        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store last processed question index
+    const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
+    console.log(`[applyOptionFeedbackToAllOptions] ✅ Correct Options Identified:`, localCorrectOptions);
 
-        this.optionsToDisplay = [...this.currentQuestion.options];
-        console.log(`[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:`, JSON.stringify(this.optionsToDisplay, null, 2));
-
-        if (this.optionsToDisplay.length === 0) {
-            console.error(`[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY. Cannot proceed.`);
-            this.feedbackProcessing = false;
-            return;
-        }
-
-        const localOptionsToDisplay = [...this.optionsToDisplay];
-        const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
-
-        console.log(`[applyOptionFeedbackToAllOptions] ✅ Correct Options Identified:`, localCorrectOptions);
-
-        if (localCorrectOptions.length === 0) {
-            console.warn(`[applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
-            this.feedbackProcessing = false;
-            return;
-        }
-
-        // 🚨 Call `generateFeedbackForOptions()` Only When Necessary
-        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
-        console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
-
-        if (!feedbackMessage || feedbackMessage.trim() === '') {
-            console.warn(`[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
-            this.feedbackProcessing = false;
-            return;
-        }
-
-        // 🚨 Apply Feedback Only When Needed
-        this.optionsToDisplay = localOptionsToDisplay.map(option => ({
-            ...option,
-            feedback: feedbackMessage,
-            showIcon: option.correct || option.selected,
-            highlight: option.selected
-        }));
-
-        console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback applied successfully`);
-
-        // 🚨 Ensure UI is updated
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-
-    } catch (error) {
-        console.error(`[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:`, error);
-    } finally {
-        this.feedbackProcessing = false;
+    if (localCorrectOptions.length === 0) {
+        console.warn(`[applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
+        return;
     }
+
+    // 🚨 Log before calling feedback function
+    console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE Calling generateFeedbackForOptions: optionsToDisplay =`, JSON.stringify(localOptionsToDisplay, null, 2));
+
+    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, localOptionsToDisplay);
+    console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
+
+    if (!feedbackMessage || feedbackMessage.trim() === '') {
+        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
+        return;
+    }
+
+    // 🚨 Log before updating options
+    console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE UPDATING: optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
+
+    this.optionsToDisplay = localOptionsToDisplay.map(option => ({
+        ...option,
+        feedback: feedbackMessage,
+        showIcon: option.correct || option.selected,
+        highlight: option.selected
+    }));
+
+    console.log(`[applyOptionFeedbackToAllOptions] ✅ AFTER UPDATING optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
+
+    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
   }
 
 
