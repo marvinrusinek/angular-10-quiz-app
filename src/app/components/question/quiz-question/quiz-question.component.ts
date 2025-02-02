@@ -989,7 +989,7 @@ export class QuizQuestionComponent
     // ✅ Ensure Feedback is Not Re-Applied
     if (this.lastProcessedQuestionIndex !== index) {
         console.log('[setQuestionFirst] ✅ Applying feedback now...');
-        this.applyOptionFeedbackToAllOptions();
+        // this.applyOptionFeedbackToAllOptions();
     } else {
         console.warn('[setQuestionFirst] ❌ Feedback already processed. Skipping.');
     }
@@ -1017,7 +1017,7 @@ export class QuizQuestionComponent
 
         if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
             console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
-            this.applyOptionFeedbackToAllOptions();
+            // this.applyOptionFeedbackToAllOptions();
         } else {
             console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
         }
