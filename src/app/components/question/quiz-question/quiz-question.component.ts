@@ -243,6 +243,8 @@ export class QuizQuestionComponent
       // Call the parent class's ngOnInit method
       super.ngOnInit();
 
+      (window as any).applyFeedback = () => this.applyOptionFeedbackToAllOptions();
+
       // Initialize necessary subscriptions and data to manage display mode
       this.initializeDisplaySubscriptions();
 
