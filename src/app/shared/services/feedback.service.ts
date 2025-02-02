@@ -233,6 +233,8 @@ export class FeedbackService {
     return message;
   } */
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
+    console.log(`[setCorrectMessage] CALL #${this.callCount} 🟢 Received optionsToDisplay:`, JSON.stringify(optionsToDisplay, null, 2));
+    
     this.callCount = (this.callCount || 0) + 1; // Ensure callCount starts from 1
     console.log(`[setCorrectMessage] CALL #${this.callCount} STARTED`);
 
