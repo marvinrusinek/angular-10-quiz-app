@@ -1524,7 +1524,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Ensure feedback is generated **AFTER** options are fully initialized
         setTimeout(() => {
             console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }, 100);
 
         // ✅ Ensure UI updates
@@ -1549,7 +1549,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = explanationObj?.explanation ?? 'No explanation available for this question.';
 
       // Confirm feedback application here
-      this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+      // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
     } else {
       this.explanationToDisplay = 'No explanation available for this question.';
       console.error('Missing formatted explanation for index:', index);
@@ -1829,7 +1829,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       // Apply feedback to options through QuizQuestionComponent
-      this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+      // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
       this.showFeedback = true; // Enable feedback display
   
       // Trigger change detection to update the UI
@@ -1907,7 +1907,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.optionsToDisplay = question.options;
 
             // Ensure feedback is applied for the first question
-            this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
+            // this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
           } else {
             console.error('No question data available after fetch.');
           }
@@ -2577,7 +2577,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         setTimeout(() => {
           //if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
           //  console.log('[initializeFirstQuestion] ✅ Applying feedback for first question...');
-            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
           //} else {
           //  console.warn('[initializeFirstQuestion] ❌ Skipping applyOptionFeedbackToAllOptions because optionsToDisplay is empty.');
           //}
