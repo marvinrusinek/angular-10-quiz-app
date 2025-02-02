@@ -238,7 +238,7 @@ export class FeedbackService {
 
     // Store the last known correct optionsToDisplay
     if (optionsToDisplay && optionsToDisplay.length > 0) {
-        this.lastKnownOptions = [...optionsToDisplay];
+      this.lastKnownOptions = [...optionsToDisplay];
     }
 
     console.log(`[setCorrectMessage] Received correctOptions:`, JSON.stringify(correctOptions, null, 2));
