@@ -1209,46 +1209,43 @@ export class QuizQuestionComponent
 
   private applyOptionFeedbackCallCount = 0; // Track total calls
 
-public async applyOptionFeedbackToAllOptions(): Promise<void> {
-    this.applyOptionFeedbackCallCount++; // Increase count
+  public async applyOptionFeedbackToAllOptions(): Promise<void> {
+    this.applyOptionFeedbackCallCount++; // Track how many times this function is called
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex} (Call #${this.applyOptionFeedbackCallCount})`);
 
-    // 🚨 Log every function that triggers it
-    console.trace(`[${timestamp}] [applyOptionFeedbackToAllOptions] TRACE: Called from:`);
+    // 🚨 Log function trace to check where it's being called from
+    console.trace(`[applyOptionFeedbackToAllOptions] TRACE: Called from:`);
 
     // 🚨 Prevent duplicate execution
     if (this.feedbackProcessing) {
-        console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
+        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Skipping duplicate call.`);
         return;
     }
-
     this.feedbackProcessing = true;
 
     try {
         this.currentQuestion = this.quizService.currentQuestion.getValue();
         if (!this.currentQuestion || !this.currentQuestion.options) {
-            console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Missing question data.`);
+            console.error(`[applyOptionFeedbackToAllOptions] ❌ Missing question data.`);
             this.feedbackProcessing = false;
             return;
         }
 
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🟢 Handling Question ID: ${this.currentQuestionIndex}`);
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] 🔍 LAST PROCESSED QUESTION: ${this.lastProcessedQuestionIndex}, CURRENT QUESTION: ${this.currentQuestionIndex}`);
+        console.log(`[applyOptionFeedbackToAllOptions] 🟢 Processing Q${this.currentQuestionIndex}`);
 
-        // 🚨 Stop duplicate execution for the same question
+        // 🚨 Prevent duplicate execution for the same question
         if (this.lastProcessedQuestionIndex === this.currentQuestionIndex) {
-            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
+            console.warn(`[applyOptionFeedbackToAllOptions] ❌ Already processed feedback for Q${this.currentQuestionIndex}. Skipping.`);
             return;
         }
-
-        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store processed question index
+        this.lastProcessedQuestionIndex = this.currentQuestionIndex; // ✅ Store last processed question index
 
         this.optionsToDisplay = [...this.currentQuestion.options];
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:`, JSON.stringify(this.optionsToDisplay, null, 2));
+        console.log(`[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay:`, JSON.stringify(this.optionsToDisplay, null, 2));
 
         if (this.optionsToDisplay.length === 0) {
-            console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty. Cannot proceed.`);
+            console.error(`[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY. Cannot proceed.`);
             this.feedbackProcessing = false;
             return;
         }
@@ -1256,21 +1253,20 @@ public async applyOptionFeedbackToAllOptions(): Promise<void> {
         const localOptionsToDisplay = [...this.optionsToDisplay];
         const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
 
-        console.log(`[${timestamp}] Local optionsToDisplay:`, JSON.stringify(localOptionsToDisplay, null, 2));
-        console.log(`[${timestamp}] Local correctOptions:`, JSON.stringify(localCorrectOptions, null, 2));
+        console.log(`[applyOptionFeedbackToAllOptions] ✅ Correct Options Identified:`, localCorrectOptions);
 
         if (localCorrectOptions.length === 0) {
-            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
+            console.warn(`[applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
             this.feedbackProcessing = false;
             return;
         }
 
         // 🚨 Call `generateFeedbackForOptions()` Only When Necessary
         const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, [...localOptionsToDisplay]);
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
+        console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
 
         if (!feedbackMessage || feedbackMessage.trim() === '') {
-            console.warn(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
+            console.warn(`[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
             this.feedbackProcessing = false;
             return;
         }
@@ -1283,18 +1279,19 @@ public async applyOptionFeedbackToAllOptions(): Promise<void> {
             highlight: option.selected
         }));
 
-        console.log(`[${timestamp}] [applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for ${this.currentQuestion.questionText}`);
+        console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback applied successfully`);
 
         // 🚨 Ensure UI is updated
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
 
     } catch (error) {
-        console.error(`[${timestamp}] [applyOptionFeedbackToAllOptions] ❌ Error applying feedback:`, error);
+        console.error(`[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:`, error);
     } finally {
         this.feedbackProcessing = false;
     }
   }
+
 
   
   // Conditional method to update the explanation only if the question is answered
