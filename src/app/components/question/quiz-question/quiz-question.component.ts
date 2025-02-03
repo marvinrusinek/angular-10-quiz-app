@@ -211,8 +211,8 @@ export class QuizQuestionComponent
   }
 
   set optionsToDisplay(value: Option[]) {
-      console.log(`[WATCH] 🟢 optionsToDisplay SET in QQC:`, JSON.stringify(value, null, 2));
-      this._optionsToDisplay = value;
+    console.trace(`[WATCH] ⚠️ optionsToDisplay SET in QQC (Q${this.currentQuestionIndex}):`, JSON.stringify(value, null, 2));
+    this._optionsToDisplay = value;
   }
 
   set currentQuestionIndex(value: number) {
@@ -221,7 +221,7 @@ export class QuizQuestionComponent
   }
 
   get currentQuestionIndex(): number {
-      return this._currentQuestionIndex;
+    return this._currentQuestionIndex;
   }
 
   constructor(
