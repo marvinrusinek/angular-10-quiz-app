@@ -921,12 +921,13 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
-    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
-
     if (!question) {
       console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
       return;
     }
+
+    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
 
     // ✅ Prevent duplicate updates
     if (this.currentQuestion.getValue()?.questionText === question.questionText) {
@@ -937,7 +938,7 @@ export class QuizService implements OnDestroy {
     // ✅ Assign options to ensure consistency
     question.options = question.options?.map((option, index) => ({
       ...option,
-      optionId: index // Ensure optionId is assigned correctly
+      optionId: index, // Ensure optionId is assigned correctly
     })) || [];
 
     this.currentQuestion.next(question);
