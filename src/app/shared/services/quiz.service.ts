@@ -897,7 +897,7 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  setCurrentQuestion(index: number): void {
+  /* setCurrentQuestion(index: number): void {
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized.');
       return;
@@ -918,6 +918,28 @@ export class QuizService implements OnDestroy {
     }
 
     console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
+    this.currentQuestion.next(question);
+  } */
+  public setCurrentQuestion(question: QuizQuestion | null): void {
+    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
+
+    if (!question) {
+      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      return;
+    }
+
+    // ✅ Prevent duplicate updates
+    if (this.currentQuestion.getValue()?.questionText === question.questionText) {
+      console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
+      return;
+    }
+
+    // ✅ Assign options to ensure consistency
+    question.options = question.options?.map((option, index) => ({
+      ...option,
+      optionId: index // Ensure optionId is assigned correctly
+    })) || [];
+
     this.currentQuestion.next(question);
   }
 

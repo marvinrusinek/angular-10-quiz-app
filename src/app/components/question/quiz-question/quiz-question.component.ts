@@ -1340,7 +1340,7 @@ export class QuizQuestionComponent
     }, 50);
   }
 
-  public setCurrentQuestion(question: QuizQuestion | null): void {
+  /* public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
         console.error('[setCurrentQuestion] ❌ Attempted to set a null or undefined question.');
         this.question = null;
@@ -1361,7 +1361,7 @@ export class QuizQuestionComponent
     this.optionsToDisplay = question.options || [];
 
     console.log(`[DEBUG] 🟢 optionsToDisplay is being set:`, JSON.stringify(this.optionsToDisplay, null, 2));
-  }
+  } */
 
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription =
