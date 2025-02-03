@@ -1355,7 +1355,7 @@ export class QuizQuestionComponent
     }
 
     console.warn(`[DEBUG] 🔍 setCurrentQuestion() was called!`);
-    console.trace(`[TRACE] 🟢 setCurrentQuestion() called with QUESTION:`, JSON.stringify(question, null, 2));
+    console.trace(`[TRACE] 🟢 setCurrentQuestion() called with QUESTION:`, JSON.stringify(this.question, null, 2));
 
     this.question = question;
     this.optionsToDisplay = question.options || [];
