@@ -1342,16 +1342,14 @@ export class QuizQuestionComponent
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error(
-        '[setCurrentQuestion] ❌ Attempted to set a null or undefined question.'
-      );
-      this.question = null;
-      this.optionsToDisplay = [];
-      return;
+        console.error('[setCurrentQuestion] ❌ Attempted to set a null or undefined question.');
+        this.question = null;
+        this.optionsToDisplay = [];
+        return;
     }
 
-    console.trace(`[TRACE] 🟢 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
-    
+    console.trace(`[TRACE] 🟢 setCurrentQuestion() called with QUESTION:`, JSON.stringify(question, null, 2));
+
     this.question = question;
     this.optionsToDisplay = question.options || []; // Safely set options if available
 
