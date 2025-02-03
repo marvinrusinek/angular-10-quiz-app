@@ -1341,6 +1341,8 @@ export class QuizQuestionComponent
   }
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
+    console.warn(`[FORCE LOG] 🔍 setCurrentQuestion() was called!`);
+    
     if (!question) {
         console.error('[setCurrentQuestion] ❌ Attempted to set a null or undefined question.');
         this.question = null;
