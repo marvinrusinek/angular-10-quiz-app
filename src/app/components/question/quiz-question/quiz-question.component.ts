@@ -310,7 +310,7 @@ export class QuizQuestionComponent
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     const question = this.questionsArray[index];
     if (question) {
-      this.setCurrentQuestion(question);
+      this.quizService.setCurrentQuestion(question);
       this.loadOptionsForQuestion(question);
     }
 
@@ -1005,7 +1005,7 @@ export class QuizQuestionComponent
     }
 
     this.optionsToDisplay = [];
-    this.setCurrentQuestion(question);
+    this.quizService.setCurrentQuestion(question);
     this.loadOptionsForQuestion(question);
 
     // ✅ Ensure Feedback is Not Re-Applied
@@ -1316,7 +1316,7 @@ export class QuizQuestionComponent
 
     // Set the current question and emit its explanation text
     if (question) {
-      this.setCurrentQuestion(question);
+      this.quizService.setCurrentQuestion(question);
       this.emitExplanationText(question); // Emit explanation after setting question
     }
   }
@@ -4701,7 +4701,7 @@ export class QuizQuestionComponent
     try {
       // Set the question and trigger a re-render
       if (currentQuestion) {
-        this.setCurrentQuestion(currentQuestion);
+        this.quizService.setCurrentQuestion(currentQuestion);
       }
 
       // Wait for the question to be rendered before updating the explanation
