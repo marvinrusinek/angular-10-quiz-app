@@ -1341,8 +1341,6 @@ export class QuizQuestionComponent
   }
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
-    console.warn(`[FORCE LOG] 🔍 setCurrentQuestion() was called!`);
-    
     if (!question) {
         console.error('[setCurrentQuestion] ❌ Attempted to set a null or undefined question.');
         this.question = null;
@@ -1350,10 +1348,17 @@ export class QuizQuestionComponent
         return;
     }
 
+    // 🚨 Prevent multiple calls with the same question
+    if (this.question?.questionText === question.questionText) {
+        console.warn(`[setCurrentQuestion] ⚠️ Skipping duplicate call for question: ${question.questionText}`);
+        return;
+    }
+
+    console.warn(`[DEBUG] 🔍 setCurrentQuestion() was called!`);
     console.trace(`[TRACE] 🟢 setCurrentQuestion() called with QUESTION:`, JSON.stringify(question, null, 2));
 
     this.question = question;
-    this.optionsToDisplay = question.options || []; // Safely set options if available
+    this.optionsToDisplay = question.options || [];
 
     console.log(`[DEBUG] 🟢 optionsToDisplay is being set:`, JSON.stringify(this.optionsToDisplay, null, 2));
   }
