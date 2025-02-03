@@ -204,6 +204,17 @@ export class QuizQuestionComponent
 
   private destroy$: Subject<void> = new Subject<void>();
 
+  private _optionsToDisplay: Option[] = [];
+
+  get optionsToDisplay(): Option[] {
+    return this._optionsToDisplay;
+  }
+
+  set optionsToDisplay(value: Option[]) {
+      console.log(`[WATCH] 🟢 optionsToDisplay SET in QQC:`, JSON.stringify(value, null, 2));
+      this._optionsToDisplay = value;
+  }
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
