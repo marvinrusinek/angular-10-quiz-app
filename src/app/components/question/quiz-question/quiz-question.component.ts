@@ -1352,6 +1352,7 @@ export class QuizQuestionComponent
 
     this.question = question;
     this.optionsToDisplay = question.options || []; // Safely set options if available
+    console.log(`[DEBUG] 🟢 optionsToDisplay is being set:`, JSON.stringify(this.optionsToDisplay, null, 2));
   }
 
   private setupSubscriptions(): void {
