@@ -215,6 +215,15 @@ export class QuizQuestionComponent
       this._optionsToDisplay = value;
   }
 
+  set currentQuestionIndex(value: number) {
+    console.trace(`[WATCH] 🟢 currentQuestionIndex SET: ${value}`);
+    this._currentQuestionIndex = value;
+  }
+
+  get currentQuestionIndex(): number {
+      return this._currentQuestionIndex;
+  }
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
