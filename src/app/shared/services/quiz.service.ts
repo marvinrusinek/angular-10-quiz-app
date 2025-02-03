@@ -917,6 +917,7 @@ export class QuizService implements OnDestroy {
       return;
     }
 
+    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
     this.currentQuestion.next(question);
   }
 
