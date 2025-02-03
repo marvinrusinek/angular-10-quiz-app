@@ -922,23 +922,23 @@ export class QuizService implements OnDestroy {
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-      console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
-      return;
+        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+        console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
+        return;
     }
 
     console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
 
     // ✅ Prevent duplicate updates
     if (this.currentQuestion.getValue()?.questionText === question.questionText) {
-      console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
-      return;
+        console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
+        return;
     }
 
     // ✅ Assign options to ensure consistency
     question.options = question.options?.map((option, index) => ({
-      ...option,
-      optionId: index, // Ensure optionId is assigned correctly
+        ...option,
+        optionId: index, // Ensure optionId is assigned correctly
     })) || [];
 
     this.currentQuestion.next(question);
