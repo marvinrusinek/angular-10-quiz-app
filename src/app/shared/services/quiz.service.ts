@@ -921,10 +921,14 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
-    if (!question) {
+    /* if (!question) {
         console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
         console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
         return;
+    } */
+    if (!question) {
+      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      throw new Error('[QuizService] ❌ Forced error: setCurrentQuestion() was called with NULL or UNDEFINED');
     }
 
     console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
