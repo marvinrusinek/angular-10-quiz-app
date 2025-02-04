@@ -1061,30 +1061,45 @@ export class QuizQuestionComponent
   public loadOptionsForQuestion(question: QuizQuestion): void {
     console.log(`[loadOptionsForQuestion] 🔄 Processing options for Q${this.currentQuestionIndex}`);
 
-    if (question.options) {
-        this.optionsToDisplay = question.options.map(option => ({
-            ...option,
-            feedback: option.feedback ?? 'No feedback available.',
-            showIcon: option.showIcon ?? false,
-            active: option.active ?? true,
-            selected: option.selected ?? false,
-            correct: option.correct ?? false
-        }));
+    if (!question || !question.options) {
+      console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
+      this.optionsToDisplay = [];
+      return;
+    }
 
-        console.log(`[loadOptionsForQuestion] 🔍 Last Processed Question: ${this.lastProcessedQuestionIndex}, Current Question: ${this.currentQuestionIndex}`);
+    // Always pull options from `currentQuestion` in `QuizService`
+    const currentQuestion = this.quizService.currentQuestion.getValue();
+    
+    if (!currentQuestion) {
+      console.error('[loadOptionsForQuestion] ❌ No current question available in QuizService.');
+      return;
+    }
 
-        if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
-            console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
-            // this.applyOptionFeedbackToAllOptions();
-        } else {
-            console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
-        }
+    console.trace(`[TRACE] 🔍 loadOptionsForQuestion() CALLED for:`, JSON.stringify(currentQuestion, null, 2));
+
+    // Ensure optionsToDisplay is assigned from `QuizService`
+    this.optionsToDisplay = [...(currentQuestion.options ?? [])].map(option => ({
+      ...option,
+      feedback: option.feedback ?? 'No feedback available.',
+      showIcon: option.showIcon ?? false,
+      active: option.active ?? true,
+      selected: option.selected ?? false,
+      correct: option.correct ?? false
+    }));
+
+    console.log(`[WATCH] 🟢 optionsToDisplay SET in Component (AFTER loadOptionsForQuestion):`, JSON.stringify(this.optionsToDisplay, null, 2));
+
+    // Prevent re-applying feedback for the same question
+    console.log(`[loadOptionsForQuestion] 🔍 Last Processed Question: ${this.lastProcessedQuestionIndex}, Current Question: ${this.currentQuestionIndex}`);
+    
+    if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
+      console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
+      this.applyOptionFeedbackToAllOptions();
+      this.lastProcessedQuestionIndex = this.currentQuestionIndex; // Ensure feedback isn't reapplied
     } else {
-        console.warn('No options found for the question:', question);
-        this.optionsToDisplay = [];
+      console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
     }
   }
-  
 
   /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
     try {
