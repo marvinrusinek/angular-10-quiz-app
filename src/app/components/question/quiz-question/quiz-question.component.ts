@@ -993,56 +993,57 @@ export class QuizQuestionComponent
   
   private setQuestionFirst(index: number): void {
     console.warn(`[TRACE] 🔍 setQuestionFirst() CALLED with index: ${index}`);
+    console.trace(`[TRACE] 📌 setQuestionFirst() TRACE CALL STACK`);
 
     if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error(`[TRACE] ❌ questionsArray is empty or undefined.`);
-      return;
+        console.error(`[TRACE] ❌ questionsArray is empty or undefined.`);
+        return;
     }
 
     console.log(`[TRACE] 📋 Total questions available: ${this.questionsArray.length}`);
 
-    // 🔹 Convert index to zero-based if needed
-    const zeroBasedIndex = Math.max(0, index - 1); 
+    const zeroBasedIndex = Math.max(0, index - 1);
 
-    // Validate the index before setting the question
     if (zeroBasedIndex < 0 || zeroBasedIndex >= this.questionsArray.length) {
-      console.error(`[TRACE] ❌ Invalid question index: ${zeroBasedIndex}`);
-      return;
+        console.error(`[TRACE] ❌ Invalid question index: ${zeroBasedIndex}`);
+        return;
     }
 
     const question = this.questionsArray[zeroBasedIndex];
 
     if (!question) {
-      console.error(`[TRACE] ❌ No question data available at index: ${zeroBasedIndex}`);
-      return;
+        console.error(`[TRACE] ❌ No question data available at index: ${zeroBasedIndex}`);
+        return;
     }
 
-    // Log the actual question being set
     console.warn(`[TRACE] 🟢 setQuestionFirst() SETTING QUESTION at index ${zeroBasedIndex}:`, JSON.stringify(question, null, 2));
 
-    // Reset options before setting new question
-    this.optionsToDisplay = [];
-
-    // Call the QuizService to update the current question
+    // ✅ Ensure the question is correctly set in the service before updating UI
     this.quizService.setCurrentQuestion(question);
 
-    // Load options for the question
+    // ✅ Ensure `optionsToDisplay` is assigned **AFTER** the correct question is set
+    this.optionsToDisplay = [...question.options];
+    console.log(`[WATCH] 🟢 optionsToDisplay SET in Component:`, JSON.stringify(this.optionsToDisplay, null, 2));
+
+    if (this.optionsToDisplay.length === 0) {
+        console.error(`[TRACE] ❌ optionsToDisplay is EMPTY after assignment!`);
+    }
+
     this.loadOptionsForQuestion(question);
 
     if (this.lastProcessedQuestionIndex !== zeroBasedIndex) {
-      console.log('[TRACE] ✅ Applying feedback now...');
-      this.applyOptionFeedbackToAllOptions();
-      this.lastProcessedQuestionIndex = zeroBasedIndex;
+        console.log('[TRACE] ✅ Applying feedback now...');
+        this.applyOptionFeedbackToAllOptions();
+        this.lastProcessedQuestionIndex = zeroBasedIndex;
     } else {
-      console.warn('[TRACE] ❌ Feedback already processed. Skipping.');
+        console.warn('[TRACE] ❌ Feedback already processed. Skipping.');
     }
 
-    // Ensure Explanation is Updated After Rendering
     setTimeout(() => {
-      console.log(`[TRACE] ⏳ Updating explanation for Q${zeroBasedIndex}...`);
-      this.updateExplanationIfAnswered(zeroBasedIndex, question);
-      this.questionRenderComplete.emit();
-      console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${zeroBasedIndex}.`);
+        console.log(`[TRACE] ⏳ Updating explanation for Q${zeroBasedIndex}...`);
+        this.updateExplanationIfAnswered(zeroBasedIndex, question);
+        this.questionRenderComplete.emit();
+        console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${zeroBasedIndex}.`);
     }, 100);
   }
 
