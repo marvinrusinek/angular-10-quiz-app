@@ -445,72 +445,82 @@ export class QuizService implements OnDestroy {
         return this.sanitizeOptions(options); // Ensure options are properly structured
       }),
       catchError((error) => {
-        console.error(`Error fetching options for question index ${index}:`, error);
+        console.error(
+          `Error fetching options for question index ${index}:`,
+          error
+        );
         return of([]);
       })
     );
-  }  
+  }
 
   sanitizeOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
       console.warn('⚠️ [sanitizeOptions] Options is not an array.');
       return [];
     }
-  
+
     return options.map((option, index) => {
       // 🔥 Ensure option exists
       if (!option) {
-        console.error(`❌ [sanitizeOptions] Option is null or undefined at index ${index}`);
+        console.error(
+          `❌ [sanitizeOptions] Option is null or undefined at index ${index}`
+        );
         return {
-          optionId: index, 
-          text: `Missing option at index ${index}`, 
-          correct: false, 
-          value: null, 
-          answer: null, 
-          selected: false, 
-          showIcon: false, 
-          feedback: 'No feedback available', 
-          styleClass: ''
+          optionId: index,
+          text: `Missing option at index ${index}`,
+          correct: false,
+          value: null,
+          answer: null,
+          selected: false,
+          showIcon: false,
+          feedback: 'No feedback available',
+          styleClass: '',
         };
       }
-  
+
       // 🔥 Ensure optionId is a valid number
       if (!Number.isInteger(option.optionId) || option.optionId < 0) {
-        console.warn(`⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`);
+        console.warn(
+          `⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`
+        );
         option.optionId = index; // Assign fallback optionId
       }
-  
+
       // 🔥 Ensure option text is present
       if (!option.text || option.text.trim() === '') {
-        console.warn(`⚠️ [sanitizeOptions] Option text is missing at index ${index}. Assigning placeholder text.`);
+        console.warn(
+          `⚠️ [sanitizeOptions] Option text is missing at index ${index}. Assigning placeholder text.`
+        );
         option.text = `Option ${index + 1}`; // Provide default text if missing
       }
-  
+
       return {
-        optionId: option.optionId, 
+        optionId: option.optionId,
         text: option.text?.trim() || `Option ${index}`,
-        correct: option.correct ?? false, 
-        value: option.value ?? null, 
-        answer: option.answer ?? null, 
-        selected: option.selected ?? false, 
-        showIcon: option.showIcon ?? false, 
-        feedback: option.feedback ?? 'No feedback available', 
-        styleClass: option.styleClass ?? ''
+        correct: option.correct ?? false,
+        value: option.value ?? null,
+        answer: option.answer ?? null,
+        selected: option.selected ?? false,
+        showIcon: option.showIcon ?? false,
+        feedback: option.feedback ?? 'No feedback available',
+        styleClass: option.styleClass ?? '',
       };
     });
   }
-  
 
-  getSafeOptionId(option: SelectedOption, index: number): number | undefined {    
+  getSafeOptionId(option: SelectedOption, index: number): number | undefined {
     // Ensure optionId exists and is a number
     if (option && typeof option.optionId === 'number') {
       return option.optionId;
     }
-  
-    console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
+
+    console.warn(
+      `Invalid or missing optionId. Falling back to index: ${index}`
+    );
     return index;
   }
-  
+
   private loadData(): void {
     this.initializeQuizData();
     this.loadRouteParams();
@@ -624,7 +634,7 @@ export class QuizService implements OnDestroy {
         return isValid; // Wait until questions are available
       }),
       take(1), // Take only the first emission
-      map((questions: QuizQuestion[]) => { 
+      map((questions: QuizQuestion[]) => {
         if (index < 0 || index >= questions.length) {
           console.warn(
             `Index ${index} is out of bounds. Total questions available: ${questions.length}`
@@ -639,24 +649,32 @@ export class QuizService implements OnDestroy {
         return of(null); // Fallback to null on error
       })
     );
-  }  
+  }
 
-  getCurrentQuestionByIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
+  getCurrentQuestionByIndex(
+    quizId: string,
+    questionIndex: number
+  ): Observable<QuizQuestion | null> {
     return this.getQuizData().pipe(
       map((quizzes) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
         if (!selectedQuiz) {
           throw new Error(`No quiz found with the given ID: ${quizId}`);
         }
-        if (!selectedQuiz.questions || selectedQuiz.questions.length <= questionIndex) {
-          throw new Error(`No questions available or index out of bounds for quiz ID: ${quizId}`);
+        if (
+          !selectedQuiz.questions ||
+          selectedQuiz.questions.length <= questionIndex
+        ) {
+          throw new Error(
+            `No questions available or index out of bounds for quiz ID: ${quizId}`
+          );
         }
-  
+
         const question = selectedQuiz.questions[questionIndex];
-        
+
         // Ensure optionIds are assigned
         question.options = this.assignOptionIds(question.options);
-  
+
         return question;
       }),
       catchError((error) => {
@@ -688,15 +706,15 @@ export class QuizService implements OnDestroy {
         console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
         throw new Error('Quiz ID is not provided or is empty');
       }
-  
+
       // Fetch quizzes from the API
       const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
       const quiz = quizzes.find((q) => q.quizId === quizId);
-  
+
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
-  
+
       // Normalize questions and options
       for (const question of quiz.questions) {
         if (question.options) {
@@ -706,22 +724,24 @@ export class QuizService implements OnDestroy {
             optionId: option.optionId ?? index + 1, // Ensure valid optionId
           }));
         } else {
-          console.error(`[fetchQuizQuestions] Question ${question.questionText} has no options.`);
+          console.error(
+            `[fetchQuizQuestions] Question ${question.questionText} has no options.`
+          );
         }
       }
-  
+
       // Shuffle questions and options if needed
       if (this.checkedShuffle.getValue()) {
         console.info('[fetchQuizQuestions] Shuffling questions and options...');
         Utils.shuffleArray(quiz.questions); // Shuffle questions
-  
+
         for (const question of quiz.questions) {
           if (question.options) {
             Utils.shuffleArray(question.options); // Shuffle options
           }
         }
       }
-  
+
       // Emit the normalized and shuffled questions
       this.questionsSubject.next(quiz.questions);
       return quiz.questions;
@@ -729,7 +749,7 @@ export class QuizService implements OnDestroy {
       console.error('Error in fetchQuizQuestions:', error);
       return [];
     }
-  }  
+  }
 
   async fetchAndSetQuestions(
     quizId: string
@@ -803,7 +823,7 @@ export class QuizService implements OnDestroy {
       tap((quiz) => {
         if (quiz) {
           console.log(`[QuizService] Quiz fetched for ID ${quizId}:`, quiz);
-  
+
           // Ensure each question and option has correct properties
           for (const [qIndex, question] of quiz.questions.entries()) {
             if (!question.options || question.options.length === 0) {
@@ -812,17 +832,23 @@ export class QuizService implements OnDestroy {
               );
               continue;
             }
-  
-            console.log(`[QuizService] Initializing options for Question ${qIndex}:`, question);
-  
+
+            console.log(
+              `[QuizService] Initializing options for Question ${qIndex}:`,
+              question
+            );
+
             for (const [oIndex, option] of question.options.entries()) {
               option.optionId = oIndex; // Assign unique optionId
               option.correct = option.correct ?? false; // Default `correct` to false if undefined
-  
-              console.log(`[QuizService] Option ${oIndex} initialized:`, option);
+
+              console.log(
+                `[QuizService] Option ${oIndex} initialized:`,
+                option
+              );
             }
           }
-  
+
           // Shuffle questions and options if enabled
           if (this.checkedShuffle.value) {
             console.log('[QuizService] Shuffling questions and options...');
@@ -855,7 +881,7 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
-  }  
+  }
 
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
@@ -922,27 +948,42 @@ export class QuizService implements OnDestroy {
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
     console.trace(`[TRACE] 🔍 ENTERING setCurrentQuestion()`);
-    
+
     if (!question) {
-        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-        throw new Error('[QuizService] ❌ Forced error: setCurrentQuestion() was called with NULL or UNDEFINED');
+      console.error(
+        '[QuizService] ❌ Attempted to set a null or undefined question.'
+      );
+      throw new Error(
+        '[QuizService] ❌ Forced error: setCurrentQuestion() was called with NULL or UNDEFINED'
+      );
     }
 
-    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
+    console.warn(
+      `[QuizService] 🔍 setCurrentQuestion() called with:`,
+      JSON.stringify(question, null, 2)
+    );
 
     // ✅ Prevent duplicate updates
-    if (this.currentQuestion.getValue()?.questionText === question.questionText) {
-        console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
-        return;
+    if (
+      this.currentQuestion.getValue()?.questionText === question.questionText
+    ) {
+      console.warn(
+        `[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`
+      );
+      return;
     }
 
     // ✅ Ensure all options have an `optionId`
-    question.options = question.options?.map((option, index) => ({
+    question.options =
+      question.options?.map((option, index) => ({
         ...option,
-        optionId: index, // Ensure optionId is assigned correctly
-    })) || [];
+        optionId: index // Ensure optionId is assigned correctly
+      })) || [];
 
-    console.log(`[QuizService] ✅ Assigned optionIds for question:`, JSON.stringify(question.options, null, 2));
+    console.log(
+      `[QuizService] ✅ Assigned optionIds for question:`,
+      JSON.stringify(question.options, null, 2)
+    );
 
     // ✅ Update currentQuestion
     this.currentQuestion.next(question);
@@ -953,7 +994,11 @@ export class QuizService implements OnDestroy {
     const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
     return this.findQuizByQuizId(quizId).pipe(
       map((quiz) => {
-        if (!quiz || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+        if (
+          !quiz ||
+          !Array.isArray(quiz.questions) ||
+          quiz.questions.length === 0
+        ) {
           console.error('Invalid quiz data or no questions available');
           return null; // Return null instead of throwing an error
         }
@@ -961,11 +1006,12 @@ export class QuizService implements OnDestroy {
         const questions = quiz.questions;
 
         // Ensure the index is valid; fallback to the first question if out of bounds
-        const validIndex = questionIndex >= 0 && questionIndex < questions.length
-          ? questionIndex
-          : 0;
+        const validIndex =
+          questionIndex >= 0 && questionIndex < questions.length
+            ? questionIndex
+            : 0;
 
-          return questions[validIndex];
+        return questions[validIndex];
       }),
       distinctUntilChanged(), // Prevent unnecessary re-emissions
       catchError((error: Error) => {
@@ -976,28 +1022,36 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> { 
+  getCurrentOptions(
+    questionIndex: number = this.currentQuestionIndex ?? 0
+  ): Observable<Option[]> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-      console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+      console.error(
+        `Invalid questionIndex: ${questionIndex}. Returning empty options.`
+      );
       return of([]);
     }
-  
+
     console.log('Fetching options for questionIndex:', questionIndex);
-  
+
     return this.getQuestionByIndex(questionIndex).pipe(
       tap((question) => {
         if (!question) {
-          console.warn(`No question found for the given index: ${questionIndex}.`);
+          console.warn(
+            `No question found for the given index: ${questionIndex}.`
+          );
         }
       }),
       map((question) => question?.options || []),
       catchError((error) => {
-        console.error(`Error fetching options for questionIndex ${questionIndex}:`, error);
-        return of([]); 
+        console.error(
+          `Error fetching options for questionIndex ${questionIndex}:`,
+          error
+        );
+        return of([]);
       })
     );
   }
-  
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
@@ -1062,39 +1116,46 @@ export class QuizService implements OnDestroy {
     }
   } */
   async setCurrentQuestionIndex(index: number): Promise<void> {
-    console.warn(`[FORCE LOG] 🔍 setCurrentQuestionIndex() was called with index: ${index}`);
+    console.warn(
+      `[FORCE LOG] 🔍 setCurrentQuestionIndex() was called with index: ${index}`
+    );
 
     try {
-        if (!this.quizId) {
-            console.error('Quiz ID is not available.');
-            return;
-        }
+      if (!this.quizId) {
+        console.error('Quiz ID is not available.');
+        return;
+      }
 
-        const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
+      const response: any = await firstValueFrom(
+        this.getQuestionsForQuiz(this.quizId)
+      );
 
-        if (!response || !Array.isArray(response.questions)) {
-            console.error('Invalid format of questions response:', response);
-            return;
-        }
+      if (!response || !Array.isArray(response.questions)) {
+        console.error('Invalid format of questions response:', response);
+        return;
+      }
 
-        const questions = response.questions;
-        if (!questions || !Array.isArray(questions)) {
-            console.error('Invalid format of questions array:', questions);
-            return;
-        }
+      const questions = response.questions;
+      if (!questions || !Array.isArray(questions)) {
+        console.error('Invalid format of questions array:', questions);
+        return;
+      }
 
-        if (index < 0 || index >= questions.length) {
-            console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
-            return;
-        }
+      if (index < 0 || index >= questions.length) {
+        console.error(
+          `Invalid question index: ${index}. Total questions available: ${questions.length}`
+        );
+        return;
+      }
 
-        this.currentQuestionIndex = index;
-        this.currentQuestionIndexSource.next(index);
+      this.currentQuestionIndex = index;
+      this.currentQuestionIndexSource.next(index);
 
-        console.warn(`[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`);
-
+      console.warn(
+        `[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`
+      );
     } catch (error) {
-        console.error('[setCurrentQuestionIndex] ❌ Error:', error);
+      console.error('[setCurrentQuestionIndex] ❌ Error:', error);
     }
   }
 
@@ -1235,9 +1296,11 @@ export class QuizService implements OnDestroy {
             ).text
         );
       }
-      return questions[previousAnswers.indexOf(answer)].options.find(
-        (option) => option.text === answer
-      ).text ?? '';
+      return (
+        questions[previousAnswers.indexOf(answer)].options.find(
+          (option) => option.text === answer
+        ).text ?? ''
+      );
     });
   }
 
@@ -1281,16 +1344,18 @@ export class QuizService implements OnDestroy {
           isExplanationDisplayed: true,
         };
         this.combinedQuestionDataSubject.next(combinedQuestionData);
-        this.combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable().pipe(
-          map(combinedData => {
-            console.log('Emitting combined data:', combinedData);
-            return combinedData;
-          }),
-          catchError(error => {
-            console.error('Error in combinedQuestionData$:', error);
-            return of(null);
-          })
-        );
+        this.combinedQuestionData$ = this.combinedQuestionDataSubject
+          .asObservable()
+          .pipe(
+            map((combinedData) => {
+              console.log('Emitting combined data:', combinedData);
+              return combinedData;
+            }),
+            catchError((error) => {
+              console.error('Error in combinedQuestionData$:', error);
+              return of(null);
+            })
+          );
       } else {
         // Set combinedQuestionData with default or placeholder values
         const defaultCombinedQuestionData: CombinedQuestionDataType = {
@@ -1305,9 +1370,9 @@ export class QuizService implements OnDestroy {
           isExplanationDisplayed: false,
         };
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
-        this.combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable().pipe(
-          map((combinedData) => combinedData)
-        );        
+        this.combinedQuestionData$ = this.combinedQuestionDataSubject
+          .asObservable()
+          .pipe(map((combinedData) => combinedData));
       }
     } catch (error) {
       console.error('Error in initializeCombinedQuestionData:', error);
@@ -1323,9 +1388,9 @@ export class QuizService implements OnDestroy {
         isExplanationDisplayed: false,
       };
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
-      this.combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable().pipe(
-        map((combinedData) => combinedData)
-      );      
+      this.combinedQuestionData$ = this.combinedQuestionDataSubject
+        .asObservable()
+        .pipe(map((combinedData) => combinedData));
     }
   }
 
@@ -1361,19 +1426,27 @@ export class QuizService implements OnDestroy {
 
   getCorrectOptionsForCurrentQuestion(question: QuizQuestion): Option[] {
     if (!question) {
-      console.error('No question provided to getCorrectOptionsForCurrentQuestion.');
+      console.error(
+        'No question provided to getCorrectOptionsForCurrentQuestion.'
+      );
       return [];
     }
 
     if (!Array.isArray(question.options)) {
-      console.error('No options available for the provided question:', question);
+      console.error(
+        'No options available for the provided question:',
+        question
+      );
       return [];
     }
 
     // Filter and return the correct options for the current question
-    const correctOptions = question.options.filter(option => option.correct);
+    const correctOptions = question.options.filter((option) => option.correct);
     this.correctOptions = correctOptions;
-    console.log('[getCorrectOptionsForCurrentQuestion] Correct options:', correctOptions);
+    console.log(
+      '[getCorrectOptionsForCurrentQuestion] Correct options:',
+      correctOptions
+    );
     return correctOptions;
   }
 
@@ -1387,7 +1460,9 @@ export class QuizService implements OnDestroy {
 
   updateCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
-    console.log(`Updated current question index to: ${this.currentQuestionIndex}`);
+    console.log(
+      `Updated current question index to: ${this.currentQuestionIndex}`
+    );
   }
 
   updateQuestionText(newQuestionText: string) {
@@ -1515,15 +1590,15 @@ export class QuizService implements OnDestroy {
   // Populate correctOptions when questions are loaded
   setCorrectOptions(options: Option[]): void {
     console.log('setCorrectOptions called with:', options);
-  
+
     const sanitizedOptions = this.sanitizeOptions(options); // Ensure options are sanitized
-  
+
     this.correctOptions = sanitizedOptions.filter((option, idx) => {
       const isValid =
         typeof option.optionId === 'number' &&
         typeof option.text === 'string' &&
         typeof option.correct === 'boolean';
-        
+
       if (!isValid) {
         console.warn(`Invalid option at index ${idx}:`, option);
       } else if (option.correct) {
@@ -1533,53 +1608,73 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
+  setCorrectAnswers(
+    question: QuizQuestion,
+    options: Option[]
+  ): Observable<void> {
     return new Observable((observer) => {
-      console.log('Setting correct answers for question:', question.questionText);
-  
+      console.log(
+        'Setting correct answers for question:',
+        question.questionText
+      );
+
       // Filter and map correct options
       const correctOptionNumbers = options
         .filter((option) => option.correct)
         .map((option) => option.optionId);
-  
+
       console.log('Correct option numbers:', correctOptionNumbers);
-  
+
       if (correctOptionNumbers.length > 0) {
         // Store the correct answers in the map
-        this.correctAnswers.set(question.questionText.trim(), correctOptionNumbers);
+        this.correctAnswers.set(
+          question.questionText.trim(),
+          correctOptionNumbers
+        );
         this.correctAnswersSubject.next(new Map(this.correctAnswers));
-        console.log('Updated correctAnswers map:', Array.from(this.correctAnswers.entries()));
-  
+        console.log(
+          'Updated correctAnswers map:',
+          Array.from(this.correctAnswers.entries())
+        );
+
         observer.next();
         observer.complete();
       } else {
-        observer.error(`No correct options found for question: "${question.questionText}".`);
+        observer.error(
+          `No correct options found for question: "${question.questionText}".`
+        );
       }
     });
-  }  
+  }
 
   getCorrectAnswers(question: QuizQuestion): number[] {
-    if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+    if (
+      !question ||
+      !Array.isArray(question.options) ||
+      question.options.length === 0
+    ) {
       console.error('Invalid question or no options available.');
       return [];
     }
-  
+
     console.log('Fetching correct answers for:', question.questionText);
-  
+
     // Filter options marked as correct and map their IDs
     const correctAnswers = question.options
       .filter((option) => option.correct)
       .map((option) => option.optionId);
-  
+
     if (correctAnswers.length === 0) {
-      console.warn(`No correct answers found for question: "${question.questionText}".`);
+      console.warn(
+        `No correct answers found for question: "${question.questionText}".`
+      );
     } else {
       console.log('Correct answers:', correctAnswers);
     }
-  
+
     return correctAnswers;
   }
-  
+
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
     const correctAnswersString = Array.from(this.correctAnswers.values())
@@ -1667,48 +1762,64 @@ export class QuizService implements OnDestroy {
 
   setCheckedShuffle(isChecked: boolean): void {
     this.checkedShuffle.next(isChecked);
-  
+
     if (!this.quizId) {
       console.error('[setCheckedShuffle] No quizId set.');
       return;
     }
-  
+
     this.fetchAndShuffleQuestions(this.quizId);
-  }  
+  }
 
   fetchAndShuffleQuestions(quizId: string): void {
     if (!quizId) {
-      console.error('[fetchAndShuffleQuestions] Received null or undefined quizId');
+      console.error(
+        '[fetchAndShuffleQuestions] Received null or undefined quizId'
+      );
       return;
     }
-  
+
     this.http
       .get<any>(this.quizUrl)
       .pipe(
         map((response) => {
           const quizzes = response.quizzes || response;
-          const foundQuiz = quizzes.find((quiz: Quiz) => quiz.quizId === quizId);
-  
+          const foundQuiz = quizzes.find(
+            (quiz: Quiz) => quiz.quizId === quizId
+          );
+
           if (!foundQuiz) {
-            throw new Error(`[fetchAndShuffleQuestions] Quiz with ID ${quizId} not found.`);
+            throw new Error(
+              `[fetchAndShuffleQuestions] Quiz with ID ${quizId} not found.`
+            );
           }
-  
+
           return foundQuiz.questions;
         }),
         tap((questions) => {
           if (questions && questions.length > 0) {
-            console.log('[fetchAndShuffleQuestions] Questions before shuffle:', questions);
-  
-            if (this.checkedShuffle.getValue()) { // Ensure checkedShuffle is resolved
+            console.log(
+              '[fetchAndShuffleQuestions] Questions before shuffle:',
+              questions
+            );
+
+            if (this.checkedShuffle.getValue()) {
+              // Ensure checkedShuffle is resolved
               Utils.shuffleArray(questions);
-              console.log('[fetchAndShuffleQuestions] Questions after shuffle:', questions);
+              console.log(
+                '[fetchAndShuffleQuestions] Questions after shuffle:',
+                questions
+              );
             }
-  
+
             this.shuffledQuestions = questions; // Store shuffled questions
           }
         }),
         catchError((error) => {
-          console.error('[fetchAndShuffleQuestions] Failed to fetch or process questions:', error);
+          console.error(
+            '[fetchAndShuffleQuestions] Failed to fetch or process questions:',
+            error
+          );
           this.shuffledQuestions = []; // Fallback to an empty array
           return throwError(() => new Error('Error processing quizzes'));
         })
@@ -1721,12 +1832,18 @@ export class QuizService implements OnDestroy {
             questions
           );
         },
-        error: (error) => console.error('[fetchAndShuffleQuestions] Error in subscription:', error),
+        error: (error) =>
+          console.error(
+            '[fetchAndShuffleQuestions] Error in subscription:',
+            error
+          ),
       });
   }
 
   getShuffledQuestions(): Observable<QuizQuestion[]> {
-    const questionsPromise: Promise<QuizQuestion[]> = this.fetchQuizQuestions(this.quizId);
+    const questionsPromise: Promise<QuizQuestion[]> = this.fetchQuizQuestions(
+      this.quizId
+    );
     return from(questionsPromise); // Convert the promise to an observable
   }
 
@@ -1734,35 +1851,44 @@ export class QuizService implements OnDestroy {
     if (this.checkedShuffle.getValue() && questions && questions.length > 0) {
       return Utils.shuffleArray([...questions]); // Shuffle a copy for immutability
     }
-    console.log('[shuffleQuestions] Skipping shuffle or no questions available.');
+    console.log(
+      '[shuffleQuestions] Skipping shuffle or no questions available.'
+    );
     return questions;
   }
-  
+
   shuffleAnswers(answers: Option[]): Option[] {
     if (this.checkedShuffle.getValue() && answers && answers.length > 0) {
       return Utils.shuffleArray([...answers]);
     }
     console.log('[shuffleAnswers] Skipping shuffle or no answers available.');
     return answers;
-  }  
+  }
 
   shuffleQuestionsAndAnswers(quizId: string): void {
     this.fetchAndShuffleQuestions(quizId);
-  
-    this.questionsSubject.pipe(take(1)).subscribe((questions: QuizQuestion[]) => {
-      if (!questions || questions.length === 0) {
-        console.warn('[shuffleQuestionsAndAnswers] No questions available to shuffle.');
-        return;
-      }
-  
-      const updatedQuestions = questions.map((question) => ({
-        ...question,
-        options: this.shuffleAnswers(question.options), // Shuffle a copy of options
-      }));
-  
-      this.questionsSubject.next(updatedQuestions);
-      console.log('[shuffleQuestionsAndAnswers] Questions and answers shuffled for quiz ID:', quizId);
-    });
+
+    this.questionsSubject
+      .pipe(take(1))
+      .subscribe((questions: QuizQuestion[]) => {
+        if (!questions || questions.length === 0) {
+          console.warn(
+            '[shuffleQuestionsAndAnswers] No questions available to shuffle.'
+          );
+          return;
+        }
+
+        const updatedQuestions = questions.map((question) => ({
+          ...question,
+          options: this.shuffleAnswers(question.options), // Shuffle a copy of options
+        }));
+
+        this.questionsSubject.next(updatedQuestions);
+        console.log(
+          '[shuffleQuestionsAndAnswers] Questions and answers shuffled for quiz ID:',
+          quizId
+        );
+      });
   }
 
   navigateToResults(): void {
@@ -1823,7 +1949,10 @@ export class QuizService implements OnDestroy {
     this.quiz = foundQuiz;
 
     // Validate the current question
-    const isQuestionValid = this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex);
+    const isQuestionValid = this.validateAndSetCurrentQuestion(
+      this.quiz,
+      this.currentQuestionIndex
+    );
     if (!isQuestionValid) {
       console.error(`Invalid question index: ${this.currentQuestionIndex}`);
       return false;
@@ -1848,7 +1977,10 @@ export class QuizService implements OnDestroy {
 
     // Determine correctness of answers
     try {
-      const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, this.answers);
+      const correctAnswerFound = await this.determineCorrectAnswer(
+        currentQuestionValue,
+        this.answers
+      );
       const isCorrect = correctAnswerFound.includes(true);
 
       // Convert answers to an array of option IDs
@@ -2079,7 +2211,8 @@ export class QuizService implements OnDestroy {
   // Ensure quiz ID exists, retrieving it if necessary
   async ensureQuizIdExists(): Promise<boolean> {
     if (!this.quizId) {
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
+      this.quizId =
+        this.activatedRoute.snapshot.paramMap.get('quizId') || this.quizId;
     }
     return !!this.quizId;
   }
@@ -2090,7 +2223,7 @@ export class QuizService implements OnDestroy {
       console.error('Expected an array of options but received:', options);
       return [];
     }
-  
+
     return options.map((option, index) => ({
       ...option,
       // Assign optionId only if it's not a valid number
@@ -2098,20 +2231,25 @@ export class QuizService implements OnDestroy {
     }));
   }
 
-  assignOptionActiveStates(options: Option[], correctOptionSelected: boolean): Option[] {
+  assignOptionActiveStates(
+    options: Option[],
+    correctOptionSelected: boolean
+  ): Option[] {
     if (!Array.isArray(options) || options.length === 0) {
       console.warn('[assignOptionActiveStates] No options provided.');
       return [];
     }
-  
+
     return options.map((opt) => ({
       ...opt,
       active: correctOptionSelected ? opt.correct : true, // Keep only correct options active
       feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // Add feedback for incorrect options
-      showIcon: correctOptionSelected ? opt.correct || opt.showIcon : opt.showIcon // Preserve icons for correct or previously shown
+      showIcon: correctOptionSelected
+        ? opt.correct || opt.showIcon
+        : opt.showIcon, // Preserve icons for correct or previously shown
     }));
   }
-  
+
   resetUserSelection(): void {
     this.selectedOption$.next('');
   }
