@@ -658,18 +658,34 @@ export class QuizQuestionComponent
                 const parsedOptions = JSON.parse(optionsData);
                 
                 if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-                    // Ensure optionsToDisplay is only set if valid options exist
+                    // Ensure valid options exist before setting them
                     this.optionsToDisplay = this.quizService.assignOptionIds(parsedOptions);
                     console.log('[restoreQuizState] ✅ Restored and validated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
                 } else {
-                    console.warn('[restoreQuizState] ❌ Parsed options data is empty or invalid. Retaining current options.');
+                    console.warn('[restoreQuizState] ⚠️ Parsed options data is empty or invalid. Retaining previous options.');
                 }
             } catch (error) {
                 console.error('[restoreQuizState] ❌ Error parsing options data:', error);
                 // Keep existing options if restoration fails
             }
         } else {
-            console.warn('[restoreQuizState] ❌ No options data found for restoration. Retaining current options.');
+            console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
+        }
+
+        // **🔍 Add Debug Log Before Setting Empty Array**
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.error('[TRACE] ⚠️ optionsToDisplay is about to be set to an EMPTY array!');
+            
+            // Retrieve last known options from quiz service or local state
+            const lastKnownOptions = this.quizService.getLastKnownOptions(); // ⬅️ Ensure this method exists in QuizService
+            
+            if (lastKnownOptions && lastKnownOptions.length > 0) {
+                this.optionsToDisplay = [...lastKnownOptions];
+                console.log('[restoreQuizState] ✅ Restored options from backup:', JSON.stringify(this.optionsToDisplay, null, 2));
+            } else {
+                console.warn('[restoreQuizState] ❌ No valid backup found for optionsToDisplay. Setting to empty array.');
+                this.optionsToDisplay = []; // Last resort, but should rarely happen
+            }
         }
 
         // ✅ Restore selected options safely
