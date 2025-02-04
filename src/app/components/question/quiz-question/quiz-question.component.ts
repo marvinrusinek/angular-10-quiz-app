@@ -207,8 +207,14 @@ export class QuizQuestionComponent
   private _optionsToDisplay: Option[] = [];
 
   set optionsToDisplay(value: Option[]) {
-    console.warn(`[WATCH] 🟢 optionsToDisplay SET in Component:::::`, JSON.stringify(value, null, 2));
-    console.trace(`[TRACE] 🔍 optionsToDisplay was modified here!`);
+    console.trace(`[TRACE] 🔍 optionsToDisplay was modified! New value:`, JSON.stringify(value, null, 2));
+      
+    // Prevent setting duplicate or incorrect options
+    if (JSON.stringify(this._optionsToDisplay) === JSON.stringify(value)) {
+      console.warn(`[TRACE] ⚠️ Skipping duplicate options update.`);
+      return;
+    }
+
     this._optionsToDisplay = value;
   }
 
