@@ -954,7 +954,6 @@ export class QuizService implements OnDestroy {
 
     console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
 
-    // ✅ Ensure correct assignment of options
     question.options = question.options?.map((option, index) => ({
         ...option,
         optionId: index,
