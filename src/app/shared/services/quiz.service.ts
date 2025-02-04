@@ -995,6 +995,14 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  public getLastKnownOptions(): Option[] {
+    const lastKnown = this.currentQuestion.getValue()?.options || [];
+    
+    console.log('[QuizService] 🔍 getLastKnownOptions() returning:', JSON.stringify(lastKnown, null, 2));
+    
+    return lastKnown;
+  }
+
   // Get the current options for the current quiz and question
   getCurrentOptions(
     questionIndex: number = this.currentQuestionIndex ?? 0
