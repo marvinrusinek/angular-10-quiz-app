@@ -947,47 +947,22 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
-    console.trace(`[TRACE] 🔍 ENTERING setCurrentQuestion()`);
-
     if (!question) {
-      console.error(
-        '[QuizService] ❌ Attempted to set a null or undefined question.'
-      );
-      throw new Error(
-        '[QuizService] ❌ Forced error: setCurrentQuestion() was called with NULL or UNDEFINED'
-      );
+        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+        return;
     }
 
-    console.warn(
-      `[QuizService] 🔍 setCurrentQuestion() called with:`,
-      JSON.stringify(question, null, 2)
-    );
+    console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
 
-    // ✅ Prevent duplicate updates
-    if (
-      this.currentQuestion.getValue()?.questionText === question.questionText
-    ) {
-      console.warn(
-        `[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`
-      );
-      return;
-    }
-
-    // ✅ Ensure all options have an `optionId`
-    question.options =
-      question.options?.map((option, index) => ({
+    // ✅ Ensure correct assignment of options
+    question.options = question.options?.map((option, index) => ({
         ...option,
-        optionId: index // Ensure optionId is assigned correctly
-      })) || [];
+        optionId: index,
+    })) || [];
 
-    console.log(
-      `[QuizService] ✅ Assigned optionIds for question:`,
-      JSON.stringify(question.options, null, 2)
-    );
-
-    // ✅ Update currentQuestion
     this.currentQuestion.next(question);
-    console.log(`[QuizService] ✅ currentQuestion successfully updated.`);
+
+    console.log(`[QuizService] ✅ currentQuestion successfully updated. Assigned options:`, JSON.stringify(question.options, null, 2));
   }
 
   getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
