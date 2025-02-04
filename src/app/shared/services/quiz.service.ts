@@ -921,8 +921,6 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
-    console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED`);
-
     if (!question) {
       console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
       console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
@@ -949,7 +947,7 @@ export class QuizService implements OnDestroy {
     // Assign the new question
     this.currentQuestion.next(question);
 
-    console.log(`[QuizService] ✅ currentQuestion successfully updated.`);
+    console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED`);
   }
 
   getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
