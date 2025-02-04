@@ -921,31 +921,33 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
-    /* if (!question) {
-        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-        console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
-        return;
-    } */
     if (!question) {
       console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
       throw new Error('[QuizService] ❌ Forced error: setCurrentQuestion() was called with NULL or UNDEFINED');
     }
 
     console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
 
-    // ✅ Prevent duplicate updates
-    if (this.currentQuestion.getValue()?.questionText === question.questionText) {
-        console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
-        return;
+    // Prevent setting the same question twice
+    const currentQuestion = this.currentQuestion.getValue();
+    if (currentQuestion?.questionText === question.questionText) {
+      console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
+      return;
     }
 
-    // ✅ Assign options to ensure consistency
+    // Ensure all options have a unique optionId before setting the question
     question.options = question.options?.map((option, index) => ({
-        ...option,
-        optionId: index, // Ensure optionId is assigned correctly
+      ...option,
+      optionId: index, // Ensuring optionId is properly assigned
     })) || [];
 
+    console.log(`[QuizService] ✅ Assigned optionIds for question:`, JSON.stringify(question.options, null, 2));
+
+    // Assign the new question
     this.currentQuestion.next(question);
+
+    console.log(`[QuizService] ✅ currentQuestion successfully updated.`);
   }
 
   getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
