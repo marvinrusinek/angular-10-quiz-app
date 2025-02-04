@@ -1001,24 +1001,24 @@ export class QuizQuestionComponent
 
     console.log(`[TRACE] 📋 Total questions available: ${this.questionsArray.length}`);
 
-    // 🚨 Log the full list of questions
-    console.warn(`[TRACE] 📋 Available Questions:`, JSON.stringify(this.questionsArray, null, 2));
+    // 🔹 Convert index to zero-based if needed
+    const zeroBasedIndex = Math.max(0, index - 1); 
 
     // Validate the index before setting the question
-    if (index < 0 || index >= this.questionsArray.length) {
-      console.error(`[TRACE] ❌ Invalid question index: ${index}`);
+    if (zeroBasedIndex < 0 || zeroBasedIndex >= this.questionsArray.length) {
+      console.error(`[TRACE] ❌ Invalid question index: ${zeroBasedIndex}`);
       return;
     }
 
-    const question = this.questionsArray[index];
+    const question = this.questionsArray[zeroBasedIndex];
 
     if (!question) {
-        console.error(`[TRACE] ❌ No question data available at index: ${index}`);
-        return;
+      console.error(`[TRACE] ❌ No question data available at index: ${zeroBasedIndex}`);
+      return;
     }
 
     // Log the actual question being set
-    console.warn(`[TRACE] 🟢 setQuestionFirst() SETTING QUESTION at index ${index}:`, JSON.stringify(question, null, 2));
+    console.warn(`[TRACE] 🟢 setQuestionFirst() SETTING QUESTION at index ${zeroBasedIndex}:`, JSON.stringify(question, null, 2));
 
     // Reset options before setting new question
     this.optionsToDisplay = [];
@@ -1029,20 +1029,20 @@ export class QuizQuestionComponent
     // Load options for the question
     this.loadOptionsForQuestion(question);
 
-    if (this.lastProcessedQuestionIndex !== index) {
+    if (this.lastProcessedQuestionIndex !== zeroBasedIndex) {
       console.log('[TRACE] ✅ Applying feedback now...');
       this.applyOptionFeedbackToAllOptions();
-      this.lastProcessedQuestionIndex = index;
+      this.lastProcessedQuestionIndex = zeroBasedIndex;
     } else {
       console.warn('[TRACE] ❌ Feedback already processed. Skipping.');
     }
 
-    // ✅ Ensure Explanation is Updated After Rendering
+    // Ensure Explanation is Updated After Rendering
     setTimeout(() => {
-      console.log(`[TRACE] ⏳ Updating explanation for Q${index}...`);
-      this.updateExplanationIfAnswered(index, question);
+      console.log(`[TRACE] ⏳ Updating explanation for Q${zeroBasedIndex}...`);
+      this.updateExplanationIfAnswered(zeroBasedIndex, question);
       this.questionRenderComplete.emit();
-      console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${index}.`);
+      console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${zeroBasedIndex}.`);
     }, 100);
   }
 
