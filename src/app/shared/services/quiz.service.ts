@@ -921,33 +921,33 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(question);
   } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
+    console.log(`[TRACE] 🔍 ENTERING setCurrentQuestion()`); // 🚨 Immediate Log
+    console.trace(`[TRACE] 🔍 setCurrentQuestion() was called from:`); // 🚨 Debug Call Stack
+
     if (!question) {
       console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-      console.trace('[QuizService] ❌ TRACE: setCurrentQuestion() was called with NULL or UNDEFINED from:');
       throw new Error('[QuizService] ❌ Forced error: setCurrentQuestion() was called with NULL or UNDEFINED');
     }
 
-    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
+    console.warn(`[QuizService] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
 
-    // Prevent setting the same question twice
-    const currentQuestion = this.currentQuestion.getValue();
-    if (currentQuestion?.questionText === question.questionText) {
+    // Prevent duplicate updates
+    if (this.currentQuestion.getValue()?.questionText === question.questionText) {
       console.warn(`[QuizService] ⚠️ Skipping duplicate question update: ${question.questionText}`);
       return;
     }
 
-    // Ensure all options have a unique optionId before setting the question
+    // Assign optionIds to ensure consistency
     question.options = question.options?.map((option, index) => ({
       ...option,
-      optionId: index, // Ensuring optionId is properly assigned
+      optionId: index // Ensure optionId is assigned correctly
     })) || [];
 
-    console.log(`[QuizService] ✅ Assigned optionIds for question:`, JSON.stringify(question.options, null, 2));
-
-    // Assign the new question
+    // Update currentQuestion
     this.currentQuestion.next(question);
 
-    console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED`);
+    // FORCE FINAL LOG TO CONFIRM UPDATE
+    console.log(`[QuizService] 🔍 currentQuestion AFTER update:`, JSON.stringify(this.currentQuestion.getValue(), null, 2));
   }
 
   getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
