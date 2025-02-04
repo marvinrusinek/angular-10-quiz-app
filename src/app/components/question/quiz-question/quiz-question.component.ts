@@ -206,8 +206,6 @@ export class QuizQuestionComponent
 
   private _optionsToDisplay: Option[] = [];
 
-  private _optionsToDisplay: Option[] = [];
-
   set optionsToDisplay(value: Option[]) {
     console.trace(`[TRACE] 🔍 optionsToDisplay was modified!`, JSON.stringify(value, null, 2));
 
