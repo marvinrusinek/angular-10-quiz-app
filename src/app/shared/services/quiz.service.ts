@@ -1057,37 +1057,39 @@ export class QuizService implements OnDestroy {
     }
   } */
   async setCurrentQuestionIndex(index: number): Promise<void> {
+    console.warn(`[FORCE LOG] 🔍 setCurrentQuestionIndex() was called with index: ${index}`);
+
     try {
-      if (!this.quizId) {
-        console.error('Quiz ID is not available.');
-        return;
-      }
+        if (!this.quizId) {
+            console.error('Quiz ID is not available.');
+            return;
+        }
 
-      const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
+        const response: any = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
 
-      if (!response || !Array.isArray(response.questions)) {
-        console.error('Invalid format of questions response:', response);
-        return;
-      }
+        if (!response || !Array.isArray(response.questions)) {
+            console.error('Invalid format of questions response:', response);
+            return;
+        }
 
-      const questions = response.questions;
-      if (!questions || !Array.isArray(questions)) {
-        console.error('Invalid format of questions array:', questions);
-        return;
-      }
+        const questions = response.questions;
+        if (!questions || !Array.isArray(questions)) {
+            console.error('Invalid format of questions array:', questions);
+            return;
+        }
 
-      // ✅ Ensure index is within valid bounds (0-based)
-      if (index < 0 || index >= questions.length) {
-        console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
-        return;
-      }
+        if (index < 0 || index >= questions.length) {
+            console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
+            return;
+        }
 
-      this.currentQuestionIndex = index; // ✅ No off-by-one correction needed
-      this.currentQuestionIndexSource.next(index); // ✅ Ensure correct broadcast
+        this.currentQuestionIndex = index;
+        this.currentQuestionIndexSource.next(index);
 
-      console.warn(`[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`);
+        console.warn(`[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`);
+
     } catch (error) {
-      console.error('Error setting current question index:', error);
+        console.error('[setCurrentQuestionIndex] ❌ Error:', error);
     }
   }
 
