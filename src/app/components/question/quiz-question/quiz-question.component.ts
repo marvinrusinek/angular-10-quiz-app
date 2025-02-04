@@ -672,18 +672,24 @@ export class QuizQuestionComponent
             console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
         }
 
-        // Add Debug Log Before Setting Empty Array
+        // 🚨 **Critical Debugging Before Emptying optionsToDisplay**
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.error('[TRACE] ⚠️ optionsToDisplay is about to be set to an EMPTY array!');
-            
+
             // Retrieve last known options from quiz service or local state
-            const lastKnownOptions = this.quizService.getLastKnownOptions(); // ⬅️ Ensure this method exists in QuizService
-            
+            const lastKnownOptions = this.quizService.getLastKnownOptions(); 
+
+            console.log('[TRACE] 🔍 getLastKnownOptions() returned:', JSON.stringify(lastKnownOptions, null, 2));
+
             if (lastKnownOptions && lastKnownOptions.length > 0) {
                 this.optionsToDisplay = [...lastKnownOptions];
                 console.log('[restoreQuizState] ✅ Restored options from backup:', JSON.stringify(this.optionsToDisplay, null, 2));
             } else {
                 console.warn('[restoreQuizState] ❌ No valid backup found for optionsToDisplay. Setting to empty array.');
+
+                // 🚨 **NEW: Deep trace before modifying**
+                console.trace('[TRACE] 🚨 optionsToDisplay IS BEING OVERWRITTEN TO EMPTY ARRAY HERE!');
+
                 this.optionsToDisplay = []; // Last resort, but should rarely happen
             }
         }
@@ -722,7 +728,7 @@ export class QuizQuestionComponent
             this.feedbackText = ''; // Default to an empty string
         }
 
-        // Final confirmation log to ensure options are not unexpectedly emptied
+        // ✅ **Final Validation Log**
         console.log('[restoreQuizState] 🔄 Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
 
     } catch (error) {
