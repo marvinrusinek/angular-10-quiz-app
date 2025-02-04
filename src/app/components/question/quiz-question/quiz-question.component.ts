@@ -213,12 +213,12 @@ export class QuizQuestionComponent
       console.warn(`[TRACE] ⚠️ optionsToDisplay was set to an EMPTY array.`);
     }
 
-    // ✅ Prevent duplicate setting of options
     if (JSON.stringify(this._optionsToDisplay) === JSON.stringify(value)) {
       console.warn(`[TRACE] ⚠️ Skipping duplicate options update.`);
       return;
     }
 
+    console.warn(`[WATCH] 🔄 optionsToDisplay is being UPDATED.`);
     this._optionsToDisplay = value;
   }
 
