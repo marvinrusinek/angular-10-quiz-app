@@ -646,12 +646,12 @@ export class QuizQuestionComponent
     try {
         console.log('[restoreQuizState] STARTED');
 
-        // ✅ Restore explanation text
+        // Restore explanation text
         this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
         const displayMode = sessionStorage.getItem(`displayMode`);
         this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
 
-        // ✅ Restore options data safely
+        // Restore options data safely
         const optionsData = sessionStorage.getItem(`options`);
         if (optionsData) {
             try {
@@ -672,7 +672,7 @@ export class QuizQuestionComponent
             console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
         }
 
-        // **🔍 Add Debug Log Before Setting Empty Array**
+        // Add Debug Log Before Setting Empty Array
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.error('[TRACE] ⚠️ optionsToDisplay is about to be set to an EMPTY array!');
             
@@ -688,7 +688,7 @@ export class QuizQuestionComponent
             }
         }
 
-        // ✅ Restore selected options safely
+        // Restore selected options safely
         const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
         if (selectedOptionsData) {
             try {
@@ -712,7 +712,7 @@ export class QuizQuestionComponent
             console.warn('[restoreQuizState] ❌ No selected options data found for restoration.');
         }
 
-        // ✅ Restore feedback text safely
+        // Restore feedback text safely
         const restoredFeedbackText = sessionStorage.getItem(`feedbackText`);
         if (restoredFeedbackText) {
             this.feedbackText = restoredFeedbackText;
@@ -722,7 +722,7 @@ export class QuizQuestionComponent
             this.feedbackText = ''; // Default to an empty string
         }
 
-        // ✅ Final confirmation log to ensure options are not unexpectedly emptied
+        // Final confirmation log to ensure options are not unexpectedly emptied
         console.log('[restoreQuizState] 🔄 Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
 
     } catch (error) {
