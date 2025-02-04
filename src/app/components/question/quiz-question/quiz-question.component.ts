@@ -996,8 +996,8 @@ export class QuizQuestionComponent
     console.trace(`[TRACE] 📌 setQuestionFirst() TRACE CALL STACK`);
 
     if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.error(`[TRACE] ❌ questionsArray is empty or undefined.`);
-        return;
+      console.error(`[TRACE] ❌ questionsArray is empty or undefined.`);
+      return;
     }
 
     console.log(`[TRACE] 📋 Total questions available: ${this.questionsArray.length}`);
@@ -1005,45 +1005,54 @@ export class QuizQuestionComponent
     const zeroBasedIndex = Math.max(0, index - 1);
 
     if (zeroBasedIndex < 0 || zeroBasedIndex >= this.questionsArray.length) {
-        console.error(`[TRACE] ❌ Invalid question index: ${zeroBasedIndex}`);
-        return;
+      console.error(`[TRACE] ❌ Invalid question index: ${zeroBasedIndex}`);
+      return;
     }
 
     const question = this.questionsArray[zeroBasedIndex];
 
     if (!question) {
-        console.error(`[TRACE] ❌ No question data available at index: ${zeroBasedIndex}`);
-        return;
+      console.error(`[TRACE] ❌ No question data available at index: ${zeroBasedIndex}`);
+      return;
     }
+
+    // Log BEFORE setting the question to verify correctness
+    console.log(`[DEBUG] 🟢 Component BEFORE updating currentQuestion:`, JSON.stringify(this.currentQuestion, null, 2));
 
     console.warn(`[TRACE] 🟢 setQuestionFirst() SETTING QUESTION at index ${zeroBasedIndex}:`, JSON.stringify(question, null, 2));
 
-    // ✅ Ensure the question is correctly set in the service before updating UI
-    this.quizService.setCurrentQuestion(question);
-
-    // ✅ Ensure `optionsToDisplay` is assigned **AFTER** the correct question is set
-    this.optionsToDisplay = [...question.options];
-    console.log(`[WATCH] 🟢 optionsToDisplay SET in Component:`, JSON.stringify(this.optionsToDisplay, null, 2));
-
-    if (this.optionsToDisplay.length === 0) {
-        console.error(`[TRACE] ❌ optionsToDisplay is EMPTY after assignment!`);
+    // **FIX: Assign options ONLY if they are different**
+    if (this.optionsToDisplay !== question.options) {
+      this.optionsToDisplay = [...question.options];
+      console.log(`[WATCH] 🟢 optionsToDisplay UPDATED:`, JSON.stringify(this.optionsToDisplay, null, 2));
+    } else {
+      console.warn(`[WATCH] ⚠️ optionsToDisplay already correct. No update needed.`);
     }
+
+    // **FIX: Ensure optionsToDisplay isn't cleared unexpectedly**
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.error(`[TRACE] ❌ optionsToDisplay is EMPTY after assignment! Fixing...`);
+      this.optionsToDisplay = [...question.options];
+    }
+
+    // Set the current question in the service AFTER ensuring optionsToDisplay is correct
+    this.quizService.setCurrentQuestion(question);
 
     this.loadOptionsForQuestion(question);
 
     if (this.lastProcessedQuestionIndex !== zeroBasedIndex) {
-        console.log('[TRACE] ✅ Applying feedback now...');
-        this.applyOptionFeedbackToAllOptions();
-        this.lastProcessedQuestionIndex = zeroBasedIndex;
+      console.log('[TRACE] ✅ Applying feedback now...');
+      this.applyOptionFeedbackToAllOptions();
+      this.lastProcessedQuestionIndex = zeroBasedIndex;
     } else {
-        console.warn('[TRACE] ❌ Feedback already processed. Skipping.');
+      console.warn('[TRACE] ❌ Feedback already processed. Skipping.');
     }
 
     setTimeout(() => {
-        console.log(`[TRACE] ⏳ Updating explanation for Q${zeroBasedIndex}...`);
-        this.updateExplanationIfAnswered(zeroBasedIndex, question);
-        this.questionRenderComplete.emit();
-        console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${zeroBasedIndex}.`);
+      console.log(`[TRACE] ⏳ Updating explanation for Q${zeroBasedIndex}...`);
+      this.updateExplanationIfAnswered(zeroBasedIndex, question);
+      this.questionRenderComplete.emit();
+      console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${zeroBasedIndex}.`);
     }, 100);
   }
 
