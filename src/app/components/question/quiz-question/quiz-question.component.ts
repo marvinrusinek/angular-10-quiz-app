@@ -206,13 +206,13 @@ export class QuizQuestionComponent
 
   private _optionsToDisplay: Option[] = [];
 
-  get optionsToDisplay(): Option[] {
-    return this._optionsToDisplay;
+  set optionsToDisplay(value: Option[]) {
+    console.warn(`[WATCH] 🟢 optionsToDisplay SET in Component:`, JSON.stringify(value, null, 2));
+    this._optionsToDisplay = value;
   }
 
-  set optionsToDisplay(value: Option[]) {
-    console.trace(`[WATCH] ⚠️ optionsToDisplay SET in QQC (Q${this.currentQuestionIndex}):`, JSON.stringify(value, null, 2));
-    this._optionsToDisplay = value;
+  get optionsToDisplay(): Option[] {
+      return this._optionsToDisplay;
   }
 
   set currentQuestionIndex(value: number) {
