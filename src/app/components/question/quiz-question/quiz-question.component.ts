@@ -1066,42 +1066,38 @@ export class QuizQuestionComponent
     console.log(`[loadOptionsForQuestion] 🔄 Processing options for Q${this.currentQuestionIndex}`);
 
     if (!question || !question.options) {
-      console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
-      this.optionsToDisplay = [];
-      return;
+        console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
+        this.optionsToDisplay = [];
+        return;
     }
 
-    // Always pull options from `currentQuestion` in `QuizService`
     const currentQuestion = this.quizService.currentQuestion.getValue();
-    
     if (!currentQuestion) {
-      console.error('[loadOptionsForQuestion] ❌ No current question available in QuizService.');
-      return;
+        console.error('[loadOptionsForQuestion] ❌ No current question available in QuizService.');
+        return;
     }
 
     console.trace(`[TRACE] 🔍 loadOptionsForQuestion() CALLED for:`, JSON.stringify(currentQuestion, null, 2));
 
-    // Ensure optionsToDisplay is assigned from `QuizService`
     this.optionsToDisplay = [...(currentQuestion.options ?? [])].map(option => ({
-      ...option,
-      feedback: option.feedback ?? 'No feedback available.',
-      showIcon: option.showIcon ?? false,
-      active: option.active ?? true,
-      selected: option.selected ?? false,
-      correct: option.correct ?? false
+        ...option,
+        feedback: option.feedback ?? 'No feedback available.',
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+        correct: option.correct ?? false
     }));
 
     console.log(`[WATCH] 🟢 optionsToDisplay SET in Component (AFTER loadOptionsForQuestion):`, JSON.stringify(this.optionsToDisplay, null, 2));
 
-    // Prevent re-applying feedback for the same question
     console.log(`[loadOptionsForQuestion] 🔍 Last Processed Question: ${this.lastProcessedQuestionIndex}, Current Question: ${this.currentQuestionIndex}`);
     
     if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
-      console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
-      this.applyOptionFeedbackToAllOptions();
-      this.lastProcessedQuestionIndex = this.currentQuestionIndex; // Ensure feedback isn't reapplied
+        console.log('[loadOptionsForQuestion] ✅ Applying feedback now...');
+        this.applyOptionFeedbackToAllOptions();
+        this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } else {
-      console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
+        console.warn('[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.');
     }
   }
 
