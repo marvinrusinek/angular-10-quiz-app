@@ -1027,13 +1027,11 @@ export class QuizQuestionComponent
     // Set the question in the service FIRST (before setting options)
     this.quizService.setCurrentQuestion(question);
 
-    // Assign options immediately after setting the question
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0 || this.currentQuestion?.questionText !== question.questionText) {
-      this.optionsToDisplay = [...question.options];
-      console.log(`[WATCH] 🟢 optionsToDisplay UPDATED:`, JSON.stringify(this.optionsToDisplay, null, 2));
-    } else {
-      console.warn(`[WATCH] ⚠️ optionsToDisplay already correct. No update needed.`);
-    }
+    // Ensure `optionsToDisplay` is correctly assigned from the latest question
+    setTimeout(() => {
+      this.optionsToDisplay = [...this.quizService.currentQuestion.getValue()?.options ?? []];
+      console.log(`[WATCH] 🟢 optionsToDisplay UPDATED in Component:::::`, JSON.stringify(this.optionsToDisplay, null, 2));
+    }, 10);
 
     // Load options only after ensuring the question and options are set
     this.loadOptionsForQuestion(question);
