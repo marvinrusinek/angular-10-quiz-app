@@ -206,10 +206,16 @@ export class QuizQuestionComponent
 
   private _optionsToDisplay: Option[] = [];
 
+  private _optionsToDisplay: Option[] = [];
+
   set optionsToDisplay(value: Option[]) {
-    console.trace(`[TRACE] 🔍 optionsToDisplay was modified! New value:`, JSON.stringify(value, null, 2));
-      
-    // Prevent setting duplicate or incorrect options
+    console.trace(`[TRACE] 🔍 optionsToDisplay was modified!`, JSON.stringify(value, null, 2));
+
+    if (!value || value.length === 0) {
+      console.warn(`[TRACE] ⚠️ optionsToDisplay was set to an EMPTY array.`);
+    }
+
+    // ✅ Prevent duplicate setting of options
     if (JSON.stringify(this._optionsToDisplay) === JSON.stringify(value)) {
       console.warn(`[TRACE] ⚠️ Skipping duplicate options update.`);
       return;
