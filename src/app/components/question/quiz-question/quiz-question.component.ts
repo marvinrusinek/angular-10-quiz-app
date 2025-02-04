@@ -1016,28 +1016,26 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Log BEFORE setting the question to verify correctness
-    console.log(`[DEBUG] 🟢 Component BEFORE updating currentQuestion:`, JSON.stringify(this.currentQuestion, null, 2));
+    // Prevent setting duplicate questions
+    if (this.currentQuestion?.questionText === question.questionText) {
+      console.warn(`[TRACE] ⚠️ Skipping duplicate question update: ${question.questionText}`);
+      return;
+    }
 
     console.warn(`[TRACE] 🟢 setQuestionFirst() SETTING QUESTION at index ${zeroBasedIndex}:`, JSON.stringify(question, null, 2));
 
-    // **FIX: Assign options ONLY if they are different**
-    if (this.optionsToDisplay !== question.options) {
+    // Set the question in the service FIRST (before setting options)
+    this.quizService.setCurrentQuestion(question);
+
+    // Assign options immediately after setting the question
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0 || this.currentQuestion?.questionText !== question.questionText) {
       this.optionsToDisplay = [...question.options];
       console.log(`[WATCH] 🟢 optionsToDisplay UPDATED:`, JSON.stringify(this.optionsToDisplay, null, 2));
     } else {
       console.warn(`[WATCH] ⚠️ optionsToDisplay already correct. No update needed.`);
     }
 
-    // **FIX: Ensure optionsToDisplay isn't cleared unexpectedly**
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.error(`[TRACE] ❌ optionsToDisplay is EMPTY after assignment! Fixing...`);
-      this.optionsToDisplay = [...question.options];
-    }
-
-    // Set the current question in the service AFTER ensuring optionsToDisplay is correct
-    this.quizService.setCurrentQuestion(question);
-
+    // Load options only after ensuring the question and options are set
     this.loadOptionsForQuestion(question);
 
     if (this.lastProcessedQuestionIndex !== zeroBasedIndex) {
