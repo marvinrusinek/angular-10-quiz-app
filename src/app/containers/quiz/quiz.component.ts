@@ -501,7 +501,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.options = data.options;
 
       // Update current question in the QuizService
+      console.log(`[TRACE] 🔄 BEFORE setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
+      console.log(`[TRACE] 🧐 CurrentQuestion Data BEFORE setCurrentQuestion():`, JSON.stringify(this.currentQuestion, null, 2));
+      console.log(`[TRACE] 🔢 Current Index BEFORE setCurrentQuestion(): ${this.currentQuestionIndex}`);
       this.quizService.setCurrentQuestion(this.currentQuestion);
+      console.log(`[TRACE] ✅ AFTER setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
+      setTimeout(() => {
+        console.log(`[TRACE] 🔄 CurrentQuestion Data AFTER setCurrentQuestion():`, JSON.stringify(this.currentQuestion, null, 2));
+      }, 100);
 
       this.isQuestionDisplayed = true;
 
@@ -1195,7 +1202,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       this.initializeAndPrepareQuestion(questionData, quizId);
-      this.quizService.setCurrentQuestion(this.currentQuestion);
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
@@ -2452,7 +2458,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Invalid question index:', questionIndex);
       return;
     }
-    this.quizService.setCurrentQuestion(this.currentQuestion);
 
     // Reset UI elements and messages as needed
     this.selectedOption$.next(null);
