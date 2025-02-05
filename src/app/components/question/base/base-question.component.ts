@@ -213,7 +213,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       showExplanation: false,
       quizQuestionComponentOnOptionClicked: () => {},
       onOptionClicked: () => Promise.resolve(),
-      onQuestionAnswered: () => {}
+      onQuestionAnswered: () => {},
+      idx: 0
     };
   }
   
