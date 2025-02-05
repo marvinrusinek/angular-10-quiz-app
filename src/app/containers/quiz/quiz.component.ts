@@ -38,7 +38,6 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none'; 
 
-
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
@@ -501,9 +500,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Assign additional metadata
       this.selectionMessage = data.selectionMessage || 'Please select an option.';
-      this.navigationIcons = data.navigationIcons || {};
-      this.badgeQuestionNumber = data.badgeQuestionNumber || 0;
-      this.currentScore = data.score || 0;
+      // this.navigationIcons = data.navigationIcons || {};
+      // this.badgeQuestionNumber = data.badgeQuestionNumber || 0;
+      // this.currentScore = data.score || 0;
 
       // Update current question in the QuizService
       console.log(`[TRACE] 🔄 BEFORE setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
@@ -522,7 +521,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const previouslySelectedOption = this.options.find(option => option.selected);
       if (previouslySelectedOption) {
         console.log(`[loadQuestionContents] 🔍 Found previously selected option: ${previouslySelectedOption.text}`);
-        this.applyOptionFeedback(previouslySelectedOption);
+        this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
       } else {
         console.log('[loadQuestionContents] ❌ No previously selected option found.');
       }
