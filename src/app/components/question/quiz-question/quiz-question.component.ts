@@ -1100,29 +1100,6 @@ export class QuizQuestionComponent
     }, 50);
   }
 
-  /* public setCurrentQuestion(question: QuizQuestion | null): void {
-    if (!question) {
-        console.error('[setCurrentQuestion] ❌ Attempted to set a null or undefined question.');
-        this.question = null;
-        this.optionsToDisplay = [];
-        return;
-    }
-
-    // 🚨 Prevent multiple calls with the same question
-    if (this.question?.questionText === question.questionText) {
-        console.warn(`[setCurrentQuestion] ⚠️ Skipping duplicate call for question: ${question.questionText}`);
-        return;
-    }
-
-    console.warn(`[DEBUG] 🔍 setCurrentQuestion() was called!`);
-    console.trace(`[TRACE] 🟢 setCurrentQuestion() called with QUESTION:`, JSON.stringify(this.question, null, 2));
-
-    this.question = question;
-    this.optionsToDisplay = question.options || [];
-
-    console.log(`[DEBUG] 🟢 optionsToDisplay is being set:`, JSON.stringify(this.optionsToDisplay, null, 2));
-  } */
-
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
