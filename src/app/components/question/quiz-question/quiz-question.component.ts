@@ -3431,36 +3431,25 @@ export class QuizQuestionComponent
 
   private async waitForQuestionData(): Promise<void> {
     if (!Number.isInteger(this.currentQuestionIndex) || this.currentQuestionIndex < 0) {
-      console.error(`[TRACE] ❌ Invalid currentQuestionIndex: ${this.currentQuestionIndex}. Defaulting to index 0.`);
       this.currentQuestionIndex = 0;
     }
-
-    console.log(`[TRACE] 🔍 Fetching data for question index: ${this.currentQuestionIndex}`);
 
     this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(
       take(1),
       switchMap(async (question) => {
         if (!question || !question.options?.length) {
-          console.error(`[TRACE] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
+          console.error(`❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
           return;
         }
-
-        console.log(`[TRACE] ✅ Question data loaded for index: ${this.currentQuestionIndex}:`, JSON.stringify(question, null, 2));
 
         this.currentQuestion = question;
 
         // Ensure we clear previous options before updating
-        console.log(`[TRACE] 🧹 Clearing optionsToDisplay before updating for Q${this.currentQuestionIndex}`);
         this.optionsToDisplay = [];
-
-        console.log(`[TRACE] 🟡 BEFORE setting optionsToDisplay for Q${this.currentQuestionIndex}:`, JSON.stringify(this.optionsToDisplay, null, 2));
 
         // Fetch and assign options separately
         this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(take(1)).subscribe(options => {
           this.optionsToDisplay = options;
-
-          // Log after updating `optionsToDisplay`
-          console.log(`[TRACE] ✅ AFTER setting optionsToDisplay for Q${this.currentQuestionIndex}:`, JSON.stringify(this.optionsToDisplay, null, 2));
         });
 
         // Check if the question has already been answered
@@ -3472,7 +3461,7 @@ export class QuizQuestionComponent
         window.scrollTo(0, 0);
       })
     ).subscribe({
-      error: (error) => console.error(`[TRACE] ❌ Error loading question data for index ${this.currentQuestionIndex}:`, error)
+      error: (error) => console.error(`❌ Error loading question data for index ${this.currentQuestionIndex}:`, error)
     });
   }
 
