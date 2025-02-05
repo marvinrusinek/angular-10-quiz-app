@@ -2283,61 +2283,29 @@ export class QuizQuestionComponent
     }
   }
 
-  /* private applyOptionFeedback(option: Option): void {
-    this.showFeedback = true;
-  
-    // Check if the selected option is correct
-    if (option.correct) {
-      // Mark only correct options as active, and deactivate incorrect ones
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-        ...opt,
-        active: opt.correct, // Keep correct options active
-        feedback: opt.correct ? undefined : 'Incorrect answer!', // Feedback for incorrect options
-        showIcon: !opt.correct, // Show 'close' icon for incorrect options
-        highlight: opt === option // Highlight the selected option
-      }));
-    } else {
-      // Handle incorrect selection
-      this.optionsToDisplay = this.optionsToDisplay.map(opt =>
-        opt === option
-          ? {
-              ...opt,
-              feedback: 'Incorrect answer!', // Add feedback for selected incorrect option
-              showIcon: true, // Show 'close' icon for the selected incorrect option
-              active: false // Deactivate the incorrect selected option
-            }
-          : {
-              ...opt,
-              active: opt.correct, // Keep correct options active
-              showIcon: opt.correct // Ensure icons are displayed for correct options
-            }
-      );
-    }
-  
-    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
-  } */
   private applyOptionFeedback(selectedOption: Option): void {
     this.showFeedback = true;
-  
+
     this.optionsToDisplay = this.optionsToDisplay.map(option => {
       if (option === selectedOption) {
         return {
           ...option,
-          active: option.correct, // Correct option remains active, incorrect gets disabled
-          feedback: option.correct ? 'Correct answer!' : 'Incorrect answer!',
-          showIcon: true, // Show feedback icon for selected option
+          active: option.correct, // Keep correct option active, disable incorrect ones
+          feedback: option.correct ? '✅ Correct answer!' : '❌ Incorrect answer!',
+          showIcon: true, // Always show feedback icon for selected option
+          selected: true // Mark selected option
         };
       }
       return {
         ...option,
-        active: option.correct, // Disable incorrect options
-        showIcon: option.correct, // Show icon for correct options only
+        active: option.correct, // Only keep correct options active
+        showIcon: option.correct, // Show icon only for correct options
+        feedback: option.correct ? '✅ This is a correct answer.' : option.feedback ?? ''
       };
     });
-  
-    console.log('[applyOptionFeedback] Updated optionsToDisplay:', this.optionsToDisplay);
+
+    console.log('[applyOptionFeedback] 🔄 Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
   }
-  
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
