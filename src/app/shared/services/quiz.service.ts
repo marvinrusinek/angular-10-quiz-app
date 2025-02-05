@@ -971,51 +971,25 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(
-    questionIndex: number = this.currentQuestionIndex ?? 0
-  ): Observable<Option[]> {
-    console.log(`[TRACE] 🔍 Fetching options for questionIndex: ${questionIndex}`);
-  
-    // Debug: Verify currentQuestionIndex before fetching
-    console.log(`[DEBUG] 📌 Current questionIndex before fetching options: ${this.currentQuestionIndex}`);
-
+  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-      console.error(`[TRACE] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+      console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
     }
-  
+
     return this.getQuestionByIndex(questionIndex).pipe(
-      tap((question) => {
-        if (!question) {
-          console.warn(`[TRACE] ⚠️ No question found for index: ${questionIndex}`);
-        } else {
-          console.log(`[DEBUG] 🟢 Retrieved question for Q${questionIndex}:`, JSON.stringify(question, null, 2));
-        }
-      }),
       map((question) => {
         if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-          console.warn(`[TRACE] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
-          return [];
+          return []; // Return an empty array if no valid options are found
         }
 
-        // Debug: Verify options before assigning optionId
-        console.log(`[DEBUG] 🟡 Raw options before processing for Q${questionIndex}:`, JSON.stringify(question.options, null, 2));
-
-        const processedOptions = question.options.map((option, index) => ({
+        return question.options.map((option, index) => ({
           ...option,
           optionId: index, // Ensure `optionId` is properly assigned
           correct: option.correct ?? false // Ensure `correct` property exists
         }));
-
-        // Debug: Verify processed options
-        console.log(`[TRACE] ✅ Processed options for Q${questionIndex}:`, JSON.stringify(processedOptions, null, 2));
-
-        return processedOptions;
       }),
-      catchError((error) => {
-        console.error(`[TRACE] ❌ Error fetching options for Q${questionIndex}:`, error);
-        return of([]);
-      })
+      catchError(() => of([])) // Gracefully return an empty array on error
     );
   }
 
