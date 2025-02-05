@@ -4298,9 +4298,6 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Log the preparation step for better traceability
-    console.log(`Preparing to set current question at index: ${adjustedIndex}`);
-
     try {
       // Set the question and trigger a re-render
       if (currentQuestion) {
