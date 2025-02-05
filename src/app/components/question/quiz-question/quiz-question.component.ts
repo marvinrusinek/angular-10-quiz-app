@@ -3521,13 +3521,16 @@ export class QuizQuestionComponent
 
         this.currentQuestion = question;
 
-        // Log before updating `optionsToDisplay`
+        // Ensure we clear previous options before updating
+        console.log(`[TRACE] 🧹 Clearing optionsToDisplay before updating for Q${this.currentQuestionIndex}`);
+        this.optionsToDisplay = [];
+
         console.log(`[TRACE] 🟡 BEFORE setting optionsToDisplay for Q${this.currentQuestionIndex}:`, JSON.stringify(this.optionsToDisplay, null, 2));
 
         // Fetch and assign options separately
         this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(take(1)).subscribe(options => {
           this.optionsToDisplay = options;
-                
+
           // Log after updating `optionsToDisplay`
           console.log(`[TRACE] ✅ AFTER setting optionsToDisplay for Q${this.currentQuestionIndex}:`, JSON.stringify(this.optionsToDisplay, null, 2));
         });
