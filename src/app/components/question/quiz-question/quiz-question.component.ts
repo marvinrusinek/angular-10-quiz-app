@@ -560,94 +560,102 @@ export class QuizQuestionComponent
 
   private restoreQuizState(): void {
     try {
-      console.log('[restoreQuizState] STARTED');
+        console.log('[restoreQuizState] STARTED');
 
-      // Restore explanation text
-      this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
-      const displayMode = sessionStorage.getItem(`displayMode`);
-      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+        // Restore explanation text
+        this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
+        const displayMode = sessionStorage.getItem(`displayMode`);
+        this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
 
-      // Restore options data safely
-      const optionsData = sessionStorage.getItem(`options`);
-      if (optionsData) {
-        try {
-          const parsedOptions = JSON.parse(optionsData);
-                
-          if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-            // Ensure valid options exist before setting them
-            this.optionsToDisplay = this.quizService.assignOptionIds(parsedOptions);
-            console.log('[restoreQuizState] ✅ Restored and validated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-          } else {
-            console.warn('[restoreQuizState] ⚠️ Parsed options data is empty or invalid. Retaining previous options.');
-          }
-        } catch (error) {
-          console.error('[restoreQuizState] ❌ Error parsing options data:', error);
-          // Keep existing options if restoration fails
-        }
-      } else {
-        console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
-      }
+        // Restore options data safely
+        const optionsData = sessionStorage.getItem(`options`);
+        if (optionsData) {
+            try {
+                const parsedOptions = JSON.parse(optionsData);
 
-      // Critical Debugging Before Emptying optionsToDisplay
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.error('[TRACE] ⚠️ optionsToDisplay is about to be set to an EMPTY array!');
-
-        // Retrieve last known options from quiz service or local state
-        const lastKnownOptions = this.quizService.getLastKnownOptions(); 
-
-        console.log('[TRACE] 🔍 getLastKnownOptions() returned:', JSON.stringify(lastKnownOptions, null, 2));
-
-        if (lastKnownOptions && lastKnownOptions.length > 0) {
-          this.optionsToDisplay = [...lastKnownOptions];
-          console.log('[restoreQuizState] ✅ Restored options from backup:', JSON.stringify(this.optionsToDisplay, null, 2));
-        } else {
-          console.warn('[restoreQuizState] ❌ No valid backup found for optionsToDisplay. Setting to empty array.');
-
-          // NEW: Deep trace before modifying
-          console.trace('[TRACE] 🚨 optionsToDisplay IS BEING OVERWRITTEN TO EMPTY ARRAY HERE!');
-
-          this.optionsToDisplay = []; // Last resort, but should rarely happen
-        }
-      }
-
-      // Restore selected options safely
-      const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
-      if (selectedOptionsData) {
-        try {
-          const selectedOptions = JSON.parse(selectedOptionsData);
-          if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
-            for (const option of selectedOptions) {
-              if (option.optionId !== undefined) {
-                this.selectedOptionService.setSelectedOption(option.optionId);
-              } else {
-                console.warn('[restoreQuizState] ❌ Skipping option with undefined optionId:', option);
-              }
+                if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+                    // Ensure valid options exist before setting them
+                    this.optionsToDisplay = this.quizService.assignOptionIds(parsedOptions);
+                    console.log('[restoreQuizState] ✅ Restored and validated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+                } else {
+                    console.warn('[restoreQuizState] ⚠️ Parsed options data is empty or invalid. Retaining previous options.');
+                }
+            } catch (error) {
+                console.error('[restoreQuizState] ❌ Error parsing options data:', error);
+                // Keep existing options if restoration fails
             }
-            console.log('[restoreQuizState] ✅ Restored selected options:', JSON.stringify(selectedOptions, null, 2));
-          } else {
-            console.warn('[restoreQuizState] ❌ No selected options to restore.');
-          }
-        } catch (error) {
-          console.error('[restoreQuizState] ❌ Error parsing selected options data:', error);
+        } else {
+            console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
         }
-      } else {
-        console.warn('[restoreQuizState] ❌ No selected options data found for restoration.');
-      }
 
-      // Restore feedback text safely
-      const restoredFeedbackText = sessionStorage.getItem(`feedbackText`);
-      if (restoredFeedbackText) {
-        this.feedbackText = restoredFeedbackText;
-        console.log('[restoreQuizState] ✅ Restored feedback text:', restoredFeedbackText);
-      } else {
-        console.warn('[restoreQuizState] ❌ No feedback text found for restoration.');
-        this.feedbackText = ''; // Default to an empty string
-      }
+        // Critical Debugging Before Emptying optionsToDisplay
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.error('[TRACE] ⚠️ optionsToDisplay is about to be set to an EMPTY array!');
 
-      // Final Validation Log
-      console.log('[restoreQuizState] 🔄 Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+            // Retrieve last known options from quiz service or local state
+            const lastKnownOptions = this.quizService.getLastKnownOptions(); 
+
+            console.log('[TRACE] 🔍 getLastKnownOptions() returned:', JSON.stringify(lastKnownOptions, null, 2));
+
+            if (lastKnownOptions && lastKnownOptions.length > 0) {
+                this.optionsToDisplay = [...lastKnownOptions];
+                console.log('[restoreQuizState] ✅ Restored options from backup:', JSON.stringify(this.optionsToDisplay, null, 2));
+            } else {
+                console.warn('[restoreQuizState] ❌ No valid backup found for optionsToDisplay. Setting to empty array.');
+
+                // NEW: Deep trace before modifying
+                console.trace('[TRACE] 🚨 optionsToDisplay IS BEING OVERWRITTEN TO EMPTY ARRAY HERE!');
+
+                this.optionsToDisplay = []; // Last resort, but should rarely happen
+            }
+        }
+
+        // Restore selected options safely & Apply Feedback
+        const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
+        if (selectedOptionsData) {
+            try {
+                const selectedOptions = JSON.parse(selectedOptionsData);
+                if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
+                    for (const option of selectedOptions) {
+                        if (option.optionId !== undefined) {
+                            this.selectedOptionService.setSelectedOption(option.optionId);
+
+                            // ✅ APPLY FEEDBACK FOR RESTORED OPTION
+                            const restoredOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
+                            if (restoredOption) {
+                                console.log(`[restoreQuizState] 🎯 Applying feedback for restored option:`, restoredOption);
+                                this.applyOptionFeedback(restoredOption);
+                            }
+                        } else {
+                            console.warn('[restoreQuizState] ❌ Skipping option with undefined optionId:', option);
+                        }
+                    }
+                    console.log('[restoreQuizState] ✅ Restored selected options:', JSON.stringify(selectedOptions, null, 2));
+                } else {
+                    console.warn('[restoreQuizState] ❌ No selected options to restore.');
+                }
+            } catch (error) {
+                console.error('[restoreQuizState] ❌ Error parsing selected options data:', error);
+            }
+        } else {
+            console.warn('[restoreQuizState] ❌ No selected options data found for restoration.');
+        }
+
+        // Restore feedback text safely
+        const restoredFeedbackText = sessionStorage.getItem(`feedbackText`);
+        if (restoredFeedbackText) {
+            this.feedbackText = restoredFeedbackText;
+            console.log('[restoreQuizState] ✅ Restored feedback text:', restoredFeedbackText);
+        } else {
+            console.warn('[restoreQuizState] ❌ No feedback text found for restoration.');
+            this.feedbackText = ''; // Default to an empty string
+        }
+
+        // Final Validation Log
+        console.log('[restoreQuizState] 🔄 Final optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+
     } catch (error) {
-      console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
+        console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
   }
 
