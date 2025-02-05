@@ -497,7 +497,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.options = data.options;
 
       // Update current question in the QuizService
-      this.quizService.setCurrentQuestion(questionIndex);
+      this.quizService.setCurrentQuestion(this.currentQuestion);
 
       this.isQuestionDisplayed = true;
 
@@ -1181,7 +1181,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       this.initializeAndPrepareQuestion(questionData, quizId);
-      this.quizService.setCurrentQuestion(zeroBasedQuestionIndex);
+      this.quizService.setCurrentQuestion(this.currentQuestion);
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
@@ -2423,7 +2423,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Invalid question index:', questionIndex);
       return;
     }
-    this.quizService.setCurrentQuestion(questionIndex);
+    this.quizService.setCurrentQuestion(this.currentQuestion);
 
     // Reset UI elements and messages as needed
     this.selectedOption$.next(null);
@@ -2999,7 +2999,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setAnswered(false);
 
         // Prepare the next question
-        this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+        // Fetch the next question object using the index
+        const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex + 1));
+        if (!nextQuestion) {
+          console.warn('[advanceToNextQuestion] ❌ No question found for next index.');
+          return;
+        }
+
+        // Set the next question
+        this.quizService.setCurrentQuestion(nextQuestion);
+
         await this.loadQuestionContents();
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
@@ -3249,6 +3258,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  private async fetchAndSetNextQuestion(): Promise<void> {
+    console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex + 1}`);
+
+    try {
+      const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex + 1));
+
+      if (!nextQuestion) {
+        console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
+        return;
+      }
+
+      this.quizService.setCurrentQuestion(nextQuestion);
+      console.log('[fetchAndSetNextQuestion] ✅ Successfully updated current question.');
+    } catch (error) {
+      console.error('[fetchAndSetNextQuestion] ❌ Error fetching next question:', error);
+    }
+  }
+
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
       // Fetch the question text
@@ -3474,7 +3501,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               // Load the first question and its options
               const firstQuestion = this.questions[0];
               if (firstQuestion) {
-                this.quizQuestionComponent.setCurrentQuestion(firstQuestion);
                 this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
               } else {
                 console.error('First question not found during quiz restart.');
