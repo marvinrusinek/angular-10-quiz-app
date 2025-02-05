@@ -44,7 +44,7 @@ export class QuizQuestionComponent
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
-    selectedOptions: Option[];
+    selectedOptions: Option[]
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
@@ -63,11 +63,11 @@ export class QuizQuestionComponent
   @Output() optionSelected = new EventEmitter<{
     option: SelectedOption;
     index: number;
-    checked: boolean;
+    checked: boolean
   }>();
   @Output() displayStateChange = new EventEmitter<{
     mode: 'question' | 'explanation';
-    answered: boolean;
+    answered: boolean
   }>();
   @Input() data: {
     questionText: string;
