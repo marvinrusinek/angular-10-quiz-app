@@ -3504,14 +3504,14 @@ export class QuizQuestionComponent
   private async waitForQuestionData(): Promise<void> {
     if (!Number.isInteger(this.currentQuestionIndex) || this.currentQuestionIndex < 0) {
       console.error(`[TRACE] ❌ Invalid currentQuestionIndex: ${this.currentQuestionIndex}. Defaulting to index 0.`);
-      this.currentQuestionIndex = 0; // Fallback to index 0
+      this.currentQuestionIndex = 0;
     }
 
     console.log(`[TRACE] 🔍 Fetching data for question index: ${this.currentQuestionIndex}`);
 
     this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(
-      take(1), // Take only the first emission
-      switchMap(async (question) => { // Ensures only the latest request is processed
+      take(1),
+      switchMap(async (question) => {
         if (!question || !question.options?.length) {
           console.error(`[TRACE] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
           return;
@@ -3521,14 +3521,23 @@ export class QuizQuestionComponent
 
         this.currentQuestion = question;
 
+        // Log before updating `optionsToDisplay`
+        console.log(`[TRACE] 🟡 BEFORE setting optionsToDisplay for Q${this.currentQuestionIndex}:`, JSON.stringify(this.optionsToDisplay, null, 2));
+
+        // Fetch and assign options separately
+        this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(take(1)).subscribe(options => {
+          this.optionsToDisplay = options;
+                
+          // Log after updating `optionsToDisplay`
+          console.log(`[TRACE] ✅ AFTER setting optionsToDisplay for Q${this.currentQuestionIndex}:`, JSON.stringify(this.optionsToDisplay, null, 2));
+        });
+
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-        this.updateSelectionMessage(isAnswered); // Update selection message based on state
+        this.updateSelectionMessage(isAnswered);
 
         this.initializeForm();
-        this.questionForm.updateValueAndValidity(); // Ensure form is valid after loading
-
-        // Scroll to the top for better UX
+        this.questionForm.updateValueAndValidity();
         window.scrollTo(0, 0);
       })
     ).subscribe({
