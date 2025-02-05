@@ -2328,13 +2328,13 @@ export class QuizQuestionComponent
     }
     this.showFeedbackForOption[selectedOption.optionId] = true;
 
-    // ✅Update selectedOptionIndex
+    // Update selectedOptionIndex
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
 
     console.log(`[TRACE] ✅ showFeedbackForOption UPDATED:`, JSON.stringify(this.showFeedbackForOption, null, 2));
     console.log(`[TRACE] ✅ selectedOptionIndex SET to: ${this.selectedOptionIndex}`);
 
-    // ✅Update optionsToDisplay to reflect feedback
+    // Update optionsToDisplay to reflect feedback
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
       active: option.correct,
@@ -2345,7 +2345,7 @@ export class QuizQuestionComponent
 
     console.log('[TRACE] 🔄 optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
 
-    // ✅ Force Angular to detect changes (if necessary)
+    // Force Angular to detect changes (if necessary)
     this.cdRef.detectChanges();
   }
 
