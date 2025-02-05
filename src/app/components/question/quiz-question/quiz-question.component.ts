@@ -2237,7 +2237,6 @@ export class QuizQuestionComponent
 
     // Enable feedback display
     this.showFeedback = true;
-    console.log(`[TRACE] ✅ showFeedback SET to TRUE`);
 
     // Ensure `showFeedbackForOption` is initialized
     if (!this.showFeedbackForOption) {
@@ -2247,15 +2246,12 @@ export class QuizQuestionComponent
 
     // Find selectedOptionIndex safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
-    console.log(`[TRACE] ✅ selectedOptionIndex SET to: ${this.selectedOptionIndex}`);
 
     // Ensure `optionsToDisplay` exists before modifying
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       console.error('[applyOptionFeedback] ❌ ERROR: optionsToDisplay is empty or undefined.');
       return;
     }
-
-    console.log(`[TRACE] 🧐 BEFORE updating optionsToDisplay:`, JSON.stringify(this.optionsToDisplay, null, 2));
 
     // Update optionsToDisplay with feedback
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
@@ -2266,14 +2262,11 @@ export class QuizQuestionComponent
       selected: option.optionId === selectedOption.optionId
     }));
 
-    console.log('[TRACE] 🔄 AFTER updating optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
-
     // Force UI update only if necessary
     if (this.showFeedbackForOption[selectedOption.optionId]) {
-      console.log(`[TRACE] 🔄 UI update triggered via ChangeDetectorRef`);
       this.cdRef.detectChanges();
     } else {
-      console.warn(`[TRACE] ❌ UI update skipped, no feedback detected for optionId ${selectedOption.optionId}`);
+      console.warn(`[applyOptionFeedback] ❌ UI update skipped, no feedback detected for optionId ${selectedOption.optionId}`);
     }
   }
 
