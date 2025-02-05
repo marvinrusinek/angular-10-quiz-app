@@ -2317,25 +2317,36 @@ export class QuizQuestionComponent
   } */
   private applyOptionFeedback(selectedOption: Option): void {
     console.log(`[applyOptionFeedback] 🔘 Applying feedback for: ${selectedOption.text}`);
-  
+
+    // Enable feedback display
     this.showFeedback = true;
-  
+    console.log(`[TRACE] ✅ showFeedback SET to TRUE`);
+
     // Ensure correct option gets feedback
+    if (!this.showFeedbackForOption) {
+      this.showFeedbackForOption = {}; // Ensure it's initialized
+    }
     this.showFeedbackForOption[selectedOption.optionId] = true;
+
+    // ✅Update selectedOptionIndex
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
-  
+
     console.log(`[TRACE] ✅ showFeedbackForOption UPDATED:`, JSON.stringify(this.showFeedbackForOption, null, 2));
     console.log(`[TRACE] ✅ selectedOptionIndex SET to: ${this.selectedOptionIndex}`);
-  
+
+    // ✅Update optionsToDisplay to reflect feedback
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
       active: option.correct,
       feedback: option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!',
       showIcon: option.correct || option.optionId === selectedOption.optionId,
-      selected: option.optionId === selectedOption.optionId,
+      selected: option.optionId === selectedOption.optionId
     }));
-  
+
     console.log('[TRACE] 🔄 optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
+
+    // ✅ Force Angular to detect changes (if necessary)
+    this.cdRef.detectChanges();
   }
 
   private async reloadCurrentQuestion(): Promise<void> {
