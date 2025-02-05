@@ -5,7 +5,7 @@ import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackService {
-  private callCount = 0;
+  callCount = 0;
   lastKnownOptions: Option[] = [];
 
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
