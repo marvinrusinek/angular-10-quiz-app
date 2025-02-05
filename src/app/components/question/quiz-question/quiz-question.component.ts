@@ -857,37 +857,28 @@ export class QuizQuestionComponent
   }
   
   private setQuestionFirst(index: number): void {
-    console.warn(`[TRACE] 🔍 setQuestionFirst() CALLED with index: ${index}`);
-    console.trace(`[TRACE] 📌 setQuestionFirst() TRACE CALL STACK`);
-
     if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error(`[TRACE] ❌ questionsArray is empty or undefined.`);
-      return;
+      console.error(`questionsArray is empty or undefined.`);
+       return;
     }
 
-    console.log(`[TRACE] 📋 Total questions available: ${this.questionsArray.length}`);
-
     const zeroBasedIndex = Math.max(0, index - 1);
-
     if (zeroBasedIndex < 0 || zeroBasedIndex >= this.questionsArray.length) {
-      console.error(`[TRACE] ❌ Invalid question index: ${zeroBasedIndex}`);
+      console.error(`Invalid question index: ${zeroBasedIndex}`);
       return;
     }
 
     const question = this.questionsArray[zeroBasedIndex];
 
     if (!question) {
-      console.error(`[TRACE] ❌ No question data available at index: ${zeroBasedIndex}`);
+      console.error(`No question data available at index: ${zeroBasedIndex}`);
       return;
     }
 
     // Prevent setting duplicate questions
     if (this.currentQuestion?.questionText === question.questionText) {
-      console.warn(`[TRACE] ⚠️ Skipping duplicate question update: ${question.questionText}`);
       return;
     }
-
-    console.warn(`[TRACE] 🟢 setQuestionFirst() SETTING QUESTION at index ${zeroBasedIndex}:`, JSON.stringify(question, null, 2));
 
     // Set the question in the service FIRST (before setting options)
     this.quizService.setCurrentQuestion(question);
@@ -895,25 +886,21 @@ export class QuizQuestionComponent
     // Ensure `optionsToDisplay` is correctly assigned from the latest question
     setTimeout(() => {
       this.optionsToDisplay = [...this.quizService.currentQuestion.getValue()?.options ?? []];
-      console.log(`[WATCH] 🟢 optionsToDisplay UPDATED in Component:::::`, JSON.stringify(this.optionsToDisplay, null, 2));
     }, 10);
 
     // Load options only after ensuring the question and options are set
     this.loadOptionsForQuestion(question);
 
     if (this.lastProcessedQuestionIndex !== zeroBasedIndex) {
-      console.log('[TRACE] ✅ Applying feedback now...');
       this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = zeroBasedIndex;
     } else {
-      console.warn('[TRACE] ❌ Feedback already processed. Skipping.');
+      console.warn(`Feedback already processed. Skipping.`);
     }
 
     setTimeout(() => {
-      console.log(`[TRACE] ⏳ Updating explanation for Q${zeroBasedIndex}...`);
       this.updateExplanationIfAnswered(zeroBasedIndex, question);
       this.questionRenderComplete.emit();
-      console.log(`[TRACE] ✅ Explanation updated and event emitted for Q${zeroBasedIndex}.`);
     }, 100);
   }
 
