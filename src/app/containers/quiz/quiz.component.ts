@@ -450,7 +450,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Clear previous options before fetching new ones
       this.optionsToDisplay = [];
-      console.log(`[TRACE] 🧹 Cleared optionsToDisplay before loading Q${this.currentQuestionIndex}`);
 
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
@@ -505,15 +504,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // this.currentScore = data.score || 0;
 
       // Update current question in the QuizService
-      console.log(`[TRACE] 🔄 BEFORE setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
-      console.log(`[TRACE] 🧐 CurrentQuestion Data BEFORE setCurrentQuestion():`, JSON.stringify(this.currentQuestion, null, 2));
-      console.log(`[TRACE] 🔢 Current Index BEFORE setCurrentQuestion(): ${this.currentQuestionIndex}`);
       this.quizService.setCurrentQuestion(this.currentQuestion);
-      console.log(`[TRACE] ✅ AFTER setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
-
-      setTimeout(() => {
-        console.log(`[TRACE] 🔄 CurrentQuestion Data AFTER setCurrentQuestion():`, JSON.stringify(this.currentQuestion, null, 2));
-      }, 100);
 
       this.isQuestionDisplayed = true;
 
