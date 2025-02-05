@@ -2227,7 +2227,7 @@ export class QuizQuestionComponent
     }
   }
   
-  private applyOptionFeedback(selectedOption: Option): void {
+  public applyOptionFeedback(selectedOption: Option): void {
     if (!selectedOption) {
       console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined!');
       return;
