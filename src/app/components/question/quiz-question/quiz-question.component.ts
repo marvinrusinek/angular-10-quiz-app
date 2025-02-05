@@ -1039,7 +1039,7 @@ export class QuizQuestionComponent
     this.cdRef.markForCheck();
   }
   
-  // Method to conditionally update the explanation if the question is answered
+  // Method to conditionally update the explanation when the question is answered
   private updateExplanationIfAnswered(
     index: number,
     question: QuizQuestion
