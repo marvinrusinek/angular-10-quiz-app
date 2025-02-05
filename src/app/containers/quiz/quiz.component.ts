@@ -359,7 +359,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.nextExplanationText$.subscribe((text) => {
       this.explanationToDisplay = text;
-      console.log('Updated explanation text:', text); // Debug log
     });
 
     // Move resetQuestionState here

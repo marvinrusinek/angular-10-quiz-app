@@ -139,15 +139,6 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   updateHighlight(): void {
-    // Debugging state
-    console.log('[updateHighlight] Triggered with:', {
-      isCorrect: this.isCorrect,
-      isSelected: this.isSelected,
-      highlight: this.option?.highlight,
-      active: this.option?.active,
-      option: this.option
-    });
-
     // If the option is already highlighted, reapply the highlight color
     if (this.option?.highlight) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // Green for correct, red for incorrect
