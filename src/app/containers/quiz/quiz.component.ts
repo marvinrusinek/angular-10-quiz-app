@@ -450,6 +450,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
 
+      // Clear previous options before fetching new ones
+      this.optionsToDisplay = [];
+      console.log(`[TRACE] 🧹 Cleared optionsToDisplay before loading Q${this.currentQuestionIndex}`);
+
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
 
