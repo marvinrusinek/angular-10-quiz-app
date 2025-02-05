@@ -923,16 +923,6 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  public setCurrentQuestionByIndex(index: number): void {
-    const question = this.getQuestionByIndex(index);
-    if (!question) {
-      console.error(`[QuizService] ❌ No question found for index ${index}.`);
-      return;
-    }
-
-    this.setCurrentQuestion(question);
-  }
-
   /* setCurrentQuestion(index: number): void {
     if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
       console.error('Quiz data is not properly initialized.');
