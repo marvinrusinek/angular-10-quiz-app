@@ -922,22 +922,13 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    console.log(`[TRACE] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
-    console.log(`[TRACE] 🔍 Current Question Index: ${this.currentQuestionIndex}`);
-
     question.options = question.options?.map((option, index) => ({
       ...option,
       optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
       correct: option.correct ?? false // Ensure correct is assigned only if missing
     })) || [];
 
-    console.log(`[TRACE] ✅ Processed options for question at index ${this.currentQuestionIndex}:`, JSON.stringify(question.options, null, 2));
-
-    console.log(`[TRACE] 🔄 Current Question BEFORE update:`, JSON.stringify(this.currentQuestion.getValue(), null, 2));
-
     this.currentQuestion.next(question);
-
-    console.log(`[TRACE] ✅ currentQuestion successfully updated. Assigned options:`, JSON.stringify(question.options, null, 2));
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
