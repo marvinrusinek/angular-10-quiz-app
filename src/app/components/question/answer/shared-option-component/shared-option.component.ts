@@ -471,9 +471,9 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   getOptionIconClass(option: Option): string {
-    if (option.correct) return 'correct-icon'; // Green checkmark for correct answers
-    if (option.feedback === 'x' || option.selected) return 'incorrect-icon'; // Red or greyed-out X for incorrect selections
-    return ''; // No specific styling for other cases
+    if (option.correct) return 'correct-icon';
+    if (option.feedback === 'x' || option.selected) return 'incorrect-icon';
+    return '';
   }
 
   isIconVisible(option: Option): boolean {
