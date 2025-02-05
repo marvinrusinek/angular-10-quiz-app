@@ -1612,9 +1612,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   refreshQuestionOnReset(): void {
-    this.quizService.setCurrentQuestion(0);
-    this.loadCurrentQuestion();
-  }
+    const firstQuestion = this.quizService.getQuestionByIndex(0);
+    
+    if (!firstQuestion) {
+      console.error('[refreshQuestionOnReset] ❌ No question found at index 0.');
+      return;
+    }
+  
+    // Update the current question
+    firstValueFrom(firstQuestion).then((question) => {
+      if (question) {
+        this.quizService.setCurrentQuestion(question);
+        this.loadCurrentQuestion();
+      } else {
+        console.error('[refreshQuestionOnReset] ❌ Failed to fetch question at index 0.');
+      }
+    }).catch((error) => {
+      console.error('[refreshQuestionOnReset] ❌ Error fetching first question:', error);
+    });
+  }  
 
   checkAndDisplayCorrectAnswers(): void {
     const multipleAnswerQuestionIndex =
