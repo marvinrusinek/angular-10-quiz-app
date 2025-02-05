@@ -470,7 +470,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Clear selection state
       this.resetOptionState();
 
-      // Fetch question and options
+      // Fetch question and options, along with additional metadata
       const data = await lastValueFrom(
         forkJoin({
           question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
@@ -482,10 +482,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }).pipe(
           catchError((error) => {
             console.error(`Error fetching question or options: ${error.message}`);
-            return of({ question: null, options: [] });
+            return of({ question: null, options: [], selectionMessage: null, navigationIcons: null, badgeQuestionNumber: null, score: null });
           })
         )
-      ) as { question: QuizQuestion | null; options: Option[] };
+      ) as { question: QuizQuestion | null; options: Option[]; selectionMessage: string | null; navigationIcons: any; badgeQuestionNumber: number | null; score: number | null };
 
       // Validate fetched data
       if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
@@ -500,17 +500,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = data.question;
       this.options = data.options;
 
+      // Assign additional metadata
+      this.selectionMessage = data.selectionMessage || 'Please select an option.';
+      this.navigationIcons = data.navigationIcons || {};
+      this.badgeQuestionNumber = data.badgeQuestionNumber || 0;
+      this.currentScore = data.score || 0;
+
       // Update current question in the QuizService
       console.log(`[TRACE] 🔄 BEFORE setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
       console.log(`[TRACE] 🧐 CurrentQuestion Data BEFORE setCurrentQuestion():`, JSON.stringify(this.currentQuestion, null, 2));
       console.log(`[TRACE] 🔢 Current Index BEFORE setCurrentQuestion(): ${this.currentQuestionIndex}`);
       this.quizService.setCurrentQuestion(this.currentQuestion);
       console.log(`[TRACE] ✅ AFTER setCurrentQuestion() call for Q${this.currentQuestionIndex}`);
+
       setTimeout(() => {
         console.log(`[TRACE] 🔄 CurrentQuestion Data AFTER setCurrentQuestion():`, JSON.stringify(this.currentQuestion, null, 2));
       }, 100);
 
       this.isQuestionDisplayed = true;
+
+      // Check if an option was previously selected and apply feedback
+      const previouslySelectedOption = this.options.find(option => option.selected);
+      if (previouslySelectedOption) {
+        console.log(`[loadQuestionContents] 🔍 Found previously selected option: ${previouslySelectedOption.text}`);
+        this.applyOptionFeedback(previouslySelectedOption);
+      } else {
+        console.log('[loadQuestionContents] ❌ No previously selected option found.');
+      }
 
       // Ensure feedback is applied after options load
       setTimeout(() => {
