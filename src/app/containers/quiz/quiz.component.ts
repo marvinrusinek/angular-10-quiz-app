@@ -507,20 +507,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.isQuestionDisplayed = true;
 
-      // Check if an option was previously selected and apply feedback
-      const previouslySelectedOption = this.options.find(option => option.selected);
-      if (previouslySelectedOption) {
-        console.log(`[loadQuestionContents] 🔍 Found previously selected option: ${previouslySelectedOption.text}`);
-        this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
-      } else {
-        console.log('[loadQuestionContents] ❌ No previously selected option found.');
-      }
-
       // Ensure feedback is applied after options load
       setTimeout(() => {
         if (this.options.length > 0) {
-          console.log('[loadQuestionContents] ✅ Applying feedback after options load...');
-          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+          console.log('[loadQuestionContents] ✅ Ensuring feedback is applied after options load...');
+
+          // Check if an option was previously selected and apply feedback
+          const previouslySelectedOption = this.options.find(option => option.selected);
+          if (previouslySelectedOption) {
+            this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+          } else {
+            console.log('[loadQuestionContents] ❌ No previously selected option found. Applying feedback to all options.');
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+          }
         } else {
           console.warn('[loadQuestionContents] ❌ Options were empty when applying feedback.');
         }
