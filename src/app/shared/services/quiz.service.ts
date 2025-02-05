@@ -985,28 +985,28 @@ export class QuizService implements OnDestroy {
     questionIndex: number = this.currentQuestionIndex ?? 0
   ): Observable<Option[]> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-      console.error(
-        `Invalid questionIndex: ${questionIndex}. Returning empty options.`
-      );
+      console.error(`[TRACE] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
     }
-
-    console.log('Fetching options for questionIndex:', questionIndex);
-
+  
+    console.log(`[TRACE] 🔍 Fetching options for questionIndex: ${questionIndex}`);
+  
     return this.getQuestionByIndex(questionIndex).pipe(
-      tap((question) => {
-        if (!question) {
-          console.warn(
-            `No question found for the given index: ${questionIndex}.`
-          );
+      map((question) => {
+        if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+          console.warn(`[TRACE] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
+          return [];
         }
+  
+        return question.options.map((option, index) => ({
+          ...option,
+          optionId: index, // Ensure `optionId` is properly assigned
+          correct: option.correct ?? false // Ensure `correct` property exists
+        }));
       }),
-      map((question) => question?.options || []),
+      tap((options) => console.log(`[TRACE] ✅ Processed options for Q${questionIndex}:`, JSON.stringify(options, null, 2))),
       catchError((error) => {
-        console.error(
-          `Error fetching options for questionIndex ${questionIndex}:`,
-          error
-        );
+        console.error(`[TRACE] ❌ Error fetching options for Q${questionIndex}:`, error);
         return of([]);
       })
     );
