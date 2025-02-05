@@ -2284,16 +2284,25 @@ export class QuizQuestionComponent
   }
 
   private applyOptionFeedback(selectedOption: Option): void {
+    console.log('[applyOptionFeedback] 🔄 CALLED for selected option:', JSON.stringify(selectedOption, null, 2));
+
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.error('[TRACE] ❌ optionsToDisplay is EMPTY when applying feedback!');
+      return;
+    }
+
     this.showFeedback = true;
+    console.log(`[TRACE] ✅ showFeedback SET to TRUE for ${selectedOption.text}`);
 
     this.optionsToDisplay = this.optionsToDisplay.map(option => {
       if (option === selectedOption) {
+        console.log(`[applyOptionFeedback] 🟢 Updating selected option: ${option.text}`);
         return {
           ...option,
-          active: option.correct, // Keep correct option active, disable incorrect ones
+          active: option.correct, // Keep correct options active
           feedback: option.correct ? '✅ Correct answer!' : '❌ Incorrect answer!',
-          showIcon: true, // Always show feedback icon for selected option
-          selected: true // Mark selected option
+          showIcon: true,
+          selected: true
         };
       }
       return {
@@ -2304,7 +2313,7 @@ export class QuizQuestionComponent
       };
     });
 
-    console.log('[applyOptionFeedback] 🔄 Updated optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+    console.log('[TRACE] 🔄 optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
   }
 
   private async reloadCurrentQuestion(): Promise<void> {
