@@ -3502,10 +3502,15 @@ export class QuizQuestionComponent
   }
 
   private async waitForQuestionData(): Promise<void> {
+    if (!Number.isInteger(this.currentQuestionIndex) || this.currentQuestionIndex < 0) {
+      console.error(`[TRACE] ❌ Invalid currentQuestionIndex: ${this.currentQuestionIndex}. Defaulting to index 0.`);
+      this.currentQuestionIndex = 0; // Fallback to index 0
+    }
+
     console.log(`[TRACE] 🔍 Fetching data for question index: ${this.currentQuestionIndex}`);
 
     this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(
-      take(1), // Ensure only one value is taken
+      take(1), // Take only the first emission
       switchMap(async (question) => { // Ensures only the latest request is processed
         if (!question || !question.options?.length) {
           console.error(`[TRACE] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
