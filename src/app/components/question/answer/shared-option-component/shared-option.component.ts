@@ -971,10 +971,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionsToDisplay[index]?.optionId ?? -1;
     const shouldShow = optionId !== -1 && this.showFeedbackForOption[optionId] === true && this.selectedOptionIndex === index;
-  
-    console.log(`[TRACE] 🔍 shouldShowFeedback(${index}) → ${shouldShow}`);
-    console.log(`[TRACE] 🟢 optionId: ${optionId}, showFeedbackForOption[${optionId}]: ${this.showFeedbackForOption[optionId]}, selectedOptionIndex: ${this.selectedOptionIndex}`);
-  
     return shouldShow;
   }
   
