@@ -3515,7 +3515,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Stop the timer before restarting
     this.timerService.stopTimer();
-    console.log('[QuizComponent] Timer stopped.');
   
     // Set the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
