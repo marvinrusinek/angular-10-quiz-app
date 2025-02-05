@@ -2193,103 +2193,102 @@ export class QuizQuestionComponent
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
-        console.log('[onOptionClicked] STARTED');
+      console.log('[onOptionClicked] STARTED');
 
-        // ✅ Log current optionsToDisplay before processing the click
-        console.log('[onOptionClicked] optionsToDisplay BEFORE click:', JSON.stringify(this.optionsToDisplay, null, 2));
+      // Log current optionsToDisplay before processing the click
+      console.log('[onOptionClicked] optionsToDisplay BEFORE click:', JSON.stringify(this.optionsToDisplay, null, 2));
 
-        // ✅ Ensure the current question is loaded
-        if (!this.currentQuestion) {
-            console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
-            const loaded = await this.loadCurrentQuestion();
-            if (!loaded) {
-                console.error('[onOptionClicked] ❌ Unable to load current question. Aborting.');
-                return;
-            }
+      // Ensure the current question is loaded
+      if (!this.currentQuestion) {
+        console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
+        const loaded = await this.loadCurrentQuestion();
+        if (!loaded) {
+          console.error('[onOptionClicked] ❌ Unable to load current question. Aborting.');
+          return;
         }
+      }
 
-        // ✅ Ensure optionsToDisplay is set before proceeding
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
+      // Ensure optionsToDisplay is set before proceeding
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
 
-            if (this.currentQuestion && this.currentQuestion.options) {
-                this.optionsToDisplay = [...this.currentQuestion.options];
-                console.log('[onOptionClicked] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
-            } else {
-                console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
-                return;
-            }
+        if (this.currentQuestion && this.currentQuestion.options) {
+          this.optionsToDisplay = [...this.currentQuestion.options];
+          console.log('[onOptionClicked] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+        } else {
+          console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
+          return;
         }
+      }
 
-        // 🚨 Final Check: If `optionsToDisplay` is STILL empty, return early
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.error('[onOptionClicked] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
-            return;
-        }
+      // Final Check: If `optionsToDisplay` is STILL empty, return early
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.error('[onOptionClicked] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
+        return;
+      }
 
-        // ✅ Validate the event and option
-        if (!event.option || !this.validateOption(event)) {
-            console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
-            return;
-        }
+      // Validate the event and option
+      if (!event.option || !this.validateOption(event)) {
+        console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
+        return;
+      }
 
-        const selectedOption = {
-            ...event.option,
-            optionId: event.option?.optionId ?? event.index + 1, // Ensure valid optionId
-        };
+      const selectedOption = {
+        ...event.option,
+        optionId: event.option?.optionId ?? event.index + 1, // Ensure valid optionId
+      };
 
-        console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
+      console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
 
-        // ✅ Update selectedOptionsMap
-        const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
-        const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
+      // Update selectedOptionsMap
+      const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
+      const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
 
-        if (event.checked) {
-            updatedOptions.push(selectedOption);
-        }
-        this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
+      if (event.checked) {
+        updatedOptions.push(selectedOption);
+      }
+      this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
 
-        console.log('[onOptionClicked] ✅ Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
+      console.log('[onOptionClicked] ✅ Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
 
-        const isMultipleAnswer = await firstValueFrom(
-            this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-        );
-        console.log('[onOptionClicked] ✅ isMultipleAnswer:', isMultipleAnswer);
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
+      console.log('[onOptionClicked] ✅ isMultipleAnswer:', isMultipleAnswer);
 
-        // ✅ Ensure optionsToDisplay is set before applying feedback
-        console.log('[onOptionClicked] Calling applyOptionFeedback...');
-        this.applyOptionFeedback(selectedOption);
+      // Ensure optionsToDisplay is set before applying feedback
+      console.log('[onOptionClicked] Calling applyOptionFeedback...');
+      this.applyOptionFeedback(selectedOption);
 
-        // ✅ Log optionsToDisplay after applying feedback
-        console.log('[onOptionClicked] ✅ optionsToDisplay AFTER applyOptionFeedback:', JSON.stringify(this.optionsToDisplay, null, 2));
+      // Log optionsToDisplay after applying feedback
+      console.log('[onOptionClicked] ✅ optionsToDisplay AFTER applyOptionFeedback:', JSON.stringify(this.optionsToDisplay, null, 2));
 
-        if (isMultipleAnswer) {
-          await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
-          await this.handleMultipleAnswerTimerLogic(selectedOption);
-        }
+      if (isMultipleAnswer) {
+        await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
+        await this.handleMultipleAnswerTimerLogic(selectedOption);
+      }
 
-        // ✅ Update UI states and flags
-        this.updateOptionHighlightState();
-        this.updateDisplayStateToExplanation();
-        this.handleInitialSelection(event);
+      // Update UI states and flags
+      this.updateOptionHighlightState();
+      this.updateDisplayStateToExplanation();
+      this.handleInitialSelection(event);
 
-        // ✅ Notify that the question has been answered
-        this.selectedOptionService.isAnsweredSubject.next(true);
+      // Notify that the question has been answered
+      this.selectedOptionService.isAnsweredSubject.next(true);
 
-        // ✅ Allow UI changes to propagate before rendering
-        setTimeout(() => {
-            this.updateRenderingFlags();
-            this.renderDisplay();
-        });
+      // Allow UI changes to propagate before rendering
+      setTimeout(() => {
+        this.updateRenderingFlags();
+        this.renderDisplay();
+      });
 
-        // ✅ Handle additional processing
-        await this.handleAdditionalProcessing(event, isMultipleAnswer);
+      // Handle additional processing
+      await this.handleAdditionalProcessing(event, isMultipleAnswer);
 
     } catch (error) {
-        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+      console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-
 
 
   // ====================== Helper Functions ======================
