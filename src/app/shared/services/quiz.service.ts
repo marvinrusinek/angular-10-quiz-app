@@ -929,16 +929,25 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
+    console.log(`[TRACE] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
+    console.trace('[TRACE] 🛠 Stack Trace for setCurrentQuestion()');  // ✅ Capture stack trace
 
+    // Ensure optionIds are assigned correctly
     question.options = question.options?.map((option, index) => ({
       ...option,
       optionId: index
     })) || [];
 
+    console.log(`[TRACE] ✅ Processed options for question:`, JSON.stringify(question.options, null, 2));
+
+    // Debugging BEFORE updating the question
+    console.log(`[TRACE] 🔄 Current Question BEFORE update:`, JSON.stringify(this.currentQuestion.getValue(), null, 2));
+
+    // Update the current question
     this.currentQuestion.next(question);
 
-    console.log(`[QuizService] ✅ currentQuestion successfully updated. Assigned options:`, JSON.stringify(question.options, null, 2));
+    // Debugging AFTER updating the question
+    console.log(`[TRACE] ✅ currentQuestion successfully updated. Assigned options:`, JSON.stringify(question.options, null, 2));
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
