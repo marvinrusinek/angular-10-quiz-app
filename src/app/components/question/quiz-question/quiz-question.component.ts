@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, first, map, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -3502,29 +3502,32 @@ export class QuizQuestionComponent
   }
 
   private async waitForQuestionData(): Promise<void> {
-    this.quizService.getQuestionByIndex(this.currentQuestionIndex).subscribe({
-      next: async (question) => {
-        if (question && question.options?.length) {
-          this.currentQuestion = question;
-          console.log('Question data loaded:', question);
+    console.log(`[TRACE] 🔍 Fetching data for question index: ${this.currentQuestionIndex}`);
 
-          const isAnswered = await this.isQuestionAnswered(
-            this.currentQuestionIndex
-          );
-          this.updateSelectionMessage(isAnswered); // Update the message based on the question state
-
-          this.initializeForm();
-          this.questionForm.updateValueAndValidity(); // Ensure form is valid after loading
-
-          // Scroll to the top for better user experience
-          window.scrollTo(0, 0);
-        } else {
-          console.error('Invalid question data or options missing.');
+    this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(
+      take(1), // Ensure only one value is taken
+      switchMap(async (question) => { // Ensures only the latest request is processed
+        if (!question || !question.options?.length) {
+          console.error(`[TRACE] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
+          return;
         }
-      },
-      error: (error) => {
-        console.error('Error loading question data:', error);
-      },
+
+        console.log(`[TRACE] ✅ Question data loaded for index: ${this.currentQuestionIndex}:`, JSON.stringify(question, null, 2));
+
+        this.currentQuestion = question;
+
+        // Check if the question has already been answered
+        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+        this.updateSelectionMessage(isAnswered); // Update selection message based on state
+
+        this.initializeForm();
+        this.questionForm.updateValueAndValidity(); // Ensure form is valid after loading
+
+        // Scroll to the top for better UX
+        window.scrollTo(0, 0);
+      })
+    ).subscribe({
+      error: (error) => console.error(`[TRACE] ❌ Error loading question data for index ${this.currentQuestionIndex}:`, error)
     });
   }
 
