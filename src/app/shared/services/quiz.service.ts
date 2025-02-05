@@ -2203,7 +2203,7 @@ export class QuizService implements OnDestroy {
     return options.map((option, index) => ({
       ...option,
       // Assign optionId only if it's not a valid number
-      optionId: option.optionId ?? index + 1, // Use 1-based index for clarity
+      optionId: option.optionId ?? index + 1 // Use 1-based index for clarity
     }));
   }
 
@@ -2222,7 +2222,7 @@ export class QuizService implements OnDestroy {
       feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // Add feedback for incorrect options
       showIcon: correctOptionSelected
         ? opt.correct || opt.showIcon
-        : opt.showIcon, // Preserve icons for correct or previously shown
+        : opt.showIcon // Preserve icons for correct or previously shown
     }));
   }
 
