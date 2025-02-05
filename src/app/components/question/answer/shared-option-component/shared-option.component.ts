@@ -460,84 +460,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     return `${idx + 1}. ${option?.text}`;
   }
 
-  /* getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return '';
+  getOptionIcon(option: Option): string {
+    if (!this.showFeedback) return ''; // Ensure feedback is enabled
   
-    // Use the cached preference value
-    if (this.highlightCorrectAfterIncorrect && option.correct) {
-      return 'check';
-    }
+    // Return 'close' if feedback explicitly marks it incorrect
+    if (option.feedback === 'x') return 'close';
   
+    // Return 'check' for correct answers, otherwise 'close' for incorrect ones
     return option.correct ? 'check' : 'close';
-  } *//* 
-  getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Feedback is disabled
-  
-    // Show 'close' for incorrect options with feedback
-    if (option.feedback === 'x') {
-      return 'close';
-    }
-  
-    // Show 'check' for correct options
-    if (option.correct) {
-      return 'check';
-    } else {
-      return 'close';
-    }
-  
-    return ''; // Default: no icon
-  } */
-  getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Feedback disabled
-    return option.feedback === 'x' ? 'close' : option.correct ? 'check' : 'close';
   }
-  
-  
-  /* getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Feedback disabled
-  
-    // Show 'close' for incorrect options with feedback
-    if (option.feedback === 'x') {
-      return 'close';
-    }
-  
-    // Show 'check' for correct options
-    if (option.correct) {
-      return 'check';
-    }
-  
-    return ''; // Default: no icon
-  } */
-  
-  
-  
-  
-  /* getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return '';
-  
-    // Highlight correct answers with "check" and incorrect answers with "close"
-    if (option.correct) {
-      return 'check'; // Checkmark for correct answers
-    }
-    return 'close'; // X mark for incorrect answers
-  } */
-  /* getOptionIcon(option: Option): string {
-    // Display no icon if showIcon is false
-    if (!option.showIcon) return '';
-  
-    // Show 'close' (X mark) for incorrect options
-    if (option.feedback === 'x') {
-      return 'close';
-    }
-  
-    // Show 'check' (✓) for correct options
-    if (option.correct) {
-      return 'check';
-    }
-  
-    return ''; // Default: no icon
-  } */
-  
 
   /* getOptionIconClass(option: Option): string {
     // Use the cached preference value
