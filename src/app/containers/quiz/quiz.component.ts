@@ -541,12 +541,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private restoreQuestionState(): void {
     this.quizService.getCurrentQuestion(this.currentQuestionIndex).subscribe({
       next: (question: QuizQuestion) => {
-        if (question) {
-          console.log('Restored question object:', JSON.stringify(question, null, 2));
-  
+        if (question) { 
           const questionType: QuestionType = question.type || 'single' as QuestionType; // Cast fallback to QuestionType
-          console.log('Restored question type:', questionType);
-  
           this.quizDataService.setQuestionType({ ...question, type: questionType }); // Restore question type
           this.updateQuestionDisplay(this.currentQuestionIndex);
         } else {
