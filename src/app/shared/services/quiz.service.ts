@@ -923,40 +923,17 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  /* setCurrentQuestion(index: number): void {
-    if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
-      console.error('Quiz data is not properly initialized.');
-      return;
-    }
-
-    if (index < 0 || index >= this.selectedQuiz.questions.length) {
-      console.error(`Invalid question index: ${index}`);
-      return;
-    }
-
-    const question = this.selectedQuiz.questions[index];
-    if (!question) {
-      console.error(
-        `Selected Question at index ${index} is undefined`,
-        question
-      );
-      return;
-    }
-
-    console.warn(`[QuizService] 🔍 setCurrentQuestion() called with:`, JSON.stringify(question, null, 2));
-    this.currentQuestion.next(question);
-  } */
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-        return;
+      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      return;
     }
 
     console.trace(`[TRACE] 🔍 setCurrentQuestion() CALLED with:`, JSON.stringify(question, null, 2));
 
     question.options = question.options?.map((option, index) => ({
-        ...option,
-        optionId: index,
+      ...option,
+      optionId: index
     })) || [];
 
     this.currentQuestion.next(question);
@@ -964,7 +941,7 @@ export class QuizService implements OnDestroy {
     console.log(`[QuizService] ✅ currentQuestion successfully updated. Assigned options:`, JSON.stringify(question.options, null, 2));
   }
 
-  getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
+  public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
     const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
     return this.findQuizByQuizId(quizId).pipe(
       map((quiz) => {
