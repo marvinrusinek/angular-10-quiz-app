@@ -1613,7 +1613,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   refreshQuestionOnReset(): void {
     const firstQuestion = this.quizService.getQuestionByIndex(0);
-    
     if (!firstQuestion) {
       console.error('[refreshQuestionOnReset] ❌ No question found at index 0.');
       return;
