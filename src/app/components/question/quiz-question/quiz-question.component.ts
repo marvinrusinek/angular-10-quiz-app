@@ -401,32 +401,6 @@ export class QuizQuestionComponent
   }
 
   // Listen for the visibility change event
-  /* @HostListener('window:visibilitychange', [])
-  onVisibilityChange(): void {
-    try {
-      if (document.visibilityState === 'visible') {
-        // First restore the quiz state
-        this.restoreQuizState();
-
-        // Then handle question and options restoration
-        if (this.currentQuestion) {
-          this.restoreFeedbackState();
-          this.renderDisplay();
-        } else {
-          this.loadCurrentQuestion().then((loaded) => {
-            if (loaded) {
-              this.restoreFeedbackState();
-              this.renderDisplay();
-            } else {
-              console.error('[onVisibilityChange] Failed to reload current question.');
-            }
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[onVisibilityChange] Error during state restoration:', error);
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     try {
@@ -855,62 +829,6 @@ export class QuizQuestionComponent
     }
   }
 
-  /* private handleRouteChanges(): void {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const questionIndex = +params.get('questionIndex') || 0;
-  
-      try {
-        // Reset state and hide explanation initially
-        this.resetStateForNewQuestion();
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(false);
-  
-        // Ensure questions are loaded
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          console.warn('[handleRouteChanges] Questions are not loaded yet. Retrying...');
-          await this.loadQuestion();
-          if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.error('[handleRouteChanges] Questions could not be loaded.');
-            return;
-          }
-        }
-  
-        // Set the current question
-        this.setQuestionFirst(questionIndex);
-        
-        // Validate question index
-        if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-          console.error('[handleRouteChanges] Question index out of bounds:', questionIndex);
-          return;
-        }
-
-        this.currentQuestion = this.questionsArray[questionIndex];
-        if (!this.currentQuestion) {
-          console.error('[handleRouteChanges] Current question is null or undefined after setting question.');
-          return;
-        }
-  
-        console.log('[handleRouteChanges] Current Question:', this.currentQuestion);
-  
-        // Validate and log optionsToDisplay
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-          ...option,
-          active: true, // Ensure options are active
-          feedback: undefined, // Reset feedback
-          showIcon: false, // Reset icons
-        }));
-  
-        console.log('[handleRouteChanges] Options to Display:', this.optionsToDisplay);
-  
-        // Regenerate feedback
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[handleRouteChanges] Feedback Text:', this.feedbackText);
-      } catch (error) {
-        console.error('[handleRouteChanges] Error handling route change:', error);
-      }
-    });
-  } */
   private handleRouteChanges(): void {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const questionIndex = +params.get('questionIndex') || 0;
