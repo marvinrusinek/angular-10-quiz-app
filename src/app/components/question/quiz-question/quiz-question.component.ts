@@ -108,7 +108,7 @@ export class QuizQuestionComponent
     questionText: string;
     explanationText?: string;
     correctAnswersText?: string;
-    currentOptions: Option[];
+    currentOptions: Option[]
   }> = new Subject();
 
   selectedOption: SelectedOption | null = null;
