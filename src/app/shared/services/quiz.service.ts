@@ -628,7 +628,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
-    console.log(`[TRACE] 🔍 Fetching question by index: ${index}`);
+    console.log(`[TRACE] 🔍 Fetching question by index:::: ${index}`);
 
     return this.questions$.pipe(
       filter((questions) => {
@@ -639,16 +639,16 @@ export class QuizService implements OnDestroy {
         return isValid; // Wait until questions are available
       }),
       take(1), // Take only the first emission
+      tap(() => console.log(`[TRACE] 🟢 Received emission from questions$`)), 
       map((questions: QuizQuestion[]) => {
         console.log(`[TRACE] 📌 Total available questions: ${questions.length}`);
-
+        
         if (index < 0 || index >= questions.length) {
           console.warn(`[TRACE] ❌ Index ${index} is out of bounds. Returning null.`);
           return null; // Return null for out-of-bounds index
         }
 
         const selectedQuestion = questions[index];
-
         console.log(`[TRACE] ✅ Returning question for index ${index}:`, JSON.stringify(selectedQuestion, null, 2));
 
         return selectedQuestion;
