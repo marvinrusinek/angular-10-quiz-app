@@ -2283,7 +2283,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private applyOptionFeedback(selectedOption: Option): void {
+  /* private applyOptionFeedback(selectedOption: Option): void {
     console.log('[applyOptionFeedback] 🔄 CALLED for selected option:', JSON.stringify(selectedOption, null, 2));
 
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2313,6 +2313,28 @@ export class QuizQuestionComponent
       };
     });
 
+    console.log('[TRACE] 🔄 optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
+  } */
+  private applyOptionFeedback(selectedOption: Option): void {
+    console.log(`[applyOptionFeedback] 🔘 Applying feedback for: ${selectedOption.text}`);
+  
+    this.showFeedback = true;
+  
+    // Ensure correct option gets feedback
+    this.showFeedbackForOption[selectedOption.optionId] = true;
+    this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
+  
+    console.log(`[TRACE] ✅ showFeedbackForOption UPDATED:`, JSON.stringify(this.showFeedbackForOption, null, 2));
+    console.log(`[TRACE] ✅ selectedOptionIndex SET to: ${this.selectedOptionIndex}`);
+  
+    this.optionsToDisplay = this.optionsToDisplay.map(option => ({
+      ...option,
+      active: option.correct,
+      feedback: option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!',
+      showIcon: option.correct || option.optionId === selectedOption.optionId,
+      selected: option.optionId === selectedOption.optionId,
+    }));
+  
     console.log('[TRACE] 🔄 optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
   }
 
