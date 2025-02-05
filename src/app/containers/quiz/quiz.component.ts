@@ -501,6 +501,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.isQuestionDisplayed = true;
 
+      // Ensure feedback is applied after options load
+      setTimeout(() => {
+        if (this.options.length > 0) {
+          console.log('[loadQuestionContents] ✅ Applying feedback after options load...');
+          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+        } else {
+          console.warn('[loadQuestionContents] ❌ Options were empty when applying feedback.');
+        }
+      }, 50);
+
       // Update progress
       this.updateProgressPercentage();
     } catch (error) {
