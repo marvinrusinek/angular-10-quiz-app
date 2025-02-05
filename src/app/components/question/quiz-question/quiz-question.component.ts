@@ -554,7 +554,7 @@ export class QuizQuestionComponent
           // Keep existing options if restoration fails
         }
       } else {
-          console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
+        console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
       }
 
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
