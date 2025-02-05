@@ -204,37 +204,6 @@ export class QuizQuestionComponent
 
   private destroy$: Subject<void> = new Subject<void>();
 
-  private _optionsToDisplay: Option[] = [];
-
-  set optionsToDisplay(value: Option[]) {
-    console.trace(`[TRACE] 🔍 optionsToDisplay was modified!`, JSON.stringify(value, null, 2));
-
-    if (!value || value.length === 0) {
-      console.warn(`[TRACE] ⚠️ optionsToDisplay was set to an EMPTY array.`);
-    }
-
-    if (JSON.stringify(this._optionsToDisplay) === JSON.stringify(value)) {
-      console.warn(`[TRACE] ⚠️ Skipping duplicate options update.`);
-      return;
-    }
-
-    console.warn(`[WATCH] 🔄 optionsToDisplay is being UPDATED.`);
-    this._optionsToDisplay = value;
-  }
-
-  get optionsToDisplay(): Option[] {
-    return this._optionsToDisplay;
-  }
-
-  set currentQuestionIndex(value: number) {
-    console.trace(`[WATCH] 🟢 currentQuestionIndex SET: ${value}`);
-    this._currentQuestionIndex = value;
-  }
-
-  get currentQuestionIndex(): number {
-    return this._currentQuestionIndex;
-  }
-
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
