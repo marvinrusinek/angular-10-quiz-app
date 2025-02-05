@@ -66,9 +66,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
-
   private optionsRestored = false; // Tracks if options are restored
-  private bindingsInitialized = false; // Tracks if bindings are initialized
 
   optionTextStyle = { color: 'black' };
 
