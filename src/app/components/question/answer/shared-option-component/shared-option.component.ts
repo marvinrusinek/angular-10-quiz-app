@@ -237,8 +237,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
       console.error('[refreshUIStates] Error refreshing UI states:', error);
     }
   }
-  
-  
 
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
