@@ -989,191 +989,14 @@ export class QuizQuestionComponent
     }
   }
 
-  /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
-    try {
-      console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
-
-      this.currentQuestion = this.quizService.currentQuestion.getValue();
-
-      // Ensure currentQuestion is loaded
-      if (!this.currentQuestion) {
-        console.warn('[applyOptionFeedbackToAllOptions] currentQuestion is missing. Attempting to reload...');
-        const questionReloaded = await this.loadQuestion();
-        if (!questionReloaded || !this.currentQuestion) {
-          console.error('[applyOptionFeedbackToAllOptions] Failed to reload currentQuestion. Aborting operation.', {
-            currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion
-          });
-          return;
-        }
-      }
-
-      console.log('[applyOptionFeedbackToAllOptions] currentQuestion:', this.currentQuestion);
-
-      // Ensure optionsToDisplay is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] optionsToDisplay is missing. Falling back...');
-        this.optionsToDisplay = this.quizService.assignOptionIds(this.currentQuestion.options || []);
-
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] No options to fallback to. Aborting.');
-          return;
-        }
-      }
-
-      console.log('[applyOptionFeedbackToAllOptions] optionsToDisplay:', this.optionsToDisplay);
-
-      // Identify correct options
-      const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-      if (!correctOptions || correctOptions.length === 0) {
-        console.warn('[applyOptionFeedbackToAllOptions] No correct options available.');
-      }
-
-      console.log('[applyOptionFeedbackToAllOptions] Correct options:', correctOptions);
-
-      // Wrap `feedbackList` generation inside `setTimeout`
-      setTimeout(() => {
-        console.log(`[applyOptionFeedbackToAllOptions] Generating feedback for Q${this.currentQuestionIndex}`);
-
-        const feedbackList = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-
-        if (!feedbackList || feedbackList.length === 0) {
-          console.error('[applyOptionFeedbackToAllOptions] Feedback generation failed. Aborting.');
-          return;
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] Generated feedbackList:', feedbackList);
-
-        // Validate feedback list length
-        if (feedbackList.length !== this.optionsToDisplay.length) {
-          console.warn(`[applyOptionFeedbackToAllOptions] Feedback list length mismatch. Expected ${this.optionsToDisplay.length}, but got ${feedbackList.length}. Applying default feedback...`);
-
-          // Ensure every option gets a feedback message
-          this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-            ...option,
-            feedback: correctOptions.some(correct => correct.optionId === option.optionId)
-              ? `You're right! The correct answer is Option ${option.optionId}.`
-              : 'Incorrect answer.'
-          }));
-          return;
-        }
-
-        // Apply feedback and update optionsToDisplay
-        this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-          ...option,
-          feedback: feedbackList[index] || (option.correct ? `You're right! The correct answer is Option ${option.optionId}.` : 'Incorrect answer.'),
-          showIcon: option.correct || option.selected,
-          highlight: option.selected
-        }));
-
-        console.log(`[applyOptionFeedbackToAllOptions] Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
-
-        // Force UI update to ensure changes are detected
-        this.cdRef.detectChanges();
-
-      }, 100); // Small delay to ensure correctOptions and optionsToDisplay are fully initialized before applying feedback
-
-    } catch (error) {
-      console.error('[applyOptionFeedbackToAllOptions] Error applying feedback:', error, {
-        currentQuestionIndex: this.currentQuestionIndex,
-        questionsArray: this.questionsArray,
-        currentQuestion: this.currentQuestion
-      });
-    }
-  } */
-  /* public async applyOptionFeedbackToAllOptions(): Promise<void> { 
-    try {
-        console.log(`[applyOptionFeedbackToAllOptions] STARTED for Q${this.currentQuestionIndex}`);
-
-        this.currentQuestion = this.quizService.currentQuestion.getValue();
-
-        // ✅ Ensure currentQuestion is loaded
-        if (!this.currentQuestion) {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ currentQuestion is missing. Attempting to reload...');
-            const questionReloaded = await this.loadQuestion();
-            if (!questionReloaded || !this.currentQuestion) {
-                console.error('[applyOptionFeedbackToAllOptions] ❌ Failed to reload currentQuestion. Aborting.');
-                return;
-            }
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] ✅ currentQuestion:', this.currentQuestion);
-
-        // ✅ Ensure optionsToDisplay is populated before proceeding
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is empty. Attempting to repopulate...');
-            
-            if (this.currentQuestion && this.currentQuestion.options) {
-                this.optionsToDisplay = [...this.currentQuestion.options];
-                console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
-            } else {
-                console.error('[applyOptionFeedbackToAllOptions] ❌ Unable to repopulate optionsToDisplay. Aborting feedback.');
-                return;
-            }
-        }
-
-        // 🚨 Final Check: If `optionsToDisplay` is STILL empty, return early
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.error('[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
-            return;
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] ✅ optionsToDisplay BEFORE calling setCorrectMessage:', JSON.stringify(this.optionsToDisplay, null, 2));
-
-        // ✅ Identify correct options
-        const correctOptions = this.optionsToDisplay.filter(option => option.correct);
-        if (!correctOptions.length) {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ No correct options available. Skipping feedback generation.');
-            return;
-        }
-
-        console.log('[applyOptionFeedbackToAllOptions] ✅ Correct options identified:', correctOptions);
-
-        // ✅ Ensure correctOptions and optionsToDisplay exist before proceeding
-        if (!correctOptions.length || !this.optionsToDisplay.length) {
-            console.warn('[applyOptionFeedbackToAllOptions] ❌ Skipping feedback generation: correctOptions or optionsToDisplay is missing.');
-            return;
-        }
-
-        // ✅ Call setCorrectMessage() only when data is valid
-        console.log('[applyOptionFeedbackToAllOptions] Calling setCorrectMessage with:', {
-            correctOptions,
-            optionsToDisplay: this.optionsToDisplay
-        });
-
-        const feedbackMessage = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
-        console.log('[applyOptionFeedbackToAllOptions] ✅ setCorrectMessage returned:', feedbackMessage);
-
-        // ✅ Apply feedback to all options
-        this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-            ...option,
-            feedback: feedbackMessage,
-            showIcon: option.correct || option.selected,
-            highlight: option.selected
-        }));
-
-        console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback successfully applied for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
-
-        // ✅ Force UI update
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-
-    } catch (error) {
-        console.error('[applyOptionFeedbackToAllOptions] ❌ Error applying feedback:', error);
-    }
-  } */
-  private feedbackProcessing = false; // Prevent multiple calls
   private lastProcessedQuestionIndex: number | null = null;
-
-  private applyOptionFeedbackCallCount = 0; // Track total calls
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
     console.log(`[applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
 
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.error(`[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY at start. Skipping feedback processing.`);
-        return;
+      console.error(`[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY at start. Skipping feedback processing.`);
+      return;
     }
 
     console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE modification: optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
@@ -1185,29 +1008,29 @@ export class QuizQuestionComponent
     console.log(`[applyOptionFeedbackToAllOptions] ✅ Correct Options Identified:`, localCorrectOptions);
 
     if (localCorrectOptions.length === 0) {
-        console.warn(`[applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
-        return;
+      console.warn(`[applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
+      return;
     }
 
-    // 🚨 Log before calling feedback function
+    // Log before calling feedback function
     console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE Calling generateFeedbackForOptions: optionsToDisplay =`, JSON.stringify(localOptionsToDisplay, null, 2));
 
     const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, localOptionsToDisplay);
     console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
 
     if (!feedbackMessage || feedbackMessage.trim() === '') {
-        console.warn(`[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
-        return;
+      console.warn(`[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
+      return;
     }
 
-    // 🚨 Log before updating options
+    // Log before updating options
     console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE UPDATING: optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
 
     this.optionsToDisplay = localOptionsToDisplay.map(option => ({
-        ...option,
-        feedback: feedbackMessage,
-        showIcon: option.correct || option.selected,
-        highlight: option.selected
+      ...option,
+      feedback: feedbackMessage,
+      showIcon: option.correct || option.selected,
+      highlight: option.selected
     }));
 
     console.log(`[applyOptionFeedbackToAllOptions] ✅ AFTER UPDATING optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
@@ -1215,8 +1038,6 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
     this.cdRef.markForCheck();
   }
-
-
   
   // Conditional method to update the explanation only if the question is answered
   private updateExplanationIfAnswered(
