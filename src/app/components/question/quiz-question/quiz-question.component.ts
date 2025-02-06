@@ -2251,23 +2251,31 @@ export class QuizQuestionComponent
       console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined!');
       return;
     }
-
-    // Ensure optionsToDisplay is properly populated
+  
+    console.log(`[applyOptionFeedback] 🔍 Applying feedback for: ${selectedOption.text}, optionId: ${selectedOption.optionId}`);
+  
+    // Ensure optionsToDisplay is properly populated before applying feedback
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
+  
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-        this.optionsToDisplay = [...this.currentQuestion.options];
+        this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
+          ...option,
+          optionId: option.optionId ?? index, // Ensure optionId is properly assigned
+          correct: option.correct ?? false,  // Ensure `correct` property exists
+        }));
+  
         console.log('[applyOptionFeedback] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
       } else {
         console.error('[applyOptionFeedback] ❌ Failed to repopulate optionsToDisplay. Aborting.');
         return;
       }
     }
-
+  
     // Ensure `showFeedbackForOption` is initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
     this.showFeedbackForOption[selectedOption.optionId] = true;
-
+  
     // Find selectedOptionIndex safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
     
@@ -2275,8 +2283,10 @@ export class QuizQuestionComponent
       console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
       return;
     }
-
-    // Apply feedback to options
+  
+    console.log(`[applyOptionFeedback] 🛠 Updating optionsToDisplay with feedback for optionId ${selectedOption.optionId}...`);
+  
+    // Apply feedback immediately after setting options
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
       active: option.correct,
@@ -2284,13 +2294,17 @@ export class QuizQuestionComponent
       showIcon: option.correct || option.optionId === selectedOption.optionId,
       selected: option.optionId === selectedOption.optionId
     }));
-
+  
     console.log('[applyOptionFeedback] ✅ optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
-
+  
     // Force UI update only if necessary
-    this.cdRef.detectChanges();
+    if (this.showFeedbackForOption[selectedOption.optionId]) {
+      console.log('[applyOptionFeedback] 🔄 Triggering UI update...');
+      this.cdRef.detectChanges();
+    } else {
+      console.warn(`[applyOptionFeedback] ❌ UI update skipped. No feedback detected for optionId ${selectedOption.optionId}`);
+    }
   }
-
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
