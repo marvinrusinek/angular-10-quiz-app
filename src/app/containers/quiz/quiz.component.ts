@@ -455,11 +455,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Validate quiz ID and question index
       if (!quizId) {
-        console.error('Failed to load question: No active quiz ID found.');
+        console.error('[loadQuestionContents] ❌ No active quiz ID found.');
         throw new Error('No active quiz ID found.');
       }
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
-        console.error(`Invalid question index: ${questionIndex}`);
+        console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
         throw new Error('Invalid question index.');
       }
   
@@ -473,7 +473,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           options: this.quizService.getCurrentOptions(questionIndex),
         }).pipe(
           catchError((error) => {
-            console.error(`Error fetching question or options: ${error.message}`);
+            console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
             return of({ question: null, options: [] });
           })
         )
@@ -481,7 +481,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Validate fetched data
       if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
-        console.warn(`Failed to load valid data for questionIndex ${questionIndex}`);
+        console.warn(`[loadQuestionContents] ⚠️ Failed to load valid data for questionIndex ${questionIndex}`);
         this.currentQuestion = null;
         this.options = [];
         this.isQuestionDisplayed = false;
@@ -497,10 +497,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       this.isQuestionDisplayed = true;
   
-      // ✅ Apply feedback immediately after setting options
+      // ✅ Ensure feedback is applied after setting options
       setTimeout(() => {
         console.log('[loadQuestionContents] 🔄 Ensuring feedback is applied after options load...');
   
+        if (!this.options || this.options.length === 0) {
+          console.warn('[loadQuestionContents] ❌ No options available when applying feedback.');
+          return;
+        }
+  
+        // ✅ Apply feedback immediately if an option was previously selected
         const previouslySelectedOption = this.options.find(option => option.selected);
         if (previouslySelectedOption) {
           console.log('[loadQuestionContents] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
@@ -513,14 +519,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 50); // Short delay ensures feedback applies after UI updates
-  
+      }, 10); // **Shorter delay** to immediately apply feedback
     } catch (error) {
-      console.error('Error loading question contents:', error);
+      console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     } finally {
       this.isLoading = false;
       if (!this.isQuestionDisplayed) {
-        console.warn('Question display is disabled due to errors.');
+        console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
       }
     }
   }
