@@ -2066,7 +2066,7 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
 
-      // Ensure the current question is loaded
+      // Ensure current question is loaded
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
         const loaded = await this.loadCurrentQuestion();
@@ -2083,7 +2083,7 @@ export class QuizQuestionComponent
         if (this.currentQuestion?.options?.length > 0) {
           this.optionsToDisplay = [...this.currentQuestion.options.map((option, index) => ({
             ...option,
-            optionId: option.optionId ?? index + 1, // Ensure a valid optionId
+            optionId: option.optionId ?? index + 1, // Ensure valid optionId
             correct: option.correct ?? false // Ensure correct property is set
           }))];
         } else {
@@ -2104,10 +2104,14 @@ export class QuizQuestionComponent
         return;
       }
 
-      const selectedOption = {
-        ...event.option,
-        optionId: event.option?.optionId ?? event.index + 1, // Ensure valid optionId
-      };
+      const selectedOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+        
+      if (!selectedOption) {
+        console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
+        return;
+      }
+
+      console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
 
       // Update selectedOptionsMap
       const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
@@ -2121,7 +2125,7 @@ export class QuizQuestionComponent
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
-      
+
       // Ensure optionsToDisplay is set before applying feedback
       this.applyOptionFeedback(selectedOption);
 
