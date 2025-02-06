@@ -2104,12 +2104,18 @@ export class QuizQuestionComponent
         return;
       }
 
-      const selectedOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
-        
-      if (!selectedOption) {
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+
+      if (!foundOption) {
         console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
         return;
       }
+
+      // Convert `Option` to `SelectedOption` by adding `questionIndex`
+      const selectedOption: SelectedOption = {
+        ...foundOption,
+        questionIndex: this.currentQuestionIndex // Ensure questionIndex is included
+      };
 
       console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
 
@@ -2128,6 +2134,7 @@ export class QuizQuestionComponent
 
       // Ensure optionsToDisplay is set before applying feedback
       this.applyOptionFeedback(selectedOption);
+
 
       if (isMultipleAnswer) {
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
