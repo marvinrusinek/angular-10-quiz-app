@@ -447,13 +447,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
   
-      // Clear previous options before fetching new ones
+      // ✅ Clear previous options before fetching new ones
       this.optionsToDisplay = [];
   
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
   
-      // Validate quiz ID and question index
+      // ✅ Validate quiz ID and question index
       if (!quizId) {
         console.error('Failed to load question: No active quiz ID found.');
         throw new Error('No active quiz ID found.');
@@ -463,27 +463,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         throw new Error('Invalid question index.');
       }
   
-      // Clear selection state
+      // ✅ Clear selection state
       this.resetOptionState();
   
-      // Fetch question and options, along with additional metadata
+      // ✅ Fetch question and options
       const data = await lastValueFrom(
         forkJoin({
           question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
           options: this.quizService.getCurrentOptions(questionIndex),
-          // selectionMessage: this.quizService.getSelectionMessageForCurrentQuestion(),
-          // navigationIcons: this.navigationService.getNavigationIcons(),
-          // badgeQuestionNumber: this.quizService.getBadgeQuestionNumber(),
-          // score: this.scoreService.getCurrentScore()
         }).pipe(
           catchError((error) => {
             console.error(`Error fetching question or options: ${error.message}`);
-            return of({ question: null, options: [], selectionMessage: null, navigationIcons: null, badgeQuestionNumber: null, score: null });
+            return of({ question: null, options: [] });
           })
         )
-      ) as { question: QuizQuestion | null; options: Option[]; selectionMessage: string | null; navigationIcons: any; badgeQuestionNumber: number | null; score: number | null };
+      ) as { question: QuizQuestion | null; options: Option[] };
   
-      // Validate fetched data
+      // ✅ Validate fetched data
       if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
         console.warn(`Failed to load valid data for questionIndex ${questionIndex}`);
         this.currentQuestion = null;
@@ -492,37 +488,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
   
-      // Assign fetched data to the component state
+      // ✅ Assign fetched data to the component state
       this.currentQuestion = data.question;
       this.options = data.options;
   
-      // Assign additional metadata
-      this.selectionMessage = data.selectionMessage || 'Please select an option.';
-      // this.navigationIcons = data.navigationIcons || {};
-      // this.badgeQuestionNumber = data.badgeQuestionNumber || 0;
-      // this.currentScore = data.score || 0;
-  
-      // Update current question in the QuizService
+      // ✅ Update current question in the QuizService
       this.quizService.setCurrentQuestion(this.currentQuestion);
   
       this.isQuestionDisplayed = true;
   
-      // Ensure feedback is applied **immediately** if an option was previously selected
-      const previouslySelectedOption = this.options.find(option => option.selected);
-      if (previouslySelectedOption) {
-        console.log(`[loadQuestionContents] 🎯 Reapplying feedback for previously selected option: ${previouslySelectedOption.text}`);
-        this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
-      } else {
-        console.log('[loadQuestionContents] ❌ No previously selected option found. Applying feedback to all options.');
-        this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-      }
+      // ✅ Apply feedback immediately after setting options
+      setTimeout(() => {
+        console.log('[loadQuestionContents] 🔄 Ensuring feedback is applied after options load...');
   
-      // Update progress
-      this.updateProgressPercentage();
+        const previouslySelectedOption = this.options.find(option => option.selected);
+        if (previouslySelectedOption) {
+          console.log('[loadQuestionContents] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+          this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+        } else {
+          console.log('[loadQuestionContents] ⚠️ No previously selected option found. Applying feedback to all options.');
+          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+        }
+  
+        // ✅ Ensure UI updates after applying feedback
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
+      }, 50); // Short delay ensures feedback applies after UI updates
+  
     } catch (error) {
       console.error('Error loading question contents:', error);
     } finally {
-      // Always clear loading state
       this.isLoading = false;
       if (!this.isQuestionDisplayed) {
         console.warn('Question display is disabled due to errors.');
