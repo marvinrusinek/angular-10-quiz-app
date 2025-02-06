@@ -2230,42 +2230,45 @@ export class QuizQuestionComponent
       return;
     }
 
-    console.log(`[applyOptionFeedback] 🔘 Applying feedback for: ${selectedOption.text}`);
-
-    // Enable feedback display
-    this.showFeedback = true;
+    // Ensure optionsToDisplay is properly populated
+    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+      console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
+      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+        this.optionsToDisplay = [...this.currentQuestion.options];
+        console.log('[applyOptionFeedback] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+      } else {
+        console.error('[applyOptionFeedback] ❌ Failed to repopulate optionsToDisplay. Aborting.');
+        return;
+      }
+    }
 
     // Ensure `showFeedbackForOption` is initialized
-    if (!this.showFeedbackForOption) {
-      this.showFeedbackForOption = {};
-    }
+    this.showFeedbackForOption = this.showFeedbackForOption || {};
     this.showFeedbackForOption[selectedOption.optionId] = true;
 
     // Find selectedOptionIndex safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
-
-    // Ensure `optionsToDisplay` exists before modifying
-    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
-      console.error('[applyOptionFeedback] ❌ ERROR: optionsToDisplay is empty or undefined.');
+    
+    if (this.selectedOptionIndex === -1) {
+      console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
       return;
     }
 
-    // Update optionsToDisplay with feedback
+    // Apply feedback to options
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
-      active: option.correct, 
+      active: option.correct,
       feedback: option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!',
       showIcon: option.correct || option.optionId === selectedOption.optionId,
       selected: option.optionId === selectedOption.optionId
     }));
 
+    console.log('[applyOptionFeedback] ✅ optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
+
     // Force UI update only if necessary
-    if (this.showFeedbackForOption[selectedOption.optionId]) {
-      this.cdRef.detectChanges();
-    } else {
-      console.warn(`[applyOptionFeedback] ❌ UI update skipped, no feedback detected for optionId ${selectedOption.optionId}`);
-    }
+    this.cdRef.detectChanges();
   }
+
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
