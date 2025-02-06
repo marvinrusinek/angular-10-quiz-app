@@ -3450,35 +3450,45 @@ export class QuizQuestionComponent
     if (!Number.isInteger(this.currentQuestionIndex) || this.currentQuestionIndex < 0) {
       this.currentQuestionIndex = 0;
     }
-
+  
     this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(
       take(1),
       switchMap(async (question) => {
         if (!question || !question.options?.length) {
-          console.error(`❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
+          console.error(`[waitForQuestionData] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`);
           return;
         }
-
+  
         this.currentQuestion = question;
-
-        // Ensure we clear previous options before updating
+  
+        // ✅ Ensure we clear previous options before updating
+        console.log(`[waitForQuestionData] 🧹 Clearing optionsToDisplay before updating for Q${this.currentQuestionIndex}`);
         this.optionsToDisplay = [];
-
-        // Fetch and assign options separately
-        this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(take(1)).subscribe(options => {
-          this.optionsToDisplay = options;
-        });
-
+  
+        // ✅ Explicitly type options as `Option[]`
+        this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(take(1))
+          .subscribe((options: Option[]) => {
+            this.optionsToDisplay = Array.isArray(options) ? options : []; // Ensure it's an array
+            console.log(`[waitForQuestionData] ✅ optionsToDisplay SET:`, JSON.stringify(this.optionsToDisplay, null, 2));
+  
+            // ✅ Apply feedback immediately if an option was already selected
+            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+            if (previouslySelectedOption) {
+              console.log(`[waitForQuestionData] 🎯 Applying feedback to previously selected option:`, previouslySelectedOption);
+              this.applyOptionFeedback(previouslySelectedOption);
+            }
+          });
+  
         // Check if the question has already been answered
         const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
         this.updateSelectionMessage(isAnswered);
-
+  
         this.initializeForm();
         this.questionForm.updateValueAndValidity();
         window.scrollTo(0, 0);
       })
     ).subscribe({
-      error: (error) => console.error(`❌ Error loading question data for index ${this.currentQuestionIndex}:`, error)
+      error: (error) => console.error(`[waitForQuestionData] ❌ Error loading question data for index ${this.currentQuestionIndex}:`, error)
     });
   }
 
