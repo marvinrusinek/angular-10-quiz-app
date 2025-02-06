@@ -1504,20 +1504,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
   
-      // ✅ Validate question index
+      // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
         return;
       }
   
-      // ✅ Get the current question
+      // Get the current question
       const question = this.quiz.questions[questionIndex];
       this.questionToDisplay = question.questionText;
   
-      // ✅ Assign option IDs dynamically and normalize options
+      // Assign option IDs dynamically and normalize options
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
   
-      // ✅ Ensure options are structured correctly
+      // Ensure options are structured correctly
       this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
         ...option,
         feedback: 'Loading feedback...',
@@ -1527,30 +1527,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correct: !!option.correct,
         optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
           ? option.optionId
-          : optionIndex + 1,
+          : optionIndex + 1
       }));
   
-      console.log('[loadQuestionByRouteIndex] ✅ Options to Display:', this.optionsToDisplay);
-  
-      // ✅ Ensure feedback is generated **AFTER** options are fully initialized
+      // Ensure feedback is applied after setting options
       setTimeout(() => {
         console.log('[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after setting options...');
   
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
-          console.log('[loadQuestionByRouteIndex] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
           this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
         } else {
-          console.log('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
           this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }
   
-        // ✅ Ensure UI updates after applying feedback
+        // Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 50); // Short delay ensures UI is ready before feedback applies
+      }, 100); // Short delay ensures UI is ready before feedback applies
   
-      // ✅ Force UI refresh
+      // Force UI refresh
       setTimeout(() => {
         this.cdRef.markForCheck();
       }, 100);
