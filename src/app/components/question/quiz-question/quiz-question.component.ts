@@ -69,6 +69,7 @@ export class QuizQuestionComponent
     mode: 'question' | 'explanation';
     answered: boolean
   }>();
+  @Output() feedbackApplied = new EventEmitter<number>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
