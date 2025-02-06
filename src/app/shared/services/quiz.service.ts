@@ -976,22 +976,26 @@ export class QuizService implements OnDestroy {
       console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
     }
-
+  
     return this.getQuestionByIndex(questionIndex).pipe(
       map((question) => {
         if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-          return []; // Return an empty array if no valid options are found
+          console.warn(`No options found for Q${questionIndex}. Returning empty array.`);
+          return [];
         }
-
+  
         return question.options.map((option, index) => ({
           ...option,
-          optionId: index, // Ensure `optionId` is properly assigned
+          optionId: option.optionId ?? index, // Preserve existing optionId if available
           correct: option.correct ?? false // Ensure `correct` property exists
         }));
       }),
-      catchError(() => of([])) // Gracefully return an empty array on error
+      catchError((error) => {
+        console.error(`Error fetching options for Q${questionIndex}:`, error);
+        return of([]);
+      })
     );
-  }
+  }  
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
