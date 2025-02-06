@@ -2273,6 +2273,9 @@ export class QuizQuestionComponent
     // Ensure `showFeedbackForOption` is initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
     this.showFeedbackForOption[selectedOption.optionId] = true;
+
+    // Emit event to notify SharedOptionComponent
+    this.feedbackApplied.emit(selectedOption.optionId);
   
     // Find selectedOptionIndex safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
