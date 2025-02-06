@@ -523,6 +523,10 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   private updateFeedbackState(optionId: number): void {
+    if (!this.showFeedbackForOption) {
+      this.showFeedbackForOption = {}; // Ensure initialization
+    }
+  
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   }
