@@ -19,6 +19,7 @@
           [optionBinding]="optionBinding"
           [showFeedback]="showFeedback"
           (optionSelected)="onOptionClicked($event)"
+          (feedbackApplied)="updateFeedbackState($event)"
         ></app-shared-option>
       </div>
     </div>
