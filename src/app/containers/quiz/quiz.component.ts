@@ -446,13 +446,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
-
+  
       // Clear previous options before fetching new ones
       this.optionsToDisplay = [];
-
+  
       const quizId = this.quizService.getCurrentQuizId();
       const questionIndex = this.quizService.getCurrentQuestionIndex();
-
+  
       // Validate quiz ID and question index
       if (!quizId) {
         console.error('Failed to load question: No active quiz ID found.');
@@ -462,10 +462,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`Invalid question index: ${questionIndex}`);
         throw new Error('Invalid question index.');
       }
-
+  
       // Clear selection state
       this.resetOptionState();
-
+  
       // Fetch question and options, along with additional metadata
       const data = await lastValueFrom(
         forkJoin({
@@ -482,7 +482,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           })
         )
       ) as { question: QuizQuestion | null; options: Option[]; selectionMessage: string | null; navigationIcons: any; badgeQuestionNumber: number | null; score: number | null };
-
+  
       // Validate fetched data
       if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
         console.warn(`Failed to load valid data for questionIndex ${questionIndex}`);
@@ -491,40 +491,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isQuestionDisplayed = false;
         return;
       }
-
+  
       // Assign fetched data to the component state
       this.currentQuestion = data.question;
       this.options = data.options;
-
+  
       // Assign additional metadata
       this.selectionMessage = data.selectionMessage || 'Please select an option.';
       // this.navigationIcons = data.navigationIcons || {};
       // this.badgeQuestionNumber = data.badgeQuestionNumber || 0;
       // this.currentScore = data.score || 0;
-
+  
       // Update current question in the QuizService
       this.quizService.setCurrentQuestion(this.currentQuestion);
-
+  
       this.isQuestionDisplayed = true;
-
-      // Ensure feedback is applied after options load
-      setTimeout(() => {
-        if (this.options.length > 0) {
-          console.log('[loadQuestionContents] ✅ Ensuring feedback is applied after options load...');
-
-          // Check if an option was previously selected and apply feedback
-          const previouslySelectedOption = this.options.find(option => option.selected);
-          if (previouslySelectedOption) {
-            this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
-          } else {
-            console.log('[loadQuestionContents] ❌ No previously selected option found. Applying feedback to all options.');
-            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-          }
-        } else {
-          console.warn('[loadQuestionContents] ❌ Options were empty when applying feedback.');
-        }
-      }, 50);
-
+  
+      // Ensure feedback is applied **immediately** if an option was previously selected
+      const previouslySelectedOption = this.options.find(option => option.selected);
+      if (previouslySelectedOption) {
+        console.log(`[loadQuestionContents] 🎯 Reapplying feedback for previously selected option: ${previouslySelectedOption.text}`);
+        this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+      } else {
+        console.log('[loadQuestionContents] ❌ No previously selected option found. Applying feedback to all options.');
+        this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+      }
+  
       // Update progress
       this.updateProgressPercentage();
     } catch (error) {
