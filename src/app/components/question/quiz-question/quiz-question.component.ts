@@ -2269,7 +2269,6 @@ export class QuizQuestionComponent
   
     // Find selectedOptionIndex safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
-    
     if (this.selectedOptionIndex === -1) {
       console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
       return;
