@@ -1517,12 +1517,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Assign option IDs dynamically and normalize options
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
   
-      // ✅ Create immutable copy to prevent race conditions
-      this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
+      // ✅ Ensure options are structured correctly
+      this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
         ...option,
-        feedback: option.feedback || 'Loading feedback...',
+        feedback: 'Loading feedback...',
         showIcon: option.showIcon ?? false,
-        active: option.active ?? false, // Ensure correct `active` state
+        active: option.active ?? true,
         selected: option.selected ?? false,
         correct: !!option.correct,
         optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
@@ -1530,25 +1530,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           : optionIndex + 1,
       }));
   
-      console.log('[loadQuestionByRouteIndex] ✅ Options to Display:', JSON.stringify(this.optionsToDisplay, null, 2));
+      console.log('[loadQuestionByRouteIndex] ✅ Options to Display:', this.optionsToDisplay);
   
-      // ✅ Ensure feedback is applied **AFTER** options are fully initialized
+      // ✅ Ensure feedback is generated **AFTER** options are fully initialized
       setTimeout(() => {
-        console.log('[loadQuestionByRouteIndex] 🔄 Applying feedback after options are loaded...');
-        
+        console.log('[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after setting options...');
+  
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           console.log('[loadQuestionByRouteIndex] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
-          this.applyOptionFeedback(previouslySelectedOption);
+          this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
         } else {
-          console.warn('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
-          this.applyOptionFeedbackToAllOptions();
+          console.log('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
+          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }
   
         // ✅ Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 100); // Delay ensures feedback is applied after Angular updates UI
+      }, 50); // Short delay ensures UI is ready before feedback applies
+  
+      // ✅ Force UI refresh
+      setTimeout(() => {
+        this.cdRef.markForCheck();
+      }, 100);
   
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
