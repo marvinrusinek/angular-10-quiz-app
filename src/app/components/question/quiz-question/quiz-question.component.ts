@@ -2117,8 +2117,6 @@ export class QuizQuestionComponent
         questionIndex: this.currentQuestionIndex // Ensure questionIndex is included
       };
 
-      console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
-
       // Update selectedOptionsMap
       const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
       const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
@@ -2128,13 +2126,12 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
 
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-      );
-
       // Ensure optionsToDisplay is set before applying feedback
       this.applyOptionFeedback(selectedOption);
 
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+      );
 
       if (isMultipleAnswer) {
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
