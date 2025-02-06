@@ -2260,7 +2260,7 @@ export class QuizQuestionComponent
       return;
     }
   
-    // Ensure optionsToDisplay is populated before applying feedback
+    // Ensure options are populated before applying feedback
     this.populateOptionsToDisplay();
   
     // Ensure `showFeedbackForOption` is initialized
