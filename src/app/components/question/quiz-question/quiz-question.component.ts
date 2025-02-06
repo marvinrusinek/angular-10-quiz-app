@@ -558,9 +558,9 @@ export class QuizQuestionComponent
         console.warn('[restoreQuizState] ⚠️ No options data found for restoration. Retaining previous options.');
       }
   
+      // Retrieve last known options from quiz service or local state if needed
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        // Retrieve last known options from quiz service or local state
-        const lastKnownOptions = this.quizService.getLastKnownOptions(); 
+        const lastKnownOptions = this.quizService.getLastKnownOptions();
   
         if (lastKnownOptions && lastKnownOptions.length > 0) {
           this.optionsToDisplay = [...lastKnownOptions];
@@ -621,7 +621,8 @@ export class QuizQuestionComponent
             console.log('[restoreQuizState] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
             this.applyOptionFeedback(previouslySelectedOption);
           } else {
-            console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
+            console.warn('[restoreQuizState] ⚠️ No previously selected option found. Applying feedback to all options.');
+            this.applyOptionFeedbackToAllOptions();
           }
         }
       }, 10); // Slight delay to ensure UI updates correctly
@@ -631,7 +632,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
-  }  
+  }
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
