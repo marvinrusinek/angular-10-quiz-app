@@ -2262,6 +2262,12 @@ export class QuizQuestionComponent
   
     // Ensure options are populated before applying feedback
     this.populateOptionsToDisplay();
+
+    // Revalidate after populating options
+    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+      console.error('[applyOptionFeedback] ❌ optionsToDisplay is STILL empty after repopulation. Aborting feedback application.');
+      return;
+    }
   
     // Ensure `showFeedbackForOption` is initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
