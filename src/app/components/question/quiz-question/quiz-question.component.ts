@@ -892,7 +892,7 @@ export class QuizQuestionComponent
     // Load options only after ensuring the question and options are set
     this.loadOptionsForQuestion(question);
 
-    if (this.lastProcessedQuestionIndex !== zeroBasedIndex) {
+    if (this.lastProcessedQuestionIndex !== zeroBasedIndex || zeroBasedIndex === 0) {
       this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = zeroBasedIndex;
     } else {
