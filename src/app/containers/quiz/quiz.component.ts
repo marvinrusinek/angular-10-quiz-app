@@ -1502,54 +1502,59 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-        console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
-
-        // ✅ Validate question index
-        if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
-            console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
-            return;
-        }
-
-        // ✅ Get the current question
-        const question = this.quiz.questions[questionIndex];
-        this.questionToDisplay = question.questionText;
-
-        // ✅ Assign option IDs dynamically and normalize options
-        const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
+  
+      // ✅ Validate question index
+      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+        console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
+        return;
+      }
+  
+      // ✅ Get the current question
+      const question = this.quiz.questions[questionIndex];
+      this.questionToDisplay = question.questionText;
+  
+      // ✅ Assign option IDs dynamically and normalize options
+      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+  
+      // ✅ Create immutable copy to prevent race conditions
+      this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
+        ...option,
+        feedback: option.feedback || 'Loading feedback...',
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? false, // Ensure correct `active` state
+        selected: option.selected ?? false,
+        correct: !!option.correct,
+        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
+          ? option.optionId
+          : optionIndex + 1,
+      }));
+  
+      console.log('[loadQuestionByRouteIndex] ✅ Options to Display:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+      // ✅ Ensure feedback is applied **AFTER** options are fully initialized
+      setTimeout(() => {
+        console.log('[loadQuestionByRouteIndex] 🔄 Applying feedback after options are loaded...');
         
-        // ✅ Create immutable copy to prevent race conditions
-        this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
-            ...option,
-            feedback: 'Loading feedback...',
-            showIcon: option.showIcon ?? false,
-            active: option.active ?? true,
-            selected: option.selected ?? false,
-            correct: !!option.correct,
-            optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
-                ? option.optionId
-                : optionIndex + 1,
-        }));
-
-        console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
-
-        // ✅ Ensure feedback is generated **AFTER** options are fully initialized
-        setTimeout(() => {
-            console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-            // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-        }, 100);
-
-        // ✅ Ensure UI updates
-        setTimeout(() => {
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
-        }, 200);
-
-    } catch (error) {
-        console.error('[loadQuestionByRouteIndex] Error loading question:', error);
+        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+        if (previouslySelectedOption) {
+          console.log('[loadQuestionByRouteIndex] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+          this.applyOptionFeedback(previouslySelectedOption);
+        } else {
+          console.warn('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
+          this.applyOptionFeedbackToAllOptions();
+        }
+  
+        // ✅ Ensure UI updates after applying feedback
+        this.cdRef.detectChanges();
         this.cdRef.markForCheck();
+      }, 100); // Delay ensures feedback is applied after Angular updates UI
+  
+    } catch (error) {
+      console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
+      this.cdRef.markForCheck();
     }
   }
-
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
