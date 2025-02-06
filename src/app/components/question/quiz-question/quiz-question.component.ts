@@ -2066,9 +2066,6 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
 
-      // Log current optionsToDisplay before processing the click
-      console.log('[onOptionClicked] optionsToDisplay BEFORE click:', JSON.stringify(this.optionsToDisplay, null, 2));
-
       // Ensure the current question is loaded
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
@@ -2083,9 +2080,12 @@ export class QuizQuestionComponent
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
 
-        if (this.currentQuestion && this.currentQuestion.options) {
-          this.optionsToDisplay = [...this.currentQuestion.options];
-          console.log('[onOptionClicked] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+        if (this.currentQuestion?.options?.length > 0) {
+          this.optionsToDisplay = [...this.currentQuestion.options.map((option, index) => ({
+            ...option,
+            optionId: option.optionId ?? index + 1, // Ensure a valid optionId
+            correct: option.correct ?? false // Ensure correct property is set
+          }))];
         } else {
           console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
           return;
@@ -2109,8 +2109,6 @@ export class QuizQuestionComponent
         optionId: event.option?.optionId ?? event.index + 1, // Ensure valid optionId
       };
 
-      console.log('[onOptionClicked] ✅ Selected Option:', selectedOption);
-
       // Update selectedOptionsMap
       const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
       const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
@@ -2120,19 +2118,12 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
 
-      console.log('[onOptionClicked] ✅ Updated selectedOptionsMap:', this.selectedOptionService.selectedOptionsMap);
-
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
-      console.log('[onOptionClicked] ✅ isMultipleAnswer:', isMultipleAnswer);
-
+      
       // Ensure optionsToDisplay is set before applying feedback
-      console.log('[onOptionClicked] Calling applyOptionFeedback...');
       this.applyOptionFeedback(selectedOption);
-
-      // Log optionsToDisplay after applying feedback
-      console.log('[onOptionClicked] ✅ optionsToDisplay AFTER applyOptionFeedback:', JSON.stringify(this.optionsToDisplay, null, 2));
 
       if (isMultipleAnswer) {
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
@@ -2155,12 +2146,10 @@ export class QuizQuestionComponent
 
       // Handle additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
-
     } catch (error) {
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-
 
   // ====================== Helper Functions ======================
 
