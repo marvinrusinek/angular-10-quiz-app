@@ -2233,6 +2233,26 @@ export class QuizQuestionComponent
       console.error('[handleMultipleAnswerTimerLogic] Error:', error);
     }
   }
+
+  private populateOptionsToDisplay(): void {
+    // Ensure optionsToDisplay is properly populated before applying feedback
+    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+      console.warn('[populateOptionsToDisplay] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
+  
+      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+        this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
+          ...option,
+          optionId: option.optionId ?? index, // Ensure optionId is properly assigned
+          correct: option.correct ?? false // Ensure `correct` property exists
+        }));
+  
+        console.log('[populateOptionsToDisplay] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+      } else {
+        console.error('[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Aborting.');
+        return;
+      }
+    }
+  }
   
   public applyOptionFeedback(selectedOption: Option): void {
     if (!selectedOption) {
@@ -2240,21 +2260,8 @@ export class QuizQuestionComponent
       return;
     }
   
-    // Ensure optionsToDisplay is properly populated before applying feedback
-    if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
-      console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
-  
-      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-        this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
-          ...option,
-          optionId: option.optionId ?? index, // Ensure optionId is properly assigned
-          correct: option.correct ?? false  // Ensure `correct` property exists
-        }));
-      } else {
-        console.error('[applyOptionFeedback] ❌ Failed to repopulate optionsToDisplay. Aborting.');
-        return;
-      }
-    }
+    // Ensure optionsToDisplay is populated before applying feedback
+    this.populateOptionsToDisplay();
   
     // Ensure `showFeedbackForOption` is initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
