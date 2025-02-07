@@ -447,6 +447,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
+
+      // ✅ Reset feedback flag before loading new question
+      this.isFeedbackApplied = false;
   
       // ✅ Clear previous options before fetching new ones
       this.optionsToDisplay = [];
@@ -521,6 +524,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
       }, 10); // **Shorter delay** to immediately apply feedback
+
+      // ✅ Mark feedback as applied so interaction can proceed
+      this.isFeedbackApplied = true;
     } catch (error) {
       console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     } finally {
