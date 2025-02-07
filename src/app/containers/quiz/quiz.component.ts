@@ -1533,14 +1533,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log(`[loadQuestionByRouteIndex] ✅ Populated optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
   
-      // ✅ Ensure options are fully populated before restoring selections
+      // ✅ Ensure `optionsToDisplay` is fully set before restoring selections
       setTimeout(() => {
         console.log(`[loadQuestionByRouteIndex] 🔄 Restoring selected options for Q${questionIndex}...`);
         this.restoreSelectedOptions();
   
-        // ✅ Ensure feedback is applied **only after selection is restored**
+        // ✅ Apply feedback **only after selection restoration is completed**
         setTimeout(() => {
-          console.log('[loadQuestionByRouteIndex] 🔄 Applying feedback after restoring selected options...');
+          console.log('[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after restoring selections...');
   
           const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
           if (previouslySelectedOption) {
@@ -1554,9 +1554,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // ✅ Ensure UI updates after applying feedback
           this.cdRef.detectChanges();
           this.cdRef.markForCheck();
-        }, 100); // Increased delay ensures selection is applied first
+        }, 100); // Ensures selection restoration is fully applied
   
-      }, 100); // Increased delay ensures optionsToDisplay is ready
+      }, 150); // Ensures `optionsToDisplay` is fully populated before proceeding
   
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
