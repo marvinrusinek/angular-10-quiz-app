@@ -74,7 +74,7 @@ export class QuizQuestionComponent
     questionText: string;
     explanationText?: string;
     correctAnswersText?: string;
-    options: Option[];
+    options: Option[]
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
