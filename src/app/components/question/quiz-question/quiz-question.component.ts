@@ -781,7 +781,6 @@ export class QuizQuestionComponent
         }
   
         // ✅ Ensure UI updates after applying feedback
-        this.cdRef.detectChanges();
         this.cdRef.markForCheck();
       }, 100); // Slight delay to ensure UI updates correctly
   
