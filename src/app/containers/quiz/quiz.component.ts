@@ -1503,7 +1503,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-      console.log(`[loadQuestionByRouteIndex] 🔄 Navigating to Q${questionIndex}`);
+      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
   
       // ✅ Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
@@ -1516,9 +1516,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = question.questionText;
   
       // ✅ Assign option IDs dynamically and normalize options
-      this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
+      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
+      
+      // ✅ Ensure options are structured correctly and applied before feedback
+      this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
         ...option,
-        feedback: '',
+        feedback: 'Loading feedback...',
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
@@ -1528,70 +1531,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           : optionIndex + 1
       }));
   
-      console.log(`[loadQuestionByRouteIndex] ✅ Options set for Q${questionIndex}:`, this.optionsToDisplay);
+      console.log('[loadQuestionByRouteIndex] ✅ Options loaded:', this.optionsToDisplay);
   
-      // ✅ Force-reset feedback before reapplying it
-      this.resetFeedbackState();
+      // ✅ Restore selected options FIRST before applying feedback
+      await this.restoreSelectedOptions(questionIndex);
   
-      // ✅ Restore previously selected options before applying feedback
-      const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
-      if (selectedOptionsData) {
-        try {
-          const selectedOptions = JSON.parse(selectedOptionsData);
-          if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
-            selectedOptions.forEach(option => {
-              if (option.optionId !== undefined) {
-                const restoredOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
-                if (restoredOption) {
-                  restoredOption.selected = true;
-                  console.log(`[loadQuestionByRouteIndex] ✅ Restored selection for optionId ${option.optionId}:`, restoredOption);
-                }
-              }
-            });
-          }
-        } catch (error) {
-          console.error('[loadQuestionByRouteIndex] ❌ Error parsing selected options data:', error);
-        }
-      }
-  
-      // ✅ Ensure feedback is applied after restoring options
-      setTimeout(() => {  
-        console.log(`[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after restoring options...`);
-  
-        // 🚀 Force-reset feedback state again when returning to Q1
-        if (questionIndex === 0) {
-          console.log(`[loadQuestionByRouteIndex] 🔄 Force-resetting feedback state for Q1.`);
-          this.resetFeedbackState();
-        }
-  
+      // ✅ Apply feedback AFTER restoring selected options
+      setTimeout(() => {
+        console.log('[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after options are fully set...');
+        
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
-          console.log(`[loadQuestionByRouteIndex] 🎯 Applying feedback to previously selected option:`, previouslySelectedOption);
+          console.log(`[loadQuestionByRouteIndex] 🎯 Reapplying feedback for:`, previouslySelectedOption);
           this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
         } else {
-          console.warn(`[loadQuestionByRouteIndex] ❌ No previously selected option found. Applying feedback to all.`);
+          console.warn('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
           this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }
   
-        // ✅ First UI refresh after setting feedback
+        // ✅ Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 50);
+      }, 100); // Slight delay ensures UI is ready before feedback applies
   
-      // ✅ Final forced UI refresh after feedback application
+      // ✅ Force UI update again after feedback is applied
       setTimeout(() => {
-        console.log(`[loadQuestionByRouteIndex] 🔄 Final UI refresh after feedback application.`);
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 100);
+      }, 200);
   
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
       this.cdRef.markForCheck();
     }
   }
+
+  private async restoreSelectedOptions(questionIndex: number): Promise<void> {
+    console.log(`[restoreSelectedOptions] 🔄 Restoring selected options for Q${questionIndex}...`);
   
-  private resetFeedbackState(): void {
+    const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
+    if (selectedOptionsData) {
+      try {
+        const selectedOptions = JSON.parse(selectedOptionsData);
+        if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
+          selectedOptions.forEach(option => {
+            if (option.optionId !== undefined) {
+              this.selectedOptionService.setSelectedOption(option.optionId);
+              console.log(`[restoreSelectedOptions] ✅ Restored selected optionId: ${option.optionId}`);
+            }
+          });
+        } else {
+          console.warn('[restoreSelectedOptions] ⚠️ No selected options found.');
+        }
+      } catch (error) {
+        console.error('[restoreSelectedOptions] ❌ Error parsing selected options data:', error);
+      }
+    } else {
+      console.warn('[restoreSelectedOptions] ⚠️ No selected options data found for restoration.');
+    }
+  }
+
+  // potentially remove:
+  /* private resetFeedbackState(): void {
     console.log('[resetFeedbackState] 🔄 Resetting feedback state...');
     this.showFeedback = false;
     this.showFeedbackForOption = {};
@@ -1601,7 +1602,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       option.selected = false; // Reset selection before reapplying
     });
     this.cdRef.detectChanges();
-  }
+  } */
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
