@@ -529,7 +529,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private restoreQuizState(): void {
+  /* private restoreQuizState(): void {
     try {
       // Restore explanation text
       this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
@@ -610,6 +610,84 @@ export class QuizQuestionComponent
         // Ensure UI updates after applying feedback
         this.cdRef.markForCheck();
       }, 50);
+    } catch (error) {
+      console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
+    }
+  } */
+  private restoreQuizState(): void {
+    try {
+      console.log('[restoreQuizState] STARTED');
+  
+      // ✅ Restore explanation text
+      this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
+      const displayMode = sessionStorage.getItem(`displayMode`);
+      this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
+  
+      // ✅ Restore options
+      const optionsData = sessionStorage.getItem(`options`);
+      if (optionsData) {
+        try {
+          const parsedOptions = JSON.parse(optionsData);
+          if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+            this.optionsToDisplay = this.quizService.assignOptionIds(parsedOptions);
+          } else {
+            console.warn('[restoreQuizState] ⚠️ Parsed options data is empty or invalid.');
+          }
+        } catch (error) {
+          console.error('[restoreQuizState] ❌ Error parsing options data:', error);
+        }
+      }
+  
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        const lastKnownOptions = this.quizService.getLastKnownOptions();
+        if (lastKnownOptions && lastKnownOptions.length > 0) {
+          this.optionsToDisplay = [...lastKnownOptions];
+        } else {
+          this.optionsToDisplay = [];
+        }
+      }
+  
+      // ✅ Restore selected options safely and apply feedback
+      const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
+      if (selectedOptionsData) {
+        try {
+          const selectedOptions = JSON.parse(selectedOptionsData);
+          if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
+            for (const option of selectedOptions) {
+              if (option.optionId !== undefined) {
+                this.selectedOptionService.setSelectedOption(option.optionId);
+  
+                // ✅ Apply feedback for restored option immediately
+                const restoredOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
+                if (restoredOption) {
+                  console.log(`[restoreQuizState] 🎯 Reapplying feedback for restored option:`, restoredOption);
+                  this.applyOptionFeedback(restoredOption);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('[restoreQuizState] ❌ Error parsing selected options data:', error);
+        }
+      }
+  
+      // ✅ Force feedback to be applied even if state wasn't restored properly
+      setTimeout(() => {
+        console.log('[restoreQuizState] 🔄 Ensuring feedback is applied after restoring state...');
+  
+        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+        if (previouslySelectedOption) {
+          console.log('[restoreQuizState] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+          this.applyOptionFeedback(previouslySelectedOption);
+        } else {
+          console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
+        }
+  
+        // ✅ Ensure UI updates after applying feedback
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
+      }, 100); // Slight delay to ensure UI updates correctly
+  
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
