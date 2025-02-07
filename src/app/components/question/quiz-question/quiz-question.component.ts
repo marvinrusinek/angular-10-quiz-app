@@ -975,7 +975,6 @@ export class QuizQuestionComponent
 
     console.log(`[applyOptionFeedbackToAllOptions] ✅ AFTER UPDATING optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
 
-    this.cdRef.detectChanges();
     this.cdRef.markForCheck();
   }
   
