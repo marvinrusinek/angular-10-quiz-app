@@ -1502,8 +1502,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
-  
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
@@ -1530,10 +1528,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           : optionIndex + 1
       }));
   
-      // Ensure feedback is applied after setting options
-      setTimeout(() => {
-        console.log('[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after setting options...');
-  
+      // Ensure feedback is applied immediately after setting options
+      setTimeout(() => {  
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
@@ -1544,18 +1540,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 100); // Short delay ensures UI is ready before feedback applies
+      }, 50); // Slight delay ensures feedback applies after UI updates
   
-      // Force UI to update
+      // Force UI to update again after feedback is applied
       setTimeout(() => {
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 200);
+      }, 100);
+  
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
       this.cdRef.markForCheck();
     }
-  }
+  }  
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
