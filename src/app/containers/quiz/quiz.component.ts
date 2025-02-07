@@ -449,7 +449,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
 
       // Reset feedback flag before loading new question
-      this.quizQuestionComponent?.isFeedbackApplied = false;
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.isFeedbackApplied = false;
+      } else {
+        console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
+      }
   
       // Clear previous options before fetching new ones
       this.optionsToDisplay = [];
@@ -526,7 +530,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }, 10); // **Shorter delay** to immediately apply feedback
 
       // Mark feedback as applied so interaction can proceed
-      this.quizQuestionComponent?.isFeedbackApplied = true;
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.isFeedbackApplied = true;
+      } else {
+        console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
+      }      
     } catch (error) {
       console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     } finally {
