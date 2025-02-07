@@ -1510,6 +1510,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
         return;
       }
+
+      // ✅ Reset feedback state to ensure fresh application
+      this.resetFeedbackState();
   
       // ✅ Get the current question
       const question = this.quiz.questions[questionIndex];
@@ -1595,8 +1598,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  // potentially remove:
-  /* private resetFeedbackState(): void {
+  private resetFeedbackState(): void {
     console.log('[resetFeedbackState] 🔄 Resetting feedback state...');
     this.showFeedback = false;
     this.showFeedbackForOption = {};
@@ -1606,7 +1608,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       option.selected = false; // Reset selection before reapplying
     });
     this.cdRef.detectChanges();
-  } */
+  }
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
