@@ -1550,10 +1550,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
             this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
           }
-  
-          // ✅ Ensure UI updates after applying feedback
-          this.cdRef.detectChanges();
-          this.cdRef.markForCheck();
         }, 50); // Slight delay ensures feedback applies after UI updates
       }, 50);
   
