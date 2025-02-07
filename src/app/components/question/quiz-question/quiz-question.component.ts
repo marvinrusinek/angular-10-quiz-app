@@ -372,7 +372,7 @@ export class QuizQuestionComponent
   }
 
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     try {
       if (document.visibilityState === 'visible') {
@@ -424,6 +424,103 @@ export class QuizQuestionComponent
       }
     } catch (error) {
       console.error('[onVisibilityChange] Error during state restoration:', error);
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
+
+        // ✅ Ensure quiz state is restored before proceeding
+        await this.restoreQuizState();
+
+        // ✅ Ensure optionsToDisplay is populated before proceeding
+        if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+          console.warn('[onVisibilityChange] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
+          
+          if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+            this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
+              ...option,
+              optionId: option.optionId ?? index, // Ensure optionId is properly assigned
+              correct: option.correct ?? false  // Ensure `correct` property exists
+            }));
+            console.log('[onVisibilityChange] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+          } else {
+            console.error('[onVisibilityChange] ❌ Failed to repopulate optionsToDisplay. Aborting feedback restoration.');
+            return;
+          }
+        }
+
+        if (this.currentQuestion) {
+          console.log('[onVisibilityChange] ✅ Restored current question:', this.currentQuestion);
+
+          // ✅ Restore selected options safely before applying feedback
+          this.restoreFeedbackState();
+          console.log('[onVisibilityChange] ✅ Feedback state restored:', this.feedbackText);
+
+          // ✅ Apply feedback immediately after restoring selected options
+          const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+          if (previouslySelectedOption) {
+            console.log('[onVisibilityChange] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+            this.applyOptionFeedback(previouslySelectedOption);
+          } else {
+            console.warn('[onVisibilityChange] ⚠️ No previously selected option found. Applying feedback to all options.');
+            this.applyOptionFeedbackToAllOptions();
+          }
+
+          // ✅ Ensure UI updates after applying feedback
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+          
+          // ✅ Regenerate feedback text for the current question
+          try {
+            const feedbackText = await this.generateFeedbackText(this.currentQuestion);
+            this.feedbackText = feedbackText;
+            console.log('[onVisibilityChange] ✅ Feedback text regenerated:', feedbackText);
+          } catch (error) {
+            console.error('[onVisibilityChange] ❌ Error generating feedback text:', error);
+          }
+        } else {
+          console.warn('[onVisibilityChange] ⚠️ Current question is missing. Attempting to reload...');
+
+          // ✅ Reload the current question if not restored
+          const loaded = await this.loadCurrentQuestion();
+          if (loaded && this.currentQuestion) {
+            console.log('[onVisibilityChange] ✅ Reloaded current question:', this.currentQuestion);
+
+            // ✅ Restore selected options before applying feedback
+            this.restoreFeedbackState();
+            
+            // ✅ Ensure feedback is reapplied after reloading the question
+            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+            if (previouslySelectedOption) {
+              console.log('[onVisibilityChange] 🎯 Reapplying feedback for previously selected option after reload:', previouslySelectedOption);
+              this.applyOptionFeedback(previouslySelectedOption);
+            } else {
+              console.warn('[onVisibilityChange] ⚠️ No previously selected option found after reload. Applying feedback to all options.');
+              this.applyOptionFeedbackToAllOptions();
+            }
+
+            // ✅ Ensure UI updates after applying feedback
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+
+            // ✅ Generate feedback text after reloading the question
+            try {
+              const feedbackText = await this.generateFeedbackText(this.currentQuestion);
+              this.feedbackText = feedbackText;
+              console.log('[onVisibilityChange] ✅ Feedback text generated after reload:', feedbackText);
+            } catch (error) {
+              console.error('[onVisibilityChange] ❌ Error generating feedback text after reload:', error);
+            }
+          } else {
+            console.error('[onVisibilityChange] ❌ Failed to reload current question.');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[onVisibilityChange] ❌ Error during state restoration:', error);
     }
   }
 
