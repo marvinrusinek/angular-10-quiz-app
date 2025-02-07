@@ -2234,31 +2234,33 @@ export class QuizQuestionComponent
       // Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
-  
+
         if (this.currentQuestion?.options?.length > 0) {
           this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
             ...option,
             optionId: option.optionId ?? index + 1, // Ensure valid optionId
             correct: option.correct ?? false // Ensure correct property is set
           }));
-  
-          // Reapply feedback if repopulation happened
-          const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
-          if (previouslySelectedOption) {
-            console.log('[onOptionClicked] 🔄 Reapplying feedback to repopulated options...');
-            this.applyOptionFeedback(previouslySelectedOption);
-          }
+
+          // ✅ Delay feedback application slightly to ensure options are set
+          setTimeout(() => {
+            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+            if (previouslySelectedOption) {
+              this.applyOptionFeedback(previouslySelectedOption);
+            }
+          }, 50); // Short delay ensures UI is updated before applying feedback
         } else {
           console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
           return;
         }
       }
-  
-      // Final Check: If `optionsToDisplay` is STILL empty, return early
+
+      // ✅ Final Check: If `optionsToDisplay` is STILL empty, return early
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.error('[onOptionClicked] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
         return;
       }
+
   
       // Validate the event and option
       if (!event.option || !this.validateOption(event)) {
