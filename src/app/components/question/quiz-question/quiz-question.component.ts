@@ -932,39 +932,24 @@ export class QuizQuestionComponent
   }
 
   public async applyOptionFeedbackToAllOptions(): Promise<void> {
-    console.log(`[applyOptionFeedbackToAllOptions] 🔄 STARTED for Q${this.currentQuestionIndex}`);
-
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.error(`[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY at start. Skipping feedback processing.`);
       return;
     }
 
-    console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE modification: optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
-
     const localOptionsToDisplay = [...this.optionsToDisplay]; // Local copy
-    console.log(`[applyOptionFeedbackToAllOptions] 🔍 AFTER LOCAL COPY: localOptionsToDisplay =`, JSON.stringify(localOptionsToDisplay, null, 2));
-
     const localCorrectOptions = localOptionsToDisplay.filter(option => option.correct);
-    console.log(`[applyOptionFeedbackToAllOptions] ✅ Correct Options Identified:`, localCorrectOptions);
 
     if (localCorrectOptions.length === 0) {
       console.warn(`[applyOptionFeedbackToAllOptions] ❌ No correct options available.`);
       return;
     }
 
-    // Log before calling feedback function
-    console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE Calling generateFeedbackForOptions: optionsToDisplay =`, JSON.stringify(localOptionsToDisplay, null, 2));
-
     const feedbackMessage = this.feedbackService.generateFeedbackForOptions(localCorrectOptions, localOptionsToDisplay);
-    console.log(`[applyOptionFeedbackToAllOptions] ✅ Feedback message:`, feedbackMessage);
-
     if (!feedbackMessage || feedbackMessage.trim() === '') {
       console.warn(`[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`);
       return;
     }
-
-    // Log before updating options
-    console.log(`[applyOptionFeedbackToAllOptions] 🟢 BEFORE UPDATING: optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
 
     this.optionsToDisplay = localOptionsToDisplay.map(option => ({
       ...option,
@@ -972,8 +957,6 @@ export class QuizQuestionComponent
       showIcon: option.correct || option.selected,
       highlight: option.selected
     }));
-
-    console.log(`[applyOptionFeedbackToAllOptions] ✅ AFTER UPDATING optionsToDisplay =`, JSON.stringify(this.optionsToDisplay, null, 2));
 
     this.cdRef.markForCheck();
   }
