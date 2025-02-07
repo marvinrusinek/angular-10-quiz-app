@@ -612,7 +612,6 @@ export class QuizQuestionComponent
         // Ensure UI updates after applying feedback
         this.cdRef.markForCheck();
       }, 50);
-  
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
