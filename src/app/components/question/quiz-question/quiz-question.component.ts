@@ -2214,6 +2214,12 @@ export class QuizQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       console.log('[onOptionClicked] STARTED');
+
+      // Prevent clicking before feedback is ready
+      if (!this.isFeedbackApplied) {
+        console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Skipping option selection.');
+        return;
+      }
   
       // Ensure current question is loaded
       if (!this.currentQuestion) {
@@ -2482,10 +2488,11 @@ export class QuizQuestionComponent
       showIcon: option.correct || option.optionId === selectedOption.optionId,
       selected: option.optionId === selectedOption.optionId
     }));
+
+    // Mark feedback as applied so interaction can proceed
+    this.isFeedbackApplied = true;
   
-    console.log('[applyOptionFeedback] ✅ optionsToDisplay AFTER update:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
-    // ✅ Ensure UI updates after applying feedback
+    // Ensure UI updates after applying feedback
     setTimeout(() => {
       this.cdRef.detectChanges();
       this.cdRef.markForCheck();
