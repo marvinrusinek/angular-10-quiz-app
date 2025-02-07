@@ -1517,11 +1517,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Assign option IDs dynamically and normalize options
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
-      
-      // ✅ Ensure options are structured correctly and applied before feedback
+  
+      // ✅ Ensure options are structured correctly
       this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
         ...option,
-        feedback: 'Loading feedback...',
+        feedback: '', // Reset feedback initially
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
@@ -1531,34 +1531,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           : optionIndex + 1
       }));
   
-      console.log('[loadQuestionByRouteIndex] ✅ Options loaded:', this.optionsToDisplay);
+      console.log(`[loadQuestionByRouteIndex] ✅ Populated optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
   
-      // ✅ Restore selected options FIRST before applying feedback
-      await this.restoreSelectedOptions(questionIndex);
-  
-      // ✅ Apply feedback AFTER restoring selected options
+      // ✅ Ensure selected options are restored before applying feedback
       setTimeout(() => {
-        console.log('[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after options are fully set...');
-        
-        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
-        if (previouslySelectedOption) {
-          console.log(`[loadQuestionByRouteIndex] 🎯 Reapplying feedback for:`, previouslySelectedOption);
-          this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
-        } else {
-          console.warn('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
-          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-        }
+        console.log(`[loadQuestionByRouteIndex] 🔄 Restoring selected options for Q${questionIndex}...`);
+        this.restoreSelectedOptions();
   
-        // ✅ Ensure UI updates after applying feedback
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-      }, 100); // Slight delay ensures UI is ready before feedback applies
+        // ✅ Ensure feedback is applied immediately after setting options
+        setTimeout(() => {
+          console.log('[loadQuestionByRouteIndex] 🔄 Applying feedback after restoring selected options...');
   
-      // ✅ Force UI update again after feedback is applied
-      setTimeout(() => {
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-      }, 200);
+          const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+          if (previouslySelectedOption) {
+            console.log('[loadQuestionByRouteIndex] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+            this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+          } else {
+            console.log('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+          }
+  
+          // ✅ Ensure UI updates after applying feedback
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+        }, 50); // Slight delay ensures feedback applies after UI updates
+      }, 50);
   
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
@@ -1566,28 +1563,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async restoreSelectedOptions(questionIndex: number): Promise<void> {
-    console.log(`[restoreSelectedOptions] 🔄 Restoring selected options for Q${questionIndex}...`);
+  private restoreSelectedOptions(): void {
+    console.log('[restoreSelectedOptions] 🔄 Restoring selected options...');
   
     const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
-    if (selectedOptionsData) {
-      try {
-        const selectedOptions = JSON.parse(selectedOptionsData);
-        if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
-          selectedOptions.forEach(option => {
-            if (option.optionId !== undefined) {
-              this.selectedOptionService.setSelectedOption(option.optionId);
-              console.log(`[restoreSelectedOptions] ✅ Restored selected optionId: ${option.optionId}`);
-            }
-          });
-        } else {
-          console.warn('[restoreSelectedOptions] ⚠️ No selected options found.');
-        }
-      } catch (error) {
-        console.error('[restoreSelectedOptions] ❌ Error parsing selected options data:', error);
+    if (!selectedOptionsData) {
+      console.warn('[restoreSelectedOptions] ❌ No selected options data found.');
+      return;
+    }
+  
+    try {
+      const selectedOptions = JSON.parse(selectedOptionsData);
+      if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
+        console.warn('[restoreSelectedOptions] ❌ No valid selected options to restore.');
+        return;
       }
-    } else {
-      console.warn('[restoreSelectedOptions] ⚠️ No selected options data found for restoration.');
+  
+      selectedOptions.forEach(option => {
+        const restoredOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
+        if (restoredOption) {
+          restoredOption.selected = true; // ✅ Set option as selected
+          console.log('[restoreSelectedOptions] ✅ Restored option as selected:', restoredOption);
+        }
+      });
+  
+    } catch (error) {
+      console.error('[restoreSelectedOptions] ❌ Error parsing selected options:', error);
     }
   }
 
