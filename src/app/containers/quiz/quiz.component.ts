@@ -1533,12 +1533,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log(`[loadQuestionByRouteIndex] ✅ Populated optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
   
-      // ✅ Ensure selected options are restored before applying feedback
+      // ✅ Ensure options are fully populated before restoring selections
       setTimeout(() => {
         console.log(`[loadQuestionByRouteIndex] 🔄 Restoring selected options for Q${questionIndex}...`);
         this.restoreSelectedOptions();
   
-        // ✅ Ensure feedback is applied immediately after setting options
+        // ✅ Ensure feedback is applied **only after selection is restored**
         setTimeout(() => {
           console.log('[loadQuestionByRouteIndex] 🔄 Applying feedback after restoring selected options...');
   
@@ -1550,8 +1550,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
             this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
           }
-        }, 50); // Slight delay ensures feedback applies after UI updates
-      }, 50);
+  
+          // ✅ Ensure UI updates after applying feedback
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+        }, 100); // Increased delay ensures selection is applied first
+  
+      }, 100); // Increased delay ensures optionsToDisplay is ready
   
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
@@ -1580,6 +1585,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         if (restoredOption) {
           restoredOption.selected = true; // ✅ Set option as selected
           console.log('[restoreSelectedOptions] ✅ Restored option as selected:', restoredOption);
+        } else {
+          console.warn('[restoreSelectedOptions] ❌ Option not found in optionsToDisplay:', option);
         }
       });
   
