@@ -779,11 +779,7 @@ export class QuizQuestionComponent
         } else {
           console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
         }
-  
-        // ✅ Ensure UI updates after applying feedback
-        this.cdRef.markForCheck();
       }, 100); // Slight delay to ensure UI updates correctly
-  
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
