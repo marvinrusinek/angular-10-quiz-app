@@ -1517,7 +1517,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Assign option IDs dynamically and normalize options
       this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
         ...option,
-        feedback: 'Loading feedback...',
+        feedback: '',
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
@@ -1528,6 +1528,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }));
   
       console.log(`[loadQuestionByRouteIndex] ✅ Options set for Q${questionIndex}:`, this.optionsToDisplay);
+  
+      // ✅ Force-reset feedback before reapplying it
+      this.resetFeedbackState();
   
       // ✅ Restore previously selected options before applying feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
@@ -1553,12 +1556,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Ensure feedback is applied after restoring options
       setTimeout(() => {  
         console.log(`[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after restoring options...`);
-        
-        // 🚀 FORCE FEEDBACK APPLICATION AGAIN WHEN RETURNING TO Q1
+  
+        // 🚀 Force-reset feedback state again when returning to Q1
         if (questionIndex === 0) {
-          console.log(`[loadQuestionByRouteIndex] 🔄 Force-resetting feedback for Q1.`);
-          this.optionsToDisplay.forEach(option => (option.selected = false)); // Clear selection
-          this.cdRef.detectChanges(); // UI update to reflect deselection
+          console.log(`[loadQuestionByRouteIndex] 🔄 Force-resetting feedback state for Q1.`);
+          this.resetFeedbackState();
         }
   
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
@@ -1588,8 +1590,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
   
-  
-  
+  private resetFeedbackState(): void {
+    console.log('[resetFeedbackState] 🔄 Resetting feedback state...');
+    this.showFeedback = false;
+    this.showFeedbackForOption = {};
+    this.optionsToDisplay.forEach(option => {
+      option.feedback = '';
+      option.showIcon = false;
+      option.selected = false; // Reset selection before reapplying
+    });
+    this.cdRef.detectChanges();
+  }
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
