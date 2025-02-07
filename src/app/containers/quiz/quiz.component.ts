@@ -1529,7 +1529,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log(`[loadQuestionByRouteIndex] ✅ Options set for Q${questionIndex}:`, this.optionsToDisplay);
   
-      // ✅ Ensure previously selected options are restored BEFORE applying feedback
+      // ✅ Restore previously selected options before applying feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
       if (selectedOptionsData) {
         try {
@@ -1550,11 +1550,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       }
   
-      // ✅ Apply feedback immediately after restoring options
+      // ✅ Ensure feedback is applied after restoring options
       setTimeout(() => {  
-        console.log(`[loadQuestionByRouteIndex] 🔄 Checking for previously selected option before applying feedback...`);
-        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+        console.log(`[loadQuestionByRouteIndex] 🔄 Ensuring feedback is applied after restoring options...`);
+        
+        // 🚀 FORCE FEEDBACK APPLICATION AGAIN WHEN RETURNING TO Q1
+        if (questionIndex === 0) {
+          console.log(`[loadQuestionByRouteIndex] 🔄 Force-resetting feedback for Q1.`);
+          this.optionsToDisplay.forEach(option => (option.selected = false)); // Clear selection
+          this.cdRef.detectChanges(); // UI update to reflect deselection
+        }
   
+        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           console.log(`[loadQuestionByRouteIndex] 🎯 Applying feedback to previously selected option:`, previouslySelectedOption);
           this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
@@ -1563,12 +1570,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }
   
-        // ✅ Ensure UI updates after applying feedback
+        // ✅ First UI refresh after setting feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
       }, 50);
   
-      // ✅ Final UI refresh after feedback is applied
+      // ✅ Final forced UI refresh after feedback application
       setTimeout(() => {
         console.log(`[loadQuestionByRouteIndex] 🔄 Final UI refresh after feedback application.`);
         this.cdRef.detectChanges();
@@ -1580,6 +1587,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.markForCheck();
     }
   }
+  
+  
   
 
   fetchFormattedExplanationText(index: number): void {
