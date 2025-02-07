@@ -594,9 +594,7 @@ export class QuizQuestionComponent
       }
   
       // Ensure feedback is reapplied after restoring state
-      setTimeout(() => {
-        console.log('[restoreQuizState] 🔄 Ensuring feedback is reapplied after restoring state...');
-  
+      setTimeout(() => {  
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           this.applyOptionFeedback(previouslySelectedOption);
