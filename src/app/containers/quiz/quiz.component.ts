@@ -1546,11 +1546,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.markForCheck();
       }, 100); // Short delay ensures UI is ready before feedback applies
   
-      // Force UI refresh
+      // Force UI to update
       setTimeout(() => {
+        this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 100);
-  
+      }, 200);
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
       this.cdRef.markForCheck();
