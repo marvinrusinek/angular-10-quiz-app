@@ -131,6 +131,7 @@ export class QuizQuestionComponent
   feedbackIcon: string;
   feedbackVisible: { [optionId: number]: boolean } = {};
   showFeedbackForOption: { [optionId: number]: boolean } = {};
+  isFeedbackApplied = false;
   displayOptions: Option[] = [];
   correctAnswersLoaded = false;
   resetFeedbackSubscription: Subscription;
