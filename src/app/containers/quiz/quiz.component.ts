@@ -127,6 +127,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   shouldDisplayCorrectAnswersFlag = false;
   showFeedback = false;
   feedbackText = '';
+  showFeedbackForOption: { [key: number]: boolean } = {};
 
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
