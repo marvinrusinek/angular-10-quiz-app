@@ -1502,21 +1502,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-      // Validate question index
+      console.log(`[loadQuestionByRouteIndex] 🔄 Navigating to Q${questionIndex}`);
+  
+      // ✅ Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
         return;
       }
   
-      // Get the current question
+      // ✅ Get the current question
       const question = this.quiz.questions[questionIndex];
       this.questionToDisplay = question.questionText;
   
-      // Assign option IDs dynamically and normalize options
-      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
-  
-      // Ensure options are structured correctly
-      this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
+      // ✅ Assign option IDs dynamically and normalize options
+      this.optionsToDisplay = this.quizService.assignOptionIds(question.options || []).map((option, optionIndex) => ({
         ...option,
         feedback: 'Loading feedback...',
         showIcon: option.showIcon ?? false,
@@ -1528,22 +1527,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           : optionIndex + 1
       }));
   
-      // Ensure feedback is applied immediately after setting options
+      console.log(`[loadQuestionByRouteIndex] ✅ Options set for Q${questionIndex}:`, this.optionsToDisplay);
+  
+      // ✅ Apply feedback **immediately after setting options**
       setTimeout(() => {  
+        console.log(`[loadQuestionByRouteIndex] 🔄 Checking for previously selected option before applying feedback...`);
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+  
         if (previouslySelectedOption) {
+          console.log(`[loadQuestionByRouteIndex] 🎯 Applying feedback to previously selected option:`, previouslySelectedOption);
           this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
         } else {
+          console.warn(`[loadQuestionByRouteIndex] ❌ No previously selected option found. Applying feedback to all.`);
           this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }
   
-        // Ensure UI updates after applying feedback
+        // ✅ Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 50); // Slight delay ensures feedback applies after UI updates
+      }, 50); // Short delay ensures UI updates before feedback applies
   
-      // Force UI to update again after feedback is applied
+      // ✅ Final UI update **after** feedback is applied
       setTimeout(() => {
+        console.log(`[loadQuestionByRouteIndex] 🔄 Final UI refresh after feedback application.`);
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
       }, 100);
@@ -1552,7 +1558,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
       this.cdRef.markForCheck();
     }
-  }  
+  }
 
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
