@@ -531,14 +531,12 @@ export class QuizQuestionComponent
 
   private restoreQuizState(): void {
     try {
-      console.log('[restoreQuizState] STARTED');
-  
-      // ✅ Restore explanation text
+      // Restore explanation text
       this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
       const displayMode = sessionStorage.getItem(`displayMode`);
       this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   
-      // ✅ Restore options
+      // Restore options
       const optionsData = sessionStorage.getItem(`options`);
       if (optionsData) {
         try {
@@ -553,6 +551,7 @@ export class QuizQuestionComponent
         }
       }
   
+      // Ensure optionsToDisplay is populated before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         const lastKnownOptions = this.quizService.getLastKnownOptions();
         if (lastKnownOptions && lastKnownOptions.length > 0) {
@@ -561,66 +560,64 @@ export class QuizQuestionComponent
           this.optionsToDisplay = [];
         }
       }
-  
-      // ✅ Restore selected options safely and apply feedback
+    
+      // Restore selected options safely and apply feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
       if (selectedOptionsData) {
         try {
           const selectedOptions = JSON.parse(selectedOptionsData);
           if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
-            for (const option of selectedOptions) {
+            selectedOptions.forEach(option => {
               if (option.optionId !== undefined) {
                 this.selectedOptionService.setSelectedOption(option.optionId);
   
-                // ✅ Apply feedback for restored option immediately
+                // Apply feedback for restored option immediately
                 const restoredOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
                 if (restoredOption) {
-                  console.log(`[restoreQuizState] 🎯 Reapplying feedback for restored option:`, restoredOption);
                   this.applyOptionFeedback(restoredOption);
                 }
               }
-            }
+            });
           }
         } catch (error) {
           console.error('[restoreQuizState] ❌ Error parsing selected options data:', error);
         }
       }
   
-      // ✅ Restore feedback text safely
+      // Restore feedback text safely
       const restoredFeedbackText = sessionStorage.getItem(`feedbackText`);
       if (restoredFeedbackText) {
         this.feedbackText = restoredFeedbackText;
-        console.log('[restoreQuizState] ✅ Restored feedback text:', restoredFeedbackText);
       } else {
         console.warn('[restoreQuizState] ❌ No feedback text found for restoration.');
         this.feedbackText = ''; // Default to an empty string
       }
   
-      // ✅ ENSURE FEEDBACK IS REAPPLIED AFTER RESTORING STATE
+      // Ensure feedback is reapplied after restoring state
       setTimeout(() => {
         console.log('[restoreQuizState] 🔄 Ensuring feedback is reapplied after restoring state...');
   
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
-          console.log('[restoreQuizState] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
           this.applyOptionFeedback(previouslySelectedOption);
         } else {
           console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
         }
   
-        // ✅ Apply feedback text after restoring options
+        // Apply feedback text after restoring options
         if (this.feedbackText) {
           console.log('[restoreQuizState] ✅ Applying restored feedback text:', this.feedbackText);
         }
   
-        // ✅ Ensure UI updates after applying feedback
+        // Ensure UI updates after applying feedback
+        this.cdRef.detectChanges();
         this.cdRef.markForCheck();
       }, 50);
   
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
-  }
+  }  
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
