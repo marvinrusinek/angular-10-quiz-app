@@ -2076,13 +2076,10 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
   
-      // ✅ Prevent selection until options are fully set
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
-        this.optionsToDisplay = this.populateOptionsToDisplay();
-  
-        // ✅ Force synchronization - wait for options to be set
-        await new Promise(resolve => setTimeout(resolve, 100)); // Ensures options exist before proceeding
+      // 🚨 Prevent selection before options are fully set
+      while (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for it to populate...');
+        await new Promise(resolve => setTimeout(resolve, 50)); // Wait until options are set
       }
   
       // ✅ Ensure current question is loaded before proceeding
@@ -2095,23 +2092,24 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Force Feedback to Apply Before Processing Selection
-      if (!this.isFeedbackApplied) {
+      // 🚨 Prevent selection before feedback is fully applied
+      while (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Waiting for synchronization...');
-  
+        
+        // Apply feedback if not yet applied
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
           this.applyOptionFeedback(previouslySelectedOption);
         }
   
-        // ✅ Forced synchronization - wait for feedback to be applied
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait until feedback is fully applied before proceeding
+        await new Promise(resolve => setTimeout(resolve, 50));
   
-        // ✅ Ensure UI updates before allowing selection
+        // Force UI updates
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-        
+  
         this.isFeedbackApplied = true; // ✅ Mark feedback as applied
         console.log('[onOptionClicked] ✅ Feedback applied. Proceeding with selection.');
       }
@@ -2188,8 +2186,8 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
-  }  
-
+  }
+  
   // ====================== Helper Functions ======================
 
   // Validates the option and returns false if early return is needed.
