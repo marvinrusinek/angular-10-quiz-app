@@ -2259,7 +2259,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Ensure feedback is applied before processing the option selection
+      // ✅ Ensure feedback is applied before allowing selection
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
   
@@ -2269,6 +2269,13 @@ export class QuizQuestionComponent
           console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
           this.applyOptionFeedback(previouslySelectedOption);
         }
+  
+        // ✅ Ensure UI updates before allowing selection
+        await new Promise(resolve => setTimeout(() => {
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+          resolve(true);
+        }, 50)); // Short delay ensures UI is updated before processing selection
   
         this.isFeedbackApplied = true; // ✅ Mark feedback as applied
       }
