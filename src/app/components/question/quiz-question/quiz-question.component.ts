@@ -2155,7 +2155,7 @@ export class QuizQuestionComponent
         const questionIndex = this.currentQuestionIndex;
         
         // Stop the timer **only when all correct answers are selected**
-        if (this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex))) {
+        if (this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex)) {
           console.log('[onOptionClicked] ⏹️ All correct answers selected. Stopping the timer.');
           this.timerService.stopTimer();
         }
