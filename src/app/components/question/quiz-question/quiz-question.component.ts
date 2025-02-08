@@ -2076,6 +2076,15 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
   
+      // ✅ Prevent selection until options are fully set
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
+        this.optionsToDisplay = this.populateOptionsToDisplay();
+  
+        // ✅ Force synchronization - wait for options to be set
+        await new Promise(resolve => setTimeout(resolve, 100)); // Ensures options exist before proceeding
+      }
+  
       // ✅ Ensure current question is loaded before proceeding
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
@@ -2086,26 +2095,23 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Ensure optionsToDisplay is set before proceeding
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
-        this.optionsToDisplay = this.populateOptionsToDisplay();
-      }
-  
-      // ✅ Force feedback synchronization before allowing selection
+      // ✅ Force Feedback to Apply Before Processing Selection
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Waiting for synchronization...');
   
-        // Apply feedback before proceeding
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
           this.applyOptionFeedback(previouslySelectedOption);
         }
   
-        // ✅ Forced synchronization - wait until feedback is applied
-        await new Promise(resolve => setTimeout(resolve, 100)); // Short delay ensures UI is updated before processing selection
+        // ✅ Forced synchronization - wait for feedback to be applied
+        await new Promise(resolve => setTimeout(resolve, 100));
   
+        // ✅ Ensure UI updates before allowing selection
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
+        
         this.isFeedbackApplied = true; // ✅ Mark feedback as applied
         console.log('[onOptionClicked] ✅ Feedback applied. Proceeding with selection.');
       }
@@ -2142,7 +2148,7 @@ export class QuizQuestionComponent
       this.applyOptionFeedback(selectedOption);
       this.isFeedbackApplied = true; // ✅ Mark feedback as applied
   
-      // ✅ Verify feedback after a short delay
+      // ✅ Final Verification Step - Ensure Feedback is Fully Applied
       setTimeout(() => {
         console.log('[onOptionClicked] 🔄 Verifying feedback was applied correctly...');
         if (!this.showFeedbackForOption[selectedOption.optionId]) {
@@ -2151,7 +2157,7 @@ export class QuizQuestionComponent
         }
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 50); // Ensures feedback is fully applied before continuing
+      }, 100); // Ensures feedback is fully applied before continuing
   
       // ✅ Check if the question is a multiple-answer type
       const isMultipleAnswer = await firstValueFrom(
