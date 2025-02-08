@@ -2401,7 +2401,8 @@ export class QuizQuestionComponent
           correct: option.correct ?? false // Ensure `correct` property exists
         }));
   
-        console.log('[populateOptionsToDisplay] ✅ optionsToDisplay repopulated:', JSON.stringify(this.optionsToDisplay, null, 2));
+        // Reset feedback state when repopulating options
+        this.isFeedbackApplied = false;
       } else {
         console.error('[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Aborting.');
         return;
