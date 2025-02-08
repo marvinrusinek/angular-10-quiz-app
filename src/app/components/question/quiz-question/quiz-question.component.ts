@@ -2243,39 +2243,23 @@ export class QuizQuestionComponent
   
       // ✅ Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
-  
-        if (this.currentQuestion?.options?.length > 0) {
-          this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
-            ...option,
-            optionId: option.optionId ?? index + 1, // Ensure valid optionId
-            correct: option.correct ?? false // Ensure correct property is set
-          }));
-  
-          console.log('[onOptionClicked] ✅ Options repopulated:', this.optionsToDisplay);
-        } else {
-          console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
-          return;
-        }
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
+        this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
       // ✅ Ensure feedback is applied before allowing selection
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
   
-        // Apply feedback before proceeding
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
           this.applyOptionFeedback(previouslySelectedOption);
         }
   
-        // ✅ Ensure UI updates before allowing selection
-        await new Promise(resolve => setTimeout(() => {
-          this.cdRef.detectChanges();
-          this.cdRef.markForCheck();
-          resolve(true);
-        }, 50)); // Short delay ensures UI is updated before processing selection
+        // ✅ Trigger UI update before allowing selection
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
   
         this.isFeedbackApplied = true; // ✅ Mark feedback as applied
       }
@@ -2342,6 +2326,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }  
+  
 
   // ====================== Helper Functions ======================
 
