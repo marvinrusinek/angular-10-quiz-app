@@ -165,7 +165,7 @@ export class QuizQuestionComponent
   private isRestoringState = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
-    answered: false,
+    answered: false
   };
   private forceQuestionDisplay = true;
   readyForExplanationDisplay = false;
@@ -178,7 +178,7 @@ export class QuizQuestionComponent
     answered: boolean;
   }>({
     mode: 'question',
-    answered: false,
+    answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
 
