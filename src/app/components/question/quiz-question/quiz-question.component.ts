@@ -2393,12 +2393,14 @@ export class QuizQuestionComponent
     }
   }
 
-  public populateOptionsToDisplay(): void {
+  public populateOptionsToDisplay(): Option[] {
     // Ensure optionsToDisplay is properly populated before applying feedback
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       console.warn('[populateOptionsToDisplay] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
   
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+        console.log('[populateOptionsToDisplay] ✅ Repopulating options from currentQuestion.');
+  
         this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
           ...option,
           optionId: option.optionId ?? index, // Ensure optionId is properly assigned
@@ -2407,12 +2409,16 @@ export class QuizQuestionComponent
   
         // Reset feedback state when repopulating options
         this.isFeedbackApplied = false;
+  
+        return this.optionsToDisplay; // ✅ Return the updated options
       } else {
-        console.error('[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Aborting.');
-        return;
+        console.error('[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Returning empty array.');
+        return []; // ✅ Return an empty array instead of void
       }
     }
-  }
+  
+    return this.optionsToDisplay; // ✅ Return existing options if already populated
+  }    
   
   /* public applyOptionFeedback(selectedOption: Option): void {
     if (!selectedOption) {
