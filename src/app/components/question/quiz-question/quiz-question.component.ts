@@ -2461,8 +2461,6 @@ export class QuizQuestionComponent
       return;
     }
   
-    console.log(`[applyOptionFeedback] 🎯 Applying feedback for: ${selectedOption.text}`);
-  
     // Ensure options are populated before applying feedback
     this.populateOptionsToDisplay();
   
@@ -2471,6 +2469,15 @@ export class QuizQuestionComponent
       console.error('[applyOptionFeedback] ❌ optionsToDisplay is still empty after repopulation. Aborting.');
       return;
     }
+
+    // Ensure feedback is only applied once per selection
+    if (this.isFeedbackApplied) {
+      console.warn('[applyOptionFeedback] ⚠️ Feedback already applied. Skipping.');
+      return;
+    }
+
+    // Mark feedback as applied early to avoid duplicate calls
+    this.isFeedbackApplied = true;
   
     // Ensure `showFeedbackForOption` is initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
