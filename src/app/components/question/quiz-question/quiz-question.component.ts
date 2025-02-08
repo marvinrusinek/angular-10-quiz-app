@@ -2087,26 +2087,20 @@ export class QuizQuestionComponent
       }
   
       // ✅ Ensure optionsToDisplay is set before proceeding
+      this.optionsToDisplay = this.populateOptionsToDisplay();
+  
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
-        this.optionsToDisplay = this.populateOptionsToDisplay();
+        console.error('[onOptionClicked] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
+        return;
       }
   
-      // ✅ Ensure feedback is applied before allowing selection
+      // ✅ Wait for feedback to be applied before allowing selection
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
-  
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
-          console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
-          this.applyOptionFeedback(previouslySelectedOption);
+          await this.applyOptionFeedback(previouslySelectedOption);
         }
-  
-        // ✅ Trigger UI update before allowing selection
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-  
-        this.isFeedbackApplied = true; // ✅ Mark feedback as applied
       }
   
       // ✅ Validate the event and option
@@ -2137,9 +2131,9 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      // ✅ Apply feedback before moving forward
-      this.applyOptionFeedback(selectedOption);
-      this.isFeedbackApplied = true; // ✅ Mark feedback as applied
+      // ✅ Apply feedback after ensuring everything is loaded
+      await this.applyOptionFeedback(selectedOption);
+      this.isFeedbackApplied = true;
   
       // ✅ Check if the question is a multiple-answer type
       const isMultipleAnswer = await firstValueFrom(
@@ -2171,7 +2165,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }  
-  
 
   // ====================== Helper Functions ======================
 
@@ -2357,7 +2350,7 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
       this.cdRef.markForCheck();
     }, 50);
-  }
+  }  
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
