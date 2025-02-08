@@ -2092,9 +2092,9 @@ export class QuizQuestionComponent
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
-      // ✅ Ensure feedback is applied before allowing selection
+      // ✅ Force feedback synchronization before allowing selection
       if (!this.isFeedbackApplied) {
-        console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
+        console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Waiting for synchronization...');
   
         // Apply feedback before proceeding
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
@@ -2103,14 +2103,11 @@ export class QuizQuestionComponent
           this.applyOptionFeedback(previouslySelectedOption);
         }
   
-        // ✅ Ensure UI updates before allowing selection
-        await new Promise(resolve => setTimeout(() => {
-          this.cdRef.detectChanges();
-          this.cdRef.markForCheck();
-          resolve(true);
-        }, 50)); // Short delay ensures UI is updated before processing selection
+        // ✅ Forced synchronization - wait until feedback is applied
+        await new Promise(resolve => setTimeout(resolve, 100)); // Short delay ensures UI is updated before processing selection
   
         this.isFeedbackApplied = true; // ✅ Mark feedback as applied
+        console.log('[onOptionClicked] ✅ Feedback applied. Proceeding with selection.');
       }
   
       // ✅ Validate the event and option
@@ -2145,7 +2142,7 @@ export class QuizQuestionComponent
       this.applyOptionFeedback(selectedOption);
       this.isFeedbackApplied = true; // ✅ Mark feedback as applied
   
-      // ✅ Revalidate feedback after a short delay to ensure UI update
+      // ✅ Verify feedback after a short delay
       setTimeout(() => {
         console.log('[onOptionClicked] 🔄 Verifying feedback was applied correctly...');
         if (!this.showFeedbackForOption[selectedOption.optionId]) {
@@ -2154,7 +2151,7 @@ export class QuizQuestionComponent
         }
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 100); // Short delay ensures feedback is fully applied
+      }, 50); // Ensures feedback is fully applied before continuing
   
       // ✅ Check if the question is a multiple-answer type
       const isMultipleAnswer = await firstValueFrom(
