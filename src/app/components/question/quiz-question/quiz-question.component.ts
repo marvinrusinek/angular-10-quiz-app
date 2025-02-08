@@ -773,18 +773,34 @@ export class QuizQuestionComponent
       setTimeout(() => {
         console.log('[restoreQuizState] 🔄 Ensuring feedback is applied after restoring state...');
   
-        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
-        if (previouslySelectedOption) {
-          console.log('[restoreQuizState] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
-          this.applyOptionFeedback(previouslySelectedOption);
-        } else {
-          console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
+        // ✅ Recheck if options are available
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+          console.warn('[restoreQuizState] ⚠️ optionsToDisplay is still empty! Attempting repopulation...');
+          this.populateOptionsToDisplay();
         }
+  
+        // ✅ Backup recheck: Ensure feedback is applied after restoring selected options
+        setTimeout(() => {
+          const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+          if (previouslySelectedOption) {
+            console.log('[restoreQuizState] 🎯 Reapplying feedback (backup recheck) for:', previouslySelectedOption);
+            this.applyOptionFeedback(previouslySelectedOption);
+          } else {
+            console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
+          }
+  
+          // ✅ Ensure UI updates after applying feedback
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+        }, 50); // Extra delay ensures selections are fully restored before applying feedback
+  
       }, 100); // Slight delay to ensure UI updates correctly
+  
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
-  }  
+  }
+    
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
@@ -2389,7 +2405,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private populateOptionsToDisplay(): void {
+  public populateOptionsToDisplay(): void {
     // Ensure optionsToDisplay is properly populated before applying feedback
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       console.warn('[populateOptionsToDisplay] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
