@@ -714,14 +714,12 @@ export class QuizQuestionComponent
   } */
   private restoreQuizState(): void {
     try {
-      console.log('[restoreQuizState] STARTED');
-  
-      // ✅ Restore explanation text
+      // Restore explanation text
       this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
       const displayMode = sessionStorage.getItem(`displayMode`);
       this.displayState.mode = displayMode === 'explanation' ? 'explanation' : 'question';
   
-      // ✅ Restore options
+      // Restore options
       const optionsData = sessionStorage.getItem(`options`);
       if (optionsData) {
         try {
@@ -745,7 +743,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Restore selected options safely and apply feedback
+      // Restore selected options safely and apply feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
       if (selectedOptionsData) {
         try {
@@ -755,10 +753,9 @@ export class QuizQuestionComponent
               if (option.optionId !== undefined) {
                 this.selectedOptionService.setSelectedOption(option.optionId);
   
-                // ✅ Apply feedback for restored option immediately
+                // Apply feedback for restored option immediately
                 const restoredOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
                 if (restoredOption) {
-                  console.log(`[restoreQuizState] 🎯 Reapplying feedback for restored option:`, restoredOption);
                   this.applyOptionFeedback(restoredOption);
                 }
               }
@@ -769,17 +766,17 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Force feedback to be applied even if state wasn't restored properly
+      // Force feedback to be applied even if state wasn't restored properly
       setTimeout(() => {
         console.log('[restoreQuizState] 🔄 Ensuring feedback is applied after restoring state...');
   
-        // ✅ Recheck if options are available
+        // Recheck if options are available
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn('[restoreQuizState] ⚠️ optionsToDisplay is still empty! Attempting repopulation...');
           this.populateOptionsToDisplay();
         }
   
-        // ✅ Backup recheck: Ensure feedback is applied after restoring selected options
+        // Backup recheck: Ensure feedback is applied after restoring selected options
         setTimeout(() => {
           const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
           if (previouslySelectedOption) {
@@ -789,18 +786,14 @@ export class QuizQuestionComponent
             console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
           }
   
-          // ✅ Ensure UI updates after applying feedback
-          this.cdRef.detectChanges();
+          // Ensure UI updates after applying feedback
           this.cdRef.markForCheck();
         }, 50); // Extra delay ensures selections are fully restored before applying feedback
-  
       }, 100); // Slight delay to ensure UI updates correctly
-  
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
   }
-    
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
