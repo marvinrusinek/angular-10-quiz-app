@@ -2231,19 +2231,7 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
   
-      // ✅ Prevent clicking before feedback is applied
-      if (!this.isFeedbackApplied) {
-        console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Delaying option selection...');
-        
-        // Wait briefly and retry
-        setTimeout(() => {
-          console.log('[onOptionClicked] 🔄 Retrying option selection after feedback delay...');
-          this.onOptionClicked(event);
-        }, 150); // 150ms ensures feedback applies first
-        return;
-      }
-  
-      // ✅ Ensure current question is loaded
+      // ✅ Ensure current question is loaded before proceeding
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
         const loaded = await this.loadCurrentQuestion();
@@ -2256,7 +2244,7 @@ export class QuizQuestionComponent
       // ✅ Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
-        
+  
         if (this.currentQuestion?.options?.length > 0) {
           this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
             ...option,
@@ -2264,37 +2252,25 @@ export class QuizQuestionComponent
             correct: option.correct ?? false // Ensure correct property is set
           }));
   
-          // ✅ Ensure feedback is applied before proceeding
-          setTimeout(() => {
-            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
-            if (previouslySelectedOption) {
-              this.applyOptionFeedback(previouslySelectedOption);
-              this.isFeedbackApplied = true; // ✅ Mark feedback as applied
-            }
-          }, 50);
+          console.log('[onOptionClicked] ✅ Options repopulated:', this.optionsToDisplay);
         } else {
           console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
           return;
         }
       }
   
-      // ✅ Ensure feedback is applied before option selection
+      // ✅ Ensure feedback is applied before processing the option selection
       if (!this.isFeedbackApplied) {
-        console.warn('[onOptionClicked] ⚠️ Feedback was not applied. Retrying in 100ms...');
-        
-        setTimeout(() => {
-          console.log('[onOptionClicked] 🔄 Reapplying feedback before option selection...');
-          this.applyOptionFeedback(event.option as Option);
-          this.isFeedbackApplied = true;
-          this.onOptionClicked(event); // Retry option selection
-        }, 100);
-        return;
-      }
+        console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
   
-      // ✅ Final Check: If `optionsToDisplay` is STILL empty, return early
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.error('[onOptionClicked] ❌ optionsToDisplay is STILL empty after repopulation. Cannot proceed.');
-        return;
+        // Apply feedback before proceeding
+        const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+        if (previouslySelectedOption) {
+          console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
+          this.applyOptionFeedback(previouslySelectedOption);
+        }
+  
+        this.isFeedbackApplied = true; // ✅ Mark feedback as applied
       }
   
       // ✅ Validate the event and option
@@ -2325,15 +2301,9 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      // ✅ Apply feedback after selection
+      // ✅ Apply feedback before moving forward
       this.applyOptionFeedback(selectedOption);
-      this.isFeedbackApplied = true; // ✅ Ensure feedback is applied before proceeding
-  
-      // ✅ Apply feedback again after a delay to handle UI updates
-      setTimeout(() => {
-        console.log('[onOptionClicked] 🔄 Verifying feedback state after UI update...');
-        this.applyOptionFeedback(selectedOption);
-      }, 150);
+      this.isFeedbackApplied = true; // ✅ Mark feedback as applied
   
       // ✅ Check if the question is a multiple-answer type
       const isMultipleAnswer = await firstValueFrom(
