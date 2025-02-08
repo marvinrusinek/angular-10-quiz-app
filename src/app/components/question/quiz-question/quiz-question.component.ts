@@ -373,60 +373,6 @@ export class QuizQuestionComponent
   }
 
   // Listen for the visibility change event
-  /* @HostListener('window:visibilitychange', [])
-  async onVisibilityChange(): Promise<void> {
-    try {
-      if (document.visibilityState === 'visible') {
-        console.log('[onVisibilityChange] Restoring quiz state...');
-
-        // Ensure quiz state is restored before proceeding
-        await this.restoreQuizState();
-
-        if (this.currentQuestion) {
-          console.log('[onVisibilityChange] Restored current question:', this.currentQuestion);
-
-          // Ensure feedback state and display are restored after quiz state restoration
-          this.restoreFeedbackState();
-          console.log('[onVisibilityChange] Feedback state restored:', this.feedbackText);
-
-          this.renderDisplay();
-
-          // Regenerate feedback for the current question
-          try {
-            const feedbackText = await this.generateFeedbackText(this.currentQuestion);
-            this.feedbackText = feedbackText;
-            console.log('[onVisibilityChange] Feedback text regenerated:', feedbackText);
-          } catch (error) {
-            console.error('[onVisibilityChange] Error generating feedback text:', error);
-          }
-        } else {
-          console.warn('[onVisibilityChange] Current question is missing. Attempting to reload...');
-          
-          // Reload the current question if not restored
-          const loaded = await this.loadCurrentQuestion();
-          if (loaded && this.currentQuestion) {
-            console.log('[onVisibilityChange] Reloaded current question:', this.currentQuestion);
-
-            // Restore feedback and render display after reloading the question
-            this.restoreFeedbackState();
-            this.renderDisplay();
-
-            try {
-              const feedbackText = await this.generateFeedbackText(this.currentQuestion);
-              this.feedbackText = feedbackText;
-              console.log('[onVisibilityChange] Feedback text generated after reload:', feedbackText);
-            } catch (error) {
-              console.error('[onVisibilityChange] Error generating feedback text after reload:', error);
-            }
-          } else {
-            console.error('[onVisibilityChange] Failed to reload current question.');
-          }
-        }
-      }
-    } catch (error) {
-      console.error('[onVisibilityChange] Error during state restoration:', error);
-    }
-  } */
   @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     try {
