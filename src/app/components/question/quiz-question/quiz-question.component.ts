@@ -2231,13 +2231,19 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
   
-      // Prevent clicking before feedback is ready
+      // ✅ Block option selection if feedback isn't ready
       if (!this.isFeedbackApplied) {
-        console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Skipping option selection.');
+        console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Queuing feedback before allowing selection.');
+        
+        // Wait for feedback to be applied before allowing selection
+        setTimeout(() => {
+          console.log('[onOptionClicked] 🔄 Retrying option selection after feedback delay...');
+          this.onOptionClicked(event);
+        }, 100); // 100ms delay ensures UI updates first
         return;
       }
   
-      // Ensure current question is loaded
+      // ✅ Ensure current question is loaded
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
         const loaded = await this.loadCurrentQuestion();
@@ -2247,7 +2253,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // Ensure optionsToDisplay is set before proceeding
+      // ✅ Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Attempting to repopulate...');
   
@@ -2258,14 +2264,14 @@ export class QuizQuestionComponent
             correct: option.correct ?? false // Ensure correct property is set
           }));
   
-          // ✅ Delay feedback application slightly to ensure options are set
+          // ✅ Ensure feedback is applied before proceeding
           setTimeout(() => {
             const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
             if (previouslySelectedOption) {
               this.applyOptionFeedback(previouslySelectedOption);
-              this.isFeedbackApplied = true; // ✅ Set feedback as applied
+              this.isFeedbackApplied = true; // ✅ Mark feedback as applied
             }
-          }, 50); // Short delay ensures UI is updated before applying feedback
+          }, 50);
         } else {
           console.error('[onOptionClicked] ❌ Unable to repopulate optionsToDisplay. Aborting.');
           return;
@@ -2278,26 +2284,26 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Validate the event and option
+      // ✅ Validate the event and option
       if (!event.option || !this.validateOption(event)) {
         console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
         return;
       }
   
-      // Find the selected option
+      // ✅ Find the selected option
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
       if (!foundOption) {
         console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
         return;
       }
   
-      // Convert `Option` to `SelectedOption` by adding `questionIndex`
+      // ✅ Convert `Option` to `SelectedOption` by adding `questionIndex`
       const selectedOption: SelectedOption = {
         ...foundOption,
         questionIndex: this.currentQuestionIndex // Ensure questionIndex is included
       };
   
-      // Update selectedOptionsMap
+      // ✅ Update selectedOptionsMap
       const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
       const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
   
@@ -2306,7 +2312,7 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      // Ensure optionsToDisplay is set before applying feedback
+      // ✅ Ensure feedback is applied before allowing further actions
       this.applyOptionFeedback(selectedOption);
       this.isFeedbackApplied = true; // ✅ Ensure feedback is applied before proceeding
   
@@ -2320,26 +2326,26 @@ export class QuizQuestionComponent
         await this.handleMultipleAnswerTimerLogic(selectedOption);
       }
   
-      // Update UI states and flags
+      // ✅ Update UI states and flags
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
   
-      // Notify that the question has been answered
+      // ✅ Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
   
-      // Allow UI changes to propagate before rendering
+      // ✅ Allow UI changes to propagate before rendering
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
       });
   
-      // Handle additional processing
+      // ✅ Handle additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
-  }      
+  }  
 
   // ====================== Helper Functions ======================
 
