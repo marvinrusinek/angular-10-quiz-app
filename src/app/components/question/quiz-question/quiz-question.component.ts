@@ -2076,13 +2076,13 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
   
-      // 🚨 Prevent selection before options are fully set
+      // 🚨 Ensure options are fully initialized before proceeding
       while (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for it to populate...');
-        await new Promise(resolve => setTimeout(resolve, 50)); // Wait until options are set
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
   
-      // ✅ Ensure current question is loaded before proceeding
+      // 🚨 Ensure current question is loaded
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
         const loaded = await this.loadCurrentQuestion();
@@ -2092,21 +2092,18 @@ export class QuizQuestionComponent
         }
       }
   
-      // 🚨 Prevent selection before feedback is fully applied
+      // 🚨 Ensure feedback is fully applied before selection
       while (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Waiting for synchronization...');
-        
-        // Apply feedback if not yet applied
+  
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
-          console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
+          console.log('[onOptionClicked] 🔄 Applying feedback to previously selected option:', previouslySelectedOption);
           this.applyOptionFeedback(previouslySelectedOption);
         }
   
-        // Wait until feedback is fully applied before proceeding
+        // Wait for UI updates
         await new Promise(resolve => setTimeout(resolve, 50));
-  
-        // Force UI updates
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
   
@@ -2127,10 +2124,10 @@ export class QuizQuestionComponent
         return;
       }
   
-      // ✅ Convert `Option` to `SelectedOption` by adding `questionIndex`
+      // ✅ Convert `Option` to `SelectedOption`
       const selectedOption: SelectedOption = {
         ...foundOption,
-        questionIndex: this.currentQuestionIndex // Ensure questionIndex is included
+        questionIndex: this.currentQuestionIndex
       };
   
       // ✅ Update selectedOptionsMap
@@ -2142,29 +2139,32 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      // ✅ Apply feedback before moving forward
+      // ✅ Apply feedback before proceeding
       this.applyOptionFeedback(selectedOption);
-      this.isFeedbackApplied = true; // ✅ Mark feedback as applied
+      this.isFeedbackApplied = true; // ✅ Ensure feedback is marked as applied
   
-      // ✅ Final Verification Step - Ensure Feedback is Fully Applied
-      setTimeout(() => {
-        console.log('[onOptionClicked] 🔄 Verifying feedback was applied correctly...');
-        if (!this.showFeedbackForOption[selectedOption.optionId]) {
-          console.warn('[onOptionClicked] ⚠️ Feedback was not applied correctly. Reapplying now...');
-          this.applyOptionFeedback(selectedOption);
-        }
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-      }, 100); // Ensures feedback is fully applied before continuing
-  
-      // ✅ Check if the question is a multiple-answer type
+      // ✅ Ensure the Timer Stops When the Question is Answered
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
   
       if (isMultipleAnswer) {
+        console.log('[onOptionClicked] ⏳ Multiple-answer question detected.');
+
+        const questionOptions = this.optionsToDisplay; // Ensure options are available
+        const questionIndex = this.currentQuestionIndex;
+        
+        // Stop the timer **only when all correct answers are selected**
+        if (this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex))) {
+          console.log('[onOptionClicked] ⏹️ All correct answers selected. Stopping the timer.');
+          this.timerService.stopTimer();
+        }
+  
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
         await this.handleMultipleAnswerTimerLogic(selectedOption);
+      } else {
+        console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
+        this.timerService.stopTimer(); // ✅ Ensure the timer stops immediately
       }
   
       // ✅ Update UI states and flags
@@ -2175,7 +2175,7 @@ export class QuizQuestionComponent
       // ✅ Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
   
-      // ✅ Allow UI changes to propagate before rendering
+      // ✅ Ensure UI changes are fully applied
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
@@ -2187,7 +2187,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-  
+    
   // ====================== Helper Functions ======================
 
   // Validates the option and returns false if early return is needed.
