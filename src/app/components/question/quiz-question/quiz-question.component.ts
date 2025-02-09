@@ -2169,6 +2169,9 @@ export class QuizQuestionComponent
           }
         }
   
+        // Call `handleCorrectnessOutcome` to stop timer and manage Next button
+        await this.handleCorrectnessOutcome(allCorrectSelected);
+        
         // Continue handling multiple-answer logic
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
         await this.handleMultipleAnswerTimerLogic(selectedOption);
