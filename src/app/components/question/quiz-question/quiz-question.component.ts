@@ -2100,7 +2100,6 @@ export class QuizQuestionComponent
       // ✅ Ensure feedback is applied before allowing selection
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
-  
         const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
         if (previouslySelectedOption) {
           console.log('[onOptionClicked] 🔄 Reapplying feedback to previously selected option:', previouslySelectedOption);
@@ -2157,11 +2156,11 @@ export class QuizQuestionComponent
       if (isMultipleAnswer) {
         console.log('[onOptionClicked] ⏳ Multiple-answer question detected.');
   
-        const questionOptions = this.optionsToDisplay; // Ensure options are available
-        const questionIndex = this.currentQuestionIndex;
+        // ✅ Stop the timer **only when all correct answers are selected**
+        const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(
+          this.optionsToDisplay, this.currentQuestionIndex
+        );
   
-        // ✅ Stop the timer only when **all correct answers** are selected
-        const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
         if (allCorrectSelected && this.timerService.isTimerRunning) {
           console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
           this.timerService.stopTimer();
