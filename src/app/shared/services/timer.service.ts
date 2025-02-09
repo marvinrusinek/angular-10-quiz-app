@@ -32,6 +32,8 @@ export class TimerService {
   timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
 
+  isTimerStoppedForCurrentQuestion = false;
+
   constructor() {}
 
   ngOnDestroy(): void {
@@ -114,6 +116,17 @@ export class TimerService {
     this.isReset.next(); // Signal to reset
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
     console.log('Timer reset successfully.');
+  }
+
+  preventRestartForCurrentQuestion(): void {
+    if (this.isTimerStoppedForCurrentQuestion) {
+      console.warn(`[TimerService] ⚠️ Timer restart prevented.`);
+      return;
+    }
+
+    // ✅ Mark the timer as stopped and prevent restart
+    this.isTimerStoppedForCurrentQuestion = true;
+    console.log(`[TimerService] ✅ Timer stop recorded.`);
   }
 
   // Sets a custom elapsed time
