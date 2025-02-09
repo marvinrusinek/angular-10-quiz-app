@@ -2162,12 +2162,10 @@ export class QuizQuestionComponent
   
         // ✅ Stop the timer only when **all correct answers** are selected
         const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-        if (allCorrectSelected) {
+        if (allCorrectSelected && this.timerService.isTimerRunning) {
           console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
-          if (this.timerService.isTimerRunning) {
-            this.timerService.stopTimer();
-            this.timerService.isTimerRunning = false; // ✅ Ensures timer does not restart
-          }
+          this.timerService.stopTimer();
+          this.timerService.isTimerRunning = false;
         }
   
         // ✅ Manage correctness logic (Stops timer, enables Next button)
@@ -2182,7 +2180,7 @@ export class QuizQuestionComponent
   
         // ✅ Stop the timer immediately when a single-answer question is answered
         if (this.timerService.isTimerRunning) {
-          this.timerService.stopTimer(); 
+          this.timerService.stopTimer();
           this.timerService.isTimerRunning = false;
         }
       }
