@@ -2160,12 +2160,12 @@ export class QuizQuestionComponent
         const questionOptions = this.optionsToDisplay; // Ensure options are available
         const questionIndex = this.currentQuestionIndex;
   
-        // ✅ Stop the timer **only when all correct answers are selected**
+        // ✅ Stop the timer immediately only when all correct answers are selected
         const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-        if (allCorrectSelected) {
+        if (allCorrectSelected && this.timerService.isTimerRunning) {
           if (!this.timerService.isTimerRunning) {
-            this.timerService.isTimerRunning = true; // Prevents timer restart
             this.timerService.stopTimer();
+            this.timerService.isTimerRunning = false; // Prevents timer restart
           }
         }
   
