@@ -2075,13 +2075,13 @@ export class QuizQuestionComponent
     try {
       console.log('[onOptionClicked] STARTED');
   
-      // ✅ Prevent clicking before feedback is ready
+      // Prevent clicking before feedback is ready
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Skipping option selection.');
         return;
       }
   
-      // ✅ Ensure current question is loaded before proceeding
+      // Ensure current question is loaded before proceeding
       if (!this.currentQuestion) {
         console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
         const loaded = await this.loadCurrentQuestion();
@@ -2091,13 +2091,13 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Ensure optionsToDisplay is set before proceeding
+      // Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
-      // ✅ Ensure feedback is applied before allowing selection
+      // Ensure feedback is applied before allowing selection
       if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
   
@@ -2107,7 +2107,7 @@ export class QuizQuestionComponent
           this.applyOptionFeedback(previouslySelectedOption);
         }
   
-        // ✅ Ensure UI updates before allowing selection
+        // Ensure UI updates before allowing selection
         await new Promise(resolve => setTimeout(() => {
           this.cdRef.detectChanges();
           this.cdRef.markForCheck();
@@ -2117,26 +2117,26 @@ export class QuizQuestionComponent
         this.isFeedbackApplied = true;
       }
   
-      // ✅ Validate the event and option
+      // Validate the event and option
       if (!event.option || !this.validateOption(event)) {
         console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
         return;
       }
   
-      // ✅ Find the selected option
+      // Find the selected option
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
       if (!foundOption) {
         console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
         return;
       }
   
-      // ✅ Convert `Option` to `SelectedOption` by adding `questionIndex`
+      // Convert `Option` to `SelectedOption` by adding `questionIndex`
       const selectedOption: SelectedOption = {
         ...foundOption,
         questionIndex: this.currentQuestionIndex // Ensure questionIndex is included
       };
   
-      // ✅ Update selectedOptionsMap
+      // Update selectedOptionsMap
       const existingOptions = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) || [];
       const updatedOptions = existingOptions.filter((o) => o.optionId !== selectedOption.optionId);
   
@@ -2145,11 +2145,11 @@ export class QuizQuestionComponent
       }
       this.selectedOptionService.selectedOptionsMap.set(this.currentQuestionIndex, updatedOptions);
   
-      // ✅ Apply feedback before moving forward
+      // Apply feedback before moving forward
       this.applyOptionFeedback(selectedOption);
       this.isFeedbackApplied = true; // ✅ Mark feedback as applied
    
-      // ✅ Check if the question is a multiple-answer type
+      // Check if the question is a multiple-answer type
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
       );
@@ -2160,7 +2160,7 @@ export class QuizQuestionComponent
         const questionOptions = this.optionsToDisplay; // Ensure options are available
         const questionIndex = this.currentQuestionIndex;
   
-        // ✅ Stop the timer immediately only when all correct answers are selected
+        // Stop the timer immediately only when all correct answers are selected
         const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
         if (allCorrectSelected && this.timerService.isTimerRunning) {
           if (!this.timerService.isTimerRunning) {
@@ -2169,6 +2169,7 @@ export class QuizQuestionComponent
           }
         }
   
+        // Continue handling multiple-answer logic
         await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
         await this.handleMultipleAnswerTimerLogic(selectedOption);
       } else {
@@ -2179,21 +2180,21 @@ export class QuizQuestionComponent
         }
       }
   
-      // ✅ Update UI states and flags
+      // Update UI states and flags
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
   
-      // ✅ Notify that the question has been answered
+      // Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
   
-      // ✅ Allow UI changes to propagate before rendering
+      // Allow UI changes to propagate before rendering
       setTimeout(() => {
         this.updateRenderingFlags();
         this.renderDisplay();
       });
   
-      // ✅ Handle additional processing
+      // Handle additional processing
       await this.handleAdditionalProcessing(event, isMultipleAnswer);
     } catch (error) {
       console.error('[onOptionClicked] ❌ Unhandled error:', error);
