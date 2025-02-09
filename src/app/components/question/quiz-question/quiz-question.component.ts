@@ -2163,9 +2163,8 @@ export class QuizQuestionComponent
   
         // ✅ Stop the timer **only when all correct answers are selected**
         if (await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex)) {
-          if (!this.timerService.isTimerStopped) {
-            console.log('[onOptionClicked] ⏹️ All correct answers selected. Stopping the timer.');
-            this.timerService.isTimerStopped = true; // Prevents timer restart
+          if (!this.timerService.isTimerRunning) {
+            this.timerService.isTimerRunning = true; // Prevents timer restart
             this.timerService.stopTimer();
           }
         }
@@ -2174,8 +2173,8 @@ export class QuizQuestionComponent
         await this.handleMultipleAnswerTimerLogic(selectedOption);
       } else {
         console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
-        if (!this.timerService.isTimerStopped) {
-          this.timerService.isTimerStopped = true;
+        if (!this.timerService.isTimerRunning) {
+          this.timerService.isTimerRunning = true;
           this.timerService.stopTimer(); // ✅ Ensures timer does not restart
         }
       }
