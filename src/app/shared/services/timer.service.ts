@@ -121,6 +121,7 @@ export class TimerService {
 
     this.isReset.next(); // Signal to reset
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
+    this.isTimerStoppedForCurrentQuestion = false; // ✅ Allow restart for the new question
     console.log('Timer reset successfully.');
   }
 
