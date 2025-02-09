@@ -546,100 +546,99 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(): Promise<void> {
     try {
-        console.log('[loadQuestionContents] STARTED');
+      console.log('[loadQuestionContents] STARTED');
 
-        // ✅ Stop the timer only if it's already running
-        if (this.timerService.isTimerRunning) {
-            console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
-            this.timerService.stopTimer();
-        }
+      // Stop the timer only if it's already running
+      if (this.timerService.isTimerRunning) {
+        console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
+        this.timerService.stopTimer();
+      }
 
-        // ✅ Reset the timer and ensure it is ready for the next question
-        console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
-        this.timerService.resetTimer();
+      // Reset the timer and ensure it is ready for the next question
+      console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
+      this.timerService.resetTimer();
 
-        // ✅ Start the timer when loading a new question
+      // Start the timer when loading a new question
+      this.timerService.startTimer();
+
+      // Start the timer **only if the question isn't already answered**
+      if (!this.selectedOptionService.isAnsweredSubject.value) {
+        console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
         this.timerService.startTimer();
+        this.timerService.isTimerRunning = true;
+      } else {
+        console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+      }
 
-        // ✅ Start the timer **only if the question isn't already answered**
-        if (!this.selectedOptionService.isAnsweredSubject.value) {
-            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
-            this.timerService.startTimer();
-            this.timerService.isTimerRunning = true;
-        } else {
-            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+      this.isLoading = true;
+      this.isQuestionDisplayed = false;
+      this.isNextButtonEnabled = false;
+      this.updateTooltip('Please select an option to continue...'); // Reset tooltip
+
+      // Reset feedback flag before loading new question
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.isFeedbackApplied = false;
+      } else {
+        console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
+      }
+
+      // Clear previous options before fetching new ones
+      this.optionsToDisplay = [];
+
+      const quizId = this.quizService.getCurrentQuizId();
+      const questionIndex = this.quizService.getCurrentQuestionIndex();
+
+      // Fetch question and options
+      const data = await lastValueFrom(
+        forkJoin({
+          question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+          options: this.quizService.getCurrentOptions(questionIndex),
+        }).pipe(
+          catchError((error) => {
+            console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
+            return of({ question: null, options: [] });
+          })
+        )
+      ) as { question: QuizQuestion | null; options: Option[] };
+
+      // Assign fetched data to the component state
+      this.currentQuestion = data.question;
+      this.options = data.options;
+
+      this.isQuestionDisplayed = true;
+
+      // Ensure feedback is applied after setting options
+      setTimeout(() => {
+        console.log('[loadQuestionContents] 🔄 Ensuring feedback is applied after options load...');
+
+        if (!this.options || this.options.length === 0) {
+          console.warn('[loadQuestionContents] ❌ No options available when applying feedback.');
+          return;
         }
 
-        this.isLoading = true;
-        this.isQuestionDisplayed = false;
-        this.isNextButtonEnabled = false;
-        this.updateTooltip('Please select an option to continue...'); // Reset tooltip
-
-        // ✅ Reset feedback flag before loading new question
-        if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.isFeedbackApplied = false;
+        // Apply feedback immediately if an option was previously selected
+        const previouslySelectedOption = this.options.find(option => option.selected);
+        if (previouslySelectedOption) {
+          console.log('[loadQuestionContents] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+          this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
         } else {
-            console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
+          console.log('[loadQuestionContents] ⚠️ No previously selected option found. Applying feedback to all options.');
+          this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
         }
 
-        // ✅ Clear previous options before fetching new ones
-        this.optionsToDisplay = [];
+        // Ensure UI updates after applying feedback
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
+      }, 10); // **Short delay to immediately apply feedback**
 
-        const quizId = this.quizService.getCurrentQuizId();
-        const questionIndex = this.quizService.getCurrentQuestionIndex();
-
-        // ✅ Fetch question and options
-        const data = await lastValueFrom(
-            forkJoin({
-                question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
-                options: this.quizService.getCurrentOptions(questionIndex),
-            }).pipe(
-                catchError((error) => {
-                    console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
-                    return of({ question: null, options: [] });
-                })
-            )
-        ) as { question: QuizQuestion | null; options: Option[] };
-
-        // ✅ Assign fetched data to the component state
-        this.currentQuestion = data.question;
-        this.options = data.options;
-
-        this.isQuestionDisplayed = true;
-
-        // ✅ Ensure feedback is applied after setting options
-        setTimeout(() => {
-            console.log('[loadQuestionContents] 🔄 Ensuring feedback is applied after options load...');
-
-            if (!this.options || this.options.length === 0) {
-                console.warn('[loadQuestionContents] ❌ No options available when applying feedback.');
-                return;
-            }
-
-            // ✅ Apply feedback immediately if an option was previously selected
-            const previouslySelectedOption = this.options.find(option => option.selected);
-            if (previouslySelectedOption) {
-                console.log('[loadQuestionContents] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
-                this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
-            } else {
-                console.log('[loadQuestionContents] ⚠️ No previously selected option found. Applying feedback to all options.');
-                this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-            }
-
-            // ✅ Ensure UI updates after applying feedback
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
-        }, 10); // **Short delay to immediately apply feedback**
-
-        // ✅ Mark feedback as applied so interaction can proceed
-        if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.isFeedbackApplied = true;
-        } else {
-            console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
-        }
-
+      // Mark feedback as applied so interaction can proceed
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.isFeedbackApplied = true;
+      } else {
+        console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
+      }
     } catch (error) {
-        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+      console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     }
   }
 
