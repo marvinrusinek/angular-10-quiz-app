@@ -2143,19 +2143,19 @@ export class QuizQuestionComponent
 
             // ✅ Stop the timer only when **all correct answers** are selected
             allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-            if (allCorrectSelected) {
+            if (allCorrectSelected && this.timerService.isTimerRunning) {
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
                 this.timerService.stopTimer();
-                this.timerService.preventRestartForCurrentQuestion(); // 🔥 ✅ Prevents restart for this question
+                this.timerService.preventRestartForCurrentQuestion(); // ✅ Prevents restart for this question
             }
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected.');
 
-            // ✅ Stop the timer ONLY IF the selected option is correct
-            if (selectedOption.correct) {
+            // ✅ Stop the timer **ONLY IF** the selected option is correct
+            if (selectedOption.correct && this.timerService.isTimerRunning) {
                 console.log('[onOptionClicked] ✅ Correct answer selected. Stopping timer.');
                 this.timerService.stopTimer();
-                this.timerService.preventRestartForCurrentQuestion(); // 🔥 ✅ Prevents restart for this question
+                this.timerService.preventRestartForCurrentQuestion(); // ✅ Prevents restart for this question
                 allCorrectSelected = true;
             } else {
                 console.log('[onOptionClicked] ❌ Incorrect answer selected. Timer continues running.');
@@ -2164,12 +2164,6 @@ export class QuizQuestionComponent
 
         // ✅ Call `handleCorrectnessOutcome` to manage Next button and ensure correctness
         await this.handleCorrectnessOutcome(allCorrectSelected);
-
-        // ✅ Ensure the timer starts for the NEXT question
-        if (!this.timerService.isTimerRunning) {
-            console.log('[onOptionClicked] ▶️ Restarting timer for next question...');
-            this.timerService.startTimer();
-        }
 
         // ✅ Update UI states and flags
         this.updateOptionHighlightState();
@@ -2181,8 +2175,8 @@ export class QuizQuestionComponent
 
         // ✅ Allow UI changes to propagate before rendering
         setTimeout(() => {
-            this.updateRenderingFlags();
-            this.renderDisplay();
+          this.updateRenderingFlags();
+          this.renderDisplay();
         });
 
         // ✅ Handle additional processing
