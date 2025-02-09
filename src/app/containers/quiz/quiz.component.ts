@@ -546,84 +546,66 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(): Promise<void> {
     try {
-      console.log('[loadQuestionContents] STARTED');
-  
-      // ✅ Stop the timer before loading a new question if it's running
-      if (this.timerService.isTimerRunning) {
-        console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
-        this.timerService.stopTimer();
-      }
-  
-      // ✅ Reset the timer before starting
-      console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
-      this.timerService.resetTimer();
-  
-      // ✅ Fetch the current quiz ID and question index
-      const quizId = this.quizService.getCurrentQuizId();
-      const questionIndex = this.quizService.getCurrentQuestionIndex();
-  
-      // ✅ Ensure quiz ID and question index are valid
-      if (!quizId) {
-        console.error('[loadQuestionContents] ❌ No active quiz ID found.');
-        throw new Error('No active quiz ID found.');
-      }
-      if (typeof questionIndex !== 'number' || questionIndex < 0) {
-        console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
-        throw new Error('Invalid question index.');
-      }
-  
-      this.isLoading = true;
-      this.isQuestionDisplayed = false;
-      this.isNextButtonEnabled = false;
-      this.updateTooltip('Please select an option to continue...'); // Reset tooltip
-  
-      // ✅ Reset feedback flag before loading a new question
-      if (this.quizQuestionComponent) {
-        this.quizQuestionComponent.isFeedbackApplied = false;
-      } else {
-        console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
-      }
-  
-      // ✅ Clear previous options before fetching new ones
-      this.optionsToDisplay = [];
-  
-      // ✅ Fetch question and options
-      const data = await lastValueFrom(
-        forkJoin({
-          question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
-          options: this.quizService.getCurrentOptions(questionIndex),
-        }).pipe(
-          catchError((error) => {
-            console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
-            return of({ question: null, options: [] });
-          })
-        )
-      ) as { question: QuizQuestion | null; options: Option[] };
-  
-      // ✅ Validate fetched data
-      if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
-        console.warn(`[loadQuestionContents] ⚠️ Failed to load valid data for questionIndex ${questionIndex}`);
-        this.currentQuestion = null;
-        this.options = [];
+        console.log('[loadQuestionContents] STARTED');
+
+        // ✅ Stop timer before loading a new question
+        if (this.timerService.isTimerRunning) {
+            console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
+            this.timerService.stopTimer();
+            this.timerService.isTimerRunning = false;
+        }
+
+        // ✅ Reset the timer before starting
+        console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
+        this.timerService.resetTimer();
+
+        // ✅ Start the timer ONLY if the question isn't already answered
+        if (!this.selectedOptionService.isAnsweredSubject.value) {
+            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+            this.timerService.startTimer();
+            this.timerService.isTimerRunning = true;
+        } else {
+            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+        }
+
+        this.isLoading = true;
         this.isQuestionDisplayed = false;
-        return;
-      }
-  
-      // ✅ Assign fetched data to the component state
-      this.currentQuestion = data.question;
-      this.options = data.options;
-      this.isQuestionDisplayed = true;
-  
-      // ✅ Start the timer ONLY if the question isn't already answered
-      if (!this.selectedOptionService.isAnsweredSubject.value) {
-        console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
-        this.timerService.startTimer();
-      } else {
-        console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
-      }
-  
+        this.isNextButtonEnabled = false;
+        this.updateTooltip('Please select an option to continue...'); // Reset tooltip
+
+        // ✅ Reset feedback flag before loading new question
+        if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.isFeedbackApplied = false;
+        } else {
+            console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
+        }
+
+        // ✅ Clear previous options before fetching new ones
+        this.optionsToDisplay = [];
+
+        const quizId = this.quizService.getCurrentQuizId();
+        const questionIndex = this.quizService.getCurrentQuestionIndex();
+
+        // ✅ Fetch question and options
+        const data = await lastValueFrom(
+            forkJoin({
+                question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+                options: this.quizService.getCurrentOptions(questionIndex),
+            }).pipe(
+                catchError((error) => {
+                    console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
+                    return of({ question: null, options: [] });
+                })
+            )
+        ) as { question: QuizQuestion | null; options: Option[] };
+
+        // ✅ Assign fetched data to the component state
+        this.currentQuestion = data.question;
+        this.options = data.options;
+
+        this.isQuestionDisplayed = true;
     } catch (error) {
-      console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     }
   }
 
