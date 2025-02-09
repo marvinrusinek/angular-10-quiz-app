@@ -559,11 +559,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.resetTimer();
 
         // ✅ Start the timer **only if the question isn't already answered**
-        if (!this.selectedOptionService.isAnsweredSubject.value) {
+        if (!this.selectedOptionService.isAnsweredSubject.value && !this.timerService.isTimerStoppedForCurrentQuestion) {
             console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
             this.timerService.startTimer(); // ✅ No need to manually set isTimerRunning
         } else {
-            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered or timer was stopped for this question.');
         }
 
         this.isLoading = true;
