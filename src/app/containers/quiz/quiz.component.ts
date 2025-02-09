@@ -441,7 +441,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  async loadQuestionContents(): Promise<void> {
+  /* async loadQuestionContents(): Promise<void> {
     try {
       console.log('[loadQuestionContents] STARTED');
   
@@ -542,6 +542,71 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (!this.isQuestionDisplayed) {
         console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
       }
+    }
+  } */
+  async loadQuestionContents(): Promise<void> {
+    try {
+      console.log('[loadQuestionContents] STARTED');
+  
+      // ✅ Stop timer before loading a new question
+      if (this.timerService.isTimerRunning) {
+        console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
+        this.timerService.stopTimer();
+        this.timerService.isTimerRunning = false;
+      }
+  
+      // ✅ Reset the timer before starting
+      console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
+      this.timerService.resetTimer();
+  
+      // ✅ Start the timer ONLY if the question isn't already answered
+      if (!this.selectedOptionService.isAnsweredSubject.value) {
+        console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+        this.timerService.startTimer();
+        this.timerService.isTimerRunning = true;
+      } else {
+        console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+      }
+  
+      this.isLoading = true;
+      this.isQuestionDisplayed = false;
+      this.isNextButtonEnabled = false;
+      this.updateTooltip('Please select an option to continue...'); // Reset tooltip
+  
+      // ✅ Reset feedback flag before loading new question
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.isFeedbackApplied = false;
+      } else {
+        console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
+      }
+  
+      // ✅ Clear previous options before fetching new ones
+      this.optionsToDisplay = [];
+  
+      const quizId = this.quizService.getCurrentQuizId();
+      const questionIndex = this.quizService.getCurrentQuestionIndex();
+  
+      // ✅ Fetch question and options
+      const data = await lastValueFrom(
+        forkJoin({
+          question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+          options: this.quizService.getCurrentOptions(questionIndex),
+        }).pipe(
+          catchError((error) => {
+            console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
+            return of({ question: null, options: [] });
+          })
+        )
+      ) as { question: QuizQuestion | null; options: Option[] };
+  
+      // ✅ Assign fetched data to the component state
+      this.currentQuestion = data.question;
+      this.options = data.options;
+  
+      this.isQuestionDisplayed = true;
+  
+    } catch (error) {
+      console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     }
   }
 
