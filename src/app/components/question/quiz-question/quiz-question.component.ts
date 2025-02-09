@@ -2165,6 +2165,12 @@ export class QuizQuestionComponent
         // ✅ Call `handleCorrectnessOutcome` to manage Next button and ensure correctness
         await this.handleCorrectnessOutcome(allCorrectSelected);
 
+        // ✅ Ensure the timer starts for the NEXT question
+        if (!this.timerService.isTimerRunning) {
+            console.log('[onOptionClicked] ▶️ Restarting timer for next question...');
+            this.timerService.startTimer();
+        }
+
         // ✅ Update UI states and flags
         this.updateOptionHighlightState();
         this.updateDisplayStateToExplanation();
