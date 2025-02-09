@@ -57,10 +57,22 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
-      this.questionNumber = +params.questionIndex;
-      this.timerService.startTimer();
-      return this.quizService.totalQuestions$;
+        this.questionNumber = +params.questionIndex;
+
+        console.log(`[processRouteParams] 🚀 Detected questionIndex: ${this.questionNumber}`);
+
+        // ✅ Ensure timer starts only if it's not already running
+        if (!this.timerService.isTimerRunning) {
+            console.log('[processRouteParams] ▶️ Starting timer...');
+            this.timerService.startTimer();
+        } else {
+            console.warn('[processRouteParams] ⏳ Timer already running. Skipping start.');
+        }
+
+        return this.quizService.totalQuestions$;
     }
+
+    console.warn('[processRouteParams] ❌ No questionIndex found in route parameters.');
     return of(null);
   }
 
