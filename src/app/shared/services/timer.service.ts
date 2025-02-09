@@ -42,6 +42,11 @@ export class TimerService {
 
   // Starts the timer
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
+    if (this.isTimerStoppedForCurrentQuestion) {
+      console.warn(`[TimerService] ⚠️ Timer restart prevented.`);
+      return;
+    }
+
     if (this.isTimerRunning) {
       console.info('[TimerService] Timer is already running. Start ignored.');
       return; // Prevent restarting an already running timer
@@ -83,6 +88,7 @@ export class TimerService {
     }
 
     this.isTimerRunning = false; // Mark the timer as stopped
+    this.isTimerStoppedForCurrentQuestion = true; // ✅ Prevent restart for current question
     this.stopSubject.next(); // Emit stop signal to stop the timer
     this.isStop.next();
 
