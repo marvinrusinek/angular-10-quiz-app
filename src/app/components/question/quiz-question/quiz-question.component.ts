@@ -2149,15 +2149,7 @@ export class QuizQuestionComponent
       // ✅ Apply feedback before moving forward
       this.applyOptionFeedback(selectedOption);
       this.isFeedbackApplied = true; // ✅ Mark feedback as applied
-  
-      // ✅ Switch Display to Explanation Text **AFTER** Feedback is Applied
-      setTimeout(() => {
-        console.log('[onOptionClicked] 🔄 Switching display to explanation...');
-        this.updateDisplayStateToExplanation();
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-      }, 100); // Delayed slightly to allow UI state to update
-  
+   
       // ✅ Check if the question is a multiple-answer type
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
@@ -2190,6 +2182,7 @@ export class QuizQuestionComponent
   
       // ✅ Update UI states and flags
       this.updateOptionHighlightState();
+      this.updateDisplayStateToExplanation();
       this.handleInitialSelection(event);
   
       // ✅ Notify that the question has been answered
