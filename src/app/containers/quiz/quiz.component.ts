@@ -548,24 +548,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       console.log('[loadQuestionContents] STARTED');
   
-      // ✅ Stop timer before loading a new question
+      // ✅ Stop the timer before loading a new question if it's running
       if (this.timerService.isTimerRunning) {
         console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
         this.timerService.stopTimer();
-        this.timerService.isTimerRunning = false;
       }
   
       // ✅ Reset the timer before starting
       console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
       this.timerService.resetTimer();
   
-      // ✅ Start the timer ONLY if the question isn't already answered
-      if (!this.selectedOptionService.isAnsweredSubject.value) {
-        console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
-        this.timerService.startTimer();
-        this.timerService.isTimerRunning = true;
-      } else {
-        console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+      // ✅ Fetch the current quiz ID and question index
+      const quizId = this.quizService.getCurrentQuizId();
+      const questionIndex = this.quizService.getCurrentQuestionIndex();
+  
+      // ✅ Ensure quiz ID and question index are valid
+      if (!quizId) {
+        console.error('[loadQuestionContents] ❌ No active quiz ID found.');
+        throw new Error('No active quiz ID found.');
+      }
+      if (typeof questionIndex !== 'number' || questionIndex < 0) {
+        console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
+        throw new Error('Invalid question index.');
       }
   
       this.isLoading = true;
@@ -573,7 +577,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isNextButtonEnabled = false;
       this.updateTooltip('Please select an option to continue...'); // Reset tooltip
   
-      // ✅ Reset feedback flag before loading new question
+      // ✅ Reset feedback flag before loading a new question
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.isFeedbackApplied = false;
       } else {
@@ -582,9 +586,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Clear previous options before fetching new ones
       this.optionsToDisplay = [];
-  
-      const quizId = this.quizService.getCurrentQuizId();
-      const questionIndex = this.quizService.getCurrentQuestionIndex();
   
       // ✅ Fetch question and options
       const data = await lastValueFrom(
@@ -599,11 +600,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         )
       ) as { question: QuizQuestion | null; options: Option[] };
   
+      // ✅ Validate fetched data
+      if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+        console.warn(`[loadQuestionContents] ⚠️ Failed to load valid data for questionIndex ${questionIndex}`);
+        this.currentQuestion = null;
+        this.options = [];
+        this.isQuestionDisplayed = false;
+        return;
+      }
+  
       // ✅ Assign fetched data to the component state
       this.currentQuestion = data.question;
       this.options = data.options;
-  
       this.isQuestionDisplayed = true;
+  
+      // ✅ Start the timer ONLY if the question isn't already answered
+      if (!this.selectedOptionService.isAnsweredSubject.value) {
+        console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+        this.timerService.startTimer();
+      } else {
+        console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+      }
   
     } catch (error) {
       console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
