@@ -3714,29 +3714,43 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private resetQuizState(): void {
-    // Reset all quiz-related services
+    console.log('[resetQuizState] 🔄 Resetting quiz state...');
+
+    // ✅ Stop the timer when resetting quiz state
+    if (this.timerService.isTimerRunning) {
+        console.log('[resetQuizState] ⏹ Stopping timer...');
+        this.timerService.stopTimer();
+        this.timerService.isTimerRunning = false;
+    }
+
+    // ✅ Reset all quiz-related services
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
     this.selectionMessageService.resetMessage();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
-  
-    // Trigger reset in various services
+
+    // ✅ Trigger resets in state management services
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
-  
-    // Reset UI-related states
+
+    // ✅ Reset UI-related states
     this.currentQuestionIndex = 0;
     this.progressPercentage.next(0);
     this.score = 0;
 
-    // Clear any lingering UI state and force change detection
+    // ✅ Ensure timer resets when quiz state resets
+    console.log('[resetQuizState] 🔄 Resetting timer to 30 seconds...');
+    this.timerService.resetTimer();
+
+    // ✅ Clear any lingering UI state
     this.questionToDisplay = '';
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
 
-    this.cdRef.detectChanges(); // Ensure the UI reflects these resets immediately
+    // ✅ Force UI update
+    this.cdRef.detectChanges();
   }
 
   async setDisplayStateForExplanationsAfterRestart(): Promise<void> {
