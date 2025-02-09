@@ -2164,7 +2164,6 @@ export class QuizQuestionComponent
         const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
         if (allCorrectSelected) {
           console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
-  
           if (this.timerService.isTimerRunning) {
             this.timerService.stopTimer();
             this.timerService.isTimerRunning = false; // ✅ Ensures timer does not restart
@@ -2181,8 +2180,9 @@ export class QuizQuestionComponent
       } else {
         console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
   
+        // ✅ Stop the timer immediately when a single-answer question is answered
         if (this.timerService.isTimerRunning) {
-          this.timerService.stopTimer(); // ✅ Ensures timer stops correctly
+          this.timerService.stopTimer(); 
           this.timerService.isTimerRunning = false;
         }
       }
