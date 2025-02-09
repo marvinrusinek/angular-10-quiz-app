@@ -2071,7 +2071,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
   
-  public async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         console.log('[onOptionClicked] STARTED');
 
@@ -2095,24 +2095,6 @@ export class QuizQuestionComponent
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
             this.optionsToDisplay = this.populateOptionsToDisplay();
-        }
-
-        // ✅ Ensure feedback is applied before allowing selection
-        if (!this.isFeedbackApplied) {
-            console.warn('[onOptionClicked] ⚠️ Feedback not applied yet. Applying now...');
-            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
-            if (previouslySelectedOption) {
-                this.applyOptionFeedback(previouslySelectedOption);
-            }
-
-            // ✅ Ensure UI updates before allowing selection
-            await new Promise(resolve => setTimeout(() => {
-                this.cdRef.detectChanges();
-                this.cdRef.markForCheck();
-                resolve(true);
-            }, 50));
-
-            this.isFeedbackApplied = true;
         }
 
         // ✅ Validate the event and option
@@ -2152,6 +2134,7 @@ export class QuizQuestionComponent
             this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
         );
 
+        let allCorrectSelected = false;
         if (isMultipleAnswer) {
             console.log('[onOptionClicked] ⏳ Multiple-answer question detected.');
 
@@ -2159,27 +2142,28 @@ export class QuizQuestionComponent
             const questionIndex = this.currentQuestionIndex;
 
             // ✅ Stop the timer only when **all correct answers** are selected
-            const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
-            if (allCorrectSelected && this.timerService.isTimerRunning) {
+            allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
+            if (allCorrectSelected) {
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
-                this.timerService.stopTimer(questionIndex);
-                this.timerService.preventRestartForCurrentQuestion(questionIndex);
-            }
-
-            // ✅ Prevent restarting the timer once it has stopped
-            await this.handleCorrectnessOutcome(allCorrectSelected);
-
-            // ✅ Continue handling multiple-answer logic
-            await this.stopTimerIfApplicable(isMultipleAnswer, selectedOption);
-            await this.handleMultipleAnswerTimerLogic(selectedOption);
-        } else {
-            console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
-
-            if (this.timerService.isTimerRunning) {
                 this.timerService.stopTimer();
-                this.timerService.preventRestartForCurrentQuestion(this.currentQuestionIndex);
+                this.timerService.preventRestartForCurrentQuestion(); // 🔥 ✅ Prevents restart for this question
+            }
+        } else {
+            console.log('[onOptionClicked] ⏹️ Single-answer question detected.');
+
+            // ✅ Stop the timer ONLY IF the selected option is correct
+            if (selectedOption.correct) {
+                console.log('[onOptionClicked] ✅ Correct answer selected. Stopping timer.');
+                this.timerService.stopTimer();
+                this.timerService.preventRestartForCurrentQuestion(); // 🔥 ✅ Prevents restart for this question
+                allCorrectSelected = true;
+            } else {
+                console.log('[onOptionClicked] ❌ Incorrect answer selected. Timer continues running.');
             }
         }
+
+        // ✅ Call `handleCorrectnessOutcome` to manage Next button and ensure correctness
+        await this.handleCorrectnessOutcome(allCorrectSelected);
 
         // ✅ Update UI states and flags
         this.updateOptionHighlightState();
