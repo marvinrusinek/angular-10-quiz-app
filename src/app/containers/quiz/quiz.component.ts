@@ -422,7 +422,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async handleVisibilityChange(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-    try { 
+    try {
+      // ✅ Reset the timer to 30 seconds when loading a new question
+      this.timerService.resetTimer(30);
+    
+      // ✅ Start the timer for the new question
+      this.timerService.startTimer();
+      
       // Ensure questions are loaded
       if (!Array.isArray(this.questions) || this.questions.length === 0) {
         console.warn('Questions not loaded, calling loadQuizData...');
