@@ -2623,35 +2623,31 @@ export class QuizQuestionComponent
   }
 
   // Handles the outcome after checking if all correct answers are selected.
-  private async handleCorrectnessOutcome(
-    allCorrectSelected: boolean
-  ): Promise<void> {
+  private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
     if (allCorrectSelected) {
       if (this.timerService.isTimerRunning) {
-        this.timerService.stopTimer((elapsedTime: number) => {
-          console.log(
-            '[onOptionClicked] Timer stopped. Elapsed time:',
-            elapsedTime
-          );
+        console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
+  
+        // Stop the timer and log elapsed time
+        await this.timerService.stopTimer((elapsedTime: number) => {
+          console.log('[handleCorrectnessOutcome] Timer stopped. Elapsed time:', elapsedTime);
         });
-
-        // Emit true since all correct answers are selected
-        this.answerSelected.emit(true);
-
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('[onOptionClicked] Next button enabled.');
+  
+        // Ensure the timer is marked as stopped
+        this.timerService.isTimerRunning = false;
       } else {
-        console.warn(
-          '[onOptionClicked] Timer was not running. No action taken.'
-        );
-        this.answerSelected.emit(true);
+        console.warn('[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.');
       }
+  
+      // Enable the Next button since all answers are correct
+      this.answerSelected.emit(true);
+      this.selectedOptionService.isAnsweredSubject.next(true);
+      console.log('[handleCorrectnessOutcome] ✅ Next button enabled.');
     } else {
-      // Emit false since not all correct answers are selected
+      // Keep the Next button disabled if not all answers are selected
       this.answerSelected.emit(false);
-
       this.selectedOptionService.isAnsweredSubject.next(false);
-      console.log('[onOptionClicked] Next button remains disabled.');
+      console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
     }
   }
 
