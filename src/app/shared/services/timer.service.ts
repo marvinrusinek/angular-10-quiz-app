@@ -11,6 +11,7 @@ export class TimerService {
 
   isTimerRunning = false; // Tracks whether the timer is currently running
   isCountdown = true; // Tracks the timer mode (true = countdown, false = stopwatch)
+  isTimerStoppedForCurrentQuestion = false;
 
   // Signals
   private isStop = new Subject<void>();
@@ -31,8 +32,6 @@ export class TimerService {
   // Timer observable
   timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
-
-  isTimerStoppedForCurrentQuestion = false;
 
   constructor() {}
 
@@ -118,10 +117,10 @@ export class TimerService {
 
     this.elapsedTime = 0;
     this.isTimerRunning = false;
+    this.isTimerStoppedForCurrentQuestion = false; // Allow restart for the new question
 
     this.isReset.next(); // Signal to reset
     this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
-    this.isTimerStoppedForCurrentQuestion = false; // ✅ Allow restart for the new question
     console.log('Timer reset successfully.');
   }
 
@@ -131,7 +130,7 @@ export class TimerService {
       return;
     }
 
-    // ✅ Mark the timer as stopped and prevent restart
+    // Mark the timer as stopped and prevent restart
     this.isTimerStoppedForCurrentQuestion = true;
     console.log(`[TimerService] ✅ Timer stop recorded.`);
   }
