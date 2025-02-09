@@ -548,18 +548,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
         console.log('[loadQuestionContents] STARTED');
 
-        // ✅ Stop timer before loading a new question
+        // ✅ Stop the timer only if it's already running
         if (this.timerService.isTimerRunning) {
             console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
             this.timerService.stopTimer();
-            this.timerService.isTimerRunning = false;
         }
 
-        // ✅ Reset the timer before starting
+        // ✅ Reset the timer and ensure it is ready for the next question
         console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
         this.timerService.resetTimer();
 
-        // ✅ Start the timer ONLY if the question isn't already answered
+        // ✅ Start the timer **only if the question isn't already answered**
         if (!this.selectedOptionService.isAnsweredSubject.value) {
             console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
             this.timerService.startTimer();
@@ -604,6 +603,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.options = data.options;
 
         this.isQuestionDisplayed = true;
+
+        // ✅ Ensure feedback is applied after setting options
+        setTimeout(() => {
+            console.log('[loadQuestionContents] 🔄 Ensuring feedback is applied after options load...');
+
+            if (!this.options || this.options.length === 0) {
+                console.warn('[loadQuestionContents] ❌ No options available when applying feedback.');
+                return;
+            }
+
+            // ✅ Apply feedback immediately if an option was previously selected
+            const previouslySelectedOption = this.options.find(option => option.selected);
+            if (previouslySelectedOption) {
+                console.log('[loadQuestionContents] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+                this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+            } else {
+                console.log('[loadQuestionContents] ⚠️ No previously selected option found. Applying feedback to all options.');
+                this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            }
+
+            // ✅ Ensure UI updates after applying feedback
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+        }, 10); // **Short delay to immediately apply feedback**
+
+        // ✅ Mark feedback as applied so interaction can proceed
+        if (this.quizQuestionComponent) {
+            this.quizQuestionComponent.isFeedbackApplied = true;
+        } else {
+            console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
+        }
+
     } catch (error) {
         console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     }
