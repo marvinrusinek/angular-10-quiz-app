@@ -634,7 +634,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
         }
     } catch (error) {
-        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+      console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     }
   }
 
