@@ -2,14 +2,13 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuestionState } from '../../../shared/models/QuestionState.model';
-import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
