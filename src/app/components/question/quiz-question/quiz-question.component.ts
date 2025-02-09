@@ -2628,28 +2628,26 @@ export class QuizQuestionComponent
       if (this.timerService.isTimerRunning) {
         console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
   
-        // Stop the timer and log elapsed time
-        await this.timerService.stopTimer((elapsedTime: number) => {
-          console.log('[handleCorrectnessOutcome] Timer stopped. Elapsed time:', elapsedTime);
-        });
+        // ✅ Stop the timer immediately
+        await this.timerService.stopTimer();
   
-        // Ensure the timer is marked as stopped
+        // ✅ Ensure the timer is marked as stopped
         this.timerService.isTimerRunning = false;
       } else {
         console.warn('[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.');
       }
   
-      // Enable the Next button since all answers are correct
+      // ✅ Enable the Next button since all answers are correct
       this.answerSelected.emit(true);
       this.selectedOptionService.isAnsweredSubject.next(true);
       console.log('[handleCorrectnessOutcome] ✅ Next button enabled.');
     } else {
-      // Keep the Next button disabled if not all answers are selected
+      // ✅ Keep the Next button disabled if not all answers are selected
       this.answerSelected.emit(false);
       this.selectedOptionService.isAnsweredSubject.next(false);
       console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
     }
-  }
+  }  
 
   /** Handles the additional UI processing inside ngZone run block. */
   private async handleAdditionalProcessing(
