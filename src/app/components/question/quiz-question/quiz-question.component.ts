@@ -2223,8 +2223,8 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Update explanation text **immediately after clicking an option**
-        this.explanationToDisplay = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
+        // ✅ Fetch explanation text (Fixes "Type 'Observable<string>' is not assignable to type 'string'.(2322)")
+        this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex));
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         // ✅ Check if the question is a multiple-answer type
@@ -2245,8 +2245,8 @@ export class QuizQuestionComponent
                 this.timerService.stopTimer();
             }
 
-            // ✅ Enable the "Next" button **only if all correct answers are selected**
-            this.isNextButtonEnabled = allCorrectSelected;
+            // ✅ Emit event to QuizComponent to enable the "Next" button
+            this.answerSelected.emit(allCorrectSelected); 
 
             // ✅ Prevent restarting the timer once it has stopped
             await this.handleCorrectnessOutcome(allCorrectSelected);
@@ -2258,8 +2258,8 @@ export class QuizQuestionComponent
                 this.timerService.stopTimer();
             }
 
-            // ✅ Enable "Next" button for single-answer questions
-            this.isNextButtonEnabled = true;
+            // ✅ Emit event to QuizComponent to enable "Next" button
+            this.answerSelected.emit(true);
         }
 
         // ✅ Update UI states and flags
