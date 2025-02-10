@@ -3790,7 +3790,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }    
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
       firstValueFrom(this.quizStateService.isNavigating$),
@@ -3863,6 +3863,65 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Trigger change detection to ensure UI updates
       this.cdRef.detectChanges();
+    }
+  } */
+  async advanceToNextQuestion(): Promise<void> {
+    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+    ]);
+
+    if (isLoading || isNavigating || !isEnabled) {
+        console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
+        return;
+    }
+
+    this.isNavigating = true;
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setNavigating(true);
+
+    try {
+        if (this.currentQuestionIndex < this.totalQuestions - 1) {
+            this.currentQuestionIndex++;
+            console.log('Navigating to question index:', this.currentQuestionIndex);
+
+            this.resetOptionState();
+            this.selectedOptionService.isAnsweredSubject.next(false);
+
+            const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex + 1));
+            if (!nextQuestion) {
+                console.warn('[advanceToNextQuestion] ❌ No question found for next index.');
+                return;
+            }
+
+            this.quizService.setCurrentQuestion(nextQuestion);
+            await this.loadQuestionContents();
+            await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+            if (this.quizQuestionComponent) {
+                this.quizQuestionComponent.resetExplanation();
+                this.quizQuestionComponent.explanationToDisplay = '';
+                this.quizQuestionComponent.isAnswered = false;
+            }
+
+            this.timerService.resetTimer();  // ✅ Reset timer for new question
+            this.timerService.startTimer();  // ✅ Start timer for new question
+
+            const shouldEnableNextButton = this.isAnyOptionSelected();
+            this.updateAndSyncNextButtonState(shouldEnableNextButton);
+        } else {
+            console.log('End of quiz reached. Navigating to results.');
+            await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        }
+    } catch (error) {
+        console.error('Error during navigation:', error);
+    } finally {
+        this.isNavigating = false;
+        this.quizStateService.setNavigating(false);
+        this.quizStateService.setLoading(false);
+
+        this.cdRef.detectChanges();
     }
   }
   
