@@ -546,8 +546,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(): Promise<void> {
     try {
-        console.log('[loadQuestionContents] STARTED');
-
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
