@@ -527,7 +527,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Ensure UI updates after applying feedback
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
-      }, 10); // **Shorter delay** to immediately apply feedback
+      }, 10); // Shorter delay to immediately apply feedback
 
       // Mark feedback as applied so interaction can proceed
       if (this.quizQuestionComponent) {
