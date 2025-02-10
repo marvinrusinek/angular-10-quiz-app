@@ -2223,7 +2223,7 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Fetch explanation text AFTER feedback is applied
+        // ✅ Fetch explanation text **after** feedback is applied
         this.explanationToDisplay = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         );
@@ -2247,7 +2247,7 @@ export class QuizQuestionComponent
             const questionOptions = this.optionsToDisplay;
             const questionIndex = this.currentQuestionIndex;
 
-            // ✅ Stop the timer only when **all correct answers** are selected
+            // ✅ Stop the timer **only when all correct answers are selected**
             allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
             if (allCorrectSelected && this.timerService.isTimerRunning) {
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
@@ -2699,7 +2699,7 @@ export class QuizQuestionComponent
   }
 
   // Handles the outcome after checking if all correct answers are selected.
-  private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
+  /* private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
     if (allCorrectSelected) {
         if (this.timerService.isTimerRunning) {
             console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
@@ -2734,6 +2734,32 @@ export class QuizQuestionComponent
             console.log('[handleCorrectnessOutcome] 🔄 Explanation text unchanged.');
         }
 
+        // ✅ Keep the Next button disabled if not all answers are selected
+        this.answerSelected.emit(false);
+        this.selectedOptionService.isAnsweredSubject.next(false);
+        console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
+    }
+  } */
+  private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
+    if (allCorrectSelected) {
+        if (this.timerService.isTimerRunning) {
+            console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
+
+            // ✅ Stop the timer immediately
+            await this.timerService.stopTimer();
+
+            // ✅ Ensure the timer is marked as stopped
+            this.timerService.isTimerRunning = false;
+        } else {
+            console.warn('[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.');
+        }
+
+        // ✅ Enable the Next button since all answers are correct
+        this.answerSelected.emit(true);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        console.log('[handleCorrectnessOutcome] ✅ Next button enabled.');
+
+    } else {
         // ✅ Keep the Next button disabled if not all answers are selected
         this.answerSelected.emit(false);
         this.selectedOptionService.isAnsweredSubject.next(false);
