@@ -2160,14 +2160,14 @@ export class QuizQuestionComponent
         }
       }
 
+      // Call `handleCorrectnessOutcome` to manage Next button and ensure correctness
+      this.handleCorrectnessOutcome(allCorrectSelected);
+
       // Update UI states and flags
       this.handleInitialSelection(event);
       this.updateOptionHighlightState();
       this.updateDisplayStateToExplanation();
 
-      // Call `handleCorrectnessOutcome` to manage Next button and ensure correctness
-      this.handleCorrectnessOutcome(allCorrectSelected);
-      
       // Notify that the question has been answered
       this.selectedOptionService.isAnsweredSubject.next(true);
 
