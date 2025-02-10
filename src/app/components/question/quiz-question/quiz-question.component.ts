@@ -2161,7 +2161,7 @@ export class QuizQuestionComponent
       }
 
       // Call `handleCorrectnessOutcome` to manage Next button and ensure correctness
-      await this.handleCorrectnessOutcome(allCorrectSelected);
+      // await this.handleCorrectnessOutcome(allCorrectSelected);
 
       // Update UI states and flags
       this.updateOptionHighlightState();
