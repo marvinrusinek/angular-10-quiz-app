@@ -441,7 +441,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  /* async loadQuestionContents(): Promise<void> {
+  async loadQuestionContents(): Promise<void> {
     try {
       console.log('[loadQuestionContents] STARTED');
   
@@ -543,8 +543,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
       }
     }
-  } */
-  async loadQuestionContents(): Promise<void> {
+  }
+  /* async loadQuestionContents(): Promise<void> {
     try {
         console.log('[loadQuestionContents] STARTED');
 
@@ -655,7 +655,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
         }
     }
-}
+} */
 
 
   private restoreQuestionState(): void {
