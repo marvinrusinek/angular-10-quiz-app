@@ -2223,14 +2223,21 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Fetch explanation text (Fixes "Type 'Observable<string>' is not assignable to type 'string'.(2322)")
+        // ✅ Fetch explanation text **AFTER feedback is applied**
         this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex));
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
+
+        // ✅ Update UI to ensure explanation text is displayed correctly
+        this.updateDisplayStateToExplanation();
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
 
         // ✅ Check if the question is a multiple-answer type
         const isMultipleAnswer = await firstValueFrom(
             this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
         );
+
+        let allCorrectSelected = false;
 
         if (isMultipleAnswer) {
             console.log('[onOptionClicked] ⏳ Multiple-answer question detected.');
@@ -2239,17 +2246,11 @@ export class QuizQuestionComponent
             const questionIndex = this.currentQuestionIndex;
 
             // ✅ Stop the timer only when **all correct answers** are selected
-            const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
+            allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelected(questionOptions, questionIndex);
             if (allCorrectSelected && this.timerService.isTimerRunning) {
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
                 this.timerService.stopTimer();
             }
-
-            // ✅ Emit event to QuizComponent to enable the "Next" button
-            this.answerSelected.emit(allCorrectSelected); 
-
-            // ✅ Prevent restarting the timer once it has stopped
-            await this.handleCorrectnessOutcome(allCorrectSelected);
 
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
@@ -2258,29 +2259,23 @@ export class QuizQuestionComponent
                 this.timerService.stopTimer();
             }
 
-            // ✅ Emit event to QuizComponent to enable "Next" button
-            this.answerSelected.emit(true);
+            allCorrectSelected = true; // ✅ Single-answer questions are considered "answered" after one selection
         }
 
-        // ✅ Update UI states and flags
-        this.updateOptionHighlightState();
-        this.updateDisplayStateToExplanation();
-        this.handleInitialSelection(event);
+        // ✅ Emit event to enable "Next" button and advance to next question
+        this.answerSelected.emit(allCorrectSelected);
 
-        // ✅ Notify that the question has been answered
-        this.selectedOptionService.isAnsweredSubject.next(true);
-
-        // ✅ Ensure the UI updates immediately
+        // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
         setTimeout(() => {
-            this.updateRenderingFlags();
-            this.renderDisplay();
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
         });
 
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-    
+  
   // ====================== Helper Functions ======================
 
   // Validates the option and returns false if early return is needed.
