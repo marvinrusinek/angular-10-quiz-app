@@ -2604,29 +2604,45 @@ export class QuizQuestionComponent
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
     if (allCorrectSelected) {
-      if (this.timerService.isTimerRunning) {
-        console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
-  
-        // ✅ Stop the timer immediately
-        await this.timerService.stopTimer();
-  
-        // ✅ Ensure the timer is marked as stopped
-        this.timerService.isTimerRunning = false;
-      } else {
-        console.warn('[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.');
-      }
-  
-      // ✅ Enable the Next button since all answers are correct
-      this.answerSelected.emit(true);
-      this.selectedOptionService.isAnsweredSubject.next(true);
-      console.log('[handleCorrectnessOutcome] ✅ Next button enabled.');
+        if (this.timerService.isTimerRunning) {
+            console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
+
+            // ✅ Stop the timer immediately
+            await this.timerService.stopTimer();
+
+            // ✅ Ensure the timer is marked as stopped
+            this.timerService.isTimerRunning = false;
+        } else {
+            console.warn('[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.');
+        }
+
+        // ✅ Preserve the explanation text if it has already been set
+        if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
+            this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex));
+            console.log('[handleCorrectnessOutcome] ✅ Explanation text set:', this.explanationToDisplay);
+        } else {
+            console.log('[handleCorrectnessOutcome] 🔄 Explanation text already exists. Not overriding.');
+        }
+
+        // ✅ Enable the Next button since all answers are correct
+        this.answerSelected.emit(true);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        console.log('[handleCorrectnessOutcome] ✅ Next button enabled.');
     } else {
-      // ✅ Keep the Next button disabled if not all answers are selected
-      this.answerSelected.emit(false);
-      this.selectedOptionService.isAnsweredSubject.next(false);
-      console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
+        // ✅ Ensure explanation text is not reset if partially correct
+        if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
+            this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex));
+            console.log('[handleCorrectnessOutcome] ✅ Explanation text retained:', this.explanationToDisplay);
+        } else {
+            console.log('[handleCorrectnessOutcome] 🔄 Explanation text unchanged.');
+        }
+
+        // ✅ Keep the Next button disabled if not all answers are selected
+        this.answerSelected.emit(false);
+        this.selectedOptionService.isAnsweredSubject.next(false);
+        console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
     }
-  }  
+  }
 
   /** Handles the additional UI processing inside ngZone run block. */
   private async handleAdditionalProcessing(
