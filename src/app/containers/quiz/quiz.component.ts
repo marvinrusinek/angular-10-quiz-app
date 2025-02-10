@@ -553,8 +553,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Stop timer before loading a new question (only if it's running)
         if (this.timerService.isTimerRunning) {
-            console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
-            this.timerService.stopTimer();
+          console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
+          this.timerService.stopTimer();
         }
 
         // ✅ Reset the timer for the next question
