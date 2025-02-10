@@ -2277,7 +2277,7 @@ export class QuizQuestionComponent
         });
 
     } catch (error) {
-        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+      console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
   
