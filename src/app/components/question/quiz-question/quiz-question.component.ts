@@ -2175,7 +2175,7 @@ export class QuizQuestionComponent
     }
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
+    console.log('[onOptionClicked] STARTED - Checking if function executes.');
 
     try {
         console.log('[onOptionClicked] STARTED');
@@ -2185,8 +2185,10 @@ export class QuizQuestionComponent
         }, 100);
 
         // ✅ Prevent clicking before feedback is ready
+        console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
         if (!this.isFeedbackApplied) {
             console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Skipping option selection.');
+            console.log('[onOptionClicked] Early return at condition XYZ.');
             return;
         }
 
@@ -2199,18 +2201,21 @@ export class QuizQuestionComponent
                 return;
             }
         }
+        console.log('[onOptionClicked] ✅ Current question is loaded.');
 
         // ✅ Ensure optionsToDisplay is set before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
             this.optionsToDisplay = this.populateOptionsToDisplay();
         }
+        console.log('[onOptionClicked] ✅ OptionsToDisplay set:', this.optionsToDisplay);
 
         // ✅ Validate the event and option
         if (!event.option || !this.validateOption(event)) {
             console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
             return;
         }
+        console.log('[onOptionClicked] ✅ Valid option selected:', event.option);
 
         // ✅ Find the selected option
         const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
@@ -2227,7 +2232,11 @@ export class QuizQuestionComponent
 
         // ✅ Apply feedback before moving forward
         console.log('[onOptionClicked] 🟢 Applying feedback...');
-        this.applyOptionFeedback(selectedOption);
+        console.log('[onOptionClicked] 🚀 Calling applyOptionFeedback()...');
+this.applyOptionFeedback(event.option);
+console.log('[onOptionClicked] ✅ applyOptionFeedback() executed!');
+
+        // this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
         // ✅ Fetch explanation text **after** feedback is applied
@@ -2430,6 +2439,8 @@ export class QuizQuestionComponent
     }
   } */
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
+    console.log('[applyOptionFeedback] Applying feedback to selected option:', selectedOption);
+
     console.log('[applyOptionFeedback] STARTED - Selected Option:', selectedOption);
 
     if (!selectedOption) {
@@ -2472,6 +2483,7 @@ export class QuizQuestionComponent
   
     // ✅ Mark feedback as applied
     this.isFeedbackApplied = true;
+    console.log('[applyOptionFeedback] Setting isFeedbackApplied = true.');
   
     // ✅ Ensure UI updates after applying feedback
     setTimeout(() => {
