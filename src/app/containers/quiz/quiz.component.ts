@@ -3866,61 +3866,79 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   async advanceToNextQuestion(): Promise<void> {
+    console.log('[advanceToNextQuestion] Attempting to navigate to next question.');
+
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
         firstValueFrom(this.quizStateService.isLoading$),
         firstValueFrom(this.quizStateService.isNavigating$),
         firstValueFrom(this.isButtonEnabled$)
     ]);
 
+    // Prevent navigation if any blocking conditions are met
     if (isLoading || isNavigating || !isEnabled) {
         console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
         return;
     }
 
+    // Indicate that navigation is in progress
     this.isNavigating = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setNavigating(true);
 
     try {
         if (this.currentQuestionIndex < this.totalQuestions - 1) {
+            // ✅ Increment question index for the next question
             this.currentQuestionIndex++;
             console.log('Navigating to question index:', this.currentQuestionIndex);
 
+            // ✅ Reset the state for the new question
             this.resetOptionState();
+            this.isOptionSelected = false;
             this.selectedOptionService.isAnsweredSubject.next(false);
+            this.quizStateService.setAnswered(false);
 
+            // ✅ Fetch the next question object using the index
             const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex + 1));
             if (!nextQuestion) {
                 console.warn('[advanceToNextQuestion] ❌ No question found for next index.');
                 return;
             }
 
+            // ✅ Set the next question
             this.quizService.setCurrentQuestion(nextQuestion);
+
+            // ✅ Load new question contents
             await this.loadQuestionContents();
             await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
+            // ✅ Reset explanation text
             if (this.quizQuestionComponent) {
                 this.quizQuestionComponent.resetExplanation();
                 this.quizQuestionComponent.explanationToDisplay = '';
                 this.quizQuestionComponent.isAnswered = false;
             }
 
-            this.timerService.resetTimer();  // ✅ Reset timer for new question
-            this.timerService.startTimer();  // ✅ Start timer for new question
-
+            // ✅ Update Next button state
             const shouldEnableNextButton = this.isAnyOptionSelected();
             this.updateAndSyncNextButtonState(shouldEnableNextButton);
         } else {
+            // ✅ If at the last question, navigate to results
             console.log('End of quiz reached. Navigating to results.');
             await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         }
     } catch (error) {
         console.error('Error during navigation:', error);
     } finally {
+        // ✅ Reset navigation and loading states
         this.isNavigating = false;
         this.quizStateService.setNavigating(false);
         this.quizStateService.setLoading(false);
 
+        // ✅ Sync Next button state
+        const finalButtonState = this.isAnyOptionSelected();
+        this.updateAndSyncNextButtonState(finalButtonState);
+
+        // ✅ Trigger change detection
         this.cdRef.detectChanges();
     }
   }
