@@ -2223,13 +2223,13 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Ensure explanation text updates properly
+        // ✅ Update explanation text immediately after feedback
         this.explanationToDisplay = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         );
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        // ✅ Update UI to display explanation text
+        // ✅ Update UI to ensure explanation text is displayed correctly
         this.updateDisplayStateToExplanation();
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
@@ -2255,16 +2255,18 @@ export class QuizQuestionComponent
             }
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
+
             if (this.timerService.isTimerRunning) {
                 this.timerService.stopTimer();
             }
-            allCorrectSelected = true;
+
+            allCorrectSelected = true; // ✅ Single-answer questions are considered "answered" after one selection
         }
 
-        // ✅ Handle correctness logic and Next button activation
+        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
         await this.handleCorrectnessOutcome(allCorrectSelected);
 
-        // ✅ Emit event to enable "Next" button and advance to next question
+        // ✅ Emit event to enable "Next" button and allow navigation
         this.answerSelected.emit(allCorrectSelected);
 
         // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
