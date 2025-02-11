@@ -2437,7 +2437,7 @@ export class QuizQuestionComponent
     }
   } */
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
-    console.log('[applyOptionFeedback] STARTED - Selected Option:', selectedOption);
+    console.log('[applyOptionFeedback] 🟢 STARTED - Selected Option:', selectedOption);
 
     if (!selectedOption) {
         console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.');
@@ -2446,16 +2446,13 @@ export class QuizQuestionComponent
 
     console.log(`[applyOptionFeedback] 🎯 Applying feedback for: ${selectedOption.text}`);
 
-    // Ensure options are populated before applying feedback
-    this.optionsToDisplay = this.populateOptionsToDisplay();
-
+    // ✅ Ensure options are populated before applying feedback
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.error('[applyOptionFeedback] ❌ optionsToDisplay is still empty after repopulation. Aborting.');
-        return;
+        console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Repopulating now...');
+        this.optionsToDisplay = this.populateOptionsToDisplay();
     }
 
-    // ✅ Delay to ensure UI updates before feedback is applied
-    await new Promise(resolve => setTimeout(resolve, 50));
+    console.log('[applyOptionFeedback] ✅ Options before feedback:', JSON.stringify(this.optionsToDisplay));
 
     // ✅ Ensure `showFeedbackForOption` is initialized before applying feedback
     if (!this.showFeedbackForOption) {
@@ -2473,6 +2470,8 @@ export class QuizQuestionComponent
     }
 
     console.log('[applyOptionFeedback] ✅ Updating optionsToDisplay...');
+
+    // ✅ Apply feedback to options
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
         ...option,
         active: option.correct,
@@ -2481,9 +2480,11 @@ export class QuizQuestionComponent
         selected: option.optionId === selectedOption.optionId
     }));
 
+    console.log('[applyOptionFeedback] ✅ Options after feedback:', JSON.stringify(this.optionsToDisplay));
+
     // ✅ Mark feedback as applied
     this.isFeedbackApplied = true;
-    console.log('[applyOptionFeedback] ✅ Setting isFeedbackApplied = true.');
+    console.log('[applyOptionFeedback] ✅ isFeedbackApplied set to true.');
 
     // ✅ Ensure UI updates after applying feedback
     setTimeout(() => {
@@ -2491,6 +2492,8 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
     }, 50);
+
+    console.log('[applyOptionFeedback] ✅ FINISHED.');
   }
 
 
