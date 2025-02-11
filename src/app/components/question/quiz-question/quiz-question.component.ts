@@ -2223,13 +2223,13 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Fetch explanation text **immediately after** feedback is applied
+        // ✅ Fetch explanation text **after** feedback is applied
         this.explanationToDisplay = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         );
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        // ✅ Ensure explanation text updates immediately
+        // ✅ Update UI to ensure explanation text is displayed correctly
         this.updateDisplayStateToExplanation();
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
@@ -2253,6 +2253,7 @@ export class QuizQuestionComponent
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
                 this.timerService.stopTimer();
             }
+
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
 
@@ -2263,8 +2264,11 @@ export class QuizQuestionComponent
             allCorrectSelected = true; // ✅ Single-answer questions are considered "answered" after one selection
         }
 
-        // ✅ Call `handleCorrectnessOutcome()` to enable "Next" button & finalize UI updates
+        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
         await this.handleCorrectnessOutcome(allCorrectSelected);
+
+        // ✅ Emit event to enable "Next" button and advance to next question
+        this.answerSelected.emit(allCorrectSelected);
 
         // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
         setTimeout(() => {
@@ -2273,7 +2277,7 @@ export class QuizQuestionComponent
         });
 
     } catch (error) {
-        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+      console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
   
