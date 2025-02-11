@@ -2266,9 +2266,6 @@ export class QuizQuestionComponent
         // ✅ Call `handleCorrectnessOutcome()` to enable "Next" button & finalize UI updates
         await this.handleCorrectnessOutcome(allCorrectSelected);
 
-        // ✅ Emit event to enable "Next" button and allow navigation
-        this.answerSelected.emit(allCorrectSelected);
-
         // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
         setTimeout(() => {
             this.cdRef.detectChanges();
