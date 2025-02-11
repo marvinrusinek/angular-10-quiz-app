@@ -918,7 +918,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(): Promise<void> {
     try {
-        console.log('[loadQuestionContents] STARTED');
+      console.log('[loadQuestionContents] STARTED - Resetting quiz state.');
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
@@ -1035,10 +1035,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Mark feedback as applied so interaction can proceed
         if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.isFeedbackApplied = true;
+          console.log('[loadQuestionContents] ✅ Setting isFeedbackApplied to true in QuizComponent');
+          this.quizQuestionComponent.isFeedbackApplied = true;
         } else {
             console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
         }
+      
 
     } catch (error) {
         console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
