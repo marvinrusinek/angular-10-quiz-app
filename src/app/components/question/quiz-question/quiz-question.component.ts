@@ -2193,6 +2193,7 @@ export class QuizQuestionComponent
         }
 
         // ✅ Ensure current question is loaded before proceeding
+        console.log('[onOptionClicked] Checking if currentQuestion exists:', !!this.currentQuestion);
         if (!this.currentQuestion) {
             console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
             const loaded = await this.loadCurrentQuestion();
@@ -2204,6 +2205,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Current question is loaded.');
 
         // ✅ Ensure optionsToDisplay is set before proceeding
+        console.log('[onOptionClicked] Checking if optionsToDisplay exists:', !!this.optionsToDisplay);
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
             this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2211,6 +2213,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ OptionsToDisplay set:', this.optionsToDisplay);
 
         // ✅ Validate the event and option
+        console.log('[onOptionClicked] Checking if event.option is valid:', event.option);
         if (!event.option || !this.validateOption(event)) {
             console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
             return;
@@ -2218,6 +2221,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Valid option selected:', event.option);
 
         // ✅ Find the selected option
+        console.log('[onOptionClicked] Finding selected option in optionsToDisplay:', this.optionsToDisplay);
         const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
         if (!foundOption) {
             console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
@@ -2231,10 +2235,9 @@ export class QuizQuestionComponent
         };
 
         // ✅ Apply feedback before moving forward
-        console.log('[onOptionClicked] 🟢 Applying feedback...');
-        console.log('[onOptionClicked] 🚀 Calling applyOptionFeedback()...');
-this.applyOptionFeedback(event.option);
-console.log('[onOptionClicked] ✅ applyOptionFeedback() executed!');
+        console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
+        this.applyOptionFeedback(foundOption);
+        console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');      
 
         // this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
