@@ -2223,13 +2223,13 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Update explanation text immediately after feedback
+        // ✅ Fetch explanation text **immediately after** feedback is applied
         this.explanationToDisplay = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         );
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        // ✅ Update UI to ensure explanation text is displayed correctly
+        // ✅ Ensure explanation text updates immediately
         this.updateDisplayStateToExplanation();
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
@@ -2263,7 +2263,7 @@ export class QuizQuestionComponent
             allCorrectSelected = true; // ✅ Single-answer questions are considered "answered" after one selection
         }
 
-        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
+        // ✅ Call `handleCorrectnessOutcome()` to enable "Next" button & finalize UI updates
         await this.handleCorrectnessOutcome(allCorrectSelected);
 
         // ✅ Emit event to enable "Next" button and allow navigation
