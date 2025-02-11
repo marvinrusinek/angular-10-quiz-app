@@ -2175,8 +2175,14 @@ export class QuizQuestionComponent
     }
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
+
     try {
         console.log('[onOptionClicked] STARTED');
+
+        setTimeout(() => {
+          console.log('[onOptionClicked] Post-delay check - isFeedbackApplied:', this.isFeedbackApplied);
+        }, 100);
 
         // ✅ Prevent clicking before feedback is ready
         if (!this.isFeedbackApplied) {
@@ -2424,6 +2430,8 @@ export class QuizQuestionComponent
     }
   } */
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
+    console.log('[applyOptionFeedback] STARTED - Selected Option:', selectedOption);
+
     if (!selectedOption) {
       console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined!');
       return;
