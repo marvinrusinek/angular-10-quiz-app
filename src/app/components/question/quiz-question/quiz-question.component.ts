@@ -2442,58 +2442,62 @@ export class QuizQuestionComponent
     }
   } */
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
-    console.log('[applyOptionFeedback] Applying feedback to selected option:', selectedOption);
-
     console.log('[applyOptionFeedback] STARTED - Selected Option:', selectedOption);
 
     if (!selectedOption) {
-      console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined!');
-      return;
+        console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.');
+        return;
     }
-  
+
     console.log(`[applyOptionFeedback] 🎯 Applying feedback for: ${selectedOption.text}`);
-  
+
     // Ensure options are populated before applying feedback
     this.optionsToDisplay = this.populateOptionsToDisplay();
-  
+
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.error('[applyOptionFeedback] ❌ optionsToDisplay is still empty after repopulation. Aborting.');
-      return;
+        console.error('[applyOptionFeedback] ❌ optionsToDisplay is still empty after repopulation. Aborting.');
+        return;
     }
-  
+
     // ✅ Delay to ensure UI updates before feedback is applied
     await new Promise(resolve => setTimeout(resolve, 50));
-  
-    // Ensure `showFeedbackForOption` is initialized before applying feedback
-    this.showFeedbackForOption = this.showFeedbackForOption || {};
+
+    // ✅ Ensure `showFeedbackForOption` is initialized before applying feedback
+    if (!this.showFeedbackForOption) {
+        console.warn('[applyOptionFeedback] ⚠️ showFeedbackForOption was undefined. Initializing...');
+        this.showFeedbackForOption = {};
+    }
+
     this.showFeedbackForOption[selectedOption.optionId] = true;
-  
+
     // ✅ Find `selectedOptionIndex` safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
     if (this.selectedOptionIndex === -1) {
-      console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
-      return;
+        console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
+        return;
     }
-  
-    // ✅ Apply feedback to options
+
+    console.log('[applyOptionFeedback] ✅ Updating optionsToDisplay...');
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-      ...option,
-      active: option.correct,
-      feedback: option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!',
-      showIcon: option.correct || option.optionId === selectedOption.optionId,
-      selected: option.optionId === selectedOption.optionId
+        ...option,
+        active: option.correct,
+        feedback: option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!',
+        showIcon: option.correct || option.optionId === selectedOption.optionId,
+        selected: option.optionId === selectedOption.optionId
     }));
-  
+
     // ✅ Mark feedback as applied
     this.isFeedbackApplied = true;
-    console.log('[applyOptionFeedback] Setting isFeedbackApplied = true.');
-  
+    console.log('[applyOptionFeedback] ✅ Setting isFeedbackApplied = true.');
+
     // ✅ Ensure UI updates after applying feedback
     setTimeout(() => {
-      this.cdRef.detectChanges();
-      this.cdRef.markForCheck();
+        console.log('[applyOptionFeedback] 🔄 Triggering UI updates.');
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
     }, 50);
-  }  
+  }
+
 
   private async reloadCurrentQuestion(): Promise<void> {
     try {
