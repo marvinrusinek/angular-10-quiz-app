@@ -2223,13 +2223,13 @@ export class QuizQuestionComponent
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
-        // ✅ Fetch explanation text **after** feedback is applied
+        // ✅ Ensure explanation text updates properly
         this.explanationToDisplay = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         );
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        // ✅ Update UI to ensure explanation text is displayed correctly
+        // ✅ Update UI to display explanation text
         this.updateDisplayStateToExplanation();
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
@@ -2253,18 +2253,15 @@ export class QuizQuestionComponent
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
                 this.timerService.stopTimer();
             }
-
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
-
             if (this.timerService.isTimerRunning) {
                 this.timerService.stopTimer();
             }
-
-            allCorrectSelected = true; // ✅ Single-answer questions are considered "answered" after one selection
+            allCorrectSelected = true;
         }
 
-        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
+        // ✅ Handle correctness logic and Next button activation
         await this.handleCorrectnessOutcome(allCorrectSelected);
 
         // ✅ Emit event to enable "Next" button and advance to next question
@@ -2277,7 +2274,7 @@ export class QuizQuestionComponent
         });
 
     } catch (error) {
-      console.error('[onOptionClicked] ❌ Unhandled error:', error);
+        console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
   
