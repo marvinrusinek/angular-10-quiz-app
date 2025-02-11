@@ -2220,6 +2220,7 @@ export class QuizQuestionComponent
         };
 
         // ✅ Apply feedback before moving forward
+        console.log('[onOptionClicked] 🟢 Applying feedback...');
         this.applyOptionFeedback(selectedOption);
         this.isFeedbackApplied = true;
 
@@ -2230,6 +2231,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         // ✅ Update UI to ensure explanation text is displayed correctly
+        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
         this.updateDisplayStateToExplanation();
         this.cdRef.detectChanges();
         this.cdRef.markForCheck();
@@ -2265,19 +2267,22 @@ export class QuizQuestionComponent
         }
 
         // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
+        console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
         await this.handleCorrectnessOutcome(allCorrectSelected);
 
         // ✅ Emit event to enable "Next" button and advance to next question
+        console.log('[onOptionClicked] 🟢 Enabling Next button...');
         this.answerSelected.emit(allCorrectSelected);
 
         // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
         setTimeout(() => {
+            console.log('[onOptionClicked] 🟢 Triggering change detection...');
             this.cdRef.detectChanges();
             this.cdRef.markForCheck();
         });
 
     } catch (error) {
-      console.error('[onOptionClicked] ❌ Unhandled error:', error);
+        console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
   
