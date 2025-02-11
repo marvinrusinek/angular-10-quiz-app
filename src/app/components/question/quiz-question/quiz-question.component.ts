@@ -2175,43 +2175,26 @@ export class QuizQuestionComponent
     }
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    console.log('[onOptionClicked] STARTED - Checking if function executes.');
+    console.log('[onOptionClicked] STARTED - Checking function execution.');
 
     try {
         console.log('[onOptionClicked] STARTED');
 
-        setTimeout(() => {
-            console.log('[onOptionClicked] Post-delay check - isFeedbackApplied:', this.isFeedbackApplied);
-        }, 100);
+        // ✅ Log isFeedbackApplied before selection
+        console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
 
         // ✅ Prevent clicking before feedback is ready
-        console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
         if (!this.isFeedbackApplied) {
             console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
-            
-            if (!event.option) {
-                console.error('[onOptionClicked] ❌ ERROR: event.option is null. Cannot apply feedback.');
-                return;
-            }
+            console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
+            this.applyOptionFeedback(event.option!);
+            console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
 
-            console.log('[onOptionClicked] 🚀 Selected Option:', event.option);
-
-            // **🚀 CALL applyOptionFeedback()**
-            this.applyOptionFeedback(event.option);
-            console.log('[onOptionClicked] ✅ Finished calling applyOptionFeedback()');
-
-            this.isFeedbackApplied = true; // Mark as applied
-            console.log('[onOptionClicked] 🔄 Updated isFeedbackApplied:', this.isFeedbackApplied);
-        }
-
-        console.log('[onOptionClicked] Checking isFeedbackApplied after manual apply:', this.isFeedbackApplied);
-        if (!this.isFeedbackApplied) {
-            console.warn('[onOptionClicked] ❌ Feedback still not applied after calling applyOptionFeedback().');
-            return;
+            // ✅ Verify if feedback applied successfully
+            console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
         }
 
         // ✅ Ensure current question is loaded before proceeding
-        console.log('[onOptionClicked] Checking if currentQuestion exists:', !!this.currentQuestion);
         if (!this.currentQuestion) {
             console.warn('[onOptionClicked] ❌ currentQuestion is missing. Attempting to load...');
             const loaded = await this.loadCurrentQuestion();
@@ -2220,26 +2203,20 @@ export class QuizQuestionComponent
                 return;
             }
         }
-        console.log('[onOptionClicked] ✅ Current question is loaded.');
 
         // ✅ Ensure optionsToDisplay is set before proceeding
-        console.log('[onOptionClicked] Checking if optionsToDisplay exists:', !!this.optionsToDisplay);
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Repopulating...');
             this.optionsToDisplay = this.populateOptionsToDisplay();
         }
-        console.log('[onOptionClicked] ✅ OptionsToDisplay set:', this.optionsToDisplay);
 
         // ✅ Validate the event and option
-        console.log('[onOptionClicked] Checking if event.option is valid:', event.option);
         if (!event.option || !this.validateOption(event)) {
             console.info('[onOptionClicked] ❌ Invalid option or event detected. Skipping.');
             return;
         }
-        console.log('[onOptionClicked] ✅ Valid option selected:', event.option);
 
         // ✅ Find the selected option
-        console.log('[onOptionClicked] Finding selected option in optionsToDisplay:', this.optionsToDisplay);
         const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
         if (!foundOption) {
             console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
@@ -2254,26 +2231,23 @@ export class QuizQuestionComponent
 
         // ✅ Apply feedback before moving forward
         console.log('[onOptionClicked] 🔥 Applying feedback...');
-        this.applyOptionFeedback(foundOption);
-        console.log('[onOptionClicked] 🚀 Finished applying feedback');
+        this.applyOptionFeedback(selectedOption);
+        console.log('[onOptionClicked] 🚀 Feedback applied successfully.');
+
+        this.isFeedbackApplied = true;
 
         // ✅ Fetch explanation text **after** feedback is applied
-        try {
-            this.explanationToDisplay = await firstValueFrom(
-                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-            );
-            console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
-        } catch (error) {
-            console.error('[onOptionClicked] ❌ Error fetching explanation text:', error);
-        }
+        console.log('[onOptionClicked] 🔍 Fetching explanation text...');
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        );
+        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        // ✅ Ensure explanation text is displayed **only once**
-        setTimeout(() => {
-            console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
-            this.updateDisplayStateToExplanation();
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
-        }, 50);
+        // ✅ Ensure explanation text **always** updates
+        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+        this.updateDisplayStateToExplanation();
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
 
         // ✅ Check if the question is a multiple-answer type
         const isMultipleAnswer = await firstValueFrom(
@@ -2294,6 +2268,7 @@ export class QuizQuestionComponent
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
                 this.timerService.stopTimer();
             }
+
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
 
@@ -2312,12 +2287,12 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] 🟢 Enabling Next button...');
         this.answerSelected.emit(allCorrectSelected);
 
-        // ✅ Ensure UI updates **only after all state changes**
+        // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
         setTimeout(() => {
             console.log('[onOptionClicked] 🟢 Triggering change detection...');
             this.cdRef.detectChanges();
             this.cdRef.markForCheck();
-        }, 100);
+        });
 
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
