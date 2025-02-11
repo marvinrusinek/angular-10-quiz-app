@@ -2298,7 +2298,6 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-
   
   // ====================== Helper Functions ======================
 
