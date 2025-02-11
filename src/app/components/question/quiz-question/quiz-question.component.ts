@@ -2181,14 +2181,32 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] STARTED');
 
         setTimeout(() => {
-          console.log('[onOptionClicked] Post-delay check - isFeedbackApplied:', this.isFeedbackApplied);
+            console.log('[onOptionClicked] Post-delay check - isFeedbackApplied:', this.isFeedbackApplied);
         }, 100);
 
         // ✅ Prevent clicking before feedback is ready
         console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
         if (!this.isFeedbackApplied) {
-            console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Skipping option selection.');
-            console.log('[onOptionClicked] Early return at condition XYZ.');
+            console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
+            
+            if (!event.option) {
+                console.error('[onOptionClicked] ❌ ERROR: event.option is null. Cannot apply feedback.');
+                return;
+            }
+
+            console.log('[onOptionClicked] 🚀 Selected Option:', event.option);
+
+            // **🚀 CALL applyOptionFeedback()**
+            this.applyOptionFeedback(event.option);
+            console.log('[onOptionClicked] ✅ Finished calling applyOptionFeedback()');
+
+            this.isFeedbackApplied = true; // Mark as applied
+            console.log('[onOptionClicked] 🔄 Updated isFeedbackApplied:', this.isFeedbackApplied);
+        }
+
+        console.log('[onOptionClicked] Checking isFeedbackApplied after manual apply:', this.isFeedbackApplied);
+        if (!this.isFeedbackApplied) {
+            console.warn('[onOptionClicked] ❌ Feedback still not applied after calling applyOptionFeedback().');
             return;
         }
 
@@ -2235,18 +2253,19 @@ export class QuizQuestionComponent
         };
 
         // ✅ Apply feedback before moving forward
-        console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
+        console.log('[onOptionClicked] 🔥 Applying feedback...');
         this.applyOptionFeedback(foundOption);
-        console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');      
-
-        // this.applyOptionFeedback(selectedOption);
-        this.isFeedbackApplied = true;
+        console.log('[onOptionClicked] 🚀 Finished applying feedback');
 
         // ✅ Fetch explanation text **after** feedback is applied
-        this.explanationToDisplay = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-        );
-        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
+        try {
+            this.explanationToDisplay = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+            );
+            console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
+        } catch (error) {
+            console.error('[onOptionClicked] ❌ Error fetching explanation text:', error);
+        }
 
         // ✅ Update UI to ensure explanation text is displayed correctly
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
@@ -2273,7 +2292,6 @@ export class QuizQuestionComponent
                 console.log('[onOptionClicked] ✅ All correct answers selected. Stopping timer.');
                 this.timerService.stopTimer();
             }
-
         } else {
             console.log('[onOptionClicked] ⏹️ Single-answer question detected. Stopping the timer.');
 
