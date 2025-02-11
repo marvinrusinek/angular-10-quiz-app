@@ -2793,29 +2793,30 @@ export class QuizQuestionComponent
     }
   } */
   private async handleCorrectnessOutcome(allCorrectSelected: boolean): Promise<void> {
+    console.log('[handleCorrectnessOutcome] STARTED - Checking allCorrectSelected:', allCorrectSelected);
+
     if (allCorrectSelected) {
         if (this.timerService.isTimerRunning) {
             console.log('[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.');
-
-            // ✅ Stop the timer immediately
             await this.timerService.stopTimer();
-
-            // ✅ Ensure the timer is marked as stopped
-            this.timerService.isTimerRunning = false;
-        } else {
-            console.warn('[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.');
         }
 
-        // ✅ Enable the Next button since all answers are correct
+        // ✅ Ensure Next button is enabled
+        console.log('[handleCorrectnessOutcome] ✅ Setting answerSelected to true.');
         this.answerSelected.emit(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('[handleCorrectnessOutcome] ✅ Next button enabled.');
 
+        // ✅ Ensure explanation text is preserved
+        if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
+            this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex));
+            console.log('[handleCorrectnessOutcome] ✅ Explanation text set:', this.explanationToDisplay);
+        }
+
+        console.log('[handleCorrectnessOutcome] ✅ Next button should be enabled now.');
     } else {
-        // ✅ Keep the Next button disabled if not all answers are selected
+        console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
         this.answerSelected.emit(false);
         this.selectedOptionService.isAnsweredSubject.next(false);
-        console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
     }
   }
 
