@@ -2175,7 +2175,7 @@ export class QuizQuestionComponent
     }
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    console.log('[onOptionClicked] 🚀 STARTED - Checking function execution.');
+    console.log('[onOptionClicked] STARTED - Checking function execution.');
 
     try {
         console.log('[onOptionClicked] STARTED');
@@ -2187,7 +2187,7 @@ export class QuizQuestionComponent
         if (!this.isFeedbackApplied) {
             console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
             console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
-            await this.applyOptionFeedback(event.option!);
+            this.applyOptionFeedback(event.option!);
             console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
 
             // ✅ Verify if feedback applied successfully
@@ -2231,7 +2231,7 @@ export class QuizQuestionComponent
 
         // ✅ Apply feedback before moving forward
         console.log('[onOptionClicked] 🔥 Applying feedback...');
-        await this.applyOptionFeedback(selectedOption);
+        this.applyOptionFeedback(selectedOption);
         console.log('[onOptionClicked] 🚀 Feedback applied successfully.');
 
         this.isFeedbackApplied = true;
@@ -2298,6 +2298,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
+
   
   // ====================== Helper Functions ======================
 
