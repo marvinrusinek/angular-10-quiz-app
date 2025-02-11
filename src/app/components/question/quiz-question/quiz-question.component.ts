@@ -2267,11 +2267,13 @@ export class QuizQuestionComponent
             console.error('[onOptionClicked] ❌ Error fetching explanation text:', error);
         }
 
-        // ✅ Update UI to ensure explanation text is displayed correctly
-        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
-        this.updateDisplayStateToExplanation();
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
+        // ✅ Ensure explanation text is displayed **only once**
+        setTimeout(() => {
+            console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+            this.updateDisplayStateToExplanation();
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+        }, 50);
 
         // ✅ Check if the question is a multiple-answer type
         const isMultipleAnswer = await firstValueFrom(
@@ -2310,12 +2312,12 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] 🟢 Enabling Next button...');
         this.answerSelected.emit(allCorrectSelected);
 
-        // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
+        // ✅ Ensure UI updates **only after all state changes**
         setTimeout(() => {
             console.log('[onOptionClicked] 🟢 Triggering change detection...');
             this.cdRef.detectChanges();
             this.cdRef.markForCheck();
-        });
+        }, 100);
 
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
