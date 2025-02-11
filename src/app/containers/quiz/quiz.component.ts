@@ -3898,7 +3898,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quizStateService.setAnswered(false);
 
             // ✅ Fetch the next question object using the index
-            const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex + 1));
+            const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
             if (!nextQuestion) {
                 console.warn('[advanceToNextQuestion] ❌ No question found for next index.');
                 return;
