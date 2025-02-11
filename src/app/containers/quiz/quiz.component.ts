@@ -3927,7 +3927,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         }
     } catch (error) {
-        console.error('Error during navigation:', error);
+      console.error('Error during navigation:', error);
     } finally {
         // ✅ Reset navigation and loading states
         this.isNavigating = false;
