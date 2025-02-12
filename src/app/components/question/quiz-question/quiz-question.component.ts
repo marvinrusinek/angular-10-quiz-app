@@ -2850,19 +2850,22 @@ export class QuizQuestionComponent
         console.log('[handleCorrectnessOutcome] ✅ Setting answerSelected to true.');
         this.answerSelected.emit(true);
         this.selectedOptionService.isAnsweredSubject.next(true);
-
-        // ✅ Ensure explanation text is preserved
-        if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
-            this.explanationToDisplay = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex));
-            console.log('[handleCorrectnessOutcome] ✅ Explanation text set:', this.explanationToDisplay);
-        }
-
-        console.log('[handleCorrectnessOutcome] ✅ Next button should be enabled now.');
-    } else {
-        console.log('[handleCorrectnessOutcome] ❌ Next button remains disabled.');
-        this.answerSelected.emit(false);
-        this.selectedOptionService.isAnsweredSubject.next(false);
     }
+
+    // ✅ Ensure explanation text is preserved
+    if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        );
+        console.log('[handleCorrectnessOutcome] ✅ Explanation text set:', this.explanationToDisplay);
+    }
+
+    // ✅ Ensure Next button is only disabled if required, preventing premature disabling
+    setTimeout(() => {
+        const shouldEnableNext = allCorrectSelected || this.selectedOptionService.isAnsweredSubject.getValue();
+        this.updateAndSyncNextButtonState(shouldEnableNext);
+        console.log('[handleCorrectnessOutcome] ✅ Next button updated state:', shouldEnableNext);
+    }, 50);
   }
 
   /** Handles the additional UI processing inside ngZone run block. */
