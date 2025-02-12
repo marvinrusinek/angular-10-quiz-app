@@ -918,18 +918,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(): Promise<void> {
     try {
-      console.log('[loadQuestionContents] STARTED - Resetting quiz state.');
+      console.log(`[loadQuestionContents] 🟢 Started for questionIndex: ${this.quizService.getCurrentQuestionIndex()}`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
         this.updateTooltip('Please select an option to continue...'); // Reset tooltip
 
-        // ✅ Reset feedback flag before loading new question
-        if (this.quizQuestionComponent) {
-            this.quizQuestionComponent.isFeedbackApplied = false;
+        if (!this.quizQuestionComponent) {
+          console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Waiting for initialization...');
+          await new Promise(resolve => setTimeout(resolve, 50)); // Wait 50ms before retrying once
+        }
+      
+        if (!this.quizQuestionComponent) {
+          console.error('[loadQuestionContents] ❌ quizQuestionComponent is STILL undefined. Aborting feedback reset.');
         } else {
-            console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback reset.');
+          console.log('[loadQuestionContents] ✅ quizQuestionComponent is now initialized.');
+          this.quizQuestionComponent.isFeedbackApplied = false;
         }
 
         // ✅ Clear previous options and explanation text before fetching new ones
@@ -1041,7 +1046,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
         }
       
-
+      console.log(`[loadQuestionContents] ✅ Fully executed - UI should update.`);
     } catch (error) {
         console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     } finally {
