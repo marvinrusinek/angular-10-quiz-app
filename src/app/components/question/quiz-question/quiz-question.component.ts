@@ -2216,6 +2216,14 @@ export class QuizQuestionComponent
             questionIndex: this.currentQuestionIndex
         };
 
+        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+          console.log('✅ First option clicked - marking question as answered');
+          this.selectedOptionService.isAnsweredSubject.next(true);
+          
+          // Log immediately after setting to confirm update
+          console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
+        }
+
         // ✅ Apply feedback before moving forward
         console.log('[onOptionClicked] 🔥 Applying feedback...');
         this.applyOptionFeedback(selectedOption);
