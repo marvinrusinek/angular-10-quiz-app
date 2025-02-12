@@ -2863,7 +2863,7 @@ export class QuizQuestionComponent
     // ✅ Ensure Next button is only disabled if required, preventing premature disabling
     setTimeout(() => {
         const shouldEnableNext = allCorrectSelected || this.selectedOptionService.isAnsweredSubject.getValue();
-        this.updateAndSyncNextButtonState(shouldEnableNext);
+        this.nextButtonState.emit(shouldEnableNext);
         console.log('[handleCorrectnessOutcome] ✅ Next button updated state:', shouldEnableNext);
     }, 50);
   }
