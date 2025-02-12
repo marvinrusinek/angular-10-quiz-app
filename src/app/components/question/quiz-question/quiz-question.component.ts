@@ -411,9 +411,6 @@ export class QuizQuestionComponent
             console.warn('[onVisibilityChange] ⚠️ No previously selected option found. Applying feedback to all options.');
             this.applyOptionFeedbackToAllOptions();
           }
-
-          // Ensure UI updates after applying feedback
-          this.cdRef.markForCheck();
           
           // Regenerate feedback text for the current question
           try {
@@ -439,10 +436,6 @@ export class QuizQuestionComponent
               console.warn('[onVisibilityChange] ⚠️ No previously selected option found after reload. Applying feedback to all options.');
               this.applyOptionFeedbackToAllOptions();
             }
-
-            // Ensure UI updates after applying feedback
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
 
             // Generate feedback text after reloading the question
             try {
@@ -636,9 +629,6 @@ export class QuizQuestionComponent
           } else {
             console.warn('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
           }
-  
-          // Ensure UI updates after applying feedback
-          this.cdRef.markForCheck();
         }, 50); // Extra delay ensures selections are fully restored before applying feedback
       }, 100); // Slight delay to ensure UI updates correctly
     } catch (error) {
@@ -988,8 +978,6 @@ export class QuizQuestionComponent
       showIcon: option.correct || option.selected,
       highlight: option.selected
     }));
-
-    this.cdRef.markForCheck();
   }
   
   // Method to conditionally update the explanation when the question is answered
@@ -1778,7 +1766,6 @@ export class QuizQuestionComponent
                 'Initial answered state for the first question:',
                 hasAnswered
               );
-              this.cdRef.markForCheck(); // Trigger change detection
             }
           },
           error: (err) => {
@@ -2246,8 +2233,6 @@ export class QuizQuestionComponent
         // ✅ Ensure explanation text **always** updates
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
         this.updateDisplayStateToExplanation();
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
 
         // ✅ Check if the question is a multiple-answer type
         const isMultipleAnswer = await firstValueFrom(
@@ -2290,7 +2275,6 @@ export class QuizQuestionComponent
         // ✅ Ensure explanation text **ALWAYS** updates when selecting an option
         setTimeout(() => {
             console.log('[onOptionClicked] 🟢 Triggering change detection...');
-            this.cdRef.detectChanges();
             this.cdRef.markForCheck();
         });
 
