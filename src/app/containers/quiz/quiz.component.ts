@@ -409,14 +409,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   ngAfterViewInit(): void {
     console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
 
-    setTimeout(() => {
-      if (!this.quizQuestionComponent) {
-        console.error('[ngAfterViewInit] ❌ quizQuestionComponent is STILL undefined after delay.');
-      } else {
-        console.log('[ngAfterViewInit] ✅ quizQuestionComponent initialized:', this.quizQuestionComponent);
-      }
-      this.initializeDisplayVariables();
-    }, 100);
+    if (!this.quizQuestionComponent) {
+      console.error('[ngAfterViewInit] ❌ quizQuestionComponent is STILL undefined!');
+    } else {
+      console.log('[ngAfterViewInit] ✅ quizQuestionComponent initialized:', this.quizQuestionComponent);
+    }
+
+    this.initializeDisplayVariables();
+    this.loadQuestionContents();
   }
 
   public onAnsweredChange(isAnswered: boolean): void {
@@ -930,7 +930,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     }
   } */
-  async loadQuestionContents(): Promise<void> {
+  /* async loadQuestionContents(): Promise<void> {
     try {
       console.log(`[loadQuestionContents] 🟢 Started for questionIndex: ${this.quizService.getCurrentQuestionIndex()}`);
 
@@ -1061,6 +1061,143 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       
       console.log(`[loadQuestionContents] ✅ Fully executed - UI should update.`);
+    } catch (error) {
+        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+    } finally {
+        this.isLoading = false;
+        if (!this.isQuestionDisplayed) {
+            console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
+        }
+    }
+  } */
+  async loadQuestionContents(): Promise<void> {
+    try {
+        console.log(`[loadQuestionContents] 🟢 Started for questionIndex: ${this.quizService.getCurrentQuestionIndex()}`);
+
+        this.isLoading = true;
+        this.isQuestionDisplayed = false;
+        this.isNextButtonEnabled = false;
+        this.updateTooltip('Please select an option to continue...'); // Reset tooltip
+
+        // ✅ Ensure `quizQuestionComponent` is initialized before proceeding
+        if (!this.quizQuestionComponent) {
+            console.error('[loadQuestionContents] ❌ quizQuestionComponent is undefined! Aborting function.');
+            return; // ✅ Exit early if `quizQuestionComponent` is not ready
+        }
+
+        console.log('[loadQuestionContents] ✅ quizQuestionComponent is initialized.');
+        this.quizQuestionComponent.isFeedbackApplied = false;
+
+        // ✅ Clear previous options and explanation text before fetching new ones
+        this.optionsToDisplay = [];
+        this.explanationToDisplay = ''; // ✅ Ensure explanation is cleared before fetching
+
+        const quizId = this.quizService.getCurrentQuizId();
+        const questionIndex = this.quizService.getCurrentQuestionIndex();
+
+        // ✅ Validate quiz ID and question index
+        if (!quizId) {
+            console.error('[loadQuestionContents] ❌ No active quiz ID found.');
+            throw new Error('No active quiz ID found.');
+        }
+        if (typeof questionIndex !== 'number' || questionIndex < 0) {
+            console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
+            throw new Error('Invalid question index.');
+        }
+
+        // ✅ Stop timer before loading a new question (only if running)
+        if (this.timerService.isTimerRunning) {
+            console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
+            this.timerService.stopTimer();
+        }
+
+        // ✅ Reset the timer before starting the new question
+        console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
+        this.timerService.resetTimer();
+
+        // ✅ Fetch question, options, and explanation **specific to the current question**
+        const data = await lastValueFrom(
+            forkJoin({
+                question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+                options: this.quizService.getCurrentOptions(questionIndex),
+                explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex), // ✅ Ensure fresh explanation is fetched
+            }).pipe(
+                catchError((error) => {
+                    console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
+                    return of({ question: null, options: [], explanation: '' });
+                })
+            )
+        ) as { question: QuizQuestion | null; options: Option[]; explanation: string };
+
+        // ✅ Validate fetched data
+        if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+            console.warn(`[loadQuestionContents] ⚠️ Failed to load valid data for questionIndex ${questionIndex}`);
+            this.currentQuestion = null;
+            this.options = [];
+            this.isQuestionDisplayed = false;
+            return;
+        }
+
+        // ✅ Assign fetched data **to the current question only**
+        this.currentQuestion = data.question;
+        this.options = data.options;
+
+        // ✅ Update explanation text **immediately**
+        this.explanationToDisplay = data.explanation; 
+        console.log(`[loadQuestionContents] ✅ Explanation updated for Question ${questionIndex}:`, this.explanationToDisplay);
+
+        // ✅ Update current question in the QuizService
+        this.quizService.setCurrentQuestion(this.currentQuestion);
+
+        this.isQuestionDisplayed = true;
+
+        // ✅ Ensure the timer starts **only if the question hasn't been answered**
+        if (!this.selectedOptionService.isAnsweredSubject.value) {
+            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+            this.timerService.startTimer(); // ✅ Ensures timer runs continuously for all questions
+        } else {
+            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+        }
+
+        // ✅ Ensure feedback is applied after setting options
+        setTimeout(() => {
+            console.log('[loadQuestionContents] 🔄 Ensuring feedback is applied after options load...');
+
+            if (!this.options || this.options.length === 0) {
+                console.warn('[loadQuestionContents] ❌ No options available when applying feedback.');
+                return;
+            }
+
+            // ✅ Apply feedback immediately if an option was previously selected
+            const previouslySelectedOption = this.options.find(option => option.selected);
+            if (previouslySelectedOption) {
+                console.log('[loadQuestionContents] 🎯 Reapplying feedback for previously selected option:', previouslySelectedOption);
+                this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+            } else {
+                console.log('[loadQuestionContents] ⚠️ No previously selected option found. Applying feedback to all options.');
+                this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            }
+
+            // ✅ Ensure **Q1 feedback is applied on restart**
+            if (questionIndex === 0) {
+                console.log('[loadQuestionContents] 🚀 Applying feedback explicitly for Q1 on restart.');
+                this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+            }
+
+            // ✅ Ensure UI updates after applying feedback
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+        }, 10); // Short delay to immediately apply feedback
+
+        // ✅ Mark feedback as applied so interaction can proceed
+        if (this.quizQuestionComponent) {
+            console.log('[loadQuestionContents] ✅ Setting isFeedbackApplied to true in QuizComponent');
+            this.quizQuestionComponent.isFeedbackApplied = true;
+        } else {
+            console.warn('[loadQuestionContents] ⚠️ quizQuestionComponent is undefined. Skipping feedback state update.');
+        }
+      
+        console.log(`[loadQuestionContents] ✅ Fully executed - UI should update.`);
     } catch (error) {
         console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     } finally {
