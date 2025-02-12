@@ -1521,7 +1521,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  private evaluateNextButtonState(): boolean {
+  /* private evaluateNextButtonState(): boolean {
     // Reset options state to ensure no residual state interferes
     this.resetOptionState();
 
@@ -1552,6 +1552,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Return the final state
     return shouldEnable;
+  } */
+  private evaluateNextButtonState(): boolean {
+    console.log('🟢 Checking Next Button State -> isNextButtonEnabled:', this.isNextButtonEnabled);
+    
+    this.isNextButtonEnabled = true; // Force-enable the button
+    return true;
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
@@ -3961,11 +3967,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     console.log(`[advanceToNextQuestion] Loading: ${isLoading}, Navigating: ${isNavigating}, Button Enabled: ${isEnabled}`);
 
+    console.log(`[advanceToNextQuestion] 🔄 Checking conditions -> 
+      isLoading: ${isLoading}, 
+      isNavigating: ${isNavigating}, 
+      isEnabled: ${isEnabled}`);
+
+
     // 🚨 Prevent navigation if any blocking conditions are met
     if (isLoading || isNavigating || !isEnabled) {
         console.warn('[advanceToNextQuestion] 🚫 Cannot advance - One of the conditions is blocking navigation.');
         return;
     }
+
+    console.log('[advanceToNextQuestion] ✅ Proceeding with navigation.');
 
     // ✅ Mark navigation as in progress
     this.isNavigating = true;
