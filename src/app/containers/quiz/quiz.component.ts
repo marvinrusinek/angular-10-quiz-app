@@ -1555,7 +1555,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
+    if (!isEnabled) {
+      console.warn(`[updateAndSyncNextButtonState] 🚨 DISABLING Next button!`, new Error().stack);
+    } else {
+      console.log(`[updateAndSyncNextButtonState] ✅ Enabling Next button.`);
+    }
+
     this.ngZone.run(() => {
+      console.log('[updateAndSyncNextButtonState] 🔄 Updating Next button state:', isEnabled);
+
       // Update the internal state of the Next button
       this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled); // Sync the observable state
@@ -1565,6 +1573,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         opacity: isEnabled ? '1' : '0.5',
         'pointer-events': isEnabled ? 'auto' : 'none',
       };
+
+      console.log('[updateAndSyncNextButtonState] ✅ Next button enabled state:', this.isNextButtonEnabled);
 
       // Trigger change detection to ensure the UI reflects the state
       this.cdRef.markForCheck();
