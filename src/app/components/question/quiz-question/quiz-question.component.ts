@@ -2292,7 +2292,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     console.log('🟢 Option clicked:', event.option);
     console.log('[onOptionClicked] STARTED - Checking function execution.');
 
@@ -2423,7 +2423,76 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    console.log('🟢 Option clicked:', event.option);
+    console.log('[onOptionClicked] STARTED - Checking function execution.');
+
+    try {
+        console.log('[onOptionClicked] STARTED');
+
+        // ✅ Ensure optionsToDisplay is set before proceeding
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            this.optionsToDisplay = this.populateOptionsToDisplay();
+        }
+
+        // ✅ Find the selected option
+        const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+        if (!foundOption) {
+            console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+            return;
+        }
+
+        console.log('[onOptionClicked] ✅ Valid option found:', foundOption);
+
+        // ✅ Log isFeedbackApplied before selection
+        console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
+
+        // ✅ Prevent clicking before feedback is ready
+        if (!this.isFeedbackApplied) {
+            console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
+            console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
+            await this.applyOptionFeedback(foundOption);
+            console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
+            console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
+        }
+
+        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+            console.log('✅ First option clicked - marking question as answered');
+            this.selectedOptionService.isAnsweredSubject.next(true);
+            console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
+        }
+
+        // ✅ Ensure explanation text **always** updates when selecting an option
+        console.log('[onOptionClicked] 🔍 Fetching explanation text...');
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        );
+        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
+
+        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+        this.updateDisplayStateToExplanation();
+
+        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
+        console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
+        await this.handleCorrectnessOutcome(true);
+
+        // ✅ Emit event to enable "Next" button and advance to next question
+        console.log('[onOptionClicked] 🟢 Enabling Next button...');
+        this.answerSelected.emit(true);
+
+        setTimeout(() => {
+            console.log('[onOptionClicked] 🟢 Triggering change detection...');
+            this.cdRef.markForCheck();
+        });
+
+    } catch (error) {
+        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+    }
   }
+
 
   
   // ====================== Helper Functions ======================
