@@ -3959,6 +3959,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }    
 
+  public debugNextButtonClick(): void {
+    console.log('[QuizComponent] 🟢 Next button clicked.');
+    this.advanceToNextQuestion();
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     console.log('[advanceToNextQuestion] 🟢 Function was called.');
