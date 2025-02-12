@@ -354,7 +354,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeNextButtonState(); // Initialize button state observables
     this.initializeTooltip(); // Set up tooltip logic
     this.resetOptionState(); // Ensure no lingering selection state
-    this.loadQuestionContents(); // Load the first question's contents
+
+    // Load the first question's contents
+    setTimeout(() => {
+      console.log('[ngOnInit] 🟢 Calling loadQuestionContents() after view setup.');
+      this.loadQuestionContents();
+    }, 100); // 🔹 Short delay allows ViewChild bindings to be established
+    
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
 
