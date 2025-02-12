@@ -2376,22 +2376,16 @@ export class QuizQuestionComponent
   }    
   
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
-    console.log('[applyOptionFeedback] 🟢 STARTED - Selected Option:', selectedOption);
-
     if (!selectedOption) {
       console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.');
       return;
     }
-
-    console.log(`[applyOptionFeedback] 🎯 Applying feedback for: ${selectedOption.text}`);
 
     // Ensure options are populated before applying feedback
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Repopulating now...');
       this.populateOptionsToDisplay();
     }
-
-    console.log('[applyOptionFeedback] ✅ Options before feedback:', JSON.stringify(this.optionsToDisplay));
 
     // Initialize `showFeedbackForOption` if undefined
     this.showFeedbackForOption = this.showFeedbackForOption || {};
@@ -2404,7 +2398,8 @@ export class QuizQuestionComponent
       return;
     }
 
-    console.log('[applyOptionFeedback] ✅ Updating optionsToDisplay...');
+    // Add a short delay to ensure UI stability
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Apply feedback to options
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
@@ -2414,8 +2409,6 @@ export class QuizQuestionComponent
       showIcon: option.correct || option.optionId === selectedOption.optionId,
       selected: option.optionId === selectedOption.optionId
     }));
-
-    console.log('[applyOptionFeedback] ✅ Options after feedback:', JSON.stringify(this.optionsToDisplay));
 
     // Emit event to notify SharedOptionComponent
     this.feedbackApplied.emit(selectedOption.optionId);
@@ -2427,8 +2420,6 @@ export class QuizQuestionComponent
     } else {
       console.warn(`[applyOptionFeedback] ❌ UI update skipped. No feedback detected for optionId ${selectedOption.optionId}`);
     }
-
-    console.log('[applyOptionFeedback] ✅ FINISHED.');
   }
 
   private async reloadCurrentQuestion(): Promise<void> {
