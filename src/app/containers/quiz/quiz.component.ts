@@ -1521,19 +1521,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  /* private evaluateNextButtonState(): boolean {
+  private evaluateNextButtonState(): boolean {
     // Reset options state to ensure no residual state interferes
     this.resetOptionState();
 
     // Retrieve the current state from the necessary subjects
     const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
-    const isLoading = !this.quizStateService.isLoadingSubject.getValue();
-    const isNavigating = !this.quizStateService.isNavigatingSubject.getValue();
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
 
     console.log('🟢 Evaluating Next Button State:', { isAnswered, isLoading, isNavigating });
 
     // Determine if the next button should be enabled
-    const shouldEnable = isAnswered && isLoading && isNavigating;
+    const shouldEnable = isAnswered && !isLoading && !isNavigating;
 
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
       console.log('Debugging: Forcing next button enable for multiple-answer question.');
@@ -1552,12 +1552,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Return the final state
     return shouldEnable;
-  } */
-  private evaluateNextButtonState(): boolean {
-    console.log('🟢 Checking Next Button State -> isNextButtonEnabled:', this.isNextButtonEnabled);
-    
-    this.isNextButtonEnabled = true; // Force-enable the button
-    return true;
   }
 
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
