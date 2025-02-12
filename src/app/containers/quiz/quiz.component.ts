@@ -401,8 +401,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   ngAfterViewInit(): void {
-    // Ensure variables are set before calling this method
-    this.initializeDisplayVariables();
+    console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
+    
+    if (!this.quizQuestionComponent) {
+      console.warn('[ngAfterViewInit] ⚠️ quizQuestionComponent is undefined. Attempting to initialize...');
+    }
+
+    // Ensure quizQuestionComponent is set before calling display initialization
+    setTimeout(() => {
+      if (!this.quizQuestionComponent) {
+        console.error('[ngAfterViewInit] ❌ quizQuestionComponent is STILL undefined after delay. Investigate further.');
+      } else {
+        console.log('[ngAfterViewInit] ✅ quizQuestionComponent is now initialized:', this.quizQuestionComponent);
+      }
+      this.initializeDisplayVariables();
+    }, 100);  // 🔹 Short delay to allow view initialization
   }
 
   public onAnsweredChange(isAnswered: boolean): void {
