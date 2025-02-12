@@ -1530,6 +1530,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isLoading = !this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = !this.quizStateService.isNavigatingSubject.getValue();
 
+    console.log('🟢 Evaluating Next Button State:', { isAnswered, isLoading, isNavigating });
+
     // Determine if the next button should be enabled
     const shouldEnable = isAnswered && isLoading && isNavigating;
 
@@ -1546,7 +1548,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.updateAndSyncNextButtonState(shouldEnable);
 
     // Log the updated button state for confirmation
-    console.log('Next button state updated:', { shouldEnable });
+    console.log('🔄 Final Next Button State:', { shouldEnable });
 
     // Return the final state
     return shouldEnable;
