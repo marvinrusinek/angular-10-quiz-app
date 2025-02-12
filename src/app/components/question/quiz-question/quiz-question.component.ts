@@ -2398,9 +2398,6 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Add a short delay to ensure UI stability
-    await new Promise(resolve => setTimeout(resolve, 100));
-
     // Apply feedback to options
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
       ...option,
@@ -2412,6 +2409,9 @@ export class QuizQuestionComponent
 
     // Emit event to notify SharedOptionComponent
     this.feedbackApplied.emit(selectedOption.optionId);
+
+    // Add a short delay to ensure UI stability
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Ensure UI updates after applying feedback
     if (this.showFeedbackForOption[selectedOption.optionId]) {
