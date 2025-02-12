@@ -2487,10 +2487,10 @@ export class QuizQuestionComponent
     console.log('[applyOptionFeedback] ✅ isFeedbackApplied set to true.');
 
     // ✅ Ensure UI updates after applying feedback
-    setTimeout(() => {
+    /* setTimeout(() => {
         console.log('[applyOptionFeedback] 🔄 Triggering UI updates.');
         this.cdRef.markForCheck();
-    }, 50);
+    }, 50); */
 
     console.log('[applyOptionFeedback] ✅ FINISHED.');
   }
