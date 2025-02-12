@@ -2521,6 +2521,7 @@ export class QuizQuestionComponent
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
     if (!selectedOption) {
       console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.');
+      console.trace('[applyOptionFeedback] 🔍 Call stack trace to find the issue:');
       return;
     }
 
