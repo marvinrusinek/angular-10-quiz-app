@@ -359,7 +359,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     setTimeout(() => {
       console.log('[ngOnInit] 🟢 Calling loadQuestionContents() after view setup.');
       this.loadQuestionContents();
-    }, 100); // 🔹 Short delay allows ViewChild bindings to be established
+    }, 150); // 🔹 Short delay allows ViewChild bindings to be established
     
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
@@ -408,12 +408,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngAfterViewInit(): void {
     console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
-    
-    if (!this.quizQuestionComponent) {
-      console.warn('[ngAfterViewInit] ⚠️ quizQuestionComponent is undefined. Attempting to initialize...');
+
+    if (this.quizQuestionComponent) {
+      console.log('[ngAfterViewInit] ✅ quizQuestionComponent initialized:', this.quizQuestionComponent);
+    } else {
+      console.warn('[ngAfterViewInit] ⚠️ quizQuestionComponent is undefined. Waiting for initialization...');
     }
 
-    // Ensure quizQuestionComponent is set before calling display initialization
+    // Wait a short delay for ViewChild bindings
     setTimeout(() => {
       if (!this.quizQuestionComponent) {
         console.error('[ngAfterViewInit] ❌ quizQuestionComponent is STILL undefined after delay. Investigate further.');
@@ -421,7 +423,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[ngAfterViewInit] ✅ quizQuestionComponent is now initialized:', this.quizQuestionComponent);
       }
       this.initializeDisplayVariables();
-    }, 100);  // 🔹 Short delay to allow view initialization
+    }, 100);
   }
 
   public onAnsweredChange(isAnswered: boolean): void {
