@@ -3965,7 +3965,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     console.log('[advanceToNextQuestion] 🟢 Function was called.');
     console.log('[advanceToNextQuestion] ⏭️ Attempting to navigate to the next question.');
 
@@ -4020,6 +4020,91 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             // ✅ Set next question
             this.quizService.setCurrentQuestion(nextQuestion);
+
+            // ✅ Load question contents
+            await this.loadQuestionContents();
+            await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+            // ✅ Reset explanation text
+            if (this.quizQuestionComponent) {
+                console.log('[advanceToNextQuestion] 🔄 Resetting explanation text for new question.');
+                this.quizQuestionComponent.resetExplanation();
+                this.quizQuestionComponent.explanationToDisplay = '';
+                this.quizQuestionComponent.isAnswered = false;
+            }
+
+            // ✅ Update Next button state
+            const shouldEnableNextButton = this.isAnyOptionSelected();
+            this.updateAndSyncNextButtonState(shouldEnableNextButton);
+        } else {
+            // ✅ If at last question, navigate to results
+            console.log('[advanceToNextQuestion] 🏁 End of quiz reached. Navigating to results.');
+            await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        }
+    } catch (error) {
+        console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
+    } finally {
+        // ✅ Reset navigation/loading state
+        this.isNavigating = false;
+        this.quizStateService.setNavigating(false);
+        this.quizStateService.setLoading(false);
+
+        // ✅ Sync Next button state
+        const finalButtonState = this.isAnyOptionSelected();
+        this.updateAndSyncNextButtonState(finalButtonState);
+
+        // ✅ Trigger UI update
+        this.cdRef.detectChanges();
+    }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.log('[advanceToNextQuestion] 🟢 Function was called.');
+    console.log('[advanceToNextQuestion] ⏭️ Attempting to navigate to the next question.');
+
+    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+    ]);
+
+    console.log(`[advanceToNextQuestion] 🔄 Checking conditions -> 
+      isLoading: ${isLoading}, 
+      isNavigating: ${isNavigating}, 
+      isEnabled: ${isEnabled}`);
+
+    // 🚨 Prevent navigation if any blocking conditions are met
+    if (isLoading || isNavigating || !isEnabled) {
+        console.warn('[advanceToNextQuestion] 🚫 Cannot advance - One of the conditions is blocking navigation.');
+        return;
+    }
+
+    console.log('[advanceToNextQuestion] ✅ Proceeding with navigation.');
+
+    // ✅ Mark navigation as in progress
+    this.isNavigating = true;
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setNavigating(true);
+    
+    try {
+        if (this.currentQuestionIndex < this.totalQuestions - 1) {
+            // ✅ Increment question index before fetching
+            this.currentQuestionIndex++;
+            console.log('[advanceToNextQuestion] ✅ New Question Index:', this.currentQuestionIndex);
+
+            // ✅ Fetch and set next question
+            console.log('[advanceToNextQuestion] 🔄 Fetching next question...');
+            const questionLoaded = await this.fetchAndSetNextQuestion();
+
+            if (!questionLoaded) {
+                console.warn('[advanceToNextQuestion] ❌ No question found for next index. Aborting navigation.');
+                return;
+            }
+
+            // ✅ Reset state for the new question
+            this.resetOptionState();
+            this.isOptionSelected = false;
+            this.selectedOptionService.isAnsweredSubject.next(false);
+            this.quizStateService.setAnswered(false);
 
             // ✅ Load question contents
             await this.loadQuestionContents();
