@@ -4358,8 +4358,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchAndSetNextQuestion(): Promise<boolean> {
-    console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex}`);
-
     try {
       const nextQuestion = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
