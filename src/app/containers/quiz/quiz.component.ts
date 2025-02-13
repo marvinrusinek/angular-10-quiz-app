@@ -4357,21 +4357,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async fetchAndSetNextQuestion(): Promise<void> {
-    console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex + 1}`);
+  private async fetchAndSetNextQuestion(): Promise<boolean> {
+    console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex}`);
 
     try {
-      const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex + 1));
+      const nextQuestion = await firstValueFrom(
+        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+      );
 
       if (!nextQuestion) {
         console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
-        return;
+        return false;
       }
 
       this.quizService.setCurrentQuestion(nextQuestion);
       console.log('[fetchAndSetNextQuestion] ✅ Successfully updated current question.');
+
+      // ✅ Update UI
+      this.cdRef.detectChanges();
+      return true; // ✅ Ensure the function always returns a boolean
     } catch (error) {
       console.error('[fetchAndSetNextQuestion] ❌ Error fetching next question:', error);
+      return false;
     }
   }
 
