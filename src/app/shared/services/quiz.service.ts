@@ -901,8 +901,8 @@ export class QuizService implements OnDestroy {
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-        return;
+      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      return;
     }
 
     console.log('[QuizService] 🔄 Updating current question:', question);
@@ -910,26 +910,26 @@ export class QuizService implements OnDestroy {
     // Ensure the new question is different (Use deep comparison if needed)
     const currentQuestion = this.currentQuestion.getValue();
     if (currentQuestion?.questionText === question.questionText) {
-        console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
-        return;  // Remove this condition temporarily if needed
+      console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
+      return;  // Remove this condition temporarily if needed
     }
 
     // Prevent direct mutation - create a NEW object
     const updatedQuestion = {
-        ...question,
-        options: question.options?.map((option, index) => ({
-            ...option,
-            optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
-            correct: option.correct ?? false // Ensure correct is assigned only if missing
-        })) || []
+      ...question,
+      options: question.options?.map((option, index) => ({
+        ...option,
+        optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
+        correct: option.correct ?? false // Ensure correct is assigned only if missing
+      })) || []
     };
 
     console.log('[QuizService] 🔄 Emitting updated question:', updatedQuestion);
 
     // ✅ Use `setTimeout()` to delay emission and ensure change detection
     setTimeout(() => {
-        this.currentQuestion.next(updatedQuestion);
-        console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
+      this.currentQuestion.next(updatedQuestion);
+      console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
     }, 10); 
   }
 
