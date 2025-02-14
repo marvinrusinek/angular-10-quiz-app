@@ -4117,8 +4117,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 return;
             }
 
-            await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
-
             // ✅ Reset state for the new question
             this.resetOptionState();
             this.isOptionSelected = false;
@@ -4140,6 +4138,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             // ✅ Update Next button state
             const shouldEnableNextButton = this.isAnyOptionSelected();
             this.updateAndSyncNextButtonState(shouldEnableNextButton);
+
+            console.log('[advanceToNextQuestion] 🔄 Attempting to navigate to:', `/quiz/${this.quizId}/${this.currentQuestionIndex}`);
+            await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
+            console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
         } else {
             // ✅ If at last question, navigate to results
             console.log('[advanceToNextQuestion] 🏁 End of quiz reached. Navigating to results.');
@@ -4379,31 +4381,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async fetchAndSetNextQuestion(): Promise<boolean> {
     console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex}`);
 
+    // Reset isAnsweredSubject to ensure the Next button is disabled initially
+    this.selectedOptionService.isAnsweredSubject.next(false);
+    console.log('[fetchAndSetNextQuestion] 🔄 Resetting isAnsweredSubject to false before fetching next question.');
+
     try {
-      const nextQuestion = await firstValueFrom(
-        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-      );
+      const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
 
       if (!nextQuestion) {
         console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
         return false;
-      }
+      } 
 
       console.log('[fetchAndSetNextQuestion] ✅ Successfully fetched question:', nextQuestion);
 
       console.log('[fetchAndSetNextQuestion] 🔄 Calling setCurrentQuestion()...');
-      this.quizService.setCurrentQuestion(nextQuestion);
+      this.quizService.setCurrentQuestion({ ...nextQuestion }); // ✅ Ensure a new object reference to trigger UI update
+
       console.log('[fetchAndSetNextQuestion] ✅ Successfully set the current question.');
 
-      // Now reset `isAnsweredSubject` AFTER setting the question
-      this.selectedOptionService.isAnsweredSubject.next(false);
-      console.log('[fetchAndSetNextQuestion] 🔄 Resetting isAnsweredSubject to false AFTER setting question.');
-
-      // Force UI update inside Angular zone
-      this.ngZone.run(() => {
-        console.log('[fetchAndSetNextQuestion] 🔄 Manually triggering UI update.');
-        this.cdRef.detectChanges();
-      });
+      // Ensure UI updates properly after fetching the next question
+      this.cdRef.detectChanges();
 
       return true;
     } catch (error) {
