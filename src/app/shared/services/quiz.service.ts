@@ -919,9 +919,14 @@ export class QuizService implements OnDestroy {
 
     console.log('[QuizService] 🔄 Emitting updated question:', updatedQuestion);
 
-    // Use `setTimeout()` to delay emission
+    // Log before emitting
+    console.log('[QuizService] 🔄 About to emit `currentQuestion$`...');
+    
+    // Force an observable update (ensures QuizComponent is notified)
     setTimeout(() => {
-      this.currentQuestion.next(null);  // Force re-emission by temporarily setting null
+      this.currentQuestion.next(null);  
+      console.log('[QuizService] 🟡 Emitted `null` to force update.');
+        
       this.currentQuestion.next(updatedQuestion);
       console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
     }, 10);
