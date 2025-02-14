@@ -922,6 +922,8 @@ export class QuizService implements OnDestroy {
       return;
     }
 
+    console.log('[QuizService] 🔄 Updating current question:', question);
+
     // Ensure the new question is different from the current question before updating
     const currentQuestion = this.currentQuestion.getValue();
     if (currentQuestion?.questionText === question.questionText) {
@@ -943,6 +945,7 @@ export class QuizService implements OnDestroy {
 
     // Update the observable with a new object to trigger UI change
     this.currentQuestion.next(updatedQuestion);
+    console.log('[QuizService] ✅ Emitted new currentQuestion:', question);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
