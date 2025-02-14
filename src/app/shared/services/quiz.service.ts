@@ -49,8 +49,6 @@ export class QuizService implements OnDestroy {
   nextQuestion: QuizQuestion;
   isNavigating = false;
 
-  private currentQuestionType: QuestionType | null = null;
-
   private questionsSubject = new BehaviorSubject<QuizQuestion[]>([]);
   questions$ = this.questionsSubject.asObservable();
 
@@ -901,32 +899,32 @@ export class QuizService implements OnDestroy {
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-      return;
+        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+        return;
     }
 
     console.log('[QuizService] 🔄 Updating current question:', question);
 
-    // Ensure the new question is different before updating
+    // ✅ Ensure a change before updating
     const currentQuestion = this.currentQuestion.getValue();
     if (currentQuestion?.questionText === question.questionText) {
-      console.warn('[QuizService] ⚠️ Skipping update - Question is the same as previous.');
-      return;
+        console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
+        return;
     }
 
-    // Prevent direct mutation - Create a new object to force emission
+    // ✅ Create a new reference to ensure change detection fires
     const updatedQuestion = {
-      ...question,
-      options: question.options?.map((option, index) => ({
-        ...option,
-        optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
-        correct: option.correct ?? false // Ensure correct is assigned only if missing
-      })) || []
+        ...question,
+        options: question.options?.map((option, index) => ({
+            ...option,
+            optionId: option.optionId ?? index + 1,
+            correct: option.correct ?? false
+        })) || []
     };
 
     console.log('[QuizService] 🔄 Emitting updated question:', updatedQuestion);
 
-    // Emit a new object to trigger UI change
+    // ✅ Emit new object reference for change detection
     this.currentQuestion.next({ ...updatedQuestion });
     console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
   }
