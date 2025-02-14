@@ -2460,10 +2460,12 @@ export class QuizQuestionComponent
         }
 
         if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-            console.log('✅ First option clicked - marking question as answered');
-            this.selectedOptionService.isAnsweredSubject.next(true);
-            console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
-        }
+          console.log('[onOptionClicked] ✅ First option clicked - marking question as answered');
+          this.selectedOptionService.isAnsweredSubject.next(true);
+      
+          // ✅ Log immediately to confirm update
+          console.log('[onOptionClicked] 🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
+        }    
 
         // ✅ Ensure explanation text **always** updates when selecting an option
         console.log('[onOptionClicked] 🔍 Fetching explanation text...');
