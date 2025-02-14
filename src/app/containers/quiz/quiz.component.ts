@@ -4367,7 +4367,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       console.log('[fetchAndSetNextQuestion] ✅ Successfully fetched question:', nextQuestion);
 
+      console.log('[fetchAndSetNextQuestion] 🔄 Calling setCurrentQuestion()...');
       this.quizService.setCurrentQuestion(nextQuestion);
+      console.log('[fetchAndSetNextQuestion] ✅ Successfully set the current question.');
 
       // Update UI
       this.cdRef.detectChanges();
