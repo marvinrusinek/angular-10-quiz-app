@@ -1582,8 +1582,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private updateAndSyncNextButtonState(isEnabled: boolean): void {
     if (!isEnabled) {
       console.warn(`[updateAndSyncNextButtonState] 🚨 DISABLING Next button!`, new Error().stack);
+      console.warn(`[updateAndSyncNextButtonState] ❌ Next button was disabled by:`, {
+        isAnswered: this.selectedOptionService.isAnsweredSubject.getValue(),
+        isLoading: this.quizStateService.isLoadingSubject.getValue(),
+        isNavigating: this.quizStateService.isNavigatingSubject.getValue(),
+        isButtonEnabled: this.isButtonEnabled$
+      });
     } else {
-      console.log(`[updateAndSyncNextButtonState] ✅ Enabling Next button.`);
+        console.log(`[updateAndSyncNextButtonState] ✅ Enabling Next button.`);
     }
 
     this.ngZone.run(() => {
@@ -4099,7 +4105,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } */
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[advanceToNextQuestion] 🚫 Cannot advance - One of the conditions is blocking navigation.');
-      return console.warn('[advanceToNextQuestion] 🚫 Exiting at isLoading/isNavigating/isEnabled check.');
+      return console.warn('[advanceToNextQuestion] ⛔ Exiting: isLoading/isNavigating/isEnabled is preventing navigation.');
     }
 
     console.log('[advanceToNextQuestion] ✅ Proceeding with navigation.');
@@ -4125,7 +4131,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             } */
             if (!questionLoaded) {
               console.warn('[advanceToNextQuestion] ❌ No question found for next index. Aborting navigation.');
-              return console.warn('[advanceToNextQuestion] 🚫 Exiting because no question was loaded.');
+              return console.warn('[advanceToNextQuestion] ⛔ Exiting: fetchAndSetNextQuestion() failed.');
             }
 
             // ✅ Reset state for the new question
@@ -4137,6 +4143,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             // ✅ Load question contents
             await this.loadQuestionContents();
             await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+
+            console.log("MYTEST");
 
             // ✅ Reset explanation text
             if (this.quizQuestionComponent) {
