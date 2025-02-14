@@ -4093,9 +4093,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isEnabled: ${isEnabled}`);
 
     // 🚨 Prevent navigation if any blocking conditions are met
-    if (isLoading || isNavigating || !isEnabled) {
+    /* if (isLoading || isNavigating || !isEnabled) {
         console.warn('[advanceToNextQuestion] 🚫 Cannot advance - One of the conditions is blocking navigation.');
         return;
+    } */
+    if (isLoading || isNavigating || !isEnabled) {
+      console.warn('[advanceToNextQuestion] 🚫 Cannot advance - One of the conditions is blocking navigation.');
+      return console.warn('[advanceToNextQuestion] 🚫 Exiting at isLoading/isNavigating/isEnabled check.');
     }
 
     console.log('[advanceToNextQuestion] ✅ Proceeding with navigation.');
@@ -4115,9 +4119,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log('[advanceToNextQuestion] 🔄 Fetching next question...');
             const questionLoaded = await this.fetchAndSetNextQuestion();
 
-            if (!questionLoaded) {
+            /* if (!questionLoaded) {
                 console.warn('[advanceToNextQuestion] ❌ No question found for next index. Aborting navigation.');
                 return;
+            } */
+            if (!questionLoaded) {
+              console.warn('[advanceToNextQuestion] ❌ No question found for next index. Aborting navigation.');
+              return console.warn('[advanceToNextQuestion] 🚫 Exiting because no question was loaded.');
             }
 
             // ✅ Reset state for the new question
