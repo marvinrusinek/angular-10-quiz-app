@@ -4117,6 +4117,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 return;
             }
 
+            await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
+
             // ✅ Reset state for the new question
             this.resetOptionState();
             this.isOptionSelected = false;
