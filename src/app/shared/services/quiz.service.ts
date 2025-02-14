@@ -901,34 +901,36 @@ export class QuizService implements OnDestroy {
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-      return;
+        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+        return;
     }
 
     console.log('[QuizService] 🔄 Updating current question:', question);
 
-    // Ensure the new question is different from the current question before updating
+    // Ensure the new question is different (Use deep comparison if needed)
     const currentQuestion = this.currentQuestion.getValue();
     if (currentQuestion?.questionText === question.questionText) {
-      console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
-      return;
+        console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
+        return;  // Remove this condition temporarily if needed
     }
 
     // Prevent direct mutation - create a NEW object
     const updatedQuestion = {
-      ...question,
-      options: question.options?.map((option, index) => ({
-        ...option,
-        optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
-        correct: option.correct ?? false // Ensure correct is assigned only if missing
-      })) || []
+        ...question,
+        options: question.options?.map((option, index) => ({
+            ...option,
+            optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
+            correct: option.correct ?? false // Ensure correct is assigned only if missing
+        })) || []
     };
 
     console.log('[QuizService] 🔄 Emitting updated question:', updatedQuestion);
 
-    // Update the observable with a new object to trigger UI change
-    this.currentQuestion.next(updatedQuestion);
-    console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
+    // ✅ Use `setTimeout()` to delay emission and ensure change detection
+    setTimeout(() => {
+        this.currentQuestion.next(updatedQuestion);
+        console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
+    }, 10); 
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
