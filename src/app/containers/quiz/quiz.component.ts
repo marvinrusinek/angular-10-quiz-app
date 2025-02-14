@@ -258,24 +258,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isCurrentQuestionAnswered = isSelected;
     });
 
-    this.quizService.currentQuestion$.subscribe((newQuestion) => {
-      console.log('[QuizComponent] 🔄 New question received from observable:', newQuestion);
+    this.quizService.currentQuestion.subscribe({
+      next: (newQuestion) => {
+        console.log('[QuizComponent] 🔄 New question received from observable:', newQuestion);
 
-      if (!newQuestion) {
+        if (!newQuestion) {
           console.warn('[QuizComponent] ❌ No new question received. Skipping UI update.');
           return;
-      }
+        }
 
-      this.ngZone.run(() => {
+        this.ngZone.run(() => {
           console.log('[QuizComponent] ✅ Updating UI with new question...');
           this.currentQuestion = newQuestion;
-          
-          // ✅ Ensure Change Detection runs
+
+          // Force Change Detection
           setTimeout(() => {
-              this.cdRef.detectChanges();
-              console.log('[QuizComponent] 🔄 Change detection triggered.');
+            this.cdRef.detectChanges();
+            console.log('[QuizComponent] 🔄 Change detection triggered.');
           }, 10);
-      });
+        });
+      },
+      error: (err) => console.error('[QuizComponent] ❌ Error in currentQuestion subscription:', err),
+      complete: () => console.log('[QuizComponent] ✅ currentQuestion subscription completed.')
     });
 
     this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
