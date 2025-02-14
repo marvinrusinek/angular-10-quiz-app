@@ -260,6 +260,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.currentQuestion$.subscribe((newQuestion) => {
       console.log('[QuizComponent] 🔄 New question received:', newQuestion);
+      
+      // Force UI update inside Angular Zone
+      this.ngZone.run(() => {
+          this.cdRef.detectChanges();
+      });
     });
     
     this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
