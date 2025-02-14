@@ -3959,11 +3959,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }    
 
-  public debugNextButtonClick(): void {
-    console.log('[QuizComponent] 🟢 Next button clicked.');
-    this.advanceToNextQuestion();
-  }
-
   /************************ paging functions *********************/
   /* async advanceToNextQuestion(): Promise<void> {
     console.log('[advanceToNextQuestion] 🟢 Function was called.');
@@ -4117,7 +4112,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 this.quizQuestionComponent.explanationToDisplay = '';
                 this.quizQuestionComponent.isAnswered = false;
             }
-
+            
             // ✅ Update Next button state
             const shouldEnableNextButton = this.isAnyOptionSelected();
             this.updateAndSyncNextButtonState(shouldEnableNextButton);
@@ -4135,8 +4130,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setLoading(false);
 
         // ✅ Sync Next button state
-        const finalButtonState = this.isAnyOptionSelected();
-        this.updateAndSyncNextButtonState(finalButtonState);
+        //const finalButtonState = this.isAnyOptionSelected();
+        //this.updateAndSyncNextButtonState(finalButtonState);
 
         // ✅ Trigger UI update
         this.cdRef.detectChanges();
@@ -4358,6 +4353,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchAndSetNextQuestion(): Promise<boolean> {
+    console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex}`);
+
     try {
       const nextQuestion = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
@@ -4367,6 +4364,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
         return false;
       }
+
+      console.log('[fetchAndSetNextQuestion] ✅ Successfully fetched question:', nextQuestion);
 
       this.quizService.setCurrentQuestion(nextQuestion);
 
