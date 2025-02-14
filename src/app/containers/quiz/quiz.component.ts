@@ -4361,7 +4361,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
 
       if (!nextQuestion) {
-        console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
+      console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
         return false;
       }
 
