@@ -2459,6 +2459,8 @@ export class QuizQuestionComponent
             console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
         }
 
+        console.log('[onOptionClicked] 🔍 Checking isAnsweredSubject before condition:', this.selectedOptionService.isAnsweredSubject.getValue());
+
         if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
           console.log('[onOptionClicked] ✅ First option clicked - marking question as answered');
           this.selectedOptionService.isAnsweredSubject.next(true);
