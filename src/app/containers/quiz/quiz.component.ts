@@ -4363,7 +4363,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
 
       if (!nextQuestion) {
-      console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
+        console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
         return false;
       }
 
@@ -4373,9 +4373,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestion(nextQuestion);
       console.log('[fetchAndSetNextQuestion] ✅ Successfully set the current question.');
 
-      // Update UI
-      this.cdRef.detectChanges();
-      return true; // Ensure the function always returns a boolean
+      // Now reset `isAnsweredSubject` AFTER setting the question
+      this.selectedOptionService.isAnsweredSubject.next(false);
+      console.log('[fetchAndSetNextQuestion] 🔄 Resetting isAnsweredSubject to false AFTER setting question.');
+
+      // Force UI update inside Angular zone
+      this.ngZone.run(() => {
+        console.log('[fetchAndSetNextQuestion] 🔄 Manually triggering UI update.');
+        this.cdRef.detectChanges();
+      });
+
+      return true;
     } catch (error) {
       console.error('[fetchAndSetNextQuestion] ❌ Error fetching next question:', error);
       return false;
