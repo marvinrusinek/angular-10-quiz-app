@@ -2425,7 +2425,7 @@ export class QuizQuestionComponent
     }
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    console.log('🟢 Option clicked:', event.option);
+    console.log('🟢 [onOptionClicked] FUNCTION EXECUTED with:', event.option);
     console.log('[onOptionClicked] STARTED - Checking function execution.');
 
     try {
