@@ -258,7 +258,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isCurrentQuestionAnswered = isSelected;
     });
 
-
+    this.quizService.currentQuestion$.subscribe((newQuestion) => {
+      console.log('[QuizComponent] 🔄 New question received:', newQuestion);
+    });
     
     this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
       console.log('isContentAvailable$ in QuizComponent:::>>>', isAvailable)
