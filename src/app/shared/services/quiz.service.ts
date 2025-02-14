@@ -922,13 +922,27 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    question.options = question.options?.map((option, index) => ({
-      ...option,
-      optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
-      correct: option.correct ?? false // Ensure correct is assigned only if missing
-    })) || [];
+    // Ensure the new question is different from the current question before updating
+    const currentQuestion = this.currentQuestion.getValue();
+    if (currentQuestion?.questionText === question.questionText) {
+      console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
+      return;
+    }
 
-    this.currentQuestion.next(question);
+    // Prevent direct mutation - create a NEW object
+    const updatedQuestion = {
+      ...question,
+      options: question.options?.map((option, index) => ({
+        ...option,
+        optionId: option.optionId ?? index + 1, // ✅ Ensures IDs start from 1 if missing
+        correct: option.correct ?? false // Ensure correct is assigned only if missing
+      })) || []
+    };
+
+    console.log('[QuizService] 🔄 Updating current question:', updatedQuestion);
+
+    // Update the observable with a new object to trigger UI change
+    this.currentQuestion.next(updatedQuestion);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
