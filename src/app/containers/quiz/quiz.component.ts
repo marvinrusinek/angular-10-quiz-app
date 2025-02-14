@@ -4144,8 +4144,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             // ✅ Navigate to the new question
             console.log('[advanceToNextQuestion] 🔄 Attempting to navigate to:', `/quiz/${this.quizId}/${this.currentQuestionIndex}`);
-            await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
-            console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
+
+            try {
+              await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
+              console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
+            } catch (error) {
+              console.error('[advanceToNextQuestion] ❌ Router navigation failed:', error);
+            }
 
             // ✅ Ensure navigation reflects in UI
             setTimeout(() => {
