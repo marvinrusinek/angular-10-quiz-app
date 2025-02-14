@@ -941,11 +941,11 @@ export class QuizService implements OnDestroy {
       })) || []
     };
 
-    console.log('[QuizService] 🔄 Updating current question:', updatedQuestion);
+    console.log('[QuizService] 🔄 Emitting updated question:', updatedQuestion);
 
     // Update the observable with a new object to trigger UI change
     this.currentQuestion.next(updatedQuestion);
-    console.log('[QuizService] ✅ Emitted new currentQuestion:', question);
+    console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
