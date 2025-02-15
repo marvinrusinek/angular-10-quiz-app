@@ -53,11 +53,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   sharedOptionComponent!: SharedOptionComponent;
   @ViewChild('nextButton', { static: false })
   nextButtonTooltip!: MatTooltip;
-  @Input() data: {
+  /* @Input() data: {
     questionText: string,
     correctAnswersText?: string,
     currentOptions: Option[]
-  };
+  }; */
+  @Input() data: QuizQuestion;
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -3151,9 +3152,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    const data = {
-      ...questionData,
-      currentOptions: questionData.currentOptions || [],
+    const data: CombinedQuestionDataType = { 
+      questionText: questionData.questionText,
+      explanationText: questionData.explanationText || '',
+      options: questionData.options || [],
+      selectedOptions: questionData.selectedOptions || null,
+      type: questionData.type || 'single_answer'
     };
     this.data = data;
   

@@ -11,4 +11,6 @@ export interface CombinedQuestionDataType {
   isNavigatingToPrevious: boolean;
   isExplanationDisplayed: boolean;
   formattedExplanation?: string;
+  selectedOptions?: Option[] | null;
+  type?: 'single_answer' | 'multiple_answer';
 }
