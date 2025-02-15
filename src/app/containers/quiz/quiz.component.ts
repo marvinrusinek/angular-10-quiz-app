@@ -4816,7 +4816,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } 
 
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
       console.log('Fetching question data for index:', questionIndex);
 
@@ -4825,7 +4825,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetQuestionState(); // Clear old question data
 
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
-      if (!questionDetails) return;
+      if (!questionDetails) {
+        console.warn(`❌ No question details found for index: ${questionIndex}`);
+        return false; // Return false on failure
+      }
 
       const { questionText, options, explanation } = questionDetails;
 
@@ -4837,10 +4840,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = { ...questionDetails, options: questionDetails.options };
 
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-      console.log('Current question updated with active states:', this.currentQuestion);
-    
-      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-      console.log('Current question updated:', this.currentQuestion);
+      console.log('✅ Current question updated with active states:', this.currentQuestion);
 
       // Trigger UI refresh
       this.cdRef.detectChanges();
@@ -4856,8 +4856,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Timer logic: Start the timer for the loaded question
       const timePerQuestion = this.timerService.timePerQuestion;
       this.timerService.startTimer(timePerQuestion);
+
+      console.log('✅ fetchAndSetQuestionData completed successfully.');
+      return true; // Return true on success
     } catch (error) {
-      console.error('Error in fetchAndSetQuestionData:', error);
+      console.error('❌ Error in fetchAndSetQuestionData:', error);
+      return false; // Return false on failure
     }
   }
 
