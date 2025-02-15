@@ -4584,38 +4584,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[advanceToNextQuestion] 🔄 Loading question contents...');
             await this.loadQuestionContents(this.currentQuestionIndex);
+            console.log('[advanceToNextQuestion] ✅ loadQuestionContents() completed.');
+
+            console.log('[advanceToNextQuestion] 🔄 Calling prepareQuestionForDisplay()...');
             await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+            console.log('[advanceToNextQuestion] ✅ prepareQuestionForDisplay() completed.');
 
             console.log(`[advanceToNextQuestion] 🔄 Setting new current question in QuizService...`);
-            const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-            this.quizService.setCurrentQuestion(nextQuestion); // ✅ Ensure question is updated
+            /* const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+            this.quizService.setCurrentQuestion(nextQuestion); // ✅ Ensure question is updated */
 
             console.log('[advanceToNextQuestion] 🔄 Resetting explanation text...');
-            if (this.quizQuestionComponent) {
+            /* if (this.quizQuestionComponent) {
                 this.quizQuestionComponent.resetExplanation();
                 this.quizQuestionComponent.explanationToDisplay = '';
                 this.quizQuestionComponent.isAnswered = false;
-            }
+            } */
 
             // ✅ Update Next button state
-            console.log('[advanceToNextQuestion] 🔄 Checking if Next button should be enabled...');
+            /* console.log('[advanceToNextQuestion] 🔄 Checking if Next button should be enabled...');
             const shouldEnableNextButton = this.isAnyOptionSelected();
-            this.updateAndSyncNextButtonState(shouldEnableNextButton);
+            this.updateAndSyncNextButtonState(shouldEnableNextButton); */
 
             console.log('[advanceToNextQuestion] 🔄 Attempting to navigate to:', `/quiz/${this.quizId}/${this.currentQuestionIndex}`);
 
             this.ngZone.run(async () => {
-                try {
-                    console.log('[advanceToNextQuestion] 🚀 Executing router.navigate...');
-                    await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
-                    console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
-                } catch (error) {
-                    console.error('[advanceToNextQuestion] ❌ Navigation failed:', error);
-                }
+              try {
+                console.log('[advanceToNextQuestion] 🚀 Executing router.navigate...');
+                await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
+                console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
+              } catch (error) {
+                console.error('[advanceToNextQuestion] ❌ Navigation failed:', error);
+              }
             });
         } else {
-            console.log('[advanceToNextQuestion] 🏁 End of quiz reached. Navigating to results.');
-            await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+          console.log('[advanceToNextQuestion] 🏁 End of quiz reached. Navigating to results.');
+          await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         }
     } catch (error) {
         console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
