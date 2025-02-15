@@ -899,35 +899,35 @@ export class QuizService implements OnDestroy {
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
     if (!question) {
-        console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-        return;
+      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      return;
     }
 
-    console.log('[QuizService] 🔄 Updating current question:', question);
+    console.log('[QuizService] 🔄 Received question to set:', question);
 
-    // ✅ Ensure a change before updating
-    const currentQuestion = this.currentQuestion.getValue();
-    if (currentQuestion?.questionText === question.questionText) {
-        console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
-        return;
-    }
-
-    // ✅ Create a new reference to ensure change detection fires
-    const updatedQuestion = {
-        ...question,
-        options: question.options?.map((option, index) => ({
-            ...option,
-            optionId: option.optionId ?? index + 1,
-            correct: option.correct ?? false
-        })) || []
+    // Ensure change detection always triggers (Remove same-question check)
+    const updatedQuestion: QuizQuestion = {
+      ...question,
+      options: question.options?.map((option, index) => ({
+        ...option,
+        optionId: option.optionId ?? index + 1,
+        correct: option.correct ?? false
+      })) || []
     };
 
-    console.log('[QuizService] 🔄 Emitting updated question:', updatedQuestion);
+    console.log('[QuizService] 🔄 Preparing to emit updated question:', updatedQuestion);
 
-    // ✅ Emit new object reference for change detection
-    this.currentQuestion.next({ ...updatedQuestion });
-    console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
+    // Force emission with a `null` value first to guarantee updates trigger
+    this.currentQuestion.next(null);
+    console.log('[QuizService] 🟡 Emitted `null` to force update.');
+
+    setTimeout(() => {
+      // Emit the actual new question after clearing any stale references
+      this.currentQuestion.next(updatedQuestion);
+      console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
+    }, 10); // Small delay to ensure UI reacts properly
   }
+
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
     const quizId = this.getCurrentQuizId(); // Retrieve the current quiz ID
