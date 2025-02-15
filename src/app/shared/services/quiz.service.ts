@@ -1281,7 +1281,7 @@ export class QuizService implements OnDestroy {
           currentOptions: this.data.currentOptions,
           options: this.data.currentOptions,
           isNavigatingToPrevious: false,
-          explanationText: '',
+          explanation: '',
           formattedExplanation: formattedExplanation,
           isExplanationDisplayed: true,
         };
@@ -1307,7 +1307,7 @@ export class QuizService implements OnDestroy {
           currentOptions: [],
           options: [],
           isNavigatingToPrevious: false,
-          explanationText: '',
+          explanation: '',
           formattedExplanation: '',
           isExplanationDisplayed: false,
         };
@@ -1325,7 +1325,7 @@ export class QuizService implements OnDestroy {
         currentOptions: [],
         options: [],
         isNavigatingToPrevious: false,
-        explanationText: '',
+        explanation: '',
         formattedExplanation: 'An error occurred while loading the question.',
         isExplanationDisplayed: false,
       };
