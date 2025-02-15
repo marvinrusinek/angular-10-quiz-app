@@ -3,7 +3,7 @@ import { QuizQuestion } from './QuizQuestion.model';
 
 export interface CombinedQuestionDataType {
   questionText: string;
-  explanationText?: string;
+  explanation?: string;
   correctAnswersText?: string;
   currentQuestion: QuizQuestion | null;
   currentOptions?: Option[];
