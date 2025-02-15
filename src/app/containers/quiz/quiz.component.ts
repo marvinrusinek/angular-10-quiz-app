@@ -3152,20 +3152,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    const data: CombinedQuestionDataType = { 
+    const data: QuizQuestion = { 
       questionText: questionData.questionText,
-      explanation: questionData.explanation || '',
+      explanation: questionData.explanation || '',  // ✅ Ensure explanation exists
       options: questionData.options || [],
-      selectedOptions: questionData.selectedOptions || null,
-      type: questionData.type ?? 'single_answer',
-      currentQuestion: {
-        ...questionData,
-        explanation: questionData.explanation || '' 
-      },
-      isNavigatingToPrevious: false,
-      isExplanationDisplayed: false
+      type: (questionData.type as QuestionType) ?? QuestionType.SingleAnswer
     };
-    this.data = data;
+    
+    // ✅ Assign only valid `QuizQuestion` fields
+    this.data = data; // ✅ Now `this.data` is of type `QuizQuestion`
   
     // Set Quiz ID
     this.quizService.setQuizId(quizId);
