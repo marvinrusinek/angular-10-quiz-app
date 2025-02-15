@@ -1232,7 +1232,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     }
   } */
-  async loadQuestionContents(): Promise<void> {
+  /* async loadQuestionContents(): Promise<void> {
     try {
         console.log(`[loadQuestionContents] 🟢 Started for questionIndex: ${this.quizService.getCurrentQuestionIndex()}`);
 
@@ -1366,6 +1366,86 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         if (!this.isQuestionDisplayed) {
             console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
         }
+    }
+  } */
+  async loadQuestionContents(): Promise<void> {
+    try {
+        console.log(`[loadQuestionContents] 🟢 Started for questionIndex: ${this.quizService.getCurrentQuestionIndex()}`);
+        
+        this.isLoading = true;
+        this.isQuestionDisplayed = false;
+        this.isNextButtonEnabled = false;
+        this.updateTooltip('Please select an option to continue...'); // Reset tooltip
+
+        if (!this.quizQuestionComponent) {
+            console.error('[loadQuestionContents] ❌ quizQuestionComponent is undefined! Aborting function.');
+            return;
+        }
+
+        console.log('[loadQuestionContents] ✅ quizQuestionComponent is initialized.');
+
+        // ✅ Ensure quiz data is available before proceeding
+        const quizId = this.quizService.getCurrentQuizId();
+        const questionIndex = this.quizService.getCurrentQuestionIndex();
+
+        if (!quizId) {
+            console.error('[loadQuestionContents] ❌ No active quiz ID found.');
+            throw new Error('No active quiz ID found.');
+        }
+        if (typeof questionIndex !== 'number' || questionIndex < 0) {
+            console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
+            throw new Error('Invalid question index.');
+        }
+
+        // ✅ Fetch the required data
+        console.log('[loadQuestionContents] 🔄 Fetching question, options, and explanation...');
+        const data = await lastValueFrom(
+            forkJoin({
+                question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+                options: this.quizService.getCurrentOptions(questionIndex),
+                explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex),
+            }).pipe(
+                catchError((error) => {
+                    console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
+                    return of({ question: null, options: [], explanation: '' });
+                })
+            )
+        );
+
+        if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+            console.warn(`[loadQuestionContents] ⚠️ No valid question data for index ${questionIndex}. Navigation might be affected.`);
+            return;
+        }
+
+        // ✅ Assign the question and options
+        this.currentQuestion = data.question;
+        this.options = data.options;
+        this.explanationToDisplay = data.explanation;
+
+        console.log('[loadQuestionContents] ✅ Question data loaded successfully.');
+
+        // ✅ Ensure the question is correctly set in QuizService
+        this.quizService.setCurrentQuestion(this.currentQuestion);
+
+        this.isQuestionDisplayed = true;
+
+        // ✅ Ensure timer starts only if needed
+        if (!this.selectedOptionService.isAnsweredSubject.value) {
+            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+            this.timerService.startTimer();
+        }
+
+        // ✅ Ensure UI updates
+        setTimeout(() => {
+            this.cdRef.detectChanges();
+            this.cdRef.markForCheck();
+            console.log('[loadQuestionContents] ✅ UI should be fully updated now.');
+        }, 10);
+    } catch (error) {
+        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+    } finally {
+        this.isLoading = false;
+        console.log('[loadQuestionContents] ✅ loadQuestionContents completed.');
     }
   }
 
@@ -4390,14 +4470,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log('[advanceToNextQuestion] 🔄 Checking if Next button should be enabled...');
             const shouldEnableNextButton = this.isAnyOptionSelected();
             this.updateAndSyncNextButtonState(shouldEnableNextButton);
-            
-            console.log('[advanceToNextQuestion] 🔄 Attempting to navigate to:', `/quiz/${this.quizId}/${this.currentQuestionIndex}`);
 
-            // 🚨 Add a forced error to confirm if this line is reached
-            throw new Error('[DEBUG] 🚨 Forced error before navigation.');
+            console.log(`[advanceToNextQuestion] 🔄 Attempting to navigate to: /quiz/${this.quizId}/${this.currentQuestionIndex}`);
 
-            await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
-            console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
+            try {
+              await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
+              console.log('[advanceToNextQuestion] ✅ Router navigation executed successfully.');
+            } catch (error) {
+              console.error('[advanceToNextQuestion] ❌ Router navigation failed:', error);
+            }
         } else {
             console.log('[advanceToNextQuestion] 🏁 End of quiz reached. Navigating to results.');
             await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
