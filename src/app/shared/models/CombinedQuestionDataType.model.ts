@@ -5,12 +5,12 @@ export interface CombinedQuestionDataType {
   questionText: string;
   explanationText?: string;
   correctAnswersText?: string;
-  currentQuestion: QuizQuestion;
+  currentQuestion: QuizQuestion | null;
   currentOptions?: Option[];
   options: Option[];
+  selectedOptions?: Option[] | null;
+  type?: 'single_answer' | 'multiple_answer';
   isNavigatingToPrevious: boolean;
   isExplanationDisplayed: boolean;
   formattedExplanation?: string;
-  selectedOptions?: Option[] | null;
-  type?: 'single_answer' | 'multiple_answer';
 }
