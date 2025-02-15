@@ -4728,6 +4728,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
+    console.log('[prepareQuestionForDisplay] 🟢 Function was called for question index:', questionIndex);
+
     try {
       console.log('[prepareQuestionForDisplay] 🟢 Preparing question for display at index:', questionIndex);
 
