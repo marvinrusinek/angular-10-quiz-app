@@ -1497,18 +1497,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         try {
             console.log(`[loadQuestionContents] 🔄 Fetching question data for index: ${questionIndex}...`);
-            const data: { question: QuizQuestion | null; options: Option[]; explanation: string } = await lastValueFrom(
+            console.log(`[loadQuestionContents] 🟢 Executing forkJoin() for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+
+            const data = await lastValueFrom(
               forkJoin({
-                  question: this.quizService.getCurrentQuestionByIndex(this.quizId, questionIndex),
-                  options: this.quizService.getCurrentOptions(questionIndex),
-                  explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex),
+                  question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
+                      tap(q => console.log(`[loadQuestionContents] ✅ Question fetched:`, q)),
+                      catchError(error => {
+                          console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
+                          return of(null);
+                      })
+                  ),
+                  options: this.quizService.getCurrentOptions(questionIndex).pipe(
+                      tap(o => console.log(`[loadQuestionContents] ✅ Options fetched:`, o)),
+                      catchError(error => {
+                          console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
+                          return of([]);
+                      })
+                  ),
+                  explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
+                      tap(e => console.log(`[loadQuestionContents] ✅ Explanation fetched:`, e)),
+                      catchError(error => {
+                          console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
+                          return of('');
+                      })
+                  ),
               }).pipe(
-                  catchError((error) => {
-                      console.error(`[loadQuestionContents] ❌ Error fetching question/options: ${error.message}`);
+                  tap(data => console.log('[loadQuestionContents] ✅ Data from forkJoin:', data)), 
+                  catchError(error => {
+                      console.error(`[loadQuestionContents] ❌ Error in forkJoin:`, error);
                       return of({ question: null, options: [], explanation: '' });
                   })
               )
           );
+          
           console.log('[loadQuestionContents] ✅ Raw fetched data:', data);
           console.log('[loadQuestionContents] ✅ Data check:', {
               questionExists: !!data.question,
