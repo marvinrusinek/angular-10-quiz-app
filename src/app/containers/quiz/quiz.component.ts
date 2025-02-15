@@ -3154,11 +3154,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     const data: CombinedQuestionDataType = { 
       questionText: questionData.questionText,
-      explanation: questionData.explanationText || '',
+      explanation: questionData.explanation || '',
       options: questionData.options || [],
       selectedOptions: questionData.selectedOptions || null,
       type: questionData.type ?? 'single_answer',
-      currentQuestion: questionData || null,
+      currentQuestion: {
+        ...questionData,
+        explanation: questionData.explanation || '' 
+      },
       isNavigatingToPrevious: false,
       isExplanationDisplayed: false
     };
