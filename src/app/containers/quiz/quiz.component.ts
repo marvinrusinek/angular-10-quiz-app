@@ -4728,7 +4728,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[prepareQuestionForDisplay] 🟢 Preparing question for display at index:', questionIndex);
 
       // Fetch and set question data (must be completed before running other operations)
+      console.log('[prepareQuestionForDisplay] 🔄 Calling fetchAndSetQuestionData()...');
       const questionFetched = await this.fetchAndSetQuestionData(questionIndex);
+      console.log(`[prepareQuestionForDisplay] ✅ fetchAndSetQuestionData() completed. Result: ${questionFetched}`);
 
       if (!questionFetched) {
         console.warn('[prepareQuestionForDisplay] ❌ Failed to fetch question data. Aborting preparation.');
