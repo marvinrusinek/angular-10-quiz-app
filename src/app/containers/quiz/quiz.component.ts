@@ -204,6 +204,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
+    Object.defineProperty(this, 'currentQuestionIndex', {
+      set: function (value) {
+        console.log(`[DEBUG] 🔄 currentQuestionIndex changed: ${value}`);
+        this._currentQuestionIndex = value; // Store the value internally
+      },
+      get: function () {
+        return this._currentQuestionIndex;
+      }
+    });
+
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
         // Pause updates here (if needed)
