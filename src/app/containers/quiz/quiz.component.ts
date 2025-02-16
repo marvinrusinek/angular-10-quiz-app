@@ -312,52 +312,98 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  private async restoreStateAfterFocus(): Promise<void> {
+  @HostListener('window:focus', ['$event'])
+onTabFocus(event: FocusEvent): void {
+    console.log('[onTabFocus] 🔄 Tab focus detected. Restoring state...');
+
+    this.quizStateService.onRestoreQuestionState().pipe(takeUntil(this.destroy$)).subscribe({
+        next: () => {
+            this.restoreStateAfterFocus();
+        },
+        error: (err) => console.error('[onTabFocus] ❌ Error during state restoration:', err),
+    });
+}
+
+private async restoreStateAfterFocus(): Promise<void> {
+    console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
+
     this.ngZone.run(async () => {
-      // Prevent execution if loading is already in progress
-      if (this.isLoading || this.quizStateService.isLoading()) {
-        console.warn('State restoration skipped: Loading in progress.');
-        return;
-      }
-
-      try {        
-        // Restore the question state
-        await this.restoreQuestionState();
-
-        // Check if the current question is answered
-        const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-
-        // Determine if the question is a multiple-answer question
-        const isMultipleAnswer = await firstValueFrom(
-          this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-        );
-
-        // Update selection message if it has changed
-        const newMessage = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          this.totalQuestions,
-          isAnswered,
-          isMultipleAnswer
-        );
-
-        const currentMessage = this.selectionMessageService.getCurrentMessage();
-        if (currentMessage !== newMessage) {
-          console.log('Selection message updated after tab focus:', newMessage);
-          this.selectionMessageService.selectionMessageSubject.next(newMessage);
+        // 🔹 Prevent execution if loading is already in progress
+        if (this.isLoading || this.quizStateService.isLoading()) {
+            console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
+            return;
         }
 
-        // Fetch and update explanation text
-        await this.fetchFormattedExplanationText(this.currentQuestionIndex);
+        try {
+            // 🔹 Restore the question index from localStorage
+            const savedIndex = localStorage.getItem('savedQuestionIndex');
+            let restoredIndex = this.quizService.getCurrentQuestionIndex();
 
-        // Update observables for loading and answered state
-        this.isLoading$ = this.quizStateService.isLoading$;
-        this.isAnswered$ = this.quizStateService.isAnswered$;
+            if (savedIndex !== null) {
+                restoredIndex = JSON.parse(savedIndex);
+                console.log('[restoreStateAfterFocus] 🔄 Restored currentQuestionIndex from localStorage:', restoredIndex);
+            }
 
-        // Trigger change detection for UI update
-        this.cdRef.detectChanges();
-      } catch (error) {
-        console.error('Error during state restoration after tab focus:', error);
-      }
+            // 🔹 Ensure a valid question index is restored
+            const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+            if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
+                console.warn('[restoreStateAfterFocus] ❌ Invalid question index on tab focus. Defaulting to last known index.');
+                return;
+            }
+
+            console.log('[restoreStateAfterFocus] ✅ Valid question index:', restoredIndex);
+
+            // 🔹 Restore the question state
+            this.currentQuestionIndex = restoredIndex;
+            await this.restoreQuestionState();
+
+            // 🔹 Ensure the badge text is updated
+            this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
+            console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
+
+            // 🔹 Ensure the URL updates correctly
+            const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
+            if (this.router.url !== newUrl) {
+                console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
+                this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
+            }
+
+            // 🔹 Check if the current question is answered
+            const isAnswered = await this.isQuestionAnswered(restoredIndex);
+
+            // 🔹 Determine if the question is a multiple-answer question
+            const isMultipleAnswer = await firstValueFrom(
+                this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+            );
+
+            // 🔹 Update selection message if changed
+            const newMessage = this.selectionMessageService.determineSelectionMessage(
+                restoredIndex,
+                this.totalQuestions,
+                isAnswered,
+                isMultipleAnswer
+            );
+
+            const currentMessage = this.selectionMessageService.getCurrentMessage();
+            if (currentMessage !== newMessage) {
+                console.log('[restoreStateAfterFocus] ✅ Selection message updated:', newMessage);
+                this.selectionMessageService.selectionMessageSubject.next(newMessage);
+            }
+
+            // 🔹 Fetch and update explanation text
+            await this.fetchFormattedExplanationText(restoredIndex);
+
+            // 🔹 Update observables for UI state
+            this.isLoading$ = this.quizStateService.isLoading$;
+            this.isAnswered$ = this.quizStateService.isAnswered$;
+
+            // 🔹 Trigger change detection for UI update
+            this.cdRef.detectChanges();
+            console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
+
+        } catch (error) {
+            console.error('[restoreStateAfterFocus] ❌ Error during state restoration:', error);
+        }
     });
   }
 
