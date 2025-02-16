@@ -4588,7 +4588,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setAnswered(false);
 
         console.log('[advanceToNextQuestion] ✅ Calling loadQuestionContents...');
-        // await this.loadQuestionContents(this.currentQuestionIndex);
+        await this.loadQuestionContents(this.currentQuestionIndex);
         console.log('[advanceToNextQuestion] ✅ loadQuestionContents() completed.');
 
         console.log('[advanceToNextQuestion] 🔄 Calling prepareQuestionForDisplay()...');
