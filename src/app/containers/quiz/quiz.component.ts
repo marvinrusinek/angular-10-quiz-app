@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, H
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, defaultIfEmpty, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -1617,122 +1617,100 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
         this.timerService.resetTimer();
 
-        console.log('[loadQuestionContents] 🔄 Fetching question, options, and explanation...');
+        console.log('[loadQuestionContents] 🔄 Preparing to fetch question, options, and explanation...');
         const fetchStartTime = performance.now();
 
-        let data: { question: QuizQuestion | null; options: Option[]; explanation: string };
+        console.log(`[loadQuestionContents] 🟢 Executing forkJoin() for quizId: ${quizId}, questionIndex: ${questionIndex}`);
 
-        try {
-            console.log(`[loadQuestionContents] 🟢 Executing forkJoin() for quizId: ${quizId}, questionIndex: ${questionIndex}`);
-            
-            console.log('[loadQuestionContents] 🔍 Checking fetched data before assignment:', data);
+        // ✅ Preparing observables
+        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
+            tap(q => console.log(`[loadQuestionContents] ✅ Question observable emitted:`, q)),
+            catchError(error => {
+                console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
+                return of(null);
+            })
+        );
 
-            console.log('[loadQuestionContents] 🟢 Starting forkJoin for fetching data...');
+        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(
+            tap(o => console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o)),
+            catchError(error => {
+                console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
+                return of([]);
+            })
+        );
 
-            console.log(`[loadQuestionContents] 🔍 Preparing observables for forkJoin:
-              question$:`, this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
-              `options$:`, this.quizService.getCurrentOptions(questionIndex),
-              `explanation$:`, this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-            );
+        const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
+            tap(e => console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e)),
+            catchError(error => {
+                console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
+                return of('');
+            })
+        );
 
-            console.log('[loadQuestionContents] 🟢 Starting forkJoin for fetching data...');
+        console.log('[loadQuestionContents] 🔍 Starting forkJoin...');
 
-            data = await lastValueFrom(
-                forkJoin({
-                  question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
-                    tap(q => {
-                        if (q) {
-                            console.log(`[loadQuestionContents] ✅ Question observable emitted:`, q);
-                        } else {
-                            console.warn(`[loadQuestionContents] ⚠️ Question observable emitted null/undefined!`);
-                        }
-                    }),
-                    catchError(error => {
-                        console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
-                        return of(null);
-                    })
-                  ),
-                  options: this.quizService.getCurrentOptions(questionIndex).pipe(
-                      tap(o => {
-                          if (o.length > 0) {
-                              console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o);
-                          } else {
-                              console.warn(`[loadQuestionContents] ⚠️ Options observable emitted empty array!`);
-                          }
-                      }),
-                      catchError(error => {
-                          console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
-                          return of([]);
-                      })
-                  ),
-                  explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-                      tap(e => {
-                          if (e) {
-                              console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e);
-                          } else {
-                              console.warn(`[loadQuestionContents] ⚠️ Explanation observable emitted empty string!`);
-                          }
-                      }),
-                      catchError(error => {
-                          console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
-                          return of('');
-                      })
-                  ),
+        const data = await lastValueFrom(
+            forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+                tap(finalData => {
+                    console.log('[loadQuestionContents] ✅ forkJoin completed successfully:', finalData);
+                }),
+                defaultIfEmpty({ question: null, options: [], explanation: '' }), // Prevents undefined errors
+                catchError(error => {
+                    console.error(`[loadQuestionContents] ❌ forkJoin failed:`, error);
+                    return of({ question: null, options: [], explanation: '' });
                 })
-            );
+            )
+        );
 
-            console.log('[loadQuestionContents] ✅ Raw fetched data:', data);
+        console.log('[loadQuestionContents] ✅ Final fetched data:', data);
 
-            // ✅ Validate fetched data
-            if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
-                console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}. Navigation might be affected.`);
-                return;
-            }
-
-            console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
-            this.currentQuestion = { ...data.question }; // Ensure new object reference
-            console.log(`[loadQuestionContents] 🔄 After setting current question:`, this.currentQuestion);
-
-            this.options = [...data.options];
-            console.log(`[loadQuestionContents] 🔄 After setting options:`, this.options);
-
-            this.explanationToDisplay = data.explanation;
-            console.log(`[loadQuestionContents] 🔄 After setting explanation:`, this.explanationToDisplay);
-
-            // ✅ Update UI
-            this.isQuestionDisplayed = true;
-            this.cdRef.detectChanges();
-            console.log('[loadQuestionContents] ✅ UI should be updated now.');
-
-            // ✅ Start Timer Only If Question Hasn't Been Answered
-            if (!this.selectedOptionService.isAnsweredSubject.value) {
-                console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
-                this.timerService.startTimer();
-            } else {
-                console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
-            }
-
-            console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
-        } catch (error) {
-            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+        // ✅ Validate fetched data
+        if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+            console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}. Navigation might be affected.`);
             return;
-        } finally {
-            const fetchEndTime = performance.now();
-            console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
-
-            this.isLoading = false;
-            console.log('[loadQuestionContents] 🔄 isLoading set to false.');
-
-            if (!this.isQuestionDisplayed) {
-                console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
-            }
-
-            // ✅ Ensure final UI update and return control
-            this.cdRef.detectChanges();
-            console.log('[loadQuestionContents] ✅ Function execution completed. Proceeding to next step.');
         }
+
+        console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
+        this.currentQuestion = { ...data.question }; // Ensure new object reference
+        console.log(`[loadQuestionContents] 🔄 After setting current question:`, this.currentQuestion);
+
+        this.options = [...data.options];
+        console.log(`[loadQuestionContents] 🔄 After setting options:`, this.options);
+
+        this.explanationToDisplay = data.explanation;
+        console.log(`[loadQuestionContents] 🔄 After setting explanation:`, this.explanationToDisplay);
+
+        // ✅ Update UI
+        this.isQuestionDisplayed = true;
+        this.cdRef.detectChanges();
+        console.log('[loadQuestionContents] ✅ UI should be updated now.');
+
+        // ✅ Start Timer Only If Question Hasn't Been Answered
+        if (!this.selectedOptionService.isAnsweredSubject.value) {
+            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+            this.timerService.startTimer();
+        } else {
+            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+        }
+
+        console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
     } catch (error) {
         console.error('[loadQuestionContents] ❌ Unexpected error:', error);
+        return;
+    } finally {
+        const fetchEndTime = performance.now();
+        console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
+
+        this.isLoading = false;
+        console.log('[loadQuestionContents] 🔄 isLoading set to false.');
+
+        if (!this.isQuestionDisplayed) {
+            console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
+        }
+
+        // ✅ Ensure final UI update and return control
+        this.cdRef.detectChanges();
+        console.log('[loadQuestionContents] ✅ Function execution completed. Proceeding to next step.');
     }
   }
 
