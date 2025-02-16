@@ -4014,7 +4014,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.currentQuestionIndex = questionIndex;
 
     // Immediately update the question badge before navigating
-    this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
     // Mark navigation as in progress
     if (this.isLoading || this.debounceNavigation) {
@@ -4100,7 +4100,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.currentQuestionIndex = questionIndex;
         // Ensure the badge text updates again after full navigation
-        this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
+        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
         console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
