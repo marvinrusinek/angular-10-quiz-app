@@ -62,6 +62,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
+  @Input() currentQuestion: QuizQuestion | null = null;
   quiz: Quiz;
   quizData: QuizData[];
   quizComponentData: QuizComponentData;
@@ -72,7 +73,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questions: QuizQuestion[];
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
-  currentQuestion: QuizQuestion | null = null;
   currentQuestion$: Observable<QuizQuestion | null> = 
     this.quizStateService.currentQuestion$.pipe(startWith(null));
   currentQuestionType: string;
