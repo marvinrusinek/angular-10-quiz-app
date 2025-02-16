@@ -897,17 +897,17 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  public setCurrentQuestion(question: QuizQuestion | null): void {
+  public setCurrentQuestion(question: QuizQuestion): void {
     console.log('[QuizService] 🔄 setCurrentQuestion() called with:', question);
 
     if (!question) {
       console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
-      return;
+      return; // Prevent setting `null`
     }
 
     console.log('[QuizService] 🔄 Received question to set:', question);
 
-    // Ensure change detection always triggers (Remove same-question check)
+    // Ensure a change is always detected
     const updatedQuestion: QuizQuestion = {
       ...question,
       options: question.options?.map((option, index) => ({
@@ -919,15 +919,10 @@ export class QuizService implements OnDestroy {
 
     console.log('[QuizService] 🔄 Preparing to emit updated question:', updatedQuestion);
 
-    // Force emission with a `null` value first to guarantee updates trigger
-    this.currentQuestion.next(null);
-    console.log('[QuizService] 🟡 Emitted `null` to force update.');
+    // Emit a new object reference to trigger change detection
+    this.currentQuestion.next({ ...updatedQuestion });
 
-    setTimeout(() => {
-      // Emit the actual new question after clearing any stale references
-      this.currentQuestion.next(updatedQuestion);
-      console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
-    }, 10); // Small delay to ensure UI reacts properly
+    console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
   }
 
 
