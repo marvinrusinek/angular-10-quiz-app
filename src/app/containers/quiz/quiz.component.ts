@@ -55,10 +55,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   @ViewChild('nextButton', { static: false })
   nextButtonTooltip!: MatTooltip;
   @Input() data: QuizQuestion;
-  @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
-  @Input() form: FormGroup;
   @Input() currentQuestion: QuizQuestion | null = null;
+  @Input() shouldDisplayNumberOfCorrectAnswers = false;
+  @Input() form: FormGroup;
   quiz: Quiz;
   quizData: QuizData[];
   quizComponentData: QuizComponentData;
