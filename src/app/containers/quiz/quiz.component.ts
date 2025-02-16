@@ -4605,18 +4605,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[advanceToNextQuestion] 🔄 Checking if Next button should be enabled...');
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
-
-        console.log('[advanceToNextQuestion] 🔄 Attempting to navigate to:', `/quiz/${this.quizId}/${this.currentQuestionIndex}`);
-
-        this.ngZone.run(async () => {
-          try {
-            console.log('[advanceToNextQuestion] 🚀 Executing router.navigate...');
-            await this.router.navigate(['/quiz', this.quizId, this.currentQuestionIndex]);
-            console.log('[advanceToNextQuestion] ✅ Router navigation executed.');
-          } catch (error) {
-            console.error('[advanceToNextQuestion] ❌ Navigation failed:', error);
-          }
-        });
       } else {
         console.log('[advanceToNextQuestion] 🏁 End of quiz reached. Navigating to results.');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
