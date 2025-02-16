@@ -1,4 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Location } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -202,7 +203,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private ngZone: NgZone,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private location: Location
   ) {
     Object.defineProperty(this, 'currentQuestionIndex', {
       set: function (value) {
@@ -4022,6 +4024,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Log active route immediately after navigation
         console.log('[navigateToQuestion] 🔄 Active route after navigation:', this.router.url);
+
+        // Force URL Update If Router Doesn't Work**
+        if (this.router.url !== newUrl) {
+          console.warn('[navigateToQuestion] ⚠️ Router did not update URL, forcing with Location.replaceState()');
+          this.location.replaceState(newUrl); // **Force the URL change**
+        }
 
         // ✅ Ensure navigation was not aborted
         if (signal.aborted) {
