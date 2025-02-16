@@ -3772,7 +3772,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
 
-    // ✅ Prevent navigating to the same question
+    // ✅ Force update before checking
+    console.log('[navigateToQuestion] 🔄 Current question index before update:', this.currentQuestionIndex);
+    this.currentQuestionIndex = questionIndex;
+    console.log('[navigateToQuestion] ✅ Updated currentQuestionIndex to:', this.currentQuestionIndex);
+
+    // ✅ Now check after forcing update
     if (this.currentQuestionIndex === questionIndex) {
         console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
         return;
