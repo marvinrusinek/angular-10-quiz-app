@@ -1658,19 +1658,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.explanationToDisplay = data.explanation;
         console.log(`[loadQuestionContents] ✅ Assigned data successfully.`);
 
-        // ✅ **Update Badge Text**
+        // Update Badge Text
         const badgeText = `Question ${questionIndex + 1}`;
-        this.quizService.updateBadgeText(badgeText); // 🔥 Updating badge!
+        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
-        // ✅ **Ensure UI Updates**
+        // Ensure UI Updates**
         this.cdRef.detectChanges();
         console.log('[loadQuestionContents] ✅ UI should be updated now.');
 
         if (!this.selectedOptionService.isAnsweredSubject.value) {
-            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
-            this.timerService.startTimer();
+          console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+          this.timerService.startTimer();
         } else {
-            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+          console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
         }
 
         console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
