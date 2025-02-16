@@ -3239,6 +3239,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
         this.quizService.setCurrentQuestion(nextQuestion); // Ensure question is updated
 
+        const nextQuestionIndex = this.currentQuestionIndex + 1;
+        this.quizService.updateBadgeText(nextQuestionIndex, this.totalQuestions);
+
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.resetExplanation();
           this.quizQuestionComponent.explanationToDisplay = '';
@@ -4022,14 +4025,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
         });
 
-        // ✅ Log active route immediately after navigation
-        console.log('[navigateToQuestion] 🔄 Active route after navigation:', this.router.url);
-
-        // Force URL Update If Router Doesn't Work**
+        // ✅ **Force URL Update If Router Doesn't Work**
         if (this.router.url !== newUrl) {
-          console.warn('[navigateToQuestion] ⚠️ Router did not update URL, forcing with Location.replaceState()');
-          this.location.replaceState(newUrl); // **Force the URL change**
+          console.warn('[navigateToQuestion] ⚠️ Router did not update URL, trying force reload...');
+
+          // 🔹 **Forcing Full Router Reload (WORKAROUND)**
+          await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
+          await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex]));
+
+          console.log('[navigateToQuestion] ✅ Forced full router reload.');
         }
+
+        console.log('[navigateToQuestion] 🔄 Active route AFTER force reload:', this.router.url);
+
+        // ✅ **Final URL Update Fallback** (For Browsers)
+        if (this.router.url !== newUrl) {
+            console.warn('[navigateToQuestion] ⚠️ Router still did not update, forcing with history.pushState()');
+            window.history.pushState({}, '', newUrl); // Last resort for URL update
+        }
+
+        console.log('[navigateToQuestion] 🔄 Active route AFTER history.pushState():', window.location.href);
 
         // ✅ Ensure navigation was not aborted
         if (signal.aborted) {
