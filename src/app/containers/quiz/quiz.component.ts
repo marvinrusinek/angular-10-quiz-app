@@ -2284,6 +2284,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.loadCurrentQuestion();
     }
 
+    if (changes['currentQuestion']) {
+      console.log('[QuizComponent] 🔄 currentQuestion changed:', changes['currentQuestion'].currentValue);
+    }
+
     if (changes['question'] && changes['question'].currentValue) {
       console.log('Question updated:', changes['question'].currentValue);
     } else {
