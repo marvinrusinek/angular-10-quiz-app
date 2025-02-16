@@ -1584,6 +1584,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
         this.updateTooltip('Please select an option to continue...');
+        console.log('[loadQuestionContents] ✅ Tooltip updated.');
 
         if (!this.quizQuestionComponent) {
             console.error('[loadQuestionContents] ❌ quizQuestionComponent is undefined! Aborting function.');
@@ -1594,6 +1595,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // ✅ Clear previous question data
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
+        console.log('[loadQuestionContents] ✅ Cleared previous question data.');
 
         const quizId = this.quizService.getCurrentQuizId();
         console.log(`[loadQuestionContents] 🔄 Fetching question data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
@@ -1649,19 +1651,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 })
             );
 
-            console.log('[loadQuestionContents] ✅ Data fetched:', data);
+            console.log('[loadQuestionContents] ✅ Raw fetched data:', data);
 
+            // ✅ Validate fetched data
             if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
-                console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}.`);
+                console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}. Navigation might be affected.`);
                 return;
             }
 
-            // ✅ Assign Data
             console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
             this.currentQuestion = { ...data.question }; // Ensure new object reference
+            console.log(`[loadQuestionContents] 🔄 After setting current question:`, this.currentQuestion);
+
             this.options = [...data.options];
+            console.log(`[loadQuestionContents] 🔄 After setting options:`, this.options);
+
             this.explanationToDisplay = data.explanation;
-            console.log(`[loadQuestionContents] ✅ Assigned data successfully.`);
+            console.log(`[loadQuestionContents] 🔄 After setting explanation:`, this.explanationToDisplay);
 
             // ✅ Update UI
             this.isQuestionDisplayed = true;
@@ -1685,6 +1691,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
 
             this.isLoading = false;
+            console.log('[loadQuestionContents] 🔄 isLoading set to false.');
 
             if (!this.isQuestionDisplayed) {
                 console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
