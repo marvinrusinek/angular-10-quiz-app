@@ -1672,7 +1672,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
         this.currentQuestion = { ...data.question }; // Ensure new object reference
-        console.log(`[loadQuestionContents] 🔄 After setting current question:`, this.currentQuestion);
+        console.log('[loadQuestionContents] 🟢 Updated currentQuestion:', this.currentQuestion);
 
         this.options = [...data.options];
         console.log(`[loadQuestionContents] 🔄 After setting options:`, this.options);
