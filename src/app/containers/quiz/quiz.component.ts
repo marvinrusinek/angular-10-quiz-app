@@ -271,13 +271,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.ngZone.run(() => {
               console.log('[QuizComponent] ✅ Resetting current question before updating...');
               this.currentQuestion = null;  // 👈 Force reset to clear stale UI
-              this.cdRef.detectChanges(); // 👈 Ensure Angular recognizes the change
   
               setTimeout(() => {
                   console.log('[QuizComponent] ✅ Setting new currentQuestion...');
                   this.currentQuestion = { ...newQuestion };
                   console.log('[QuizComponent] 🟢 Updated currentQuestion:', this.currentQuestion);
-                  this.cdRef.detectChanges(); // 👈 Force UI update after setting new question
               }, 10); // Small delay to ensure UI resets properly
           });
       },
@@ -2283,7 +2281,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('[QuizComponent] 🔄 ngOnChanges() triggered with:', changes);
-    
+
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
