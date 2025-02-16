@@ -261,28 +261,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.currentQuestion.subscribe({
       next: (newQuestion) => {
-        console.log('[QuizComponent] 🔄 New question received from observable:', newQuestion);
-    
-        if (!newQuestion) {
-          console.warn('[QuizComponent] ❌ No new question received. Skipping UI update.');
-          return;
-        }
-    
-        // Ensure UI updates
-        this.ngZone.run(() => {
-          console.log('[QuizComponent] ✅ Updating UI with new question...');
-          this.currentQuestion = { ...newQuestion };
-
-          console.log('[QuizComponent] 🟢 Updated currentQuestion:', this.currentQuestion);
-
-          // Force UI update
-          this.cdRef.detectChanges();
-          console.log('[QuizComponent] 🔄 Change detection triggered.');
-        });
+          console.log('[QuizComponent] 🔄 New question received from observable:', newQuestion);
+  
+          if (!newQuestion) {
+              console.warn('[QuizComponent] ❌ No new question received. Skipping UI update.');
+              return;
+          }
+  
+          this.ngZone.run(() => {
+              console.log('[QuizComponent] ✅ Resetting current question before updating...');
+              this.currentQuestion = null;  // 👈 Force reset to clear stale UI
+              this.cdRef.detectChanges(); // 👈 Ensure Angular recognizes the change
+  
+              setTimeout(() => {
+                  console.log('[QuizComponent] ✅ Setting new currentQuestion...');
+                  this.currentQuestion = { ...newQuestion };
+                  console.log('[QuizComponent] 🟢 Updated currentQuestion:', this.currentQuestion);
+                  this.cdRef.detectChanges(); // 👈 Force UI update after setting new question
+              }, 10); // Small delay to ensure UI resets properly
+          });
       },
       error: (err) => console.error('[QuizComponent] ❌ Error in currentQuestion subscription:', err),
       complete: () => console.log('[QuizComponent] ✅ currentQuestion subscription completed.')
-    });    
+    });  
 
     this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
       console.log('isContentAvailable$ in QuizComponent:::>>>', isAvailable)
