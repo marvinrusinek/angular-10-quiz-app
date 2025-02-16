@@ -1585,18 +1585,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isNextButtonEnabled = false;
         this.updateTooltip('Please select an option to continue...');
 
-        // 🚨 Ensure quizQuestionComponent is available
         if (!this.quizQuestionComponent) {
             console.error('[loadQuestionContents] ❌ quizQuestionComponent is undefined! Aborting function.');
-            return false; // 🔴 Return false to indicate failure
+            return false;
         }
         console.log('[loadQuestionContents] ✅ quizQuestionComponent is initialized.');
 
-        // ✅ Clear previous question data
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
 
-        // ✅ Validate quiz ID and question index
         const quizId = this.quizService.getCurrentQuizId();
         console.log(`[loadQuestionContents] 🔄 Fetching question data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
 
@@ -1609,7 +1606,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return false;
         }
 
-        // ✅ Stop & Reset Timer Before Loading a New Question
         if (this.timerService.isTimerRunning) {
             console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
             this.timerService.stopTimer();
@@ -1617,7 +1613,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
         this.timerService.resetTimer();
 
-        // ✅ Fetching Data
         console.log('[loadQuestionContents] 🔄 Fetching question, options, and explanation...');
         const fetchStartTime = performance.now();
 
@@ -1652,27 +1647,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const fetchEndTime = performance.now();
         console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
 
-        // ✅ Validate fetched data
         if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
             console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}.`);
             return false;
         }
 
-        // ✅ Assign Question, Options, and Explanation
         console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
         this.currentQuestion = { ...data.question };
         this.options = [...data.options];
         this.explanationToDisplay = data.explanation;
         console.log(`[loadQuestionContents] ✅ Assigned data successfully.`);
 
-        // ✅ Update the Badge Number for the Current Question
-        this.updateQuestionBadge(questionIndex + 1);
+        // ✅ **Update Badge Text**
+        const badgeText = `Question ${questionIndex + 1}`;
+        this.quizService.updateBadgeText(badgeText); // 🔥 Updating badge!
 
-        // ✅ Force Change Detection
+        // ✅ **Ensure UI Updates**
         this.cdRef.detectChanges();
         console.log('[loadQuestionContents] ✅ UI should be updated now.');
 
-        // ✅ Start Timer Only If Question Hasn't Been Answered
         if (!this.selectedOptionService.isAnsweredSubject.value) {
             console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
             this.timerService.startTimer();
@@ -1681,7 +1674,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
-        return true; // 🟢 Return true to indicate success
+        return true;
     } catch (error) {
         console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
         return false;
