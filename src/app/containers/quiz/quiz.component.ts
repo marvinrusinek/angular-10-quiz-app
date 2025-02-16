@@ -352,6 +352,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> { 
+    console.log("TESTING");
     console.log('[QuizComponent] 🟢 Initialized. Current Question:', this.currentQuestion);
     this.initializeDisplayVariables();
 
@@ -2281,6 +2282,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('[QuizComponent] 🔄 ngOnChanges() triggered with:', changes);
+    
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
