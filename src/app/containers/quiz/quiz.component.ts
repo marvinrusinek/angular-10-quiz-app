@@ -4582,8 +4582,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.selectedOptionService.isAnsweredSubject.next(false);
             this.quizStateService.setAnswered(false);
 
-            console.log('[advanceToNextQuestion] 🔄 Loading question contents...');
-            await this.loadQuestionContents(this.currentQuestionIndex);
+            console.log('[advanceToNextQuestion] ✅ Calling loadQuestionContents...');
+            // await this.loadQuestionContents(this.currentQuestionIndex);
             console.log('[advanceToNextQuestion] ✅ loadQuestionContents() completed.');
 
             console.log('[advanceToNextQuestion] 🔄 Calling prepareQuestionForDisplay()...');
@@ -4591,20 +4591,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log('[advanceToNextQuestion] ✅ prepareQuestionForDisplay() completed.');
 
             console.log(`[advanceToNextQuestion] 🔄 Setting new current question in QuizService...`);
-            /* const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-            this.quizService.setCurrentQuestion(nextQuestion); // ✅ Ensure question is updated */
+            const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+            this.quizService.setCurrentQuestion(nextQuestion); // ✅ Ensure question is updated
 
             console.log('[advanceToNextQuestion] 🔄 Resetting explanation text...');
-            /* if (this.quizQuestionComponent) {
+            if (this.quizQuestionComponent) {
                 this.quizQuestionComponent.resetExplanation();
                 this.quizQuestionComponent.explanationToDisplay = '';
                 this.quizQuestionComponent.isAnswered = false;
-            } */
+            }
 
             // ✅ Update Next button state
-            /* console.log('[advanceToNextQuestion] 🔄 Checking if Next button should be enabled...');
+            console.log('[advanceToNextQuestion] 🔄 Checking if Next button should be enabled...');
             const shouldEnableNextButton = this.isAnyOptionSelected();
-            this.updateAndSyncNextButtonState(shouldEnableNextButton); */
+            this.updateAndSyncNextButtonState(shouldEnableNextButton);
 
             console.log('[advanceToNextQuestion] 🔄 Attempting to navigate to:', `/quiz/${this.quizId}/${this.currentQuestionIndex}`);
 
