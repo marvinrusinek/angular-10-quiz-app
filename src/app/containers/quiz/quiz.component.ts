@@ -1576,7 +1576,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionContents] ✅ Function execution completed.');
     }
   } */
-  async loadQuestionContents(questionIndex: number): Promise<void> {
+  async loadQuestionContents(questionIndex: number): Promise<boolean> {
     try {
         console.log(`[loadQuestionContents] 🟢 Started for questionIndex: ${questionIndex}`);
 
@@ -1585,25 +1585,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isNextButtonEnabled = false;
         this.updateTooltip('Please select an option to continue...');
 
+        // 🚨 Ensure quizQuestionComponent is available
         if (!this.quizQuestionComponent) {
             console.error('[loadQuestionContents] ❌ quizQuestionComponent is undefined! Aborting function.');
-            return;
+            return false; // 🔴 Return false to indicate failure
         }
         console.log('[loadQuestionContents] ✅ quizQuestionComponent is initialized.');
 
+        // ✅ Clear previous question data
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
 
+        // ✅ Validate quiz ID and question index
         const quizId = this.quizService.getCurrentQuizId();
+        console.log(`[loadQuestionContents] 🔄 Fetching question data for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+
         if (!quizId) {
             console.error('[loadQuestionContents] ❌ No active quiz ID found.');
-            return;
+            return false;
         }
         if (typeof questionIndex !== 'number' || questionIndex < 0) {
             console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
-            return;
+            return false;
         }
 
+        // ✅ Stop & Reset Timer Before Loading a New Question
         if (this.timerService.isTimerRunning) {
             console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
             this.timerService.stopTimer();
@@ -1611,49 +1617,74 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionContents] 🔄 Resetting timer for new question...');
         this.timerService.resetTimer();
 
+        // ✅ Fetching Data
         console.log('[loadQuestionContents] 🔄 Fetching question, options, and explanation...');
-        try {
-            const data = await lastValueFrom(
-                forkJoin({
-                    question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
-                        catchError(error => {
-                            console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
-                            return of(null);
-                        })
-                    ),
-                    options: this.quizService.getCurrentOptions(questionIndex).pipe(
-                        catchError(error => {
-                            console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
-                            return of([]);
-                        })
-                    ),
-                    explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-                        catchError(error => {
-                            console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
-                            return of('');
-                        })
-                    ),
-                })
-            );
+        const fetchStartTime = performance.now();
 
-            if (!data.question || data.options.length === 0) {
-                console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}.`);
-                return;
-            }
+        const data = await lastValueFrom(
+            forkJoin({
+                question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
+                    tap(q => console.log(`[loadQuestionContents] ✅ Question fetched:`, q)),
+                    catchError(error => {
+                        console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
+                        return of(null);
+                    })
+                ),
+                options: this.quizService.getCurrentOptions(questionIndex).pipe(
+                    tap(o => console.log(`[loadQuestionContents] ✅ Options fetched:`, o)),
+                    catchError(error => {
+                        console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
+                        return of([]);
+                    })
+                ),
+                explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
+                    tap(e => console.log(`[loadQuestionContents] ✅ Explanation fetched:`, e)),
+                    catchError(error => {
+                        console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
+                        return of('');
+                    })
+                ),
+            })
+        );
 
-            this.ngZone.run(() => {
-                this.currentQuestionIndex = questionIndex;
-                this.currentQuestion = { ...data.question };
-                this.options = [...data.options];
-                this.explanationToDisplay = data.explanation;
-                this.questionNumberBadge = questionIndex + 1;
-            });
+        console.log('[loadQuestionContents] ✅ Raw fetched data:', data);
 
-            console.log(`[loadQuestionContents] ✅ Data assigned for questionIndex ${questionIndex}`);
-            this.cdRef.detectChanges();
-        } catch (error) {
-            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+        const fetchEndTime = performance.now();
+        console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
+
+        // ✅ Validate fetched data
+        if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+            console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}.`);
+            return false;
         }
+
+        // ✅ Assign Question, Options, and Explanation
+        console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
+        this.currentQuestion = { ...data.question };
+        this.options = [...data.options];
+        this.explanationToDisplay = data.explanation;
+        console.log(`[loadQuestionContents] ✅ Assigned data successfully.`);
+
+        // ✅ Update the Badge Number for the Current Question
+        this.updateQuestionBadge(questionIndex + 1);
+
+        // ✅ Force Change Detection
+        this.cdRef.detectChanges();
+        console.log('[loadQuestionContents] ✅ UI should be updated now.');
+
+        // ✅ Start Timer Only If Question Hasn't Been Answered
+        if (!this.selectedOptionService.isAnsweredSubject.value) {
+            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+            this.timerService.startTimer();
+        } else {
+            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+        }
+
+        console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
+        return true; // 🟢 Return true to indicate success
+    } catch (error) {
+        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+        return false;
     } finally {
         this.isLoading = false;
         console.log('[loadQuestionContents] ✅ Function execution completed.');
@@ -5053,7 +5084,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.resetStateBetweenQuestions();
   
       // Navigate to the specified question index
-      await this.navigateToQuestion(questionIndex);
+      console.log(`[resetUIAndNavigate] 🔄 Calling navigateToQuestion(${this.currentQuestionIndex})...`);
+      await this.navigateToQuestion(this.currentQuestionIndex);
+      console.log(`[resetUIAndNavigate] ✅ navigateToQuestion() completed.`);
     } catch (error) {
       console.error('Error during UI reset and navigation:', error);
     }
