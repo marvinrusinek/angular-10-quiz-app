@@ -898,6 +898,8 @@ export class QuizService implements OnDestroy {
   }
 
   public setCurrentQuestion(question: QuizQuestion | null): void {
+    console.log('[QuizService] 🔄 setCurrentQuestion() called with:', question);
+
     if (!question) {
       console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
       return;
