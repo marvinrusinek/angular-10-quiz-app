@@ -1624,6 +1624,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Preparing observables
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
+          take(1), // ✅ Ensures the observable completes
           tap(q => console.log(`[loadQuestionContents] ✅ Question observable emitted:`, q)),
           catchError(error => {
               console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
@@ -1632,13 +1633,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         );
         
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(
-            tap(o => {
-                if (o.length > 0) {
-                    console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o);
-                } else {
-                    console.warn(`[loadQuestionContents] ⚠️ Options observable emitted empty array!`);
-                }
-            }),
+            take(1), // ✅ Ensures the observable completes
+            tap(o => console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o)),
             catchError(error => {
                 console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
                 return of([]);
@@ -1646,32 +1642,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         );
         
         const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-            tap(e => {
-                if (e) {
-                    console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e);
-                } else {
-                    console.warn(`[loadQuestionContents] ⚠️ Explanation observable emitted empty string!`);
-                }
-            }),
+            take(1), // ✅ Ensures the observable completes
+            tap(e => console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e)),
             catchError(error => {
                 console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
                 return of('');
             })
-        );      
+        );  
 
         console.log('[loadQuestionContents] 🔍 Starting forkJoin...');
-
+        
         const data = await lastValueFrom(
-            forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
-                tap(finalData => {
-                    console.log('[loadQuestionContents] ✅ forkJoin completed successfully:', finalData);
-                }),
-                defaultIfEmpty({ question: null, options: [], explanation: '' }), // Prevents undefined errors
-                catchError(error => {
-                    console.error(`[loadQuestionContents] ❌ forkJoin failed:`, error);
-                    return of({ question: null, options: [], explanation: '' });
-                })
-            )
+          forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+              tap(finalData => console.log('[loadQuestionContents] ✅ forkJoin completed successfully:', finalData)), 
+              catchError(error => {
+                  console.error(`[loadQuestionContents] ❌ Error in forkJoin:`, error);
+                  return of({ question: null, options: [], explanation: '' });
+              })
+          )
         );
 
         console.log('[loadQuestionContents] ✅ Final fetched data:', data);
