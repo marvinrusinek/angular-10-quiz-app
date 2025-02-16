@@ -1600,11 +1600,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         if (!quizId) {
             console.error('[loadQuestionContents] ❌ No active quiz ID found.');
-            throw new Error('No active quiz ID found.');
+            return;
         }
         if (typeof questionIndex !== 'number' || questionIndex < 0) {
             console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
-            throw new Error('Invalid question index.');
+            return;
         }
 
         // Stop and reset timer
@@ -1618,12 +1618,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionContents] 🔄 Fetching question, options, and explanation...');
         const fetchStartTime = performance.now();
 
-        let data: { question: QuizQuestion | null; options: Option[]; explanation: string };
-
         try {
             console.log(`[loadQuestionContents] 🟢 Executing forkJoin() for quizId: ${quizId}, questionIndex: ${questionIndex}`);
 
-            data = await lastValueFrom(
+            const data = await lastValueFrom(
                 forkJoin({
                     question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
                         tap(q => console.log(`[loadQuestionContents] ✅ Question fetched:`, q)),
@@ -1650,57 +1648,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             );
 
             console.log('[loadQuestionContents] ✅ Raw fetched data:', data);
-            console.log('[loadQuestionContents] ✅ Data check:', {
-                questionExists: !!data.question,
-                optionsCount: data.options?.length ?? 0,
-                explanationExists: !!data.explanation
-            });
 
-            const fetchEndTime = performance.now();
-            console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
-        } catch (fetchError) {
-            console.error('[loadQuestionContents] ❌ Error occurred while fetching data:', fetchError);
-            return;
+            if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
+                console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}.`);
+                return;
+            }
+
+            // ✅ Assign Data
+            console.log(`[loadQuestionContents] ✅ Assigning question, options, and explanation...`);
+            this.currentQuestion = { ...data.question }; // Ensure new object reference
+            this.options = [...data.options];
+            this.explanationToDisplay = data.explanation;
+            console.log(`[loadQuestionContents] ✅ Assigned data successfully.`);
+
+            // ✅ Force Change Detection
+            this.cdRef.detectChanges();
+            console.log('[loadQuestionContents] ✅ UI should be updated now.');
+
+            // ✅ Start Timer Only If Question Hasn't Been Answered
+            if (!this.selectedOptionService.isAnsweredSubject.value) {
+                console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+                this.timerService.startTimer();
+            } else {
+                console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+            }
+
+            console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
+
+            // ✅ Ensure we proceed with navigation!
+            console.log(`[loadQuestionContents] ✅ Completing function, returning control to next step.`);
+        } catch (error) {
+            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
         }
-
-        if (!data || !data.question) {
-            console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}. Navigation might be affected.`);
-            return;
-        }
-
-        // ✅ Ensure the fetched question is valid before assignment
-        if (!data.question || typeof data.question !== 'object') {
-            console.error('[loadQuestionContents] ❌ Invalid question data format:', data.question);
-            return;
-        }
-
-        // ✅ Assign Data with deep logs
-        console.log(`[loadQuestionContents] ✅ Assigning fetched data to currentQuestion, options, and explanation...`);
-        this.currentQuestion = { ...data.question };
-        console.log('[loadQuestionContents] ✅ Assigned currentQuestion:', this.currentQuestion);
-
-        this.options = [...data.options];
-        console.log('[loadQuestionContents] ✅ Assigned options:', this.options);
-
-        this.explanationToDisplay = data.explanation;
-        console.log('[loadQuestionContents] ✅ Assigned explanation:', this.explanationToDisplay);
-
-        // ✅ Force Change Detection
-        console.log('[loadQuestionContents] 🔄 Triggering change detection...');
-        this.cdRef.detectChanges();
-        console.log('[loadQuestionContents] ✅ Change detection executed.');
-
-        // ✅ Start Timer Only If Question Hasn't Been Answered
-        if (!this.selectedOptionService.isAnsweredSubject.value) {
-            console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
-            this.timerService.startTimer();
-        } else {
-            console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
-        }
-
-        console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
-    } catch (error) {
-        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
     } finally {
         this.isLoading = false;
 
@@ -1708,9 +1687,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
         }
 
-        console.log('[loadQuestionContents] ✅ Function execution completed.');
+        console.log('[loadQuestionContents] ✅ Function execution completed. Proceeding to the next step.');
     }
   }
+
 
   /* async loadQuestionContents(): Promise<void> {
     try {
