@@ -323,54 +323,64 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Get the last known question index (Do NOT reset it!)
+            // 🔹 Get last known question index (do NOT reset it!)
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
 
-            let restoredIndex = lastKnownIndex; // Keep last known index unless localStorage has a valid value
+            let restoredIndex = lastKnownIndex; // Default to last known index
 
             if (savedIndex !== null) {
                 restoredIndex = JSON.parse(savedIndex);
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure a valid question index is used
+            // 🔹 Ensure the restored index is valid
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
-                console.warn('[restoreStateAfterFocus] ❌ Invalid restored question index. Keeping last known index:', lastKnownIndex);
-                restoredIndex = lastKnownIndex; // Ensure we do NOT reset it incorrectly
+                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
+                restoredIndex = lastKnownIndex; // Ensure no unwanted reset occurs
             }
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Ensure we do NOT override the existing `currentQuestionIndex` if it's already correct
+            // 🔹 Prevent unnecessary overwrites of the question index
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
+            } else {
+                console.log('[restoreStateAfterFocus] ✅ Question index already correct. No update needed.');
             }
 
-            // 🔹 Restore the question state
-            await this.restoreQuestionState();
+            // 🔹 Prevent duplicate state reloading if question index hasn't changed
+            if (this.currentQuestion?.questionText && this.currentQuestionIndex === restoredIndex) {
+                console.log('[restoreStateAfterFocus] ✅ Question already loaded. Skipping re-fetch.');
+            } else {
+                // Restore the question state ONLY if it's necessary
+                await this.restoreQuestionState();
+            }
 
-            // 🔹 Ensure the badge text is updated
+            // 🔹 Ensure the badge text is updated and does NOT reset
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
-            // 🔹 Ensure the URL remains correct (only update if necessary)
+            // 🔹 Ensure the URL stays correct (only update if necessary)
             const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
             if (this.router.url !== newUrl) {
                 console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
                 this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
             }
 
-            // 🔹 Fetch explanation text to ensure correctness
+            // 🔹 Fetch and update explanation text
             await this.fetchFormattedExplanationText(restoredIndex);
 
-            // 🔹 Ensure the UI state remains consistent
+            // 🔹 Ensure UI state remains consistent
             this.isLoading$ = this.quizStateService.isLoading$;
             this.isAnswered$ = this.quizStateService.isAnswered$;
 
-            // 🔹 Trigger change detection to reflect changes in the UI
+            // 🔹 Prevent UI from incorrectly resetting back to Question 1
+            this.quizService.preventResetOnVisibilityChange();
+
+            // 🔹 Trigger change detection to reflect updates
             this.cdRef.detectChanges();
             console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
 

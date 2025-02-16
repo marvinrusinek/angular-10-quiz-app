@@ -2208,4 +2208,20 @@ export class QuizService implements OnDestroy {
     this.questions = [];
     this.quizResetSource.next();
   }
+
+  public preventResetOnVisibilityChange(): void {
+    console.log('[QuizService] 🛑 Preventing question index reset on tab switch...');
+
+    // Retrieve the last known question index
+    const lastKnownIndex = this.getCurrentQuestionIndex();
+    console.log('[QuizService] 🔄 Last known question index:', lastKnownIndex);
+
+    // Ensure the question index does NOT get reset to 0 or an incorrect value
+    if (lastKnownIndex > 0) {
+      localStorage.setItem('savedQuestionIndex', JSON.stringify(lastKnownIndex));
+      console.log('[QuizService] ✅ Ensured question index persistence:', lastKnownIndex);
+    } else {
+      console.warn('[QuizService] ⚠️ No valid last known index found. Skipping persistence.');
+    }
+  }
 }
