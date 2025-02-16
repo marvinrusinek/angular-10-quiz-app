@@ -1624,6 +1624,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         try {
             console.log(`[loadQuestionContents] 🟢 Executing forkJoin() for quizId: ${quizId}, questionIndex: ${questionIndex}`);
+            
+            console.log('[loadQuestionContents] 🔍 Checking fetched data before assignment:', data);
+
+            console.log('[loadQuestionContents] 🟢 Starting forkJoin for fetching data...');
 
             data = await lastValueFrom(
                 forkJoin({
