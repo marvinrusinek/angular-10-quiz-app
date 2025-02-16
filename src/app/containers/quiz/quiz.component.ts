@@ -268,18 +268,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
     
-        // Run inside Angular's zone to ensure UI updates properly
+        // Ensure UI updates
         this.ngZone.run(() => {
           console.log('[QuizComponent] ✅ Updating UI with new question...');
-          this.currentQuestion = { ...newQuestion }; // ✅ Create a new object reference to trigger UI updates
+          this.currentQuestion = { ...newQuestion };
 
-          console.log('[QuizComponent] 🟢 Updated currentQuestion:', this.currentQuestion); // ⬅️ Debug log
-    
-          // Immediately trigger change detection
-          setTimeout(() => {
-            this.cdRef.detectChanges();
-            console.log('[QuizComponent] 🔄 Change detection triggered.');
-          }, 10);
+          console.log('[QuizComponent] 🟢 Updated currentQuestion:', this.currentQuestion);
+
+          // Force UI update
+          this.cdRef.detectChanges();
+          console.log('[QuizComponent] 🔄 Change detection triggered.');
         });
       },
       error: (err) => console.error('[QuizComponent] ❌ Error in currentQuestion subscription:', err),
