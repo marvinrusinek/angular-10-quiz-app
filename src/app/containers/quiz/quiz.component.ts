@@ -1624,28 +1624,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Preparing observables
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
-            tap(q => console.log(`[loadQuestionContents] ✅ Question observable emitted:`, q)),
-            catchError(error => {
-                console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
-                return of(null);
-            })
+          tap(q => console.log(`[loadQuestionContents] ✅ Question observable emitted:`, q)),
+          catchError(error => {
+              console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
+              return of(null);
+          })
         );
-
+        
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(
-            tap(o => console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o)),
+            tap(o => {
+                if (o.length > 0) {
+                    console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o);
+                } else {
+                    console.warn(`[loadQuestionContents] ⚠️ Options observable emitted empty array!`);
+                }
+            }),
             catchError(error => {
                 console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
                 return of([]);
             })
         );
-
+        
         const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-            tap(e => console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e)),
+            tap(e => {
+                if (e) {
+                    console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e);
+                } else {
+                    console.warn(`[loadQuestionContents] ⚠️ Explanation observable emitted empty string!`);
+                }
+            }),
             catchError(error => {
                 console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
                 return of('');
             })
-        );
+        );      
 
         console.log('[loadQuestionContents] 🔍 Starting forkJoin...');
 
