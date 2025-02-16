@@ -54,11 +54,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   sharedOptionComponent!: SharedOptionComponent;
   @ViewChild('nextButton', { static: false })
   nextButtonTooltip!: MatTooltip;
-  /* @Input() data: {
-    questionText: string,
-    correctAnswersText?: string,
-    currentOptions: Option[]
-  }; */
   @Input() data: QuizQuestion;
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
