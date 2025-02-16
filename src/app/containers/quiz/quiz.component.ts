@@ -1629,29 +1629,55 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[loadQuestionContents] 🟢 Starting forkJoin for fetching data...');
 
+            console.log(`[loadQuestionContents] 🔍 Preparing observables for forkJoin:
+              question$:`, this.quizService.getCurrentQuestionByIndex(quizId, questionIndex),
+              `options$:`, this.quizService.getCurrentOptions(questionIndex),
+              `explanation$:`, this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+            );
+
+            console.log('[loadQuestionContents] 🟢 Starting forkJoin for fetching data...');
+
             data = await lastValueFrom(
                 forkJoin({
-                    question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
-                        tap(q => console.log(`[loadQuestionContents] ✅ Question fetched:`, q)),
-                        catchError(error => {
-                            console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
-                            return of(null);
-                        })
-                    ),
-                    options: this.quizService.getCurrentOptions(questionIndex).pipe(
-                        tap(o => console.log(`[loadQuestionContents] ✅ Options fetched:`, o)),
-                        catchError(error => {
-                            console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
-                            return of([]);
-                        })
-                    ),
-                    explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-                        tap(e => console.log(`[loadQuestionContents] ✅ Explanation fetched:`, e)),
-                        catchError(error => {
-                            console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
-                            return of('');
-                        })
-                    ),
+                  question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
+                    tap(q => {
+                        if (q) {
+                            console.log(`[loadQuestionContents] ✅ Question observable emitted:`, q);
+                        } else {
+                            console.warn(`[loadQuestionContents] ⚠️ Question observable emitted null/undefined!`);
+                        }
+                    }),
+                    catchError(error => {
+                        console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
+                        return of(null);
+                    })
+                  ),
+                  options: this.quizService.getCurrentOptions(questionIndex).pipe(
+                      tap(o => {
+                          if (o.length > 0) {
+                              console.log(`[loadQuestionContents] ✅ Options observable emitted:`, o);
+                          } else {
+                              console.warn(`[loadQuestionContents] ⚠️ Options observable emitted empty array!`);
+                          }
+                      }),
+                      catchError(error => {
+                          console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
+                          return of([]);
+                      })
+                  ),
+                  explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
+                      tap(e => {
+                          if (e) {
+                              console.log(`[loadQuestionContents] ✅ Explanation observable emitted:`, e);
+                          } else {
+                              console.warn(`[loadQuestionContents] ⚠️ Explanation observable emitted empty string!`);
+                          }
+                      }),
+                      catchError(error => {
+                          console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
+                          return of('');
+                      })
+                  ),
                 })
             );
 
