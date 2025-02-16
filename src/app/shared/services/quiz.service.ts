@@ -907,7 +907,6 @@ export class QuizService implements OnDestroy {
 
     console.log('[QuizService] 🔄 Received question to set:', question);
 
-    // Ensure change detection always triggers (Remove same-question check)
     const updatedQuestion: QuizQuestion = {
       ...question,
       options: question.options?.map((option, index) => ({
@@ -921,12 +920,6 @@ export class QuizService implements OnDestroy {
 
     this.currentQuestion.next(updatedQuestion);
     console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
-
-    // Force UI update**
-    setTimeout(() => {
-      this.cdRef.detectChanges();
-      console.log('[QuizService] 🔄 Forced change detection after setting question.');
-    }, 0);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
