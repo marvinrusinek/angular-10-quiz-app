@@ -4895,6 +4895,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('[prepareQuestionForDisplay] ❌ Error preparing question for display:', error);
     }
+
+    console.log('[prepareQuestionForDisplay] ✅ Function execution completed.');
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
