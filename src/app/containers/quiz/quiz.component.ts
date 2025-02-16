@@ -1591,7 +1591,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
         console.log('[loadQuestionContents] ✅ quizQuestionComponent is initialized.');
 
-        // Clear previous question data
+        // ✅ Clear previous question data
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
 
@@ -1607,7 +1607,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
         }
 
-        // Stop and reset timer
+        // ✅ Stop and reset timer
         if (this.timerService.isTimerRunning) {
             console.log('[loadQuestionContents] ⏹ Stopping timer before loading new question...');
             this.timerService.stopTimer();
@@ -1618,10 +1618,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[loadQuestionContents] 🔄 Fetching question, options, and explanation...');
         const fetchStartTime = performance.now();
 
+        let data: { question: QuizQuestion | null; options: Option[]; explanation: string };
+
         try {
             console.log(`[loadQuestionContents] 🟢 Executing forkJoin() for quizId: ${quizId}, questionIndex: ${questionIndex}`);
 
-            const data = await lastValueFrom(
+            data = await lastValueFrom(
                 forkJoin({
                     question: this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
                         tap(q => console.log(`[loadQuestionContents] ✅ Question fetched:`, q)),
@@ -1647,7 +1649,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 })
             );
 
-            console.log('[loadQuestionContents] ✅ Raw fetched data:', data);
+            console.log('[loadQuestionContents] ✅ Data fetched:', data);
 
             if (!data.question || !Array.isArray(data.options) || data.options.length === 0) {
                 console.warn(`[loadQuestionContents] ❌ No valid question data for index ${questionIndex}.`);
@@ -1661,7 +1663,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.explanationToDisplay = data.explanation;
             console.log(`[loadQuestionContents] ✅ Assigned data successfully.`);
 
-            // ✅ Force Change Detection
+            // ✅ Update UI
+            this.isQuestionDisplayed = true;
             this.cdRef.detectChanges();
             console.log('[loadQuestionContents] ✅ UI should be updated now.');
 
@@ -1674,20 +1677,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
 
             console.log(`[loadQuestionContents] ✅ Fully executed, question should now be visible.`);
-
-            // ✅ Ensure we proceed with navigation!
-            console.log(`[loadQuestionContents] ✅ Completing function, returning control to next step.`);
         } catch (error) {
             console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
-        }
-    } finally {
-        this.isLoading = false;
+            return;
+        } finally {
+            const fetchEndTime = performance.now();
+            console.log(`[loadQuestionContents] ⏳ Fetching data took ${(fetchEndTime - fetchStartTime).toFixed(2)}ms`);
 
-        if (!this.isQuestionDisplayed) {
-            console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
-        }
+            this.isLoading = false;
 
-        console.log('[loadQuestionContents] ✅ Function execution completed. Proceeding to the next step.');
+            if (!this.isQuestionDisplayed) {
+                console.warn('[loadQuestionContents] ⚠️ Question display is disabled due to errors.');
+            }
+
+            // ✅ Ensure final UI update and return control
+            this.cdRef.detectChanges();
+            console.log('[loadQuestionContents] ✅ Function execution completed. Proceeding to next step.');
+        }
+    } catch (error) {
+        console.error('[loadQuestionContents] ❌ Unexpected error:', error);
     }
   }
 
