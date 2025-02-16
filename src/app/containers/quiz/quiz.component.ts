@@ -4011,15 +4011,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
     }
 
+    // Immediately update the question badge before navigating
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+
     // Mark navigation as in progress
     if (this.isLoading || this.debounceNavigation) {
         console.warn('[navigateToQuestion] ⏳ Navigation is already in progress. Skipping...');
         return;
     }
-
-    // Immediately update the question badge before fetching new data
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
-    console.log(`[navigateToQuestion] ✅ Badge updated to: Question ${questionIndex + 1} of ${this.totalQuestions}`);
 
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300); // Prevent rapid navigation clicks
