@@ -4245,7 +4245,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ New question fetched:', question);
         this.quizService.setCurrentQuestion(question);
 
-        // 🔹 **Persist the latest question index immediately**
+        // 🔹 **Ensure question index is updated immediately**
         this.currentQuestionIndex = questionIndex;
         localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
         console.log('[navigateToQuestion] ✅ Persisted new question index:', questionIndex);
