@@ -307,7 +307,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  private async restoreStateAfterFocus(): Promise<void> {
+  /* private async restoreStateAfterFocus(): Promise<void> {
     console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
 
     this.ngZone.run(async () => {
@@ -376,6 +376,75 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quizService.preventResetOnVisibilityChange();
 
             // 🔹 Trigger change detection to reflect updates
+            this.cdRef.detectChanges();
+            console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
+
+        } catch (error) {
+            console.error('[restoreStateAfterFocus] ❌ Error during state restoration:', error);
+        }
+    });
+  } */
+  private async restoreStateAfterFocus(): Promise<void> {
+    console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
+
+    this.ngZone.run(async () => {
+        if (this.isLoading || this.quizStateService.isLoading()) {
+            console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
+            return;
+        }
+
+        try {
+            // 🔹 Get last known question index (do NOT reset it!)
+            const savedIndex = localStorage.getItem('savedQuestionIndex');
+            const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
+
+            let restoredIndex = lastKnownIndex;
+
+            if (savedIndex !== null) {
+                restoredIndex = JSON.parse(savedIndex);
+                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
+            }
+
+            // 🔹 Ensure index is valid (DO NOT RESET TO 1!)
+            const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+            if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
+                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
+                restoredIndex = lastKnownIndex; // **Key Fix: Ensures NO reset**
+            }
+
+            console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
+
+            // 🔹 Only update index if necessary
+            if (this.currentQuestionIndex !== restoredIndex) {
+                this.currentQuestionIndex = restoredIndex;
+                console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
+            }
+
+            // 🔹 Ensure the badge text is **NEVER RESET TO 1**
+            this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
+            console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
+
+            // 🔹 Ensure the URL remains correct
+            const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
+            if (this.router.url !== newUrl) {
+                console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
+                this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
+            }
+
+            // 🔹 Ensure UI is NOT RESET to Question 1
+            this.quizService.preventResetOnVisibilityChange();
+
+            // 🔹 Prevent unnecessary reload of the same question
+            if (this.currentQuestion?.questionText && this.currentQuestionIndex === restoredIndex) {
+                console.log('[restoreStateAfterFocus] ✅ Question already loaded. Skipping re-fetch.');
+            } else {
+                await this.restoreQuestionState();
+            }
+
+            // 🔹 Update observables
+            this.isLoading$ = this.quizStateService.isLoading$;
+            this.isAnswered$ = this.quizStateService.isAnswered$;
+
             this.cdRef.detectChanges();
             console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
 
