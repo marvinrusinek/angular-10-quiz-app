@@ -1418,8 +1418,13 @@ export class QuizService implements OnDestroy {
 
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
       const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
-      console.log('[QuizService] ✅ Setting badge text:', badgeText);
-      this.badgeTextSource.next(badgeText);
+
+      // Force update to ensure UI reacts
+      this.badgeTextSource.next('');  // emit empty value to force change detection
+      setTimeout(() => {
+        this.badgeTextSource.next(badgeText);
+        console.log('[QuizService] ✅ Badge text updated:', badgeText);
+      }, 10);  // small delay to ensure reactivity
     } else {
       console.warn('[QuizService] ⚠️ Invalid question number for badge update:', questionNumber);
     }
