@@ -170,8 +170,6 @@ export class QuizService implements OnDestroy {
   private badgeTextSource = new BehaviorSubject<string>('');
   badgeText = this.badgeTextSource.asObservable();
 
-  private questionTextSource = new BehaviorSubject<string>('');
-  questionText = this.questionTextSource.asObservable();
   private correctAnswersCountTextSource = new BehaviorSubject<string>(
     'Select answers'
   );
@@ -1407,10 +1405,6 @@ export class QuizService implements OnDestroy {
     console.log(
       `Updated current question index to: ${this.currentQuestionIndex}`
     );
-  }
-
-  updateQuestionText(newQuestionText: string) {
-    this.questionTextSource.next(newQuestionText);
   }
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
