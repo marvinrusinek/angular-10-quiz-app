@@ -394,18 +394,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Get the last saved question index (DO NOT reset it!)
+            // 🔹 Retrieve last saved question index
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
 
-            let restoredIndex = lastKnownIndex; // Default to last known index
+            let restoredIndex = lastKnownIndex;
 
             if (savedIndex !== null) {
                 restoredIndex = JSON.parse(savedIndex);
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure index is **never reset to 1**
+            // 🔹 Ensure index is valid (DO NOT RESET TO 1!)
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
                 console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
@@ -414,19 +414,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Ensure the question index is **ALWAYS** correct
+            // 🔹 **Ensure the latest index is always stored**
             this.currentQuestionIndex = restoredIndex;
-            console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
+            localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
+            console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
 
-            // 🔹 **Ensure badge text is restored properly**
+            // 🔹 Update badge text (Ensures UI sync)
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
-            // 🔹 **Persist the restored index to localStorage** (Ensures no unexpected resets)
-            localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
-            console.log('[restoreStateAfterFocus] ✅ Persisted question index to localStorage:', restoredIndex);
-
-            // 🔹 Ensure the URL **ALWAYS** reflects the correct question index
+            // 🔹 Ensure the URL remains correct
             const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
             if (this.router.url !== newUrl) {
                 console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
@@ -438,7 +435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             // 🔹 Prevent UI from resetting to **Question 1** on tab focus
             this.quizService.preventResetOnVisibilityChange();
 
-            // 🔹 **Fetch and Set the Correct Question** (Ensures state is up-to-date)
+            // 🔹 Fetch the latest question data (Ensures no stale data)
             const question = await firstValueFrom(this.quizService.getQuestionByIndex(restoredIndex));
             if (question) {
                 this.quizService.setCurrentQuestion(question);
@@ -447,11 +444,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.error('[restoreStateAfterFocus] ❌ Failed to restore question data.');
             }
 
-            // 🔹 Update observables and UI state
+            // 🔹 Final UI state updates
             this.isLoading$ = this.quizStateService.isLoading$;
             this.isAnswered$ = this.quizStateService.isAnswered$;
-
-            // 🔹 **Final UI refresh to prevent stale data**
             this.cdRef.detectChanges();
             console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
 
@@ -462,7 +457,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> { 
-    console.log("TESTING");
     console.log('[QuizComponent] 🟢 Initialized. Current Question:', this.currentQuestion);
     this.initializeDisplayVariables();
 
