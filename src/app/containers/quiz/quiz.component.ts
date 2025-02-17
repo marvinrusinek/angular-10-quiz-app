@@ -4068,7 +4068,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   } */
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
     console.log('[navigateToQuestion] 🔄 Current question index before update:', this.currentQuestionIndex);
 
@@ -4083,12 +4083,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
         return;
     }
-
-    // Update the question index before navigation
-    this.currentQuestionIndex = questionIndex;
-
-    // Immediately update the question badge before navigating
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
     // Mark navigation as in progress
     if (this.isLoading || this.debounceNavigation) {
@@ -4193,6 +4187,79 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     } finally {
         // Ensure loading state is reset
+        this.isLoading = false;
+        console.log('[navigateToQuestion] ✅ Navigation process completed.');
+    }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
+
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
+        return;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
+    }
+
+    if (this.isLoading || this.debounceNavigation) {
+        console.warn('[navigateToQuestion] ⏳ Navigation is already in progress. Skipping...');
+        return;
+    }
+
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 300);
+
+    if (this.navigationAbortController) {
+        this.navigationAbortController.abort();
+    }
+    this.navigationAbortController = new AbortController();
+    const { signal } = this.navigationAbortController;
+
+    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
+    console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
+
+    try {
+        console.log('[navigateToQuestion] 🟢 Calling router.navigate()...');
+        await this.ngZone.run(() => 
+            this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false, skipLocationChange: false })
+        );
+
+        console.log('[navigateToQuestion] ✅ Router navigation successful.');
+
+        if (signal.aborted) {
+            console.log('[navigateToQuestion] 🚫 Navigation aborted.');
+            return;
+        }
+
+        console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
+        const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+
+        if (!question) {
+            console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
+            return;
+        }
+
+        console.log('[navigateToQuestion] ✅ New question fetched:', question);
+        this.quizService.setCurrentQuestion(question);
+
+        // 🔹 **Persist the latest question index immediately**
+        this.currentQuestionIndex = questionIndex;
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+        console.log('[navigateToQuestion] ✅ Persisted new question index:', questionIndex);
+
+        // 🔹 **Update the badge text immediately**
+        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+        console.log('[navigateToQuestion] ✅ Updated badge text:', questionIndex + 1);
+
+        // 🔹 **Ensure the UI updates properly**
+        this.cdRef.detectChanges();
+        console.log('[navigateToQuestion] ✅ Change detection triggered.');
+    } catch (error) {
+        console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
+    } finally {
         this.isLoading = false;
         console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
