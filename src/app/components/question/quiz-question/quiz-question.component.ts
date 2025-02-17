@@ -1341,105 +1341,94 @@ export class QuizQuestionComponent
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
-        // Step 1: Reset all states before loading the question
-        this.resetQuestionStateBeforeNavigation();
-        this.resetExplanation();
-        this.resetTexts();
+      // Reset all states before loading the question
+      this.resetQuestionStateBeforeNavigation();
+      this.resetExplanation();
+      this.resetTexts();
 
-        this.isLoading = true;
-        this.quizStateService.setLoading(true);
-        this.quizStateService.setAnswered(false);
-        this.timerService.startTimer(this.timerService.timePerQuestion, true);
+      this.isLoading = true;
+      this.quizStateService.setLoading(true);
+      this.quizStateService.setAnswered(false);
+      this.timerService.startTimer(this.timerService.timePerQuestion, true);
 
-        // Clear previous data
-        this.currentQuestion = null;
-        this.optionsToDisplay = [];
-        this.feedbackText = '';
-        this.displayState = { mode: 'question', answered: false }; // Default to question mode
-        this.forceQuestionDisplay = true;
-        this.readyForExplanationDisplay = false;
-        this.isExplanationReady = false;
-        this.isExplanationLocked = true;
-        this.currentExplanationText = '';
-        this.ensureQuestionTextDisplay();
+      // Clear previous data
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.feedbackText = '';
+      this.displayState = { mode: 'question', answered: false }; // Default to question mode
+      this.forceQuestionDisplay = true;
+      this.readyForExplanationDisplay = false;
+      this.isExplanationReady = false;
+      this.isExplanationLocked = true;
+      this.currentExplanationText = '';
+      this.ensureQuestionTextDisplay();
 
-        // Step 2: Ensure `questionsArray` is populated
+      // Ensure `questionsArray` is populated
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+          throw new Error('No active quiz ID found. Cannot fetch questions.');
+        }
+
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
         if (!this.questionsArray || this.questionsArray.length === 0) {
-            console.warn('[loadQuestion] Questions array is empty. Fetching questions...');
-            const quizId = this.quizService.getCurrentQuizId();
-            if (!quizId) {
-                throw new Error('No active quiz ID found. Cannot fetch questions.');
-            }
-
-            this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-            if (!this.questionsArray || this.questionsArray.length === 0) {
-                throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
-            }
-
-            console.log('[loadQuestion] Questions array successfully fetched:', this.questionsArray);
+          throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
         }
+      }
 
-        // Step 3: Validate `currentQuestionIndex`
-        if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
-            throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
-        }
+      // Validate `currentQuestionIndex`
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+        throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
+      }
 
-        // Step 4: Fetch the current question
-        const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-        if (!potentialQuestion) {
-            console.warn('[loadQuestion] Current question is null or undefined.');
-            throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-        }
-        this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
-        console.log('[loadQuestion] Loaded currentQuestion:', this.currentQuestion);
+      // Fetch the current question
+      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!potentialQuestion) {
+        console.warn('[loadQuestion] Current question is null or undefined.');
+        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      }
+      this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
 
-        // Step 5: Assign optionIds and validate options
-        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-            console.warn('[loadQuestion] Current question has no options.');
-            this.currentQuestion.options = [];
-        }
-        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+      // Assign optionIds and validate options
+      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+        console.warn('[loadQuestion] Current question has no options.');
+        this.currentQuestion.options = [];
+      }
+      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
 
-        // Step 6: Initialize `optionsToDisplay`
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-            ...option,
-            active: true, // Default all options to active initially
-            feedback: undefined, // Reset feedback
-            showIcon: false, // Reset icons
-            selected: false, // Initialize selected state
-        }));
-        console.log('[loadQuestion] Options to display:', this.optionsToDisplay);
+      // Initialize `optionsToDisplay`
+      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        ...option,
+        active: true, // Default all options to active initially
+        feedback: undefined, // Reset feedback
+        showIcon: false, // Reset icons
+        selected: false // Initialize selected state
+      }));
 
-        // Step 7: Abort handling
-        if (signal?.aborted) {
-            console.log('[loadQuestion] Load question operation aborted.');
-            this.timerService.stopTimer();
-            return false;
-        }
-
-        // Step 8: Generate feedback for the current question
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-        console.log('[loadQuestion] Feedback text generated:', this.feedbackText);
-
-        // Step 9: Display explanation if the question is answered
-        await this.handleExplanationDisplay();
-
-        // Step 10: Update the selection message
-        this.updateSelectionMessage(false);
-
-        // Step 11: Indicate successful load
-        return true;
-    } catch (error) {
-        console.error('[loadQuestion] Error loading question:', error, {
-            currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
-            currentQuestion: this.currentQuestion,
-        });
-        this.feedbackText = 'Error loading question. Please try again.';
+      // Abort handling
+      if (signal?.aborted) {
+        console.log('[loadQuestion] Load question operation aborted.');
+        this.timerService.stopTimer();
         return false;
+      }
+
+      // Generate feedback for the current question
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+
+      // Display explanation if the question is answered
+      await this.handleExplanationDisplay();
+
+      // Update the selection message
+      this.updateSelectionMessage(false);
+
+      // Indicate successful load
+      return true;
+    } catch (error) {
+      this.feedbackText = 'Error loading question. Please try again.';
+      return false;
     } finally {
-        this.isLoading = false;
-        this.quizStateService.setLoading(false);
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
     }
   }
 
