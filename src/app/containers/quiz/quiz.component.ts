@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Retrieve last saved question index (DO NOT RESET!)
+            // 🔹 Retrieve last known question index (DO NOT RESET!)
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             let restoredIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -403,7 +403,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure index is valid and does not go backward
+            // 🔹 Ensure the index is valid and does not go backward
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
                 console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping latest valid index:', restoredIndex);
@@ -411,7 +411,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Only update index if necessary
+            // 🔹 Ensure NO reset happens on re-focus
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
@@ -431,7 +431,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     });
   }
-
 
   async ngOnInit(): Promise<void> { 
     console.log('[QuizComponent] 🟢 Initialized. Current Question:', this.currentQuestion);
