@@ -4231,7 +4231,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
         console.log('[navigateToQuestion] ✅ Updated badge text:', questionIndex + 1);
 
-        // 🔹 **Ensure the UI updates properly**
+        // **Ensure the UI updates properly**
         this.cdRef.detectChanges();
         console.log('[navigateToQuestion] ✅ Change detection triggered.');
     } catch (error) {
