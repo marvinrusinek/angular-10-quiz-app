@@ -1362,31 +1362,30 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
 
     try {
-      // Ensure question number is within valid range
-      if (questionNumber <= 0) {
-        console.warn('[QuizService] ⚠️ Question number is below minimum, setting to 1.');
-        questionNumber = 1; // Ensure it never falls below 1
+      // Ensure question number stays within valid range
+      if (questionNumber < 1) {
+        console.warn('[QuizService] ⚠️ Adjusting question number to minimum (1).');
+        questionNumber = 1;
       }
-        
       if (questionNumber > totalQuestions) {
-        console.warn('[QuizService] ⚠️ Question number exceeds total, setting to last question.');
-        questionNumber = totalQuestions; // Prevent resetting to Question 1
+        console.warn('[QuizService] ⚠️ Adjusting question number to last question.');
+        questionNumber = totalQuestions;
       }
 
       const newBadgeText = `Question ${questionNumber} of ${totalQuestions}`;
 
-      // Avoid unnecessary updates
+      // Prevent duplicate updates
       if (this.badgeTextSource.getValue() === newBadgeText) {
         console.log('[QuizService] ⏭️ No update needed, badge text is already correct:', newBadgeText);
         return;
       }
 
-      // Force update to trigger change detection if needed
-      this.badgeTextSource.next('');
+      // Force update to ensure UI reactivity
+      this.badgeTextSource.next(''); 
       setTimeout(() => {
         this.badgeTextSource.next(newBadgeText);
         console.log('[QuizService] ✅ Badge text updated:', newBadgeText);
-      }, 10); // Small delay to ensure UI reactivity
+      }, 5); // Small delay to ensure UI reactivity
     } catch (error) {
       console.error('[QuizService] ❌ Error in updateBadgeText:', error.message);
     }
