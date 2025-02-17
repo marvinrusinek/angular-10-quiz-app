@@ -4011,6 +4011,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
     }
 
+    // Update the question index before navigation
     this.currentQuestionIndex = questionIndex;
 
     // Immediately update the question badge before navigating
@@ -4098,8 +4099,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             correct: option.correct ?? false // Ensure 'correct' is explicitly set
         }));
 
-        this.currentQuestionIndex = questionIndex;
-        // Ensure the badge text updates again after full navigation
+        // Final badge update after full navigation
         this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
         console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
