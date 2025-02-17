@@ -3335,6 +3335,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const nextQuestionIndex = this.currentQuestionIndex + 1;
         this.quizService.updateBadgeText(nextQuestionIndex, this.totalQuestions);
 
+        // ✅ Save the new index in localStorage before navigation
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(nextQuestionIndex));
+
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.resetExplanation();
           this.quizQuestionComponent.explanationToDisplay = '';
