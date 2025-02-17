@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Get last known question index (do NOT reset it!)
+            // 🔹 Retrieve last known question index (Do NOT reset it!)
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -405,36 +405,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure index is valid (DO NOT RESET TO 1!)
+            // 🔹 Ensure valid question index (DO NOT RESET TO 1!)
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
                 console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
-                restoredIndex = lastKnownIndex; // **Key Fix: Ensures NO reset**
+                restoredIndex = lastKnownIndex; // **Key Fix: Prevents reset to 1**
             }
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Only update index if necessary
+            // 🔹 Only update current index if necessary
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
             }
 
-            // 🔹 Ensure the badge text is **NEVER RESET TO 1**
+            // 🔹 Ensure badge text is **NEVER RESET TO 1**
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
-            // 🔹 Ensure the URL remains correct
+            // 🔹 Ensure the URL remains correct (force update if necessary)
             const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
             if (this.router.url !== newUrl) {
                 console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
-                this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
+                await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
             }
 
-            // 🔹 Ensure UI is NOT RESET to Question 1
+            // 🔹 Prevent UI reset to Question 1 on tab focus
             this.quizService.preventResetOnVisibilityChange();
 
-            // 🔹 Prevent unnecessary reload of the same question
+            // 🔹 Prevent unnecessary reloading of the same question
             if (this.currentQuestion?.questionText && this.currentQuestionIndex === restoredIndex) {
                 console.log('[restoreStateAfterFocus] ✅ Question already loaded. Skipping re-fetch.');
             } else {
