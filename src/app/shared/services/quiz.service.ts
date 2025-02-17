@@ -1141,14 +1141,14 @@ export class QuizService implements OnDestroy {
             const currentOptions =
               currentQuiz.questions[currentQuestionIndex].options;
 
-            // Broadcasting the current options
+            // Broadcast the current options
             this.nextOptionsSource.next(currentOptions);
             this.nextOptionsSubject.next(currentOptions);
 
             return currentOptions;
           }
 
-          // Broadcasting null when index is invalid
+          // Broadcast null when index is invalid
           this.nextOptionsSource.next(null);
           this.nextOptionsSubject.next(null);
 
