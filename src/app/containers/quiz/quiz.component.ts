@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Get the last known question index (DO NOT reset it!)
+            // 🔹 Get the last saved question index (DO NOT reset it!)
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -405,30 +405,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure the restored index is **always valid** (NO resetting to 1!)
+            // 🔹 Ensure index is **never reset to 1**
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
                 console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
-                restoredIndex = lastKnownIndex; // **Key Fix: Prevents unwanted reset**
+                restoredIndex = lastKnownIndex; // **Key Fix: Ensures NO reset**
             }
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Prevent unnecessary overwrites of the question index
-            if (this.currentQuestionIndex !== restoredIndex) {
-                this.currentQuestionIndex = restoredIndex;
-                console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
-            }
+            // 🔹 Ensure the question index is **ALWAYS** correct
+            this.currentQuestionIndex = restoredIndex;
+            console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
 
-            // 🔹 **Ensure the badge number always updates properly**
+            // 🔹 **Ensure badge text is restored properly**
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
-            // 🔹 **Force persist latest question index to avoid resets**
+            // 🔹 **Persist the restored index to localStorage** (Ensures no unexpected resets)
             localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
             console.log('[restoreStateAfterFocus] ✅ Persisted question index to localStorage:', restoredIndex);
 
-            // 🔹 Ensure the URL remains correct
+            // 🔹 Ensure the URL **ALWAYS** reflects the correct question index
             const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
             if (this.router.url !== newUrl) {
                 console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
@@ -437,7 +435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 );
             }
 
-            // 🔹 Prevent UI reset to **Question 1** on tab focus
+            // 🔹 Prevent UI from resetting to **Question 1** on tab focus
             this.quizService.preventResetOnVisibilityChange();
 
             // 🔹 **Fetch and Set the Correct Question** (Ensures state is up-to-date)
@@ -449,7 +447,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.error('[restoreStateAfterFocus] ❌ Failed to restore question data.');
             }
 
-            // 🔹 Ensure observables and UI states are **fully synchronized**
+            // 🔹 Update observables and UI state
             this.isLoading$ = this.quizStateService.isLoading$;
             this.isAnswered$ = this.quizStateService.isAnswered$;
 
