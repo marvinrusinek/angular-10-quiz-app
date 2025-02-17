@@ -1362,13 +1362,20 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
 
     try {
-      if (questionNumber <= 0 || questionNumber > totalQuestions) {
-        throw new Error(`Invalid question number for badge update: ${questionNumber}`);
+      // Ensure question number is within valid range
+      if (questionNumber <= 0) {
+        console.warn('[QuizService] ⚠️ Question number is below minimum, setting to 1.');
+        questionNumber = 1; // Ensure it never falls below 1
+      }
+        
+      if (questionNumber > totalQuestions) {
+        console.warn('[QuizService] ⚠️ Question number exceeds total, setting to last question.');
+        questionNumber = totalQuestions; // Prevent resetting to Question 1
       }
 
       const newBadgeText = `Question ${questionNumber} of ${totalQuestions}`;
 
-      // Avoid unnecessary updates if the badge text is already correct
+      // Avoid unnecessary updates
       if (this.badgeTextSource.getValue() === newBadgeText) {
         console.log('[QuizService] ⏭️ No update needed, badge text is already correct:', newBadgeText);
         return;
@@ -1379,7 +1386,7 @@ export class QuizService implements OnDestroy {
       setTimeout(() => {
         this.badgeTextSource.next(newBadgeText);
         console.log('[QuizService] ✅ Badge text updated:', newBadgeText);
-      }, 10); // small delay to ensure reactivity
+      }, 10); // Small delay to ensure UI reactivity
     } catch (error) {
       console.error('[QuizService] ❌ Error in updateBadgeText:', error.message);
     }
