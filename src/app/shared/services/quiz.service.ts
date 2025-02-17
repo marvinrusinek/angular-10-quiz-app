@@ -1016,52 +1016,7 @@ export class QuizService implements OnDestroy {
     return this.currentQuestion.asObservable();
   }
 
-  /* async setCurrentQuestionIndex(index: number): Promise<void> {
-    try {
-      if (!this.quizId) {
-        console.error('Quiz ID is not available.');
-        return;
-      }
-
-      const response: any = await firstValueFrom(
-        this.getQuestionsForQuiz(this.quizId)
-      );
-
-      // Ensure response has a 'questions' property that is an array
-      if (!response || !Array.isArray(response.questions)) {
-        console.error('Invalid format of questions response:', response);
-        return;
-      }
-
-      const questions = response.questions;
-      if (!questions || !Array.isArray(questions)) {
-        console.error('Invalid format of questions array:', questions);
-        return;
-      }
-
-      const zeroBasedQuestionIndex = Math.max(0, index - 1);
-
-      // Validate the index
-      if (
-        zeroBasedQuestionIndex >= 0 &&
-        zeroBasedQuestionIndex < questions.length
-      ) {
-        this.currentQuestionIndex = zeroBasedQuestionIndex;
-        this.currentQuestionIndexSource.next(zeroBasedQuestionIndex);
-      } else {
-        console.error(
-          `Invalid question index: ${index}. Total questions available: ${questions.length}`
-        );
-      }
-    } catch (error) {
-      console.error('Error setting current question index:', error);
-    }
-  } */
   async setCurrentQuestionIndex(index: number): Promise<void> {
-    console.warn(
-      `[FORCE LOG] 🔍 setCurrentQuestionIndex() was called with index: ${index}`
-    );
-
     try {
       if (!this.quizId) {
         console.error('Quiz ID is not available.');
@@ -1084,18 +1039,14 @@ export class QuizService implements OnDestroy {
       }
 
       if (index < 0 || index >= questions.length) {
-        console.error(
-          `Invalid question index: ${index}. Total questions available: ${questions.length}`
-        );
+        console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
         return;
       }
 
       this.currentQuestionIndex = index;
       this.currentQuestionIndexSource.next(index);
 
-      console.warn(
-        `[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`
-      );
+      console.warn(`[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`);
     } catch (error) {
       console.error('[setCurrentQuestionIndex] ❌ Error:', error);
     }
