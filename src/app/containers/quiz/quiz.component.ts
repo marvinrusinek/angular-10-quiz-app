@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Retrieve last known question index (do NOT reset it!)
+            // 🔹 Get the last known question index (DO NOT reset it!)
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -414,15 +414,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Ensure **quizService state is correct** before UI updates
-            this.quizService.setCurrentQuestionIndex(restoredIndex);
-            console.log('[restoreStateAfterFocus] ✅ Updated currentQuestionIndex in QuizService:', restoredIndex);
+            // 🔹 Prevent unnecessary overwrites of the question index
+            if (this.currentQuestionIndex !== restoredIndex) {
+                this.currentQuestionIndex = restoredIndex;
+                console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
+            }
 
-            // 🔹 Ensure **badge text is fully updated** (DO NOT RESET TO 1!)
+            // 🔹 **Ensure the badge number always updates properly**
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
-            // 🔹 Ensure the URL remains **correct** (force update only if needed)
+            // 🔹 **Force persist latest question index to avoid resets**
+            localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
+            console.log('[restoreStateAfterFocus] ✅ Persisted question index to localStorage:', restoredIndex);
+
+            // 🔹 Ensure the URL remains correct
             const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
             if (this.router.url !== newUrl) {
                 console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
@@ -443,16 +449,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.error('[restoreStateAfterFocus] ❌ Failed to restore question data.');
             }
 
-            // 🔹 Ensure the correct explanation text is fetched
-            await this.fetchFormattedExplanationText(restoredIndex);
-
             // 🔹 Ensure observables and UI states are **fully synchronized**
             this.isLoading$ = this.quizStateService.isLoading$;
             this.isAnswered$ = this.quizStateService.isAnswered$;
-
-            // 🔹 **Persist the question index in localStorage** to prevent unwanted resets
-            localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
-            console.log('[restoreStateAfterFocus] ✅ Persisted question index:', restoredIndex);
 
             // 🔹 **Final UI refresh to prevent stale data**
             this.cdRef.detectChanges();
