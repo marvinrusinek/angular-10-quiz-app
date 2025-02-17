@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Retrieve last known question index (Do NOT reset it!)
+            // 🔹 Retrieve last known question index from both localStorage and service state
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -405,46 +405,54 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure valid question index (DO NOT RESET TO 1!)
+            // 🔹 Ensure the restored index is **always valid** (NO resetting to 1!)
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
                 console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
-                restoredIndex = lastKnownIndex; // **Key Fix: Prevents reset to 1**
+                restoredIndex = lastKnownIndex; // **Key Fix: Prevents unwanted reset**
             }
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 Only update current index if necessary
+            // 🔹 Only update currentQuestionIndex **if necessary**
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
             }
 
-            // 🔹 Ensure badge text is **NEVER RESET TO 1**
+            // 🔹 Ensure badge text is **NEVER reset incorrectly**
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
-            // 🔹 Ensure the URL remains correct (force update if necessary)
+            // 🔹 Ensure the URL remains **correct** (force update only if needed)
             const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
             if (this.router.url !== newUrl) {
                 console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
-                await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
+                await this.ngZone.run(() =>
+                    this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true })
+                );
             }
 
-            // 🔹 Prevent UI reset to Question 1 on tab focus
+            // 🔹 Prevent UI reset to Question 1 **on tab focus**
             this.quizService.preventResetOnVisibilityChange();
 
-            // 🔹 Prevent unnecessary reloading of the same question
-            if (this.currentQuestion?.questionText && this.currentQuestionIndex === restoredIndex) {
-                console.log('[restoreStateAfterFocus] ✅ Question already loaded. Skipping re-fetch.');
+            // 🔹 **Fetch and Set the Correct Question** (Ensures state is up-to-date)
+            const question = await firstValueFrom(this.quizService.getQuestionByIndex(restoredIndex));
+            if (question) {
+                this.quizService.setCurrentQuestion(question);
+                console.log('[restoreStateAfterFocus] ✅ Successfully restored question:', question);
             } else {
-                await this.restoreQuestionState();
+                console.error('[restoreStateAfterFocus] ❌ Failed to restore question data.');
             }
 
-            // 🔹 Update observables
+            // 🔹 Ensure the correct explanation text is fetched
+            await this.fetchFormattedExplanationText(restoredIndex);
+
+            // 🔹 Ensure observables and UI states are **fully synchronized**
             this.isLoading$ = this.quizStateService.isLoading$;
             this.isAnswered$ = this.quizStateService.isAnswered$;
 
+            // 🔹 **Final UI refresh to prevent stale data**
             this.cdRef.detectChanges();
             console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
 
