@@ -396,32 +396,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         try {
             // 🔹 Retrieve last saved question index (DO NOT RESET!)
             const savedIndex = localStorage.getItem('savedQuestionIndex');
-            const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
-
-            let restoredIndex = lastKnownIndex;
+            let restoredIndex = this.quizService.getCurrentQuestionIndex();
 
             if (savedIndex !== null) {
                 restoredIndex = JSON.parse(savedIndex);
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure index is valid (DO NOT RESET TO 1!)
+            // 🔹 Ensure index is valid and does not go backward
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
-                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
-                restoredIndex = lastKnownIndex; 
+                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping latest valid index:', restoredIndex);
             }
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // 🔹 **Ensure we do NOT overwrite the index to 1!**
+            // 🔹 Only update index if necessary
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
                 console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
             }
 
-            // 🔹 **Update the badge text immediately**
+            // 🔹 Ensure badge text updates correctly
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
@@ -434,6 +431,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     });
   }
+
 
   async ngOnInit(): Promise<void> { 
     console.log('[QuizComponent] 🟢 Initialized. Current Question:', this.currentQuestion);
@@ -4229,7 +4227,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
         console.log('[navigateToQuestion] ✅ Persisted new question index:', questionIndex);
 
-        // 🔹 **Update the badge text immediately**
+        // 🔹 **Ensure badge text updates correctly**
         this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
         console.log('[navigateToQuestion] ✅ Updated badge text:', questionIndex + 1);
 
