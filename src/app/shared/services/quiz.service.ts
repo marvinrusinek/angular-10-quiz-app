@@ -1415,9 +1415,10 @@ export class QuizService implements OnDestroy {
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
-    
+
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
       const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+      console.log('[QuizService] ✅ Setting badge text:', badgeText);
       this.badgeTextSource.next(badgeText);
     } else {
       console.warn('[QuizService] ⚠️ Invalid question number for badge update:', questionNumber);
