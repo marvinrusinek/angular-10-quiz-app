@@ -4410,7 +4410,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         setTimeout(() => {
             this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
             console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
-        }, 50); // ✅ **Delay ensures correct order of updates**
+        }, 100); // ✅ **Delay ensures correct order of updates**
 
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
