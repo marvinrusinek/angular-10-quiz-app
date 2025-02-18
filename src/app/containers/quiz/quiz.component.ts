@@ -4406,10 +4406,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Ensure badge updates immediately before option selection
         this.currentQuestionIndex = questionIndex;
-        this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-        console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
+        setTimeout(() => {
+            this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
+            console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
+        }, 50); // ✅ **Delay ensures correct order of updates**
+
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
         this.cdRef.detectChanges();
     } catch (error) {
