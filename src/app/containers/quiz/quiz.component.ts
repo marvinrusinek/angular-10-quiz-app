@@ -224,8 +224,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
 
-    this.quizService.getTotalQuestionsCount().subscribe((total) => {
-      this.totalQuestions = total;
+    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+      if (totalQuestions > 0) {
+        this.totalQuestions = totalQuestions; // ✅ Ensure total questions is set
+        const startingIndex = this.quizService.getCurrentQuestionIndex() + 1; // Ensure 1-based index
+        console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
+        this.quizService.updateBadgeText(startingIndex, totalQuestions);
+      }
     });
 
     this.subscriptions.add(
