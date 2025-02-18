@@ -4455,12 +4455,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ Update badge with correct 1-based question number
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    // ✅ First, update the current question index
+    this.currentQuestionIndex = questionIndex;
+    console.log(`[navigateToQuestion] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+    // ✅ Ensure badge updates with the correct 1-based number
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
 
     // ✅ Ensure correct storage
-    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
-    console.log(`[navigateToQuestion] ✅ Badge immediately updated: Question ${questionIndex + 1} of ${this.totalQuestions}`);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+    console.log(`[navigateToQuestion] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
     const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
@@ -4469,9 +4473,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
-        // ✅ Ensure badge remains correct after navigation
         const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
-        if (!isNaN(storedIndex) && storedIndex !== questionIndex) {
+        if (!isNaN(storedIndex) && storedIndex !== this.currentQuestionIndex) {
             console.warn(`[navigateToQuestion] ⚠️ Badge mismatch detected. Restoring stored index.`);
             this.quizService.updateBadgeText(storedIndex + 1, this.totalQuestions);
         }
@@ -4491,7 +4494,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }));
 
         console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
-        this.currentQuestionIndex = questionIndex;
 
         this.cdRef.detectChanges();
     } catch (error) {
