@@ -4373,67 +4373,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    if (this.navigationAbortController) {
-        this.navigationAbortController.abort();
-    }
-    this.navigationAbortController = new AbortController();
-    const { signal } = this.navigationAbortController;
-
     const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
 
     try {
-        // ✅ **Force Router to update the URL properly**
-        await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
 
-        console.log('[navigateToQuestion] ✅ Router navigation successful. Updated URL:', this.router.url);
+        console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
-        if (signal.aborted) {
-            console.log('[navigateToQuestion] 🚫 Navigation aborted.');
-            return;
-        }
-
-        console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
-
-        // ✅ **CLEAR OLD DATA BEFORE FETCHING NEW DATA**
-        this.currentQuestion = null;
-        this.optionsToDisplay = [];
-        this.explanationToDisplay = '';
-        this.badgeText = '';
-        this.cdRef.detectChanges();
-
-        // ✅ **Fetch new question, options, and explanation in parallel**
-        const [newQuestion, newOptions, newExplanation] = await Promise.all([
-            firstValueFrom(this.quizService.getQuestionByIndex(questionIndex)),
-            firstValueFrom(this.quizService.getCurrentOptions(questionIndex)),
-            firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)),
-        ]);
-
-        if (!newQuestion) {
+        // ✅ Fetch new question
+        const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+        if (!question) {
             console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
             return;
         }
 
-        console.log('[navigateToQuestion] ✅ New question, options, and explanation fetched:', {
-            newQuestion,
-            newOptions,
-            newExplanation,
-        });
+        console.log('[navigateToQuestion] ✅ New question fetched:', question);
 
-        // ✅ **Assign new data BEFORE UI updates**
-        this.currentQuestion = { ...newQuestion };
-        this.optionsToDisplay = [...newOptions];
-        this.explanationToDisplay = newExplanation;
+        // ✅ Update question and options correctly
+        this.currentQuestion = { ...question }; // Ensure new object reference
+        this.optionsToDisplay = question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false,
+        }));
 
-        console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
-        console.log('[navigateToQuestion] ✅ Updated explanationToDisplay:', this.explanationToDisplay);
 
-        // ✅ **Ensure badge updates immediately**
+        // ✅ Ensure badge updates immediately before option selection
         this.currentQuestionIndex = questionIndex;
+        this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-        this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
 
         console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
 
@@ -4445,7 +4414,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {
