@@ -1466,29 +1466,33 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
 
     try {
-        if (questionIndex >= 1 && questionIndex <= totalQuestions) {
-            const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
-
-            // ✅ Prevent unnecessary updates
-            if (this.badgeTextSource.getValue() === badgeText) {
-                console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
-                return;
-            }
-
-            // ✅ Ensure badge updates & never resets incorrectly
-            setTimeout(() => {
-                const storedIndex = Number(localStorage.getItem('savedQuestionIndex')) || questionIndex - 1;
-                if (storedIndex !== questionIndex - 1) {
-                    console.warn(`[QuizService] ⚠️ Mismatched badge number. Correcting to: ${storedIndex + 1}`);
-                    this.badgeTextSource.next(`Question ${storedIndex + 1} of ${totalQuestions}`);
-                } else {
-                    this.badgeTextSource.next(badgeText);
-                    console.log('[QuizService] ✅ Badge text updated:', badgeText);
-                }
-            }, 50);
-        } else {
-            throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
+        // 🔹 Ensure the index is valid & within range
+        if (questionIndex < 0 || questionIndex >= totalQuestions) {
+            console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
+            return;
         }
+
+        const correctedIndex = questionIndex + 1; // ✅ Convert to 1-based numbering
+        const badgeText = `Question ${correctedIndex} of ${totalQuestions}`;
+
+        // ✅ Prevent unnecessary updates
+        if (this.badgeTextSource.getValue() === badgeText) {
+            console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
+            return;
+        }
+
+        // ✅ Update badge immediately
+        this.badgeTextSource.next(badgeText);
+        console.log('[QuizService] ✅ Badge text updated:', badgeText);
+
+        // ✅ Ensure consistency with stored index
+        setTimeout(() => {
+            const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
+            if (!isNaN(storedIndex) && storedIndex !== questionIndex) {
+                console.warn(`[QuizService] ⚠️ Mismatched badge number. Correcting to: ${storedIndex + 1}`);
+                this.badgeTextSource.next(`Question ${storedIndex + 1} of ${totalQuestions}`);
+            }
+        }, 30);
     } catch (error) {
         console.error(error);
     }
