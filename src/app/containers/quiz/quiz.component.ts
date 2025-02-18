@@ -3331,7 +3331,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const nextQuestionIndex = this.currentQuestionIndex + 1;
         this.quizService.updateBadgeText(nextQuestionIndex, this.totalQuestions);
 
-        // ✅ Save the new index in localStorage before navigation
+        // Save the new index in localStorage before navigation
         localStorage.setItem('savedQuestionIndex', JSON.stringify(nextQuestionIndex));
 
         if (this.quizQuestionComponent) {
@@ -3351,8 +3351,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-        
+      this.quizStateService.setLoading(false);        
       this.cdRef.detectChanges();
     }
   }
