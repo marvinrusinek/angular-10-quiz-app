@@ -427,22 +427,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // ✅ Set question index if needed
+            // ✅ Ensure NO reset happens on re-focus
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
+                localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
                 console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
             }
 
-            // ✅ Restore badge text (do not overwrite valid state)
-            const savedBadgeIndex = localStorage.getItem('savedBadgeIndex');
-            let restoredBadge = savedBadgeIndex ? JSON.parse(savedBadgeIndex) : restoredIndex + 1;
-
-            if (restoredBadge > totalQuestions) {
-                restoredBadge = totalQuestions; // Prevent out-of-range issue
-            }
-
-            this.quizService.updateBadgeText(restoredBadge, totalQuestions);
-            console.log('[restoreStateAfterFocus] ✅ Restored badge text:', `Question ${restoredBadge} of ${totalQuestions}`);
+            // ✅ Fetch and use latest question index for badge update
+            const latestIndex = this.quizService.getCurrentQuestionIndex() + 1; // Ensure 1-based index
+            this.quizService.updateBadgeText(latestIndex, totalQuestions);
+            console.log('[restoreStateAfterFocus] ✅ Restored badge text:', `Question ${latestIndex} of ${totalQuestions}`);
 
             // ✅ Ensure UI updates properly
             this.cdRef.detectChanges();
