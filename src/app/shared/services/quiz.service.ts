@@ -1381,7 +1381,7 @@ export class QuizService implements OnDestroy {
 
     try {
         if (questionIndex >= 0 && questionIndex < totalQuestions) {
-            const badgeText = `Question ${questionIndex + 1} of ${totalQuestions}`; // Ensure it's 1-based
+            const badgeText = `Question ${questionIndex} of ${totalQuestions}`; // Ensure it's 1-based
 
             // ✅ Force UI update by emitting twice
             this.badgeTextSource.next('');
