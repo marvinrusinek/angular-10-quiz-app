@@ -2455,7 +2455,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ...question,
         options: options?.map((option) => ({
           ...option,
-          correct: option.correct ?? false,
+          correct: option.correct ?? false
         })),
       });
     } catch (error) {
@@ -2756,13 +2756,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     while (!Array.isArray(this.questions) || this.questions.length === 0) {
       console.warn('Questions array is not initialized or empty. Loading questions...');
       await this.loadQuizData(); // Ensure questions are loaded
-      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before rechecking
+      await new Promise(resolve => setTimeout(resolve, 500)); // small delay before rechecking
     }
   
     if (questionIndex >= 0 && questionIndex < this.questions.length) {
       const selectedQuestion = this.questions[questionIndex];
 
-      this.questionTextLoaded = false; // Reset to false before updating
+      this.questionTextLoaded = false; // reset to false before updating
 
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
@@ -2809,56 +2809,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
-  /* async initializeFirstQuestion(): Promise<void> {
-    this.resetQuestionDisplayState();
-    
-    try {
-      // Load questions for the quiz
-      const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      
-      if (questions && questions.length > 0) {
-        // Set first question data immediately
-        this.questions = questions;
-        this.currentQuestion = questions[0];
-        this.currentQuestionIndex = 0;
-        this.questionToDisplay = this.currentQuestion.questionText;
-  
-        // Assign optionIds
-        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-        this.optionsToDisplay = this.currentQuestion.options;
-        
-        await this.ensureOptionsLoaded();
-  
-        // Check for missing optionIds
-        const missingOptionIds = this.optionsToDisplay.filter(o => o.optionId === undefined);
-        if (missingOptionIds.length > 0) {
-          console.error('Options with undefined optionId found:', missingOptionIds);
-        } else {
-          console.log('All options have valid optionIds.');
-        }
-  
-        // Force Angular to recognize the new options
-        this.cdRef.detectChanges();
-  
-        // Call checkIfAnswered() to track answered state
-        setTimeout(() => {
-          this.checkIfAnswered((hasAnswered) => {
-            this.handleTimer(hasAnswered);
-          });
-        }, 100);
-  
-        // Double change detection for safety
-        setTimeout(() => {
-          this.cdRef.markForCheck();
-        }, 200);
-      } else {
-        console.warn('No questions available for this quiz.');
-        this.handleNoQuestionsAvailable();
-      }
-    } catch (err) {
-      console.error('Error initializing first question:', err);
-    }
-  } */
   async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
 
