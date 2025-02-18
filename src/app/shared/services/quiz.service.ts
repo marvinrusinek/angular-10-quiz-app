@@ -1418,7 +1418,7 @@ export class QuizService implements OnDestroy {
           this.badgeTextSource.next(badgeText);
 
           // Persist last known question number
-          localStorage.setItem('savedBadgeIndex', JSON.stringify(questionNumber));
+          localStorage.setItem('savedBadgeIndex', JSON.stringify(questionIndex));
           console.log('[QuizService] ✅ Badge text updated:', badgeText);
         }, 100); // prevents flickering issues
       } else if (questionIndex === totalQuestions) {
