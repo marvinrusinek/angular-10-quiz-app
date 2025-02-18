@@ -3477,7 +3477,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       ];
 
       // Conditionally preload next question (only if there are more questions)
-      if (questionIndex < this.totalQuestions - 1) {
+      if (questionIndex <= this.totalQuestions) {
         console.log('[prepareQuestionForDisplay] 🔄 Preloading next question...');
         processingTasks.push(this.advanceAndProcessNextQuestion());
       } else {
