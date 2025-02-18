@@ -4373,7 +4373,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ Abort previous navigation requests (Avoids race conditions)
+    // ✅ Abort previous navigation requests (avoids race conditions)
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
     }
@@ -4384,7 +4384,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
 
     try {
-        // ✅ **Ensure Router URL Updates Correctly**
+        // ✅ Ensure the router updates the URL correctly
         await this.ngZone.run(() =>
             this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false })
         );
@@ -4397,12 +4397,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
 
-        // ✅ **CLEAR PREVIOUS DATA TO PREVENT STALE STATE**
+        // ✅ **CLEAR OLD DATA BEFORE FETCHING NEW DATA**
         this.currentQuestion = null;
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
-        // this.badgeText = ''; // Prevents flickering or incorrect badge text
-        this.cdRef.detectChanges(); // ✅ Ensure UI refresh before fetching new data
+        this.badgeText = '';
+        this.cdRef.detectChanges(); // ✅ Ensure UI is fully cleared
 
         // ✅ **Fetch new question, options, and explanation in parallel**
         const [newQuestion, newOptions, newExplanation] = await Promise.all([
@@ -4422,7 +4422,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             newExplanation,
         });
 
-        // ✅ **Assign new data before UI update**
+        // ✅ **Assign new data BEFORE UI updates**
         this.currentQuestion = { ...newQuestion };
         this.optionsToDisplay = [...newOptions];
         this.explanationToDisplay = newExplanation;
@@ -4431,7 +4431,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
         console.log('[navigateToQuestion] ✅ Updated explanationToDisplay:', this.explanationToDisplay);
 
-        // ✅ **Ensure badge updates BEFORE option selection**
+        // ✅ **Ensure badge updates immediately before option selection**
         this.currentQuestionIndex = questionIndex;
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
         this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
