@@ -42,7 +42,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  private handleRouteParameters(): void {
+  /* private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
       switchMap((params: Params) => this.processRouteParams(params)),
@@ -50,6 +50,36 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
+        this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
+      }
+    });
+  } */
+  private handleRouteParameters(): void {
+    this.activatedRoute.params.pipe(
+      takeUntil(this.unsubscribe$),
+      switchMap((params: Params) => {
+        if (params.questionIndex !== undefined) {
+          this.questionNumber = +params.questionIndex + 1; // Ensure it's 1-based
+          console.log(`[handleRouteParameters] 🔄 Updating questionNumber to: ${this.questionNumber}`);
+
+          if (!this.timerService.isTimerRunning) {
+            console.log('[handleRouteParameters] ▶️ Starting timer...');
+            this.timerService.startTimer();
+          }
+
+          return this.quizService.totalQuestions$;
+        }
+
+        console.warn('[handleRouteParameters] ❌ No questionIndex found in route parameters.');
+        return of(null);
+      }),
+      catchError((error: Error) => this.handleError(error))
+    ).subscribe((totalQuestions: number) => {
+      if (totalQuestions !== null) {
+        this.totalQuestions = totalQuestions;
+        console.log(`[handleRouteParameters] ✅ Setting badge with: Question ${this.questionNumber} of ${totalQuestions}`);
+
+        // **Ensure badge updates properly**
         this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
       }
     });
@@ -83,6 +113,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private setupBadgeTextSubscription(): void {
     this.quizService.badgeText.subscribe(updatedText => {
+      console.log(`[setupBadgeTextSubscription] 🔄 Badge text updated to: ${updatedText}`);
       this.badgeText = updatedText;
     });
   }
