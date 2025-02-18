@@ -2092,6 +2092,10 @@ export class QuizService implements OnDestroy {
     return true;
   }
 
+  isLastQuestion(): boolean {
+    return this.currentQuestionIndex === this.totalQuestions - 1;
+  }
+
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
