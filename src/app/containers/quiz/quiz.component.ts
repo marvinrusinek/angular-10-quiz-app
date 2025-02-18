@@ -410,16 +410,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // ✅ Retrieve last known question index
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             let restoredIndex = this.quizService.getCurrentQuestionIndex();
 
             if (savedIndex !== null) {
                 restoredIndex = JSON.parse(savedIndex);
-                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
+                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index:', restoredIndex);
             }
 
-            // ✅ Ensure valid index
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
                 console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Using latest valid index:', restoredIndex);
@@ -427,19 +425,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // ✅ Ensure NO reset happens on re-focus
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
                 console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
             }
 
-            // ✅ Fetch and use latest question index for badge update
-            const latestIndex = this.quizService.getCurrentQuestionIndex() + 1; // Ensure 1-based index
-            this.quizService.updateBadgeText(latestIndex, totalQuestions);
-            console.log('[restoreStateAfterFocus] ✅ Restored badge text:', `Question ${latestIndex} of ${totalQuestions}`);
+            const savedBadgeIndex = localStorage.getItem('savedBadgeIndex');
+            let badgeIndex = restoredIndex + 1;
 
-            // ✅ Ensure UI updates properly
+            if (savedBadgeIndex !== null) {
+                badgeIndex = JSON.parse(savedBadgeIndex);
+                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved badge index:', badgeIndex);
+            }
+
+            this.quizService.updateBadgeText(badgeIndex, totalQuestions);
+            console.log('[restoreStateAfterFocus] ✅ Restored badge text:', `Question ${badgeIndex} of ${totalQuestions}`);
+
             this.cdRef.detectChanges();
             console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
 
