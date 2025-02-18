@@ -1379,11 +1379,11 @@ export class QuizService implements OnDestroy {
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
 
-    if (questionNumber > 0 && questionNumber <= totalQuestions) {
+    if (questionNumber >= 1 && questionNumber <= totalQuestions) {
         const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
 
-        // ✅ Ensure UI refresh
-        this.badgeTextSource.next('');
+        // Ensure the update is forced
+        this.badgeTextSource.next('');  
         setTimeout(() => {
             this.badgeTextSource.next(badgeText);
             console.log('[QuizService] ✅ Badge text updated:', badgeText);
