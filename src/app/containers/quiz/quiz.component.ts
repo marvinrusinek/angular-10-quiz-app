@@ -460,7 +460,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // ✅ **Retrieve last known question index (DO NOT RESET!)**
+            // ✅ **Retrieve last known question index**
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             let restoredIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -4373,7 +4373,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ Abort previous navigation requests (avoids race conditions)
     if (this.navigationAbortController) {
         this.navigationAbortController.abort();
     }
@@ -4384,11 +4383,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
 
     try {
-        // ✅ Ensure the router updates the URL correctly
-        await this.ngZone.run(() =>
-            this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false })
-        );
-        console.log('[navigateToQuestion] ✅ Router navigation successful.');
+        // ✅ **Force Router to update the URL properly**
+        await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
+        await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
+
+        console.log('[navigateToQuestion] ✅ Router navigation successful. Updated URL:', this.router.url);
 
         if (signal.aborted) {
             console.log('[navigateToQuestion] 🚫 Navigation aborted.');
@@ -4402,7 +4401,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
         this.badgeText = '';
-        this.cdRef.detectChanges(); // ✅ Ensure UI is fully cleared
+        this.cdRef.detectChanges();
 
         // ✅ **Fetch new question, options, and explanation in parallel**
         const [newQuestion, newOptions, newExplanation] = await Promise.all([
@@ -4431,14 +4430,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
         console.log('[navigateToQuestion] ✅ Updated explanationToDisplay:', this.explanationToDisplay);
 
-        // ✅ **Ensure badge updates immediately before option selection**
+        // ✅ **Ensure badge updates immediately**
         this.currentQuestionIndex = questionIndex;
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
         this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
 
         console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
 
-        this.cdRef.detectChanges(); // ✅ Ensure UI updates
+        this.cdRef.detectChanges();
     } catch (error) {
         console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
     } finally {
