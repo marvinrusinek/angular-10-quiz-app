@@ -400,7 +400,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
     });
   } */
-  private async restoreStateAfterFocus(): Promise<void> {
+  /* private async restoreStateAfterFocus(): Promise<void> {
     console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
 
     this.ngZone.run(async () => {
@@ -442,6 +442,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quizService.updateBadgeText(badgeIndex, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Restored badge text:', `Question ${badgeIndex} of ${totalQuestions}`);
 
+            this.cdRef.detectChanges();
+            console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
+
+        } catch (error) {
+            console.error('[restoreStateAfterFocus] ❌ Error during state restoration:', error);
+        }
+    });
+  } */
+  private async restoreStateAfterFocus(): Promise<void> {
+    console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
+
+    this.ngZone.run(async () => {
+        if (this.isLoading || this.quizStateService.isLoading()) {
+            console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
+            return;
+        }
+
+        try {
+            // ✅ **Retrieve last known question index (DO NOT RESET!)**
+            const savedIndex = localStorage.getItem('savedQuestionIndex');
+            let restoredIndex = this.quizService.getCurrentQuestionIndex();
+
+            if (savedIndex !== null) {
+                restoredIndex = JSON.parse(savedIndex);
+                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
+            }
+
+            // ✅ **Ensure the index is valid and does not go backward**
+            const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+            if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
+                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping latest valid index:', restoredIndex);
+            }
+
+            console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
+
+            // ✅ **Ensure NO reset happens on re-focus**
+            if (this.currentQuestionIndex !== restoredIndex) {
+                this.currentQuestionIndex = restoredIndex;
+                localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
+                console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
+            }
+
+            // ✅ **Ensure badge text updates correctly**
+            this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
+            console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
+
+            // ✅ **Ensure UI updates properly**
             this.cdRef.detectChanges();
             console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
 
@@ -4337,11 +4384,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
 
     try {
-        // ✅ Update router URL properly
+        // ✅ **Ensure Router URL Updates Correctly**
         await this.ngZone.run(() =>
             this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false })
         );
-
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
         if (signal.aborted) {
@@ -4355,42 +4401,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = null;
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
-        this.cdRef.detectChanges(); // Ensure UI refresh before fetching new data
+        // this.badgeText = ''; // Prevents flickering or incorrect badge text
+        this.cdRef.detectChanges(); // ✅ Ensure UI refresh before fetching new data
 
-        // ✅ Fetch new question and explanation **at the same time**
-        const questionData = await firstValueFrom(
-            forkJoin({
-                question: this.quizService.getQuestionByIndex(questionIndex),
-                explanation: this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex),
-            })
-        );
+        // ✅ **Fetch new question, options, and explanation in parallel**
+        const [newQuestion, newOptions, newExplanation] = await Promise.all([
+            firstValueFrom(this.quizService.getQuestionByIndex(questionIndex)),
+            firstValueFrom(this.quizService.getCurrentOptions(questionIndex)),
+            firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)),
+        ]);
 
-        if (!questionData.question) {
+        if (!newQuestion) {
             console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
             return;
         }
 
-        console.log('[navigateToQuestion] ✅ New question and explanation fetched:', questionData);
+        console.log('[navigateToQuestion] ✅ New question, options, and explanation fetched:', {
+            newQuestion,
+            newOptions,
+            newExplanation,
+        });
 
-        // ✅ **Assign new question, options, and explanation**
-        this.currentQuestion = { ...questionData.question };
-        this.optionsToDisplay = [...questionData.question.options];
-        this.explanationToDisplay = questionData.explanation;
+        // ✅ **Assign new data before UI update**
+        this.currentQuestion = { ...newQuestion };
+        this.optionsToDisplay = [...newOptions];
+        this.explanationToDisplay = newExplanation;
 
         console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
         console.log('[navigateToQuestion] ✅ Updated explanationToDisplay:', this.explanationToDisplay);
 
-        this.cdRef.detectChanges(); // Ensure UI updates
-
-        // ✅ **Update question index and persist it**
+        // ✅ **Ensure badge updates BEFORE option selection**
         this.currentQuestionIndex = questionIndex;
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-
-        // ✅ **Immediately update badge BEFORE clicking an option**
         this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
 
         console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
+
+        this.cdRef.detectChanges(); // ✅ Ensure UI updates
     } catch (error) {
         console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
     } finally {
@@ -4440,7 +4488,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuizState();
   
     // Stop the timer before restarting
-    this.timerService.stopTimer();
+    this.timerService.stopTimer;
   
     // Set the current question index to the first question
     this.quizService.setCurrentQuestionIndex(0);
