@@ -4337,7 +4337,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
 
     try {
-        // ✅ Ensure router URL updates properly
+        // ✅ Update router URL properly
         await this.ngZone.run(() =>
             this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false })
         );
@@ -4351,13 +4351,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
 
-        // ✅ Clear **BEFORE** fetching new data (Fixes stale options & explanation)
+        // ✅ **CLEAR PREVIOUS DATA TO PREVENT STALE STATE**
         this.currentQuestion = null;
         this.optionsToDisplay = [];
         this.explanationToDisplay = '';
-        this.cdRef.detectChanges(); // Ensure UI refreshes before new data
+        this.cdRef.detectChanges(); // Ensure UI refresh before fetching new data
 
-        // ✅ Fetch new question and explanation
+        // ✅ Fetch new question and explanation **at the same time**
         const questionData = await firstValueFrom(
             forkJoin({
                 question: this.quizService.getQuestionByIndex(questionIndex),
@@ -4372,7 +4372,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[navigateToQuestion] ✅ New question and explanation fetched:', questionData);
 
-        // ✅ Assign the new question, options, and explanation **AFTER** clearing stale data
+        // ✅ **Assign new question, options, and explanation**
         this.currentQuestion = { ...questionData.question };
         this.optionsToDisplay = [...questionData.question.options];
         this.explanationToDisplay = questionData.explanation;
@@ -4383,10 +4383,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.cdRef.detectChanges(); // Ensure UI updates
 
-        // ✅ Update question index and persist it
+        // ✅ **Update question index and persist it**
         this.currentQuestionIndex = questionIndex;
-        this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+
+        // ✅ **Immediately update badge BEFORE clicking an option**
+        this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
 
         console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
     } catch (error) {
