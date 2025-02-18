@@ -201,7 +201,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private cdRef: ChangeDetectorRef,
     private location: Location
   ) {
-    Object.defineProperty(this, 'currentQuestionIndex', {
+    /* Object.defineProperty(this, 'currentQuestionIndex', {
       set: function (value) {
         console.log(`[DEBUG] 🔄 currentQuestionIndex changed: ${value}`);
         this._currentQuestionIndex = value; // Store the value internally
@@ -209,7 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       get: function () {
         return this._currentQuestionIndex;
       }
-    });
+    }); */
 
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
@@ -226,10 +226,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions; // ✅ Ensure total questions is set
-        const startingIndex = this.quizService.getCurrentQuestionIndex() + 1; // Ensure 1-based index
+        this.totalQuestions = totalQuestions; // Ensure total questions is set
+  
+        let startingIndex = this.quizService.getCurrentQuestionIndex();
+          
+        // Ensure first question starts at "Question 1 of X"
+        if (startingIndex < 1) {
+          startingIndex = 1;
+        } else {
+          startingIndex += 1; // Convert to 1-based index
+        }
+  
         console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
         this.quizService.updateBadgeText(startingIndex, totalQuestions);
+      } else {
+        console.warn('[DEBUG] ⚠️ Total questions not available yet.');
       }
     });
 
