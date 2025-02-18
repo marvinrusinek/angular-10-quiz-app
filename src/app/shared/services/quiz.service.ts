@@ -1366,14 +1366,14 @@ export class QuizService implements OnDestroy {
       if (questionNumber > 0 && questionNumber <= totalQuestions) {
         const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
 
-        // Prevent resetting to "Question 1" when reaching last question
+        // Prevent duplicate updates if the badge text is already correct
         if (this.badgeTextSource.getValue() === badgeText) {
           console.warn('[QuizService] ⚠️ Badge text already correct. Skipping unnecessary update.');
           return;
         }
 
-        this.badgeTextSource.next(badgeText);
-        console.log('[QuizService] ✅ Badge text updated:', badgeText);
+        console.log('[QuizService] 🔄 Updating badge text immediately:', badgeText);
+        this.badgeTextSource.next(badgeText); // Immediate update
       } else {
         throw new Error(`Invalid question number for badge update: ${questionNumber}`);
       }
