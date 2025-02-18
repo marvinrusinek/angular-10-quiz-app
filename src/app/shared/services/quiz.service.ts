@@ -1393,7 +1393,7 @@ export class QuizService implements OnDestroy {
             setTimeout(() => {
                 this.badgeTextSource.next(badgeText);
                 console.log('[QuizService] ✅ Badge text updated:', badgeText);
-            }, 50); // ✅ **Delay ensures smooth transition**
+            }, 100); // ✅ **Delay ensures smooth transition**
         } else {
             throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
         }
