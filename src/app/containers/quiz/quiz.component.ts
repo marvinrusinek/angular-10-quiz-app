@@ -483,7 +483,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
             }
 
-            // ✅ **Ensure badge text updates & does NOT reset**
+            // ✅ Ensure badge text updates correctly
             this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
             console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
 
@@ -4355,7 +4355,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   } */
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
     
     if (this.currentQuestionIndex === questionIndex) {
@@ -4414,6 +4414,72 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.currentQuestionIndex = questionIndex;
 
+        this.cdRef.detectChanges();
+    } catch (error) {
+        console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
+    } finally {
+        this.isLoading = false;
+        console.log('[navigateToQuestion] ✅ Navigation process completed.');
+    }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
+    
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
+        return;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
+    }
+
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 300);
+
+    // ✅ Ensure immediate badge update before navigation
+    const updatedBadgeNumber = questionIndex + 1;
+    this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+    console.log(`[navigateToQuestion] ✅ Immediately updated badge to: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
+
+    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
+    console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
+
+    try {
+        await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
+        console.log('[navigateToQuestion] ✅ Router navigation successful.');
+
+        // ✅ Ensure badge remains correct even after navigation
+        setTimeout(() => {
+            const storedIndex = Number(localStorage.getItem('savedQuestionIndex')) || questionIndex;
+            if (storedIndex === questionIndex) {
+                this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
+                console.log(`[navigateToQuestion] ✅ Ensured badge remains: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
+            } else {
+                console.warn(`[navigateToQuestion] ⚠️ Badge mismatch detected. Restoring stored index.`);
+                this.quizService.updateBadgeText(storedIndex + 1, this.totalQuestions);
+            }
+        }, 50);
+
+        const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+        if (!question) {
+            console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
+            return;
+        }
+
+        console.log('[navigateToQuestion] ✅ New question fetched:', question);
+
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false,
+        }));
+
+        console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
+
+        this.currentQuestionIndex = questionIndex;
         this.cdRef.detectChanges();
     } catch (error) {
         console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
