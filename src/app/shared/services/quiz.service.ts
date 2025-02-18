@@ -1400,7 +1400,7 @@ export class QuizService implements OnDestroy {
         console.error(error);
     }
   } */
-  updateBadgeText(questionIndex: number, totalQuestions: number): void {
+  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
 
     try {
@@ -1430,7 +1430,39 @@ export class QuizService implements OnDestroy {
     } catch (error) {
       console.error(error);
     }
+  } */
+  updateBadgeText(questionIndex: number, totalQuestions: number): void {
+    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
+
+    try {
+        if (questionIndex > 0 && questionIndex <= totalQuestions) {
+            const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
+
+            // ✅ Prevent unnecessary updates
+            if (this.badgeTextSource.getValue() === badgeText) {
+                console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
+                return;
+            }
+
+            // ✅ Ensure badge updates & **never resets on last question**
+            setTimeout(() => {
+                const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
+                if (storedIndex !== questionIndex) {
+                    console.warn(`[QuizService] ⚠️ Mismatched badge number. Correcting to: ${storedIndex}`);
+                    this.badgeTextSource.next(`Question ${storedIndex} of ${totalQuestions}`);
+                } else {
+                    this.badgeTextSource.next(badgeText);
+                    console.log('[QuizService] ✅ Badge text updated:', badgeText);
+                }
+            }, 50);
+        } else {
+            throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
+        }
+    } catch (error) {
+        console.error(error);
+    }
   }
+
 
   updateCorrectAnswersText(newText: string): void {
     localStorage.setItem('correctAnswersText', newText);
