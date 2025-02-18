@@ -66,44 +66,23 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* private processRouteParams(params: Params): Observable<number> {
+  private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
-      this.questionNumber = +params.questionIndex;
+      const questionIndex = +params.questionIndex; // ✅ Keep it as 0-based index
 
-      console.log(`[processRouteParams] 🚀 Detected questionIndex: ${this.questionNumber}`);
+      console.log(`[processRouteParams] 🔄 Detected questionIndex: ${questionIndex}`);
 
-      // ✅ Ensure timer starts only if it's not already running
-      if (!this.timerService.isTimerRunning) {
-        console.log('[processRouteParams] ▶️ Starting timer...');
-        this.timerService.startTimer();
+      const updatedQuestionNumber = questionIndex;
+
+      // Only update if the number actually changes
+      if (this.questionNumber !== updatedQuestionNumber) {
+        this.questionNumber = updatedQuestionNumber;
+        console.log(`[processRouteParams] ✅ Updated questionNumber to: ${this.questionNumber}`);
       } else {
-        console.warn('[processRouteParams] ⏳ Timer already running. Skipping start.');
+        console.log(`[processRouteParams] 🔵 No change in questionNumber. Keeping: ${this.questionNumber}`);
       }
 
       return this.quizService.totalQuestions$;
-    }
-
-    console.warn('[processRouteParams] ❌ No questionIndex found in route parameters.');
-    return of(null);
-  } */
-  private processRouteParams(params: Params): Observable<number> {
-    if (params.questionIndex !== undefined) {
-        const questionIndex = +params.questionIndex; // ✅ Keep it as 0-based index
-
-        console.log(`[processRouteParams] 🔄 Detected questionIndex: ${questionIndex}`);
-
-        // ✅ **Fix Off-by-One Error (Ensure 1-Based Display)**
-        const updatedQuestionNumber = questionIndex + 1;
-
-        // ✅ **Only update if the number actually changes**
-        if (this.questionNumber !== updatedQuestionNumber) {
-            this.questionNumber = updatedQuestionNumber;
-            console.log(`[processRouteParams] ✅ Updated questionNumber to: ${this.questionNumber}`);
-        } else {
-            console.log(`[processRouteParams] 🔵 No change in questionNumber. Keeping: ${this.questionNumber}`);
-        }
-
-        return this.quizService.totalQuestions$;
     }
 
     console.warn('[processRouteParams] ❌ No questionIndex found in route parameters.');
