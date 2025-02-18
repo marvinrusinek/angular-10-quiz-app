@@ -3455,41 +3455,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🟢 prepareQuestionForDisplay() triggered with questionIndex: ${questionIndex}`);
 
     try {
-      console.log('[prepareQuestionForDisplay] 🟢 Preparing question for display at index:', questionIndex);
+        console.log('[prepareQuestionForDisplay] 🟢 Preparing question for display at index:', questionIndex);
 
-      // Fetch and set question data (must be completed before running other operations)
-      console.log('[prepareQuestionForDisplay] 🔄 Calling fetchAndSetQuestionData()...');
-      const questionFetched = await this.fetchAndSetQuestionData(questionIndex);
-      console.log(`[prepareQuestionForDisplay] ✅ fetchAndSetQuestionData() completed. Result: ${questionFetched}`);
+        // ✅ Ensure index is within valid range
+        if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+            console.warn(`[prepareQuestionForDisplay] ❌ Invalid questionIndex: ${questionIndex}. Aborting.`);
+            return;
+        }
 
-      if (!questionFetched) {
-        console.warn('[prepareQuestionForDisplay] ❌ Failed to fetch question data. Aborting preparation.');
-        return;
-      }
+        // Fetch and set question data (must be completed before running other operations)
+        console.log('[prepareQuestionForDisplay] 🔄 Calling fetchAndSetQuestionData()...');
+        const questionFetched = await this.fetchAndSetQuestionData(questionIndex);
+        console.log(`[prepareQuestionForDisplay] ✅ fetchAndSetQuestionData() completed. Result: ${questionFetched}`);
 
-      console.log('[prepareQuestionForDisplay] ✅ Question data fetched successfully.');
+        if (!questionFetched) {
+            console.warn('[prepareQuestionForDisplay] ❌ Failed to fetch question data. Aborting preparation.');
+            return;
+        }
 
-      // Execute remaining tasks concurrently
-      const processingTasks = [
-        this.initializeQuestionForDisplay(questionIndex),
-        this.updateQuestionStateAndExplanation(questionIndex),
-        this.updateNavigationAndExplanationState()
-      ];
+        console.log('[prepareQuestionForDisplay] ✅ Question data fetched successfully.');
 
-      // Conditionally preload next question (only if there are more questions)
-      if (questionIndex <= this.totalQuestions) {
-        console.log('[prepareQuestionForDisplay] 🔄 Preloading next question...');
-        processingTasks.push(this.advanceAndProcessNextQuestion());
-      } else {
-        console.log('[prepareQuestionForDisplay] 🏁 No next question to preload.');
-      }
+        // ✅ Execute remaining tasks concurrently
+        const processingTasks = [
+            this.initializeQuestionForDisplay(questionIndex),
+            this.updateQuestionStateAndExplanation(questionIndex),
+            this.updateNavigationAndExplanationState()
+        ];
 
-      // Execute all tasks
-      await Promise.all(processingTasks);
+        // ✅ Conditionally preload the next question (only if there are more questions)
+        if (questionIndex < this.totalQuestions - 1) {
+            console.log('[prepareQuestionForDisplay] 🔄 Preloading next question...');
+            processingTasks.push(this.advanceAndProcessNextQuestion());
+        } else {
+            console.log('[prepareQuestionForDisplay] 🏁 Last question reached, no more preloading.');
+        }
 
-      console.log('[prepareQuestionForDisplay] ✅ All tasks completed successfully.');
+        // ✅ Execute all tasks
+        await Promise.all(processingTasks);
+
+        console.log('[prepareQuestionForDisplay] ✅ All tasks completed successfully.');
     } catch (error) {
-      console.error('[prepareQuestionForDisplay] ❌ Error preparing question for display:', error);
+        console.error('[prepareQuestionForDisplay] ❌ Error preparing question for display:', error);
     }
 
     console.log('[prepareQuestionForDisplay] ✅ Function execution completed.');
