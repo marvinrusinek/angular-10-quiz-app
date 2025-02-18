@@ -34,11 +34,11 @@ export class QuizService implements OnDestroy {
   data: {
     questionText: string;
     correctAnswersText?: string;
-    currentOptions: Option[];
+    currentOptions: Option[]
   } = {
     questionText: '',
     correctAnswersText: '',
-    currentOptions: [],
+    currentOptions: []
   };
   quizzes: Quiz[] = [];
   quizId = '';
