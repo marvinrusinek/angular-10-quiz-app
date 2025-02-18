@@ -4310,7 +4310,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   } */
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
     
     if (this.currentQuestionIndex === questionIndex) {
@@ -4364,7 +4364,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isLoading = false;
         console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
+
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
+        return;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
+    }
+
+    this.currentQuestionIndex = questionIndex; // ✅ Ensure index updates before fetching question
+
+    // ✅ Ensure the correct question is fetched
+    const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+
+    if (!question) {
+        console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
+        return;
+    }
+
+    // ✅ Ensure correct options load
+    this.currentQuestion = question;
+    this.optionsToDisplay = question.options.map((option) => ({
+        ...option,
+        correct: option.correct ?? false, // Ensure 'correct' is explicitly set
+    }));
+
+    // ✅ Ensure the badge updates correctly
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+
+    this.cdRef.detectChanges();
+    console.log('[navigateToQuestion] ✅ Change detection triggered.');
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
