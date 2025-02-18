@@ -1362,20 +1362,22 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
 
     try {
-      // Ensure the number is within a valid range
       if (questionNumber > 0 && questionNumber <= totalQuestions) {
         const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+            
+        // Persist to localStorage
+        localStorage.setItem('savedBadgeIndex', JSON.stringify(questionNumber));
 
-        // Prevent duplicate updates if the badge text is already correct
-        if (this.badgeTextSource.getValue() === badgeText) {
-          console.warn('[QuizService] ⚠️ Badge text already correct. Skipping unnecessary update.');
-          return;
-        }
+        console.log('[QuizService] ✅ Setting badge text:', badgeText);
 
-        console.log('[QuizService] 🔄 Updating badge text immediately:', badgeText);
-        this.badgeTextSource.next(badgeText); // Immediate update
+        // Force UI update
+        this.badgeTextSource.next('');
+        setTimeout(() => {
+          this.badgeTextSource.next(badgeText);
+          console.log('[QuizService] ✅ Badge text updated:', badgeText);
+        }, 10);
       } else {
-        throw new Error(`Invalid question number for badge update: ${questionNumber}`);
+        throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionNumber}`);
       }
     } catch (error) {
       console.error('[QuizService] ❌ Error updating badge text:', error);
