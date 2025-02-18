@@ -4404,33 +4404,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
     }
 
-    // ✅ Ensure badge updates before UI changes
-    console.log('[navigateToQuestion] 🔄 Updating badge text BEFORE navigating...');
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
-
-    // ✅ Mark navigation as in progress
-    if (this.isLoading || this.debounceNavigation) {
-        console.warn('[navigateToQuestion] ⏳ Navigation is already in progress. Skipping...');
-        return;
-    }
-
-    this.debounceNavigation = true;
-    setTimeout(() => (this.debounceNavigation = false), 300);
-
-    // ✅ Force router to update the URL properly
-    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
-    console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
-    
-    await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: true }));
-
-    // ✅ Update current index AFTER successful navigation
+    // ✅ First, set the correct current question index
     this.currentQuestionIndex = questionIndex;
     console.log('[navigateToQuestion] ✅ Updated currentQuestionIndex:', this.currentQuestionIndex);
+
+    // ✅ Ensure badge updates immediately with the correct index
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    console.log('[navigateToQuestion] ✅ Updated badge to:', `Question ${this.currentQuestionIndex + 1} of ${this.totalQuestions}`);
+
+    // ✅ Persist badge number in localStorage to prevent resets
+    localStorage.setItem('savedBadgeIndex', JSON.stringify(this.currentQuestionIndex + 1));
+
+    // ✅ Update URL correctly
+    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
+    console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
+
+    await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: true }));
 
     try {
         console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
-        
+
         if (!question) {
             console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
             return;
@@ -4447,12 +4441,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
 
-        // ✅ Force badge text persistence in localStorage
-        localStorage.setItem('savedBadgeIndex', JSON.stringify(questionIndex + 1));
-
-        // ✅ Ensure UI updates immediately
+        // ✅ Force UI refresh immediately
         this.cdRef.detectChanges();
         console.log('[navigateToQuestion] ✅ Change detection triggered.');
+
     } catch (error) {
         console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
     } finally {
