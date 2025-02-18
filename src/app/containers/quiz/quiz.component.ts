@@ -4455,8 +4455,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ Ensure badge updates immediately & prevent race conditions
-    this.quizService.updateBadgeText(questionIndex, this.totalQuestions);
+    // ✅ Update badge with correct 1-based question number
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
     // ✅ Ensure correct storage
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
@@ -4469,10 +4469,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
+        // ✅ Ensure badge remains correct after navigation
         const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
         if (!isNaN(storedIndex) && storedIndex !== questionIndex) {
             console.warn(`[navigateToQuestion] ⚠️ Badge mismatch detected. Restoring stored index.`);
-            this.quizService.updateBadgeText(storedIndex, this.totalQuestions);
+            this.quizService.updateBadgeText(storedIndex + 1, this.totalQuestions);
         }
 
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
