@@ -460,7 +460,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // 🔹 Retrieve last known question index (DO NOT RESET!)
+            // ✅ Retrieve last known question index
             const savedIndex = localStorage.getItem('savedQuestionIndex');
             let restoredIndex = this.quizService.getCurrentQuestionIndex();
 
@@ -469,29 +469,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
             }
 
-            // 🔹 Ensure index is valid (DO NOT RESET TO 1!)
+            // ✅ Ensure index is valid (DO NOT RESET TO 1!)
             const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
             if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
-                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', restoredIndex);
-                restoredIndex = 0; // **Ensure quiz starts from Q1 if invalid**
+                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Resetting to first question.');
+                restoredIndex = 0;
             }
 
             console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
 
-            // ✅ **Only update if necessary**
+            // ✅ Ensure NO reset happens on re-focus
             if (this.currentQuestionIndex !== restoredIndex) {
                 this.currentQuestionIndex = restoredIndex;
                 localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
                 console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
             }
 
-            // ✅ **Ensure badge updates AFTER question is restored**
+            // ✅ Ensure badge updates AFTER question is restored
             await this.restoreQuestionState();
 
             setTimeout(() => {
                 this.quizService.updateBadgeText(this.currentQuestionIndex + 1, totalQuestions);
                 console.log('[restoreStateAfterFocus] ✅ Updated badge after question load:', this.currentQuestionIndex + 1);
-            }, 50); // ✅ **Delay ensures UI is updated before badge changes**
+            }, 100); // ✅ **Delay ensures UI is updated before badge changes**
 
             // ✅ Ensure UI updates properly
             this.cdRef.detectChanges();
