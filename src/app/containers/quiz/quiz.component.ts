@@ -4376,7 +4376,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ **Force immediate badge update before loading question**
+    // ✅ **Force immediate badge update BEFORE loading the new question**
     const updatedBadgeNumber = questionIndex + 1;
     this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
@@ -4389,11 +4389,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
-        // ✅ **Ensure badge is not reset by another process**
+        // ✅ **Fix: Prevent Q6 from resetting to Q1**
         setTimeout(() => {
-            this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
-            console.log(`[navigateToQuestion] 🔄 Ensured badge remains: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
-        }, 50); // 🔹 Minor delay prevents overwrites
+            const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
+            if (storedIndex === questionIndex) {
+                this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
+                console.log(`[navigateToQuestion] ✅ Ensured badge remains: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
+            } else {
+                console.warn(`[navigateToQuestion] ⚠️ Badge mismatch detected. Restoring stored index.`);
+                this.quizService.updateBadgeText(storedIndex + 1, this.totalQuestions);
+            }
+        }, 50);
 
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
         if (!question) {
