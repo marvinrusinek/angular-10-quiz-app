@@ -1365,12 +1365,9 @@ export class QuizService implements OnDestroy {
       if (questionNumber > 0 && questionNumber <= totalQuestions) {
         const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
 
-        // Force UI Refresh
-        this.badgeTextSource.next(''); // Clear value before emitting new one
-        setTimeout(() => {
-          this.badgeTextSource.next(badgeText);
-          console.log('[QuizService] ✅ Badge text updated:', badgeText);
-        }, 20); // Small delay to ensure reactivity
+        // Ensure Angular detects the change immediately
+        this.badgeTextSource.next(badgeText);
+        console.log('[QuizService] ✅ Badge text updated:', badgeText);
       } else {
         throw new Error(`Invalid question number for badge update: ${questionNumber}`);
       }
