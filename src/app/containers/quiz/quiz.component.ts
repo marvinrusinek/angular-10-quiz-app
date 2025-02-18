@@ -4362,7 +4362,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
-
+    
     if (this.currentQuestionIndex === questionIndex) {
         console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
         return;
@@ -4376,20 +4376,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
+    // ✅ **Immediately update badge BEFORE loading question**
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+    console.log('[navigateToQuestion] ✅ Immediately updated badge to:', questionIndex + 1);
+
     const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
 
     try {
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
-
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
-        // ✅ **Ensure Q1 starts correctly**
-        if (questionIndex === 0) {
-            console.log('[navigateToQuestion] ✅ Resetting to Question 1 (First Question)');
-        }
-
-        // ✅ **Fetch new question**
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
         if (!question) {
             console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
@@ -4398,23 +4396,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[navigateToQuestion] ✅ New question fetched:', question);
 
-        // ✅ **Update question and options correctly**
-        this.currentQuestion = { ...question }; // **Ensure new object reference**
+        this.currentQuestion = question;
         this.optionsToDisplay = question.options.map((option) => ({
             ...option,
             correct: option.correct ?? false,
         }));
 
-        console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
+        console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
 
-        // ✅ **Update badge before selecting an option**
         this.currentQuestionIndex = questionIndex;
-        setTimeout(() => {
-            this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
-            console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
-        }, 100); // ✅ **Delay ensures correct order of updates**
-
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
         this.cdRef.detectChanges();
     } catch (error) {
