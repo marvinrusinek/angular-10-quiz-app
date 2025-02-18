@@ -1462,7 +1462,7 @@ export class QuizService implements OnDestroy {
         console.error(error);
     }
   } */
-  updateBadgeText(questionIndex: number, totalQuestions: number): void {
+  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
 
     try {
@@ -1493,6 +1493,32 @@ export class QuizService implements OnDestroy {
                 this.badgeTextSource.next(`Question ${storedIndex + 1} of ${totalQuestions}`);
             }
         }, 30);
+    } catch (error) {
+        console.error(error);
+    }
+  } */
+  updateBadgeText(questionIndex: number, totalQuestions: number): void {
+    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
+
+    try {
+        if (questionIndex < 1 || questionIndex > totalQuestions) {
+            console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
+            return;
+        }
+
+        const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
+
+        if (this.badgeTextSource.getValue() === badgeText) {
+            console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
+            return;
+        }
+
+        this.badgeTextSource.next(badgeText);
+        console.log('[QuizService] ✅ Badge text updated:', badgeText);
+
+        // ✅ Store zero-based index in localStorage
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex - 1));
+
     } catch (error) {
         console.error(error);
     }
