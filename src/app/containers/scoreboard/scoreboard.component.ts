@@ -57,30 +57,19 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => {
-        if (params.questionIndex !== undefined) {
-          this.questionNumber = +params.questionIndex + 1; // Ensure it's 1-based
-          console.log(`[handleRouteParameters] 🔄 Updating questionNumber to: ${this.questionNumber}`);
-
-          if (!this.timerService.isTimerRunning) {
-            console.log('[handleRouteParameters] ▶️ Starting timer...');
-            this.timerService.startTimer();
-          }
-
-          return this.quizService.totalQuestions$;
-        }
-
-        console.warn('[handleRouteParameters] ❌ No questionIndex found in route parameters.');
-        return of(null);
-      }),
+      switchMap((params: Params) => this.processRouteParams(params)), // ✅ Ensure processRouteParams() is used
       catchError((error: Error) => this.handleError(error))
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
-        console.log(`[handleRouteParameters] ✅ Setting badge with: Question ${this.questionNumber} of ${totalQuestions}`);
 
-        // **Ensure badge updates properly**
-        this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
+        console.log(`[handleRouteParameters] ✅ Total questions received: ${totalQuestions}`);
+
+        // ✅ **Ensure correct badge update**
+        setTimeout(() => {
+          console.log(`[handleRouteParameters] 🔄 Updating badge to: Question ${this.questionNumber} of ${totalQuestions}`);
+          this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
+        }, 100); // 🔹 Small delay to prevent race conditions
       }
     });
   }
