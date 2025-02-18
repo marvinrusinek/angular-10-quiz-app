@@ -44,21 +44,24 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
-      takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => this.processRouteParams(params)),
-      catchError((error: Error) => this.handleError(error))
+        takeUntil(this.unsubscribe$),
+        switchMap((params: Params) => this.processRouteParams(params)), // ✅ Ensures correct params
+        catchError((error: Error) => this.handleError(error))
     ).subscribe((totalQuestions: number) => {
-      if (totalQuestions !== null) {
-        this.totalQuestions = totalQuestions;
+        if (totalQuestions !== null) {
+            this.totalQuestions = totalQuestions;
+            console.log(`[handleRouteParameters] ✅ Received totalQuestions: ${totalQuestions}`);
 
-        console.log(`[handleRouteParameters] ✅ Total questions received: ${totalQuestions}`);
-
-        // Ensure correct badge update
-        setTimeout(() => {
-          console.log(`[handleRouteParameters] 🔄 Updating badge to: Question ${this.questionNumber} of ${totalQuestions}`);
-          this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
-        }, 100); // small delay to prevent race conditions
-      }
+            // ✅ **Ensure badge updates correctly & prevents duplicate updates**
+            const newBadgeText = `Question ${this.questionNumber} of ${totalQuestions}`;
+            if (this.badgeText !== newBadgeText) {
+                this.badgeText = newBadgeText; // ✅ Ensure immediate UI update
+                this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
+                console.log(`[handleRouteParameters] ✅ Badge updated to: ${newBadgeText}`);
+            } else {
+                console.log(`[handleRouteParameters] 🔵 Badge already correct: ${newBadgeText}`);
+            }
+        }
     });
   }
 
@@ -87,18 +90,12 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         const questionIndex = +params.questionIndex; // ✅ Keep as 0-based index
         console.log(`[processRouteParams] 🔄 Detected questionIndex: ${questionIndex}`);
 
-        // ✅ **Ensure question number is ONLY updated once**
+        // ✅ **Only update questionNumber if it actually changes**
         if (this.questionNumber !== questionIndex + 1) {
             this.questionNumber = questionIndex + 1; // Convert to 1-based number
             console.log(`[processRouteParams] ✅ Updated questionNumber to: ${this.questionNumber}`);
-        }
-
-        // ✅ **Ensure timer starts only if not already running**
-        if (!this.timerService.isTimerRunning) {
-            console.log('[processRouteParams] ▶️ Starting timer...');
-            this.timerService.startTimer();
         } else {
-            console.warn('[processRouteParams] ⏳ Timer already running. Skipping start.');
+            console.log(`[processRouteParams] 🔵 No change in questionNumber. Keeping: ${this.questionNumber}`);
         }
 
         return this.quizService.totalQuestions$;
