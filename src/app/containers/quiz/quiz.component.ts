@@ -4256,8 +4256,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   } */
+  
   async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
+    console.log('[navigateToQuestion] 🔄 Current question index before update:', this.currentQuestionIndex);
 
     if (this.currentQuestionIndex === questionIndex) {
         console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
@@ -4289,7 +4291,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
         console.log('[navigateToQuestion] 🟢 Calling router.navigate()...');
-
+        
+        // 🔹 Ensure `replaceUrl: false` so the URL updates correctly
         await this.ngZone.run(async () => {
             const navigationSuccess = await this.router.navigate(['/quiz', this.quizId, questionIndex], {
                 replaceUrl: false,
@@ -4303,15 +4306,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
         });
 
+        // ✅ **Force URL Update If Router Doesn't Work**
         if (this.router.url !== newUrl) {
             console.warn('[navigateToQuestion] ⚠️ Router did not update URL, trying force reload...');
+
+            // 🔹 **Forcing Full Router Reload (WORKAROUND)**
             await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
             await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex]));
+
             console.log('[navigateToQuestion] ✅ Forced full router reload.');
         }
 
         console.log('[navigateToQuestion] 🔄 Active route AFTER force reload:', this.router.url);
 
+        // ✅ **Final URL Update Fallback** (For Browsers)
         if (this.router.url !== newUrl) {
             console.warn('[navigateToQuestion] ⚠️ Router still did not update, forcing with history.pushState()');
             window.history.pushState({}, '', newUrl);
@@ -4325,7 +4333,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
-        
+
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
         if (!question) {
             console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
@@ -4347,7 +4355,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestionIndex = questionIndex;
         console.log('[navigateToQuestion] ✅ Updated currentQuestionIndex:', this.currentQuestionIndex);
 
-        // ✅ Immediately update badge
+        // ✅ **Immediately update badge**
         this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
 
         this.cdRef.detectChanges();
@@ -4360,8 +4368,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
         }
     } finally {
-        this.isLoading = false;
-        console.log('[navigateToQuestion] ✅ Navigation process completed.');
+      this.isLoading = false;
+      console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   }
 
