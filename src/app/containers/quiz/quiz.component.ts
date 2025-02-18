@@ -3307,6 +3307,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         // Increment question index before fetching
         this.currentQuestionIndex++;
+        console.log(`[DEBUG] 🎯 advanceToNextQuestion() triggered - current index: ${this.currentQuestionIndex}`);
+
 
         // Fetch and set next question
         const questionLoaded = await this.fetchAndSetNextQuestion();
@@ -3327,7 +3329,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
         this.quizService.setCurrentQuestion(nextQuestion); // Ensure question is updated
 
-        // const nextQuestionIndex = this.currentQuestionIndex + 1;
+        const nextQuestionIndex = this.currentQuestionIndex + 1;
         // this.quizService.updateBadgeText(nextQuestionIndex, this.totalQuestions);
 
         // Save the new index in localStorage before navigation
@@ -3449,7 +3451,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
-    console.log('[prepareQuestionForDisplay] 🟢 Function was called for question index:', questionIndex);
+    console.log(`[DEBUG] 🟢 prepareQuestionForDisplay() triggered with questionIndex: ${questionIndex}`);
 
     try {
       console.log('[prepareQuestionForDisplay] 🟢 Preparing question for display at index:', questionIndex);
@@ -4459,8 +4461,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.currentQuestionIndex = questionIndex;
     console.log(`[navigateToQuestion] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
 
+    console.log(`[DEBUG] 🚀 Calling updateBadgeText(${questionIndex + 1}, ${this.totalQuestions}) from navigateToQuestion()`);
+
     // ✅ Ensure badge updates with the correct 1-based number
-    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
     // ✅ Ensure correct storage
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
