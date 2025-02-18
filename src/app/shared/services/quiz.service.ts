@@ -1362,10 +1362,16 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
 
     try {
+      // Ensure the number is within a valid range
       if (questionNumber > 0 && questionNumber <= totalQuestions) {
         const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
 
-        // Ensure Angular detects the change immediately
+        // Prevent resetting to "Question 1" when reaching last question
+        if (this.badgeTextSource.getValue() === badgeText) {
+          console.warn('[QuizService] ⚠️ Badge text already correct. Skipping unnecessary update.');
+          return;
+        }
+
         this.badgeTextSource.next(badgeText);
         console.log('[QuizService] ✅ Badge text updated:', badgeText);
       } else {
