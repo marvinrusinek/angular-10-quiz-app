@@ -57,7 +57,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => this.processRouteParams(params)), // ✅ Ensure processRouteParams() is used
+      switchMap((params: Params) => this.processRouteParams(params)),
       catchError((error: Error) => this.handleError(error))
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
@@ -65,11 +65,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
         console.log(`[handleRouteParameters] ✅ Total questions received: ${totalQuestions}`);
 
-        // ✅ **Ensure correct badge update**
+        // Ensure correct badge update
         setTimeout(() => {
           console.log(`[handleRouteParameters] 🔄 Updating badge to: Question ${this.questionNumber} of ${totalQuestions}`);
           this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
-        }, 100); // 🔹 Small delay to prevent race conditions
+        }, 100); // small delay to prevent race conditions
       }
     });
   }
