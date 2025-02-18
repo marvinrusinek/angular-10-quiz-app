@@ -4376,10 +4376,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ **Immediately update badge BEFORE loading question**
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    // ✅ **Force immediate badge update before loading question**
+    const updatedBadgeNumber = questionIndex + 1;
+    this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
-    console.log('[navigateToQuestion] ✅ Immediately updated badge to:', questionIndex + 1);
+    console.log(`[navigateToQuestion] ✅ Immediately updated badge to: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
 
     const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
@@ -4387,6 +4388,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
+
+        // ✅ **Ensure badge is not reset by another process**
+        setTimeout(() => {
+            this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
+            console.log(`[navigateToQuestion] 🔄 Ensured badge remains: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
+        }, 50); // 🔹 Minor delay prevents overwrites
 
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
         if (!question) {
