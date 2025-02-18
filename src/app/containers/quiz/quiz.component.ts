@@ -4183,7 +4183,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Navigation process completed.');
     }
   } */
-  async navigateToQuestion(questionIndex: number): Promise<void> {
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
 
     if (this.currentQuestionIndex === questionIndex) {
@@ -4251,6 +4251,114 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[navigateToQuestion] ✅ Change detection triggered.');
     } catch (error) {
         console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
+    } finally {
+        this.isLoading = false;
+        console.log('[navigateToQuestion] ✅ Navigation process completed.');
+    }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
+
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
+        return;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
+    }
+
+    if (this.isLoading || this.debounceNavigation) {
+        console.warn('[navigateToQuestion] ⏳ Navigation is already in progress. Skipping...');
+        return;
+    }
+
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 300);
+
+    if (this.navigationAbortController) {
+        console.log('[navigateToQuestion] 🔄 Aborting previous navigation request...');
+        this.navigationAbortController.abort();
+    }
+    this.navigationAbortController = new AbortController();
+    const { signal } = this.navigationAbortController;
+
+    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
+    console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
+
+    try {
+        console.log('[navigateToQuestion] 🟢 Calling router.navigate()...');
+
+        await this.ngZone.run(async () => {
+            const navigationSuccess = await this.router.navigate(['/quiz', this.quizId, questionIndex], {
+                replaceUrl: false,
+                skipLocationChange: false
+            });
+
+            if (!navigationSuccess) {
+                console.error('[navigateToQuestion] ❌ Router navigation failed.');
+            } else {
+                console.log('[navigateToQuestion] ✅ Router navigation successful.');
+            }
+        });
+
+        if (this.router.url !== newUrl) {
+            console.warn('[navigateToQuestion] ⚠️ Router did not update URL, trying force reload...');
+            await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
+            await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex]));
+            console.log('[navigateToQuestion] ✅ Forced full router reload.');
+        }
+
+        console.log('[navigateToQuestion] 🔄 Active route AFTER force reload:', this.router.url);
+
+        if (this.router.url !== newUrl) {
+            console.warn('[navigateToQuestion] ⚠️ Router still did not update, forcing with history.pushState()');
+            window.history.pushState({}, '', newUrl);
+        }
+
+        console.log('[navigateToQuestion] 🔄 Active route AFTER history.pushState():', window.location.href);
+
+        if (signal.aborted) {
+            console.log('[navigateToQuestion] 🚫 Navigation aborted.');
+            return;
+        }
+
+        console.log(`[navigateToQuestion] 🔄 Fetching new question for index: ${questionIndex}...`);
+        
+        const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+        if (!question) {
+            console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
+            return;
+        }
+
+        console.log('[navigateToQuestion] ✅ New question fetched:', question);
+
+        this.currentQuestion = question;
+        this.optionsToDisplay = question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false
+        }));
+
+        console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
+        console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
+
+        // ✅ Update index before updating the badge
+        this.currentQuestionIndex = questionIndex;
+        console.log('[navigateToQuestion] ✅ Updated currentQuestionIndex:', this.currentQuestionIndex);
+
+        // ✅ Immediately update badge
+        this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+
+        this.cdRef.detectChanges();
+        console.log('[navigateToQuestion] ✅ Change detection triggered.');
+
+    } catch (error) {
+        if (signal.aborted) {
+            console.log('[navigateToQuestion] 🚫 Navigation was cancelled.');
+        } else {
+            console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
+        }
     } finally {
         this.isLoading = false;
         console.log('[navigateToQuestion] ✅ Navigation process completed.');
