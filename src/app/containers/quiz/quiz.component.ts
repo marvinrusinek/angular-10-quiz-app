@@ -3310,8 +3310,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
         this.quizService.setCurrentQuestion(nextQuestion); // Ensure question is updated
 
-        const nextQuestionIndex = this.currentQuestionIndex + 1;
-        this.quizService.updateBadgeText(nextQuestionIndex, this.totalQuestions);
+        // const nextQuestionIndex = this.currentQuestionIndex + 1;
+        // this.quizService.updateBadgeText(nextQuestionIndex, this.totalQuestions);
 
         // Save the new index in localStorage before navigation
         localStorage.setItem('savedQuestionIndex', JSON.stringify(nextQuestionIndex));
@@ -4424,7 +4424,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[navigateToQuestion] 🟢 Navigation triggered for Index:', questionIndex);
-    
+
     if (this.currentQuestionIndex === questionIndex) {
         console.warn('[navigateToQuestion] ⚠️ Already on this question. Skipping navigation.');
         return;
@@ -4438,11 +4438,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 300);
 
-    // ✅ Ensure immediate badge update before navigation
-    const updatedBadgeNumber = questionIndex + 1;
-    this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
+    // ✅ Ensure badge updates immediately & prevent race conditions
+    this.quizService.updateBadgeText(questionIndex, this.totalQuestions);
+
+    // ✅ Ensure correct storage
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
-    console.log(`[navigateToQuestion] ✅ Immediately updated badge to: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
+    console.log(`[navigateToQuestion] ✅ Badge immediately updated: Question ${questionIndex + 1} of ${this.totalQuestions}`);
 
     const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
     console.log('[navigateToQuestion] 🔄 Navigating to URL:', newUrl);
@@ -4451,17 +4452,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
-        // ✅ Ensure badge remains correct even after navigation
-        setTimeout(() => {
-            const storedIndex = Number(localStorage.getItem('savedQuestionIndex')) || questionIndex;
-            if (storedIndex === questionIndex) {
-                this.quizService.updateBadgeText(updatedBadgeNumber, this.totalQuestions);
-                console.log(`[navigateToQuestion] ✅ Ensured badge remains: Question ${updatedBadgeNumber} of ${this.totalQuestions}`);
-            } else {
-                console.warn(`[navigateToQuestion] ⚠️ Badge mismatch detected. Restoring stored index.`);
-                this.quizService.updateBadgeText(storedIndex + 1, this.totalQuestions);
-            }
-        }, 50);
+        const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
+        if (!isNaN(storedIndex) && storedIndex !== questionIndex) {
+            console.warn(`[navigateToQuestion] ⚠️ Badge mismatch detected. Restoring stored index.`);
+            this.quizService.updateBadgeText(storedIndex, this.totalQuestions);
+        }
 
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
         if (!question) {
@@ -4478,8 +4473,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }));
 
         console.log('[navigateToQuestion] ✅ Updated currentQuestion:', this.currentQuestion);
-
         this.currentQuestionIndex = questionIndex;
+
         this.cdRef.detectChanges();
     } catch (error) {
         console.error(`[navigateToQuestion] ❌ Error navigating to question index ${questionIndex}:`, error);
