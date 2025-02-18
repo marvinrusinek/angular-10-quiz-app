@@ -2631,10 +2631,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  isLastQuestion(): boolean {
-    return this.currentQuestionIndex === this.totalQuestions - 1;
-  }
-
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
     if (
       !selectedQuiz ||
