@@ -4384,7 +4384,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[navigateToQuestion] ✅ Router navigation successful.');
 
-        // ✅ Fetch new question
+        // ✅ **Ensure Q1 starts correctly**
+        if (questionIndex === 0) {
+            console.log('[navigateToQuestion] ✅ Resetting to Question 1 (First Question)');
+        }
+
+        // ✅ **Fetch new question**
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
         if (!question) {
             console.error('[navigateToQuestion] ❌ Question not found for index:', questionIndex);
@@ -4393,8 +4398,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[navigateToQuestion] ✅ New question fetched:', question);
 
-        // ✅ Update question and options correctly
-        this.currentQuestion = { ...question }; // Ensure new object reference
+        // ✅ **Update question and options correctly**
+        this.currentQuestion = { ...question }; // **Ensure new object reference**
         this.optionsToDisplay = question.options.map((option) => ({
             ...option,
             correct: option.correct ?? false,
@@ -4402,9 +4407,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('[navigateToQuestion] ✅ Updated optionsToDisplay:', this.optionsToDisplay);
 
-        // ✅ Ensure badge updates immediately before option selection
+        // ✅ **Update badge before selecting an option**
         this.currentQuestionIndex = questionIndex;
-
         setTimeout(() => {
             this.quizService.updateBadgeText(this.currentQuestionIndex, this.totalQuestions);
             console.log('[navigateToQuestion] ✅ Updated badge immediately to:', this.currentQuestionIndex + 1);
