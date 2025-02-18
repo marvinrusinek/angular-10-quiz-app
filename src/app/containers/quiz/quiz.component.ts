@@ -224,7 +224,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
 
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+    /* this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
         this.totalQuestions = totalQuestions; // Ensure total questions is set
   
@@ -242,7 +242,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         console.warn('[DEBUG] ⚠️ Total questions not available yet.');
       }
-    });
+    }); */
+
+      this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+          if (totalQuestions > 0) {
+              this.totalQuestions = totalQuestions; // Ensure total questions is set
+              let startingIndex = this.quizService.getCurrentQuestionIndex();
+  
+              console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
+  
+              // ✅ Ensure badge only updates ONCE and correctly
+              if (!this.hasInitializedBadge) {
+                  this.quizService.updateBadgeText(startingIndex, totalQuestions);
+                  this.hasInitializedBadge = true;
+              }
+          } else {
+              console.warn('[DEBUG] ⚠️ Total questions not available yet.');
+          }
+     });
 
     this.subscriptions.add(
       this.quizService.quizReset$.subscribe(() => {
