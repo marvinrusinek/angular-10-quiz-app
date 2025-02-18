@@ -1361,26 +1361,20 @@ export class QuizService implements OnDestroy {
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
 
-    try {
-      if (questionNumber > 0 && questionNumber <= totalQuestions) {
-        const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
-            
-        // Persist to localStorage
+    if (questionNumber > 0 && questionNumber <= totalQuestions) {
+      const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
+        
+      // Ensure previous badge text is cleared before setting the new one
+      this.badgeTextSource.next(''); 
+      setTimeout(() => {
+        this.badgeTextSource.next(badgeText);
+        console.log('[QuizService] ✅ Badge text updated:', badgeText);
+
+        // Persist last known question number
         localStorage.setItem('savedBadgeIndex', JSON.stringify(questionNumber));
-
-        console.log('[QuizService] ✅ Setting badge text:', badgeText);
-
-        // Force UI update
-        this.badgeTextSource.next('');
-        setTimeout(() => {
-          this.badgeTextSource.next(badgeText);
-          console.log('[QuizService] ✅ Badge text updated:', badgeText);
-        }, 10);
-      } else {
-        throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionNumber}`);
-      }
-    } catch (error) {
-      console.error('[QuizService] ❌ Error updating badge text:', error);
+      }, 50); // Slight delay to ensure proper reactivity
+    } else {
+      console.warn('[QuizService] ⚠️ Invalid question number for badge update:', questionNumber);
     }
   }
 
