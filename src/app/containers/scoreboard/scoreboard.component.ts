@@ -62,7 +62,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private processRouteParams(params: Params): Observable<number> {
+  /* private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
       this.questionNumber = +params.questionIndex;
 
@@ -77,6 +77,31 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       return this.quizService.totalQuestions$;
+    }
+
+    console.warn('[processRouteParams] ❌ No questionIndex found in route parameters.');
+    return of(null);
+  } */
+  private processRouteParams(params: Params): Observable<number> {
+    if (params.questionIndex !== undefined) {
+        const questionIndex = +params.questionIndex; // ✅ Keep as 0-based index
+        console.log(`[processRouteParams] 🔄 Detected questionIndex: ${questionIndex}`);
+
+        // ✅ **Ensure question number is ONLY updated once**
+        if (this.questionNumber !== questionIndex + 1) {
+            this.questionNumber = questionIndex + 1; // Convert to 1-based number
+            console.log(`[processRouteParams] ✅ Updated questionNumber to: ${this.questionNumber}`);
+        }
+
+        // ✅ **Ensure timer starts only if not already running**
+        if (!this.timerService.isTimerRunning) {
+            console.log('[processRouteParams] ▶️ Starting timer...');
+            this.timerService.startTimer();
+        } else {
+            console.warn('[processRouteParams] ⏳ Timer already running. Skipping start.');
+        }
+
+        return this.quizService.totalQuestions$;
     }
 
     console.warn('[processRouteParams] ❌ No questionIndex found in route parameters.');
