@@ -1376,7 +1376,7 @@ export class QuizService implements OnDestroy {
         console.warn('[QuizService] ⚠️ Invalid question number for badge update:', questionNumber);
     }
   } */
-  updateBadgeText(questionIndex: number, totalQuestions: number): void {
+  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
 
     try {
@@ -1393,6 +1393,34 @@ export class QuizService implements OnDestroy {
                 this.badgeTextSource.next(badgeText);
                 console.log('[QuizService] ✅ Badge text updated:', badgeText);
             }, 100); // **Prevents flickering issues**
+        } else {
+            throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+  } */
+  updateBadgeText(questionIndex: number, totalQuestions: number): void {
+    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
+
+    try {
+        // ✅ Ensure index is within valid range
+        if (questionIndex > 0 && questionIndex <= totalQuestions) {
+            const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
+
+            if (this.badgeTextSource.getValue() === badgeText) {
+                console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
+                return; // ✅ **Avoid unnecessary updates**
+            }
+
+            // ✅ **Ensure badge updates only after UI is stable**
+            setTimeout(() => {
+                this.badgeTextSource.next(badgeText);
+                console.log('[QuizService] ✅ Badge text updated:', badgeText);
+            }, 100); // **Prevents flickering issues**
+        } else if (questionIndex === totalQuestions) {
+            console.log('[QuizService] ✅ Ensuring badge persists for the last question...');
+            this.badgeTextSource.next(`Question ${totalQuestions} of ${totalQuestions}`);
         } else {
             throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
         }
