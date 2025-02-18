@@ -42,18 +42,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  /* private handleRouteParameters(): void {
-    this.activatedRoute.params.pipe(
-      takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => this.processRouteParams(params)),
-      catchError((error: Error) => this.handleError(error))
-    ).subscribe((totalQuestions: number) => {
-      if (totalQuestions !== null) {
-        this.totalQuestions = totalQuestions;
-        this.quizService.updateBadgeText(this.questionNumber, totalQuestions);
-      }
-    });
-  } */
   private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
