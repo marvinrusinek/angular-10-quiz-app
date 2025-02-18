@@ -1380,10 +1380,10 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
 
     try {
-        if (questionIndex >= 0 && questionIndex < totalQuestions) {
-            const badgeText = `Question ${questionIndex + 1} of ${totalQuestions}`;
+        if (questionIndex >= 0 && questionIndex <= totalQuestions) {
+            const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
 
-            if (this.badgeTextSource.value === badgeText) {
+            if (this.badgeTextSource.getValue() === badgeText) {
                 console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
                 return; // ✅ **Avoid unnecessary updates**
             }
