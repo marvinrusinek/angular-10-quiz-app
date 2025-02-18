@@ -3276,15 +3276,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return !!this.isCurrentQuestionAnswered;
   }
 
-  private ensureSharedOptionComponentInitialized(): boolean {
-    if (this.sharedOptionComponent) {
-      return true;
-    } else {
-      console.warn('SharedOptionComponent not initialized. Skipping this operation.');
-      return false;
-    }
-  }    
-
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
