@@ -57,7 +57,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
             if (this.badgeText !== newBadgeText) {
                 this.badgeText = newBadgeText; // ✅ Ensure immediate UI update
-                this.quizService.updateBadgeText(this.questionNumber, this.totalQuestions);
+                // this.quizService.updateBadgeText(this.questionNumber, this.totalQuestions);
                 console.log(`[handleRouteParameters] ✅ Badge updated to: ${newBadgeText}`);
             } else {
                 console.log(`[handleRouteParameters] 🔵 Badge already correct: ${newBadgeText}`);
