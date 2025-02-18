@@ -1516,7 +1516,7 @@ export class QuizService implements OnDestroy {
         this.badgeTextSource.next(badgeText);
         console.log('[QuizService] ✅ Badge text updated:', badgeText);
 
-        // ✅ Store zero-based index in localStorage
+        // ✅ Store the correct zero-based index in localStorage
         localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex - 1));
 
     } catch (error) {
