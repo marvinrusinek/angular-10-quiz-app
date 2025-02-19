@@ -333,6 +333,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
 
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+          console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
+      }
+    });
+
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
       const questionIndexParam = params.get('questionIndex');
