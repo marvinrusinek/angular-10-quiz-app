@@ -47,31 +47,31 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
-        takeUntil(this.unsubscribe$),
-        switchMap((params: Params) => this.processRouteParams(params)), // ✅ Ensures correct params
-        catchError((error: Error) => this.handleError(error))
+      takeUntil(this.unsubscribe$),
+      switchMap((params: Params) => this.processRouteParams(params)), // ✅ Ensures correct params
+      catchError((error: Error) => this.handleError(error))
     ).subscribe((totalQuestions: number) => {
-        if (totalQuestions !== null) {
-            this.totalQuestions = totalQuestions;
-            console.log(`[handleRouteParameters] ✅ Received totalQuestions: ${totalQuestions}`);
+      if (totalQuestions !== null) {
+        this.totalQuestions = totalQuestions;
+        console.log(`[handleRouteParameters] ✅ Received totalQuestions: ${totalQuestions}`);
 
-            // ✅ **Ensure badge updates correctly without skipping numbers**
-            const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
+        // Ensure badge updates correctly without skipping numbers
+        const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
 
-            if (this.badgeText !== newBadgeText) {
-                this.badgeText = newBadgeText; // ✅ Ensure immediate UI update
-                // this.quizService.updateBadgeText(this.questionNumber, this.totalQuestions);
-                console.log(`[handleRouteParameters] ✅ Badge updated to: ${newBadgeText}`);
-            } else {
-                console.log(`[handleRouteParameters] 🔵 Badge already correct: ${newBadgeText}`);
-            }
+        if (this.badgeText !== newBadgeText) {
+          this.badgeText = newBadgeText; // ✅ Ensure immediate UI update
+          // this.quizService.updateBadgeText(this.questionNumber, this.totalQuestions);
+          console.log(`[handleRouteParameters] ✅ Badge updated to: ${newBadgeText}`);
+        } else {
+          console.log(`[handleRouteParameters] 🔵 Badge already correct: ${newBadgeText}`);
         }
+      }
     });
   }
 
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
-      const questionIndex = +params.questionIndex; // ✅ Keep it as 0-based index
+      const questionIndex = +params.questionIndex; // Keep it as 0-based index
 
       console.log(`[processRouteParams] 🔄 Detected questionIndex: ${questionIndex}`);
 
