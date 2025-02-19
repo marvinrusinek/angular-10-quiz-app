@@ -3645,20 +3645,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
     console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
-    // ✅ FORCE ROUTE PARAMETER UPDATE
-    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
-    console.log(`[DEBUG] 🔄 Attempting forced URL update: ${newUrl}`);
+    // ✅ Force Router to Recognize Change
+    const newUrl = [`/quiz`, this.quizId, questionIndex];
+    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl.join('/')}`);
 
     try {
         await this.ngZone.run(() => 
-            this.router.navigate([`/quiz`, this.quizId, questionIndex], { replaceUrl: false })
+            this.router.navigate(newUrl, { replaceUrl: false })
         );
 
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
 
-        // ✅ FORCE BROWSER TO UPDATE URL
-        this.location.go(newUrl);
-        console.log(`[DEBUG] 🔄 Forced URL update via location.go(${newUrl})`);
+        // ✅ Force Reload by Replacing the Same URL
+        await this.ngZone.run(() =>
+            this.router.navigate(newUrl, { replaceUrl: true })
+        );
 
         return true;
     } catch (error) {
