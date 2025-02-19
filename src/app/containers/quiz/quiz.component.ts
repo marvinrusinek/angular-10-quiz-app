@@ -3433,8 +3433,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.navigatingToResults = false;
     }
   }
-  
-
 
   public async advanceAndProcessNextQuestion(): Promise<void> {
     try {
@@ -3448,63 +3446,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   // combined method for preparing question data and UI
   async prepareQuestionForDisplay(questionIndex: number): Promise<void> {
-    console.log(`[DEBUG] 🟢 prepareQuestionForDisplay() triggered with questionIndex: ${questionIndex}`);
-
     try {
-        console.log(`[DEBUG] 🟢 Preparing question for display at index: ${questionIndex}`);
+      // Ensure index is within valid range
+      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn('Invalid questionIndex: ${questionIndex}. Aborting.');
+        return;
+      }
 
-        // ✅ Ensure index is within valid range
-        if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-            console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Aborting.`);
-            return;
-        }
+      // Fetch and set question data
+      const questionFetched = await this.fetchAndSetQuestionData(questionIndex);
+      if (!questionFetched) {
+        console.warn('Failed to fetch question data. Aborting preparation.');
+        return;
+      }
 
-        // 🚀 **Check where the function was called from**
-        console.trace(`[DEBUG] 📌 prepareQuestionForDisplay() was called with questionIndex: ${questionIndex}`);
+      // Execute remaining tasks concurrently
+      const processingTasks = [
+        this.initializeQuestionForDisplay(questionIndex),
+        this.updateQuestionStateAndExplanation(questionIndex),
+        this.updateNavigationAndExplanationState()
+      ];
 
-        // ✅ Fetch and set question data
-        console.log(`[DEBUG] 🔄 Calling fetchAndSetQuestionData(${questionIndex})...`);
-        const questionFetched = await this.fetchAndSetQuestionData(questionIndex);
-        console.log(`[DEBUG] ✅ fetchAndSetQuestionData() completed. Result: ${questionFetched}`);
+      // Conditionally preload the next question (only if there are more questions)
+      if (questionIndex < this.totalQuestions - 1) {
+        processingTasks.push(this.advanceAndProcessNextQuestion());
+      } else {
+        console.log('Last question reached, no more preloading.');
+      }
 
-        if (!questionFetched) {
-            console.warn(`[DEBUG] ❌ Failed to fetch question data. Aborting preparation.`);
-            return;
-        }
-
-        console.log(`[DEBUG] ✅ Question data fetched successfully.`);
-
-        // ✅ Execute remaining tasks concurrently
-        console.log(`[DEBUG] 🔄 Starting concurrent tasks...`);
-        const processingTasks = [
-            this.initializeQuestionForDisplay(questionIndex),
-            this.updateQuestionStateAndExplanation(questionIndex),
-            this.updateNavigationAndExplanationState()
-        ];
-
-        // ✅ Conditionally preload the next question (only if there are more questions)
-        if (questionIndex < this.totalQuestions - 1) {
-            const nextIndex = questionIndex + 1;
-            console.log(`[DEBUG] 🔄 Preloading next question (index: ${nextIndex})...`);
-            processingTasks.push(this.advanceAndProcessNextQuestion());
-        } else {
-            console.log(`[DEBUG] 🏁 Last question reached, no more preloading.`);
-        }
-
-        // ✅ Execute all tasks
-        console.log(`[DEBUG] 🔄 Awaiting completion of ${processingTasks.length} tasks...`);
-        await Promise.all(processingTasks);
-
-        console.log(`[DEBUG] ✅ All tasks completed successfully.`);
-
-        // ✅ Log to confirm that navigation is handled elsewhere
-        console.log(`[DEBUG] 🚀 Navigation will be handled by resetUIAndNavigate() inside fetchAndSetQuestionData().`);
-
+      // Execute all tasks
+      await Promise.all(processingTasks);
     } catch (error) {
-        console.error(`[DEBUG] ❌ Error in prepareQuestionForDisplay():`, error);
+      console.error('Error in prepareQuestionForDisplay():', error);
     }
-
-    console.log(`[DEBUG] ✅ prepareQuestionForDisplay() execution completed.`);
   }
 
   initializeQuestionForDisplay(questionIndex: number): void {
@@ -3564,85 +3538,55 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
-        console.log(`[DEBUG] 🟢 fetchAndSetQuestionData() triggered for questionIndex: ${questionIndex}`);
+      // Ensure the questionIndex is within a valid range
+      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn('Invalid questionIndex (${questionIndex}). Aborting fetch.');
+        return false;
+      }
 
-        // ✅ Ensure the questionIndex is within a valid range
-        if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-            console.warn(`[DEBUG] ❌ Invalid questionIndex (${questionIndex}). Aborting fetch.`);
-            return false;
-        }
+      this.animationState$.next('animationStarted');
+      
+      // Clear old question data before fetching new data
+      this.resetQuestionState();
 
-        this.animationState$.next('animationStarted');
-        console.log(`[DEBUG] 🔄 Animation state set to 'animationStarted'`);
+      const questionDetails = await this.fetchQuestionDetails(questionIndex);
+      if (!questionDetails) {
+        console.warn(`[DEBUG] ❌ No question details found for index: ${questionIndex}`);
+        return false; // return false on failure
+      }
 
-        // ✅ Clear old question data before fetching new data
-        console.log(`[DEBUG] 🔄 Resetting question state...`);
-        this.resetQuestionState();
+      const { questionText, options, explanation } = questionDetails;
+      
+      // Assign active states to options
+      questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
+      
+      // Set the UI state immediately
+      this.setQuestionDetails(questionText, questionDetails.options, '');
+      this.currentQuestion = { ...questionDetails, options: questionDetails.options };
+      
+      // Update quiz state
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+      
+      // Trigger UI refresh
+      this.cdRef.detectChanges();
 
-        console.log(`[DEBUG] 🔄 Fetching question details for index: ${questionIndex}`);
-        const questionDetails = await this.fetchQuestionDetails(questionIndex);
-
-        if (!questionDetails) {
-            console.warn(`[DEBUG] ❌ No question details found for index: ${questionIndex}`);
-            return false; // Return false on failure
-        }
-
-        console.log(`[DEBUG] ✅ Question details fetched successfully.`);
-
-        const { questionText, options, explanation } = questionDetails;
-        console.log(`[DEBUG] 🟢 Extracted question text: "${questionText}"`);
-        console.log(`[DEBUG] 🟢 Extracted options:`, options);
-        console.log(`[DEBUG] 🟢 Extracted explanation: "${explanation || 'No explanation available'}"`);
-
-        // ✅ Assign active states to options
-        console.log(`[DEBUG] 🔄 Assigning active states to options...`);
-        questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
-        console.log(`[DEBUG] ✅ Active states assigned to options.`);
-
-        // ✅ Set the UI state immediately
-        console.log(`[DEBUG] 🔄 Updating UI with new question details...`);
-        this.setQuestionDetails(questionText, questionDetails.options, '');
-        this.currentQuestion = { ...questionDetails, options: questionDetails.options };
-        console.log(`[DEBUG] ✅ UI updated with new question:`, this.currentQuestion);
-
-        // ✅ Update quiz state
-        console.log(`[DEBUG] 🔄 Updating quiz state with current question...`);
-        this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-        console.log(`[DEBUG] ✅ Quiz state updated.`);
-
-        // ✅ Trigger UI refresh
-        console.log(`[DEBUG] 🔄 Triggering UI refresh...`);
-        this.cdRef.detectChanges();
-
-        // ✅ Ensure correctness state is checked
-        console.log(`[DEBUG] 🔄 Checking if the question was answered correctly...`);
-        await this.quizService.checkIfAnsweredCorrectly();
-        console.log(`[DEBUG] ✅ Answer correctness check completed.`);
-
-        // ✅ Set explanation text
-        this.explanationToDisplay = explanation || 'No explanation available';
-        console.log(`[DEBUG] ✅ Explanation set: "${this.explanationToDisplay}"`);
-
-        // ✅ Log before calling resetUIAndNavigate()
-        console.log(`[DEBUG] 🚀 About to navigate. Ensuring correct index...`);
-        console.log(`[DEBUG] 🚀 Calling resetUIAndNavigate(${questionIndex}) from fetchAndSetQuestionData()`);
-
-        // ✅ Call resetUIAndNavigate()
-        await this.resetUIAndNavigate(questionIndex);
-        console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
-
-        // ✅ Start the timer for the loaded question
-        console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
-        const timePerQuestion = this.timerService.timePerQuestion;
-        this.timerService.startTimer(timePerQuestion);
-        console.log(`[DEBUG] ✅ Timer started with duration: ${timePerQuestion} seconds.`);
-
-        console.log(`[DEBUG] ✅ fetchAndSetQuestionData completed successfully.`);
-        return true; // Return true on success
-
+      // Ensure correctness state is checked
+      await this.quizService.checkIfAnsweredCorrectly();
+      
+      // Set explanation text
+      this.explanationToDisplay = explanation || 'No explanation available';
+      
+      // Call resetUIAndNavigate()
+      await this.resetUIAndNavigate(questionIndex);
+      
+      // Start the timer for the loaded question
+      const timePerQuestion = this.timerService.timePerQuestion;
+      this.timerService.startTimer(timePerQuestion);
+      
+      return true; // return true on success
     } catch (error) {
-        console.error(`[DEBUG] ❌ Error in fetchAndSetQuestionData():`, error);
-        return false; // Return false on failure
+      console.error('Error in fetchAndSetQuestionData():', error);
+      return false; // return false on failure
     }
   }
 
