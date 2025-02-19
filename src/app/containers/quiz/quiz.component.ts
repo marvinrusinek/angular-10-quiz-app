@@ -3566,6 +3566,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
         console.log(`[DEBUG] 🟢 fetchAndSetQuestionData() triggered for questionIndex: ${questionIndex}`);
 
+        // ✅ Ensure the questionIndex is within a valid range
+        if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+            console.warn(`[DEBUG] ❌ Invalid questionIndex (${questionIndex}). Aborting fetch.`);
+            return false;
+        }
+
         this.animationState$.next('animationStarted');
         console.log(`[DEBUG] 🔄 Animation state set to 'animationStarted'`);
 
@@ -3617,8 +3623,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.explanationToDisplay = explanation || 'No explanation available';
         console.log(`[DEBUG] ✅ Explanation set: "${this.explanationToDisplay}"`);
 
-        // ✅ Reset UI and navigate after loading the question
-        console.log(`[DEBUG] 🔄 Calling resetUIAndNavigate(${questionIndex})...`);
+        // ✅ Log before navigating to ensure the right questionIndex is passed
+        console.log(`[DEBUG] 🚀 Calling resetUIAndNavigate(${questionIndex}) from fetchAndSetQuestionData()`);
         await this.resetUIAndNavigate(questionIndex);
         console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
 
@@ -3632,7 +3638,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return true; // Return true on success
 
     } catch (error) {
-        console.error(`[DEBUG] ❌ Error in fetchAndSetQuestionData:`, error);
+        console.error(`[DEBUG] ❌ Error in fetchAndSetQuestionData():`, error);
         return false; // Return false on failure
     }
   }
