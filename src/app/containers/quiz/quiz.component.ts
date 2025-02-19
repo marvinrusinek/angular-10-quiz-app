@@ -3645,14 +3645,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
     console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
-    // ✅ Force Router to Update URL
+    // ✅ FORCE ROUTER TO UPDATE URL
     const newUrl = [`/quiz`, this.quizId, questionIndex];
     console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl.join('/')}`);
 
     try {
-        // ✅ Use `replaceUrl: true` to force update & ensure router state changes
         await this.ngZone.run(() => 
-            this.router.navigate(newUrl, { replaceUrl: true })
+            this.router.navigate(newUrl, { replaceUrl: false, skipLocationChange: false })
         );
 
         console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
