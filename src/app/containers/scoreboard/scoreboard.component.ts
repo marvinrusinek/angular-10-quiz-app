@@ -53,15 +53,12 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
-        console.log(`[handleRouteParameters] ✅ Received totalQuestions: ${totalQuestions}`);
 
         // Ensure badge updates correctly without skipping numbers
         const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
 
         if (this.badgeText !== newBadgeText) {
-          this.badgeText = newBadgeText; // ✅ Ensure immediate UI update
-          // this.quizService.updateBadgeText(this.questionNumber, this.totalQuestions);
-          console.log(`[handleRouteParameters] ✅ Badge updated to: ${newBadgeText}`);
+          this.badgeText = newBadgeText; // ensure immediate UI update
         } else {
           console.log(`[handleRouteParameters] 🔵 Badge already correct: ${newBadgeText}`);
         }
@@ -72,15 +69,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
       const questionIndex = +params.questionIndex; // Keep it as 0-based index
-
-      console.log(`[processRouteParams] 🔄 Detected questionIndex: ${questionIndex}`);
-
       const updatedQuestionNumber = questionIndex;
 
       // Only update if the number actually changes
       if (this.questionNumber !== updatedQuestionNumber) {
         this.questionNumber = updatedQuestionNumber;
-        console.log(`[processRouteParams] ✅ Updated questionNumber to: ${this.questionNumber}`);
       } else {
         console.log(`[processRouteParams] 🔵 No change in questionNumber. Keeping: ${this.questionNumber}`);
       }
