@@ -3537,79 +3537,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /* async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    if (this.currentQuestionIndex === questionIndex) {
-      console.warn(`Already on questionIndex: ${questionIndex}. Skipping navigation.`);
-        
-      // Force badge update in case navigation was skipped.
-      this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
-
-      return false; // Navigation was skipped
-    }
-
-    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn('Invalid questionIndex: ${questionIndex}. Navigation aborted.');
-      return false; // navigation failed
-    }
-
-    this.debounceNavigation = true;
-    setTimeout(() => (this.debounceNavigation = false), 300);
-
-    // Update the current question index
-    this.currentQuestionIndex = questionIndex;
-    
-    // Ensure badge updates with the correct 1-based number
-    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
-
-    // Ensure correct storage
-    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-    console.log('Saved question index in localStorage: ${this.currentQuestionIndex}');
-
-    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
-    console.log('Navigating to URL: ${newUrl}');
-
-    let navigationSuccess = false;
-
-    try {
-      await this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, questionIndex], { replaceUrl: false }));
-      navigationSuccess = true;
-
-      // Validate stored index for badge correction
-      const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
-
-      if (!isNaN(storedIndex) && storedIndex !== this.currentQuestionIndex) {
-        console.warn('Badge mismatch detected. Restoring stored index ${storedIndex}.');
-        this.quizService.updateBadgeText(storedIndex + 1, this.totalQuestions);
-      } else {
-        console.log('Badge text remains consistent.');
-      }
-
-      const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
-
-      if (!question) {
-        console.error('Question data not found for questionIndex: ${questionIndex}');
-        return false; // Navigation failed
-      }
-
-      this.currentQuestion = question;
-      this.optionsToDisplay = question.options.map((option) => ({
-        ...option,
-        correct: option.correct ?? false
-      }));
-
-      this.cdRef.detectChanges();
-    } catch (error) {
-      console.error('Error in navigateToQuestion() for questionIndex ${questionIndex}:', error);
-      return false; // navigation failed
-    } finally {
-      this.isLoading = false;
-      console.log('Navigation process completed.');
-    }
-
-    return navigationSuccess; // return navigation status
-  } */
-
-
-  async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
 
     if (this.currentQuestionIndex === questionIndex) {
@@ -3688,6 +3615,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     return navigationSuccess;
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
+        this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+        return false;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return false;
+    }
+
+    this.currentQuestionIndex = questionIndex;
+    console.log(`[DEBUG] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+    console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
+
+    // ✅ Force Router to Update URL
+    const newUrl = [`/quiz`, this.quizId, questionIndex];
+    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl.join('/')}`);
+
+    try {
+        // ✅ Use `replaceUrl: true` to force update & ensure router state changes
+        await this.ngZone.run(() => 
+            this.router.navigate(newUrl, { replaceUrl: true })
+        );
+
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
+        return true;
+    } catch (error) {
+        console.error(`[DEBUG] ❌ Error in navigateToQuestion() for questionIndex ${questionIndex}:`, error);
+        return false;
+    }
   }
 
   // Reset UI immediately before navigating
