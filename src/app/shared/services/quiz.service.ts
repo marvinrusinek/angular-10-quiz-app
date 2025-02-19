@@ -1358,168 +1358,25 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* updateBadgeText(questionNumber: number, totalQuestions: number): void {
-    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionNumber, totalQuestions });
-
-    if (questionNumber > 0 && questionNumber <= totalQuestions) {
-        const badgeText = `Question ${questionNumber} of ${totalQuestions}`;
-        
-        this.badgeTextSource.next(''); // Clear previous value
-        setTimeout(() => {
-            this.badgeTextSource.next(badgeText);
-            console.log('[QuizService] ✅ Badge text updated:', badgeText);
-
-            // 🔹 Persist last known question number
-            localStorage.setItem('savedBadgeIndex', JSON.stringify(questionNumber));
-        }, 10);
-    } else {
-        console.warn('[QuizService] ⚠️ Invalid question number for badge update:', questionNumber);
-    }
-  } */
-  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
-    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
-
-    try {
-        if (questionIndex >= 0 && questionIndex <= totalQuestions) {
-            const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
-
-            if (this.badgeTextSource.getValue() === badgeText) {
-                console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
-                return; // ✅ **Avoid unnecessary updates**
-            }
-
-            // ✅ **Ensure badge updates only after UI is stable**
-            setTimeout(() => {
-                this.badgeTextSource.next(badgeText);
-                console.log('[QuizService] ✅ Badge text updated:', badgeText);
-            }, 100); // **Prevents flickering issues**
-        } else {
-            throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
-        }
-    } catch (error) {
-        console.error(error);
-    }
-  } */
-  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
-    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
-
-    try {
-      // Ensure index is within valid range
-      if (questionIndex >= 1 && questionIndex <= totalQuestions) {
-        const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
-
-        if (this.badgeTextSource.getValue() === badgeText) {
-          console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
-          return; // avoid unnecessary updates
-        }
-
-        // Ensure badge updates only after UI is stable
-        setTimeout(() => {
-          this.badgeTextSource.next(badgeText);
-
-          // Persist last known question number
-          localStorage.setItem('savedBadgeIndex', JSON.stringify(questionIndex));
-          console.log('[QuizService] ✅ Badge text updated:', badgeText);
-        }, 100); // prevents flickering issues
-      } else if (questionIndex === totalQuestions) {
-        console.log('[QuizService] ✅ Ensuring badge persists for the last question...');
-        this.badgeTextSource.next(`Question ${totalQuestions} of ${totalQuestions}`);
-      } else {
-        throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  } */
-  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
-    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
-
-    try {
-        if (questionIndex > 0 && questionIndex <= totalQuestions) {
-            const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
-
-            // ✅ Prevent unnecessary updates
-            if (this.badgeTextSource.getValue() === badgeText) {
-                console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
-                return;
-            }
-
-            // ✅ Ensure badge updates & **never resets on last question**
-            setTimeout(() => {
-                const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
-                if (storedIndex !== questionIndex) {
-                    console.warn(`[QuizService] ⚠️ Mismatched badge number. Correcting to: ${storedIndex}`);
-                    this.badgeTextSource.next(`Question ${storedIndex} of ${totalQuestions}`);
-                } else {
-                    this.badgeTextSource.next(badgeText);
-                    console.log('[QuizService] ✅ Badge text updated:', badgeText);
-                }
-            }, 50);
-        } else {
-            throw new Error(`[QuizService] ⚠️ Invalid question number for badge update: ${questionIndex}`);
-        }
-    } catch (error) {
-        console.error(error);
-    }
-  } */
-  /* updateBadgeText(questionIndex: number, totalQuestions: number): void {
-    console.log('[QuizService] 🟢 updateBadgeText() called with:', { questionIndex, totalQuestions });
-
-    try {
-        // 🔹 Ensure the index is valid & within range
-        if (questionIndex < 0 || questionIndex >= totalQuestions) {
-            console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
-            return;
-        }
-
-        const correctedIndex = questionIndex + 1; // ✅ Convert to 1-based numbering
-        const badgeText = `Question ${correctedIndex} of ${totalQuestions}`;
-
-        // ✅ Prevent unnecessary updates
-        if (this.badgeTextSource.getValue() === badgeText) {
-            console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
-            return;
-        }
-
-        // ✅ Update badge immediately
-        this.badgeTextSource.next(badgeText);
-        console.log('[QuizService] ✅ Badge text updated:', badgeText);
-
-        // ✅ Ensure consistency with stored index
-        setTimeout(() => {
-            const storedIndex = Number(localStorage.getItem('savedQuestionIndex'));
-            if (!isNaN(storedIndex) && storedIndex !== questionIndex) {
-                console.warn(`[QuizService] ⚠️ Mismatched badge number. Correcting to: ${storedIndex + 1}`);
-                this.badgeTextSource.next(`Question ${storedIndex + 1} of ${totalQuestions}`);
-            }
-        }, 30);
-    } catch (error) {
-        console.error(error);
-    }
-  } */
   updateBadgeText(questionIndex: number, totalQuestions: number): void {
-    console.log(`[QuizService] 🟢 updateBadgeText() called with questionIndex: ${questionIndex}, totalQuestions: ${totalQuestions}`);
-
     try {
-        if (questionIndex < 1 || questionIndex > totalQuestions) {
-            console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
-            return;
-        }
+      if (questionIndex < 1 || questionIndex > totalQuestions) {
+        console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
+        return;
+      }
 
-        const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
-        const currentBadgeText = this.badgeTextSource.getValue();
+      const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
+      const currentBadgeText = this.badgeTextSource.getValue();
 
-        console.log(`[DEBUG] 🔄 Current badgeText: ${currentBadgeText}, New badgeText: ${badgeText}`);
+      if (currentBadgeText === badgeText) {
+        console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
+        return;
+      }
 
-        if (currentBadgeText === badgeText) {
-            console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
-            return;
-        }
-
-        this.badgeTextSource.next(badgeText);
-        console.log('[QuizService] ✅ Badge text updated:', badgeText);
+      this.badgeTextSource.next(badgeText);
+      console.log('[QuizService] ✅ Badge text updated:', badgeText);
     } catch (error) {
-        console.error(`[QuizService] ❌ Error in updateBadgeText:`, error);
+      console.error(`[QuizService] ❌ Error in updateBadgeText:`, error);
     }
   }
 
