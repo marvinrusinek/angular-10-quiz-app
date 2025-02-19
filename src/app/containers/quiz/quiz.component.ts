@@ -337,10 +337,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const quizId = params.get('quizId');
       const questionIndexParam = params.get('questionIndex');
       const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
-  
+
+      console.log('Route param changed: quizId=${quizId}, questionIndex=${questionIndex}');
+
       if (quizId) {
         this.quizId = quizId;
-  
+
         if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
           this.currentQuestionIndex = questionIndex;
           console.log('Updated currentQuestionIndex from route: ${this.currentQuestionIndex}');
@@ -348,7 +350,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.warn('Invalid or missing questionIndex in route. Defaulting to 0.');
           this.currentQuestionIndex = 0;
         }
-  
+
         this.initializeQuizBasedOnRouteParams();
       } else {
         console.error('Quiz ID is not provided in the route');
