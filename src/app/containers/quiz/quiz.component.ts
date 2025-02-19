@@ -3734,20 +3734,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-      // Reset the user interface to its initial state
+      console.log(`[DEBUG] 🟢 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
+
+      // Reset the UI to its initial state
+      console.log(`[DEBUG] 🔄 Resetting UI elements...`);
       this.resetUI();
-  
-      // Reset the explanation text state between questions
+
+      // Reset explanation text between questions
+      console.log(`[DEBUG] 🔄 Resetting explanation text...`);
       this.explanationTextService.resetStateBetweenQuestions();
-  
-      // Navigate to the specified question index
-      console.log(`[resetUIAndNavigate] 🔄 Calling navigateToQuestion(${this.currentQuestionIndex})...`);
+
+      // Navigate to the specified question index (Use `questionIndex`, NOT `this.currentQuestionIndex`)
+      console.log(`[DEBUG] 🔄 Calling navigateToQuestion(${questionIndex}) from resetUIAndNavigate()...`);
       await this.navigateToQuestion(questionIndex);
-      console.log(`[resetUIAndNavigate] ✅ navigateToQuestion() completed.`);
+      console.log(`[DEBUG] ✅ navigateToQuestion() completed.`);
     } catch (error) {
-      console.error('Error during UI reset and navigation:', error);
+      console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
   }
+
 
   /* async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[Navigating to Question] Index:', questionIndex);
