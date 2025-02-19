@@ -491,8 +491,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-    this.badgeText$ = this.quizService.badgeTextSource.asObservable();
-
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
         if (totalQuestions > 0) {
             this.totalQuestions = totalQuestions; // Ensure total questions is set
