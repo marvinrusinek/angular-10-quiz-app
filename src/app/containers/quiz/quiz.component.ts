@@ -492,22 +492,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-        if (totalQuestions > 0) {
-            this.totalQuestions = totalQuestions; // Ensure total questions is set
-            let startingIndex = this.quizService.getCurrentQuestionIndex();
+      if (totalQuestions > 0) {
+        this.totalQuestions = totalQuestions; // ensure total questions is set
+        let startingIndex = this.quizService.getCurrentQuestionIndex();
 
-            console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
-
-            if (!this.hasInitializedBadge) {
-                console.log(`[DEBUG] 🚀 Initializing badge text ONCE with questionIndex: ${startingIndex + 1}`);
-                this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
-                this.hasInitializedBadge = true;
-            } else {
-                console.log(`[DEBUG] 🔄 Badge already initialized, skipping duplicate update.`);
-            }
+        if (!this.hasInitializedBadge) {
+          this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
+          this.hasInitializedBadge = true;
         } else {
-            console.warn('[DEBUG] ⚠️ Total questions not available yet.');
+          console.log('Badge already initialized, skipping duplicate update.');
         }
+      } else {
+        console.warn('Total questions not available yet.');
+      }
     });
 
     this.progressBarService.progress$.subscribe((progressValue) => {
@@ -527,7 +524,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     setTimeout(() => {
       console.log('[ngOnInit] 🟢 Calling loadQuestionContents() after view setup.');
       this.loadQuestionContents(this.currentQuestionIndex);
-    }, 150); // 🔹 Short delay allows ViewChild bindings to be established
+    }, 150); // short delay allows ViewChild bindings to be established
     
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
