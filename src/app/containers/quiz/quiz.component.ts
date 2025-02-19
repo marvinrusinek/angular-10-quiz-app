@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -3645,16 +3645,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
     console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
-    // ✅ FORCE ROUTER TO UPDATE URL
-    const newUrl = [`/quiz`, this.quizId, questionIndex];
-    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl.join('/')}`);
+    // ✅ FORCE ROUTE PARAMETER UPDATE
+    const newUrl = `/quiz/${this.quizId}/${questionIndex}`;
+    console.log(`[DEBUG] 🔄 Attempting forced URL update: ${newUrl}`);
 
     try {
         await this.ngZone.run(() => 
-            this.router.navigate(newUrl, { replaceUrl: false, skipLocationChange: false })
+            this.router.navigate([`/quiz`, this.quizId, questionIndex], { replaceUrl: false })
         );
 
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+
+        // ✅ FORCE BROWSER TO UPDATE URL
+        this.location.go(newUrl);
+        console.log(`[DEBUG] 🔄 Forced URL update via location.go(${newUrl})`);
+
         return true;
     } catch (error) {
         console.error(`[DEBUG] ❌ Error in navigateToQuestion() for questionIndex ${questionIndex}:`, error);
