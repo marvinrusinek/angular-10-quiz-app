@@ -3743,29 +3743,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-        console.log(`[DEBUG] 🟢 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
+      // Reset UI state
+      this.resetUI();
 
-        // ✅ Reset UI state
-        console.log(`[DEBUG] 🔄 Resetting UI elements...`);
-        this.resetUI();
+      // Reset explanation text between questions
+      this.explanationTextService.resetStateBetweenQuestions();
 
-        // ✅ Reset explanation text between questions
-        console.log(`[DEBUG] 🔄 Resetting explanation text...`);
-        this.explanationTextService.resetStateBetweenQuestions();
-
-        // ✅ **Force badge update BEFORE navigation (always)**
-        console.log(`[DEBUG] 🚀 Calling updateBadgeText(${questionIndex + 1}, ${this.totalQuestions}) BEFORE navigation.`);
-        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
-        console.log(`[DEBUG] ✅ Forced updateBadgeText call completed.`);
-
-        // ✅ Navigate to the new question
-        console.log(`[DEBUG] 🔄 Calling navigateToQuestion(${questionIndex}) from resetUIAndNavigate()...`);
-        await this.navigateToQuestion(questionIndex);
-        console.log(`[DEBUG] ✅ navigateToQuestion() completed.`);
-
-        console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
+      // Force badge update before navigation
+      this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+      
+      // Navigate to the new question
+      await this.navigateToQuestion(questionIndex);
     } catch (error) {
-        console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
+      console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
   }
 
