@@ -146,7 +146,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   isNavigating = false;
   private isNavigatedByUrl = false;
-  private navigationAbortController: AbortController | null = null;
   private debounceNavigation = false;
   private navigatingToResults = false;
 
