@@ -464,7 +464,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> { 
-    console.log('[QuizComponent] 🟢 Initialized. Current Question:', this.currentQuestion);
     this.initializeDisplayVariables();
 
     // Initialize route parameters and subscribe to updates
@@ -472,8 +471,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
+      const questionIndexParam = params.get('questionIndex');
+      const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
+  
       if (quizId) {
         this.quizId = quizId;
+  
+        if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
+          this.currentQuestionIndex = questionIndex;
+          console.log('Updated currentQuestionIndex from route: ${this.currentQuestionIndex}');
+        } else {
+          console.warn('Invalid or missing questionIndex in route. Defaulting to 0.');
+          this.currentQuestionIndex = 0;
+        }
+  
         this.initializeQuizBasedOnRouteParams();
       } else {
         console.error('Quiz ID is not provided in the route');
