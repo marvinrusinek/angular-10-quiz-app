@@ -3624,8 +3624,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.explanationToDisplay = explanation || 'No explanation available';
         console.log(`[DEBUG] ✅ Explanation set: "${this.explanationToDisplay}"`);
 
-        // ✅ Log before navigating to ensure the right questionIndex is passed
+        // ✅ Log before calling resetUIAndNavigate()
+        console.log(`[DEBUG] 🚀 About to navigate. Ensuring correct index...`);
         console.log(`[DEBUG] 🚀 Calling resetUIAndNavigate(${questionIndex}) from fetchAndSetQuestionData()`);
+
+        // ✅ Call resetUIAndNavigate()
         await this.resetUIAndNavigate(questionIndex);
         console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
 
