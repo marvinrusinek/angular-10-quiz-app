@@ -17,13 +17,16 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
   badgeText: string;
+  badgeText$: Observable<string>;
   unsubscribe$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) {
+    this.badgeText$ = this.quizService.badgeText;
+  }
 
   ngOnInit(): void {
     this.handleRouteParameters();
