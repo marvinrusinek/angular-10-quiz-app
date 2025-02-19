@@ -164,7 +164,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isContentAvailable$: Observable<boolean>;
   isContentInitialized = false;
 
-  private hasInitializedBadge = false;
+  badgeText$: Observable<string>;
+  private hasInitializedBadge = false; // Prevents duplicate updates
 
   shouldDisplayCorrectAnswers = false;
 
@@ -225,46 +226,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isContentAvailable$ = this.getContentAvailability();
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
-
-    /* this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions; // Ensure total questions is set
-  
-        let startingIndex = this.quizService.getCurrentQuestionIndex();
-          
-        // Ensure first question starts at "Question 1 of X"
-        if (startingIndex < 1) {
-          startingIndex = 1;
-        } else {
-          startingIndex += 1; // Convert to 1-based index
-        }
-  
-        console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
-        this.quizService.updateBadgeText(startingIndex, totalQuestions);
-      } else {
-        console.warn('[DEBUG] ⚠️ Total questions not available yet.');
-      }
-    }); */
-
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-          this.totalQuestions = totalQuestions; // Ensure total questions is set
-          let startingIndex = this.quizService.getCurrentQuestionIndex();
-  
-          console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
-  
-          // ✅ Ensure badge only updates ONCE on initial load
-          if (!this.hasInitializedBadge) {
-              console.log(`[DEBUG] 🚀 Initializing badge text ONCE with questionIndex: ${startingIndex + 1}`);
-              this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
-              this.hasInitializedBadge = true; // Prevent duplicate updates
-          } else {
-              console.log(`[DEBUG] 🔄 Badge already initialized, skipping duplicate update.`);
-          }
-      } else {
-          console.warn('[DEBUG] ⚠️ Total questions not available yet.');
-      }
-    });
 
     this.subscriptions.add(
       this.quizService.quizReset$.subscribe(() => {
@@ -533,6 +494,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         console.error('Quiz ID is not provided in the route');
       }
+    });
+
+    this.badgeText$ = this.quizService.badgeTextSource.asObservable();
+
+    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+        if (totalQuestions > 0) {
+            this.totalQuestions = totalQuestions; // Ensure total questions is set
+            let startingIndex = this.quizService.getCurrentQuestionIndex();
+
+            console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
+
+            if (!this.hasInitializedBadge) {
+                console.log(`[DEBUG] 🚀 Initializing badge text ONCE with questionIndex: ${startingIndex + 1}`);
+                this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
+                this.hasInitializedBadge = true;
+            } else {
+                console.log(`[DEBUG] 🔄 Badge already initialized, skipping duplicate update.`);
+            }
+        } else {
+            console.warn('[DEBUG] ⚠️ Total questions not available yet.');
+        }
     });
 
     this.progressBarService.progress$.subscribe((progressValue) => {
