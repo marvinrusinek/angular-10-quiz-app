@@ -3736,18 +3736,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       console.log(`[DEBUG] 🟢 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
 
-      // Reset the UI to its initial state
+      // ✅ Reset UI state
       console.log(`[DEBUG] 🔄 Resetting UI elements...`);
       this.resetUI();
 
-      // Reset explanation text between questions
+      // ✅ Reset explanation text between questions
       console.log(`[DEBUG] 🔄 Resetting explanation text...`);
       this.explanationTextService.resetStateBetweenQuestions();
 
-      // Navigate to the specified question index (Use `questionIndex`, NOT `this.currentQuestionIndex`)
+      // ✅ Try to navigate to the new question
       console.log(`[DEBUG] 🔄 Calling navigateToQuestion(${questionIndex}) from resetUIAndNavigate()...`);
       await this.navigateToQuestion(questionIndex);
       console.log(`[DEBUG] ✅ navigateToQuestion() completed.`);
+
+      // ✅ Force update badge if navigation was skipped
+      if (this.currentQuestionIndex === questionIndex) {
+        console.log(`[DEBUG] ⚠️ Navigation was skipped, forcing badge update.`);
+        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+        console.log(`[DEBUG] ✅ Forced badge update: Question ${questionIndex + 1} of ${this.totalQuestions}`);
+      }
+
+      console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
     } catch (error) {
       console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
