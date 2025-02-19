@@ -1499,9 +1499,9 @@ export class QuizService implements OnDestroy {
   } */
   updateBadgeText(questionIndex: number, totalQuestions: number): void {
     console.log(`[QuizService] 🟢 updateBadgeText() called with questionIndex: ${questionIndex}, totalQuestions: ${totalQuestions}`);
-    console.log(`[DEBUG] 🟢 updateBadgeText() CALLED with: questionIndex=${questionIndex}, totalQuestions=${totalQuestions}`);
 
     try {
+        // ✅ Ensure valid question number (1-based index)
         if (questionIndex < 1 || questionIndex > totalQuestions) {
             console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
             return;
@@ -1509,19 +1509,26 @@ export class QuizService implements OnDestroy {
 
         const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
 
-        if (this.badgeTextSource.getValue() === badgeText) {
+        // ✅ Log current and new badgeText to check if an update is needed
+        const currentBadgeText = this.badgeTextSource.getValue();
+        console.log(`[DEBUG] 🔄 Current badgeText: ${currentBadgeText}, New badgeText: ${badgeText}`);
+
+        if (currentBadgeText === badgeText) {
             console.log('[QuizService] 🔄 Skipping duplicate badge update:', badgeText);
             return;
         }
 
+        // ✅ Emit new badge text
         this.badgeTextSource.next(badgeText);
         console.log('[QuizService] ✅ Badge text updated:', badgeText);
 
-        // ✅ Store the correct zero-based index in localStorage
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex - 1));
+        // ✅ Store the correct **zero-based** index in localStorage
+        const storedIndex = questionIndex - 1;
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(storedIndex));
+        console.log(`[QuizService] 🔄 Stored updated questionIndex (${storedIndex}) in localStorage.`);
 
     } catch (error) {
-        console.error(error);
+        console.error(`[QuizService] ❌ Error in updateBadgeText:`, error);
     }
   }
 
