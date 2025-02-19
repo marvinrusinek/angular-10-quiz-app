@@ -338,22 +338,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const questionIndexParam = params.get('questionIndex');
       const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
 
-      console.log('Route param changed: quizId=${quizId}, questionIndex=${questionIndex}');
+      console.log('NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}');
 
       if (quizId) {
         this.quizId = quizId;
 
         if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
           this.currentQuestionIndex = questionIndex;
-          console.log('Updated currentQuestionIndex from route: ${this.currentQuestionIndex}');
+          console.log('NGONINIT Updated currentQuestionIndex from route: ${this.currentQuestionIndex}');
         } else {
-          console.warn('Invalid or missing questionIndex in route. Defaulting to 0.');
+          console.warn('NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.');
           this.currentQuestionIndex = 0;
         }
 
         this.initializeQuizBasedOnRouteParams();
       } else {
-        console.error('Quiz ID is not provided in the route');
+        console.error('NGONINIT Quiz ID is not provided in the route');
       }
     });
 
