@@ -3742,7 +3742,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Navigate to the specified question index
       console.log(`[resetUIAndNavigate] 🔄 Calling navigateToQuestion(${this.currentQuestionIndex})...`);
-      await this.navigateToQuestion(this.currentQuestionIndex);
+      await this.navigateToQuestion(questionIndex);
       console.log(`[resetUIAndNavigate] ✅ navigateToQuestion() completed.`);
     } catch (error) {
       console.error('Error during UI reset and navigation:', error);
