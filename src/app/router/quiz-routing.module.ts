@@ -36,7 +36,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { enableTracing: false })],
+  imports: [
+    RouterModule.forRoot(routes, { 
+      enableTracing: false, 
+      onSameUrlNavigation: 'reload' // force Angular to detect parameter changes
+    })
+  ],
   exports: [RouterModule]
 })
 export class QuizRoutingModule {
