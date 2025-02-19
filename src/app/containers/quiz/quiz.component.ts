@@ -3734,34 +3734,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-      console.log(`[DEBUG] 🟢 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
+        console.log(`[DEBUG] 🟢 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
 
-      // ✅ Reset UI state
-      console.log(`[DEBUG] 🔄 Resetting UI elements...`);
-      this.resetUI();
+        // ✅ Reset UI state
+        console.log(`[DEBUG] 🔄 Resetting UI elements...`);
+        this.resetUI();
 
-      // ✅ Reset explanation text between questions
-      console.log(`[DEBUG] 🔄 Resetting explanation text...`);
-      this.explanationTextService.resetStateBetweenQuestions();
+        // ✅ Reset explanation text between questions
+        console.log(`[DEBUG] 🔄 Resetting explanation text...`);
+        this.explanationTextService.resetStateBetweenQuestions();
 
-      // ✅ Try to navigate to the new question
-      console.log(`[DEBUG] 🔄 Calling navigateToQuestion(${questionIndex}) from resetUIAndNavigate()...`);
-      await this.navigateToQuestion(questionIndex);
-      console.log(`[DEBUG] ✅ navigateToQuestion() completed.`);
-
-      // ✅ Force update badge if navigation was skipped
-      if (this.currentQuestionIndex === questionIndex) {
-        console.log(`[DEBUG] ⚠️ Navigation was skipped, forcing badge update.`);
+        // ✅ **Force badge update BEFORE navigation (always)**
+        console.log(`[DEBUG] 🚀 Calling updateBadgeText(${questionIndex + 1}, ${this.totalQuestions}) BEFORE navigation.`);
         this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
-        console.log(`[DEBUG] ✅ Forced badge update: Question ${questionIndex + 1} of ${this.totalQuestions}`);
-      }
+        console.log(`[DEBUG] ✅ Forced updateBadgeText call completed.`);
 
-      console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
+        // ✅ Navigate to the new question
+        console.log(`[DEBUG] 🔄 Calling navigateToQuestion(${questionIndex}) from resetUIAndNavigate()...`);
+        await this.navigateToQuestion(questionIndex);
+        console.log(`[DEBUG] ✅ navigateToQuestion() completed.`);
+
+        console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
     } catch (error) {
-      console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
+        console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
   }
-
 
   /* async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log('[Navigating to Question] Index:', questionIndex);
