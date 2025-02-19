@@ -3485,7 +3485,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // ✅ Conditionally preload the next question (only if there are more questions)
         if (questionIndex < this.totalQuestions - 1) {
-            console.log(`[DEBUG] 🔄 Preloading next question (index: ${questionIndex + 1})...`);
+            const nextIndex = questionIndex + 1;
+            console.log(`[DEBUG] 🔄 Preloading next question (index: ${nextIndex})...`);
             processingTasks.push(this.advanceAndProcessNextQuestion());
         } else {
             console.log(`[DEBUG] 🏁 Last question reached, no more preloading.`);
@@ -3497,7 +3498,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[DEBUG] ✅ All tasks completed successfully.`);
 
-        // ❌ REMOVE navigateToQuestion() call here, since resetUIAndNavigate() already calls it
+        // ✅ Log to confirm that navigation is handled elsewhere
         console.log(`[DEBUG] 🚀 Navigation will be handled by resetUIAndNavigate() inside fetchAndSetQuestionData().`);
 
     } catch (error) {
