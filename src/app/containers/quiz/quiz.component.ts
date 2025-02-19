@@ -290,176 +290,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  /* private async restoreStateAfterFocus(): Promise<void> {
-    console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
-
-    this.ngZone.run(async () => {
-        // 🔹 Prevent execution if loading is already in progress
-        if (this.isLoading || this.quizStateService.isLoading()) {
-            console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
-            return;
-        }
-
-        try {
-            // 🔹 Get last known question index (do NOT reset it!)
-            const savedIndex = localStorage.getItem('savedQuestionIndex');
-            const lastKnownIndex = this.quizService.getCurrentQuestionIndex();
-
-            let restoredIndex = lastKnownIndex; // Default to last known index
-
-            if (savedIndex !== null) {
-                restoredIndex = JSON.parse(savedIndex);
-                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
-            }
-
-            // 🔹 Ensure the restored index is valid
-            const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
-            if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
-                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping last known index:', lastKnownIndex);
-                restoredIndex = lastKnownIndex; // Ensure no unwanted reset occurs
-            }
-
-            console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
-
-            // 🔹 Prevent unnecessary overwrites of the question index
-            if (this.currentQuestionIndex !== restoredIndex) {
-                this.currentQuestionIndex = restoredIndex;
-                console.log('[restoreStateAfterFocus] 🔄 Updated currentQuestionIndex:', restoredIndex);
-            } else {
-                console.log('[restoreStateAfterFocus] ✅ Question index already correct. No update needed.');
-            }
-
-            // 🔹 Prevent duplicate state reloading if question index hasn't changed
-            if (this.currentQuestion?.questionText && this.currentQuestionIndex === restoredIndex) {
-                console.log('[restoreStateAfterFocus] ✅ Question already loaded. Skipping re-fetch.');
-            } else {
-                // Restore the question state ONLY if it's necessary
-                await this.restoreQuestionState();
-            }
-
-            // 🔹 Ensure the badge text is updated and does NOT reset
-            this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
-            console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
-
-            // 🔹 Ensure the URL stays correct (only update if necessary)
-            const newUrl = `/quiz/${this.quizId}/${restoredIndex}`;
-            if (this.router.url !== newUrl) {
-                console.warn('[restoreStateAfterFocus] ⚠️ URL mismatch detected. Updating manually...');
-                this.ngZone.run(() => this.router.navigate(['/quiz', this.quizId, restoredIndex], { replaceUrl: true }));
-            }
-
-            // 🔹 Fetch and update explanation text
-            await this.fetchFormattedExplanationText(restoredIndex);
-
-            // 🔹 Ensure UI state remains consistent
-            this.isLoading$ = this.quizStateService.isLoading$;
-            this.isAnswered$ = this.quizStateService.isAnswered$;
-
-            // 🔹 Prevent UI from incorrectly resetting back to Question 1
-            this.quizService.preventResetOnVisibilityChange();
-
-            // 🔹 Trigger change detection to reflect updates
-            this.cdRef.detectChanges();
-            console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
-
-        } catch (error) {
-            console.error('[restoreStateAfterFocus] ❌ Error during state restoration:', error);
-        }
-    });
-  } */
-  /* private async restoreStateAfterFocus(): Promise<void> {
-    console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
-
-    this.ngZone.run(async () => {
-        if (this.isLoading || this.quizStateService.isLoading()) {
-            console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
-            return;
-        }
-
-        try {
-            const savedIndex = localStorage.getItem('savedQuestionIndex');
-            let restoredIndex = this.quizService.getCurrentQuestionIndex();
-
-            if (savedIndex !== null) {
-                restoredIndex = JSON.parse(savedIndex);
-                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index:', restoredIndex);
-            }
-
-            const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
-            if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
-                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Using latest valid index:', restoredIndex);
-            }
-
-            console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
-
-            if (this.currentQuestionIndex !== restoredIndex) {
-                this.currentQuestionIndex = restoredIndex;
-                localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
-                console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
-            }
-
-            const savedBadgeIndex = localStorage.getItem('savedBadgeIndex');
-            let badgeIndex = restoredIndex + 1;
-
-            if (savedBadgeIndex !== null) {
-                badgeIndex = JSON.parse(savedBadgeIndex);
-                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved badge index:', badgeIndex);
-            }
-
-            this.quizService.updateBadgeText(badgeIndex, totalQuestions);
-            console.log('[restoreStateAfterFocus] ✅ Restored badge text:', `Question ${badgeIndex} of ${totalQuestions}`);
-
-            this.cdRef.detectChanges();
-            console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
-
-        } catch (error) {
-            console.error('[restoreStateAfterFocus] ❌ Error during state restoration:', error);
-        }
-    });
-  } */
   private async restoreStateAfterFocus(): Promise<void> {
-    console.log('[restoreStateAfterFocus] 🟢 Restoring state after tab focus...');
-
     this.ngZone.run(async () => {
-        if (this.isLoading || this.quizStateService.isLoading()) {
-            console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
-            return;
+      if (this.isLoading || this.quizStateService.isLoading()) {
+        console.warn('[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.');
+        return;
+      }
+
+      try {
+        // Retrieve last known question index (DO NOT RESET!)
+        const savedIndex = localStorage.getItem('savedQuestionIndex');
+        let restoredIndex = this.quizService.getCurrentQuestionIndex();
+
+        if (savedIndex !== null) {
+          restoredIndex = JSON.parse(savedIndex);
         }
 
-        try {
-            // 🔹 Retrieve last known question index (DO NOT RESET!)
-            const savedIndex = localStorage.getItem('savedQuestionIndex');
-            let restoredIndex = this.quizService.getCurrentQuestionIndex();
-
-            if (savedIndex !== null) {
-                restoredIndex = JSON.parse(savedIndex);
-                console.log('[restoreStateAfterFocus] 🔄 Retrieved saved question index from localStorage:', restoredIndex);
-            }
-
-            // 🔹 Ensure the index is valid
-            const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
-            if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
-                console.warn('[restoreStateAfterFocus] ❌ Invalid restored index. Keeping latest valid index:', restoredIndex);
-            }
-
-            console.log('[restoreStateAfterFocus] ✅ Final question index for restoration:', restoredIndex);
-
-            if (this.currentQuestionIndex !== restoredIndex) {
-                this.currentQuestionIndex = restoredIndex;
-                localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
-                console.log('[restoreStateAfterFocus] ✅ Persisted latest question index:', restoredIndex);
-            }
-
-            // ✅ Ensure badge text updates correctly
-            this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
-            console.log('[restoreStateAfterFocus] ✅ Updated badge text:', restoredIndex + 1);
-
-            this.cdRef.detectChanges();
-            console.log('[restoreStateAfterFocus] ✅ UI updated successfully.');
-
-        } catch (error) {
-            console.error('[restoreStateAfterFocus] ❌ Error during state restoration:', error);
+        // Ensure the index is valid
+        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+        if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
+          console.warn('Invalid restored index. Keeping latest valid index:', restoredIndex);
         }
+
+        if (this.currentQuestionIndex !== restoredIndex) {
+          this.currentQuestionIndex = restoredIndex;
+          localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
+        }
+
+        // Ensure badge text updates correctly
+        this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
+        
+        this.cdRef.detectChanges();
+      } catch (error) {
+        console.error('Error during state restoration:', error);
+      }
     });
   }
 
