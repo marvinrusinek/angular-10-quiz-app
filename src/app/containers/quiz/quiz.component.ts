@@ -3647,10 +3647,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
-    console.log(`[fetchAndSetNextQuestion] 🔄 Fetching question at index ${this.currentQuestionIndex}`);
-
     this.selectedOptionService.isAnsweredSubject.next(false);
-    console.log('[fetchAndSetNextQuestion] 🔄 Resetting isAnsweredSubject to false before fetching next question.');
 
     try {
       const nextQuestion = await firstValueFrom(
@@ -3658,25 +3655,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
 
       if (!nextQuestion) {
-        console.warn('[fetchAndSetNextQuestion] ❌ No question found for next index.');
+        console.warn('No question found for next index.');
         return false;
       }
 
-      console.log('[fetchAndSetNextQuestion] ✅ Successfully fetched question:', nextQuestion);
-
-      console.log('[fetchAndSetNextQuestion] 🔄 Calling setCurrentQuestion()...');
       this.quizService.setCurrentQuestion(nextQuestion);
-      console.log('[fetchAndSetNextQuestion] ✅ Successfully set the current question.');
-
+      
       // Ensure the component subscribes to `currentQuestion$`
       setTimeout(() => {
         console.log('[fetchAndSetNextQuestion] 🔄 Forcing UI update...');
         this.cdRef.detectChanges();
       }, 50);
-
-      return true; // ✅ Ensure the function always returns `true` when successful
+      return true; // ensure the function always returns 'true' when successful
     } catch (error) {
-      console.error('[fetchAndSetNextQuestion] ❌ Error fetching next question:', error);
+      console.error('Error fetching next question:', error);
       return false;
     }
   }
