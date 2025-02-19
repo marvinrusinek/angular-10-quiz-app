@@ -1499,6 +1499,7 @@ export class QuizService implements OnDestroy {
   } */
   updateBadgeText(questionIndex: number, totalQuestions: number): void {
     console.log(`[QuizService] 🟢 updateBadgeText() called with questionIndex: ${questionIndex}, totalQuestions: ${totalQuestions}`);
+    console.log(`[DEBUG] 🟢 updateBadgeText() CALLED with: questionIndex=${questionIndex}, totalQuestions=${totalQuestions}`);
 
     try {
         if (questionIndex < 1 || questionIndex > totalQuestions) {
