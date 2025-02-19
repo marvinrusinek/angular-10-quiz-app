@@ -75,13 +75,13 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       if (this.questionNumber !== updatedQuestionNumber) {
         this.questionNumber = updatedQuestionNumber;
       } else {
-        console.log(`[processRouteParams] 🔵 No change in questionNumber. Keeping: ${this.questionNumber}`);
+        console.log('No change in questionNumber. Keeping: ${this.questionNumber}');
       }
 
       return this.quizService.totalQuestions$;
     }
 
-    console.warn('[processRouteParams] ❌ No questionIndex found in route parameters.');
+    console.warn('No questionIndex found in route parameters.');
     return of(null);
   }
 
@@ -92,7 +92,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private setupBadgeTextSubscription(): void {
     this.quizService.badgeText.subscribe(updatedText => {
-      console.log(`[setupBadgeTextSubscription] 🔄 Badge text updated to: ${updatedText}`);
       this.badgeText = updatedText;
     });
   }
