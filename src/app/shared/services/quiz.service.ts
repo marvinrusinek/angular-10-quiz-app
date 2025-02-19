@@ -167,7 +167,7 @@ export class QuizService implements OnDestroy {
   public correctAnswersLoaded$: Observable<boolean> =
     this.correctAnswersLoadedSubject.asObservable();
 
-  private badgeTextSource = new BehaviorSubject<string>('');
+  badgeTextSource = new BehaviorSubject<string>('');
   badgeText = this.badgeTextSource.asObservable();
 
   private correctAnswersCountTextSource = new BehaviorSubject<string>(
@@ -1501,16 +1501,14 @@ export class QuizService implements OnDestroy {
     console.log(`[QuizService] 🟢 updateBadgeText() called with questionIndex: ${questionIndex}, totalQuestions: ${totalQuestions}`);
 
     try {
-        // ✅ Ensure valid question number (1-based index)
         if (questionIndex < 1 || questionIndex > totalQuestions) {
             console.error(`[QuizService] ❌ Invalid question number for badge update: ${questionIndex}`);
             return;
         }
 
         const badgeText = `Question ${questionIndex} of ${totalQuestions}`;
-
-        // ✅ Log current and new badgeText to check if an update is needed
         const currentBadgeText = this.badgeTextSource.getValue();
+
         console.log(`[DEBUG] 🔄 Current badgeText: ${currentBadgeText}, New badgeText: ${badgeText}`);
 
         if (currentBadgeText === badgeText) {
@@ -1518,20 +1516,12 @@ export class QuizService implements OnDestroy {
             return;
         }
 
-        // ✅ Emit new badge text
         this.badgeTextSource.next(badgeText);
         console.log('[QuizService] ✅ Badge text updated:', badgeText);
-
-        // ✅ Store the correct **zero-based** index in localStorage
-        const storedIndex = questionIndex - 1;
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(storedIndex));
-        console.log(`[QuizService] 🔄 Stored updated questionIndex (${storedIndex}) in localStorage.`);
-
     } catch (error) {
         console.error(`[QuizService] ❌ Error in updateBadgeText:`, error);
     }
   }
-
 
   updateCorrectAnswersText(newText: string): void {
     localStorage.setItem('correctAnswersText', newText);
