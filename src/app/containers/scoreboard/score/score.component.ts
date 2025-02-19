@@ -47,17 +47,14 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.scoreSubscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
-        distinctUntilChanged(),
-        tap(count => console.log('Correct Answers Count:', count)) // Log emitted values
+        distinctUntilChanged()
       ),
       this.totalQuestions$.pipe(
         startWith(0), // Provide a default value to ensure it's never undefined
-        distinctUntilChanged(),
-        // tap(total => console.log('Total Questions:', total))
+        distinctUntilChanged()
       ),
       this.quizService.getAllQuestions().pipe(
-        startWith([]), // Default to an empty array if no questions are available yet
-        // tap(questions => console.log('All Questions:', questions))
+        startWith([])
       )
     ]).pipe(
       map(this.processScoreData),
