@@ -352,6 +352,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
           this.currentQuestionIndex = questionIndex;
           console.log('NGONINIT Updated currentQuestionIndex from route: ${this.currentQuestionIndex}');
+          this.reloadQuizComponent();  // 🔄 **Force reloading the component** 
         } else {
           console.warn('NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.');
           this.currentQuestionIndex = 0;
@@ -441,6 +442,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       startWith(false)
     ); */
+  }
+
+  reloadQuizComponent(): void {
+    console.log('[DEBUG] 🔄 Reloading QuizComponent...');
+    
+    // **Destroy and recreate the component instance**
+    this.router.navigateByUrl('/blank', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -3624,7 +3634,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     return navigationSuccess;
   } */
-  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
 
     if (this.currentQuestionIndex === questionIndex) {
@@ -3659,7 +3669,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[DEBUG] ❌ Error in navigateToQuestion() for questionIndex ${questionIndex}:`, error);
         return false;
     }
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
+        return false;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return false;
+    }
+
+    this.currentQuestionIndex = questionIndex;
+    console.log(`[DEBUG] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+
+    console.log(`[DEBUG] 🔄 Reloading QuizComponent for new question index...`);
+    this.reloadQuizComponent();
+
+    return true;
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
