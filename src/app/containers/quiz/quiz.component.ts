@@ -3463,6 +3463,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
         }
 
+        // 🚀 **Check where the function was called from**
+        console.trace(`[DEBUG] 📌 prepareQuestionForDisplay() was called with questionIndex: ${questionIndex}`);
+
         // ✅ Fetch and set question data
         console.log(`[DEBUG] 🔄 Calling fetchAndSetQuestionData(${questionIndex})...`);
         const questionFetched = await this.fetchAndSetQuestionData(questionIndex);
