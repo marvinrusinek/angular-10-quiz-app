@@ -3925,14 +3925,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private resetQuizState(): void {
     console.log('[resetQuizState] 🔄 Resetting quiz state...');
 
-    // ✅ Stop the timer when resetting quiz state
+    // Stop the timer when resetting quiz state
     if (this.timerService.isTimerRunning) {
         console.log('[resetQuizState] ⏹ Stopping timer...');
         this.timerService.stopTimer();
         this.timerService.isTimerRunning = false;
     }
 
-    // ✅ Reset all quiz-related services
+    // Reset all quiz-related services
     this.quizService.resetAll();
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
@@ -3940,25 +3940,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
 
-    // ✅ Trigger resets in state management services
+    // Trigger resets in state management services
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
 
-    // ✅ Reset UI-related states
+    // Reset UI-related states
     this.currentQuestionIndex = 0;
     this.progressPercentage.next(0);
     this.score = 0;
 
-    // ✅ Ensure timer resets when quiz state resets
+    // Ensure timer resets when quiz state resets
     console.log('[resetQuizState] 🔄 Resetting timer to 30 seconds...');
     this.timerService.resetTimer();
 
-    // ✅ Clear any lingering UI state
+    // Clear any lingering UI state
     this.questionToDisplay = '';
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
 
-    // ✅ Force UI update
+    // Force UI update
     this.cdRef.detectChanges();
   }
 
