@@ -204,16 +204,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private cdRef: ChangeDetectorRef,
     private location: Location
   ) {
-    /* Object.defineProperty(this, 'currentQuestionIndex', {
-      set: function (value) {
-        console.log(`[DEBUG] 🔄 currentQuestionIndex changed: ${value}`);
-        this._currentQuestionIndex = value; // Store the value internally
-      },
-      get: function () {
-        return this._currentQuestionIndex;
-      }
-    }); */
-
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
         // Pause updates here (if needed)
@@ -267,26 +257,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.currentQuestion.subscribe({
       next: (newQuestion) => {
-          console.log('[QuizComponent] 🔄 New question received from observable:', newQuestion);
+        if (!newQuestion) {
+          console.warn('No new question received. Skipping UI update.');
+          return;
+        }
   
-          if (!newQuestion) {
-              console.warn('[QuizComponent] ❌ No new question received. Skipping UI update.');
-              return;
-          }
+        this.ngZone.run(() => {
+          this.currentQuestion = null;  // force reset to clear stale UI
   
-          this.ngZone.run(() => {
-              console.log('[QuizComponent] ✅ Resetting current question before updating...');
-              this.currentQuestion = null;  // 👈 Force reset to clear stale UI
-  
-              setTimeout(() => {
-                  console.log('[QuizComponent] ✅ Setting new currentQuestion...');
-                  this.currentQuestion = { ...newQuestion };
-                  console.log('[QuizComponent] 🟢 Updated currentQuestion:', this.currentQuestion);
-              }, 10); // Small delay to ensure UI resets properly
-          });
+          setTimeout(() => {
+            this.currentQuestion = { ...newQuestion };
+          }, 10); // Small delay to ensure UI resets properly
+        });
       },
-      error: (err) => console.error('[QuizComponent] ❌ Error in currentQuestion subscription:', err),
-      complete: () => console.log('[QuizComponent] ✅ currentQuestion subscription completed.')
+      error: (err) => console.error('Error in currentQuestion subscription:', err),
+      complete: () => console.log('currentQuestion subscription completed.')
     });  
 
     this.quizDataService.isContentAvailable$.subscribe((isAvailable) =>
@@ -3160,7 +3145,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       next: (total) => this.handleProgressUpdate(total),
       error: (error) => {
         console.error('Error fetching total questions:', error);
-        this.progressBarService.setProgress(0); // Ensure progress is reset on error
+        this.progressBarService.setProgress(0); // ensure progress is reset on error
       },
     });
   }
