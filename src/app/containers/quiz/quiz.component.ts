@@ -3629,7 +3629,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     if (this.currentQuestionIndex === questionIndex) {
         console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
-        this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
         return false;
     }
 
@@ -3643,24 +3642,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-    console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
-    // ✅ Force Router to Recognize Change
-    const newUrl = [`/quiz`, this.quizId, questionIndex];
-    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl.join('/')}`);
+    const newUrl = `/question/${this.quizId}/${questionIndex}`;
+    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl}`);
 
     try {
-        await this.ngZone.run(() => 
-            this.router.navigate(newUrl, { replaceUrl: false })
-        );
+        // 🔴 **First remove the current URL**
+        await this.router.navigateByUrl('/blank', { skipLocationChange: true });
 
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
+        // ✅ **Now navigate to the correct question**
+        await this.router.navigateByUrl(newUrl);
 
-        // ✅ Force Reload by Replacing the Same URL
-        await this.ngZone.run(() =>
-            this.router.navigate(newUrl, { replaceUrl: true })
-        );
-
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
         return true;
     } catch (error) {
         console.error(`[DEBUG] ❌ Error in navigateToQuestion() for questionIndex ${questionIndex}:`, error);
