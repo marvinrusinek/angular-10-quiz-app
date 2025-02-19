@@ -3497,10 +3497,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[DEBUG] ✅ All tasks completed successfully.`);
 
-        // ✅ Ensure navigation occurs
-        console.log(`[DEBUG] 🔄 Calling navigateToQuestion(${questionIndex}) from prepareQuestionForDisplay()`);
-        await this.navigateToQuestion(questionIndex);
-        
+        // ❌ REMOVE navigateToQuestion() call here, since resetUIAndNavigate() already calls it
+        console.log(`[DEBUG] 🚀 Navigation will be handled by resetUIAndNavigate() inside fetchAndSetQuestionData().`);
+
     } catch (error) {
         console.error(`[DEBUG] ❌ Error in prepareQuestionForDisplay():`, error);
     }
