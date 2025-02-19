@@ -164,6 +164,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isContentAvailable$: Observable<boolean>;
   isContentInitialized = false;
 
+  private hasInitializedBadge = false;
+
   shouldDisplayCorrectAnswers = false;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -244,22 +246,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     }); */
 
-      this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-          if (totalQuestions > 0) {
-              this.totalQuestions = totalQuestions; // Ensure total questions is set
-              let startingIndex = this.quizService.getCurrentQuestionIndex();
+    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+      if (totalQuestions > 0) {
+          this.totalQuestions = totalQuestions; // Ensure total questions is set
+          let startingIndex = this.quizService.getCurrentQuestionIndex();
   
-              console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
+          console.log('[DEBUG] Initializing badge text:', { startingIndex, totalQuestions });
   
-              // ✅ Ensure badge only updates ONCE and correctly
-              if (!this.hasInitializedBadge) {
-                  this.quizService.updateBadgeText(startingIndex, totalQuestions);
-                  this.hasInitializedBadge = true;
-              }
+          // ✅ Ensure badge only updates ONCE on initial load
+          if (!this.hasInitializedBadge) {
+              console.log(`[DEBUG] 🚀 Initializing badge text ONCE with questionIndex: ${startingIndex + 1}`);
+              this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
+              this.hasInitializedBadge = true; // Prevent duplicate updates
           } else {
-              console.warn('[DEBUG] ⚠️ Total questions not available yet.');
+              console.log(`[DEBUG] 🔄 Badge already initialized, skipping duplicate update.`);
           }
-     });
+      } else {
+          console.warn('[DEBUG] ⚠️ Total questions not available yet.');
+      }
+    });
 
     this.subscriptions.add(
       this.quizService.quizReset$.subscribe(() => {
