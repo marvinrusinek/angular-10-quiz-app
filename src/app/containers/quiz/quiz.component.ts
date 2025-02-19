@@ -3407,6 +3407,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       
       // Clear old question data before fetching new data
       this.resetQuestionState();
+      this.explanationToDisplay = '';
 
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
       if (!questionDetails) {
@@ -3422,6 +3423,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Set the UI state immediately
       this.setQuestionDetails(questionText, questionDetails.options, '');
       this.currentQuestion = { ...questionDetails, options: questionDetails.options };
+
+      // Ensure explanation is updated correctly
+      this.explanationToDisplay = questionDetails.explanation || 'No explanation available';
       
       // Update quiz state
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
