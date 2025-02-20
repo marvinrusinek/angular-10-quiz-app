@@ -48,7 +48,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   private handleRouteParameters(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => this.processRouteParams(params)), // ✅ Ensures correct params
+      switchMap((params: Params) => this.processRouteParams(params)), // ensures correct params
       catchError((error: Error) => this.handleError(error))
     ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
