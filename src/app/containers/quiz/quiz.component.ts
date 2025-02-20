@@ -3469,6 +3469,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+
   
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     this.selectedOptionService.isAnsweredSubject.next(false);
