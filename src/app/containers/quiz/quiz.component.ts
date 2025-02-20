@@ -3785,32 +3785,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    // ✅ Force navigation update even if question index hasn't changed
-    if (this.currentQuestionIndex === questionIndex) {
-        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
-    }
-
-    // ✅ Update the current question index
+    // ✅ Update question index immediately
     this.currentQuestionIndex = questionIndex;
-    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    const newUrl = ['/question', this.quizId, questionIndex];
+    // ✅ Update badge BEFORE navigation
+    console.log(`[DEBUG] 🚀 Calling updateBadgeText(${questionIndex + 1}, ${this.totalQuestions})`);
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
 
-    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl.join('/')}`);
+    const newUrl = `/question/${this.quizId}/${questionIndex}`;
+
+    console.log(`[DEBUG] 🔄 Navigating to: ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        // ✅ Ensure full route update
-        await this.router.navigate(newUrl, { replaceUrl: false, skipLocationChange: false }).then(success => {
+        // ✅ Update route properly, forcing Angular to reload state
+        await this.ngZone.run(() => 
+            this.router.navigateByUrl(newUrl, { replaceUrl: true })
+        ).then(success => {
             navigationSuccess = success;
-            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
         });
 
-        // ✅ Ensure the new question is fetched and displayed
-        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${questionIndex}`);
-        await this.fetchAndSetQuestionData(questionIndex);
+        // ✅ Wait for Angular to process route change before updating UI
+        setTimeout(async () => {
+            console.log(`[DEBUG] 🔄 Fetching question data for index: ${questionIndex}`);
+            await this.fetchAndSetQuestionData(questionIndex);
+        }, 100); // Small delay to ensure proper UI update
 
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
