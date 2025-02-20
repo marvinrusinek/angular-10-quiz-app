@@ -355,6 +355,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
           console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
 
+          // ✅ **Only update the question if the index is actually different**
           if (this.currentQuestionIndex !== questionIndex) {
               console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
               this.currentQuestionIndex = questionIndex;
