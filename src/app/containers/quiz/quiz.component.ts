@@ -3519,6 +3519,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.quizService.checkIfAnsweredCorrectly();
         console.log(`[DEBUG] ✅ Answer correctness check completed.`);
 
+        // Call `resetUIAndNavigate()`
+        await this.resetUIAndNavigate(questionIndex);
+
         // ✅ Start timer for the loaded question
         console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
         this.timerService.startTimer(this.timerService.timePerQuestion);
