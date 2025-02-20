@@ -3752,7 +3752,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    // ✅ Prevent duplicate navigation
     if (this.currentQuestionIndex === questionIndex) {
         console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
         return false;
@@ -3766,7 +3765,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 500);
 
-    // ✅ Update current question index before navigating
+    // ✅ Update current question index
     this.currentQuestionIndex = questionIndex;
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
@@ -3777,9 +3776,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     let navigationSuccess = false;
 
     try {
-        // ✅ Ensure full route update
+        // ✅ Ensure full route update using navigateByUrl()
         await this.ngZone.run(() =>
-            this.router.navigateByUrl(newUrl, { skipLocationChange: false })
+            this.router.navigateByUrl(newUrl, { replaceUrl: false })
         ).then(success => {
             navigationSuccess = success;
             console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
