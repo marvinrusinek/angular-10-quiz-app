@@ -3394,6 +3394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.evaluateNextButtonState();
     }
   } 
+
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
         console.log(`[DEBUG] 🟢 fetchAndSetQuestionData() triggered for questionIndex: ${questionIndex}`);
@@ -3753,6 +3754,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
+    // ✅ Prevent duplicate navigation
     if (this.currentQuestionIndex === questionIndex) {
         console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing badge update anyway!**`);
         this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
@@ -3772,7 +3774,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    // ✅ Ensure the correct route updates in the URL
+    // ✅ Force the correct route update
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
 
@@ -3790,6 +3792,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
             await this.router.navigate(['/question', this.quizId, questionIndex]);
         }
+
+        // ✅ Ensure the new question is fetched and displayed
+        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${questionIndex}`);
+        await this.fetchAndSetQuestionData(questionIndex);
+
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
@@ -3797,7 +3804,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
     return navigationSuccess;
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {
