@@ -3735,7 +3735,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
     return navigationSuccess;
   } */
-  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
     console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
     console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
@@ -3781,6 +3781,49 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
+    return navigationSuccess;
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return false;
+    }
+
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing refresh anyway!**`);
+    }
+
+    // ✅ Ensure route updates before fetching question
+    const newUrl = `/question/${this.quizId}/${questionIndex}`;
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
+
+    let navigationSuccess = false;
+
+    try {
+        await this.ngZone.run(() =>
+            this.router.navigateByUrl(newUrl, { replaceUrl: false })
+        );
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        navigationSuccess = true;
+    } catch (error) {
+        console.error(`[DEBUG] ❌ Router navigation error:`, error);
+    }
+
+    if (!navigationSuccess) {
+        console.warn(`[DEBUG] ⚠️ Navigation failed. Retrying...`);
+        await this.router.navigateByUrl(newUrl);
+    }
+
+    // ✅ Update the question index AFTER navigation
+    setTimeout(async () => {
+        this.currentQuestionIndex = questionIndex;
+        console.log(`[DEBUG] 🔄 Fetching correct question data for index: ${this.currentQuestionIndex}`);
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+    }, 200); // Slight delay ensures route updates before fetch
+
     return navigationSuccess;
   }
 
