@@ -3691,6 +3691,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
     }
 
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 300);
+
     // ✅ Update the current question index before navigating
     this.currentQuestionIndex = questionIndex;
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
