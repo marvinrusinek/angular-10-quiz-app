@@ -339,34 +339,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-      this.activatedRoute.paramMap.subscribe(params => {
-          const quizId = params.get('quizId');
-          const questionIndexParam = params.get('questionIndex');
-          const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
-  
-          console.log(`[DEBUG] 🌍 Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-  
-          if (quizId) {
-              this.quizId = quizId;
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      const questionIndexParam = params.get('questionIndex');
+      const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
+
+      console.log(`[DEBUG] 🌍 Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
+
+      if (quizId) {
+          this.quizId = quizId;
+      } else {
+          console.error(`[DEBUG] ❌ Quiz ID is missing from the route.`);
+      }
+
+      if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
+          console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
+
+          if (this.currentQuestionIndex !== questionIndex) {
+              console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
+              this.currentQuestionIndex = questionIndex;
+              this.reloadQuizComponent();  // ✅ Ensure the component updates
           } else {
-              console.error(`[DEBUG] ❌ Quiz ID is missing from the route.`);
+              console.warn(`[DEBUG] ⚠️ questionIndex in route is the same as current. Skipping update.`);
           }
-  
-          if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
-              console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
-  
-              if (this.currentQuestionIndex !== questionIndex) {
-                  console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
-                  this.currentQuestionIndex = questionIndex;
-                  this.reloadQuizComponent();  // 🔄 **Force reloading the component** 
-              } else {
-                  console.warn(`[DEBUG] ⚠️ questionIndex in route is the same as current. Skipping update.`);
-              }
-          } else {
-              console.warn(`[DEBUG] ⚠️ Invalid questionIndex detected in route.`);
-          }
-      });
-  
+      } else {
+          console.warn(`[DEBUG] ⚠️ Invalid questionIndex detected in route.`);
+      }
+    });
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
@@ -3680,6 +3679,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
+    console.log(`[DEBUG] 🔍 Current stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
 
     if (this.currentQuestionIndex === questionIndex) {
         console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
@@ -3691,19 +3692,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
+    // ✅ Store the new index
     this.currentQuestionIndex = questionIndex;
     console.log(`[DEBUG] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
 
+    // ✅ Update the badge text
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+
+    // ✅ Store in localStorage
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+    console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
-    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
+    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.router.navigateByUrl(newUrl, { skipLocationChange: false });
+        await this.router.navigateByUrl(newUrl, { replaceUrl: false });
         navigationSuccess = true;
         console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
     } catch (error) {
@@ -3713,6 +3719,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
     return navigationSuccess;
 }
+
 
 
 
