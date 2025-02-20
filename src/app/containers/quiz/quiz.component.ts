@@ -339,31 +339,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-    this.activatedRoute.paramMap.subscribe(params => {
+    this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
       const questionIndexParam = params.get('questionIndex');
       const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
-
+  
       console.log(`[DEBUG] 🌍 Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-
+  
       if (quizId) {
-          this.quizId = quizId;
+        this.quizId = quizId;
       } else {
-          console.error(`[DEBUG] ❌ Quiz ID is missing from the route.`);
+        console.error(`[DEBUG] ❌ Quiz ID is missing from the route.`);
       }
-
+  
       if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
-          console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
-
-          if (this.currentQuestionIndex !== questionIndex) {
-              console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
-              this.currentQuestionIndex = questionIndex;
-              this.reloadQuizComponent();
-          } else {
-              console.warn(`[DEBUG] ⚠️ questionIndex in route is the same as current. Skipping update.`);
-          }
+        console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
+  
+        // Only update if it's different from the current value.
+        if (this.currentQuestionIndex !== questionIndex) {
+          console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
+          this.currentQuestionIndex = questionIndex;
+          // Optionally call a method to update question data without reloading the component completely.
+          this.loadQuestionForRouteChange();
+        } else {
+          console.warn(`[DEBUG] ⚠️ questionIndex in route is the same as current. Skipping update.`);
+        }
       } else {
-          console.warn(`[DEBUG] ⚠️ Invalid questionIndex detected in route.`);
+        console.warn(`[DEBUG] ⚠️ Invalid questionIndex detected in route.`);
       }
     });
 
