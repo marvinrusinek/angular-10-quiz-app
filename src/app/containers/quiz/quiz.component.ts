@@ -3677,10 +3677,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
   } */
-  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
     console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
     console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+
+    // Prevent multiple simultaneous navigations
+    if (this.debounceNavigation) {
+      console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
+      return false;
+    }
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
@@ -3718,6 +3724,64 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
             await this.router.navigateByUrl(newUrl);
         }
+    } catch (error) {
+        console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+    }
+
+    console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
+    return navigationSuccess;
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
+    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+
+    // ✅ Prevent multiple simultaneous navigations
+    if (this.debounceNavigation) {
+        console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
+        return false;
+    }
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return false;
+    }
+
+    // ✅ Prevent navigation from happening twice
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
+    }
+
+    // ✅ Set debounce flag to prevent double navigation
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 300);
+
+    // ✅ Update the current question index before navigating
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+
+    const newUrl = `/question/${this.quizId}/${questionIndex}`; // ✅ Ensure correct route format
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
+
+    let navigationSuccess = false;
+
+    try {
+        // ✅ Ensure the route updates properly
+        await this.router.navigateByUrl(newUrl, { replaceUrl: false }).then(success => {
+            navigationSuccess = success;
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        });
+
+        if (!navigationSuccess) {
+            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+            await this.router.navigateByUrl(newUrl);
+        }
+
+        // ✅ Now update `currentQuestionIndex` AFTER navigation completes
+        this.currentQuestionIndex = questionIndex;
+        console.log(`[DEBUG] ✅ Updated currentQuestionIndex AFTER navigation: ${this.currentQuestionIndex}`);
+
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
