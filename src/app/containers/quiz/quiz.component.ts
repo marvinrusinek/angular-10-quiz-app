@@ -3466,17 +3466,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return false;
         }
 
-        // ✅ Ensure previous state is fully cleared before fetching new question
+        this.animationState$.next('animationStarted');
+
+        // ✅ Reset old question data before fetching a new one
+        console.log(`[DEBUG] 🔄 Clearing previous question state...`);
         this.resetQuestionState();
         this.explanationToDisplay = '';
+
+        // ✅ FULLY CLEAR OPTIONS BEFORE FETCHING NEW ONES
         this.optionsToDisplay = [];
         this.currentQuestion = null;
         this.cdRef.detectChanges();
-
-        // ✅ Wait for the route to update before fetching new question
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to sync with navigation
-
-        console.log(`[DEBUG] 🌍 Current route before fetching: ${window.location.href}`);
 
         console.log(`[DEBUG] 🔄 Fetching question details for index: ${questionIndex}`);
         const questionDetails = await this.fetchQuestionDetails(questionIndex);
@@ -3488,18 +3488,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log(`[DEBUG] ✅ Question details fetched successfully.`);
 
         const { questionText, options, explanation } = questionDetails;
+        console.log(`[DEBUG] 🟢 Extracted question text: "${questionText}"`);
+        console.log(`[DEBUG] 🟢 Extracted options:`, options);
 
+        // ✅ Assign active states to options
         console.log(`[DEBUG] 🔄 Assigning active states to options...`);
         questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
         console.log(`[DEBUG] ✅ Active states assigned to options.`);
 
-        // ✅ Fully clear options before setting new ones
-        this.optionsToDisplay = [];
-        this.cdRef.detectChanges();
-
+        // ✅ Ensure UI updates with correct options
         console.log(`[DEBUG] 🔄 Updating UI with new question details...`);
         this.setQuestionDetails(questionText, questionDetails.options, '');
         this.currentQuestion = { ...questionDetails, options: questionDetails.options };
+
+        // ✅ EXPLICITLY RE-SET `optionsToDisplay` TO PREVENT LAST QUESTION BUG
         this.optionsToDisplay = [...questionDetails.options];
 
         // ✅ Ensure explanation is updated correctly
@@ -3519,7 +3521,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.quizService.checkIfAnsweredCorrectly();
         console.log(`[DEBUG] ✅ Answer correctness check completed.`);
 
-        // Call `resetUIAndNavigate()`
+        // ✅ CALL `resetUIAndNavigate()` TO FIX ROUTING ISSUE
+        console.log(`[DEBUG] 🚀 Calling resetUIAndNavigate(${questionIndex}) after setting question data...`);
         await this.resetUIAndNavigate(questionIndex);
 
         // ✅ Start timer for the loaded question
