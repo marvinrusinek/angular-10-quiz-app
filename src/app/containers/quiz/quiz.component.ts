@@ -3466,10 +3466,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return false;
         }
 
-        // ✅ Clear UI to prevent previous question data from lingering
+        // ✅ Clear previous question data
         this.resetQuestionState();
         this.explanationToDisplay = '';
-        this.optionsToDisplay = [];
+        this.optionsToDisplay = []; // ✅ Clears previous options
+        this.currentQuestion = null;
         this.cdRef.detectChanges();
 
         console.log(`[DEBUG] 🔄 Fetching question details for index: ${questionIndex}`);
@@ -3488,15 +3489,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
         console.log(`[DEBUG] ✅ Active states assigned to options.`);
 
-        // ✅ Update UI with new question
+        // ✅ Ensure UI resets completely before setting new question
+        this.optionsToDisplay = [];
+        this.cdRef.detectChanges();
+
+        // ✅ Set UI with new question
         console.log(`[DEBUG] 🔄 Updating UI with new question details...`);
         this.setQuestionDetails(questionText, questionDetails.options, '');
         this.currentQuestion = { ...questionDetails, options: questionDetails.options };
+        this.optionsToDisplay = [...questionDetails.options];
 
-        // ✅ Update Explanation Text
+        // ✅ Ensure explanation is updated correctly
         this.explanationToDisplay = explanation || 'No explanation available';
 
-        // ✅ Update Quiz State
+        // ✅ Update quiz state
         console.log(`[DEBUG] 🔄 Updating quiz state with current question...`);
         this.quizStateService.updateCurrentQuestion(this.currentQuestion);
         console.log(`[DEBUG] ✅ Quiz state updated.`);
@@ -3510,7 +3516,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.quizService.checkIfAnsweredCorrectly();
         console.log(`[DEBUG] ✅ Answer correctness check completed.`);
 
-        // ✅ Start the timer for the loaded question
+        // ✅ Start timer for the loaded question
         console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
         this.timerService.startTimer(this.timerService.timePerQuestion);
         console.log(`[DEBUG] ✅ Timer started.`);
@@ -3522,9 +3528,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
   }
-
-
-
   
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     this.selectedOptionService.isAnsweredSubject.next(false);
@@ -3858,20 +3861,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    if (this.currentQuestionIndex === questionIndex) {
-        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping duplicate navigation.`);
-        return false;
-    }
-
-    // ✅ Debounce Navigation to Prevent Looping
+    // ✅ Prevent excessive navigation calls
     if (this.debounceNavigation) {
         console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
         return false;
     }
     this.debounceNavigation = true;
-    setTimeout(() => (this.debounceNavigation = false), 500); // Prevents excessive calls
+    setTimeout(() => (this.debounceNavigation = false), 500);
 
-    // ✅ Update question index before navigation
+    // ✅ Update the current question index before navigating
     this.currentQuestionIndex = questionIndex;
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
@@ -3879,21 +3877,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
 
+    let navigationSuccess = false;
+
     try {
-        await this.ngZone.run(() => this.router.navigateByUrl(newUrl));
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        // ✅ Update route **before** fetching the question to ensure consistency
+        await this.ngZone.run(() => 
+            this.router.navigateByUrl(newUrl, { replaceUrl: false })
+        ).then(success => {
+            navigationSuccess = success;
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        });
+
+        if (!navigationSuccess) {
+            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+            await this.router.navigate(['/question', this.quizId, questionIndex]);
+        }
+
+        // ✅ Fetch and set question data **AFTER** navigation completes
+        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${questionIndex}`);
+        await this.fetchAndSetQuestionData(questionIndex);
+
     } catch (error) {
-        console.error(`[DEBUG] ❌ Router navigation error:`, error);
-        return false;
+        console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
 
-    // ✅ Fetch and Set Question **AFTER** Navigation Completes
-    console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${questionIndex}`);
-    await this.fetchAndSetQuestionData(questionIndex);
-
-    console.log(`[DEBUG] ✅ navigateToQuestion() completed.`);
-    return true;
+    console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
+    return navigationSuccess;
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
