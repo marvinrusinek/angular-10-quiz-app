@@ -3396,6 +3396,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } 
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 fetchAndSetQuestionData() called for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current route before fetching: ${window.location.href}`);
+    console.log(`[DEBUG] 🔄 Current stored question index: ${this.currentQuestionIndex}`);
+    console.log(`[DEBUG] 🔄 Fetching question from service...`);
+
     try {
       // Ensure the questionIndex is within a valid range
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
