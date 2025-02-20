@@ -3696,27 +3696,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    const newUrl = `/question/${this.quizId}/${questionIndex}`;
+    // ✅ Fix the off-by-one issue in the URL (one-based index for URL)
+    const urlQuestionIndex = questionIndex + 1; // Fix: Convert zero-based index to one-based for URL
+    const newUrl = `/question/${this.quizId}/${urlQuestionIndex}`;
 
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        // ✅ **Force navigation updates and ensure the location is changed**
-        await this.ngZone.run(() =>
-            this.router.navigate(
-                ['/question', this.quizId, questionIndex],
-                { replaceUrl: false, queryParamsHandling: 'merge', skipLocationChange: false }
-            )
-        ).then(success => {
+        // ✅ Force URL update with one-based index
+        await this.router.navigateByUrl(newUrl, { replaceUrl: false }).then(success => {
             navigationSuccess = success;
             console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
         });
 
         if (!navigationSuccess) {
             console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
-            await this.router.navigate(['/question', this.quizId, questionIndex]);
+            await this.router.navigateByUrl(newUrl);
         }
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
