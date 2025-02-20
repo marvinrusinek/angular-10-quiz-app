@@ -3680,45 +3680,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
     console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
-    console.log(`[DEBUG] 🔍 Current stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
-
-    if (this.currentQuestionIndex === questionIndex) {
-        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
-        return false;
-    }
+    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
         return false;
     }
 
-    // ✅ Store the new index
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
+    }
+
+    // ✅ Update the current question index before navigating
     this.currentQuestionIndex = questionIndex;
-    console.log(`[DEBUG] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
-
-    // ✅ Update the badge text
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
-
-    // ✅ Store in localStorage
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-    console.log(`[DEBUG] ✅ Saved question index in localStorage: ${this.currentQuestionIndex}`);
 
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
-    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl}`);
+
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.router.navigateByUrl(newUrl, { replaceUrl: false });
-        navigationSuccess = true;
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        // ✅ **Force navigation updates and ensure the location is changed**
+        await this.ngZone.run(() =>
+            this.router.navigate(
+                ['/question', this.quizId, questionIndex],
+                { replaceUrl: false, queryParamsHandling: 'merge', skipLocationChange: false }
+            )
+        ).then(success => {
+            navigationSuccess = success;
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        });
+
+        if (!navigationSuccess) {
+            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+            await this.router.navigate(['/question', this.quizId, questionIndex]);
+        }
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
 
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
     return navigationSuccess;
-}
+  }
+
 
 
 
