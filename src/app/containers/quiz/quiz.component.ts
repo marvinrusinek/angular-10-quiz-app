@@ -3476,12 +3476,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.animationState$.next('animationStarted');
 
-        // ✅ Clear old question data and UI state
+        // ✅ Clear old question data and UI state before fetching new data
         console.log(`[DEBUG] 🔄 Resetting question state before fetching new question...`);
         this.resetQuestionState();
         this.explanationToDisplay = '';
 
-        // ✅ Ensure previous question’s options are fully cleared **before fetching new question**
+        // ✅ Clear previous options to avoid stale data
         console.log(`[DEBUG] 🔄 Clearing options before fetching new question...`);
         this.optionsToDisplay = [];
         this.cdRef.detectChanges();
@@ -3511,30 +3511,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = { ...questionDetails, options: questionDetails.options };
 
         // ✅ Ensure explanation is updated correctly
-        console.log(`[DEBUG] 🔄 Ensuring explanation text updates...`);
+        console.log(`[DEBUG] 🔄 Updating explanation text...`);
         this.explanationToDisplay = explanation || 'No explanation available';
 
         // ✅ Update quiz state
-        console.log(`[DEBUG] 🔄 Updating quiz state with current question...`);
+        console.log(`[DEBUG] 🔄 Updating quiz state with new question...`);
         this.quizStateService.updateCurrentQuestion(this.currentQuestion);
         console.log(`[DEBUG] ✅ Quiz state updated.`);
 
-        // ✅ Refresh UI **again** after setting new question details
-        console.log(`[DEBUG] 🔄 Triggering second UI refresh to finalize update...`);
+        // ✅ Refresh UI again to apply new question details
+        console.log(`[DEBUG] 🔄 Performing final UI refresh...`);
         this.cdRef.detectChanges();
 
         // ✅ Ensure correctness state is checked
-        console.log(`[DEBUG] 🔄 Checking if the question was answered correctly...`);
+        console.log(`[DEBUG] 🔄 Checking if question was answered correctly...`);
         await this.quizService.checkIfAnsweredCorrectly();
         console.log(`[DEBUG] ✅ Answer correctness check completed.`);
 
-        // ✅ Start the timer for the loaded question
-        console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
-        const timePerQuestion = this.timerService.timePerQuestion;
-        this.timerService.startTimer(timePerQuestion);
-        console.log(`[DEBUG] ✅ Timer started with duration: ${timePerQuestion} seconds.`);
-
-        console.log(`[DEBUG] ✅ fetchAndSetQuestionData completed successfully.`);
+        console.log(`[DEBUG] 🚀 fetchAndSetQuestionData completed successfully.`);
         return true;
 
     } catch (error) {
