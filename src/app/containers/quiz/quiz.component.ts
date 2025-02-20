@@ -339,33 +339,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-    this.activatedRoute.paramMap.subscribe((params) => {
+    this.activatedRoute.paramMap.subscribe(params => {
       const quizId = params.get('quizId');
       const questionIndexParam = params.get('questionIndex');
       const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
-  
+
       console.log(`[DEBUG] 🌍 Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-  
+
       if (quizId) {
-        this.quizId = quizId;
+          this.quizId = quizId;
       } else {
-        console.error(`[DEBUG] ❌ Quiz ID is missing from the route.`);
+          console.error(`[DEBUG] ❌ Quiz ID is missing from the route.`);
       }
-  
+
       if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
-        console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
-  
-        // Only update if it's different from the current value.
-        if (this.currentQuestionIndex !== questionIndex) {
-          console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
-          this.currentQuestionIndex = questionIndex;
-          // Optionally call a method to update question data without reloading the component completely.
-          this.loadQuestionForRouteChange();
-        } else {
-          console.warn(`[DEBUG] ⚠️ questionIndex in route is the same as current. Skipping update.`);
-        }
+          console.log(`[DEBUG] ✅ Detected questionIndex from route: ${questionIndex}`);
+
+          if (this.currentQuestionIndex !== questionIndex) {
+              console.log(`[DEBUG] 🔄 Updating currentQuestionIndex to match route: ${questionIndex}`);
+              this.currentQuestionIndex = questionIndex;
+              this.reloadQuizComponent();  // ✅ Ensure the component updates
+          } else {
+              console.warn(`[DEBUG] ⚠️ questionIndex in route is the same as current. Skipping update.`);
+          }
       } else {
-        console.warn(`[DEBUG] ⚠️ Invalid questionIndex detected in route.`);
+          console.warn(`[DEBUG] ⚠️ Invalid questionIndex detected in route.`);
       }
     });
 
@@ -657,14 +655,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     } catch (error) {
       console.error('[loadQuestionContents] ❌ Unexpected error:', error);
-    }
-  }
-
-  private async loadQuestionForRouteChange(): Promise<void> {
-    console.log('[DEBUG] 🔄 Loading question data for route change...');
-    const loaded = await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-    if (!loaded) {
-      console.error('[DEBUG] ❌ Failed to load question data for route change.');
     }
   }
 
@@ -3408,7 +3398,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } 
 
-  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
       // Ensure the questionIndex is within a valid range
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3464,82 +3454,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error in fetchAndSetQuestionData():', error);
       return false; // return false on failure
     }
-  } */
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
-    try {
-        console.log(`[DEBUG] 🟢 fetchAndSetQuestionData() triggered for questionIndex: ${questionIndex}`);
-
-        if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-            console.warn(`[DEBUG] ❌ Invalid questionIndex (${questionIndex}). Aborting fetch.`);
-            return false;
-        }
-
-        this.animationState$.next('animationStarted');
-
-        // ✅ Reset UI elements before fetching new data
-        console.log(`[DEBUG] 🔄 Clearing previous question data...`);
-        this.resetQuestionState();
-        this.explanationToDisplay = '';
-        this.optionsToDisplay = []; // 🛠️ Ensure old options are cleared before new ones load
-        this.cdRef.detectChanges();
-
-        console.log(`[DEBUG] 🔄 Fetching question details for index: ${questionIndex}`);
-        const questionDetails = await this.fetchQuestionDetails(questionIndex);
-        if (!questionDetails) {
-            console.warn(`[DEBUG] ❌ No question details found for index: ${questionIndex}`);
-            return false;
-        }
-
-        console.log(`[DEBUG] ✅ Question details fetched successfully.`);
-
-        const { questionText, options, explanation } = questionDetails;
-        console.log(`[DEBUG] 🟢 Extracted question text: "${questionText}"`);
-        console.log(`[DEBUG] 🟢 Extracted options:`, options);
-        console.log(`[DEBUG] 🟢 Extracted explanation: "${explanation || 'No explanation available'}"`);
-
-        // ✅ Assign active states to options
-        console.log(`[DEBUG] 🔄 Assigning active states to options...`);
-        questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
-        console.log(`[DEBUG] ✅ Active states assigned to options.`);
-
-        // ✅ Ensure UI updates with correct options
-        console.log(`[DEBUG] 🔄 Updating UI with new question details...`);
-        this.setQuestionDetails(questionText, questionDetails.options, '');
-        this.currentQuestion = { ...questionDetails, options: questionDetails.options };
-        this.optionsToDisplay = [...questionDetails.options]; // 🛠️ Ensure fresh options are assigned
-
-        // ✅ Ensure explanation is updated correctly
-        this.explanationToDisplay = explanation || 'No explanation available';
-
-        // ✅ Update quiz state
-        console.log(`[DEBUG] 🔄 Updating quiz state with current question...`);
-        this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-        console.log(`[DEBUG] ✅ Quiz state updated.`);
-
-        // ✅ Refresh UI to ensure new question and options render properly
-        console.log(`[DEBUG] 🔄 Triggering UI refresh...`);
-        this.cdRef.detectChanges();
-
-        // ✅ Ensure correctness state is checked
-        console.log(`[DEBUG] 🔄 Checking if the question was answered correctly...`);
-        await this.quizService.checkIfAnsweredCorrectly();
-        console.log(`[DEBUG] ✅ Answer correctness check completed.`);
-
-        // ✅ Start the timer for the loaded question
-        console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
-        const timePerQuestion = this.timerService.timePerQuestion;
-        this.timerService.startTimer(timePerQuestion);
-        console.log(`[DEBUG] ✅ Timer started with duration: ${timePerQuestion} seconds.`);
-
-        console.log(`[DEBUG] ✅ fetchAndSetQuestionData completed successfully.`);
-        return true;
-
-    } catch (error) {
-        console.error(`[DEBUG] ❌ Error in fetchAndSetQuestionData():`, error);
-        return false;
-    }
   }
-  
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     this.selectedOptionService.isAnsweredSubject.next(false);
@@ -3630,37 +3545,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-      console.log(`[DEBUG] 🟢 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
-  
-      // ✅ Reset UI state before loading new question
-      console.log(`[DEBUG] 🔄 Resetting UI elements...`);
+      // Reset UI state
       this.resetUI();
-  
-      // ✅ Clear explanation text before navigating
-      console.log(`[DEBUG] 🔄 Clearing explanation text...`);
-      this.explanationToDisplay = '';
+
+      // Reset explanation text between questions
       this.explanationTextService.resetStateBetweenQuestions();
-  
-      // ✅ Ensure badge updates before navigation
-      console.log(`[DEBUG] 🔄 Updating badge text before navigation...`);
+
+      // Force badge update before navigation
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
-  
-      // ✅ Check if we are already on the question to prevent redundant navigation
-      if (this.currentQuestionIndex === questionIndex) {
-        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
-        return;
-      }
-  
-      // ✅ Navigate to the new question
-      console.log(`[DEBUG] 🚀 Navigating to new question: ${questionIndex}`);
-      await this.navigateToQuestion(questionIndex);
       
-      console.log(`[DEBUG] ✅ resetUIAndNavigate() completed.`);
-  
+      // Navigate to the new question
+      await this.navigateToQuestion(questionIndex);
     } catch (error) {
       console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
-  }  
+  }
 
   /* async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
@@ -3788,35 +3687,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    // ✅ Update question index immediately
-    this.currentQuestionIndex = questionIndex;
-    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+    if (this.currentQuestionIndex === questionIndex) {
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
+    }
 
-    // ✅ Update badge BEFORE navigation
-    console.log(`[DEBUG] 🚀 Calling updateBadgeText(${questionIndex + 1}, ${this.totalQuestions})`);
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    // ✅ Update the current question index before navigating
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
 
-    console.log(`[DEBUG] 🔄 Navigating to: ${newUrl}`);
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        // ✅ Update route properly, forcing Angular to reload state
-        await this.ngZone.run(() => 
-            this.router.navigateByUrl(newUrl, { replaceUrl: true })
+        // ✅ **Force navigation updates and ensure the location is changed**
+        await this.ngZone.run(() =>
+            this.router.navigate(
+                ['/question', this.quizId, questionIndex],
+                { replaceUrl: false, queryParamsHandling: 'merge', skipLocationChange: false }
+            )
         ).then(success => {
             navigationSuccess = success;
             console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
         });
 
-        // ✅ Wait for Angular to process route change before updating UI
-        setTimeout(async () => {
-            console.log(`[DEBUG] 🔄 Fetching question data for index: ${questionIndex}`);
-            await this.fetchAndSetQuestionData(questionIndex);
-        }, 100); // Small delay to ensure proper UI update
-
+        if (!navigationSuccess) {
+            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+            await this.router.navigate(['/question', this.quizId, questionIndex]);
+        }
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
