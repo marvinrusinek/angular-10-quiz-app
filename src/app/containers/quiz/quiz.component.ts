@@ -3690,14 +3690,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.currentQuestionIndex = questionIndex;
     console.log(`[DEBUG] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
 
-    // ✅ **Force route update**
+    this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
-    console.log(`[DEBUG] 🔄 Navigating to URL: ${newUrl}`);
+    console.log(`[DEBUG] 🔄 Navigating to URL using navigateByUrl(): ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.router.navigate(['/question', this.quizId, questionIndex], { replaceUrl: false });
+        await this.router.navigateByUrl(newUrl, { skipLocationChange: false });  // ✅ Forces a full URL update
         navigationSuccess = true;
         console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
     } catch (error) {
