@@ -3757,41 +3757,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    // ✅ **Prevent duplicate navigation**
     if (this.currentQuestionIndex === questionIndex) {
-        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
+        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing badge update anyway!**`);
     }
 
-    // ✅ **Debounce to prevent excessive calls**
+    // ✅ Prevent duplicate or excessive calls
     if (this.debounceNavigation) {
         console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
         return false;
     }
     this.debounceNavigation = true;
-    setTimeout(() => (this.debounceNavigation = false), 500); // Increase debounce duration
+    setTimeout(() => (this.debounceNavigation = false), 500); 
 
-    // ✅ **Update question index & badge before navigating**
+    // ✅ Update question index before navigation
     this.currentQuestionIndex = questionIndex;
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    // ✅ **Ensure URL updates correctly**
+    // ✅ Ensure the new route updates correctly
     const newUrl = `/question/${this.quizId}/${questionIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.ngZone.run(() => this.router.navigateByUrl(newUrl, { replaceUrl: false }))
-            .then(success => {
-                navigationSuccess = success;
-                console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
-            });
+        await this.ngZone.run(() =>
+            this.router.navigate(
+                ['/question', this.quizId, questionIndex],
+                { replaceUrl: false, queryParamsHandling: 'merge', skipLocationChange: false }
+            )
+        ).then(success => {
+            navigationSuccess = success;
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+        });
 
-        // ✅ **Ensure question data updates immediately after navigation**
-        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${questionIndex}`);
-        await this.fetchAndSetQuestionData(questionIndex);
-
+        if (!navigationSuccess) {
+            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+            await this.router.navigate(['/question', this.quizId, questionIndex]);
+        }
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
@@ -3799,6 +3802,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
     return navigationSuccess;
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
