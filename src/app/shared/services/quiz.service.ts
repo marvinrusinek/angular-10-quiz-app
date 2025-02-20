@@ -1366,7 +1366,7 @@ export class QuizService implements OnDestroy {
         return;
       }
 
-      const newBadgeText = 'Question ${questionIndex} of ${totalQuestions}';
+      const newBadgeText = `Question ${questionIndex} of ${totalQuestions}`;
       const currentBadgeText = this.badgeTextSource.getValue();
 
       // Avoid duplicate updates to prevent unnecessary UI changes
