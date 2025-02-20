@@ -3680,44 +3680,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
     console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
-    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+    console.log(`[DEBUG] 🔍 Current stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
         return false;
     }
 
+    // ✅ Ensure navigation is not skipped even if we're on the same question
     if (this.currentQuestionIndex === questionIndex) {
         console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
     }
 
-    // ✅ Update the current question index before navigating
+    // ✅ Update current question index
     this.currentQuestionIndex = questionIndex;
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    const newUrl = `/question/${this.quizId}/${questionIndex}`;
+    const newUrl = ['/question', this.quizId, questionIndex];
 
-    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl}`);
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${newUrl.join('/')}`);
 
     let navigationSuccess = false;
 
     try {
-        // ✅ **Force navigation updates and ensure the location is changed**
-        await this.ngZone.run(() =>
-            this.router.navigate(
-                ['/question', this.quizId, questionIndex],
-                { replaceUrl: false, queryParamsHandling: 'merge', skipLocationChange: false }
-            )
-        ).then(success => {
+        // ✅ **Force route update using queryParamsHandling: 'preserve'**
+        await this.router.navigate(newUrl, { replaceUrl: false, queryParamsHandling: 'preserve' }).then(success => {
             navigationSuccess = success;
-            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl}`);
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${newUrl.join('/')}`);
         });
 
+        // ✅ **Manually update browser URL if Angular doesn't do it**
         if (!navigationSuccess) {
             console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
-            await this.router.navigate(['/question', this.quizId, questionIndex]);
+            await this.router.navigate(['/question', this.quizId, questionIndex], { replaceUrl: false });
         }
+
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
