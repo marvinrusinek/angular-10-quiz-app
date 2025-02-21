@@ -3466,11 +3466,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return false;
         }
 
-        // ✅ **Ensure route uses 1-based indexing for fetching**
-        const actualQuestionIndex = questionIndex - 1;
-
-        console.log(`[DEBUG] 🔄 Adjusted questionIndex for fetching: ${actualQuestionIndex}`);
-
         // ✅ Ensure previous state is fully cleared before fetching new question
         console.log(`[DEBUG] 🔄 Resetting state before fetching new question...`);
         this.resetQuestionState();
@@ -3484,10 +3479,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[DEBUG] 🌍 Current route before fetching: ${window.location.href}`);
 
-        console.log(`[DEBUG] 🔄 Fetching question details for index: ${actualQuestionIndex}`);
-        const questionDetails = await this.fetchQuestionDetails(actualQuestionIndex);
+        console.log(`[DEBUG] 🔄 Fetching question details for index: ${questionIndex}`);
+        const questionDetails = await this.fetchQuestionDetails(questionIndex);
         if (!questionDetails) {
-            console.warn(`[DEBUG] ❌ No question details found for index: ${actualQuestionIndex}`);
+            console.warn(`[DEBUG] ❌ No question details found for index: ${questionIndex}`);
             return false;
         }
 
@@ -3531,7 +3526,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.resetUIAndNavigate(questionIndex);
 
         // ✅ Start timer for the loaded question
-        console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex}...`);
+        console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
         this.timerService.startTimer(this.timerService.timePerQuestion);
         console.log(`[DEBUG] ✅ Timer started.`);
 
@@ -3880,10 +3875,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    if (this.currentQuestionIndex === questionIndex) {
-        console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. **Forcing navigation anyway!**`);
-    }
-
     // ✅ Prevent excessive navigation calls
     if (this.debounceNavigation) {
         console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
@@ -3896,25 +3887,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
     this.currentQuestionIndex = questionIndex;
 
-    // ✅ Ensure correct badge text updates (Convert index to 1-based for badge)
+    // ✅ Ensure correct badge text updates
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    // ✅ **Ensure route uses 1-based numbering**
-    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex + 1}`;
+    // ✅ **Adjust URL to always match questionIndex correctly**
+    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.ngZone.run(() => this.router.navigateByUrl(correctUrl, { replaceUrl: false })).then(success => {
+        await this.ngZone.run(() => 
+            this.router.navigateByUrl(correctUrl, { replaceUrl: false })
+        ).then(success => {
             navigationSuccess = success;
             console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
         });
 
         if (!navigationSuccess) {
             console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
-            await this.router.navigate(['/question', this.quizId, this.currentQuestionIndex + 1]);
+            await this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
         }
 
         console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
@@ -3927,7 +3920,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return navigationSuccess;
   }
-
 
 
   // Reset UI immediately before navigating
