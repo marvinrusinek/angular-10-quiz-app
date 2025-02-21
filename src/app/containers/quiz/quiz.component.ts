@@ -3959,7 +3959,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
-    // ✅ Prevent excessive navigation calls
+    // ✅ Prevent excessive navigation calls (Check if navigation is already in progress)
+    if (this.isNavigating) {
+        console.warn(`[DEBUG] ⚠️ Navigation already in progress. Skipping duplicate navigation.`);
+        return false;
+    }
+    this.isNavigating = true;
+
+    // ✅ Prevent debounce navigation conflict
     if (this.debounceNavigation) {
         console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
         return false;
@@ -3976,14 +3983,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
     // ✅ **Fix route mismatch by adding 1 to the route number**
-    const correctRouteIndex = questionIndex + 1; 
+    const correctRouteIndex = questionIndex + 1;
     const correctUrl = `/question/${this.quizId}/${correctRouteIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.ngZone.run(() => 
+        await this.ngZone.run(() =>
             this.router.navigateByUrl(correctUrl, { replaceUrl: false })
         ).then(success => {
             navigationSuccess = success;
@@ -4000,11 +4007,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+    } finally {
+        this.isNavigating = false; // ✅ Reset navigation flag after completion
     }
 
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return navigationSuccess;
   }
+
 
 
   // Reset UI immediately before navigating
