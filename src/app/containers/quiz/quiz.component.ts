@@ -3467,14 +3467,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         // ✅ Ensure previous state is fully cleared before fetching new question
+        console.log(`[DEBUG] 🔄 Resetting state before fetching new question...`);
         this.resetQuestionState();
         this.explanationToDisplay = '';
-        this.optionsToDisplay = [];
+        this.optionsToDisplay = []; // ✅ Clear previous question options
         this.currentQuestion = null;
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // ✅ Refresh UI to ensure cleared state
 
-        // ✅ Wait for the route to update before fetching new question
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to sync with navigation
+        // ✅ Ensure small delay to sync with navigation
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         console.log(`[DEBUG] 🌍 Current route before fetching: ${window.location.href}`);
 
@@ -3493,7 +3494,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
         console.log(`[DEBUG] ✅ Active states assigned to options.`);
 
-        // ✅ Fully clear options before setting new ones
+        // ✅ Ensure UI is fully reset before setting new options
+        console.log(`[DEBUG] 🔄 Resetting UI options before setting new question details...`);
         this.optionsToDisplay = [];
         this.cdRef.detectChanges();
 
@@ -3519,7 +3521,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.quizService.checkIfAnsweredCorrectly();
         console.log(`[DEBUG] ✅ Answer correctness check completed.`);
 
-        // Call `resetUIAndNavigate()`
+        // ✅ Call `resetUIAndNavigate()` to ensure correct navigation
+        console.log(`[DEBUG] 🚀 Calling resetUIAndNavigate(${questionIndex}) after setting question data...`);
         await this.resetUIAndNavigate(questionIndex);
 
         // ✅ Start timer for the loaded question
