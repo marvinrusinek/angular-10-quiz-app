@@ -4200,6 +4200,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+
+      // Validate badge and route consistency after navigation and data fetch
+      this.validateBadgeAndRouteConsistency();
   
     } catch (error) {
       console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
