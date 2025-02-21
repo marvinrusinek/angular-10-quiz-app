@@ -4151,8 +4151,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return navigationSuccess;
   } */
   async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    console.log(`[DEBUG] 🟢 navigateToQuestion() called with questionIndex: ${questionIndex}`);
-    console.log(`[DEBUG] 🌍 Current route before navigation: ${window.location.href}`);
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
     console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -4172,20 +4172,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
     this.currentQuestionIndex = questionIndex;
 
-    // ✅ Ensure correct badge text updates (ensuring it's 1-based)
-    const badgeNumber = this.currentQuestionIndex + 1; // Convert 0-based index to 1-based
+    // ✅ Ensure correct badge number update (1-based)
+    const badgeNumber = this.currentQuestionIndex + 1;
     this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-    
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    // ✅ Ensure route update matches current question index
+    // ✅ Ensure correct URL for navigation
     const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
 
     let navigationSuccess = false;
 
     try {
-        await this.ngZone.run(() => 
+        await this.ngZone.run(() =>
             this.router.navigateByUrl(correctUrl, { replaceUrl: false })
         ).then(success => {
             navigationSuccess = success;
