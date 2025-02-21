@@ -343,26 +343,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const quizId = params.get('quizId');
       const questionIndexParam = params.get('questionIndex');
       const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
-  
+    
       console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-  
+    
       if (quizId) {
-          this.quizId = quizId;
-  
-          if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
-              this.currentQuestionIndex = questionIndex;
-              console.log(`[DEBUG] NGONINIT Updated currentQuestionIndex from route: ${this.currentQuestionIndex}`);
-              this.reloadQuizComponent();
-          } else {
-              console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
-              this.currentQuestionIndex = 0;
-          }
-  
-          this.initializeQuizBasedOnRouteParams();
+        this.quizId = quizId;
+    
+        if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
+          this.currentQuestionIndex = questionIndex;
+          console.log(`[DEBUG] NGONINIT Updated currentQuestionIndex from route: ${this.currentQuestionIndex}`);
+    
+          // Update badge text to reflect the current question
+          this.updateBadgeText();
+    
+          // Fetch and set the data for the current question
+          this.fetchAndSetQuestionData(this.currentQuestionIndex);
+        } else {
+          console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
+          this.currentQuestionIndex = 0;
+    
+          // Update badge and fetch data for the default question
+          this.updateBadgeText();
+          this.fetchAndSetQuestionData(this.currentQuestionIndex);
+        }
+    
+        // Initialize quiz based on the current route parameters
+        this.initializeQuizBasedOnRouteParams();
       } else {
-          console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
+        console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
       }
-    });
+    });    
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
@@ -451,6 +461,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.router.navigateByUrl('/blank', { skipLocationChange: true }).then(() => {
         this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
     });
+  }
+
+  updateBadgeText() {
+    const badgeNumber = this.currentQuestionIndex + 1; // Convert to one-based for display
+    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
   }
 
   ngAfterViewInit(): void {
