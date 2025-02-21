@@ -4209,7 +4209,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return navigationSuccess;
   }  
 
-
   // Reset UI immediately before navigating
   private resetUI(): void {
     // Reset the current question and options
