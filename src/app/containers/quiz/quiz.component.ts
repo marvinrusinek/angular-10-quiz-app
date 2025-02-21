@@ -4150,6 +4150,64 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return navigationSuccess;
   } */
+  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
+    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+  
+    // Validate the question index
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      return false;
+    }
+  
+    // Prevent excessive navigation calls
+    if (this.debounceNavigation) {
+      console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
+      return false;
+    }
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 500);
+  
+    // Update the current question index
+    console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
+    this.currentQuestionIndex = questionIndex;
+  
+    // Update the badge number (1-based)
+    const badgeNumber = this.currentQuestionIndex + 1;
+    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+  
+    // Construct the correct URL for navigation
+    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
+  
+    let navigationSuccess = false;
+  
+    try {
+      // Perform navigation within Angular's zone to ensure proper change detection
+      await this.ngZone.run(() =>
+        this.router.navigateByUrl(correctUrl, { replaceUrl: false })
+      ).then(success => {
+        navigationSuccess = success;
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
+      });
+  
+      if (!navigationSuccess) {
+        console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+        await this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+      }
+  
+      console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+  
+    } catch (error) {
+      console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+    }
+  
+    console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
+    return navigationSuccess;
+  }  
 
 
   // Reset UI immediately before navigating
