@@ -3613,6 +3613,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.startTimer(this.timerService.timePerQuestion);
         console.log(`[DEBUG] ✅ Timer started.`);
 
+        // ✅ Validate after question loads
+        this.validateBadgeAndRouteConsistency();
+
         console.log(`[DEBUG] ✅ fetchAndSetQuestionData completed successfully.`);
         return true;
     } catch (error) {
@@ -3949,7 +3952,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar: ${window.location.href}`);
     return navigationSuccess;
   } */
-  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[DEBUG] 🟢 navigateToQuestion() called with questionIndex: ${questionIndex}`);
     console.log(`[DEBUG] 🌍 Current route before navigation: ${window.location.href}`);
     console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
@@ -3999,6 +4002,67 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     } catch (error) {
         console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+    }
+
+    console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
+    return navigationSuccess;
+  } */
+  async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() called with questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current route before navigation: ${window.location.href}`);
+    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return false;
+    }
+
+    // ✅ Prevent multiple navigation calls
+    if (this.isNavigating) {
+        console.warn(`[DEBUG] ⚠️ Navigation already in progress. Skipping duplicate navigation.`);
+        return false;
+    }
+    this.isNavigating = true;
+
+    // ✅ Ensure correct badge and route number before updating state
+    this.validateBadgeAndRouteConsistency();
+
+    console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
+    this.currentQuestionIndex = questionIndex;
+
+    // ✅ Ensure badge text updates correctly
+    const correctBadgeIndex = questionIndex + 1;
+    this.quizService.updateBadgeText(correctBadgeIndex, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+
+    // ✅ Ensure correct route number in URL
+    const correctRouteIndex = questionIndex + 1;
+    const correctUrl = `/question/${this.quizId}/${correctRouteIndex}`;
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
+
+    let navigationSuccess = false;
+
+    try {
+        await this.ngZone.run(() =>
+            this.router.navigateByUrl(correctUrl, { replaceUrl: false })
+        ).then(success => {
+            navigationSuccess = success;
+            console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
+        });
+
+        if (!navigationSuccess) {
+            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
+            await this.router.navigate(['/question', this.quizId, correctRouteIndex]);
+        }
+
+        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+
+    } catch (error) {
+        console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+    } finally {
+        this.isNavigating = false;
+        this.validateBadgeAndRouteConsistency(); // ✅ Re-validate after navigation
     }
 
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
