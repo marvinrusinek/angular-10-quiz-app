@@ -3640,7 +3640,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = null;
         this.cdRef.detectChanges(); // ✅ Refresh UI to ensure cleared state
 
-        // ✅ Small delay to sync with navigation
+        // ✅ Ensure small delay to sync with navigation
         await new Promise(resolve => setTimeout(resolve, 50));
 
         console.log(`[DEBUG] 🌍 Current route before fetching: ${window.location.href}`);
@@ -3707,7 +3707,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     this.selectedOptionService.isAnsweredSubject.next(false);
 
@@ -4169,17 +4168,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 500);
 
-    // ✅ Ensure correct question index before updating state
+    // ✅ Ensure correct question index update
     console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
     this.currentQuestionIndex = questionIndex;
 
-    // ✅ Ensure correct badge text updates
-    const badgeNumber = questionIndex + 1; // ✅ Convert 0-based index to 1-based
+    // ✅ Ensure correct badge text updates (ensuring it's 1-based)
+    const badgeNumber = this.currentQuestionIndex + 1; // Convert 0-based index to 1-based
     this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+    
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    // ✅ Ensure the URL always matches the updated question index
-    const correctUrl = `/question/${this.quizId}/${questionIndex}`;
+    // ✅ Ensure route update matches current question index
+    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
 
     let navigationSuccess = false;
