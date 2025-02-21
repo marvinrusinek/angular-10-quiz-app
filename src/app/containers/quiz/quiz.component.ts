@@ -3975,8 +3975,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
 
-    // ✅ **Adjust URL to always match questionIndex correctly**
-    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
+    // ✅ **Fix route mismatch by adding 1 to the route number**
+    const correctRouteIndex = questionIndex + 1; 
+    const correctUrl = `/question/${this.quizId}/${correctRouteIndex}`;
     console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
 
     let navigationSuccess = false;
@@ -3991,7 +3992,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         if (!navigationSuccess) {
             console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
-            await this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+            await this.router.navigate(['/question', this.quizId, correctRouteIndex]);
         }
 
         console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
