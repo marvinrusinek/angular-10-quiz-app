@@ -343,16 +343,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const quizId = params.get('quizId');
       const questionIndexParam = params.get('questionIndex');
       const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
+      this.currentQuestionIndex = questionIndexParam ? +questionIndexParam : 0;
     
       console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
     
       if (quizId) {
         this.quizId = quizId;
     
-        if (questionIndex !== null && !isNaN(questionIndex) && questionIndex >= 0) {
-          this.currentQuestionIndex = questionIndex;
-          console.log(`[DEBUG] NGONINIT Updated currentQuestionIndex from route: ${this.currentQuestionIndex}`);
-    
+        if (!isNaN(this.currentQuestionIndex) && this.currentQuestionIndex >= 0) {
           // Update badge text to reflect the current question
           this.updateBadgeText();
     
