@@ -4150,72 +4150,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return navigationSuccess;
   } */
-  async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
-    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
-    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
-
-    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        return false;
-    }
-
-    // ✅ Prevent multiple navigation calls
-    if (this.isNavigating) {
-      console.warn(`[DEBUG] ⚠️ Navigation already in progress. Skipping duplicate navigation.`);
-      return false;
-    }
-    this.isNavigating = true;
-
-    // ✅ Ensure correct badge and route number before updating state
-    this.validateBadgeAndRouteConsistency();
-
-    // ✅ Prevent excessive navigation calls
-    if (this.debounceNavigation) {
-        console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
-        return false;
-    }
-    this.debounceNavigation = true;
-    setTimeout(() => (this.debounceNavigation = false), 500);
-
-    // ✅ Ensure correct question index update
-    console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
-    this.currentQuestionIndex = questionIndex;
-
-    // ✅ Ensure correct badge number update (1-based)
-    const badgeNumber = this.currentQuestionIndex + 1;
-    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-    localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-
-    // ✅ Ensure correct URL for navigation
-    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
-    console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
-
-    let navigationSuccess = false;
-
-    try {
-        await this.ngZone.run(() =>
-            this.router.navigateByUrl(correctUrl, { replaceUrl: false })
-        ).then(success => {
-            navigationSuccess = success;
-            console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
-        });
-
-        if (!navigationSuccess) {
-            console.warn(`[DEBUG] ⚠️ Navigation did not succeed. Retrying...`);
-            await this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-        }
-
-        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
-        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-
-    } catch (error) {
-        console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
-    }
-
-    console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
-    return navigationSuccess;
-  }
 
 
   // Reset UI immediately before navigating
@@ -4369,19 +4303,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private validateBadgeAndRouteConsistency(): void {
-    const routeQuestionIndex = this.currentQuestionIndex + 1; // convert zero-based index to one-based
-    const badgeIndex = Number(this.quizService.getCurrentBadgeNumber());
-    const badgeNumber = this.quizService.getCurrentBadgeNumber() - 1; // Convert to zero-based
-
-    console.log(`[DEBUG] 🔍 Validating badge and route consistency: Route=${routeQuestionIndex}, Badge=${badgeIndex}`);
-
+    // Retrieve the current route's question index (assumed to be zero-based)
+    const routeQuestionIndex = this.currentQuestionIndex;
+  
+    // Retrieve the badge number from the service and convert it to zero-based
+    const badgeIndex = this.quizService.getCurrentBadgeNumber() - 1;
+  
+    console.log(`[DEBUG] 🔍 Validating badge and route consistency: Route Index=${routeQuestionIndex}, Badge Index=${badgeIndex}`);
+  
+    // Check for mismatch between route index and badge index
     if (routeQuestionIndex !== badgeIndex) {
-      console.warn(`[DEBUG] ⚠️ Mismatch detected! Route=${routeQuestionIndex}, Badge=${badgeIndex}. Correcting badge...`);
-      // If there's a mismatch, navigate to the correct route
-      this.navigateToQuestion(badgeNumber);
-      // this.quizService.updateBadgeText(routeIndex, this.totalQuestions);
+      console.warn(`[DEBUG] ⚠️ Mismatch detected! Route Index=${routeQuestionIndex}, Badge Index=${badgeIndex}. Correcting route...`);
+      // Navigate to the correct route based on the badge index
+      this.navigateToQuestion(badgeIndex);
     } else {
-      console.log(`[DEBUG] ✅ Route and badge numbers are consistent.`);
+      console.log(`[DEBUG] ✅ Route and badge indices are consistent.`);
     }
   }
 }
