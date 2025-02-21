@@ -4155,4 +4155,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       throw new Error('Error fetching explanation');
     }
   }
+
+  private validateBadgeAndRouteConsistency(): void {
+    const routeIndex = this.currentQuestionIndex + 1; // convert zero-based index to one-based
+    const badgeIndex = Number(this.quizService.getCurrentBadgeNumber());
+
+    console.log(`[DEBUG] 🔍 Validating badge and route consistency: Route=${routeIndex}, Badge=${badgeIndex}`);
+
+    if (routeIndex !== badgeIndex) {
+      console.warn(`[DEBUG] ⚠️ Mismatch detected! Route=${routeIndex}, Badge=${badgeIndex}. Correcting badge...`);
+      this.quizService.updateBadgeText(routeIndex, this.totalQuestions);
+    } else {
+      console.log(`[DEBUG] ✅ Route and badge numbers are consistent.`);
+    }
+  }
 }

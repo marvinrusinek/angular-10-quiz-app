@@ -1385,6 +1385,18 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  getCurrentBadgeNumber(): number {
+    const currentBadgeText = this.badgeTextSource.getValue(); // get the current badge text
+    const match = currentBadgeText.match(/Question (\d+) of \d+/); // extract the question number
+    
+    if (match && match[1]) {
+      return parseInt(match[1], 10); // return parsed badge number
+    }
+  
+    console.warn('Unable to extract badge number from: ${currentBadgeText}');
+    return 1; // default to Question 1 if parsing fails
+  }
+
   updateCorrectAnswersText(newText: string): void {
     localStorage.setItem('correctAnswersText', newText);
     this.correctAnswersCountTextSource.next(newText);
