@@ -4160,6 +4160,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
     }
 
+    // ✅ Prevent multiple navigation calls
+    if (this.isNavigating) {
+      console.warn(`[DEBUG] ⚠️ Navigation already in progress. Skipping duplicate navigation.`);
+      return false;
+    }
+    this.isNavigating = true;
+
+    // ✅ Ensure correct badge and route number before updating state
+    this.validateBadgeAndRouteConsistency();
+
     // ✅ Prevent excessive navigation calls
     if (this.debounceNavigation) {
         console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
@@ -4359,14 +4369,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private validateBadgeAndRouteConsistency(): void {
-    const routeIndex = this.currentQuestionIndex + 1; // convert zero-based index to one-based
+    const routeQuestionIndex = this.currentQuestionIndex + 1; // convert zero-based index to one-based
     const badgeIndex = Number(this.quizService.getCurrentBadgeNumber());
+    const badgeNumber = this.quizService.getCurrentBadgeNumber() - 1; // Convert to zero-based
 
-    console.log(`[DEBUG] 🔍 Validating badge and route consistency: Route=${routeIndex}, Badge=${badgeIndex}`);
+    console.log(`[DEBUG] 🔍 Validating badge and route consistency: Route=${routeQuestionIndex}, Badge=${badgeIndex}`);
 
-    if (routeIndex !== badgeIndex) {
-      console.warn(`[DEBUG] ⚠️ Mismatch detected! Route=${routeIndex}, Badge=${badgeIndex}. Correcting badge...`);
-      this.quizService.updateBadgeText(routeIndex, this.totalQuestions);
+    if (routeQuestionIndex !== badgeIndex) {
+      console.warn(`[DEBUG] ⚠️ Mismatch detected! Route=${routeQuestionIndex}, Badge=${badgeIndex}. Correcting badge...`);
+      // If there's a mismatch, navigate to the correct route
+      this.navigateToQuestion(badgeNumber);
+      // this.quizService.updateBadgeText(routeIndex, this.totalQuestions);
     } else {
       console.log(`[DEBUG] ✅ Route and badge numbers are consistent.`);
     }
