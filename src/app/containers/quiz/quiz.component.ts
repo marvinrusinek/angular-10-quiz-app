@@ -339,38 +339,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-    this.activatedRoute.paramMap.subscribe((params) => {
-      const quizId = params.get('quizId');
-      const questionIndexParam = params.get('questionIndex');
-      const questionIndex = questionIndexParam ? Number(questionIndexParam) : null;
-      this.currentQuestionIndex = questionIndexParam ? +questionIndexParam : 0;
-    
-      console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-    
-      if (quizId) {
-        this.quizId = quizId;
-    
-        if (!isNaN(this.currentQuestionIndex) && this.currentQuestionIndex >= 0) {
-          // Update badge text to reflect the current question
-          this.updateBadgeText();
-    
-          // Fetch and set the data for the current question
-          this.fetchAndSetQuestionData(this.currentQuestionIndex);
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params: ParamMap) => {
+        const quizId = params.get('quizId');
+        const questionIndexParam = params.get('questionIndex');
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
+
+        console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
+
+        if (quizId) {
+          this.quizId = quizId;
+
+          if (!isNaN(questionIndex) && questionIndex >= 0) {
+            this.currentQuestionIndex = questionIndex;
+            this.updateBadgeText();
+            this.fetchAndSetQuestionData(this.currentQuestionIndex);
+          } else {
+            console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
+            this.currentQuestionIndex = 0;
+            
+            // Update badge text to reflect the current question
+            this.updateBadgeText();
+          
+            // Fetch and set the data for the current question
+            this.fetchAndSetQuestionData(this.currentQuestionIndex);
+          }
+
+          // Initialize quiz based on the current route parameters
+          this.initializeQuizBasedOnRouteParams();
         } else {
-          console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
-          this.currentQuestionIndex = 0;
-    
-          // Update badge and fetch data for the default question
-          this.updateBadgeText();
-          this.fetchAndSetQuestionData(this.currentQuestionIndex);
+          console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
         }
-    
-        // Initialize quiz based on the current route parameters
-        this.initializeQuizBasedOnRouteParams();
-      } else {
-        console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
       }
-    });    
+    );
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
