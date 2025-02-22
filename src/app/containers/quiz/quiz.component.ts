@@ -3483,9 +3483,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.startTimer(this.timerService.timePerQuestion);
         console.log(`[DEBUG] ✅ Timer started.`);
 
-        // ✅ Validate after question loads
-        this.validateBadgeAndRouteConsistency();
-
         console.log(`[DEBUG] ✅ fetchAndSetQuestionData completed successfully.`);
         return true;
     } catch (error) {
@@ -3583,23 +3580,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-        console.log(`[DEBUG] 🔄 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
+      console.log(`[DEBUG] 🔄 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
 
-        // ✅ Reset UI and explanation text before navigating
-        this.resetUI();
-        this.explanationTextService.resetStateBetweenQuestions();
-        
-        // ✅ Fully clear previous question’s options before fetching new data
-        this.optionsToDisplay = [];
-        this.currentQuestion = null;
-        this.cdRef.detectChanges();
+      // Validate badge and route consistency
+      const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
+      if (currentBadgeNumber !== questionIndex + 1) {
+        console.warn(`[DEBUG] Badge number (${currentBadgeNumber}) does not match target question index (${questionIndex}). Correcting...`);
+        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+      }
 
-        // ✅ Navigate to the new question
-        console.log(`[DEBUG] 🚀 Calling navigateToQuestion(${questionIndex})...`);
-        await this.navigateToQuestion(questionIndex);
-        
+      // Reset UI and explanation text before navigating
+      this.resetUI();
+      this.explanationTextService.resetStateBetweenQuestions();
+
+      // Fully clear previous question’s options before fetching new data
+      this.optionsToDisplay = [];
+      this.currentQuestion = null;
+      this.cdRef.detectChanges();
+
+      // Fetch and set the data for the current question
+      await this.fetchAndSetQuestionData(questionIndex);
     } catch (error) {
-        console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
+      console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
   }
 
@@ -3812,25 +3814,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('Error fetching explanation:', error);
       throw new Error('Error fetching explanation');
-    }
-  }
-
-  private validateBadgeAndRouteConsistency(): void {
-    // Retrieve the current route's question index (assumed to be zero-based)
-    const routeQuestionIndex = this.currentQuestionIndex;
-  
-    // Retrieve the badge number from the service and convert it to zero-based
-    const badgeIndex = this.quizService.getCurrentBadgeNumber() - 1;
-  
-    console.log(`[DEBUG] 🔍 Validating badge and route consistency: Route Index=${routeQuestionIndex}, Badge Index=${badgeIndex}`);
-  
-    // Check for mismatch between route index and badge index
-    if (routeQuestionIndex !== badgeIndex) {
-      console.warn(`[DEBUG] ⚠️ Mismatch detected! Route Index=${routeQuestionIndex}, Badge Index=${badgeIndex}. Correcting route...`);
-      // Navigate to the correct route based on the badge index
-      this.navigateToQuestion(badgeIndex);
-    } else {
-      console.log(`[DEBUG] ✅ Route and badge indices are consistent.`);
     }
   }
 }
