@@ -3593,13 +3593,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetUI();
       this.explanationTextService.resetStateBetweenQuestions();
 
-      // Fully clear previous question’s options before fetching new data
+      // Fully clear previous question’s options
       this.optionsToDisplay = [];
       this.currentQuestion = null;
       this.cdRef.detectChanges();
-
-      // Fetch and set the data for the current question
-      await this.fetchAndSetQuestionData(questionIndex);
     } catch (error) {
       console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
