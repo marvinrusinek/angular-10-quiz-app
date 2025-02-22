@@ -3606,6 +3606,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
     console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
     console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+
+    if (this.currentQuestionIndex === questionIndex) {
+      console.warn(`[DEBUG] ⚠️ Already on questionIndex: ${questionIndex}. Skipping navigation.`);
+      this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+      return false; 
+    }
   
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
