@@ -352,27 +352,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizId = quizId;
 
           if (!isNaN(questionIndex) && questionIndex >= 0) {
-            this.currentQuestionIndex = questionIndex;
-            this.updateBadgeText();
-            this.fetchAndSetQuestionData(this.currentQuestionIndex);
+            if (this.currentQuestionIndex !== questionIndex) {
+              this.resetUIAndNavigate(questionIndex);
+            }
           } else {
             console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
-            this.currentQuestionIndex = 0;
-            
-            // Update badge text to reflect the current question
-            this.updateBadgeText();
-          
-            // Fetch and set the data for the current question
-            this.fetchAndSetQuestionData(this.currentQuestionIndex);
+            if (this.currentQuestionIndex !== 0) {
+              this.resetUIAndNavigate(0);
+            }
           }
 
           // Initialize quiz based on the current route parameters
+          // Ensure this doesn't cause unwanted reinitialization
           this.initializeQuizBasedOnRouteParams();
         } else {
           console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
         }
-      }
-    );
+      });
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
