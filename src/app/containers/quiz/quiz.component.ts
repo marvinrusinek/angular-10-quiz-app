@@ -335,7 +335,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-          console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
+        console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
       }
     });
 
