@@ -3593,6 +3593,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay = [];
       this.currentQuestion = null;
       this.cdRef.detectChanges();
+
+      // Navigate to the specified question
+      console.log(`[DEBUG] 🚀 Navigating to question index: ${questionIndex}`);
+      await this.navigateToQuestion(questionIndex);
     } catch (error) {
       console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
     }
