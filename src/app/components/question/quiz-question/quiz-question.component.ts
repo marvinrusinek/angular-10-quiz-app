@@ -1346,11 +1346,6 @@ export class QuizQuestionComponent
       this.resetExplanation();
       this.resetTexts();
 
-      this.isLoading = true;
-      this.quizStateService.setLoading(true);
-      this.quizStateService.setAnswered(false);
-      this.timerService.startTimer(this.timerService.timePerQuestion, true);
-
       // Clear previous data
       this.currentQuestion = null;
       this.optionsToDisplay = [];
@@ -1362,6 +1357,11 @@ export class QuizQuestionComponent
       this.isExplanationLocked = true;
       this.currentExplanationText = '';
       this.ensureQuestionTextDisplay();
+
+      this.isLoading = true;
+      this.quizStateService.setLoading(true);
+      this.quizStateService.setAnswered(false);
+      this.timerService.startTimer(this.timerService.timePerQuestion, true);
 
       // Ensure `questionsArray` is populated
       if (!this.questionsArray || this.questionsArray.length === 0) {
