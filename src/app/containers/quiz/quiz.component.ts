@@ -170,7 +170,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-  private destroy$: Subject<void> = new Subject<void>();
+  private destroy$ = new Subject<void>();
   audioAvailable = true;
 
   private isNextButtonDisabledSubject = new BehaviorSubject<boolean>(true);
@@ -340,35 +340,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
 
     this.activatedRoute.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((params: ParamMap) => {
+      const quizId = params.get('quizId');
+      const questionIndexParam = params.get('questionIndex');
+      const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
 
-        console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
+      console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
 
-        if (quizId) {
-          this.quizId = quizId;
+      if (quizId) {
+        this.quizId = quizId;
 
-          if (!isNaN(questionIndex) && questionIndex >= 0) {
-            if (this.currentQuestionIndex !== questionIndex) {
-              this.resetUIAndNavigate(questionIndex);
-            }
-          } else {
-            console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
-            if (this.currentQuestionIndex !== 0) {
-              this.resetUIAndNavigate(0);
-            }
+        if (!isNaN(questionIndex) && questionIndex >= 0) {
+          if (this.currentQuestionIndex !== questionIndex) {
+            this.resetUIAndNavigate(questionIndex);
           }
-
-          // Initialize quiz based on the current route parameters
-          // Ensure this doesn't cause unwanted reinitialization
-          this.initializeQuizBasedOnRouteParams();
         } else {
-          console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
+          console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
+          if (this.currentQuestionIndex !== 0) {
+            this.resetUIAndNavigate(0);
+          }
         }
-      });
+
+        // Initialize quiz based on the current route parameters
+        // Ensure this doesn't cause unwanted reinitialization
+        this.initializeQuizBasedOnRouteParams();
+      } else {
+        console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
+      }
+    });
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
