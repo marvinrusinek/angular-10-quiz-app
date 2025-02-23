@@ -3693,18 +3693,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
   
     // Construct the correct URL for navigation
-    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
-    console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
+    const questionNumber = questionIndex + 1;
+    const targetUrl = `/question/${this.quizId}/${questionNumber}`;
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${targetUrl}`);
   
     try {
-      const navigationSuccess = await this.router.navigateByUrl(correctUrl, { replaceUrl: false });
+      const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
   
       if (navigationSuccess) {
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${targetUrl}`);
         console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
+        // Fetch and set the data for the current question
         await this.fetchAndSetQuestionData(questionIndex);
       } else {
-        console.warn(`[DEBUG] ⚠️ Navigation to ${correctUrl} failed.`);
+        console.warn(`[DEBUG] ⚠️ Navigation to ${targetUrl} failed.`);
       }
     } catch (error) {
       console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
