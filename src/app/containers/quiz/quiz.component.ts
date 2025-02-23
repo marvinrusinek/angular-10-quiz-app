@@ -459,6 +459,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
+  updateBadgeText() {
+    const badgeNumber = this.currentQuestionIndex + 1; // Convert to one-based for display
+    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+  }
+
   ngAfterViewInit(): void {
     console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
 
@@ -3571,6 +3576,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
+      console.log(`[DEBUG] 🔄 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
+
       // Validate badge and route consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex + 1) {
@@ -3588,6 +3595,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
 
       // Navigate to the specified question
+      console.log(`[DEBUG] 🚀 Navigating to question index: ${questionIndex}`);
       await this.navigateToQuestion(questionIndex);
     } catch (error) {
       console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
@@ -3656,7 +3664,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return navigationSuccess;
   } */
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
+    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
+    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
+  
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
@@ -3672,6 +3684,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     setTimeout(() => (this.debounceNavigation = false), 500);
   
     // Update the current question index
+    console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
     this.currentQuestionIndex = questionIndex;
   
     // Update the badge number (1-based)
@@ -3680,22 +3693,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
   
     // Construct the correct URL for navigation
-    const questionNumber = questionIndex + 1;
-    const targetUrl = `/question/${this.quizId}/${questionNumber}`;
+    const correctUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
+    console.log(`[DEBUG] 🔄 Attempting navigation to: ${correctUrl}`);
   
     try {
-      const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
+      const navigationSuccess = await this.router.navigateByUrl(correctUrl, { replaceUrl: false });
   
       if (navigationSuccess) {
-        // Fetch and set the data for the current question
+        console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
+        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
         await this.fetchAndSetQuestionData(questionIndex);
       } else {
-        console.warn(`[DEBUG] ⚠️ Navigation to ${targetUrl} failed.`);
+        console.warn(`[DEBUG] ⚠️ Navigation to ${correctUrl} failed.`);
       }
     } catch (error) {
       console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
-
+  
+    console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return true;
   }
   
