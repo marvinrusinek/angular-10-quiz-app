@@ -333,58 +333,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
 
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
-      }
-    });
+    this.subscribeToRouterEventsAndParams();
 
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
-
-        console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-
-        if (quizId) {
-          this.quizId = quizId;
-
-          if (!isNaN(questionIndex) && questionIndex >= 0) {
-            if (this.currentQuestionIndex !== questionIndex) {
-              this.resetUIAndNavigate(questionIndex);
-            }
-          } else {
-            console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
-            if (this.currentQuestionIndex !== 0) {
-              this.resetUIAndNavigate(0);
-            }
-          }
-
-          // Initialize quiz based on the current route parameters
-          // Ensure this doesn't cause unwanted reinitialization
-          this.initializeQuizBasedOnRouteParams();
-        } else {
-          console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
-        }
-      });
-
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions; // ensure total questions is set
-        let startingIndex = this.quizService.getCurrentQuestionIndex();
-
-        if (!this.hasInitializedBadge) {
-          this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
-          this.hasInitializedBadge = true;
-        } else {
-          console.log('Badge already initialized, skipping duplicate update.');
-        }
-      } else {
-        console.warn('Total questions not available yet.');
-      }
-    });
+    this.initializeQuizBadge();
 
     this.progressBarService.progress$.subscribe((progressValue) => {
       this.progressPercentage.next(progressValue); // Update the BehaviorSubject
@@ -457,12 +408,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.router.navigateByUrl('/blank', { skipLocationChange: true }).then(() => {
         this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
     });
-  }
-
-  updateBadgeText() {
-    const badgeNumber = this.currentQuestionIndex + 1; // Convert to one-based for display
-    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-  }
+  }  
 
   ngAfterViewInit(): void {
     console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
@@ -490,6 +436,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     };
 
     console.log('Display Variables:', this.displayVariables);
+  }
+
+  initializeQuizBadge(): void {
+    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+      if (totalQuestions > 0) {
+        this.totalQuestions = totalQuestions; // Ensure total questions is set
+        const startingIndex = this.quizService.getCurrentQuestionIndex();
+  
+        if (!this.hasInitializedBadge) {
+          this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
+          this.hasInitializedBadge = true;
+        } else {
+          console.log('Badge already initialized, skipping duplicate update.');
+        }
+      } else {
+        console.warn('Total questions not available yet.');
+      }
+    });
   }
 
   private async handleVisibilityChange(): Promise<void> {
@@ -1134,6 +1098,45 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.loadQuizData();
       });
   }
+
+  private subscribeToRouterEventsAndParams(): void {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
+      }
+    });
+  
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params: ParamMap) => {
+        const quizId = params.get('quizId');
+        const questionIndexParam = params.get('questionIndex');
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
+  
+        console.log(`[DEBUG] Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
+  
+        if (quizId) {
+          this.quizId = quizId;
+  
+          if (!isNaN(questionIndex) && questionIndex >= 0) {
+            if (this.currentQuestionIndex !== questionIndex) {
+              this.resetUIAndNavigate(questionIndex);
+            }
+          } else {
+            console.warn(`[DEBUG] Invalid or missing questionIndex in route. Defaulting to 0.`);
+            if (this.currentQuestionIndex !== 0) {
+              this.resetUIAndNavigate(0);
+            }
+          }
+  
+          // Initialize quiz based on the current route parameters
+          // Ensure this doesn't cause unwanted reinitialization
+          this.initializeQuizBasedOnRouteParams();
+        } else {
+          console.error(`[DEBUG] Quiz ID is not provided in the route`);
+        }
+      });
+  }  
 
   private async loadQuizData(): Promise<boolean> {
     // Skip loading if already marked as loaded
