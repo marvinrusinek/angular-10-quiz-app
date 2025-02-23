@@ -368,10 +368,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         } else {
           console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
         }
-      }
-    );
+      });
 
-    this.initializeQuizBadge();
+    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+      if (totalQuestions > 0) {
+        this.totalQuestions = totalQuestions; // ensure total questions is set
+        let startingIndex = this.quizService.getCurrentQuestionIndex();
+
+        if (!this.hasInitializedBadge) {
+          this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
+          this.hasInitializedBadge = true;
+        } else {
+          console.log('Badge already initialized, skipping duplicate update.');
+        }
+      } else {
+        console.warn('Total questions not available yet.');
+      }
+    });
 
     this.progressBarService.progress$.subscribe((progressValue) => {
       this.progressPercentage.next(progressValue); // Update the BehaviorSubject
@@ -446,23 +459,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  initializeQuizBadge(): void {
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions; // Ensure total questions is set
-        const startingIndex = this.quizService.getCurrentQuestionIndex();
-  
-        if (!this.hasInitializedBadge) {
-          this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
-          this.hasInitializedBadge = true;
-        } else {
-          console.log('Badge already initialized, skipping duplicate update.');
-        }
-      } else {
-        console.warn('Total questions not available yet.');
-      }
-    });
-  }  
+  updateBadgeText() {
+    const badgeNumber = this.currentQuestionIndex + 1; // Convert to one-based for display
+    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+  }
 
   ngAfterViewInit(): void {
     console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
