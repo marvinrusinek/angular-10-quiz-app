@@ -3579,7 +3579,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Validate badge and route consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex + 1) {
-        console.warn(`[DEBUG] Badge number (${currentBadgeNumber}) does not match target question index (${questionIndex}). Correcting...`);
+        console.warn('Badge number (${currentBadgeNumber}) does not match target question index (${questionIndex}). Correcting...');
         this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       }
 
@@ -3595,20 +3595,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Navigate to the specified question
       await this.navigateToQuestion(questionIndex);
     } catch (error) {
-      console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
+      console.error('Error during resetUIAndNavigate():', error);
     }
   }
 
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      console.warn('Invalid questionIndex: ${questionIndex}. Navigation aborted.');
       return false;
     }
   
     // Prevent excessive navigation calls
     if (this.debounceNavigation) {
-      console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
+      console.warn('Navigation debounce active. Skipping navigation.');
       return false;
     }
     this.debounceNavigation = true;
@@ -3633,10 +3633,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Fetch and set the data for the current question
         await this.fetchAndSetQuestionData(questionIndex);
       } else {
-        console.warn(`[DEBUG] ⚠️ Navigation to ${targetUrl} failed.`);
+        console.warn('Navigation to ${targetUrl} failed.');
       }
     } catch (error) {
-      console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+      console.error('Error navigating to questionIndex ${questionIndex}:', error);
     }
 
     return true;
