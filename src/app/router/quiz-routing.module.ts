@@ -39,7 +39,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, { 
       enableTracing: false, 
-      onSameUrlNavigation: 'reload' // force Angular to detect parameter changes
+      onSameUrlNavigation: 'reload'
     })
   ],
   exports: [RouterModule]
