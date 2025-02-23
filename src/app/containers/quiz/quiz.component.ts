@@ -3409,7 +3409,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`[DEBUG] ❌ Invalid questionIndex (${questionIndex}). Aborting fetch.`);
+        console.warn('Invalid questionIndex (${questionIndex}). Aborting fetch.');
         return false;
       }
 
