@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Event, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -332,42 +332,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
 
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
-      }
-    });
+    this.router.events
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(event => this.onNavigationEnd(event));
 
     this.routeSubscription = this.activatedRoute.paramMap
       .pipe(takeUntil(this.destroy$))
-      .subscribe((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
-
-        console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
-
-        if (quizId) {
-          this.quizId = quizId;
-
-          if (!isNaN(questionIndex) && questionIndex >= 0) {
-            if (this.currentQuestionIndex !== questionIndex) {
-              this.resetUIAndNavigate(questionIndex);
-            }
-          } else {
-            console.warn(`[DEBUG] NGONINIT Invalid or missing questionIndex in route. Defaulting to 0.`);
-            if (this.currentQuestionIndex !== 0) {
-              this.resetUIAndNavigate(0);
-            }
-          }
-
-          // Initialize quiz based on the current route parameters
-          // Ensure this doesn't cause unwanted reinitialization
-          this.initializeQuizBasedOnRouteParams();
-        } else {
-          console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
-        }
-      });      
+      .subscribe(params => this.onParamMapChange(params));
+     
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
@@ -447,6 +419,41 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       startWith(false)
     ); */
+  }
+
+  private onNavigationEnd(event: Event): void {
+    if (event instanceof NavigationEnd) {
+      console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
+    }
+  }
+
+  private onParamMapChange(params: ParamMap): void {
+    const quizId = params.get('quizId');
+    const questionIndexParam = params.get('questionIndex');
+    const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
+
+    console.log(`[DEBUG] Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
+
+    if (quizId) {
+      this.quizId = quizId;
+
+      if (!isNaN(questionIndex) && questionIndex >= 0) {
+        if (this.currentQuestionIndex !== questionIndex) {
+          this.resetUIAndNavigate(questionIndex);
+        }
+      } else {
+        console.warn(`[DEBUG] Invalid or missing questionIndex in route. Defaulting to 0.`);
+        if (this.currentQuestionIndex !== 0) {
+          this.resetUIAndNavigate(0);
+        }
+      }
+
+      // Initialize quiz based on the current route parameters
+      // Ensure this doesn't cause unwanted reinitialization
+      this.initializeQuizBasedOnRouteParams();
+    } else {
+      console.error(`[DEBUG] Quiz ID is not provided in the route`);
+    }
   }
 
   reloadQuizComponent(): void {
