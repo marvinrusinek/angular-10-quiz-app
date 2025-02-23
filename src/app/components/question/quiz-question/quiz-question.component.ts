@@ -1428,7 +1428,13 @@ export class QuizQuestionComponent
       // Indicate successful load
       return true;
     } catch (error) {
+      console.error('Error loading question:', error);
       this.feedbackText = 'Error loading question. Please try again.';
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
+      this.cdRef.detectChanges();
       return false;
     } finally {
       this.isLoading = false;
