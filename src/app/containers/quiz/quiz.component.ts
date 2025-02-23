@@ -332,7 +332,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Initialize route parameters and subscribe to updates
     this.initializeRouteParameters();
-
     this.subscribeToRouterEventsAndParams();
 
     this.initializeQuizBadge();
