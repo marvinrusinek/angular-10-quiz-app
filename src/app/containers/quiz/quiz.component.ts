@@ -3460,7 +3460,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       
       return true;
     } catch (error) {
-      console.error(`[DEBUG] ❌ Error in fetchAndSetQuestionData():`, error);
+      console.error('Error in fetchAndSetQuestionData():', error);
       return false;
     }
   }
