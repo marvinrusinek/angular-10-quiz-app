@@ -69,8 +69,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questions: QuizQuestion[];
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
-  currentQuestion$: Observable<QuizQuestion | null> = 
-    this.quizStateService.currentQuestion$.pipe(startWith(null));
+  currentQuestion$: Observable<QuizQuestion | null>;
   currentQuestionType: string;
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
@@ -339,7 +338,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-    this.activatedRoute.paramMap
+    this.routeSubscription = this.activatedRoute.paramMap
       .pipe(takeUntil(this.destroy$))
       .subscribe((params: ParamMap) => {
         const quizId = params.get('quizId');
@@ -368,7 +367,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         } else {
           console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
         }
-      });
+      });      
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
@@ -1363,7 +1362,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private initializeQuiz(): void {
     this.prepareQuizSession();
     this.initializeQuizDependencies();
-    this.initializeQuizBasedOnRouteParams();
   }
 
   private async prepareQuizSession(): Promise<void> {
