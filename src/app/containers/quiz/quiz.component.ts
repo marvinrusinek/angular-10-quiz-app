@@ -3581,7 +3581,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Validate badge and route consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex + 1) {
-        console.warn(`[DEBUG] Badge number (${currentBadgeNumber}) does not match target question index (${questionIndex}). Correcting...`);
+        console.warn('Badge number (${currentBadgeNumber}) does not match target question index (${questionIndex}). Correcting...');
       }
   
       // Reset UI and explanation text before navigating
@@ -3594,47 +3594,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
   
       // Navigate to the specified question
-      console.log(`[DEBUG] 🚀 Navigating to question index: ${questionIndex}`);
+      console.log('Navigating to question index: ${questionIndex}');
       await this.navigateToQuestion(questionIndex);
     } catch (error) {
-      console.error(`[DEBUG] ❌ Error during resetUIAndNavigate():`, error);
+      console.error('Error during resetUIAndNavigate():', error);
     }
   }  
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    console.log(`[DEBUG] 🟢 navigateToQuestion() triggered for questionIndex: ${questionIndex}`);
-    console.log(`[DEBUG] 🌍 Current URL before navigation: ${window.location.href}`);
-    console.log(`[DEBUG] 🔍 Stored index: ${this.currentQuestionIndex}, New target index: ${questionIndex}`);
-  
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`[DEBUG] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      console.warn('Invalid questionIndex: ${questionIndex}. Navigation aborted.');
       return false;
     }
   
     // Prevent excessive navigation calls
     if (this.debounceNavigation) {
-      console.warn(`[DEBUG] ⚠️ Navigation debounce active. Skipping navigation.`);
+      console.warn('Navigation debounce active. Skipping navigation.');
       return false;
     }
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 500);
   
     // Update the current question index
-    console.log(`[DEBUG] 🔄 Updating currentQuestionIndex from ${this.currentQuestionIndex} to ${questionIndex}`);
     this.currentQuestionIndex = questionIndex;
   
     // Construct the correct URL for navigation
     const questionNumber = questionIndex + 1;
     const targetUrl = `/question/${this.quizId}/${questionNumber}`;
-    console.log(`[DEBUG] 🔄 Attempting navigation to: ${targetUrl}`);
   
     try {
       const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
   
       if (navigationSuccess) {
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${targetUrl}`);
-        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
         // Fetch and set the data for the current question
         await this.fetchAndSetQuestionData(questionIndex);
   
@@ -3643,13 +3635,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
       } else {
-        console.warn(`[DEBUG] ⚠️ Navigation to ${targetUrl} failed.`);
+        console.warn('Navigation to ${targetUrl} failed.');
       }
     } catch (error) {
-      console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
+      console.error('Error navigating to questionIndex ${questionIndex}:', error);
     }
   
-    console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return true;
   }
 
