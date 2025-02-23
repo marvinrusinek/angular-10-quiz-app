@@ -3702,7 +3702,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (navigationSuccess) {
         console.log(`[DEBUG] ✅ Router navigation successful to: ${correctUrl}`);
         console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
-        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+        await this.fetchAndSetQuestionData(questionIndex);
       } else {
         console.warn(`[DEBUG] ⚠️ Navigation to ${correctUrl} failed.`);
       }
