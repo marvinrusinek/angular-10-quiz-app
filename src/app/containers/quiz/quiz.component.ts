@@ -458,11 +458,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  updateBadgeText() {
-    const badgeNumber = this.currentQuestionIndex + 1; // Convert to one-based for display
-    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-  }
-
   ngAfterViewInit(): void {
     console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
 
