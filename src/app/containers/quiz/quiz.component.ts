@@ -3715,9 +3715,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Stop the timer when resetting quiz state
     if (this.timerService.isTimerRunning) {
-        console.log('[resetQuizState] ⏹ Stopping timer...');
-        this.timerService.stopTimer();
-        this.timerService.isTimerRunning = false;
+      console.log('[resetQuizState] ⏹ Stopping timer...');
+      this.timerService.stopTimer();
+      this.timerService.isTimerRunning = false;
     }
 
     // Reset all quiz-related services
