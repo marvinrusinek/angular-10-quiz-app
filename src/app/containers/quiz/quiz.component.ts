@@ -330,16 +330,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeDisplayVariables();
 
     // Initialize route parameters and subscribe to updates
-    this.initializeRouteParameters();
-
-    this.router.events
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(event => this.onNavigationEnd(event));
-
-    this.routeSubscription = this.activatedRoute.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(params => this.onParamMapChange(params));
-     
+    this.initializeRouteParameters(); 
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
@@ -1098,6 +1089,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /*************** ngOnInit barrel functions ******************/
   private initializeRouteParameters(): void {
+    // Subscribe to router navigation events
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(event => this.onNavigationEnd(event as NavigationEnd));
+
+    // Subscribe to route parameter changes
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => this.onParamMapChange(params));
+
     this.fetchRouteParams();
     this.subscribeRouterAndInit();
     this.subscribeToRouteParams();
