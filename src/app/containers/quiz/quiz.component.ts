@@ -3434,7 +3434,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       questionDetails.options = this.quizService.assignOptionActiveStates(options, false);
 
       // Ensure UI is fully reset before setting new options
-      console.log('Resetting UI options before setting new question details...');
       this.optionsToDisplay = [];
       this.cdRef.detectChanges();
 
@@ -3458,7 +3457,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.resetUIAndNavigate(questionIndex);
 
       // Start timer for the loaded question
-      console.log(`[DEBUG] 🔄 Starting timer for question ${questionIndex + 1}...`);
       this.timerService.startTimer(this.timerService.timePerQuestion);
 
       return true;
