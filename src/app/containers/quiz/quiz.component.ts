@@ -3631,6 +3631,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
         // Fetch and set the data for the current question
         await this.fetchAndSetQuestionData(questionIndex);
+  
+        // Update the badge number (1-based) after successful data fetch
+        const badgeNumber = this.currentQuestionIndex + 1;
+        this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
       } else {
         console.warn(`[DEBUG] ⚠️ Navigation to ${targetUrl} failed.`);
       }
@@ -3641,8 +3646,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
     return true;
   }
-  
-  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
