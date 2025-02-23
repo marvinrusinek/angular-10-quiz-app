@@ -1341,11 +1341,6 @@ export class QuizQuestionComponent
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
-      // Reset all states before loading the question
-      this.resetQuestionStateBeforeNavigation();
-      this.resetExplanation();
-      this.resetTexts();
-
       // Clear previous data
       this.currentQuestion = null;
       this.optionsToDisplay = [];
@@ -1362,6 +1357,11 @@ export class QuizQuestionComponent
       this.quizStateService.setLoading(true);
       this.quizStateService.setAnswered(false);
       this.timerService.startTimer(this.timerService.timePerQuestion, true);
+
+      // Reset all states before loading the question
+      this.resetQuestionStateBeforeNavigation();
+      this.resetExplanation();
+      this.resetTexts();
 
       // Ensure `questionsArray` is populated
       if (!this.questionsArray || this.questionsArray.length === 0) {
@@ -1406,9 +1406,13 @@ export class QuizQuestionComponent
       }));
 
       // Abort handling
+      // After starting the loading process
       if (signal?.aborted) {
         console.log('[loadQuestion] Load question operation aborted.');
         this.timerService.stopTimer();
+        this.isLoading = false;
+        this.quizStateService.setLoading(false);
+        this.cdRef.detectChanges();
         return false;
       }
 
