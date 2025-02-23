@@ -3630,8 +3630,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
   
       if (navigationSuccess) {
-        console.log(`[DEBUG] ✅ Router navigation successful to: ${targetUrl}`);
-        console.log(`[DEBUG] 🔄 Fetching and setting question data for index: ${this.currentQuestionIndex}`);
         // Fetch and set the data for the current question
         await this.fetchAndSetQuestionData(questionIndex);
       } else {
@@ -3640,11 +3638,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error(`[DEBUG] ❌ Error navigating to questionIndex ${questionIndex}:`, error);
     }
-  
-    console.log(`[DEBUG] 🌍 Final URL in address bar after navigation: ${window.location.href}`);
+
     return true;
   }
-  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
