@@ -523,14 +523,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Clear previous question data
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
-      console.log('[loadQuestionContents] ✅ Cleared previous question data.');
 
       const quizId = this.quizService.getCurrentQuizId();
-
       if (!quizId) {
         console.error('No active quiz ID found.');
         return;
       }
+      
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
         console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
         return;
