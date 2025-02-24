@@ -896,23 +896,21 @@ export class QuizService implements OnDestroy {
   }
 
   public setCurrentQuestion(question: QuizQuestion): void {
-    console.log('[QuizService] 🔄 setCurrentQuestion() called with:', question);
-
     if (!question) {
-      console.error('[QuizService] ❌ Attempted to set a null or undefined question.');
+      console.error('Attempted to set a null or undefined question.');
       return;
     }
 
     const previousQuestion = this.currentQuestion.getValue();
-    console.log('[QuizService] 🔍 Previous Question:', previousQuestion);
 
     // Avoid unnecessary updates if the question is the same
-    if (previousQuestion?.questionText === question.questionText) {
-      console.warn('[QuizService] ⚠️ Skipping update - Question is the same as the previous one.');
+    // Perform a deep comparison to check for differences
+    if (this.areQuestionsEqual(previousQuestion, question)) {
+      console.warn('Skipping update - Question is identical to the previous one.');
       return;
     }
 
-    // ✅ Ensure options have correct properties
+    // Ensure options have correct properties
     const updatedQuestion: QuizQuestion = {
       ...question,
       options: question.options?.map((option, index) => ({
@@ -922,11 +920,8 @@ export class QuizService implements OnDestroy {
       })) || []
     };
 
-    console.log('[QuizService] 🔄 Preparing to emit updated question:', updatedQuestion);
-
     // Emit the new question
-    this.currentQuestion.next(updatedQuestion);
-    console.log('[QuizService] ✅ Emitted new currentQuestion:', updatedQuestion);
+    this.currentQuestion.next({ ...updatedQuestion });
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
