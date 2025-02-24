@@ -529,7 +529,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('No active quiz ID found.');
         return;
       }
-      
+
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
         console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
         return;
@@ -598,7 +598,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isQuestionDisplayed = true;
         this.cdRef.detectChanges();
 
-        // Start timer only if question hasn't been answered
+        // Start timer only if the question hasn't been answered
         if (!this.selectedOptionService.isAnsweredSubject.value) {
           console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
           this.timerService.startTimer();
