@@ -2469,6 +2469,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  isLastQuestion(): boolean {
+    return this.currentQuestionIndex === this.totalQuestions - 1;
+  }
+
   // Helper method to reset the current question state
   private resetCurrentQuestionState(): void {
     this.currentQuestion = null;
