@@ -1542,14 +1542,11 @@ export class QuizQuestionComponent
   }  */
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
-      console.log(`🔹 Loading Question ${this.currentQuestionIndex}...`);
-      
       // Reset state before loading new question
       this.resetQuestionStateBeforeNavigation();
   
       // ✅ Explicitly clear options before fetching a new question
       this.optionsToDisplay = [];
-      console.log('✅ Cleared previous options.');
   
       if (!this.questionsArray || this.questionsArray.length === 0) {
         const quizId = this.quizService.getCurrentQuizId();
@@ -1566,9 +1563,6 @@ export class QuizQuestionComponent
       const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!potentialQuestion) throw new Error(`No question found for index ${this.currentQuestionIndex}`);
   
-      console.log(`🎯 Fetched Question: ${potentialQuestion.questionText}`);
-      console.log(`🔍 Options BEFORE assignment:`, this.optionsToDisplay);
-  
       // Ensure immutability
       this.ngZone.run(() => {
         this.currentQuestion = { ...potentialQuestion };
@@ -1583,14 +1577,32 @@ export class QuizQuestionComponent
             selected: false,
           })) : [];
   
-        console.log(`✅ Updated Options AFTER assignment:`, this.optionsToDisplay);
+        this.feedbackText = '';
+        this.displayState = { mode: 'question', answered: false };
+        this.ensureQuestionTextDisplay();
+  
+        this.cdRef.detectChanges();
       });
+  
+      if (signal?.aborted) {
+        this.timerService.stopTimer();
+        this.isLoading = false;
+        this.quizStateService.setLoading(false);
+        return false;
+      }
+  
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+      await this.handleExplanationDisplay();
+      this.updateSelectionMessage(false);
   
       return true;
     } catch (error) {
       console.error('Error loading question:', error);
       this.optionsToDisplay = []; // ✅ Clear options in case of error
       return false;
+    } finally {
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
     }
   }
 
