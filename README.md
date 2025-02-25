@@ -2,7 +2,7 @@
 
 <p>Welcome to the <strong>Angular Quiz App</strong>! 🚀</p>
 
-<p>This dynamic and interactive application is built entirely with <strong>Angular</strong> and designed to provide an engaging quiz experience. It features timed questions, multiple and single-answer formats, and detailed explanations to help users learn while they test their knowledge. Check it out live <a href="https://angular-10-quiz-app.stackblitz.io/">here</a>.</p>
+<p>This dynamic and interactive application is built entirely with <strong>Angular</strong> and designed to provide an engaging quiz experience. It features timed questions, single and multiple-answer formats, and detailed explanations to help users learn while they test their knowledge. <a href="https://angular-10-quiz-app.stackblitz.io/">View here</a>.</p>
 
 <h2>Key Features</h2>
 <ul>
@@ -16,11 +16,11 @@
 
 <h2>Technologies Used</h2>
 <ul>
-  <li><strong>Angular</strong>: For building the frontend framework.</li>
+  <li><strong>Angular</strong>: For building the front-end.</li>
   <li><strong>TypeScript</strong>: The main programming language.</li>
-  <li><strong>RxJS</strong>: To handle reactive programming with Observables.</li>
+  <li><strong>RxJS</strong>: Utilizes reactive programming with Observables.</li>
   <li><strong>SCSS</strong>: For modular and maintainable styling.</li>
-  <li><strong>Angular Material</strong>: To leverage prebuilt UI components.</li>
+  <li><strong>Angular Material</strong>: To leverage pre-built UI components.</li>
 </ul>
 
 <h2>Installation</h2>
@@ -49,7 +49,7 @@ cd quiz-app
 
 <h2>Usage</h2>
 <ul>
-  <li>Select a quiz category or set to start.</li>
+  <li>Select a quiz category to start.</li>
   <li>Answer each question by selecting one or more options.</li>
   <li>Use the <strong>Next</strong> button or URL navigation to move between questions.</li>
   <li>Track your score and view explanations after each answer.</li>
@@ -98,15 +98,15 @@ cd quiz-app
   <li>Open a pull request.</li>
 </ol>
 
-<h2>Future Enhancements</h2>
+<h2>Progress and Future Enhancements</h2>
 <ul>
+  <li><strong>Leaderboard</strong>: Introduce a leaderboard for top performers.</li>
   <li><strong>User Authentication</strong>: Allow users to save and track quiz progress.</li>
   <li><strong>Additional Categories</strong>: Expand the range of quiz topics.</li>
-  <li><strong>Leaderboard</strong>: Introduce a leaderboard for top performers.</li>
 </ul>
 
 <h2>Show Your Support</h2>
-<p>If you enjoy using the app or find it useful, please give it a ⭐ on GitHub! Your feedback and support are greatly appreciated.</p>
+<p>If you enjoy using the app or find it useful, please give it a ⭐ on GitHub! Your feedback and support is greatly appreciated.</p>
 
 <h2>License</h2>
 <p>This project is licensed under the MIT License. See the <a href="./LICENSE">LICENSE</a> file for details.</p>
