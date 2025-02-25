@@ -634,7 +634,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       let data = { question: null, options: [], explanation: '' };
   
       try {
-        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const question$ = this.quizService.getCurrentQuestionByIndex(this.quizId, questionIndex).pipe(take(1));
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
         const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
   
