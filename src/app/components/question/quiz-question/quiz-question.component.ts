@@ -1542,67 +1542,65 @@ export class QuizQuestionComponent
   }  */
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
-      // Reset state before loading new question
-      this.resetQuestionStateBeforeNavigation();
-  
-      // ✅ Explicitly clear options before fetching a new question
-      this.optionsToDisplay = [];
-  
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) throw new Error('No active quiz ID found.');
-  
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray || this.questionsArray.length === 0) throw new Error('Failed to fetch questions.');
-      }
-  
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
-        throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
-      }
-  
-      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-      if (!potentialQuestion) throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-  
-      // Ensure immutability
-      this.ngZone.run(() => {
-        this.currentQuestion = { ...potentialQuestion };
-  
-        // ✅ Ensure options are properly reassigned and not left over from the previous question
-        this.optionsToDisplay = this.currentQuestion.options ? 
-          this.currentQuestion.options.map(option => ({
-            ...option,
-            active: true,
-            feedback: undefined,
-            showIcon: false,
-            selected: false,
-          })) : [];
-  
-        this.feedbackText = '';
-        this.displayState = { mode: 'question', answered: false };
-        this.ensureQuestionTextDisplay();
-  
-        this.cdRef.detectChanges();
-      });
-  
-      if (signal?.aborted) {
-        this.timerService.stopTimer();
+        console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
+
+        // ✅ Ensure all previous selections and highlights are cleared
+        this.optionsToDisplay = [];
+        this.cdRef.detectChanges(); // Force UI update before loading new data
+
+        // Reset selection and feedback states
+        this.selectedOptionId = null;
+        this.highlightedOptionId = null;
+        this.optionsToDisplay = [];
+
+        this.resetQuestionStateBeforeNavigation(); // Ensure previous states are cleared
+
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+            const quizId = this.quizService.getCurrentQuizId();
+            if (!quizId) throw new Error('No active quiz ID found.');
+
+            this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+            if (!this.questionsArray || this.questionsArray.length === 0) throw new Error('Failed to fetch questions.');
+        }
+
+        if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+            throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
+        }
+
+        const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+        if (!potentialQuestion) throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+
+        this.ngZone.run(() => {
+            this.currentQuestion = { ...potentialQuestion };
+
+            // ✅ Ensure options are properly reassigned and not left over from the previous question
+            this.optionsToDisplay = this.currentQuestion.options 
+                ? this.currentQuestion.options.map(option => ({
+                    ...option,
+                    active: true,
+                    feedback: undefined,
+                    showIcon: false,
+                    selected: false, // ✅ Reset selection
+                    highlighted: false // ✅ Reset highlighting
+                })) 
+                : [];
+
+            console.log(`✅ [QQC] Updated Options AFTER reset:`, this.optionsToDisplay);
+
+            this.feedbackText = '';
+            this.displayState = { mode: 'question', answered: false };
+            this.ensureQuestionTextDisplay();
+            this.cdRef.detectChanges();
+        });
+
+        return true;
+    } catch (error) {
+        console.error('Error loading question:', error);
+        this.optionsToDisplay = []; // ✅ Clear options in case of error
+        return false;
+    } finally {
         this.isLoading = false;
         this.quizStateService.setLoading(false);
-        return false;
-      }
-  
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      await this.handleExplanationDisplay();
-      this.updateSelectionMessage(false);
-  
-      return true;
-    } catch (error) {
-      console.error('Error loading question:', error);
-      this.optionsToDisplay = []; // ✅ Clear options in case of error
-      return false;
-    } finally {
-      this.isLoading = false;
-      this.quizStateService.setLoading(false);
     }
   }
 
