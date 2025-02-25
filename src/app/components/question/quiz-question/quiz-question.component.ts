@@ -1445,46 +1445,43 @@ export class QuizQuestionComponent
     try {
       // Reset state before loading the new question
       this.resetQuestionStateBeforeNavigation();
-
-      // Ensure change detection is aware of the reset
-      this.cdRef.detectChanges();
-
+  
       // Fetch questions if not already available
       if (!this.questionsArray || this.questionsArray.length === 0) {
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
           throw new Error('No active quiz ID found. Cannot fetch questions.');
         }
-
+  
         this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
         if (!this.questionsArray || this.questionsArray.length === 0) {
           throw new Error('Failed to fetch questions. Aborting operation.');
         }
       }
-
+  
       // Validate currentQuestionIndex
       if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
         throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
       }
-
+  
       // Fetch the current question
       const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!potentialQuestion) {
         console.warn('Current question is null or undefined.');
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
-
+  
       // Update state within Angular's zone to ensure change detection
       this.ngZone.run(() => {
         this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
-
+  
         // Assign optionIds and validate options
         if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
           console.warn('Current question has no options.');
           this.currentQuestion.options = [];
         }
         this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-
+  
         // Initialize optionsToDisplay
         this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
           ...option,
@@ -1493,7 +1490,7 @@ export class QuizQuestionComponent
           showIcon: false,
           selected: false,
         }));
-
+  
         // Additional state updates
         this.feedbackText = '';
         this.displayState = { mode: 'question', answered: false };
@@ -1503,11 +1500,11 @@ export class QuizQuestionComponent
         this.isExplanationLocked = true;
         this.currentExplanationText = '';
         this.ensureQuestionTextDisplay();
-
+  
         // Notify Angular of the state changes
         this.cdRef.detectChanges();
       });
-
+  
       // Abort handling
       if (signal?.aborted) {
         console.log('Load question operation aborted.');
@@ -1517,16 +1514,16 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
         return false;
       }
-
+  
       // Generate feedback for the current question
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-
+  
       // Display explanation if the question is answered
       await this.handleExplanationDisplay();
-
+  
       // Update the selection message
       this.updateSelectionMessage(false);
-
+  
       // Indicate successful load
       return true;
     } catch (error) {
@@ -1542,7 +1539,7 @@ export class QuizQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
     }
-  }
+  }  
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
