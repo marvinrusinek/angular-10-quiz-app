@@ -1441,7 +1441,7 @@ export class QuizQuestionComponent
       this.quizStateService.setLoading(false);
     }
   } */
-  public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+  /* public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
       // Reset state before loading the new question
       this.resetQuestionStateBeforeNavigation();
@@ -1539,7 +1539,72 @@ export class QuizQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
     }
-  }  
+  }  */
+  public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    try {
+      // Reset state before loading new question
+      this.resetQuestionStateBeforeNavigation();
+  
+      // ✅ Explicitly clear options before fetching a new question
+      this.optionsToDisplay = [];
+  
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) throw new Error('No active quiz ID found.');
+  
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) throw new Error('Failed to fetch questions.');
+      }
+  
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+        throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
+      }
+  
+      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!potentialQuestion) throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+  
+      // Ensure immutability
+      this.ngZone.run(() => {
+        this.currentQuestion = { ...potentialQuestion };
+  
+        // ✅ Ensure options are properly reassigned and not left over from the previous question
+        this.optionsToDisplay = this.currentQuestion.options ? 
+          this.currentQuestion.options.map(option => ({
+            ...option,
+            active: true,
+            feedback: undefined,
+            showIcon: false,
+            selected: false,
+          })) : [];
+  
+        this.feedbackText = '';
+        this.displayState = { mode: 'question', answered: false };
+        this.ensureQuestionTextDisplay();
+  
+        this.cdRef.detectChanges();
+      });
+  
+      if (signal?.aborted) {
+        this.timerService.stopTimer();
+        this.isLoading = false;
+        this.quizStateService.setLoading(false);
+        return false;
+      }
+  
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+      await this.handleExplanationDisplay();
+      this.updateSelectionMessage(false);
+  
+      return true;
+    } catch (error) {
+      console.error('Error loading question:', error);
+      this.optionsToDisplay = []; // ✅ Clear options in case of error
+      return false;
+    } finally {
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
+    }
+  }
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
