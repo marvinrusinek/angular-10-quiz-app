@@ -111,7 +111,7 @@
             mat-raised-button
             routerLinkActive="active"
             disableRipple="true"
-            *ngIf="isLastQuestion()"
+            *ngIf="isLastQuestion"
             (click)="advanceToResults()"
             (window:keydown.Enter)="advanceToResults()"
             (window:keydown.ArrowRight)="advanceToResults()"
