@@ -531,7 +531,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
-        console.error(`[loadQuestionContents] ❌ Invalid question index: ${questionIndex}`);
+        console.error('Invalid question index: ${questionIndex}');
         return;
       }
 
@@ -553,7 +553,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
           take(1),
           catchError(error => {
-            console.error(`[loadQuestionContents] ❌ Error fetching question:`, error);
+            console.error('Error fetching question:', error);
             return of(null);
           })
         );
@@ -561,7 +561,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(
           take(1),
           catchError(error => {
-            console.error(`[loadQuestionContents] ❌ Error fetching options:`, error);
+            console.error('Error fetching options:', error);
             return of([]);
           })
         );
@@ -569,7 +569,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
           take(1),
           catchError(error => {
-            console.error(`[loadQuestionContents] ❌ Error fetching explanation:`, error);
+            console.error('Error fetching explanation:', error);
             return of('');
           })
         );  
@@ -578,7 +578,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
             tap(finalData => console.log('[loadQuestionContents] ✅ forkJoin completed successfully:', finalData)),
             catchError(error => {
-              console.error(`[loadQuestionContents] ❌ Error in forkJoin:`, error);
+              console.error('Error in forkJoin:', error);
               return of({ question: null, options: [], explanation: '' });
             })
           )
@@ -600,13 +600,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Start timer only if the question hasn't been answered
         if (!this.selectedOptionService.isAnsweredSubject.value) {
-          console.log('[loadQuestionContents] ▶️ Starting timer for new question...');
+          console.log('Starting timer for new question...');
           this.timerService.startTimer();
         } else {
-          console.log('[loadQuestionContents] ⏸ Timer not started: Question already answered.');
+          console.log('Timer not started: Question already answered.');
         }
      } catch (error) {
-        console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+        console.error('Error loading question contents:', error);
         return;
       } finally {
         this.isLoading = false;
@@ -619,7 +619,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
       }
     } catch (error) {
-      console.error('[loadQuestionContents] ❌ Unexpected error:', error);
+      console.error('Unexpected error:', error);
     }
   }
 
