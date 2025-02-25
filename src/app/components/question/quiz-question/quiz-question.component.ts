@@ -3333,6 +3333,8 @@ export class QuizQuestionComponent
     this.currentQuestion = null;
     this.selectedOption = null;
     this.options = [];
+    this.feedbackText = '';
+    this.displayState = { mode: 'question', answered: false };
     this.explanationLocked = false; // Reset explanation lock
     this.explanationToDisplay = '';
     this.explanationTextService.explanationText$.next('');
@@ -3342,8 +3344,7 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.selectionMessageService.resetMessage();
 
-    // Trigger change detection immediately after clearing state
-    this.cdRef.detectChanges();
+    this.cdRef.detectChanges(); // Trigger change detection after resetting state
 
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
