@@ -513,7 +513,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  async loadQuestionContents(questionIndex: number): Promise<void> {
+  /* async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
       this.isLoading = true;
       this.isQuestionDisplayed = false;
@@ -616,6 +616,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         // Ensure final UI update and return control
+        this.cdRef.detectChanges();
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+  } */
+  async loadQuestionContents(questionIndex: number): Promise<void> {
+    try {
+      this.isLoading = true;
+      this.isQuestionDisplayed = false;
+      this.isNextButtonEnabled = false;
+      this.updateTooltip('Please select an option to continue...');
+    
+      // ✅ Explicitly clear previous question data
+      this.optionsToDisplay = [];
+      this.explanationToDisplay = '';
+  
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) return;
+  
+      if (typeof questionIndex !== 'number' || questionIndex < 0) return;
+  
+      this.timerService.stopTimer();
+      this.timerService.resetTimer();
+  
+      let data = { question: null, options: [], explanation: '' };
+  
+      try {
+        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+        const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
+  
+        data = await lastValueFrom(
+          forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+            tap(finalData => console.log('[loadQuestionContents] ✅ forkJoin completed:', finalData)),
+            catchError(error => {
+              console.error('Error in forkJoin:', error);
+              return of({ question: null, options: [], explanation: '' });
+            })
+          )
+        );
+  
+        if (!data.question || !Array.isArray(data.options)) {
+          console.warn(`No valid question data for index ${questionIndex}.`);
+          return;
+        }
+  
+        this.currentQuestion = { ...data.question } as QuizQuestion;
+        this.optionsToDisplay = [...data.options] as Option[]; // ✅ Ensure fresh options are set
+        this.explanationToDisplay = data.explanation;
+  
+        this.isQuestionDisplayed = true;
+        this.cdRef.detectChanges();
+  
+        if (!this.selectedOptionService.isAnsweredSubject.value) {
+          this.timerService.startTimer();
+        }
+      } catch (error) {
+        console.error('Error loading question contents:', error);
+        return;
+      } finally {
+        this.isLoading = false;
         this.cdRef.detectChanges();
       }
     } catch (error) {
