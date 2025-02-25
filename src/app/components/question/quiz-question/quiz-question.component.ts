@@ -3227,6 +3227,8 @@ export class QuizQuestionComponent
 
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
     this.currentQuestion = null;
+    this.selectedOption = null;
+    this.options = [];
     this.explanationLocked = false; // Reset explanation lock
     this.explanationToDisplay = '';
     this.explanationTextService.explanationText$.next('');
