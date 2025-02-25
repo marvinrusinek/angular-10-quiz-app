@@ -1542,65 +1542,65 @@ export class QuizQuestionComponent
   }  */
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     try {
-        console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
+      console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
 
-        // ✅ Ensure all previous selections and highlights are cleared
-        this.optionsToDisplay = [];
-        this.cdRef.detectChanges(); // Force UI update before loading new data
+      // Ensure all previous selections and highlights are cleared
+      this.optionsToDisplay = [];
+      this.cdRef.detectChanges(); // Force UI update before loading new data
 
-        // Reset selection and feedback states
-        this.selectedOptionId = null;
-        this.highlightedOptionId = null;
-        this.optionsToDisplay = [];
+      // Reset selection and feedback states
+      this.selectedOptionId = null;
+      this.highlightedOptionId = null;
+      this.optionsToDisplay = [];
 
-        this.resetQuestionStateBeforeNavigation(); // Ensure previous states are cleared
+      this.resetQuestionStateBeforeNavigation(); // Ensure previous states are cleared
 
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-            const quizId = this.quizService.getCurrentQuizId();
-            if (!quizId) throw new Error('No active quiz ID found.');
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) throw new Error('No active quiz ID found.');
 
-            this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-            if (!this.questionsArray || this.questionsArray.length === 0) throw new Error('Failed to fetch questions.');
-        }
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) throw new Error('Failed to fetch questions.');
+      }
 
-        if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
-            throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
-        }
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
+        throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
+      }
 
-        const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-        if (!potentialQuestion) throw new Error(`No question found for index ${this.currentQuestionIndex}`);
+      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!potentialQuestion) throw new Error(`No question found for index ${this.currentQuestionIndex}`);
 
-        this.ngZone.run(() => {
-            this.currentQuestion = { ...potentialQuestion };
+      this.ngZone.run(() => {
+        this.currentQuestion = { ...potentialQuestion };
 
-            // ✅ Ensure options are properly reassigned and not left over from the previous question
-            this.optionsToDisplay = this.currentQuestion.options 
-                ? this.currentQuestion.options.map(option => ({
-                    ...option,
-                    active: true,
-                    feedback: undefined,
-                    showIcon: false,
-                    selected: false, // ✅ Reset selection
-                    highlighted: false // ✅ Reset highlighting
-                })) 
-                : [];
+        // Ensure options are properly reassigned and not left over from the previous question
+        this.optionsToDisplay = this.currentQuestion.options 
+          ? this.currentQuestion.options.map(option => ({
+            ...option,
+            active: true,
+            feedback: undefined,
+            showIcon: false,
+            selected: false, // reset selection
+            highlighted: false // reset highlighting
+          })) 
+          : [];
 
-            console.log(`✅ [QQC] Updated Options AFTER reset:`, this.optionsToDisplay);
+        console.log(`✅ [QQC] Updated Options AFTER reset:`, this.optionsToDisplay);
 
-            this.feedbackText = '';
-            this.displayState = { mode: 'question', answered: false };
-            this.ensureQuestionTextDisplay();
-            this.cdRef.detectChanges();
-        });
+        this.feedbackText = '';
+        this.displayState = { mode: 'question', answered: false };
+        this.ensureQuestionTextDisplay();
+        this.cdRef.detectChanges();
+      });
 
-        return true;
+      return true;
     } catch (error) {
-        console.error('Error loading question:', error);
-        this.optionsToDisplay = []; // ✅ Clear options in case of error
-        return false;
+      console.error('Error loading question:', error);
+      this.optionsToDisplay = []; // clear options in case of error
+      return false;
     } finally {
-        this.isLoading = false;
-        this.quizStateService.setLoading(false);
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
     }
   }
 
