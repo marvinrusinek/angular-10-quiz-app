@@ -2047,6 +2047,8 @@ export class QuizQuestionComponent
   }
 
   public resetState(): void {
+    this.selectedOption = null;
+    this.options = [];
     this.resetFeedback();
     this.selectedOptionService.clearOptions();
   }
@@ -3237,6 +3239,9 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.selectionMessageService.resetMessage();
+
+    // Trigger change detection immediately after clearing state
+    this.cdRef.detectChanges();
 
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
