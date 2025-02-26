@@ -2226,30 +2226,44 @@ export class QuizQuestionComponent
       }
 
       // Find the selected option
-      const selectedOptionId = event.option?.optionId;
+      const rawOptionId = event.option?.optionId;
 
-      console.log('[onOptionClicked] 🔍 Checking selected optionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
-      console.log('[onOptionClicked] 📝 Current optionsToDisplay:', this.optionsToDisplay);
+      console.log('[onOptionClicked] 🔍 Full event data:', event);
+      console.log('[onOptionClicked] 🔍 Raw optionId before conversion:', rawOptionId, 'Type:', typeof rawOptionId);
 
-      // Manually check if optionId exists in optionsToDisplay
-      let optionFound = false;
-      this.optionsToDisplay.forEach(opt => {
-          console.log(`🧐 Checking option in list - ID: ${opt.optionId}, Matches selected?`, opt.optionId === selectedOptionId);
-          if (opt.optionId === selectedOptionId) {
-              optionFound = true;
-          }
-      });
-
-      if (!optionFound) {
-          console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+      // Ensure `optionId` exists before conversion
+      if (rawOptionId === undefined || rawOptionId === null) {
+          console.error('[onOptionClicked] ❌ optionId is missing! It is undefined or null.');
           return;
       }
 
-      console.log('[onOptionClicked] ✅ Found selected option in optionsToDisplay!');
+      const selectedOptionId = Number(rawOptionId);
 
-      // Prevent clicking before feedback is ready
-      if (!this.isFeedbackApplied) {
-        await this.applyOptionFeedback(foundOption);
+      if (isNaN(selectedOptionId)) {
+          console.error('[onOptionClicked] ❌ optionId is NaN. Exiting function.');
+          return;
+      }
+
+      console.log('[onOptionClicked] ✅ Converted selectedOptionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
+      console.log('[onOptionClicked] 📝 Current optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+
+      // Use `.find()` for a cleaner lookup
+      const foundOption: Option | undefined = this.optionsToDisplay.find(opt => opt.optionId === selectedOptionId);
+
+      if (!foundOption) {
+          console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
+          return;
+      }
+
+      console.log('[onOptionClicked] ✅ Found selected option:', foundOption);
+
+      // ✅ Ensure `foundOption` is not null before using it
+      try {
+          if (!this.isFeedbackApplied && foundOption) {
+              await this.applyOptionFeedback(foundOption);
+          }
+      } catch (error) {
+          console.error('[onOptionClicked] ❌ Error applying feedback:', error);
       }
 
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
