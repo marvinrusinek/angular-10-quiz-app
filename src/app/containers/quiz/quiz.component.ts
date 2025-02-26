@@ -450,20 +450,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ); */
   }
 
-  reloadQuizComponent(): void {
-    console.log('[DEBUG] 🔄 Reloading QuizComponent...');
-    
-    // **Destroy and recreate the component instance**
-    this.router.navigateByUrl('/blank', { skipLocationChange: true }).then(() => {
-        this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-    });
-  }
-
-  updateBadgeText() {
-    const badgeNumber = this.currentQuestionIndex + 1; // Convert to one-based for display
-    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-  }
-
   ngAfterViewInit(): void {
     this.initializeDisplayVariables();
     this.loadQuestionContents(this.currentQuestionIndex);
