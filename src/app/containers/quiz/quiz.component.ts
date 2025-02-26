@@ -1728,7 +1728,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // Ensure optionsToDisplay is populated before applying feedback
           if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[loadQuestionByRouteIndex] ⚠️ optionsToDisplay is empty! Attempting to repopulate...');
-            this.quizQuestionComponent.populateOptionsToDisplay();
+            this.quizQuestionComponent?.populateOptionsToDisplay();
           }
   
           // Reapply feedback only after selections are properly restored
