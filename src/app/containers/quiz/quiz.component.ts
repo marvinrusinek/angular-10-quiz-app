@@ -2679,25 +2679,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  private updateQuizUIForNewQuestion(
-    question: QuizQuestion = this.currentQuestion
-  ): void {
+  private updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
     if (!question) {
-      console.error('Invalid question:', question);
+      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
       return;
     }
 
+    console.log(`🔄 [updateQuizUIForNewQuestion] Attempting to find index for question:`, question.questionText);
+
+    // Log the full `questions` array
+    console.log(`📝 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz?.questions);
+
     // Find the index of the current question
-    const questionIndex = this.quizService.findQuestionIndex(
-      this.currentQuestion
-    );
+    const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
+
+    // Log the result of `findQuestionIndex()`
+    console.log(`🔍 [updateQuizUIForNewQuestion] Found question index:`, questionIndex);
+
     if (
       questionIndex < 0 ||
       questionIndex >= (this.selectedQuiz?.questions.length || 0)
     ) {
-      console.error('Invalid question index:', questionIndex);
+      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
       return;
     }
+
+    // Log UI updates
+    console.log(`[updateQuizUIForNewQuestion] Updating UI for question index: ${questionIndex}`);
 
     // Reset UI elements and messages as needed
     this.selectedOption$.next(null);
