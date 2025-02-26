@@ -2222,12 +2222,25 @@ export class QuizQuestionComponent
       }
 
       // Find the selected option
-      const selectedOptionId = Number(event.option?.optionId);
-      const foundOption = this.optionsToDisplay.find(opt => Number(opt.optionId) === selectedOptionId);
-      if (!foundOption) {
-        console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+      const selectedOptionId = event.option?.optionId;
+
+      console.log('[onOptionClicked] 🔍 Selected event.option:', event.option);
+      console.log('[onOptionClicked] 🔍 Selected optionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
+
+      // Ensure optionId is a valid number
+      if (typeof selectedOptionId !== 'number' || isNaN(selectedOptionId)) {
+        console.error('[onOptionClicked] ❌ Invalid optionId detected. Expected a number.');
         return;
       }
+
+      // Find the matching option in optionsToDisplay
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === selectedOptionId);
+      if (!foundOption) {
+        console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+        console.log('[onOptionClicked] ❌ Current optionsToDisplay:', this.optionsToDisplay);
+        return;
+      }
+      console.log('[onOptionClicked] ✅ Found selected option:', foundOption);
 
       // Prevent clicking before feedback is ready
       if (!this.isFeedbackApplied) {
