@@ -2214,6 +2214,10 @@ export class QuizQuestionComponent
   }
   
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    console.log('[onOptionClicked] 🔍 Full event data:', event);
+    console.log('[onOptionClicked] 🔍 Selected option object:', event.option);
+    console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
+
     try {
       // Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
