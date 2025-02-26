@@ -1547,6 +1547,7 @@ export class QuizQuestionComponent
     }
   }  */
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    console.log(`Entered loadQuestion() for Q${this.currentQuestionIndex}`);
     try {
       console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
 
