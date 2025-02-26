@@ -2225,6 +2225,19 @@ export class QuizQuestionComponent
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
 
+      if (!event.option) {
+        console.error('[onOptionClicked] ❌ event.option is missing! Check how this function is being called.');
+        return;
+      }
+    
+      console.log('[onOptionClicked] 🔍 Selected option object:', event.option);
+      console.log('[onOptionClicked] 🔍 optionId before conversion:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
+
+      if (event.option?.optionId === undefined || event.option?.optionId === null) {
+        console.error('[onOptionClicked] ❌ optionId is missing! It is undefined or null.');
+        return;
+      }
+
       // Find the selected option
       const rawOptionId = event.option?.optionId;
 
