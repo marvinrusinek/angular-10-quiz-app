@@ -456,6 +456,9 @@ export class QuizQuestionComponent
   }
 
   private setOptionsToDisplay(): void {
+    console.log(`[setOptionsToDisplay] Called for question:`, this.currentQuestion?.questionText);
+    console.log(`[setOptionsToDisplay] Current question options before update:`, this.currentQuestion?.options);
+
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
       console.warn('[setOptionsToDisplay] No valid options in current question.');
       this.optionsToDisplay = [];
