@@ -2222,7 +2222,8 @@ export class QuizQuestionComponent
       }
 
       // Find the selected option
-      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+      const selectedOptionId = Number(event.option?.optionId);
+      const foundOption = this.optionsToDisplay.find(opt => Number(opt.optionId) === selectedOptionId);
       if (!foundOption) {
         console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
         return;
