@@ -463,11 +463,14 @@ export class QuizQuestionComponent
       return;
     }
 
+    // Ensure options are properly reassigned and not left over from the previous question
     this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
       ...option,
       active: option.active ?? true,
       feedback: option.feedback ?? undefined,
-      showIcon: option.showIcon ?? false
+      showIcon: option.showIcon ?? false,
+      selected: false, // reset selection
+      highlighted: false // reset highlighting
     }));
 
     console.log('[setOptionsToDisplay] Updated optionsToDisplay:', this.optionsToDisplay);
@@ -1575,20 +1578,6 @@ export class QuizQuestionComponent
 
         // Call `setOptionsToDisplay()` to ensure new options load
         this.setOptionsToDisplay();
-
-        // Ensure options are properly reassigned and not left over from the previous question
-        this.optionsToDisplay = this.currentQuestion.options 
-          ? this.currentQuestion.options.map(option => ({
-            ...option,
-            active: true,
-            feedback: undefined,
-            showIcon: false,
-            selected: false, // reset selection
-            highlighted: false // reset highlighting
-          })) 
-          : [];
-
-        console.log(`✅ [QQC] Updated Options AFTER reset:`, this.optionsToDisplay);
 
         this.feedbackText = '';
         this.displayState = { mode: 'question', answered: false };
