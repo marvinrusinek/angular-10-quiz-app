@@ -2222,14 +2222,12 @@ export class QuizQuestionComponent
       }
 
       // Find the selected option
-      const selectedOptionId = event.option?.optionId;
+      const selectedOptionId = Number(event.option?.optionId); // Force conversion
 
-      console.log('[onOptionClicked] 🔍 Selected event.option:', event.option);
-      console.log('[onOptionClicked] 🔍 Selected optionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
+      console.log('[onOptionClicked] 🔍 Checking selected optionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
 
-      // Ensure optionId is a valid number
-      if (typeof selectedOptionId !== 'number' || isNaN(selectedOptionId)) {
-        console.error('[onOptionClicked] ❌ Invalid optionId detected. Expected a number.');
+      if (isNaN(selectedOptionId)) {
+        console.error('[onOptionClicked] ❌ Invalid optionId detected. Expected a number, got:', event.option?.optionId);
         return;
       }
 
