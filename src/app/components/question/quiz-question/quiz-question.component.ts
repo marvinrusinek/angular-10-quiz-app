@@ -3754,6 +3754,71 @@ export class QuizQuestionComponent
     }
   }
 
+  /* private async handleOptionClicked(
+    currentQuestion: QuizQuestion,
+    optionIndex: number
+  ): Promise<void> {
+    try {
+      // Ensure optionId is assigned to all options in the current question
+      currentQuestion.options = this.quizService.assignOptionIds(
+        currentQuestion.options
+      );
+
+      // Get selected options, but only include those with a valid optionId
+      const selectedOptions: Option[] = this.selectedOptionService
+        .getSelectedOptionIndices(this.currentQuestionIndex)
+        .map((index) => currentQuestion.options[index])
+        .filter((option) => option && option.optionId !== undefined);
+
+      // Check if the option is already selected
+      const isOptionSelected = selectedOptions.some(
+        (option) => option.optionId === optionIndex
+      );
+
+      // Add or remove the option based on its current state
+      if (!isOptionSelected) {
+        this.selectedOptionService.addSelectedOptionIndex(
+          this.currentQuestionIndex,
+          optionIndex
+        );
+      } else {
+        this.selectedOptionService.removeSelectedOptionIndex(
+          this.currentQuestionIndex,
+          optionIndex
+        );
+      }
+
+      // Check if all correct answers are selected
+      const allCorrectSelected =
+        await this.selectedOptionService.areAllCorrectAnswersSelected(
+          currentQuestion.options,
+          this.currentQuestionIndex
+        );
+      console.log(
+        '[handleOptionClicked] All correct answers selected:',
+        allCorrectSelected
+      );
+
+      // Update answered state
+      this.selectedOptionService.updateAnsweredState(
+        currentQuestion.options,
+        this.currentQuestionIndex
+      );
+
+      // Handle multiple-answer logic
+      if (allCorrectSelected) {
+        console.log(
+          '[handleOptionClicked] All correct options selected. Stopping the timer.'
+        );
+        this.timerService.stopTimer();
+      }
+
+      // Ensure the UI reflects the changes
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.error('[handleOptionClicked] Unhandled error:', error);
+    }
+  } */
   private async handleOptionClicked(
     currentQuestion: QuizQuestion,
     optionIndex: number
