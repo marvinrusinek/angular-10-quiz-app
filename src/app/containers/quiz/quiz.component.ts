@@ -2681,33 +2681,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
     if (!question) {
-      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
-      return;
+        console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
+        return;
     }
 
-    console.log(`🔄 [updateQuizUIForNewQuestion] Attempting to find index for question:`, question.questionText);
+    console.log(`🔄 [updateQuizUIForNewQuestion] Looking for question:`, question.questionText);
 
-    // Log the full `questions` array
-    console.log(`📝 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz?.questions);
+    if (!this.selectedQuiz || !this.selectedQuiz.questions) {
+        console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz or questions array is missing.');
+        return;
+    }
 
-    // Find the index of the current question
+    // ✅ Log all quiz questions before searching
+    console.log(`📋 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz.questions);
+
     const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
 
-    // Log the result of `findQuestionIndex()`
     console.log(`🔍 [updateQuizUIForNewQuestion] Found question index:`, questionIndex);
 
-    if (
-      questionIndex < 0 ||
-      questionIndex >= (this.selectedQuiz?.questions.length || 0)
-    ) {
-      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
-      return;
+    if (questionIndex < 0 || questionIndex >= this.selectedQuiz.questions.length) {
+        console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
+        return;
     }
 
-    // Log UI updates
-    console.log(`[updateQuizUIForNewQuestion] Updating UI for question index: ${questionIndex}`);
+    console.log(`✅ [updateQuizUIForNewQuestion] Updating UI for question index: ${questionIndex}`);
 
-    // Reset UI elements and messages as needed
+    // Reset UI elements
     this.selectedOption$.next(null);
     this.explanationTextService.explanationText$.next('');
   }
