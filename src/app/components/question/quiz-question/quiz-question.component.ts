@@ -1573,6 +1573,9 @@ export class QuizQuestionComponent
       this.ngZone.run(() => {
         this.currentQuestion = { ...potentialQuestion };
 
+        // Call `setOptionsToDisplay()` to ensure new options load
+        this.setOptionsToDisplay();
+
         // Ensure options are properly reassigned and not left over from the previous question
         this.optionsToDisplay = this.currentQuestion.options 
           ? this.currentQuestion.options.map(option => ({
