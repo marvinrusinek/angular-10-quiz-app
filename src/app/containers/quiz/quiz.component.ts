@@ -465,14 +465,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   ngAfterViewInit(): void {
-    console.log('[ngAfterViewInit] 🟢 View initialized. Checking quizQuestionComponent...');
-
-    if (!this.quizQuestionComponent) {
-      console.error('[ngAfterViewInit] ❌ quizQuestionComponent is STILL undefined!');
-    } else {
-      console.log('[ngAfterViewInit] ✅ quizQuestionComponent initialized:', this.quizQuestionComponent);
-    }
-
     this.initializeDisplayVariables();
     this.loadQuestionContents(this.currentQuestionIndex);
   }
