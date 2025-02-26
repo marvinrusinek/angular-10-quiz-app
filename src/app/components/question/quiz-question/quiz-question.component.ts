@@ -2226,23 +2226,26 @@ export class QuizQuestionComponent
       }
 
       // Find the selected option
-      const selectedOptionId = Number(event.option?.optionId); // Force conversion
+      const selectedOptionId = event.option?.optionId;
 
       console.log('[onOptionClicked] 🔍 Checking selected optionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
+      console.log('[onOptionClicked] 📝 Current optionsToDisplay:', this.optionsToDisplay);
 
-      if (isNaN(selectedOptionId)) {
-        console.error('[onOptionClicked] ❌ Invalid optionId detected. Expected a number, got:', event.option?.optionId);
-        return;
+      // Manually check if optionId exists in optionsToDisplay
+      let optionFound = false;
+      this.optionsToDisplay.forEach(opt => {
+          console.log(`🧐 Checking option in list - ID: ${opt.optionId}, Matches selected?`, opt.optionId === selectedOptionId);
+          if (opt.optionId === selectedOptionId) {
+              optionFound = true;
+          }
+      });
+
+      if (!optionFound) {
+          console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+          return;
       }
 
-      // Find the matching option in optionsToDisplay
-      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === selectedOptionId);
-      if (!foundOption) {
-        console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
-        console.log('[onOptionClicked] ❌ Current optionsToDisplay:', this.optionsToDisplay);
-        return;
-      }
-      console.log('[onOptionClicked] ✅ Found selected option:', foundOption);
+      console.log('[onOptionClicked] ✅ Found selected option in optionsToDisplay!');
 
       // Prevent clicking before feedback is ready
       if (!this.isFeedbackApplied) {
