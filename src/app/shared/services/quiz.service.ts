@@ -1995,29 +1995,26 @@ export class QuizService implements OnDestroy {
   // Method to find the index of a question
   findQuestionIndex(question: QuizQuestion): number {
     if (!this.selectedQuiz) {
-      console.error(
-        'Quiz data is not properly initialized: selectedQuiz is null'
-      );
-      return -1;
+        console.error('🚨 [QuizService] Quiz data is not properly initialized: selectedQuiz is null');
+        return -1;
     }
 
     if (!Array.isArray(this.selectedQuiz.questions)) {
-      console.error(
-        'Quiz data is not properly initialized: questions is not an array'
-      );
-      return -1;
+        console.error('🚨 [QuizService] Quiz data is not properly initialized: questions is not an array');
+        return -1;
     }
 
     if (this.selectedQuiz.questions.length === 0) {
-      console.error(
-        'Quiz data is not properly initialized: questions array is empty'
-      );
-      return -1;
+        console.error('🚨 [QuizService] Quiz data is not properly initialized: questions array is empty');
+        return -1;
     }
 
-    const index = this.selectedQuiz.questions.findIndex(
-      (q) => q.explanation === question.explanation
-    );
+    console.log(`🔍 [QuizService] Finding index for question:`, question.questionText);
+
+    // ✅ Compare `questionText` instead of `explanation`
+    const index = this.selectedQuiz.questions.findIndex(q => q.questionText === question.questionText);
+
+    console.log(`✅ [QuizService] Found question index:`, index);
     return index;
   }
 
