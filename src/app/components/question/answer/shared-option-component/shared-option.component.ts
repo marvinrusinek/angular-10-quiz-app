@@ -582,45 +582,41 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
-    // Validate the option object immediately
     if (!option || typeof option !== 'object') {
-      console.error(`Invalid or undefined option at index ${index}.`, option);
-      return;
-    }
-  
-    // Clone the option to prevent mutations
-    const clonedOption = { ...option };
-  
-    // Safely access optionId, or fallback to index
-    const optionId = this.quizService.getSafeOptionId(clonedOption, index);
-    if (optionId === undefined) {
-      console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
-      return;
-    }
-    console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
-  
-    // Check if the click should be ignored
-    if (this.shouldIgnoreClick(optionId)) {
-      console.warn(`Ignoring click for optionId: ${optionId}`);
-      return;
+        console.error(`[handleOptionClick] ❌ Invalid or undefined option at index ${index}.`, option);
+        console.error('[handleOptionClick] ❌ Stack trace:', new Error().stack);
+        return;
     }
 
-    // Mark question as answered
-    this.selectedOptionService.isAnsweredSubject.next(true);
-  
-    if (this.isNavigatingBackwards) {
-      console.log('Handling backward navigation for:', clonedOption);
-      this.handleBackwardNavigationOptionClick(clonedOption, index);
-      return;
+    const clonedOption = { ...option };
+    const optionId = this.quizService.getSafeOptionId(clonedOption, index);
+    
+    if (optionId === undefined) {
+        console.error(`[handleOptionClick] ❌ Failed to access optionId. Option data:`, JSON.stringify(clonedOption, null, 2));
+        return;
     }
-  
-    // Update option state, handle selection, and display feedback
+
+    console.log(`[handleOptionClick] ✅ Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+
+    if (this.shouldIgnoreClick(optionId)) {
+        console.warn(`[handleOptionClick] ⚠️ Ignoring click for optionId: ${optionId}`);
+        return;
+    }
+
+    this.selectedOptionService.isAnsweredSubject.next(true);
+
+    if (this.isNavigatingBackwards) {
+        console.log('[handleOptionClick] 🔄 Handling backward navigation for:', clonedOption);
+        this.handleBackwardNavigationOptionClick(clonedOption, index);
+        return;
+    }
+
     this.updateOptionState(clonedOption, index, optionId ?? index);
     this.handleSelection(clonedOption, index, optionId);
     this.displayFeedbackForOption(clonedOption, index, optionId);
     this.triggerChangeDetection();
-  
-    // Safely call option click handlers
+
+    console.log('[handleOptionClick] 🔍 Calling safeCallOptionClickHandlers with:', clonedOption);
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
   }
 
