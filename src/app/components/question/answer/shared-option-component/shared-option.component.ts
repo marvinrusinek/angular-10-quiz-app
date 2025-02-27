@@ -654,8 +654,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
         console.log('[safeCallOptionClickHandlers] 🔍 Calling this.quizQuestionComponentOnOptionClicked with:', { option, index });
 
-        // ❗ Fix: Ensure the function is receiving `{ option, index, checked }`
-        this.quizQuestionComponentOnOptionClicked({ option, index, checked });
+        this.quizQuestionComponentOnOptionClicked(option, index);
     } else {
         console.warn('[safeCallOptionClickHandlers] ⚠️ quizQuestionComponentOnOptionClicked is not a function.');
     }
