@@ -630,7 +630,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     option: SelectedOption,
     index: number,
     checked: boolean
-): Promise<void> {
+  ): Promise<void> {
     console.log('[safeCallOptionClickHandlers] 🔍 Function called with:', { option, index, checked });
 
     if (!option || typeof option !== 'object') {
@@ -642,7 +642,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     const optionId = typeof option.optionId === 'number' ? option.optionId : index;
     console.log(`✅ Processing option with ID: ${optionId}`);
 
-    // ✅ Debug `this.config.onOptionClicked`
     if (this.config?.onOptionClicked) {
         console.log('[safeCallOptionClickHandlers] 🔍 Calling this.config.onOptionClicked with:', { option, index, checked });
         await this.config.onOptionClicked(option, index, checked);
@@ -650,15 +649,21 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         console.warn('[safeCallOptionClickHandlers] ⚠️ onOptionClicked function is not defined in the config.');
     }
 
-    // ✅ Debug `this.quizQuestionComponentOnOptionClicked`
     if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-        console.log('[safeCallOptionClickHandlers] 🔍 Calling this.quizQuestionComponentOnOptionClicked with:', { option, index });
+        console.log('[safeCallOptionClickHandlers] 🔍 Calling this.quizQuestionComponentOnOptionClicked with:', { option, index, checked });
+
+        // 🚀 NEW: Ensure correct data format before passing
+        if (!option) {
+            console.error('[safeCallOptionClickHandlers] ❌ option is missing! Something went wrong before this call.');
+            return;
+        }
 
         this.quizQuestionComponentOnOptionClicked(option, index);
     } else {
         console.warn('[safeCallOptionClickHandlers] ⚠️ quizQuestionComponentOnOptionClicked is not a function.');
     }
   }
+
   
   private shouldIgnoreClick(optionId: number): boolean {
     if (this.clickedOptionIds.has(optionId)) {
