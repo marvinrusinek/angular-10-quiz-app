@@ -472,20 +472,26 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     checked: boolean
   ): boolean {
     if (optionBinding.isSelected) {
-      console.log('Option already selected:', optionBinding.option);
-      return false;
+        console.log('[handleOptionState] ⚠️ Option already selected:', optionBinding.option);
+        return false;
     }
-  
-    console.log(`Handling option click for ID: ${optionId}`);
+
+    console.log(`[handleOptionState] 🔍 Handling option click for ID: ${optionId}`);
+    console.log(`[handleOptionState] 🔍 Passing to handleOptionClick:`, {
+        option: optionBinding.option,
+        index,
+        checked
+    });
+
     this.handleOptionClick(optionBinding.option as SelectedOption, index, checked);
-  
+
     optionBinding.isSelected = true;
     optionBinding.option.selected = checked;
     this.selectedOptionIndex = index;
     this.selectedOptionId = optionId;
     this.selectedOption = optionBinding.option;
     this.isOptionSelected = true;
-  
+
     return true;
   }
 
