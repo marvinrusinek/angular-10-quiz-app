@@ -161,6 +161,7 @@ export class QuizQuestionComponent
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
   private isRestoringState = false;
+  private isProcessingClick = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
     answered: false
