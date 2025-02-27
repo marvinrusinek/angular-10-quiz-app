@@ -2213,84 +2213,96 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
   
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    console.log('[onOptionClicked] Event received:', event);
-    console.log('[onOptionClicked] 🔍 Full event data:', event);
-    console.log('[onOptionClicked] 🔍 Selected option object:', event.option);
-    console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
+    console.log('🟢 Option clicked:', event.option);
+    console.log('[onOptionClicked] STARTED - Checking function execution.');
 
-    if (!event.option) {
-      console.error('[onOptionClicked] ❌ event.option is missing! Check how this function is being called.');
-      return;
+    // ✅ Prevent duplicate clicks
+    if (this.isProcessingClick) {
+        console.warn('[onOptionClicked] ⚠️ Click already in progress! Skipping duplicate call.');
+        return;
     }
+    this.isProcessingClick = true;
 
     try {
-      // Ensure optionsToDisplay is set before proceeding
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        this.optionsToDisplay = this.populateOptionsToDisplay();
-      }
-    
-      console.log('[onOptionClicked] 🔍 Selected option object:', event.option);
-      console.log('[onOptionClicked] 🔍 optionId before conversion:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
+        console.log('[onOptionClicked] STARTED');
 
-      if (event.option?.optionId === undefined || event.option?.optionId === null) {
-        console.error('[onOptionClicked] ❌ optionId is missing! It is undefined or null.');
-        return;
-      }
+        // ✅ Ensure `event.option` exists before proceeding
+        if (!event || typeof event !== 'object') {
+            console.error('[onOptionClicked] ❌ Event is undefined or invalid:', event);
+            return;
+        }
 
-      // Find the selected option
-      const selectedOptionId = Number(event.option.optionId);
-      if (isNaN(selectedOptionId)) {
-        console.error('[onOptionClicked] ❌ optionId is NaN. Exiting function.');
-        return;
-      }
+        if (!event.option) {
+            console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
+            return;
+        }
 
-      console.log('[onOptionClicked] ✅ Converted selectedOptionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
-      console.log('[onOptionClicked] 📝 Current optionsToDisplay:', JSON.stringify(this.optionsToDisplay, null, 2));
+        console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
+        console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-      // Use `.find()` for a cleaner lookup
-      const foundOption: Option | undefined = this.optionsToDisplay.find(opt => opt.optionId === selectedOptionId);
+        // ✅ Ensure optionsToDisplay is populated
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            this.optionsToDisplay = this.populateOptionsToDisplay();
+        }
 
-      if (!foundOption) {
-          console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay.');
-          return;
-      }
+        // ✅ Find the selected option
+        const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+        if (!foundOption) {
+            console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+            return;
+        }
 
-      console.log('[onOptionClicked] ✅ Found selected option:', foundOption);
+        console.log('[onOptionClicked] ✅ Valid option found:', foundOption);
 
-      // ✅ Ensure `foundOption` is not null before using it
-      try {
-          if (!this.isFeedbackApplied && foundOption) {
-              await this.applyOptionFeedback(foundOption);
-          }
-      } catch (error) {
-          console.error('[onOptionClicked] ❌ Error applying feedback:', error);
-      }
+        // ✅ Log isFeedbackApplied before selection
+        console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
 
-      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-        this.selectedOptionService.isAnsweredSubject.next(true);
-      }
+        // ✅ Prevent clicking before feedback is ready
+        if (!this.isFeedbackApplied) {
+            console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
+            console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
+            await this.applyOptionFeedback(foundOption);
+            console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
+            console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
+        }
 
-      // Ensure explanation text always updates when selecting an option
-      this.explanationToDisplay = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-      );
-      
-      this.updateDisplayStateToExplanation();
+        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+            console.log('✅ First option clicked - marking question as answered');
+            this.selectedOptionService.isAnsweredSubject.next(true);
+            console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
+        }
 
-      // Call `handleCorrectnessOutcome()` to ensure UI updates
-      await this.handleCorrectnessOutcome(true);
+        // ✅ Ensure explanation text **always** updates when selecting an option
+        console.log('[onOptionClicked] 🔍 Fetching explanation text...');
+        this.explanationToDisplay = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        );
+        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-      // Emit event to enable "Next" button and advance to next question
-      this.answerSelected.emit(true);
+        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+        this.updateDisplayStateToExplanation();
 
-      setTimeout(() => {
-        console.log('[onOptionClicked] 🟢 Triggering change detection...');
-        this.cdRef.markForCheck();
-      });
+        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
+        console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
+        await this.handleCorrectnessOutcome(true);
+
+        // ✅ Emit event to enable "Next" button and advance to next question
+        console.log('[onOptionClicked] 🟢 Enabling Next button...');
+        this.answerSelected.emit(true);
+
+        setTimeout(() => {
+            console.log('[onOptionClicked] 🟢 Triggering change detection...');
+            this.cdRef.markForCheck();
+        });
+
     } catch (error) {
-      console.error('[onOptionClicked] ❌ Unhandled error:', error);
+        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+    } finally {
+        // ✅ Reset `isProcessingClick` after execution
+        this.isProcessingClick = false;
     }
   }
   
