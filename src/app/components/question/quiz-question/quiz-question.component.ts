@@ -2808,13 +2808,17 @@ export class QuizQuestionComponent
     this.emitOptionSelected(option, index);
   }
 
-  private async performOptionProcessing(
+  private async performOptionProcessing( 
     option: SelectedOption,
     index: number,
     checked: boolean,
     isMultipleAnswer: boolean
   ): Promise<void> {
-    await super.onOptionClicked({ option, index, checked });
+    const event = { option, index, checked };
+    console.log('[performOptionProcessing] 🟢 Calling super.onOptionClicked with:', event);
+
+    await super.onOptionClicked(event);
+
     this.startLoading();
     this.handleMultipleAnswerQuestion(option);
     this.markQuestionAsAnswered();
@@ -2822,12 +2826,9 @@ export class QuizQuestionComponent
     await this.processSelectedOption(option, index, checked);
     await this.finalizeSelection(option, index);
 
-    // Unlock for multiple-answer questions
     if (isMultipleAnswer) {
       this.isOptionSelected = false;
     }
-
-    console.log('Option processed. Applying changes.');
   }
 
   private applyCooldownAndFinalize(): void {
