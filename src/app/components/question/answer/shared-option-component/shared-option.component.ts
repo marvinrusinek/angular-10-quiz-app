@@ -629,23 +629,30 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     index: number,
     checked: boolean
   ): Promise<void> {
-    console.log('Inside safeCallOptionClickHandlers:', { option, index, checked });
-  
-    const optionId = typeof option.optionId === 'number' ? option.optionId : index;
-    console.log(`Processing with Option ID: ${optionId}`);
-  
-    if (this.config?.onOptionClicked) {
-      console.log('Calling onOptionClicked from config...');
-      await this.config.onOptionClicked(option, index, checked);
-    } else {
-      console.warn('onOptionClicked function is not defined in the config.');
+    console.log('[safeCallOptionClickHandlers] 🔍 Function called with:', { option, index, checked });
+
+    if (!option || typeof option !== 'object') {
+        console.error('[safeCallOptionClickHandlers] ❌ Invalid option detected:', option);
+        console.error('[safeCallOptionClickHandlers] ❌ Stack trace:', new Error().stack);
+        return;
     }
-  
+
+    const optionId = typeof option.optionId === 'number' ? option.optionId : index;
+    console.log(`✅ Processing option with ID: ${optionId}`);
+
+    if (this.config?.onOptionClicked) {
+        console.log('[safeCallOptionClickHandlers] 🔍 Calling onOptionClicked from config...');
+        await this.config.onOptionClicked(option, index, checked);
+    } else {
+        console.warn('[safeCallOptionClickHandlers] ⚠️ onOptionClicked function is not defined in the config.');
+    }
+
     if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-      console.log('Calling quizQuestionComponentOnOptionClicked...');
-      this.quizQuestionComponentOnOptionClicked(option, index);
+        console.log('[safeCallOptionClickHandlers] 🔍 Calling quizQuestionComponentOnOptionClicked...');
+        this.quizQuestionComponentOnOptionClicked(option, index);
     }
   }
+
   
   private shouldIgnoreClick(optionId: number): boolean {
     if (this.clickedOptionIds.has(optionId)) {
