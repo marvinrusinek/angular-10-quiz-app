@@ -2240,22 +2240,10 @@ export class QuizQuestionComponent
       }
 
       // Find the selected option
-      const rawOptionId = event.option?.optionId;
-
-      console.log('[onOptionClicked] 🔍 Full event data:', event);
-      console.log('[onOptionClicked] 🔍 Raw optionId before conversion:', rawOptionId, 'Type:', typeof rawOptionId);
-
-      // Ensure `optionId` exists before conversion
-      if (rawOptionId === undefined || rawOptionId === null) {
-          console.error('[onOptionClicked] ❌ optionId is missing! It is undefined or null.');
-          return;
-      }
-
-      const selectedOptionId = Number(rawOptionId);
-
+      const selectedOptionId = Number(event.option.optionId);
       if (isNaN(selectedOptionId)) {
-          console.error('[onOptionClicked] ❌ optionId is NaN. Exiting function.');
-          return;
+        console.error('[onOptionClicked] ❌ optionId is NaN. Exiting function.');
+        return;
       }
 
       console.log('[onOptionClicked] ✅ Converted selectedOptionId:', selectedOptionId, 'Type:', typeof selectedOptionId);
