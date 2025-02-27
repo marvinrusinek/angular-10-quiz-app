@@ -2214,20 +2214,21 @@ export class QuizQuestionComponent
   }
   
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    console.log('[onOptionClicked] Event received:', event);
     console.log('[onOptionClicked] 🔍 Full event data:', event);
     console.log('[onOptionClicked] 🔍 Selected option object:', event.option);
     console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
+
+    if (!event.option) {
+      console.error('[onOptionClicked] ❌ event.option is missing! Check how this function is being called.');
+      return;
+    }
 
     try {
       // Ensure optionsToDisplay is set before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         await new Promise(resolve => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
-      }
-
-      if (!event.option) {
-        console.error('[onOptionClicked] ❌ event.option is missing! Check how this function is being called.');
-        return;
       }
     
       console.log('[onOptionClicked] 🔍 Selected option object:', event.option);
