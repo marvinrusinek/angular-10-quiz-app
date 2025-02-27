@@ -2217,6 +2217,9 @@ export class QuizQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
     console.log('🟢 Option clicked:', event.option);
     console.log('[onOptionClicked] STARTED - Checking function execution.');
+    
+    // ✅ Log stack trace to see where `onOptionClicked()` is called
+    console.log('[onOptionClicked] 🔍 Stack trace:', new Error().stack);
 
     // ✅ Prevent duplicate clicks
     if (this.isProcessingClick) {
@@ -2228,14 +2231,17 @@ export class QuizQuestionComponent
     try {
         console.log('[onOptionClicked] STARTED');
 
-        // ✅ Ensure `event.option` exists before proceeding
+        // ✅ Ensure `event` exists before proceeding
         if (!event || typeof event !== 'object') {
             console.error('[onOptionClicked] ❌ Event is undefined or invalid:', event);
+            console.error('[onOptionClicked] ❌ Stack trace:', new Error().stack);
             return;
         }
 
+        // ✅ Ensure `event.option` exists before proceeding
         if (!event.option) {
             console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
+            console.error('[onOptionClicked] ❌ Stack trace:', new Error().stack);
             return;
         }
 
