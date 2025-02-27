@@ -91,6 +91,18 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
     this.ensureOptionIds();
 
+    this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+      console.log('[SharedOptionComponent] 🟢 `quizQuestionComponentOnOptionClicked` triggered with:', { option, index });
+  
+      // 🚀 Ensure `quizQuestionComponent` exists before calling `onOptionClicked()`
+      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+          console.log('[SharedOptionComponent] 🔍 Calling `quizQuestionComponent.onOptionClicked()`...');
+          this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
+      } else {
+          console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
+      }
+    };
+
     console.log('Received config:', this.config);
     if (
       this.config &&
@@ -663,7 +675,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         console.warn('[safeCallOptionClickHandlers] ⚠️ quizQuestionComponentOnOptionClicked is not a function.');
     }
   }
-
   
   private shouldIgnoreClick(optionId: number): boolean {
     if (this.clickedOptionIds.has(optionId)) {
