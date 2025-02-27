@@ -14,7 +14,7 @@ import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
-import { QuizQuestionComponent } from '../../../question/quiz-question/quiz-question.component';
+import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
 @Component({
