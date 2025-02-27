@@ -2955,85 +2955,63 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number,
     checked: boolean
-  ): Promise<void> {
+): Promise<void> {
     try {
-      const event = { option, index, checked };
-      await super.onOptionClicked(event);
+        const event = { option, index, checked };
+        console.log('[handleOptionProcessingAndFeedback] 🟢 Calling super.onOptionClicked with:', event);
 
-      this.selectedOptions = [
-        { ...option, questionIndex: this.currentQuestionIndex },
-      ];
-      this.selectedOption = { ...option, optionId: index + 1 };
-      this.showFeedback = true;
-      this.showFeedbackForOption[option.optionId] = true;
+        await super.onOptionClicked(event);
 
-      // The question is now answered
-      this.isAnswered = true;
+        this.selectedOptions = [{ ...option, questionIndex: this.currentQuestionIndex }];
+        this.selectedOption = { ...option, optionId: index + 1 };
+        this.showFeedback = true;
+        this.showFeedbackForOption[option.optionId] = true;
 
-      // Fetch and set the explanation text
-      await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+        this.isAnswered = true;
 
-      // Update the explanation display
-      this.updateExplanationDisplay(true);
+        await this.fetchAndSetExplanationText(this.currentQuestionIndex);
+        this.updateExplanationDisplay(true);
 
-      // Fetch the current question data again to ensure we have the most up-to-date information
-      const questionData = await firstValueFrom(
-        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-      );
-
-      if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
-        // Process the explanation text
-        const processedExplanation = await this.processExplanationText(
-          questionData,
-          this.currentQuestionIndex
+        const questionData = await firstValueFrom(
+            this.quizService.getQuestionByIndex(this.currentQuestionIndex)
         );
 
-        let explanationText =
-          processedExplanation?.explanation ??
-          questionData.explanation ??
-          'No explanation available';
+        if (this.quizQuestionManagerService.isValidQuestionData(questionData)) {
+            const processedExplanation = await this.processExplanationText(
+                questionData,
+                this.currentQuestionIndex
+            );
 
-        console.log(
-          `Explanation text for question ${this.currentQuestionIndex}:`,
-          explanationText
-        );
+            let explanationText = processedExplanation?.explanation ??
+                questionData.explanation ??
+                'No explanation available';
 
-        // Update the explanation display properties
-        this.explanationToDisplay = explanationText;
-        this.explanationTextService.updateFormattedExplanation(explanationText);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        this.explanationToDisplayChange.emit(explanationText);
+            console.log(`[handleOptionProcessingAndFeedback] Explanation text for question ${this.currentQuestionIndex}:`, explanationText);
+
+            this.explanationToDisplay = explanationText;
+            this.explanationTextService.updateFormattedExplanation(explanationText);
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            this.explanationToDisplayChange.emit(explanationText);
+            this.showExplanationChange.emit(true);
+            this.displayExplanation = true;
+
+            const correctOptions = questionData.options.filter(opt => opt.correct);
+            this.correctMessage = this.feedbackService.setCorrectMessage(correctOptions, this.optionsToDisplay);
+            console.log('[handleOptionProcessingAndFeedback] ✅ Correct message set:', this.correctMessage);
+        } else {
+            console.error('[handleOptionProcessingAndFeedback] ❌ Invalid question data when handling option processing.');
+            throw new Error('Invalid question data');
+
+            this.explanationToDisplay = 'Error: Invalid question data';
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        }
+    } catch (error) {
+        console.error('[handleOptionProcessingAndFeedback] ❌ Error:', error);
+        this.explanationToDisplay = 'Error processing question. Please try again.';
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    } finally {
         this.showExplanationChange.emit(true);
         this.displayExplanation = true;
-
-        // Set the correct message using the QuizService method
-        const correctOptions = questionData.options.filter(
-          (opt) => opt.correct
-        );
-        this.correctMessage = this.feedbackService.setCorrectMessage(
-          correctOptions,
-          this.optionsToDisplay
-        );
-        console.log(
-          'QuizQuestionComponent - Correct Message set:',
-          this.correctMessage
-        );
-      } else {
-        console.error('Invalid question data when handling option processing');
-        throw new Error('Invalid question data');
-
-        this.explanationToDisplay = 'Error: Invalid question data';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      }
-    } catch (error) {
-      console.error('Error in handleOptionProcessingAndFeedback:', error);
-      this.explanationToDisplay =
-        'Error processing question. Please try again.';
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    } finally {
-      // Ensure the explanation is always displayed, even if there was an error
-      this.showExplanationChange.emit(true);
-      this.displayExplanation = true;
     }
   }
 
