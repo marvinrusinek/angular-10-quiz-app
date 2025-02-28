@@ -2288,17 +2288,17 @@ export class QuizQuestionComponent
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
+    // ✅ Lock explanation to the provided question index
+    const lockedQuestionIndex = questionIndex;
+    console.log(`[fetchAndUpdateExplanationText] 🔒 Locking explanation fetch for Q${lockedQuestionIndex}`);
+
     // ✅ Ensure the question exists before proceeding
-    if (!this.quiz.questions[questionIndex]) {
-        console.error(`[fetchAndUpdateExplanationText] ❌ Question not found at index ${questionIndex}`);
+    if (!this.quiz.questions[lockedQuestionIndex]) {
+        console.error(`[fetchAndUpdateExplanationText] ❌ Question not found at index ${lockedQuestionIndex}`);
         return;
     }
 
-    console.log(`[fetchAndUpdateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
-
-    // ✅ Force the explanation to be tied to this specific question
-    const lockedQuestionIndex = questionIndex;
-    console.log(`[fetchAndUpdateExplanationText] 🔒 Locking explanation fetch for Q${lockedQuestionIndex}`);
+    console.log(`[fetchAndUpdateExplanationText] 🔍 Current question at Q${lockedQuestionIndex}:`, this.quiz.questions[lockedQuestionIndex]);
 
     // ✅ Always clear previous explanation before fetching a new one
     this.explanationToDisplay = '';
@@ -2309,6 +2309,7 @@ export class QuizQuestionComponent
     // ✅ Introduce a small delay to allow UI updates
     await new Promise(resolve => setTimeout(resolve, 50));
 
+    // ✅ Re-fetch the correct question state before proceeding
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
     console.log(`[fetchAndUpdateExplanationText] 🔍 Resolved questionState:`, questionState);
 
@@ -2320,6 +2321,12 @@ export class QuizQuestionComponent
             const explanationText = await this.getExplanationText(lockedQuestionIndex);
             
             console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
+
+            // ✅ Prevent race condition by ensuring no other question overwrites the explanation
+            if (lockedQuestionIndex !== this.currentQuestionIndex) {
+                console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
+                return;
+            }
 
             // ✅ Ensure UI updates before applying new explanation text
             await new Promise(resolve => setTimeout(resolve, 20)); // Small delay to prevent stale updates
