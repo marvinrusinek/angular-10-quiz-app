@@ -2261,7 +2261,7 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges();
 
-    // ✅ Strictly lock explanation update to the correct question
+    // ✅ Force explanation retrieval **strictly** for Q1
     const lockedQuestionIndex = this.currentQuestionIndex; 
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
@@ -2276,12 +2276,13 @@ export class QuizQuestionComponent
             return;
         }
 
+        console.log(`[onOptionClicked] ✅ Explanation text fetched:`, explanationText);
+
+        // ✅ Ensure the UI updates correctly
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
-
-        console.log(`[onOptionClicked] ✅ Explanation text updated for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
     } catch (error) {
         console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
         this.explanationToDisplayChange.emit('Error loading explanation.');
@@ -2309,6 +2310,7 @@ export class QuizQuestionComponent
 
     console.log('[onOptionClicked] ✅ Function execution complete.');
   }
+
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
