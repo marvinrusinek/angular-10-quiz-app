@@ -2261,8 +2261,8 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges();
 
-    // ✅ Strictly lock explanation retrieval to Q1
-    const lockedQuestionIndex = this.currentQuestionIndex; 
+    // ✅ Strictly lock explanation retrieval to **this specific question**
+    const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
     try {
@@ -2284,11 +2284,15 @@ export class QuizQuestionComponent
             return;
         }
 
-        // ✅ Ensure the UI updates correctly
+        // ✅ Set and lock explanation text for this question
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
+
+        // ✅ Persist explanation in state to avoid re-fetching on additional clicks
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} saved in state.`);
     } catch (error) {
         console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
         this.explanationToDisplayChange.emit('Error loading explanation.');
