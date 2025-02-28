@@ -2234,27 +2234,16 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
         console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-        // ✅ Find the correct question index dynamically
-        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
+        // ✅ Manually ensure correct `currentQuestionIndex`
+        const resolvedIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
-        if (this.currentQuestionIndex < 0) {
+        if (resolvedIndex < 0) {
             console.error('[onOptionClicked] ❌ Invalid question index resolved.');
             return;
         }
 
+        this.currentQuestionIndex = resolvedIndex;
         console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
-
-        // ✅ Ensure feedback is applied before proceeding
-        if (!this.isFeedbackApplied) {
-            console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
-            await this.applyOptionFeedback(event.option);
-            console.log('[onOptionClicked] 🚀 Finished applying feedback');
-        }
-
-        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-            console.log('✅ First option clicked - marking question as answered');
-            this.selectedOptionService.isAnsweredSubject.next(true);
-        }
 
         // ✅ Reset explanation state before fetching a new one
         this.explanationToDisplay = '';
@@ -2265,8 +2254,8 @@ export class QuizQuestionComponent
         // ✅ Introduce slight delay to prevent stale state issues
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // ✅ Ensure correct explanation is fetched using the exact question index
-        console.log('[onOptionClicked] 🔍 Fetching updated explanation text for Q' + this.currentQuestionIndex);
+        // ✅ Fetch correct explanation text based on the resolved question index
+        console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
         await this.updateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
@@ -3443,9 +3432,10 @@ export class QuizQuestionComponent
         console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
         return;
     }
+
     console.log(`[updateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
-    // ✅ Always clear old explanation before fetching a new one
+    // ✅ Always clear previous explanation before fetching a new one
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
