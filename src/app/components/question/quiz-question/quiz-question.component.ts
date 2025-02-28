@@ -3479,12 +3479,17 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
     // ✅ Log the current question data to verify it's correct
+    if (!this.quiz.questions[questionIndex]) {
+        console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
+        return;
+    }
     console.log(`[updateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
-    // ✅ Clear old explanation before fetching a new one
+    // ✅ Always clear old explanation before fetching a new one
+    this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
+    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching new explanation
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     console.log(`[updateExplanationText] 🔍 Resolved questionState:`, questionState);
@@ -3493,11 +3498,13 @@ export class QuizQuestionComponent
         try {
             console.log(`[updateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
             
-            // ✅ Always fetch fresh data to avoid using cached explanations
+            // ✅ Always fetch fresh explanation
             const explanationText = await this.getExplanationText(questionIndex);
             
-            console.log(`[updateExplanationText] ✅ Explanation Fetched for Q${questionIndex}:`, explanationText);
+            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
 
+            // ✅ Ensure explanation is displayed immediately after fetching
+            this.explanationToDisplay = explanationText;
             this.explanationToDisplayChange.emit(explanationText);
             this.showExplanationChange.emit(true);
         } catch (error) {
