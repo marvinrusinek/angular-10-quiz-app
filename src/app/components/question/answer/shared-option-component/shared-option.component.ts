@@ -487,26 +487,20 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     checked: boolean
   ): boolean {
     if (optionBinding.isSelected) {
-        console.log('[handleOptionState] ⚠️ Option already selected:', optionBinding.option);
-        return false;
+      console.log('Option already selected:', optionBinding.option);
+      return false;
     }
-
-    console.log(`[handleOptionState] 🔍 Handling option click for ID: ${optionId}`);
-    console.log(`[handleOptionState] 🔍 Passing to handleOptionClick:`, {
-        option: optionBinding.option,
-        index,
-        checked
-    });
-
+  
+    console.log(`Handling option click for ID:' ${optionId}`);
     this.handleOptionClick(optionBinding.option as SelectedOption, index, checked);
-
+  
     optionBinding.isSelected = true;
     optionBinding.option.selected = checked;
     this.selectedOptionIndex = index;
     this.selectedOptionId = optionId;
     this.selectedOption = optionBinding.option;
     this.isOptionSelected = true;
-
+  
     return true;
   }
 
@@ -603,41 +597,45 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+    // Validate the option object immediately
     if (!option || typeof option !== 'object') {
-        console.error(`[handleOptionClick] ❌ Invalid or undefined option at index ${index}.`, option);
-        console.error('[handleOptionClick] ❌ Stack trace:', new Error().stack);
-        return;
+      console.error(`Invalid or undefined option at index ${index}., option`);
+      return;
     }
-
+  
+    // Clone the option to prevent mutations
     const clonedOption = { ...option };
+  
+    // Safely access optionId, or fallback to index
     const optionId = this.quizService.getSafeOptionId(clonedOption, index);
-    
     if (optionId === undefined) {
-        console.error(`[handleOptionClick] ❌ Failed to access optionId. Option data:`, JSON.stringify(clonedOption, null, 2));
-        return;
+      console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
+      return;
     }
-
-    console.log(`[handleOptionClick] ✅ Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
-
+    console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+  
+    // Check if the click should be ignored
     if (this.shouldIgnoreClick(optionId)) {
-        console.warn(`[handleOptionClick] ⚠️ Ignoring click for optionId: ${optionId}`);
-        return;
+      console.warn(`Ignoring click for optionId: ${optionId}`);
+      return;
     }
 
+    // Mark question as answered
     this.selectedOptionService.isAnsweredSubject.next(true);
-
+  
     if (this.isNavigatingBackwards) {
-        console.log('[handleOptionClick] 🔄 Handling backward navigation for:', clonedOption);
-        this.handleBackwardNavigationOptionClick(clonedOption, index);
-        return;
+      console.log('Handling backward navigation for:', clonedOption);
+      this.handleBackwardNavigationOptionClick(clonedOption, index);
+      return;
     }
-
+  
+    // Update option state, handle selection, and display feedback
     this.updateOptionState(clonedOption, index, optionId ?? index);
     this.handleSelection(clonedOption, index, optionId);
     this.displayFeedbackForOption(clonedOption, index, optionId);
     this.triggerChangeDetection();
-
-    console.log('[handleOptionClick] 🔍 Calling safeCallOptionClickHandlers with:', clonedOption);
+  
+    // Safely call option click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
   }
 
@@ -645,28 +643,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     option: SelectedOption,
     index: number,
     checked: boolean
-): Promise<void> {
-    console.log('[safeCallOptionClickHandlers] 🔍 Function called with:', { option, index, checked });
-
-    if (!option || typeof option !== 'object') {
-        console.error('[safeCallOptionClickHandlers] ❌ Invalid option detected:', option);
-        return;
-    }
-
-    // ✅ Call `onOptionClicked` if defined in config
+  ): Promise<void> {
+    console.log('Inside safeCallOptionClickHandlers:', { option, index, checked });
+  
+    const optionId = typeof option.optionId === 'number' ? option.optionId : index;
+    console.log(`Processing with Option ID: ${optionId}`);
+  
     if (this.config?.onOptionClicked) {
-        console.log('[safeCallOptionClickHandlers] 🔍 Calling this.config.onOptionClicked with:', { option, index, checked });
-        await this.config.onOptionClicked(option, index, checked);
+      console.log('Calling onOptionClicked from config...');
+      await this.config.onOptionClicked(option, index, checked);
     } else {
-        console.warn('[safeCallOptionClickHandlers] ⚠️ onOptionClicked function is not defined in the config.');
+      console.warn('onOptionClicked function is not defined in the config.');
     }
-
-    // ✅ Ensure `quizQuestionComponentOnOptionClicked` exists and is a function
+  
     if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-        console.log('[safeCallOptionClickHandlers] 🔍 Calling quizQuestionComponentOnOptionClicked...');
-        this.quizQuestionComponentOnOptionClicked(option, index);
-    } else {
-        console.warn('[safeCallOptionClickHandlers] ⚠️ quizQuestionComponentOnOptionClicked is not a function or is missing.');
+      console.log('Calling quizQuestionComponentOnOptionClicked...');
+      this.quizQuestionComponentOnOptionClicked(option, index);
     }
   }
   
