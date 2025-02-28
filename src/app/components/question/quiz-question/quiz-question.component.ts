@@ -2289,25 +2289,24 @@ export class QuizQuestionComponent
         );
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        // ✅ Ensure we use the correct question index
-        const resolvedIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
+        // ✅ Ensure the correct question index is used before fetching explanation
+        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
-        if (resolvedIndex < 0) {
+        if (this.currentQuestionIndex < 0) {
             console.error('[onOptionClicked] ❌ Invalid question index resolved.');
             return;
         }
 
+
         console.log(`[onOptionClicked] 🟢 Resolved question index: ${this.currentQuestionIndex}`);
-        // ✅ Ensure `currentQuestionIndex` is correctly set
-        this.currentQuestionIndex = resolvedIndex;
 
         // ✅ Reset explanation before fetching a new one
         this.explanationToDisplay = '';
         this.cdRef.detectChanges(); // ✅ Force UI update before fetching new explanation
 
         // ✅ Fetch updated explanation text based on the resolved question index
-        console.log('[onOptionClicked] 🔍 Fetching updated explanation text for Q' + resolvedIndex);
-        await this.updateExplanationText(resolvedIndex);
+        console.log('[onOptionClicked] 🔍 Fetching updated explanation text for Q' + this.currentQuestionIndex);
+        await this.updateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
@@ -3485,16 +3484,16 @@ export class QuizQuestionComponent
     // ✅ Clear old explanation before fetching a new one
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges(); // ✅ Ensure UI updates
+    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     console.log(`[updateExplanationText] 🔍 Resolved questionState:`, questionState);
 
-    if (questionState.isAnswered) {
+    if (questionState?.isAnswered) {
         try {
             console.log(`[updateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
             
-            // ✅ Fetch fresh data to avoid using cached explanations
+            // ✅ Always fetch fresh data to avoid using cached explanations
             const explanationText = await this.getExplanationText(questionIndex);
             
             console.log(`[updateExplanationText] ✅ Explanation Fetched for Q${questionIndex}:`, explanationText);
