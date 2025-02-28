@@ -2215,11 +2215,8 @@ export class QuizQuestionComponent
   }
   
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
-    console.log('🟢 Option clicked:', event.option);
+    console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
     console.log('[onOptionClicked] STARTED - Checking function execution.');
-    
-    // ✅ Log stack trace to see where `onOptionClicked()` is called
-    console.log('[onOptionClicked] 🔍 Stack trace:', new Error().stack);
 
     // ✅ Prevent duplicate clicks
     if (this.isProcessingClick) {
@@ -2229,49 +2226,29 @@ export class QuizQuestionComponent
     this.isProcessingClick = true;
 
     try {
-        console.log('[onOptionClicked] STARTED');
-
-        // ✅ Ensure `event` exists before proceeding
-        if (!event || typeof event !== 'object') {
-            console.error('[onOptionClicked] ❌ Event is undefined or invalid:', event);
-            console.error('[onOptionClicked] ❌ Stack trace:', new Error().stack);
-            return;
-        }
-
-        // ✅ Ensure `event.option` exists before proceeding
-        if (!event.option) {
+        if (!event?.option) {
             console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
-            console.error('[onOptionClicked] ❌ Stack trace:', new Error().stack);
             return;
         }
 
         console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
         console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-        // ✅ Ensure optionsToDisplay is populated
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
-            await new Promise(resolve => setTimeout(resolve, 50));
-            this.optionsToDisplay = this.populateOptionsToDisplay();
-        }
+        // ✅ Ensure the correct question index is used before fetching explanation
+        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
-        // ✅ Find the selected option
-        const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
-        if (!foundOption) {
-            console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+        if (this.currentQuestionIndex < 0) {
+            console.error('[onOptionClicked] ❌ Invalid question index resolved.');
             return;
         }
 
-        console.log('[onOptionClicked] ✅ Valid option found:', foundOption);
+        console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
 
-        // ✅ Log isFeedbackApplied before selection
-        console.log('[onOptionClicked] Checking isFeedbackApplied:', this.isFeedbackApplied);
-
-        // ✅ Prevent clicking before feedback is ready
+        // ✅ Ensure feedback is applied before proceeding
         if (!this.isFeedbackApplied) {
             console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
             console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
-            await this.applyOptionFeedback(foundOption);
+            await this.applyOptionFeedback(event.option);
             console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
             console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
         }
@@ -2282,27 +2259,14 @@ export class QuizQuestionComponent
             console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
         }
 
-        // ✅ Ensure explanation text **always** updates when selecting an option
-        console.log('[onOptionClicked] 🔍 Fetching explanation text...');
-        this.explanationToDisplay = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-        );
-        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
-
-        // ✅ Ensure the correct question index is used before fetching explanation
-        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
-
-        if (this.currentQuestionIndex < 0) {
-            console.error('[onOptionClicked] ❌ Invalid question index resolved.');
-            return;
-        }
-
-
-        console.log(`[onOptionClicked] 🟢 Resolved question index: ${this.currentQuestionIndex}`);
-
         // ✅ Reset explanation before fetching a new one
         this.explanationToDisplay = '';
-        this.cdRef.detectChanges(); // ✅ Force UI update before fetching new explanation
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
+        this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching new explanation
+
+        // ✅ Force delay before fetching the explanation (prevents stale state issues)
+        await new Promise(resolve => setTimeout(resolve, 50));
 
         // ✅ Fetch updated explanation text based on the resolved question index
         console.log('[onOptionClicked] 🔍 Fetching updated explanation text for Q' + this.currentQuestionIndex);
@@ -2328,7 +2292,6 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     } finally {
-        // ✅ Reset `isProcessingClick` after execution
         this.isProcessingClick = false;
     }
   }
