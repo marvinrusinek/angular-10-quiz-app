@@ -2265,49 +2265,42 @@ export class QuizQuestionComponent
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
-    // ✅ Check if explanation is already stored
-    const storedExplanation = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-    if (storedExplanation) {
-        console.log(`[onOptionClicked] 🔄 Using stored explanation for Q${lockedQuestionIndex}:`, storedExplanation);
-        this.explanationToDisplay = storedExplanation;
-        this.explanationToDisplayChange.emit(storedExplanation);
-        this.showExplanationChange.emit(true);
-        this.cdRef.detectChanges();
-        return; // ✅ Prevents unnecessary re-fetching
+    // ✅ Always get explanation from state first
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    
+    if (explanationText) {
+        console.log(`[onOptionClicked] 🔄 Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+    } else {
+        try {
+            explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+            );
+
+            // ✅ Prevent overwriting explanation if another question was loaded
+            if (lockedQuestionIndex !== this.currentQuestionIndex) {
+                console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
+                return;
+            }
+
+            console.log(`[onOptionClicked] ✅ Explanation text fetched:`, explanationText);
+
+            // ✅ Store explanation in state to avoid overwriting later
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} saved in state.`);
+        } catch (error) {
+            console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            explanationText = 'Error loading explanation.';
+        }
     }
 
-    try {
-        const explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
-        );
-
-        // ✅ Ensure no stale updates overwrite the correct explanation
-        if (lockedQuestionIndex !== this.currentQuestionIndex) {
-            console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
-            return;
-        }
-
-        console.log(`[onOptionClicked] ✅ Explanation text fetched:`, explanationText);
-
-        // ✅ Prevent overwriting explanation if another question was loaded
-        if (this.currentQuestionIndex !== lockedQuestionIndex) {
-            console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
-            return;
-        }
-
-        // ✅ Set and lock explanation text for this question
+    // ✅ Apply explanation text and prevent stale overwrites
+    if (this.currentQuestionIndex === lockedQuestionIndex) {
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
-
-        // ✅ Persist explanation in state to avoid re-fetching on additional clicks
-        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-        console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} saved in state.`);
-    } catch (error) {
-        console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
-        this.explanationToDisplayChange.emit('Error loading explanation.');
-        this.showExplanationChange.emit(true);
+    } else {
+        console.warn(`[onOptionClicked] ⚠️ Skipping update because currentQuestionIndex has changed.`);
     }
 
     // ✅ Ensure explanation display state updates correctly
