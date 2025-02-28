@@ -2261,7 +2261,7 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges();
 
-    // ✅ Force explanation retrieval **strictly** for Q1
+    // ✅ Strictly lock explanation retrieval to Q1
     const lockedQuestionIndex = this.currentQuestionIndex; 
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
@@ -2277,6 +2277,12 @@ export class QuizQuestionComponent
         }
 
         console.log(`[onOptionClicked] ✅ Explanation text fetched:`, explanationText);
+
+        // ✅ Prevent overwriting explanation if another question was loaded
+        if (this.currentQuestionIndex !== lockedQuestionIndex) {
+            console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
+            return;
+        }
 
         // ✅ Ensure the UI updates correctly
         this.explanationToDisplay = explanationText;
