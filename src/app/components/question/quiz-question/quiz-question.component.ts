@@ -2289,6 +2289,10 @@ export class QuizQuestionComponent
         );
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
+        console.log('[onOptionClicked] 🔍 Fetching updated explanation text...');
+        await this.updateExplanationText(this.currentQuestionIndex);
+        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
+
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
         this.updateDisplayStateToExplanation();
 
@@ -3434,7 +3438,7 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     const questionState = this.quizStateService.getQuestionState(
       this.quizId,
       questionIndex
@@ -3454,6 +3458,38 @@ export class QuizQuestionComponent
       this.explanationToDisplayChange.emit(''); // Clear the explanation text
       this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
     }
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
+
+    // ✅ Always reset explanation before fetching a new one
+    this.explanationToDisplayChange.emit(''); // Clear old explanation
+    this.showExplanationChange.emit(false); // Hide explanation area
+    this.cdRef.detectChanges(); // ✅ Force UI update
+
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+
+    if (questionState.isAnswered) {
+        try {
+            console.log(`[updateExplanationText] 🔍 Fetching new explanation for Q${questionIndex}...`);
+            const explanationText = await this.getExplanationText(questionIndex);
+
+            console.log(`[updateExplanationText] ✅ Explanation Text Set for Q${questionIndex}:`, explanationText);
+
+            this.explanationToDisplayChange.emit(explanationText); // Emit updated explanation
+            this.showExplanationChange.emit(true); // Show explanation area
+        } catch (error) {
+            console.error('[updateExplanationText] ❌ Error fetching explanation text:', error);
+            this.explanationToDisplayChange.emit('Error loading explanation.');
+            this.showExplanationChange.emit(true); // Still show area with error message
+        }
+    } else {
+        console.log(`[updateExplanationText] 🔄 No explanation needed for Q${questionIndex} (not answered yet).`);
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
+    }
+
+    this.cdRef.detectChanges(); // ✅ Ensure UI updates properly
   }
 
   handleAudioPlayback(isCorrect: boolean): void {
