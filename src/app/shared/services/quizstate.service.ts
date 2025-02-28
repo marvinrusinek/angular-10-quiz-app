@@ -7,7 +7,9 @@ import { QuestionState } from '../../shared/models/QuestionState.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
-export class QuizStateService { 
+export class QuizStateService {
+  private quizState: { [quizId: string]: { [questionIndex: number]: { explanation?: string } } } = {};
+   
   currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
 
@@ -164,6 +166,17 @@ export class QuizStateService {
 
     // Save the updated state
     this.setQuestionState(quizId, index, questionState);
+  }
+
+  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+    if (!this.quizState[quizId]) {
+      this.quizState[quizId] = {};
+    }
+    this.quizState[quizId][questionIndex] = {
+      ...(this.quizState[quizId][questionIndex] || {}),
+      explanation,
+    };
+    console.log(`[QuizStateService] 🟢 Explanation stored for Q${questionIndex}:`, explanation);
   }
 
   createDefaultQuestionState(): QuestionState {
