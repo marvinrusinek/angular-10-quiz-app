@@ -2250,12 +2250,9 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
-        // ✅ Introduce a slight delay to prevent stale state issues
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        // ✅ Force fetch correct explanation text using the exact `currentQuestionIndex`
+        // ✅ Fetch correct explanation text immediately after UI update
         console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
-        await this.updateExplanationText(this.currentQuestionIndex);
+        await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
@@ -2278,6 +2275,53 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     } finally {
         this.isProcessingClick = false;
+    }
+  }
+
+  async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[fetchAndUpdateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
+
+    // ✅ Verify the question exists before proceeding
+    if (!this.quiz.questions[questionIndex]) {
+        console.error(`[fetchAndUpdateExplanationText] ❌ Question not found at index ${questionIndex}`);
+        return;
+    }
+
+    console.log(`[fetchAndUpdateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
+
+    // ✅ Always clear previous explanation before fetching a new one
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
+
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    console.log(`[fetchAndUpdateExplanationText] 🔍 Resolved questionState:`, questionState);
+
+    if (questionState?.isAnswered) {
+        try {
+            console.log(`[fetchAndUpdateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
+            
+            // ✅ Always fetch fresh explanation (prevents using previous Q2 text)
+            const explanationText = await this.getExplanationText(questionIndex);
+            
+            console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+
+            // ✅ Ensure UI updates before applying new explanation text
+            await new Promise(resolve => setTimeout(resolve, 20)); // Introduce small delay
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(explanationText);
+            this.showExplanationChange.emit(true);
+            this.cdRef.detectChanges();
+        } catch (error) {
+            console.error('[fetchAndUpdateExplanationText] ❌ Error fetching explanation text:', error);
+            this.explanationToDisplayChange.emit('Error loading explanation.');
+            this.showExplanationChange.emit(true);
+        }
+    } else {
+        console.log(`[fetchAndUpdateExplanationText] 🔄 No explanation needed for Q${questionIndex} (not answered yet).`);
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
     }
   }
   
