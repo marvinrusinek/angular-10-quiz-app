@@ -2234,7 +2234,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
         console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-        // ✅ Ensure the correct question index is used before fetching explanation
+        // ✅ Find the correct question index dynamically
         this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
         if (this.currentQuestionIndex < 0) {
@@ -2247,28 +2247,25 @@ export class QuizQuestionComponent
         // ✅ Ensure feedback is applied before proceeding
         if (!this.isFeedbackApplied) {
             console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
-            console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
             await this.applyOptionFeedback(event.option);
-            console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
-            console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
+            console.log('[onOptionClicked] 🚀 Finished applying feedback');
         }
 
         if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
             console.log('✅ First option clicked - marking question as answered');
             this.selectedOptionService.isAnsweredSubject.next(true);
-            console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
         }
 
-        // ✅ Reset explanation before fetching a new one
+        // ✅ Reset explanation state before fetching a new one
         this.explanationToDisplay = '';
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
-        this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching new explanation
+        this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
-        // ✅ Force delay before fetching the explanation (prevents stale state issues)
+        // ✅ Introduce slight delay to prevent stale state issues
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // ✅ Fetch updated explanation text based on the resolved question index
+        // ✅ Ensure correct explanation is fetched using the exact question index
         console.log('[onOptionClicked] 🔍 Fetching updated explanation text for Q' + this.currentQuestionIndex);
         await this.updateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
@@ -3441,7 +3438,7 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
-    // ✅ Log the current question data to verify it's correct
+    // ✅ Verify the question exists before proceeding
     if (!this.quiz.questions[questionIndex]) {
         console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
         return;
@@ -3452,7 +3449,7 @@ export class QuizQuestionComponent
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching new explanation
+    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     console.log(`[updateExplanationText] 🔍 Resolved questionState:`, questionState);
@@ -3461,15 +3458,16 @@ export class QuizQuestionComponent
         try {
             console.log(`[updateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
             
-            // ✅ Always fetch fresh explanation
+            // ✅ Always fetch fresh explanation (prevents using previous Q2 text)
             const explanationText = await this.getExplanationText(questionIndex);
             
             console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
 
-            // ✅ Ensure explanation is displayed immediately after fetching
+            // ✅ Force UI update to reflect new explanation text
             this.explanationToDisplay = explanationText;
             this.explanationToDisplayChange.emit(explanationText);
             this.showExplanationChange.emit(true);
+            this.cdRef.detectChanges();
         } catch (error) {
             console.error('[updateExplanationText] ❌ Error fetching explanation text:', error);
             this.explanationToDisplayChange.emit('Error loading explanation.');
@@ -3480,8 +3478,6 @@ export class QuizQuestionComponent
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
     }
-
-    this.cdRef.detectChanges(); // ✅ Ensure UI updates properly
   }
 
   handleAudioPlayback(isCorrect: boolean): void {
