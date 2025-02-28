@@ -2246,7 +2246,7 @@ export class QuizQuestionComponent
     console.log(`[onOptionClicked] 🔍 Fetching explanation for locked Q${lockedQuestionIndex}...`);
 
     // **🚀 Explicitly pass locked index to force correct explanation update**
-    await this.fetchAndUpdateExplanationText(lockedQuestionIndex);
+    await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
 
     console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
@@ -2271,37 +2271,24 @@ export class QuizQuestionComponent
   }
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`[fetchAndUpdateExplanationText] 🟢 Fetching explanation for Q${questionIndex}`);
-
-    // ✅ Lock the current question before fetching the explanation
+    console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
+    
+    // ✅ Lock the explanation fetch to the current questionIndex at the time of call
     const lockedQuestionIndex = this.currentQuestionIndex;
-    console.log(`[fetchAndUpdateExplanationText] 🔒 Locked explanation fetch for Q${lockedQuestionIndex}`);
+    console.log(`[fetchAndUpdateExplanationText] 🔒 Locked question index: ${lockedQuestionIndex}`);
 
-    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[lockedQuestionIndex]) {
-        console.error(`[fetchAndUpdateExplanationText] ❌ Question does not exist at index ${lockedQuestionIndex}`);
+    if (lockedQuestionIndex !== questionIndex) {
+        console.warn(`[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`);
         return;
     }
 
-    console.log(`[fetchAndUpdateExplanationText] 🔍 Ensuring Q${lockedQuestionIndex} matches the current quiz state...`);
-    console.log(`[fetchAndUpdateExplanationText] 🔍 Current Question (should match Q${lockedQuestionIndex}):`, this.quiz.questions[lockedQuestionIndex]);
-
-    // ✅ Reset explanation area before fetching a new one
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges();
-
-    // ✅ Introduce a short delay before fetching the explanation (prevents race conditions)
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    // ✅ Fetch the explanation text
     try {
         const explanationText = await this.getExplanationText(lockedQuestionIndex);
         console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
 
         // ✅ Ensure that no stale updates overwrite the correct explanation
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
-            console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
+            console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`);
             return;
         }
 
