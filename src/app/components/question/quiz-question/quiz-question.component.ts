@@ -2234,14 +2234,13 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
         // ✅ Ensure correct `currentQuestionIndex`
-        const resolvedIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
+        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
-        if (resolvedIndex < 0) {
+        if (this.currentQuestionIndex < 0) {
             console.error('[onOptionClicked] ❌ Invalid question index resolved.');
             return;
         }
 
-        this.currentQuestionIndex = resolvedIndex;
         console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
 
         // ✅ Reset explanation state before fetching a new one
@@ -2250,8 +2249,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
-        // ✅ Fetch correct explanation text immediately after UI update
-        console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
+        // ✅ Ensure the explanation updates correctly
         await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
@@ -2294,6 +2292,9 @@ export class QuizQuestionComponent
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
+
+    // ✅ Introduce a slight delay to allow UI updates
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     console.log(`[fetchAndUpdateExplanationText] 🔍 Resolved questionState:`, questionState);
