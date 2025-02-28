@@ -9,7 +9,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({ providedIn: 'root' })
 export class QuizStateService {
   private quizState: { [quizId: string]: { [questionIndex: number]: { explanation?: string } } } = {};
-   
+
   currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
 
@@ -247,7 +247,7 @@ export class QuizStateService {
   }
 
   // not being used, potentially remove...
-  public shouldDisplayCorrectAnswersText(
+  /* public shouldDisplayCorrectAnswersText(
     question: QuizQuestion,
     index: number
   ): Observable<boolean> {
@@ -262,7 +262,7 @@ export class QuizStateService {
         return isAnswered && isMultipleAnswer;
       })
     );
-  }
+  } */
   
   clearSelectedOptions(): void {
     for (const [key, state] of this.questionStates.entries()) {
