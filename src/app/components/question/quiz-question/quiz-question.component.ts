@@ -2298,6 +2298,8 @@ export class QuizQuestionComponent
         }
 
         console.log(`[onOptionClicked] 🟢 Resolved question index: ${this.currentQuestionIndex}`);
+        // ✅ Ensure `currentQuestionIndex` is correctly set
+        this.currentQuestionIndex = resolvedIndex;
 
         // ✅ Reset explanation before fetching a new one
         this.explanationToDisplay = '';
