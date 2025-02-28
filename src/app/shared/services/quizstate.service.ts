@@ -179,6 +179,11 @@ export class QuizStateService {
     console.log(`[QuizStateService] 🟢 Explanation stored for Q${questionIndex}:`, explanation);
   }
 
+  // Method to retrieve stored explanation text
+  getStoredExplanation(quizId: string, questionIndex: number): string | null {
+    return this.quizState[quizId]?.[questionIndex]?.explanation || null;
+  }
+
   createDefaultQuestionState(): QuestionState {
     return {
       isAnswered: false,
