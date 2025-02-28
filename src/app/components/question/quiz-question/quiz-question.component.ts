@@ -3477,28 +3477,32 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
-    // ✅ Always reset explanation before fetching a new one
-    this.explanationToDisplayChange.emit(''); // Clear old explanation
-    this.showExplanationChange.emit(false); // Hide explanation area
-    this.cdRef.detectChanges(); // ✅ Force UI update
+    // ✅ Log the current question data to verify it's correct
+    console.log(`[updateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
+
+    // ✅ Clear old explanation before fetching a new one
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+    this.cdRef.detectChanges(); // ✅ Ensure UI updates
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    console.log(`[updateExplanationText] 🔍 Resolved questionState:`, questionState);
 
     if (questionState.isAnswered) {
         try {
-            console.log(`[updateExplanationText] 🔍 Fetching new explanation for Q${questionIndex}...`);
+            console.log(`[updateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
             
-            // ✅ Always fetch fresh data, avoiding any potential cached responses
-            const explanationText = await this.getExplanationText(questionIndex + 0); // Ensures correct offset
+            // ✅ Fetch fresh data to avoid using cached explanations
+            const explanationText = await this.getExplanationText(questionIndex);
             
-            console.log(`[updateExplanationText] ✅ Explanation Text Set for Q${questionIndex}:`, explanationText);
+            console.log(`[updateExplanationText] ✅ Explanation Fetched for Q${questionIndex}:`, explanationText);
 
-            this.explanationToDisplayChange.emit(explanationText); // Emit updated explanation
-            this.showExplanationChange.emit(true); // Show explanation area
+            this.explanationToDisplayChange.emit(explanationText);
+            this.showExplanationChange.emit(true);
         } catch (error) {
             console.error('[updateExplanationText] ❌ Error fetching explanation text:', error);
             this.explanationToDisplayChange.emit('Error loading explanation.');
-            this.showExplanationChange.emit(true); // Still show area with error message
+            this.showExplanationChange.emit(true);
         }
     } else {
         console.log(`[updateExplanationText] 🔄 No explanation needed for Q${questionIndex} (not answered yet).`);
