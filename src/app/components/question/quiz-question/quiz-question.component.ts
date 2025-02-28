@@ -2234,7 +2234,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
         console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-        // ✅ Manually ensure correct `currentQuestionIndex`
+        // ✅ Ensure correct `currentQuestionIndex`
         const resolvedIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
         if (resolvedIndex < 0) {
@@ -2251,10 +2251,10 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
-        // ✅ Introduce slight delay to prevent stale state issues
+        // ✅ Introduce a slight delay to prevent stale state issues
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // ✅ Fetch correct explanation text based on the resolved question index
+        // ✅ Force fetch correct explanation text using the exact `currentQuestionIndex`
         console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
         await this.updateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
@@ -2266,7 +2266,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
         await this.handleCorrectnessOutcome(true);
 
-        // ✅ Emit event to enable "Next" button and advance to next question
+        // ✅ Emit event to enable "Next" button and advance to the next question
         console.log('[onOptionClicked] 🟢 Enabling Next button...');
         this.answerSelected.emit(true);
 
@@ -3427,7 +3427,7 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
-    // ✅ Verify the question exists before proceeding
+    // ✅ Verify that the question exists before proceeding
     if (!this.quiz.questions[questionIndex]) {
         console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
         return;
