@@ -288,8 +288,7 @@ export class QuizQuestionComponent
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
 
     // Load the initial question and options immediately
-    const index =
-      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     const question = this.questionsArray[index];
     if (question) {
       this.quizService.setCurrentQuestion(question);
