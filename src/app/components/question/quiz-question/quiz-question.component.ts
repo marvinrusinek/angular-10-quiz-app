@@ -2262,25 +2262,31 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
 
     // ✅ Strictly lock explanation update to the correct question
-    const lockedQuestionIndex = this.currentQuestionIndex;
-    console.log(`[onOptionClicked] 🔒 Locked explanation update for Q${lockedQuestionIndex}`);
+    const lockedQuestionIndex = this.currentQuestionIndex; 
+    console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
-    const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
-    );
+    try {
+        const explanationText = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
 
-    // ✅ Ensure no stale updates overwrite the correct explanation
-    if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[onOptionClicked] ⚠️ Explanation mismatch detected! Skipping update.`);
-        return;
+        // ✅ Ensure no stale updates overwrite the correct explanation
+        if (lockedQuestionIndex !== this.currentQuestionIndex) {
+            console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
+            return;
+        }
+
+        this.explanationToDisplay = explanationText;
+        this.explanationToDisplayChange.emit(explanationText);
+        this.showExplanationChange.emit(true);
+        this.cdRef.detectChanges();
+
+        console.log(`[onOptionClicked] ✅ Explanation text updated for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
+    } catch (error) {
+        console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+        this.explanationToDisplayChange.emit('Error loading explanation.');
+        this.showExplanationChange.emit(true);
     }
-
-    this.explanationToDisplay = explanationText;
-    this.explanationToDisplayChange.emit(explanationText);
-    this.showExplanationChange.emit(true);
-    this.cdRef.detectChanges();
-
-    console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
     // ✅ Ensure explanation display state updates correctly
     this.updateDisplayStateToExplanation();
