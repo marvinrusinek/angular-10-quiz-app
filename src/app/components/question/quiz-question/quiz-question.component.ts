@@ -2290,16 +2290,21 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         // ✅ Ensure we use the correct question index
-        const currentIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
-        console.log(`[onOptionClicked] 🟢 Resolving correct question index: ${currentIndex}`);
+        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
-        if (currentIndex < 0) {
+        if (this.currentQuestionIndex < 0) {
           console.error('[onOptionClicked] ❌ Invalid question index resolved.');
           return;
         }
 
+        console.log(`[onOptionClicked] 🟢 Resolved question index: ${this.currentQuestionIndex}`);
+
+        // ✅ Reset explanation before fetching a new one
+        this.explanationToDisplay = '';
+        this.cdRef.detectChanges(); // ✅ Force UI update before fetching new explanation
+
         console.log('[onOptionClicked] 🔍 Fetching updated explanation text...');
-        await this.updateExplanationText(currentIndex);
+        await this.updateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
