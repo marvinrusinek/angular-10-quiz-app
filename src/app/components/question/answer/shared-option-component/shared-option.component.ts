@@ -645,18 +645,15 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     option: SelectedOption,
     index: number,
     checked: boolean
-  ): Promise<void> {
+): Promise<void> {
     console.log('[safeCallOptionClickHandlers] 🔍 Function called with:', { option, index, checked });
 
     if (!option || typeof option !== 'object') {
         console.error('[safeCallOptionClickHandlers] ❌ Invalid option detected:', option);
-        console.error('[safeCallOptionClickHandlers] ❌ Stack trace:', new Error().stack);
         return;
     }
 
-    const optionId = typeof option.optionId === 'number' ? option.optionId : index;
-    console.log(`✅ Processing option with ID: ${optionId}`);
-
+    // ✅ Call `onOptionClicked` if defined in config
     if (this.config?.onOptionClicked) {
         console.log('[safeCallOptionClickHandlers] 🔍 Calling this.config.onOptionClicked with:', { option, index, checked });
         await this.config.onOptionClicked(option, index, checked);
@@ -664,18 +661,12 @@ export class SharedOptionComponent implements OnInit, OnChanges {
         console.warn('[safeCallOptionClickHandlers] ⚠️ onOptionClicked function is not defined in the config.');
     }
 
+    // ✅ Ensure `quizQuestionComponentOnOptionClicked` exists and is a function
     if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-        console.log('[safeCallOptionClickHandlers] 🔍 Calling this.quizQuestionComponentOnOptionClicked with:', { option, index, checked });
-
-        // 🚀 NEW: Ensure correct data format before passing
-        if (!option) {
-            console.error('[safeCallOptionClickHandlers] ❌ option is missing! Something went wrong before this call.');
-            return;
-        }
-
+        console.log('[safeCallOptionClickHandlers] 🔍 Calling quizQuestionComponentOnOptionClicked...');
         this.quizQuestionComponentOnOptionClicked(option, index);
     } else {
-        console.warn('[safeCallOptionClickHandlers] ⚠️ quizQuestionComponentOnOptionClicked is not a function.');
+        console.warn('[safeCallOptionClickHandlers] ⚠️ quizQuestionComponentOnOptionClicked is not a function or is missing.');
     }
   }
   
