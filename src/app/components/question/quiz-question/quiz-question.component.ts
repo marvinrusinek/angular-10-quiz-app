@@ -2233,29 +2233,34 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
         console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-        // ✅ Ensure correct `currentQuestionIndex`
+        // ✅ Force reset of explanation display before fetching
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
+        this.cdRef.detectChanges(); // ✅ Force UI update before fetching explanation
+
+        // ✅ Ensure the correct `currentQuestionIndex` before fetching explanation
         this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
+        console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
 
         if (this.currentQuestionIndex < 0) {
             console.error('[onOptionClicked] ❌ Invalid question index resolved.');
             return;
         }
 
-        console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
+        // ✅ Wait a moment before fetching explanation (to avoid race conditions)
+        await new Promise(resolve => setTimeout(resolve, 50));
 
-        // ✅ Reset explanation state before fetching a new one
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
-        this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
-
-        // ✅ Ensure the explanation updates correctly
+        console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
         await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
-        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+        // ✅ Ensure UI updates after fetching the correct explanation
         this.updateDisplayStateToExplanation();
+        this.cdRef.detectChanges();
 
+        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+        
         // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
         console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
         await this.handleCorrectnessOutcome(true);
@@ -2279,7 +2284,7 @@ export class QuizQuestionComponent
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
-    // ✅ Verify the question exists before proceeding
+    // ✅ Ensure the question exists before proceeding
     if (!this.quiz.questions[questionIndex]) {
         console.error(`[fetchAndUpdateExplanationText] ❌ Question not found at index ${questionIndex}`);
         return;
@@ -2293,7 +2298,7 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
-    // ✅ Introduce a slight delay to allow UI updates
+    // ✅ Introduce a small delay to allow UI updates
     await new Promise(resolve => setTimeout(resolve, 50));
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
@@ -2303,13 +2308,13 @@ export class QuizQuestionComponent
         try {
             console.log(`[fetchAndUpdateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
             
-            // ✅ Always fetch fresh explanation (prevents using previous Q2 text)
+            // ✅ Force a fresh fetch (prevents using previous Q2 text)
             const explanationText = await this.getExplanationText(questionIndex);
             
             console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
 
             // ✅ Ensure UI updates before applying new explanation text
-            await new Promise(resolve => setTimeout(resolve, 20)); // Introduce small delay
+            await new Promise(resolve => setTimeout(resolve, 20)); // Small delay to prevent stale updates
             this.explanationToDisplay = explanationText;
             this.explanationToDisplayChange.emit(explanationText);
             this.showExplanationChange.emit(true);
