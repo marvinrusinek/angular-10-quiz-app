@@ -2217,133 +2217,82 @@ export class QuizQuestionComponent
     console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
     console.log('[onOptionClicked] STARTED - Checking function execution.');
 
-    // ✅ Prevent duplicate clicks
-    if (this.isProcessingClick) {
-        console.warn('[onOptionClicked] ⚠️ Click already in progress! Skipping duplicate call.');
-        return;
-    }
-    this.isProcessingClick = true;
-
-    try {
-        if (!event?.option) {
-            console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
-            return;
-        }
-
-        console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
-        console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
-
-        // ✅ Force reset of explanation display before fetching
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
-        this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
-
-        // ✅ Manually set and lock the correct `currentQuestionIndex`
-        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
-
-        console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
-
-        if (this.currentQuestionIndex < 0) {
-            console.error('[onOptionClicked] ❌ Invalid question index resolved.');
-            return;
-        }
-
-        // ✅ Wait before fetching explanation (avoids race conditions)
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
-        
-        // **🚀 Pass `this.currentQuestionIndex` explicitly every time**
-        await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
-
-        console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
-
-        // ✅ Ensure UI updates after fetching the correct explanation
-        this.updateDisplayStateToExplanation();
-        this.cdRef.detectChanges();
-
-        console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
-        
-        // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
-        console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
-        await this.handleCorrectnessOutcome(true);
-
-        // ✅ Emit event to enable "Next" button and advance to the next question
-        console.log('[onOptionClicked] 🟢 Enabling Next button...');
-        this.answerSelected.emit(true);
-
-        setTimeout(() => {
-            console.log('[onOptionClicked] 🟢 Triggering change detection...');
-            this.cdRef.markForCheck();
-        });
-
-    } catch (error) {
-        console.error('[onOptionClicked] ❌ Unhandled error:', error);
-    } finally {
-        this.isProcessingClick = false;
-    }
-  }
-
-  async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`[fetchAndUpdateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
-
-    // ✅ Lock explanation to the provided question index
-    const lockedQuestionIndex = questionIndex;
-    console.log(`[fetchAndUpdateExplanationText] 🔒 Locking explanation fetch for Q${lockedQuestionIndex}`);
-
-    // ✅ Ensure the question exists before proceeding
-    if (!this.quiz.questions[lockedQuestionIndex]) {
-        console.error(`[fetchAndUpdateExplanationText] ❌ Question not found at index ${lockedQuestionIndex}`);
+    if (!event?.option) {
+        console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
         return;
     }
 
-    console.log(`[fetchAndUpdateExplanationText] 🔍 Current question at Q${lockedQuestionIndex}:`, this.quiz.questions[lockedQuestionIndex]);
+    console.log('[onOptionClicked] ✅ Valid event.option received:', event.option);
+    console.log('[onOptionClicked] 🔍 Selected optionId:', event.option?.optionId, 'Type:', typeof event.option?.optionId);
 
-    // ✅ Always clear previous explanation before fetching a new one
+    // ✅ Force explanation reset before fetching a new one
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
+    this.cdRef.detectChanges();
 
-    // ✅ Introduce a small delay to allow UI updates
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // ✅ Lock to the correct question before fetching explanation
+    const lockedQuestionIndex = this.currentQuestionIndex;
+    console.log(`[onOptionClicked] 🔒 Locked question index: ${lockedQuestionIndex}`);
 
-    // ✅ Re-fetch the correct question state before proceeding
-    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
-    console.log(`[fetchAndUpdateExplanationText] 🔍 Resolved questionState:`, questionState);
-
-    if (questionState?.isAnswered) {
-        try {
-            console.log(`[fetchAndUpdateExplanationText] 🔍 Fetching fresh explanation for Q${lockedQuestionIndex}...`);
-            
-            // ✅ Force a fresh fetch (prevents using previous Q2 text)
-            const explanationText = await this.getExplanationText(lockedQuestionIndex);
-            
-            console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
-
-            // ✅ Prevent race condition by ensuring no other question overwrites the explanation
-            if (lockedQuestionIndex !== this.currentQuestionIndex) {
-                console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
-                return;
-            }
-
-            // ✅ Ensure UI updates before applying new explanation text
-            await new Promise(resolve => setTimeout(resolve, 20)); // Small delay to prevent stale updates
-            this.explanationToDisplay = explanationText;
-            this.explanationToDisplayChange.emit(explanationText);
-            this.showExplanationChange.emit(true);
-            this.cdRef.detectChanges();
-        } catch (error) {
-            console.error('[fetchAndUpdateExplanationText] ❌ Error fetching explanation text:', error);
-            this.explanationToDisplayChange.emit('Error loading explanation.');
-            this.showExplanationChange.emit(true);
-        }
-    } else {
-        console.log(`[fetchAndUpdateExplanationText] 🔄 No explanation needed for Q${lockedQuestionIndex} (not answered yet).`);
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
+    if (lockedQuestionIndex < 0 || lockedQuestionIndex >= this.quiz.questions.length) {
+        console.error('[onOptionClicked] ❌ Invalid question index.');
+        return;
     }
+
+    console.log(`[onOptionClicked] 🔍 Fetching explanation for locked Q${lockedQuestionIndex}...`);
+    
+    // **🚀 Explicitly pass locked index**
+    await this.fetchAndUpdateExplanationText(lockedQuestionIndex);
+
+    console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
+
+    // ✅ Ensure UI updates after fetching the correct explanation
+    this.updateDisplayStateToExplanation();
+    this.cdRef.detectChanges();
+
+    console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
+    
+    // ✅ Call `handleCorrectnessOutcome()` to ensure UI updates
+    console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
+    await this.handleCorrectnessOutcome(true);
+
+    // ✅ Emit event to enable "Next" button and advance to the next question
+    console.log('[onOptionClicked] 🟢 Enabling Next button...');
+    this.answerSelected.emit(true);
+
+    setTimeout(() => {
+        console.log('[onOptionClicked] 🟢 Triggering change detection...');
+        this.cdRef.markForCheck();
+    });
+  }
+
+  async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[fetchAndUpdateExplanationText] 🟢 Fetching explanation for Q${questionIndex}`);
+    
+    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[questionIndex]) {
+        console.error(`[fetchAndUpdateExplanationText] ❌ Question does not exist at index ${questionIndex}`);
+        return;
+    }
+
+    console.log(`[fetchAndUpdateExplanationText] 🔍 Current Question (should match Q${questionIndex}):`, this.quiz.questions[questionIndex]);
+    console.log(`[fetchAndUpdateExplanationText] 🔍 Current Question Text:`, this.quiz.questions[questionIndex]?.questionText);
+    
+    // ✅ Check if state is mismatched
+    console.log(`[fetchAndUpdateExplanationText] 🔍 Current `, {
+        storedIndex: this.currentQuestionIndex,
+        passedIndex: questionIndex,
+        storedQuestion: this.currentQuestion?.questionText,
+        actualQuestion: this.quiz.questions[questionIndex]?.questionText
+    });
+
+    const explanationText = await this.getExplanationText(questionIndex);
+    console.log(`[fetchAndUpdateExplanationText] ✅ Explanation for Q${questionIndex}:`, explanationText);
+
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
   }
   
   // ====================== Helper Functions ======================
@@ -3491,47 +3440,28 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
-    // ✅ Verify that the question exists before proceeding
-    if (!this.quiz.questions[questionIndex]) {
-        console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
+    const lockedQuestionIndex = questionIndex;
+    console.log(`[updateExplanationText] 🔒 Locked explanation update to Q${lockedQuestionIndex}`);
+
+    if (!this.quiz.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ Question not found at index ${lockedQuestionIndex}`);
         return;
     }
 
-    console.log(`[updateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
+    console.log(`[updateExplanationText] 🔍 Current question for explanation update:`, this.quiz.questions[lockedQuestionIndex]);
 
-    // ✅ Always clear previous explanation before fetching a new one
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
+    const explanationText = await this.getExplanationText(lockedQuestionIndex);
+    console.log(`[updateExplanationText] ✅ Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    console.log(`[updateExplanationText] 🔍 Resolved questionState:`, questionState);
-
-    if (questionState?.isAnswered) {
-        try {
-            console.log(`[updateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
-            
-            // ✅ Always fetch fresh explanation (prevents using previous Q2 text)
-            const explanationText = await this.getExplanationText(questionIndex);
-            
-            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
-
-            // ✅ Force UI update to reflect new explanation text
-            this.explanationToDisplay = explanationText;
-            this.explanationToDisplayChange.emit(explanationText);
-            this.showExplanationChange.emit(true);
-            this.cdRef.detectChanges();
-        } catch (error) {
-            console.error('[updateExplanationText] ❌ Error fetching explanation text:', error);
-            this.explanationToDisplayChange.emit('Error loading explanation.');
-            this.showExplanationChange.emit(true);
-        }
-    } else {
-        console.log(`[updateExplanationText] 🔄 No explanation needed for Q${questionIndex} (not answered yet).`);
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
+    if (lockedQuestionIndex !== this.currentQuestionIndex) {
+        console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
+        return;
     }
+
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
   }
 
   handleAudioPlayback(isCorrect: boolean): void {
