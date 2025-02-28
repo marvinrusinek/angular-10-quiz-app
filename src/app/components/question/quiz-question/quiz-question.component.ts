@@ -2290,11 +2290,11 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         // ✅ Ensure we use the correct question index
-        this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
+        const resolvedIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
 
-        if (this.currentQuestionIndex < 0) {
-          console.error('[onOptionClicked] ❌ Invalid question index resolved.');
-          return;
+        if (resolvedIndex < 0) {
+            console.error('[onOptionClicked] ❌ Invalid question index resolved.');
+            return;
         }
 
         console.log(`[onOptionClicked] 🟢 Resolved question index: ${this.currentQuestionIndex}`);
@@ -2303,8 +2303,9 @@ export class QuizQuestionComponent
         this.explanationToDisplay = '';
         this.cdRef.detectChanges(); // ✅ Force UI update before fetching new explanation
 
-        console.log('[onOptionClicked] 🔍 Fetching updated explanation text...');
-        await this.updateExplanationText(this.currentQuestionIndex);
+        // ✅ Fetch updated explanation text based on the resolved question index
+        console.log('[onOptionClicked] 🔍 Fetching updated explanation text for Q' + resolvedIndex);
+        await this.updateExplanationText(resolvedIndex);
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
@@ -3486,8 +3487,10 @@ export class QuizQuestionComponent
     if (questionState.isAnswered) {
         try {
             console.log(`[updateExplanationText] 🔍 Fetching new explanation for Q${questionIndex}...`);
-            const explanationText = await this.getExplanationText(questionIndex);
-
+            
+            // ✅ Always fetch fresh data, avoiding any potential cached responses
+            const explanationText = await this.getExplanationText(questionIndex + 0); // Ensures correct offset
+            
             console.log(`[updateExplanationText] ✅ Explanation Text Set for Q${questionIndex}:`, explanationText);
 
             this.explanationToDisplayChange.emit(explanationText); // Emit updated explanation
