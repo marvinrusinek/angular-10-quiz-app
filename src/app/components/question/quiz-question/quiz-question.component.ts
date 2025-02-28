@@ -2237,10 +2237,11 @@ export class QuizQuestionComponent
         this.explanationToDisplay = '';
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
-        this.cdRef.detectChanges(); // ✅ Force UI update before fetching explanation
+        this.cdRef.detectChanges(); // ✅ Ensure UI updates before fetching explanation
 
-        // ✅ Ensure the correct `currentQuestionIndex` before fetching explanation
+        // ✅ Manually set and lock the correct `currentQuestionIndex`
         this.currentQuestionIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
+
         console.log(`[onOptionClicked] 🟢 Correct question index resolved: ${this.currentQuestionIndex}`);
 
         if (this.currentQuestionIndex < 0) {
@@ -2248,11 +2249,14 @@ export class QuizQuestionComponent
             return;
         }
 
-        // ✅ Wait a moment before fetching explanation (to avoid race conditions)
+        // ✅ Wait before fetching explanation (avoids race conditions)
         await new Promise(resolve => setTimeout(resolve, 50));
 
         console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${this.currentQuestionIndex}...`);
+        
+        // **🚀 Pass `this.currentQuestionIndex` explicitly every time**
         await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
+
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         // ✅ Ensure UI updates after fetching the correct explanation
@@ -2292,6 +2296,10 @@ export class QuizQuestionComponent
 
     console.log(`[fetchAndUpdateExplanationText] 🔍 Current question at Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
+    // ✅ Force the explanation to be tied to this specific question
+    const lockedQuestionIndex = questionIndex;
+    console.log(`[fetchAndUpdateExplanationText] 🔒 Locking explanation fetch for Q${lockedQuestionIndex}`);
+
     // ✅ Always clear previous explanation before fetching a new one
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
@@ -2301,17 +2309,17 @@ export class QuizQuestionComponent
     // ✅ Introduce a small delay to allow UI updates
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
     console.log(`[fetchAndUpdateExplanationText] 🔍 Resolved questionState:`, questionState);
 
     if (questionState?.isAnswered) {
         try {
-            console.log(`[fetchAndUpdateExplanationText] 🔍 Fetching fresh explanation for Q${questionIndex}...`);
+            console.log(`[fetchAndUpdateExplanationText] 🔍 Fetching fresh explanation for Q${lockedQuestionIndex}...`);
             
             // ✅ Force a fresh fetch (prevents using previous Q2 text)
-            const explanationText = await this.getExplanationText(questionIndex);
+            const explanationText = await this.getExplanationText(lockedQuestionIndex);
             
-            console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+            console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
 
             // ✅ Ensure UI updates before applying new explanation text
             await new Promise(resolve => setTimeout(resolve, 20)); // Small delay to prevent stale updates
@@ -2325,7 +2333,7 @@ export class QuizQuestionComponent
             this.showExplanationChange.emit(true);
         }
     } else {
-        console.log(`[fetchAndUpdateExplanationText] 🔄 No explanation needed for Q${questionIndex} (not answered yet).`);
+        console.log(`[fetchAndUpdateExplanationText] 🔄 No explanation needed for Q${lockedQuestionIndex} (not answered yet).`);
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
     }
