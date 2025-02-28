@@ -2265,6 +2265,17 @@ export class QuizQuestionComponent
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
+    // ✅ Check if explanation is already stored
+    const storedExplanation = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    if (storedExplanation) {
+        console.log(`[onOptionClicked] 🔄 Using stored explanation for Q${lockedQuestionIndex}:`, storedExplanation);
+        this.explanationToDisplay = storedExplanation;
+        this.explanationToDisplayChange.emit(storedExplanation);
+        this.showExplanationChange.emit(true);
+        this.cdRef.detectChanges();
+        return; // ✅ Prevents unnecessary re-fetching
+    }
+
     try {
         const explanationText = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
