@@ -2290,7 +2290,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
         // ✅ Ensure we use the correct question index
-        const currentIndex = this.currentQuestion ? this.quizService.findQuestionIndex(this.currentQuestion) : event.index;
+        const currentIndex = this.quiz.questions.findIndex(q => q.questionText === this.currentQuestion?.questionText);
         console.log(`[onOptionClicked] 🟢 Resolving correct question index: ${currentIndex}`);
 
         if (currentIndex < 0) {
