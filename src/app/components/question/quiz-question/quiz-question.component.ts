@@ -2215,7 +2215,7 @@ export class QuizQuestionComponent
   
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
     console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
-    console.log(`[onOptionClicked] 🔍 Fetching explanation for locked Q${this.currentQuestionIndex}`);
+    console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
 
     if (!event?.option) {
         console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
@@ -2261,11 +2261,25 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges();
 
-    // ✅ Ensure explanation text **always** updates when selecting an option
-    console.log('[onOptionClicked] 🔍 Fetching explanation text...');
-    this.explanationToDisplay = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+    // ✅ Strictly lock explanation update to the correct question
+    const lockedQuestionIndex = this.currentQuestionIndex;
+    console.log(`[onOptionClicked] 🔒 Locked explanation update for Q${lockedQuestionIndex}`);
+
+    const explanationText = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
     );
+
+    // ✅ Ensure no stale updates overwrite the correct explanation
+    if (lockedQuestionIndex !== this.currentQuestionIndex) {
+        console.warn(`[onOptionClicked] ⚠️ Explanation mismatch detected! Skipping update.`);
+        return;
+    }
+
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
+
     console.log('[onOptionClicked] ✅ Explanation text updated:', this.explanationToDisplay);
 
     // ✅ Ensure explanation display state updates correctly
