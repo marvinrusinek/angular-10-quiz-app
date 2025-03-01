@@ -2265,65 +2265,49 @@ export class QuizQuestionComponent
   }
   
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
+    try {
+      // Ensure optionsToDisplay is set before proceeding
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        this.optionsToDisplay = this.populateOptionsToDisplay();
+      }
 
-    if (!event?.option) {
-        console.error('[onOptionClicked] ❌ event.option is missing! Possible incorrect function call.', event);
+      // Find the selected option
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+      if (!foundOption) {
+        console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
         return;
-    }
+      }
 
-    // ✅ Lock explanation retrieval to the current question index
-    const lockedQuestionIndex = this.currentQuestionIndex;
-    console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
+      // Prevent clicking before feedback is ready
+      if (!this.isFeedbackApplied) {
+        await this.applyOptionFeedback(foundOption);
+      }
 
-    // ✅ Apply feedback before fetching explanation
-    await this.applyOptionFeedback(event.option);
-
-    // ✅ Ensure question is marked as answered
-    if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-        console.log('✅ First option clicked - marking question as answered');
+      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
-    }
+      }
 
-    // ✅ Check if explanation is already stored
-    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+      // Ensure explanation text always updates when selecting an option
+      this.explanationToDisplay = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+      );
+      
+      this.updateDisplayStateToExplanation();
 
-    if (!explanationText) {
-        console.log(`[onOptionClicked] 🟢 Fetching fresh explanation for Q${lockedQuestionIndex}`);
-        explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
-        );
+      // Call `handleCorrectnessOutcome()` to ensure UI updates
+      await this.handleCorrectnessOutcome(true);
 
-        // ✅ Store explanation to prevent re-fetching
-        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-        console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}`);
-    }
+      // Emit event to enable "Next" button and advance to next question
+      this.answerSelected.emit(true);
 
-    // ✅ Prevent overwriting explanation if another question was loaded
-    if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[onOptionClicked] ⚠️ Another question loaded! Skipping explanation update.`);
-        return;
-    }
-
-    console.log(`[onOptionClicked] ✅ Explanation text retrieved:`, explanationText);
-
-    // ✅ Set and persist explanation text
-    this.explanationToDisplay = explanationText;
-    this.explanationToDisplayChange.emit(explanationText);
-    this.showExplanationChange.emit(true);
-    this.cdRef.detectChanges();
-
-    // ✅ Ensure correctness checks are performed
-    await this.handleCorrectnessOutcome(true);
-
-    // ✅ Enable "Next" button
-    this.answerSelected.emit(true);
-
-    setTimeout(() => {
+      setTimeout(() => {
+        console.log('[onOptionClicked] 🟢 Triggering change detection...');
         this.cdRef.markForCheck();
-    });
-
-    console.log('[onOptionClicked] ✅ Function execution complete.');
+      });
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Unhandled error:', error);
+    }
   }
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
