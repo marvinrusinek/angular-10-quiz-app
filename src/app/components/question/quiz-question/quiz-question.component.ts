@@ -2272,7 +2272,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    const lockedQuestionIndex = this.currentQuestionIndex; // Lock explanation retrieval per question
+    const lockedQuestionIndex = this.currentQuestionIndex; // Lock explanation retrieval to this question
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
     // ✅ Apply feedback first
@@ -2306,7 +2306,7 @@ export class QuizQuestionComponent
             console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}`);
         }
 
-        // ✅ **Ensure explanation is NOT overridden by another question's state**
+        // ✅ **Ensure explanation is NOT overridden by another question’s state**
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
             return;
