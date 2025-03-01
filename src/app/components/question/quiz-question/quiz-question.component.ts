@@ -2272,20 +2272,20 @@ export class QuizQuestionComponent
         return;
     }
 
-    const lockedQuestionIndex = this.currentQuestionIndex; // Lock explanation update to this question
+    const lockedQuestionIndex = this.currentQuestionIndex; // Lock to prevent stale updates
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
-    // ✅ Apply feedback immediately
+    // ✅ Apply feedback first
     await this.applyOptionFeedback(event.option);
 
-    // ✅ Ensure question is marked as answered
+    // ✅ Mark question as answered
     if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         console.log('✅ First option clicked - marking question as answered');
         this.selectedOptionService.isAnsweredSubject.next(true);
     }
 
-    // ✅ **Force reset of explanation text before fetching new one**
-    console.log('[onOptionClicked] 🔄 Resetting explanation text...');
+    // ✅ **Force Reset Explanation Before Fetching**
+    console.log('[onOptionClicked] 🔄 Resetting explanation text before update...');
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
@@ -2294,26 +2294,27 @@ export class QuizQuestionComponent
     try {
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
-        // ✅ **If stored explanation is missing, fetch from service**
+        // ✅ **Fetch explanation only if not already stored**
         if (!explanationText) {
+            console.log(`[onOptionClicked] 🟢 Fetching fresh explanation for Q${lockedQuestionIndex}`);
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
 
-            // ✅ **Store the explanation text to prevent re-fetching**
+            // ✅ **Store explanation to avoid incorrect overwrites**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}`);
+            console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} stored successfully.`);
         }
 
-        // ✅ **Prevent overwriting explanation if another question was loaded**
+        // ✅ **Prevent explanation from switching if another question is loaded**
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
             return;
         }
 
-        console.log(`[onOptionClicked] ✅ Explanation text fetched:`, explanationText);
+        console.log(`[onOptionClicked] ✅ Explanation text retrieved:`, explanationText);
 
-        // ✅ **Set and display the correct explanation text**
+        // ✅ **Display explanation & prevent further overwrites**
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
@@ -2333,7 +2334,7 @@ export class QuizQuestionComponent
     // ✅ **Ensure correctness checks are performed**
     await this.handleCorrectnessOutcome(true);
 
-    // ✅ **Emit event to enable "Next" button**
+    // ✅ **Enable "Next" button**
     this.answerSelected.emit(true);
 
     setTimeout(() => {
@@ -2342,6 +2343,7 @@ export class QuizQuestionComponent
 
     console.log('[onOptionClicked] ✅ Function execution complete.');
   }
+
 
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
