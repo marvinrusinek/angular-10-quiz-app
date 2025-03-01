@@ -2277,7 +2277,7 @@ export class QuizQuestionComponent
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
-    // ✅ Prevent stale data updates by resetting explanation before fetching
+    // ✅ Prevent stale updates by **clearing old explanation before fetching**
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
