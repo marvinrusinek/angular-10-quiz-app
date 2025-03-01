@@ -2307,7 +2307,7 @@ export class QuizQuestionComponent
     }
 
     try {
-        // ✅ **Force a UI reset before updating the explanation**
+        // ✅ **Reset explanation text before updating to avoid stale data**
         console.log('[onOptionClicked] 🔄 Resetting explanation text before update...');
         this.explanationToDisplay = '';
         this.explanationToDisplayChange.emit('');
@@ -2486,50 +2486,53 @@ export class QuizQuestionComponent
   
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
     if (!selectedOption) {
-      console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.');
-      console.trace('[applyOptionFeedback] 🔍 Call stack trace to find the issue:');
-      return;
+        console.error('[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.');
+        console.trace('[applyOptionFeedback] 🔍 Call stack trace to find the issue:');
+        return;
     }
 
-    // Ensure options are populated before applying feedback
+    // ✅ Ensure options are available before applying feedback
     if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
-      console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Repopulating now...');
-      this.populateOptionsToDisplay();
+        console.warn('[applyOptionFeedback] ⚠️ optionsToDisplay is empty! Attempting to repopulate...');
+        this.populateOptionsToDisplay();
     }
 
-    // Initialize `showFeedbackForOption` if undefined
+    // ✅ Ensure UI-related states are initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
     this.showFeedbackForOption[selectedOption.optionId] = true;
 
-    // Find selectedOptionIndex safely
+    // ✅ Find index of the selected option safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(opt => opt.optionId === selectedOption.optionId);
     if (this.selectedOptionIndex === -1) {
-      console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
-      return;
+        console.error(`[applyOptionFeedback] ❌ ERROR: selectedOptionIndex not found for optionId: ${selectedOption.optionId}`);
+        return;
     }
 
-    // Apply feedback to options
+    // ✅ Apply feedback to **ONLY** the clicked option, keeping others unchanged
     this.optionsToDisplay = this.optionsToDisplay.map(option => ({
-      ...option,
-      active: option.correct,
-      feedback: option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!',
-      showIcon: option.correct || option.optionId === selectedOption.optionId,
-      selected: option.optionId === selectedOption.optionId
+        ...option,
+        feedback: option.optionId === selectedOption.optionId 
+            ? (option.correct ? '✅ This is a correct answer!' : '❌ Incorrect answer!') 
+            : option.feedback,  // Preserve feedback for other options
+        showIcon: option.optionId === selectedOption.optionId, // Show icon for clicked option only
+        selected: option.optionId === selectedOption.optionId // Ensure clicked option stays selected
     }));
 
-    // Emit event to notify SharedOptionComponent
+    // ✅ Emit event to notify SharedOptionComponent
     this.feedbackApplied.emit(selectedOption.optionId);
 
-    // Add a short delay to ensure UI stability
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // ✅ Add a slight delay to ensure UI refreshes properly
+    await new Promise(resolve => setTimeout(resolve, 50));
 
-    // Ensure UI updates after applying feedback
+    // ✅ Ensure UI updates **after** applying feedback
     if (this.showFeedbackForOption[selectedOption.optionId]) {
-      this.cdRef.detectChanges();
-      console.log('[applyOptionFeedback] 🔄 UI updated.');
+        this.cdRef.detectChanges();
+        console.log('[applyOptionFeedback] 🔄 UI updated.');
     } else {
-      console.warn(`[applyOptionFeedback] ❌ UI update skipped. No feedback detected for optionId ${selectedOption.optionId}`);
+        console.warn(`[applyOptionFeedback] ❌ UI update skipped. No feedback detected for optionId ${selectedOption.optionId}`);
     }
+
+    this.cdRef.markForCheck();
   }
 
   private async reloadCurrentQuestion(): Promise<void> {
