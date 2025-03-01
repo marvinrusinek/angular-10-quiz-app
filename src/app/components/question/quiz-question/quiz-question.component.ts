@@ -776,8 +776,7 @@ export class QuizQuestionComponent
 
   private initializeFirstQuestion(): void {
     // Retrieve the question index from the route parameters and parse it as a number
-    const index =
-      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    const index = +(this.activatedRoute.snapshot.paramMap.get('questionIndex') ?? 0);
 
     // Set the initial question and load options
     this.setQuestionFirst(index);
@@ -876,7 +875,7 @@ export class QuizQuestionComponent
     });
   }
   
-  private setQuestionFirst(index: number): void {
+  /* private setQuestionFirst(index: number): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error(`questionsArray is empty or undefined.`);
        return;
@@ -922,6 +921,58 @@ export class QuizQuestionComponent
       this.updateExplanationIfAnswered(zeroBasedIndex, question);
       this.questionRenderComplete.emit();
     }, 100);
+  } */
+  private setQuestionFirst(index: number): void {
+    if (!this.questionsArray || this.questionsArray.length === 0) {
+        console.error(`[setQuestionFirst] ❌ questionsArray is empty or undefined.`);
+        return;
+    }
+
+    // ✅ Fix: Use `index` directly instead of shifting it down
+    const questionIndex = Math.max(0, index); 
+
+    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+        console.error(`[setQuestionFirst] ❌ Invalid question index: ${questionIndex}`);
+        return;
+    }
+
+    const question = this.questionsArray[questionIndex];
+
+    if (!question) {
+        console.error(`[setQuestionFirst] ❌ No question data available at index: ${questionIndex}`);
+        return;
+    }
+
+    console.log(`[setQuestionFirst] ✅ Setting question for index: ${questionIndex}`);
+
+    // ✅ Fix: Always update question (even if text matches) to refresh explanations
+    this.currentQuestion = question;
+    this.quizService.setCurrentQuestion(question);
+
+    // ✅ Assign options IMMEDIATELY to avoid async issues
+    this.optionsToDisplay = [...(question.options ?? [])];
+    console.log(`[setQuestionFirst] 📝 Options set for question:`, this.optionsToDisplay);
+
+    // ✅ Refresh UI after ensuring options are set
+    setTimeout(() => {
+        this.cdRef.detectChanges();
+    }, 10);
+
+    // ✅ Ensure explanation is updated properly
+    if (this.lastProcessedQuestionIndex !== questionIndex || questionIndex === 0) {
+        console.log(`[setQuestionFirst] 🟢 Applying option feedback...`);
+        this.applyOptionFeedbackToAllOptions();
+        this.lastProcessedQuestionIndex = questionIndex;
+    } else {
+        console.warn(`[setQuestionFirst] ⚠️ Feedback already processed. Skipping.`);
+    }
+
+    // ✅ Ensure explanation updates correctly
+    setTimeout(() => {
+        console.log(`[setQuestionFirst] 🔍 Updating explanation for Q${questionIndex}...`);
+        this.updateExplanationIfAnswered(questionIndex, question);
+        this.questionRenderComplete.emit();
+    }, 50);
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
