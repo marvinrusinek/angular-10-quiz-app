@@ -2273,11 +2273,11 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ Lock explanation update strictly to this question
+    // ✅ Strictly lock explanation retrieval to the current question
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
-    // ✅ Ensure optionsToDisplay is populated before proceeding
+    // ✅ Ensure `optionsToDisplay` is populated before proceeding
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -2307,9 +2307,9 @@ export class QuizQuestionComponent
     }
 
     try {
-        // ✅ Retrieve stored explanation first before fetching new one
+        // ✅ Retrieve stored explanation before fetching a new one
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-        
+
         if (!explanationText) {
             console.log(`[onOptionClicked] 🔄 Fetching new explanation for Q${lockedQuestionIndex}...`);
             explanationText = await firstValueFrom(
@@ -2329,15 +2329,18 @@ export class QuizQuestionComponent
             return;
         }
 
-        // ✅ Ensure UI updates explanation correctly & **locks it in place**
-        console.log(`[onOptionClicked] 🟢 Setting explanation text for Q${lockedQuestionIndex}:`, explanationText);
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
+        // ✅ Prevent explanation from being overwritten with another question's text
+        if (this.explanationToDisplay && this.currentQuestionIndex === lockedQuestionIndex) {
+            console.log(`[onOptionClicked] ✅ Keeping stored explanation for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
+        } else {
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(explanationText);
+            this.showExplanationChange.emit(true);
+        }
 
-        // ✅ Prevent the question text from overriding the explanation
-        this.forceQuestionDisplay = false; // Locks explanation in place
-        this.isExplanationReady = true;    // Ensures UI recognizes explanation is active
+        // ✅ Prevent question text from overriding explanation
+        this.forceQuestionDisplay = false;
+        this.isExplanationReady = true;
         this.cdRef.detectChanges();
 
     } catch (error) {
@@ -2366,7 +2369,7 @@ export class QuizQuestionComponent
     });
 
     console.log('[onOptionClicked] ✅ Function execution complete.');
-}
+  }
 
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
