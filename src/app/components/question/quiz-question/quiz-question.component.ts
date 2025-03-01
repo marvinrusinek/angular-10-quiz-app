@@ -2273,6 +2273,11 @@ export class QuizQuestionComponent
         return;
     }
 
+    // ✅ Lock question index to avoid incorrect updates
+    const lockedQuestionIndex = this.currentQuestionIndex;
+
+    console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
+
     // ✅ Ensure optionsToDisplay is populated
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
@@ -2292,22 +2297,15 @@ export class QuizQuestionComponent
     // ✅ Ensure feedback is applied before proceeding
     if (!this.isFeedbackApplied) {
         console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
-        console.log('[onOptionClicked] 🔥 Calling applyOptionFeedback() now...');
         await this.applyOptionFeedback(foundOption);
         console.log('[onOptionClicked] 🚀 Finished calling applyOptionFeedback()');
-        console.log('[onOptionClicked] Post-feedback check - isFeedbackApplied:', this.isFeedbackApplied);
     }
 
     // ✅ Ensure the question is marked as answered
     if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         console.log('✅ First option clicked - marking question as answered');
         this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('🔄 Checking isAnsweredSubject Value:', this.selectedOptionService.isAnsweredSubject.getValue());
     }
-
-    // ✅ Strictly lock explanation retrieval to **this specific question**
-    const lockedQuestionIndex = this.currentQuestionIndex;
-    console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
     // ✅ Reset explanation text before updating to avoid stale data
     console.log('[onOptionClicked] 🔄 Resetting explanation text before update...');
@@ -2316,45 +2314,39 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
     this.cdRef.detectChanges();
 
-    // ✅ Fetch stored explanation **before attempting to fetch a new one**
-    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-
-    if (explanationText) {
-        console.log(`[onOptionClicked] 🔄 Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
-    } else {
-        try {
-            console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${lockedQuestionIndex} from service...`);
+    try {
+        // ✅ Check stored explanation before fetching
+        let explanationText = this.quizStateService.getQuestionExplanation(this.quizId, lockedQuestionIndex);
+        
+        if (!explanationText) {
+            console.log(`[onOptionClicked] 🔄 Fetching new explanation for Q${lockedQuestionIndex}...`);
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
+            console.log(`[onOptionClicked] ✅ Explanation fetched:`, explanationText);
 
-            console.log(`[onOptionClicked] ✅ Explanation text fetched:`, explanationText);
-
-            // ✅ Ensure explanation is only set if `currentQuestionIndex` is still the same
-            if (this.currentQuestionIndex === lockedQuestionIndex) {
-                this.explanationToDisplay = explanationText;
-                this.explanationToDisplayChange.emit(explanationText);
-                this.showExplanationChange.emit(true);
-                this.cdRef.detectChanges();
-
-                // ✅ Store explanation to avoid re-fetching
-                this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-                console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} saved in state.`);
-            } else {
-                console.warn(`[onOptionClicked] ⚠️ Skipping update because currentQuestionIndex has changed.`);
-            }
-        } catch (error) {
-            console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
-            explanationText = 'Error loading explanation.';
+            // ✅ Store explanation in state
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        } else {
+            console.log(`[onOptionClicked] 🔄 Using cached explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
-    }
 
-    // ✅ Apply explanation only if questionIndex remains unchanged
-    if (this.currentQuestionIndex === lockedQuestionIndex) {
+        // ✅ Prevent overwriting explanation if another question was loaded
+        if (lockedQuestionIndex !== this.currentQuestionIndex) {
+            console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
+            return;
+        }
+
+        // ✅ Set and lock explanation text for this question
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
+
+    } catch (error) {
+        console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+        this.explanationToDisplayChange.emit('Error loading explanation.');
+        this.showExplanationChange.emit(true);
     }
 
     // ✅ Ensure explanation display state updates correctly
