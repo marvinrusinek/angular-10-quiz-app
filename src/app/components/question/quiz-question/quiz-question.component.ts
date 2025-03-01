@@ -2314,7 +2314,7 @@ export class QuizQuestionComponent
 
     try {
         // ✅ **Retrieve explanation from stored state before fetching new one**
-        let explanationText = this.quizStateService.getQuestionExplanation(this.quizId, lockedQuestionIndex);
+        let explanationText = this.quizStateService.getQuestionExplanation(this.quizId, lockedQuestionIndex); 
         
         if (!explanationText) {
             console.log(`[onOptionClicked] 🔄 Fetching new explanation for Q${lockedQuestionIndex}...`);
