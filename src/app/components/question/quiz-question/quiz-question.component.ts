@@ -2329,11 +2329,15 @@ export class QuizQuestionComponent
             return;
         }
 
-        // ✅ Ensure UI updates explanation correctly
+        // ✅ Ensure UI updates explanation correctly & **locks it in place**
         console.log(`[onOptionClicked] 🟢 Setting explanation text for Q${lockedQuestionIndex}:`, explanationText);
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
+
+        // ✅ Prevent the question text from overriding the explanation
+        this.forceQuestionDisplay = false; // Locks explanation in place
+        this.isExplanationReady = true;    // Ensures UI recognizes explanation is active
         this.cdRef.detectChanges();
 
     } catch (error) {
@@ -2342,7 +2346,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(true);
     }
 
-    // ✅ Ensure explanation mode is active
+    // ✅ Ensure explanation mode remains **active**
     this.updateDisplayStateToExplanation();
     this.cdRef.detectChanges();
 
@@ -2362,7 +2366,8 @@ export class QuizQuestionComponent
     });
 
     console.log('[onOptionClicked] ✅ Function execution complete.');
-  }
+}
+
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
