@@ -2273,12 +2273,17 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ Lock question index to avoid incorrect updates
+    // ✅ Strictly lock the explanation update to the **current question**
     const lockedQuestionIndex = this.currentQuestionIndex;
-
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
-    // ✅ Ensure optionsToDisplay is populated
+    // ✅ Prevent stale data updates by resetting explanation before fetching
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+    this.cdRef.detectChanges();
+
+    // ✅ Ensure `optionsToDisplay` is populated before proceeding
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -2307,15 +2312,8 @@ export class QuizQuestionComponent
         this.selectedOptionService.isAnsweredSubject.next(true);
     }
 
-    // ✅ Reset explanation text before updating to avoid stale data
-    console.log('[onOptionClicked] 🔄 Resetting explanation text before update...');
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-    this.cdRef.detectChanges();
-
     try {
-        // ✅ Check stored explanation before fetching
+        // ✅ **Retrieve explanation from stored state before fetching new one**
         let explanationText = this.quizStateService.getQuestionExplanation(this.quizId, lockedQuestionIndex);
         
         if (!explanationText) {
@@ -2325,23 +2323,26 @@ export class QuizQuestionComponent
             );
             console.log(`[onOptionClicked] ✅ Explanation fetched:`, explanationText);
 
-            // ✅ Store explanation in state
+            // ✅ **Strictly store explanation for the locked question ONLY**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } else {
             console.log(`[onOptionClicked] 🔄 Using cached explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ Prevent overwriting explanation if another question was loaded
+        // ✅ **Ensure no stale updates overwrite the correct explanation**
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
             return;
         }
 
-        // ✅ Set and lock explanation text for this question
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
-        this.cdRef.detectChanges();
+        // ✅ **Strictly apply explanation only if it hasn't been set yet**
+        if (!this.explanationToDisplay || this.explanationToDisplay !== explanationText) {
+            console.log(`[onOptionClicked] 🟢 Setting explanation text for Q${lockedQuestionIndex}:`, explanationText);
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(explanationText);
+            this.showExplanationChange.emit(true);
+            this.cdRef.detectChanges();
+        }
 
     } catch (error) {
         console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
@@ -2349,17 +2350,17 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(true);
     }
 
-    // ✅ Ensure explanation display state updates correctly
+    // ✅ **Ensure correct state updates**
     this.updateDisplayStateToExplanation();
     this.cdRef.detectChanges();
 
     console.log('[onOptionClicked] 🟢 Updating UI for explanation text...');
 
-    // ✅ Ensure correctness checks are performed
+    // ✅ **Ensure correctness checks are performed**
     console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
     await this.handleCorrectnessOutcome(true);
 
-    // ✅ Emit event to enable "Next" button and advance to next question
+    // ✅ **Enable Next button**
     console.log('[onOptionClicked] 🟢 Enabling Next button...');
     this.answerSelected.emit(true);
 
@@ -2370,7 +2371,6 @@ export class QuizQuestionComponent
 
     console.log('[onOptionClicked] ✅ Function execution complete.');
   }
-
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
