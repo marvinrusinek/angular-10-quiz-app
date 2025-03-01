@@ -2313,9 +2313,9 @@ export class QuizQuestionComponent
     }
 
     try {
-        // Retrieve explanation from stored state before fetching a new one
+        // ✅ **Retrieve explanation from stored state before fetching new one**
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-
+        
         if (!explanationText) {
             console.log(`[onOptionClicked] 🔄 Fetching new explanation for Q${lockedQuestionIndex}...`);
             explanationText = await firstValueFrom(
