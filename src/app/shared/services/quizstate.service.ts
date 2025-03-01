@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
@@ -174,7 +174,7 @@ export class QuizStateService {
     }
     this.quizState[quizId][questionIndex] = {
       ...(this.quizState[quizId][questionIndex] || {}),
-      explanation,
+      explanation
     };
     console.log(`[QuizStateService] 🟢 Explanation stored for Q${questionIndex}:`, explanation);
   }
