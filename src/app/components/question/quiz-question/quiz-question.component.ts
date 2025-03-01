@@ -2272,7 +2272,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    const lockedQuestionIndex = this.currentQuestionIndex; // Lock to prevent stale updates
+    const lockedQuestionIndex = this.currentQuestionIndex; // Lock explanation retrieval per question
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
     // ✅ Apply feedback first
@@ -2292,21 +2292,21 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
 
     try {
+        // ✅ **First, check if explanation is already stored**
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
-        // ✅ **Fetch explanation only if not already stored**
         if (!explanationText) {
             console.log(`[onOptionClicked] 🟢 Fetching fresh explanation for Q${lockedQuestionIndex}`);
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
 
-            // ✅ **Store explanation to avoid incorrect overwrites**
+            // ✅ **Store explanation immediately**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} stored successfully.`);
+            console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}`);
         }
 
-        // ✅ **Prevent explanation from switching if another question is loaded**
+        // ✅ **Ensure explanation is NOT overridden by another question's state**
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
             return;
@@ -2314,11 +2314,12 @@ export class QuizQuestionComponent
 
         console.log(`[onOptionClicked] ✅ Explanation text retrieved:`, explanationText);
 
-        // ✅ **Display explanation & prevent further overwrites**
+        // ✅ **Assign & display the explanation**
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
+
     } catch (error) {
         console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
         this.explanationToDisplayChange.emit('Error loading explanation.');
@@ -2343,8 +2344,6 @@ export class QuizQuestionComponent
 
     console.log('[onOptionClicked] ✅ Function execution complete.');
   }
-
-
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
