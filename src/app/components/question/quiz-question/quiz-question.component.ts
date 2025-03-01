@@ -2272,7 +2272,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ Lock explanation retrieval to the current question only
+    // ✅ Lock explanation retrieval to the current question index
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
@@ -2285,14 +2285,14 @@ export class QuizQuestionComponent
         this.selectedOptionService.isAnsweredSubject.next(true);
     }
 
-    // ✅ Prevent Q2’s explanation from replacing Q1’s explanation
+    // ✅ Prevent overwriting explanation with another question’s state
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
         return;
     }
 
     try {
-        // ✅ Check if explanation is already stored in state
+        // ✅ Retrieve stored explanation if available
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
         if (!explanationText) {
@@ -2306,7 +2306,7 @@ export class QuizQuestionComponent
             console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}`);
         }
 
-        // ✅ Ensure explanation is NOT overridden by another question’s state
+        // ✅ Check again to prevent overwriting explanation
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Another question loaded! Skipping explanation update.`);
             return;
@@ -2314,11 +2314,15 @@ export class QuizQuestionComponent
 
         console.log(`[onOptionClicked] ✅ Explanation text retrieved:`, explanationText);
 
-        // ✅ **Do NOT reset explanation incorrectly**
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
-        this.cdRef.detectChanges();
+        // ✅ **Ensure explanation text does not reset on multiple clicks**
+        if (this.explanationToDisplay !== explanationText) {
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(explanationText);
+            this.showExplanationChange.emit(true);
+            this.cdRef.detectChanges();
+        } else {
+            console.warn(`[onOptionClicked] ⚠️ Explanation text is already set. Skipping redundant update.`);
+        }
 
     } catch (error) {
         console.error(`[onOptionClicked] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
@@ -2326,7 +2330,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(true);
     }
 
-    // ✅ Update UI state correctly
+    // ✅ Ensure explanation display state updates correctly
     this.updateDisplayStateToExplanation();
     this.cdRef.detectChanges();
 
