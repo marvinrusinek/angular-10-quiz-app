@@ -2273,7 +2273,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ Strictly lock explanation retrieval to the current question
+    // ✅ Lock explanation retrieval strictly to the current question
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
@@ -2320,22 +2320,18 @@ export class QuizQuestionComponent
             // ✅ Store explanation for this question to prevent refetching
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } else {
-            console.log(`[onOptionClicked] 🔄 Using cached explanation for Q${lockedQuestionIndex}:`, explanationText);
+            console.log(`[onOptionClicked] 🔄 Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ Prevent stale updates from resetting explanation
-        if (lockedQuestionIndex !== this.currentQuestionIndex) {
-            console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
-            return;
-        }
-
-        // ✅ Prevent explanation from being overwritten with another question's text
-        if (this.explanationToDisplay && this.currentQuestionIndex === lockedQuestionIndex) {
-            console.log(`[onOptionClicked] ✅ Keeping stored explanation for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
-        } else {
+        // ✅ Ensure explanation is updated only for the currently selected question
+        if (this.currentQuestionIndex === lockedQuestionIndex) {
             this.explanationToDisplay = explanationText;
             this.explanationToDisplayChange.emit(explanationText);
             this.showExplanationChange.emit(true);
+            console.log(`[onOptionClicked] ✅ Explanation correctly updated for Q${lockedQuestionIndex}`);
+        } else {
+            console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
+            return;
         }
 
         // ✅ Prevent question text from overriding explanation
