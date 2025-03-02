@@ -2341,6 +2341,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
+  
 
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
