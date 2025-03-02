@@ -2296,16 +2296,15 @@ export class QuizQuestionComponent
             this.selectedOptionService.isAnsweredSubject.next(true);
         }
 
-        // 🚀 **Step 1: Reset explanation before fetching to avoid stale data**
+        // 🔄 **Step 1: Reset explanation before fetching to avoid stale data**
         console.log('[onOptionClicked] 🔄 Resetting explanation text before update...');
         this.explanationToDisplay = '';
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        // 🚀 **Step 2: Fetch explanation for the correct question**
+        // 🔍 **Step 2: Fetch explanation for the correct question**
         const lockedQuestionIndex = this.currentQuestionIndex; // Lock index to prevent async overwrites
-
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
         if (explanationText) {
@@ -2323,7 +2322,7 @@ export class QuizQuestionComponent
             console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}.`);
         }
 
-        // 🚀 **Step 3: Apply explanation text to UI**
+        // 🔄 **Step 3: Prevent overwriting explanation if another question was loaded**
         if (lockedQuestionIndex !== this.currentQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Stale explanation detected! Skipping update for Q${lockedQuestionIndex}.`);
             return;
@@ -2359,7 +2358,8 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
-  }
+}
+
 
 
 

@@ -177,12 +177,14 @@ export class QuizStateService {
       ...(this.quizState[quizId][questionIndex] || {}),
       explanation
     };
-    console.log(`[QuizStateService] 🟢 Explanation stored for Q${questionIndex}:`, explanation);
+    console.log(`[QuizStateService] 🟢 STORED Explanation for Q${questionIndex}:`, explanation);
   }
-  
+
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
-    return this.quizState[quizId]?.[questionIndex]?.explanation || null;
+    const explanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
+    console.log(`[QuizStateService] 🔍 Retrieving explanation for Q${questionIndex}:`, explanation);
+    return explanation;
   }
 
   createDefaultQuestionState(): QuestionState {
