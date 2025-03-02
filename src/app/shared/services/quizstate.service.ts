@@ -168,6 +168,7 @@ export class QuizStateService {
     this.setQuestionState(quizId, index, questionState);
   }
 
+  // Store explanation for a question
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
       this.quizState[quizId] = {};
@@ -178,7 +179,7 @@ export class QuizStateService {
     };
     console.log(`[QuizStateService] 🟢 Explanation stored for Q${questionIndex}:`, explanation);
   }
-
+  
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     return this.quizState[quizId]?.[questionIndex]?.explanation || null;
