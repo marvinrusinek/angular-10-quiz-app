@@ -2422,8 +2422,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  // ... existing code ...
-  // ... existing code ...
+  
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
@@ -2465,56 +2464,78 @@ export class QuizQuestionComponent
         let explanationText = '';
         
         try {
-            // First check if we already have the explanation stored
+            // Check for cached explanation in memory first
             if (this.explanationTextService.formattedExplanations[lockedQuestionIndex] && 
                 this.explanationTextService.formattedExplanations[lockedQuestionIndex].explanation) {
                 explanationText = this.explanationTextService.formattedExplanations[lockedQuestionIndex].explanation;
                 console.log(`[onOptionClicked] ✅ Using cached explanation for Q${lockedQuestionIndex}:`, explanationText);
-            } else {
-                // If not cached, fetch it
-                console.log(`[onOptionClicked] 🔄 Fetching explanation for Q${lockedQuestionIndex}...`);
+            } 
+            else {
+                // Check if we have explanation in session storage
+                const sessionStorageKey = `explanationText_${lockedQuestionIndex}`;
+                const storedExplanation = sessionStorage.getItem(sessionStorageKey);
                 
-                // Get the current question to ensure we have the correct explanation
-                const currentQuestion = this.questionsArray[lockedQuestionIndex];
-                if (!currentQuestion) {
-                    throw new Error(`Question not found for index ${lockedQuestionIndex}`);
+                if (storedExplanation) {
+                    explanationText = storedExplanation;
+                    console.log(`[onOptionClicked] ✅ Using stored explanation from session storage for Q${lockedQuestionIndex}:`, explanationText);
+                    
+                    // Also update the service cache
+                    this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { 
+                        questionIndex: lockedQuestionIndex,
+                        explanation: explanationText 
+                    };
                 }
-                
-                // Use the raw explanation from the question if available
-                if (currentQuestion.explanation) {
-                    explanationText = currentQuestion.explanation;
-                    console.log(`[onOptionClicked] ✅ Using raw explanation from question:`, explanationText);
-                } else {
-                    // Otherwise fetch from service
-                    explanationText = await firstValueFrom(
-                        this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
-                    );
+                else {
+                    // If no cached explanation, try to get it from current question
+                    console.log(`[onOptionClicked] 🔄 Fetching explanation for Q${lockedQuestionIndex}...`);
+                    
+                    // Get the current question to ensure we have the correct explanation
+                    const currentQuestion = this.questionsArray[lockedQuestionIndex];
+                    if (!currentQuestion) {
+                        throw new Error(`Question not found for index ${lockedQuestionIndex}`);
+                    }
+                    
+                    // Use the raw explanation from the question if available
+                    if (currentQuestion.explanation) {
+                        explanationText = currentQuestion.explanation;
+                        console.log(`[onOptionClicked] ✅ Using raw explanation from question:`, explanationText);
+                    } else {
+                        // Otherwise fetch from service
+                        explanationText = await firstValueFrom(
+                            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+                        );
+                    }
+                    
+                    console.log(`[onOptionClicked] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
+                    
+                    // ✅ **STORE explanation immediately to prevent overwriting**
+                    this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { 
+                        questionIndex: lockedQuestionIndex,
+                        explanation: explanationText 
+                    };
+                    
+                    // Store in session storage for persistence
+                    try {
+                        sessionStorage.setItem(sessionStorageKey, explanationText);
+                        console.log(`[onOptionClicked] 💾 Explanation saved to session storage for Q${lockedQuestionIndex}`);
+                    } catch (storageError) {
+                        console.warn('[onOptionClicked] ⚠️ Failed to save explanation to session storage:', storageError);
+                    }
                 }
-                
-                console.log(`[onOptionClicked] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
-                
-                // ✅ **STORE explanation immediately to prevent overwriting**
-                this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { 
-                    questionIndex: lockedQuestionIndex,
-                    explanation: explanationText 
-                };
-                console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
             }
 
             // ✅ **Ensure correct explanation is displayed**
-            this.explanationToDisplay = explanationText;
-            this.explanationToDisplayChange.emit(this.explanationToDisplay);
-            this.showExplanationChange.emit(true);
-            
-            // Store the explanation in session storage for persistence
-            try {
-                sessionStorage.setItem(`explanationText_${lockedQuestionIndex}`, explanationText);
-                console.log(`[onOptionClicked] 💾 Explanation saved to session storage for Q${lockedQuestionIndex}`);
-            } catch (storageError) {
-                console.warn('[onOptionClicked] ⚠️ Failed to save explanation to session storage:', storageError);
+            if (explanationText && explanationText.trim() !== '') {
+                this.explanationToDisplay = explanationText;
+                this.explanationToDisplayChange.emit(this.explanationToDisplay);
+                this.showExplanationChange.emit(true);
+                console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} applied to UI.`);
+            } else {
+                console.warn(`[onOptionClicked] ⚠️ Empty explanation for Q${lockedQuestionIndex}. Using fallback message.`);
+                this.explanationToDisplay = "No explanation available for this question.";
+                this.explanationToDisplayChange.emit(this.explanationToDisplay);
+                this.showExplanationChange.emit(true);
             }
-
-            console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} applied to UI.`);
         } catch (explanationError) {
             console.error('[onOptionClicked] ❌ Error handling explanation:', explanationError);
             // Fallback to a default message
