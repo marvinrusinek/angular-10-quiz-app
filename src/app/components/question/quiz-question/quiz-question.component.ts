@@ -818,6 +818,62 @@ export class QuizQuestionComponent
     }
   }
 
+  /* private async handleRouteChanges(): Promise<void> {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+        let questionIndex = +params.get('questionIndex');
+        console.log(`🔄 [handleRouteChanges] Route param received: ${questionIndex}`);
+
+        // ✅ Ensure we have loaded the questions before checking the index
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+            console.warn('[handleRouteChanges] Questions are not loaded yet. Fetching now...');
+            const loaded = await this.loadQuestion(); // Ensure this populates `questionsArray`
+            
+            // ✅ Check again after loading
+            if (!loaded || !this.questionsArray || this.questionsArray.length === 0) {
+                console.error('[handleRouteChanges] Questions could not be loaded.');
+                return;
+            }
+        }
+
+        // ✅ Ensure a valid number from the URL (fallback to 0)
+        if (isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+            console.warn(`⚠️ [handleRouteChanges] Invalid question index from route: ${questionIndex}. Defaulting to 0.`);
+            questionIndex = 0;
+        }
+
+        this.currentQuestionIndex = questionIndex;
+        console.log(`✅ [handleRouteChanges] Setting currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+        try {
+            // ✅ Set the current question
+            this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+
+            if (!this.currentQuestion) {
+                console.error('[handleRouteChanges] Current question is null or undefined after setting.');
+                return;
+            }
+
+            console.log(`✅ [handleRouteChanges] Loaded Question ${this.currentQuestionIndex}:`, this.currentQuestion.questionText);
+
+            // ✅ Set up options to display
+            this.optionsToDisplay = this.currentQuestion.options.map(option => ({
+                ...option,
+                active: true, 
+                feedback: undefined, 
+                showIcon: false
+            }));
+
+            console.log(`✅ [handleRouteChanges] Options for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
+
+            // ✅ Ensure `loadQuestion()` is triggered to fully update UI
+            console.log(`🔵 [handleRouteChanges] Calling loadQuestion() for Q${this.currentQuestionIndex}`);
+            await this.loadQuestion();
+
+        } catch (error) {
+            console.error('[handleRouteChanges] Error handling route change:', error);
+        }
+    });
+  } */
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
         let questionIndex = +params.get('questionIndex');
@@ -868,6 +924,19 @@ export class QuizQuestionComponent
             // ✅ Ensure `loadQuestion()` is triggered to fully update UI
             console.log(`🔵 [handleRouteChanges] Calling loadQuestion() for Q${this.currentQuestionIndex}`);
             await this.loadQuestion();
+            
+            // ✅ Check if this question has been answered already
+            const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+            if (isAnswered) {
+                console.log(`✅ [handleRouteChanges] Question ${this.currentQuestionIndex} is already answered. Loading explanation...`);
+                // Fetch and update explanation text for this question
+                await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
+                
+                // Ensure explanation is displayed
+                this.showExplanationChange.emit(true);
+                this.updateDisplayStateToExplanation();
+                this.cdRef.detectChanges();
+            }
 
         } catch (error) {
             console.error('[handleRouteChanges] Error handling route change:', error);
@@ -2264,7 +2333,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
   
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
         console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
@@ -2352,11 +2421,162 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
+  } */
+  // ... existing code ...
+  // ... existing code ...
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    try {
+        console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
+        console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
+
+        // ✅ Ensure optionsToDisplay is populated before proceeding
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            this.optionsToDisplay = this.populateOptionsToDisplay();
+        }
+
+        // ✅ Find the selected option
+        const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+        if (!foundOption) {
+            console.error('[onOptionClicked] ❌ Selected option not found in optionsToDisplay. Skipping feedback.');
+            return;
+        }
+
+        console.log('[onOptionClicked] ✅ Valid option found:', foundOption);
+
+        // ✅ Prevent clicking before feedback is ready
+        if (!this.isFeedbackApplied) {
+            console.warn('[onOptionClicked] ⚠️ Feedback is not ready. Attempting to apply feedback...');
+            await this.applyOptionFeedback(foundOption);
+            console.log('[onOptionClicked] 🚀 Feedback applied.');
+        }
+
+        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+            console.log('✅ First option clicked - marking question as answered');
+            this.selectedOptionService.isAnsweredSubject.next(true);
+        }
+
+        // 🔒 **Lock question index to ensure correct explanation**
+        const lockedQuestionIndex = this.currentQuestionIndex;
+        console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
+
+        // 🚀 **Fetch explanation text for the correct question**
+        let explanationText = '';
+        
+        try {
+            // First check if we already have the explanation stored
+            if (this.explanationTextService.formattedExplanations[lockedQuestionIndex] && 
+                this.explanationTextService.formattedExplanations[lockedQuestionIndex].explanation) {
+                explanationText = this.explanationTextService.formattedExplanations[lockedQuestionIndex].explanation;
+                console.log(`[onOptionClicked] ✅ Using cached explanation for Q${lockedQuestionIndex}:`, explanationText);
+            } else {
+                // If not cached, fetch it
+                console.log(`[onOptionClicked] 🔄 Fetching explanation for Q${lockedQuestionIndex}...`);
+                
+                // Get the current question to ensure we have the correct explanation
+                const currentQuestion = this.questionsArray[lockedQuestionIndex];
+                if (!currentQuestion) {
+                    throw new Error(`Question not found for index ${lockedQuestionIndex}`);
+                }
+                
+                // Use the raw explanation from the question if available
+                if (currentQuestion.explanation) {
+                    explanationText = currentQuestion.explanation;
+                    console.log(`[onOptionClicked] ✅ Using raw explanation from question:`, explanationText);
+                } else {
+                    // Otherwise fetch from service
+                    explanationText = await firstValueFrom(
+                        this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+                    );
+                }
+                
+                console.log(`[onOptionClicked] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
+                
+                // ✅ **STORE explanation immediately to prevent overwriting**
+                this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { 
+                    questionIndex: lockedQuestionIndex,
+                    explanation: explanationText 
+                };
+                console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+            }
+
+            // ✅ **Ensure correct explanation is displayed**
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(true);
+            
+            // Store the explanation in session storage for persistence
+            try {
+                sessionStorage.setItem(`explanationText_${lockedQuestionIndex}`, explanationText);
+                console.log(`[onOptionClicked] 💾 Explanation saved to session storage for Q${lockedQuestionIndex}`);
+            } catch (storageError) {
+                console.warn('[onOptionClicked] ⚠️ Failed to save explanation to session storage:', storageError);
+            }
+
+            console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} applied to UI.`);
+        } catch (explanationError) {
+            console.error('[onOptionClicked] ❌ Error handling explanation:', explanationError);
+            // Fallback to a default message
+            this.explanationToDisplay = "Explanation could not be loaded. Please try again.";
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(true);
+        }
+
+        // ✅ Ensure explanation display state updates correctly
+        this.updateDisplayStateToExplanation();
+        this.cdRef.detectChanges();
+
+        // ✅ Ensure correctness checks are performed
+        console.log('[onOptionClicked] 🟢 Calling handleCorrectnessOutcome...');
+        await this.handleCorrectnessOutcome(true);
+
+        // ✅ Emit event to enable "Next" button and advance to next question
+        console.log('[onOptionClicked] 🟢 Enabling Next button...');
+        this.answerSelected.emit(true);
+
+        setTimeout(() => {
+            console.log('[onOptionClicked] 🟢 Triggering change detection...');
+            this.cdRef.markForCheck();
+        });
+
+        console.log('[onOptionClicked] ✅ Function execution complete.');
+
+    } catch (error) {
+        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+    }
   }
 
+  // ... existing code ...
+  private updateDisplayStateToExplanation(): void {
+    console.log('[updateDisplayStateToExplanation] 🔄 Updating display state to explanation mode');
+    
+    // Update the display state
+    this.displayState = { mode: 'explanation', answered: true };
+    this.displayStateSubject.next(this.displayState);
+    this.displayStateChange.emit(this.displayState);
+    
+    // Update the display mode
+    this.displayMode = 'explanation';
+    this.displayMode$.next('explanation');
+    
+    // Ensure explanation is visible
+    this.shouldDisplayExplanation = true;
+    this.explanationVisible = true;
+    this.isExplanationTextDisplayed = true;
+    
+    // Update rendering flags
+    this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true;
+    this.isExplanationLocked = false;
+    
+    console.log('[updateDisplayStateToExplanation] ✅ Display state updated to explanation mode');
+  }
+// ... existing code ...
 
 
-  async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
+  /* async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
     
     // ✅ Lock the explanation fetch to the current questionIndex at the time of call
@@ -2386,6 +2606,72 @@ export class QuizQuestionComponent
         console.error('[fetchAndUpdateExplanationText] ❌ Error fetching explanation text:', error);
         this.explanationToDisplayChange.emit('Error loading explanation.');
         this.showExplanationChange.emit(true);
+    }
+  } */
+  // ... existing code ...
+  private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
+    
+    try {
+      // First check if we have the explanation in session storage
+      const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
+      
+      if (storedExplanation) {
+        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in session storage for Q${questionIndex}`);
+        this.explanationToDisplay = storedExplanation;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+        
+        // Also update the service cache
+        this.explanationTextService.formattedExplanations[questionIndex] = {
+          questionIndex: questionIndex,
+          explanation: storedExplanation
+        };
+        
+        return;
+      }
+      
+      // If not in session storage, check if it's in the service cache
+      if (this.explanationTextService.formattedExplanations[questionIndex] && 
+          this.explanationTextService.formattedExplanations[questionIndex].explanation) {
+        
+        const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex].explanation;
+        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in service cache for Q${questionIndex}`);
+        
+        this.explanationToDisplay = cachedExplanation;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+        
+        // Save to session storage for future use
+        sessionStorage.setItem(`explanationText_${questionIndex}`, cachedExplanation);
+        
+        return;
+      }
+      
+      // If not found in cache or storage, fetch it from the service
+      console.log(`[fetchAndUpdateExplanationText] 🔄 Fetching explanation for Q${questionIndex}...`);
+      const explanationText = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+      );
+      
+      console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+      
+      // Store in service cache
+      this.explanationTextService.formattedExplanations[questionIndex] = {
+        questionIndex: questionIndex,
+        explanation: explanationText
+      };
+      
+      // Store in session storage
+      sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
+      
+      // Update UI
+      this.explanationToDisplay = explanationText;
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+      
+    } catch (error) {
+      console.error(`[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
     }
   }
   
