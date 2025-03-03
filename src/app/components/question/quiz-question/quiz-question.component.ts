@@ -2297,7 +2297,7 @@ export class QuizQuestionComponent
             this.selectedOptionService.isAnsweredSubject.next(true);
         }
 
-        // 🚀 **Force UI reset before fetching explanation**
+        // 🔄 **Reset explanation before fetching**
         console.log('[onOptionClicked] 🔄 Resetting explanation text before fetching...');
         this.explanationToDisplay = '';
         this.explanationToDisplayChange.emit('');
@@ -2315,18 +2315,17 @@ export class QuizQuestionComponent
 
         console.log(`[onOptionClicked] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
 
-        // 🔄 **Ensure explanation update happens ONLY if still on the same question**
-        if (this.currentQuestionIndex !== lockedQuestionIndex) {
-            console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
-            return;
-        }
+        // ✅ **STORE explanation immediately to prevent overwriting**
+        this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { explanation: explanationText };
+        console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-        // ✅ **Force-set explanation text to ensure correct display**
-        console.log(`[onOptionClicked] 🟢 Applying explanation for Q${this.currentQuestionIndex}`);
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(explanationText);
+        // ✅ **Ensure correct explanation is displayed**
+        this.explanationToDisplay = this.explanationTextService.formattedExplanations[lockedQuestionIndex].explanation;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
+
+        console.log(`[onOptionClicked] 🟢 Explanation for Q${this.currentQuestionIndex} applied to UI.`);
 
         // ✅ Ensure explanation display state updates correctly
         this.updateDisplayStateToExplanation();
