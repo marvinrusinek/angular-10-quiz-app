@@ -2297,14 +2297,14 @@ export class QuizQuestionComponent
             this.selectedOptionService.isAnsweredSubject.next(true);
         }
 
-        // ✅ Ensure explanation is reset before fetching (Avoids stale data)
-        console.log('[onOptionClicked] 🔄 Resetting explanation text before update...');
+        // 🚀 **Force UI reset before fetching explanation**
+        console.log('[onOptionClicked] 🔄 Resetting explanation text before fetching...');
         this.explanationToDisplay = '';
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        // 🔒 Lock question index to ensure correct explanation
+        // 🔒 **Lock question index to ensure correct explanation**
         const lockedQuestionIndex = this.currentQuestionIndex;
         console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
 
@@ -2313,21 +2313,20 @@ export class QuizQuestionComponent
             this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
         );
 
-        console.log(`[onOptionClicked] ✅ Explanation fetched:`, explanationText);
+        console.log(`[onOptionClicked] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
 
-        // 🔄 **Ensure correct explanation is applied ONLY if still on the same question**
+        // 🔄 **Ensure explanation update happens ONLY if still on the same question**
         if (this.currentQuestionIndex !== lockedQuestionIndex) {
             console.warn(`[onOptionClicked] ⚠️ Another question was loaded! Skipping explanation update.`);
             return;
         }
 
-        // ✅ Apply explanation text to UI
+        // ✅ **Force-set explanation text to ensure correct display**
+        console.log(`[onOptionClicked] 🟢 Applying explanation for Q${this.currentQuestionIndex}`);
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
-
-        console.log(`[onOptionClicked] 🟢 Explanation for Q${this.currentQuestionIndex} applied to UI.`);
 
         // ✅ Ensure explanation display state updates correctly
         this.updateDisplayStateToExplanation();
@@ -2352,7 +2351,6 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-  
 
 
   async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
