@@ -2316,7 +2316,10 @@ export class QuizQuestionComponent
         console.log(`[onOptionClicked] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
 
         // ✅ **STORE explanation immediately to prevent overwriting**
-        this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { explanation: explanationText };
+        this.explanationTextService.formattedExplanations[lockedQuestionIndex] = { 
+          questionIndex: lockedQuestionIndex,  // Fix: Ensure questionIndex is included
+          explanation: explanationText 
+        };      
         console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
 
         // ✅ **Ensure correct explanation is displayed**
