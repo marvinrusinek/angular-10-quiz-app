@@ -189,14 +189,15 @@ export class QuizStateService {
     };
 
     console.log(`[QuizStateService] 🟢 STORED Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[QuizStateService] 🟢 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   }
 
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
-    const explanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
+    const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
     console.log(`[QuizStateService] 🔍 Retrieving explanation for Q${questionIndex}:`, explanation);
-    return explanation;
+    return storedExplanation;
   }
 
   createDefaultQuestionState(): QuestionState {
