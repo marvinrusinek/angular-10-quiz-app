@@ -127,29 +127,32 @@ export class ExplanationTextService {
   } */
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log(`[DEBUG] 🔍 Checking formatted explanations for index: ${index}`);
+    console.log(`[DEBUG] 🔍 Current stored explanations:`, this.formattedExplanations);
 
-    if (this.formattedExplanations[index]) {
-        console.log(`[DEBUG] ✅ Returning stored explanation for index ${index}:`, this.formattedExplanations[index].explanation);
-        return of(this.formattedExplanations[index].explanation);
+    // Ensure formattedExplanations exists
+    if (!this.formattedExplanations) {
+      console.warn(`[DEBUG] ❌ formattedExplanations object is undefined!`);
+      return of('No explanation available.');
     }
 
-    console.warn(`[DEBUG] ❌ No stored explanation for index ${index}, fetching from API...`);
+    // ✅ Check if an explanation is already stored
+    if (this.formattedExplanations.hasOwnProperty(index)) {
+      const formattedExplanation = this.formattedExplanations[index];
 
-    return this.http.get<{ explanation: string }>(`/api/explanations/${index}`).pipe(
-        tap(response => {
-            if (response?.explanation) {
-                this.formattedExplanations[index] = { 
-                    questionIndex: index, 
-                    explanation: response.explanation 
-                };
-                console.log(`[DEBUG] ✅ Stored new explanation for Q${index}:`, response.explanation);
-            } else {
-                console.warn(`[DEBUG] ❌ API returned empty explanation for Q${index}`);
-            }
-        }),
-        map(response => response?.explanation || 'No explanation available.')
-    );
+      if (formattedExplanation && formattedExplanation.explanation) {
+        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
+        return of(formattedExplanation.explanation);
+      } else {
+        console.log(`[DEBUG] ⚠️ Stored explanation object exists but is missing text for Q${index}`);
+      }
+    } else {
+      console.log(`[DEBUG] ❌ No stored explanation for Q${index}. Returning default.`);
+    }
+
+    // Return a default message if no explanation is found
+    return of('No explanation available.');
   }
+
 
 
   initializeExplanationTexts(explanations: string[]): void {
