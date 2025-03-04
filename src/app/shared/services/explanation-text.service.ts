@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -101,7 +101,7 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
   } */
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log('[DEBUG] 🔍 Checking formatted explanations for index:', index);
     console.log('[DEBUG] 🔍 Current stored explanations:', this.formattedExplanations);
 
@@ -124,6 +124,31 @@ export class ExplanationTextService {
 
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
+  } */
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    console.log(`[DEBUG] 🔍 Checking formatted explanations for index: ${index}`);
+
+    if (this.formattedExplanations[index]) {
+        console.log(`[DEBUG] ✅ Returning stored explanation for index ${index}:`, this.formattedExplanations[index].explanation);
+        return of(this.formattedExplanations[index].explanation);
+    }
+
+    console.warn(`[DEBUG] ❌ No stored explanation for index ${index}, fetching from API...`);
+
+    return this.http.get<{ explanation: string }>(`/api/explanations/${index}`).pipe(
+        tap(response => {
+            if (response?.explanation) {
+                this.formattedExplanations[index] = { 
+                    questionIndex: index, 
+                    explanation: response.explanation 
+                };
+                console.log(`[DEBUG] ✅ Stored new explanation for Q${index}:`, response.explanation);
+            } else {
+                console.warn(`[DEBUG] ❌ API returned empty explanation for Q${index}`);
+            }
+        }),
+        map(response => response?.explanation || 'No explanation available.')
+    );
   }
 
 
