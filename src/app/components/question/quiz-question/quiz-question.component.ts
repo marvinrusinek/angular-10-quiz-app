@@ -2482,10 +2482,17 @@ export class QuizQuestionComponent
 
         console.log(`[DEBUG] Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
 
-        // ✅ **Step 5: Store explanation immediately to prevent overwriting**
+        // ✅ **Step 5: Store explanation immediately to prevent overwriting
         if (explanationText) {
-            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+          // 🚀 **Step 5: Store explanation immediately to prevent overwriting**
+          console.log(`[onOptionClicked] 🔍 Attempting to store explanation for Q${lockedQuestionIndex}`);
+
+          this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+
+          // ✅ Log after storing to verify correctness
+          console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+
+          console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
         // ✅ **Step 6: Apply explanation to UI**
