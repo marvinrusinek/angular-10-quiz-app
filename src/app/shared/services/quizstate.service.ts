@@ -174,8 +174,8 @@ export class QuizStateService {
       this.quizState[quizId] = {};
     }
 
-    // Debugging Index before Storing
-    console.log(`[QuizStateService] 🔍 Attempting to store explanation for Q${questionIndex}:`, explanation);
+    // Ensure we store under the correct questionIndex
+    console.log(`[QuizStateService] 🟢 Storing Explanation for Q${questionIndex}:`, explanation);
 
     // Prevent overwriting if explanation already exists
     if (this.quizState[quizId][questionIndex]?.explanation) {
