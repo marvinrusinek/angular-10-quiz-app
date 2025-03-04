@@ -2464,7 +2464,7 @@ export class QuizQuestionComponent
 
         // 🔒 **Step 2: Lock question index to ensure correct explanation retrieval**
         const lockedQuestionIndex = this.currentQuestionIndex;
-        console.log(`[onOptionClicked] 🔒 LOCKING explanation fetch to Q${lockedQuestionIndex}`);
+        console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
 
         // 🔍 **Step 3: Debugging - Check stored explanation before fetching**
         const storedExplanation = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
@@ -2478,21 +2478,18 @@ export class QuizQuestionComponent
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
+            console.log(`[DEBUG] Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
+        } else {
+            console.log(`[onOptionClicked] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        console.log(`[DEBUG] Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
-
-        // ✅ **Step 5: Store explanation immediately to prevent overwriting
+        // ✅ **Step 5: Store explanation immediately to prevent overwriting**
         if (explanationText) {
-          // 🚀 **Step 5: Store explanation immediately to prevent overwriting**
-          console.log(`[onOptionClicked] 🔍 Attempting to store explanation for Q${lockedQuestionIndex}`);
+            console.log(`[onOptionClicked] 🔍 Attempting to store explanation for Q${lockedQuestionIndex}`);
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
 
-          this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-
-          // ✅ Log after storing to verify correctness
-          console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
-
-          console.log(`[onOptionClicked] 🟢 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+            // ✅ Log after storing to verify correctness
+            console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
         // ✅ **Step 6: Apply explanation to UI**
