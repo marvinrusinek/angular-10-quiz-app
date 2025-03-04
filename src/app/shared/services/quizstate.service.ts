@@ -8,7 +8,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizStateService {
-  private quizState: { [quizId: string]: { [questionIndex: number]: { explanation?: string } } } = {};
+  quizState: { [quizId: string]: { [questionIndex: number]: { explanation?: string } } } = {};
 
   currentQuestion: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
