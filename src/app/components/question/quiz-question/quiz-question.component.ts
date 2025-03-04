@@ -2422,7 +2422,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
         console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
@@ -2564,97 +2564,6 @@ export class QuizQuestionComponent
 
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
-    }
-  } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    try {
-      console.log('[onOptionClicked] Starting option processing');
-      
-      // Process the selected option first
-      if (!event.option) {
-        console.warn('[onOptionClicked] No option provided in event');
-        return;
-      }
-      
-      const option = event.option;
-      const index = event.index;
-      const questionIndex = this.currentQuestionIndex;
-      
-      // Immediately set explanation display flags to true
-      // This ensures they're set before any async operations
-      this.displayMode = 'explanation';
-      this.displayMode$.next('explanation');
-      this.shouldDisplayExplanation = true;
-      this.explanationVisible = true;
-      this.isExplanationTextDisplayed = true;
-      
-      // Update display state
-      this.displayState = { 
-        mode: 'explanation', 
-        answered: true 
-      };
-      this.displayStateSubject.next(this.displayState);
-      this.displayStateChange.emit(this.displayState);
-      
-      // Handle the option selection logic (keeping your existing logic)
-      // ... your option selection logic ...
-      
-      // Get explanation text - do this SYNCHRONOUSLY if possible
-      let explanationText = '';
-      
-      // First check if we already have the explanation in the current question
-      if (this.questionsArray[questionIndex]?.explanation) {
-        explanationText = this.questionsArray[questionIndex].explanation;
-      } 
-      else {
-        try {
-          // Try to get from service
-          explanationText = await this.explanationTextService.getFormattedExplanationTextForQuestion(
-            this.questionsArray[questionIndex],
-            questionIndex
-          );
-        } catch (error) {
-          console.error(`[onOptionClicked] Error getting explanation: ${error}`);
-        }
-        
-        // If still no explanation, generate fallback
-        if (!explanationText) {
-          explanationText = this.generateFallbackExplanation(questionIndex);
-        }
-      }
-      
-      // CRITICAL: Force explanation to display
-      this.explanationToDisplay = explanationText;
-      this.explanationToDisplayChange.emit(explanationText);
-      this.showExplanationChange.emit(true);
-      
-      // Enable the Next button
-      this.answerSelected.emit(true);
-      
-      // Force UI update
-      this.cdRef.detectChanges();
-      
-      console.log(`[onOptionClicked] Explanation set: "${explanationText.substring(0, 50)}..."`);
-      
-      // Schedule another UI refresh to ensure changes are visible
-      setTimeout(() => {
-        this.cdRef.markForCheck();
-        this.cdRef.detectChanges();
-      }, 50);
-      
-    } catch (error) {
-      console.error('[onOptionClicked] Error:', error);
-      
-      // Emergency fallback - ensure SOMETHING shows
-      const fallbackText = `Explanation for Question ${this.currentQuestionIndex + 1}`;
-      this.explanationToDisplay = fallbackText;
-      this.explanationToDisplayChange.emit(fallbackText);
-      this.showExplanationChange.emit(true);
-      
-      // Still enable Next button despite error
-      this.answerSelected.emit(true);
-      
-      this.cdRef.detectChanges();
     }
   }
 
