@@ -126,34 +126,30 @@ export class ExplanationTextService {
     return this.formattedExplanation$;
   } */
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    console.log(`[DEBUG] 🔍 Checking formatted explanations for index: ${index}`);
-    console.log(`[DEBUG] 🔍 Current stored explanations:`, this.formattedExplanations);
+    console.log('[DEBUG] 🔍 Requesting explanation for index:', index);
+    console.log('[DEBUG] 🔍 Stored explanations before fetching:', this.formattedExplanations);
 
-    // Ensure formattedExplanations exists
-    if (!this.formattedExplanations) {
-      console.warn(`[DEBUG] ❌ formattedExplanations object is undefined!`);
-      return of('No explanation available.');
-    }
+    let explanationText: string;
 
-    // ✅ Check if an explanation is already stored
-    if (this.formattedExplanations.hasOwnProperty(index)) {
-      const formattedExplanation = this.formattedExplanations[index];
+    if (index in this.formattedExplanations) {
+        const formattedExplanation = this.formattedExplanations[index];
 
-      if (formattedExplanation && formattedExplanation.explanation) {
-        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
-        return of(formattedExplanation.explanation);
-      } else {
-        console.log(`[DEBUG] ⚠️ Stored explanation object exists but is missing text for Q${index}`);
-      }
+        if (formattedExplanation && formattedExplanation.explanation) {
+            console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
+            explanationText = formattedExplanation.explanation;
+        } else {
+            console.log(`[DEBUG] ⚠️ No explanation text found for index ${index}`);
+            explanationText = 'No explanation available';
+        }
     } else {
-      console.log(`[DEBUG] ❌ No stored explanation for Q${index}. Returning default.`);
+        console.log(`[DEBUG] ❌ Index ${index} is out of bounds or no explanation stored.`);
+        explanationText = 'Question index out of bounds or no explanation available';
     }
 
-    // Return a default message if no explanation is found
-    return of('No explanation available.');
+    this.formattedExplanationSubject.next(explanationText);
+    console.log('[DEBUG] 🔍 Explanation emitted:', explanationText);
+    return this.formattedExplanation$;
   }
-
-
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
