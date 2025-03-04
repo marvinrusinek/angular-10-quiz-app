@@ -188,6 +188,7 @@ export class QuizStateService {
       explanation
     };
 
+    console.log(`[QuizStateService] 🟢 STORED Explanation for Q${questionIndex}:`, explanation);
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   }
 
