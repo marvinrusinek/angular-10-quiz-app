@@ -2518,7 +2518,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] ✅ Function execution complete.');
 
     } catch (error) {
-        console.error('[onOptionClicked] ❌ Unhandled error:', error);
+      console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
 
