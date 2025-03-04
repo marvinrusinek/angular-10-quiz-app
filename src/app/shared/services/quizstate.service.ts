@@ -173,11 +173,16 @@ export class QuizStateService {
     if (!this.quizState[quizId]) {
       this.quizState[quizId] = {};
     }
+
+    console.log(`[QuizStateService] 🟢 Storing Explanation for Q${questionIndex}:`, explanation);
+
+    // Fix: Ensure explanation is stored at the correct index
     this.quizState[quizId][questionIndex] = {
       ...(this.quizState[quizId][questionIndex] || {}),
       explanation
     };
-    console.log(`[QuizStateService] 🟢 STORED Explanation for Q${questionIndex}:`, explanation);
+
+    console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   }
 
   // Method to retrieve stored explanation text
