@@ -2416,7 +2416,7 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
         console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
 
-        // ✅ Capture the correct question index immediately
+        // ✅ Lock the question index immediately
         const lockedQuestionIndex = this.currentQuestionIndex;  
         console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
 
@@ -2466,15 +2466,14 @@ export class QuizQuestionComponent
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
             console.log(`[DEBUG] Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
-
-            // ✅ **Store explanation immediately to prevent overwriting**
-            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Ensure correct explanation is displayed**
-        if (!explanationText || explanationText.trim() === '') {
-            console.warn(`[onOptionClicked] ⚠️ Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
+        // ✅ **Ensure explanation is stored correctly**
+        if (explanationText && explanationText.trim() !== '') {
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+        } else {
+            console.warn(`[onOptionClicked] ⚠️ Empty explanation retrieved for Q${lockedQuestionIndex}, setting default.`);
             explanationText = 'No explanation available.';
         }
 
@@ -2486,7 +2485,7 @@ export class QuizQuestionComponent
 
         console.log(`[DEBUG] Applying Explanation to UI for Q${lockedQuestionIndex}:`, explanationText);
 
-        // ✅ **Ensure explanation doesn't disappear after first click**
+        // ✅ **Ensure explanation persists across multiple clicks**
         this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         console.log(`[onOptionClicked] 🟢 Persisted explanation for Q${lockedQuestionIndex} to prevent disappearing.`);
 
@@ -2518,7 +2517,6 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   }
-
 
   /* async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
