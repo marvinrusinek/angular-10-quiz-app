@@ -1017,11 +1017,6 @@ export class QuizQuestionComponent
     this.optionsToDisplay = [...(question.options ?? [])];
     console.log(`[setQuestionFirst] 📝 Options set for question:`, this.optionsToDisplay);
 
-    // ✅ Refresh UI after ensuring options are set
-    setTimeout(() => {
-        this.cdRef.detectChanges();
-    }, 10);
-
     // ✅ Ensure explanation is updated properly
     if (this.lastProcessedQuestionIndex !== questionIndex || questionIndex === 0) {
         console.log(`[setQuestionFirst] 🟢 Applying option feedback...`);
@@ -2421,6 +2416,10 @@ export class QuizQuestionComponent
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
         console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
 
+        // ✅ Capture the correct question index immediately
+        const lockedQuestionIndex = this.currentQuestionIndex;  
+        console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
+
         // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
@@ -2456,17 +2455,11 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        // 🔒 **Step 2: Lock question index to ensure correct explanation retrieval**
-        const lockedQuestionIndex = this.currentQuestionIndex;
-        console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
+        // 🔍 **Step 2: Check stored explanation before fetching**
+        let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+        console.log(`[DEBUG] Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-        // 🔍 **Step 3: Debugging - Check stored explanation before fetching**
-        const storedExplanation = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-        console.log(`[DEBUG] Stored Explanation for Q${lockedQuestionIndex}:`, storedExplanation);
-
-        let explanationText = storedExplanation;
-
-        // 🚀 **Step 4: Fetch explanation from service if not already stored**
+        // 🚀 **Step 3: Fetch explanation from service if not already stored**
         if (!explanationText) {
             console.log(`[onOptionClicked] ⚠️ No stored explanation found, fetching from service...`);
             explanationText = await firstValueFrom(
@@ -2477,7 +2470,7 @@ export class QuizQuestionComponent
             console.log(`[onOptionClicked] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Step 5: Store explanation immediately to prevent overwriting**
+        // ✅ **Step 4: Store explanation immediately to prevent overwriting**
         if (explanationText) {
             console.log(`[onOptionClicked] 🔍 Attempting to store explanation for Q${lockedQuestionIndex}`);
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
@@ -2486,7 +2479,7 @@ export class QuizQuestionComponent
             console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Step 6: Apply explanation to UI**
+        // ✅ **Step 5: Apply explanation to UI**
         if (!explanationText || explanationText.trim() === '') {
             console.warn(`[onOptionClicked] ⚠️ Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
             explanationText = 'No explanation available.';
@@ -2497,10 +2490,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
 
-        console.log(`[DEBUG] Applying Explanation to UI:`, explanationText);
-        console.log(`[DEBUG] Stored Explanations in Service:`, this.quizStateService.quizState);
-
-        console.log(`[onOptionClicked] 🟢 Explanation for Q${this.currentQuestionIndex} applied to UI.`);
+        console.log(`[DEBUG] Applying Explanation to UI for Q${lockedQuestionIndex}:`, explanationText);
 
         // ✅ Ensure explanation display state updates correctly
         this.updateDisplayStateToExplanation();
