@@ -197,7 +197,8 @@ export class QuizStateService {
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
     
-    console.log(`[QuizStateService] 🔍 RETRIEVING Explanation for Q${questionIndex}:`, storedExplanation);
+    console.log(`[QuizStateService] 🔍 RETRIEVING Explanation for Q${questionIndex}:`, this.quizState[quizId]?.[questionIndex]?.explanation);
+
     console.log(`[QuizStateService] 🔍 FULL STATE DURING RETRIEVAL:`, JSON.stringify(this.quizState, null, 2));
 
     return storedExplanation;
