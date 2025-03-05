@@ -125,7 +125,7 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
   } */
-  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log('[DEBUG] 🔍 Requesting explanation for index:', index);
     console.log('[DEBUG] 🔍 Stored explanations before fetching:', this.formattedExplanations);
 
@@ -149,8 +149,8 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(explanationText);
     console.log('[DEBUG] 🔍 Explanation emitted:', explanationText);
     return this.formattedExplanation$;
-  } */
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  }
+  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log('[DEBUG] Requesting explanation for index:', index);
     console.log('[DEBUG] Stored explanations before fetching:', this.formattedExplanations);
   
@@ -172,7 +172,7 @@ export class ExplanationTextService {
   
     console.log('[DEBUG] Returning explanation:', explanationText);
     return of(explanationText);
-  }
+  } */
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};

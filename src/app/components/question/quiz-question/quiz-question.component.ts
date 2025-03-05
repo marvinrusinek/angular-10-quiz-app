@@ -92,7 +92,7 @@ export class QuizQuestionComponent
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
-  questionIndex: number;
+  questionIndex!: number;
   questionsArray: QuizQuestion[] = [];
   questionsObservableSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
@@ -2741,7 +2741,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
     try {
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
         console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${event.index} (Current Index: ${this.currentQuestionIndex})`);
@@ -2851,98 +2851,8 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
-  } */
-  public explanationsMap: { [index: number]: string } = {};
-
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    try {
-      const questionIndex = event.index;
-      console.log(`[onOptionClicked] Option clicked for Q${questionIndex}, Selected Option:`, event.option);
-      
-      // Ensure optionsToDisplay is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] optionsToDisplay is empty, repopulating...');
-        await new Promise(resolve => setTimeout(resolve, 50));
-        this.optionsToDisplay = this.populateOptionsToDisplay();
-      }
-      
-      // Find the selected option
-      const foundOption = this.optionsToDisplay.find(o => o.optionId === event.option?.optionId);
-      if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for Q${questionIndex}.`);
-        return;
-      }
-      console.log(`[onOptionClicked] Option found for Q${questionIndex}:`, foundOption);
-      
-      // Apply feedback if not yet applied
-      if (!this.isFeedbackApplied) {
-        console.warn('[onOptionClicked] Feedback not ready; applying feedback...');
-        await this.applyOptionFeedback(foundOption);
-      }
-      
-      // Mark the question as answered (if not already)
-      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-        console.log(`[onOptionClicked] Marking Q${questionIndex} as answered.`);
-        this.selectedOptionService.isAnsweredSubject.next(true);
-      }
-      
-      // Set the active question index
-      this.currentQuestionIndex = questionIndex;
-      console.log(`[onOptionClicked] currentQuestionIndex set to Q${this.currentQuestionIndex}`);
-      
-      // Try to get the explanation from the quiz state service first
-      let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
-      
-      // If not available, check the local cache; if still not available, fetch it
-      if (!explanationText) {
-        if (this.explanationsMap[questionIndex]) {
-          explanationText = this.explanationsMap[questionIndex];
-          console.log(`[onOptionClicked] Using cached explanation for Q${questionIndex}.`);
-        } else {
-          console.log(`[onOptionClicked] No cached explanation for Q${questionIndex}; fetching...`);
-          explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-          );
-          if (!explanationText || explanationText.trim() === '') {
-            console.warn(`[onOptionClicked] Empty explanation received for Q${questionIndex}; using default message.`);
-            explanationText = 'No explanation available.';
-          }
-          // Cache the explanation in both the local cache and the quiz state
-          this.explanationsMap[questionIndex] = explanationText;
-          this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
-          console.log(`[onOptionClicked] Fetched and cached explanation for Q${questionIndex}:`, explanationText);
-        }
-      } else {
-        console.log(`[onOptionClicked] Using stored explanation from quiz state for Q${questionIndex}.`);
-      }
-      
-      // Now update the display for the active question ONLY
-      if (this.currentQuestionIndex === questionIndex) {
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
-        console.log(`[onOptionClicked] Displaying explanation for Q${questionIndex}:`, explanationText);
-      }
-      
-      this.cdRef.detectChanges();
-      
-      // Proceed with additional processing (correctness checks, feedback, etc.)
-      await this.handleCorrectnessOutcome(true);
-      this.showFeedbackForOption[event.option?.optionId || 0] = true;
-      this.cdRef.detectChanges();
-      this.answerSelected.emit(true);
-      
-      setTimeout(() => {
-        this.cdRef.markForCheck();
-      });
-      
-      console.log(`[onOptionClicked] Completed processing for Q${questionIndex}.`);
-      
-    } catch (error) {
-      console.error(`[onOptionClicked] Error for Q${event.index}:`, error);
-    }
   }
-
+  
   
   
   
