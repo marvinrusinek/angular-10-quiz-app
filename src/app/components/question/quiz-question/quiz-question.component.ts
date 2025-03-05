@@ -100,6 +100,7 @@ export class QuizQuestionComponent
   private lastProcessedQuestionIndex: number | null = null;
   private _lockedCurrentIndex!: number;
   public explanationsCache: { [index: number]: string } = {};
+  public explanationsMap: { [index: number]: string } = {};
   public fixedQuestionIndex = 0;
 
   combinedQuestionData$: Subject<{
