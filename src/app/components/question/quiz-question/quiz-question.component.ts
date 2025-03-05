@@ -2920,9 +2920,18 @@ export class QuizQuestionComponent
       // ✅ **Step 4: Store explanation for the locked question**
       if (explanationText) {
         console.log(`[onOptionClicked] Storing explanation for Q${lockedQuestionIndex}`);
-        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-        console.log(`[onOptionClicked] Successfully stored explanation for Q${lockedQuestionIndex}:, explanationText`);
-      }
+      
+        // Verify the quizId and lockedQuestionIndex explicitly
+        if (this.quizId && typeof lockedQuestionIndex === 'number') {
+          this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+          console.log(`[onOptionClicked] 🟢 Explanation successfully stored for quizId: "${this.quizId}", index: ${lockedQuestionIndex}:`, explanationText);
+        } else {
+          console.warn('[onOptionClicked] ⚠️ Unable to store explanation due to invalid quizId or index.', { quizId: this.quizId, lockedQuestionIndex });
+        }
+      
+        // Immediately log the state to confirm storage
+        console.log(`[QuizStateService] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizStateService.quizState, null, 2));
+      }      
   
       // ✅ **Step 5: Apply explanation to UI**
       if (!explanationText || explanationText.trim() === '') {
