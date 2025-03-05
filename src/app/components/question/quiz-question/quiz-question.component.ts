@@ -2891,15 +2891,15 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        // 🔒 **Step 2: Ensure the correct question index is locked**
-        const lockedQuestionIndex = event.index;  // ✅ Ensuring it's always correct
+        // 🔒 **Step 2: Lock correct question index**
+        const lockedQuestionIndex = this.currentQuestionIndex;  
         console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
 
         // 🔍 **Step 3: Check stored explanation before fetching**
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
         console.log(`[DEBUG] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-        // 🚀 **Step 4: Fetch explanation from service if not already stored**
+        // 🚀 **Step 4: Fetch explanation from service if not stored**
         if (!explanationText) {
             console.log(`[onOptionClicked] ⚠️ No stored explanation found, fetching from service...`);
             explanationText = await firstValueFrom(
@@ -2910,7 +2910,7 @@ export class QuizQuestionComponent
             console.log(`[onOptionClicked] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Step 5: Store explanation under the correct question index**
+        // ✅ **Step 5: Ensure explanation is stored under the correct question index**
         if (explanationText) {
             console.log(`[onOptionClicked] 🔍 Storing explanation for Q${lockedQuestionIndex}`);
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
@@ -2961,7 +2961,8 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error(`[onOptionClicked] ❌ Unhandled error in Q${this.currentQuestionIndex}:`, error);
     }
-  }
+}
+
 
 
 
