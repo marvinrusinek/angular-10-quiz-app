@@ -79,7 +79,7 @@ export class QuizQuestionComponent
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  // @Input() currentQuestionIndex = 0;
+  @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> =
@@ -204,29 +204,6 @@ export class QuizQuestionComponent
   };
 
   private destroy$: Subject<void> = new Subject<void>();
-
-  private _currentQuestionIndex = 0;
-
-  @Input()
-  set currentQuestionIndex(val: number) {
-    console.log('[QuizQuestionComponent] currentQuestionIndex updated:', val);
-    this._currentQuestionIndex = val;
-    this.fixedQuestionIndex = val;
-
-    // Clear previous explanation when question changes
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');
-    this.showExplanationChange.emit(false);
-
-    // Immediately populate options again if needed
-    this.optionsToDisplay = this.populateOptionsToDisplay();
-
-    this.cdRef.detectChanges();
-  }
-
-  get currentQuestionIndex(): number {
-    return this._currentQuestionIndex;
-  }
 
   constructor(
     protected quizService: QuizService,
