@@ -2863,7 +2863,7 @@ export class QuizQuestionComponent
     try {
       // Use the fixed question index captured in ngOnInit
       const lockedQuestionIndex = this.fixedQuestionIndex;
-      console.log('[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:', event.option);
+      console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:, event.option`);
   
       // ✅ Ensure optionsToDisplay is populated before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2875,10 +2875,10 @@ export class QuizQuestionComponent
       // ✅ Find the selected option
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
       if (!foundOption) {
-        console.error('[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.');
+        console.error(`[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.`);
         return;
       }
-      console.log('[onOptionClicked] Valid option found for question ${lockedQuestionIndex}:', foundOption);
+      console.log(`[onOptionClicked] Valid option found for question ${lockedQuestionIndex}:, foundOption`);
   
       // ✅ Prevent clicking before feedback is ready
       if (!this.isFeedbackApplied) {
