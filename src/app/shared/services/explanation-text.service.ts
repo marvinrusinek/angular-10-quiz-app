@@ -125,7 +125,7 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
   } */
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log('[DEBUG] 🔍 Requesting explanation for index:', index);
     console.log('[DEBUG] 🔍 Stored explanations before fetching:', this.formattedExplanations);
 
@@ -149,6 +149,29 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(explanationText);
     console.log('[DEBUG] 🔍 Explanation emitted:', explanationText);
     return this.formattedExplanation$;
+  } */
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    console.log('[DEBUG] Requesting explanation for index:', index);
+    console.log('[DEBUG] Stored explanations before fetching:', this.formattedExplanations);
+  
+    let explanationText: string;
+  
+    if (this.formattedExplanations && index in this.formattedExplanations) {
+      const formattedExplanation = this.formattedExplanations[index];
+      if (formattedExplanation && formattedExplanation.explanation) {
+        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
+        explanationText = formattedExplanation.explanation;
+      } else {
+        console.log(`[DEBUG] ⚠️ No explanation text found for index ${index}`);
+        explanationText = 'No explanation available';
+      }
+    } else {
+      console.log(`[DEBUG] ❌ Index ${index} is out of bounds or no explanation stored.`);
+      explanationText = 'Question index out of bounds or no explanation available';
+    }
+  
+    console.log('[DEBUG] Returning explanation:', explanationText);
+    return of(explanationText);
   }
 
   initializeExplanationTexts(explanations: string[]): void {
