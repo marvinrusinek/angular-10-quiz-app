@@ -2852,9 +2852,9 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
-        console.log(`[onOptionClicked] 🟢 Option clicked for Q${this.currentQuestionIndex}, Selected Option:`, event.option);
+        console.log(`[onOptionClicked] 🟢 Option clicked for Q${event.index}, Selected Option:`, event.option);
         
         // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2866,11 +2866,11 @@ export class QuizQuestionComponent
         // ✅ Find the selected option
         const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
         if (!foundOption) {
-            console.error(`[onOptionClicked] ❌ Selected option not found in optionsToDisplay for Q${this.currentQuestionIndex}. Skipping feedback.`);
+            console.error(`[onOptionClicked] ❌ Selected option not found in optionsToDisplay for Q${event.index}. Skipping feedback.`);
             return;
         }
 
-        console.log(`[onOptionClicked] ✅ Valid option found for Q${this.currentQuestionIndex}:`, foundOption);
+        console.log(`[onOptionClicked] ✅ Valid option found for Q${event.index}:`, foundOption);
 
         // ✅ Prevent clicking before feedback is ready
         if (!this.isFeedbackApplied) {
@@ -2880,54 +2880,61 @@ export class QuizQuestionComponent
         }
 
         if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-            console.log(`✅ First option clicked for Q${this.currentQuestionIndex} - marking question as answered`);
+            console.log(`✅ First option clicked for Q${event.index} - marking question as answered`);
             this.selectedOptionService.isAnsweredSubject.next(true);
         }
 
         // 🔄 **Step 1: Reset explanation before fetching**
-        console.log(`[onOptionClicked] 🔄 Resetting explanation text before fetching for Q${this.currentQuestionIndex}...`);
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
-        this.cdRef.detectChanges();
+        console.log(`[onOptionClicked] 🔄 Resetting explanation text before fetching for Q${event.index}...`);
+        
+        // ✅ Prevent resetting explanation to empty if it is already set for the question
+        if (!this.explanationToDisplay || this.currentQuestionIndex !== event.index) {
+            this.explanationToDisplay = '';
+            this.explanationToDisplayChange.emit('');
+            this.showExplanationChange.emit(false);
+            this.cdRef.detectChanges();
+        } else {
+            console.log(`[onOptionClicked] ✅ Keeping explanation displayed for Q${event.index}.`);
+        }
 
         // 🔒 **Step 2: Lock correct question index**
-        const lockedQuestionIndex = this.currentQuestionIndex;  
+        const lockedQuestionIndex = event.index;  
         console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
 
-        // 🔍 **Step 3: Check stored explanation before fetching**
+        // 🔍 **Step 3: Check if explanation is already stored**
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
         console.log(`[DEBUG] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-        // 🚀 **Step 4: Fetch explanation from service if not stored**
+        // 🚀 **Step 4: Fetch explanation only if not already stored**
         if (!explanationText) {
             console.log(`[onOptionClicked] ⚠️ No stored explanation found, fetching from service...`);
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
             console.log(`[DEBUG] ✅ Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
+
+            // ✅ Store explanation immediately after fetching
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         } else {
             console.log(`[onOptionClicked] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Step 5: Ensure explanation is stored under the correct question index**
-        if (explanationText) {
-            console.log(`[onOptionClicked] 🔍 Storing explanation for Q${lockedQuestionIndex}`);
-            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
-        }
-
-        // ✅ **Step 6: Apply explanation to UI**
+        // ✅ **Step 5: Apply explanation to UI ONLY IF it’s the correct one**
         if (!explanationText || explanationText.trim() === '') {
             console.warn(`[onOptionClicked] ⚠️ Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
             explanationText = 'No explanation available.';
         }
 
-        // ✅ Fix: Ensure explanation text is displayed for the correct question
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
-        this.cdRef.detectChanges();
+        // ✅ Fix: Ensure explanation text is displayed for the correct question **AND DOES NOT CHANGE** on re-clicks
+        if (this.explanationToDisplay !== explanationText) {
+            this.explanationToDisplay = explanationText;
+            this.explanationToDisplayChange.emit(this.explanationToDisplay);
+            this.showExplanationChange.emit(true);
+            this.cdRef.detectChanges();
+        } else {
+            console.log(`[onOptionClicked] ✅ Explanation already displayed, skipping unnecessary update.`);
+        }
 
         console.log(`[DEBUG] ✅ Applying Explanation to UI for Q${lockedQuestionIndex}:`, explanationText);
         console.log(`[DEBUG] 🔍 Stored Explanations in Service:`, JSON.stringify(this.quizStateService.quizState, null, 2));
@@ -2959,9 +2966,11 @@ export class QuizQuestionComponent
         console.log(`[onOptionClicked] ✅ Function execution complete for Q${lockedQuestionIndex}.`);
 
     } catch (error) {
-        console.error(`[onOptionClicked] ❌ Unhandled error in Q${this.currentQuestionIndex}:`, error);
+        console.error(`[onOptionClicked] ❌ Unhandled error in Q${event.index}:`, error);
     }
-}
+  }
+
+
 
 
 
