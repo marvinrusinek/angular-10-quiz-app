@@ -318,16 +318,6 @@ export class QuizQuestionComponent
       this.initializeSharedOptionConfig();
     }
 
-    if (changes.currentQuestionIndex) {
-      this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-      console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
-      // Always reset the explanation text when the question changes.
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false);
-      this.cdRef.detectChanges();
-    }
-
     if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
       // Update the fixed index whenever currentQuestionIndex changes.
       this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
