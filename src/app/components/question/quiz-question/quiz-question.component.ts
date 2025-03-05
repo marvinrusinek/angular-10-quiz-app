@@ -2752,7 +2752,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       // Use the fixed question index captured in ngOnInit
       const lockedQuestionIndex = this.fixedQuestionIndex;
@@ -2855,71 +2855,6 @@ export class QuizQuestionComponent
       });
   
       console.log('[onOptionClicked] Function execution complete.');
-    } catch (error) {
-      console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
-    }
-  } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
-    try {
-      const lockedQuestionIndex = this.fixedQuestionIndex;
-      console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
-  
-      // ✅ Ensure optionsToDisplay is populated
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] optionsToDisplay empty, waiting for population...');
-        await new Promise(resolve => setTimeout(resolve, 50));
-        this.optionsToDisplay = this.populateOptionsToDisplay();
-      }
-  
-      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
-      if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for question ${this.fixedQuestionIndex}. Skipping feedback.`);
-        return;
-      }
-  
-      if (!this.isFeedbackApplied) {
-        await this.applyOptionFeedback(foundOption);
-      }
-  
-      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-        this.selectedOptionService.isAnsweredSubject.next(true);
-      }
-  
-      // Reset explanation UI before fetching
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false);
-      this.cdRef.detectChanges();
-  
-      // const lockedQuestionIndex = this.fixedQuestionIndex;
-  
-      let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-  
-      if (!explanationText) {
-        explanationText = await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
-        );
-        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-      }
-  
-      if (!explanationText || explanationText.trim() === '') {
-        explanationText = 'No explanation available.';
-      }
-  
-      this.explanationToDisplay = explanationText;
-      this.explanationToDisplayChange.emit(explanationText);
-      this.showExplanationChange.emit(true);
-      this.cdRef.detectChanges();
-  
-      await this.handleCorrectnessOutcome(true);
-  
-      this.showFeedbackForOption[event.option?.optionId || 0] = true;
-      this.cdRef.detectChanges();
-  
-      this.answerSelected.emit(true);
-  
-      setTimeout(() => this.cdRef.markForCheck());
-  
     } catch (error) {
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
