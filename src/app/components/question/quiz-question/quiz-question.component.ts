@@ -2744,7 +2744,7 @@ export class QuizQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> { 
     try {
         console.log('[onOptionClicked] 🟢 Option clicked:', event.option);
-        console.log(`[onOptionClicked] 🔍 Ensuring explanation is fetched for Q${this.currentQuestionIndex}`);
+        console.log(`[onOptionClicked] 🔍 Fetching explanation for Q${event.index} (Current Index: ${this.currentQuestionIndex})`);
 
         // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2781,45 +2781,46 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        // 🔒 **Lock question index to ensure correct explanation retrieval**
-        const lockedQuestionIndex = this.currentQuestionIndex;
+        // 🔒 **Step 1: Ensure the correct question index is locked**
+        const lockedQuestionIndex = this.currentQuestionIndex;  // ✅ Ensuring it's always correct
         console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
 
-        // 🔍 **Step 1: Debug - Verify stored explanation before fetching**
+        // 🔍 **Step 2: Check stored explanation before fetching**
         let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-        console.log(`[DEBUG] Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+        console.log(`[DEBUG] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-        // 🚀 **Step 2: Fetch explanation from service if not already stored**
+        // 🚀 **Step 3: Fetch explanation from service if not already stored**
         if (!explanationText) {
             console.log(`[onOptionClicked] ⚠️ No stored explanation found, fetching from service...`);
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
-            console.log(`[DEBUG] Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
+            console.log(`[DEBUG] ✅ Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
         } else {
             console.log(`[onOptionClicked] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Step 3: Store explanation dynamically for any question**
+        // ✅ **Step 4: Store explanation correctly for the right question**
         if (explanationText) {
             console.log(`[onOptionClicked] 🔍 Storing explanation for Q${lockedQuestionIndex}`);
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
             console.log(`[onOptionClicked] 🟢 Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
         }
 
-        // ✅ **Step 4: Apply explanation to UI**
+        // ✅ **Step 5: Apply explanation to UI**
         if (!explanationText || explanationText.trim() === '') {
             console.warn(`[onOptionClicked] ⚠️ Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
             explanationText = 'No explanation available.';
         }
 
+        // ✅ Ensure explanation is displayed for the correct question
         this.explanationToDisplay = explanationText;
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
         this.cdRef.detectChanges();
 
-        console.log(`[DEBUG] Applying Explanation to UI for Q${lockedQuestionIndex}:`, explanationText);
-        console.log(`[DEBUG] Stored Explanations in Service:`, JSON.stringify(this.quizStateService.quizState, null, 2));
+        console.log(`[DEBUG] ✅ Applying Explanation to UI for Q${lockedQuestionIndex}:`, explanationText);
+        console.log(`[DEBUG] 🔍 Stored Explanations in Service:`, JSON.stringify(this.quizStateService.quizState, null, 2));
 
         console.log(`[onOptionClicked] 🟢 Explanation for Q${lockedQuestionIndex} applied to UI.`);
 
@@ -2850,7 +2851,9 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
-  }
+}
+
+
 
 
 
