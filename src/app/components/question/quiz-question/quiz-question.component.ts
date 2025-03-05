@@ -322,6 +322,7 @@ export class QuizQuestionComponent
       // Update the fixed index whenever currentQuestionIndex changes.
       this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
       console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
+      this.currentQuestionIndex++;
     }
 
     // Update selection message on currentQuestionIndex or isAnswered changes
