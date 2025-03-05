@@ -2891,8 +2891,8 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        // 🔒 **Step 2: Lock the correct question index**
-        const lockedQuestionIndex = event.index;  // ✅ Fix: Use event.index for accurate tracking
+        // 🔒 **Step 2: Ensure the correct question index is locked**
+        const lockedQuestionIndex = event.index;  // ✅ Ensuring it's always correct
         console.log(`[onOptionClicked] 🔒 LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
 
         // 🔍 **Step 3: Check stored explanation before fetching**
@@ -2962,6 +2962,7 @@ export class QuizQuestionComponent
         console.error(`[onOptionClicked] ❌ Unhandled error in Q${this.currentQuestionIndex}:`, error);
     }
   }
+
 
 
 
