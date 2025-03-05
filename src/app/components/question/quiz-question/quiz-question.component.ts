@@ -100,6 +100,7 @@ export class QuizQuestionComponent
   private lastProcessedQuestionIndex: number | null = null;
   private _lockedCurrentIndex!: number;
   public explanationsCache: { [index: number]: string } = {};
+  public fixedQuestionIndex!: number;
 
   combinedQuestionData$: Subject<{
     questionText: string;
@@ -238,7 +239,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    this._lockedCurrentIndex = this.currentQuestionIndex;
+    this.fixedQuestionIndex = this.currentQuestionIndex;
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
@@ -2746,74 +2747,101 @@ export class QuizQuestionComponent
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
-      // Capture the active question index at the start.
-      const lockedIndex = this.currentQuestionIndex;
-      console.log(`[onOptionClicked] Option clicked for question ${lockedIndex}, Selected Option:`, event.option);
+      // Use the fixed question index captured in ngOnInit
+      const lockedQuestionIndex = this.fixedQuestionIndex;
+      console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
   
-      // Ensure optionsToDisplay is populated.
+      // ✅ Ensure optionsToDisplay is populated before proceeding
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] optionsToDisplay is empty. Populating...');
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
         await new Promise(resolve => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
-      // Find the selected option.
+      // ✅ Find the selected option
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
       if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for question ${lockedIndex}. Skipping feedback.`);
+        console.error(`[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.`);
         return;
       }
-      console.log(`[onOptionClicked] Valid option found for question ${lockedIndex}:`, foundOption);
+      console.log(`[onOptionClicked] Valid option found for question ${lockedQuestionIndex}:`, foundOption);
   
-      // Apply feedback if needed.
+      // ✅ Prevent clicking before feedback is ready
       if (!this.isFeedbackApplied) {
-        console.warn('[onOptionClicked] Feedback not ready; applying feedback...');
+        console.warn('[onOptionClicked] Feedback is not ready. Applying feedback...');
         await this.applyOptionFeedback(foundOption);
         console.log('[onOptionClicked] Feedback applied.');
       }
   
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-        console.log(`[onOptionClicked] First option clicked for question ${lockedIndex} – marking as answered`);
+        console.log(`[onOptionClicked] First option clicked - marking question ${lockedQuestionIndex} as answered`);
         this.selectedOptionService.isAnsweredSubject.next(true);
       }
   
-      // Reset the explanation display.
-      console.log('[onOptionClicked] Resetting explanation text...');
+      // 🔄 **Reset explanation before fetching**
+      console.log('[onOptionClicked] Resetting explanation text before fetching...');
       this.explanationToDisplay = '';
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
       this.cdRef.detectChanges();
   
-      // Fetch explanation from service every time.
-      console.log(`[onOptionClicked] Fetching explanation for question ${lockedIndex} from service...`);
-      let explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(lockedIndex)
-      );
-      console.log(`[DEBUG] Explanation fetched for question ${lockedIndex}:`, explanationText);
+      // 🔒 **Step 1: Use the locked question index exclusively**
+      console.log(`[onOptionClicked] LOCKED INDEX for Explanation Fetch: Q${lockedQuestionIndex}`);
   
-      // Use default message if empty.
-      if (!explanationText || explanationText.trim() === '') {
-        console.warn(`[onOptionClicked] Retrieved empty explanation for question ${lockedIndex}. Using default message.`);
-        explanationText = 'No explanation available.';
+      // 🔍 **Step 2: Check stored explanation for the locked question**
+      let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+      console.log(`[DEBUG] Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+  
+      // 🚀 **Step 3: If not stored, fetch explanation from service**
+      if (!explanationText) {
+        console.log(`[onOptionClicked] No stored explanation found for Q${lockedQuestionIndex}. Fetching from service...`);
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
+        console.log(`[DEBUG] Explanation Fetched from Service for Q${lockedQuestionIndex}:`, explanationText);
+      } else {
+        console.log(`[onOptionClicked] Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
       }
   
-      // Update the UI with the fetched explanation.
+      // ✅ **Step 4: Store explanation for the locked question**
+      if (explanationText) {
+        console.log(`[onOptionClicked] Storing explanation for Q${lockedQuestionIndex}`);
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        console.log(`[onOptionClicked] Successfully stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+      }
+  
+      // ✅ **Step 5: Apply explanation to UI**
+      if (!explanationText || explanationText.trim() === '') {
+        console.warn(`[onOptionClicked] Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
+        explanationText = 'No explanation available.';
+      }
+      // Always update display using the locked value (do not reference this.currentQuestionIndex here)
       this.explanationToDisplay = explanationText;
       this.explanationToDisplayChange.emit(explanationText);
       this.showExplanationChange.emit(true);
       this.cdRef.detectChanges();
   
-      console.log(`[onOptionClicked] Explanation for question ${lockedIndex} applied:`, explanationText);
+      console.log(`[DEBUG] Applying Explanation to UI for Q${lockedQuestionIndex}:`, explanationText);
+      console.log(`[DEBUG] Stored Explanations in Service:`, JSON.stringify(this.quizStateService.quizState, null, 2));
+      console.log(`[onOptionClicked] Explanation for Q${lockedQuestionIndex} applied to UI.`);
   
-      // Proceed with correctness checks and feedback.
+      // (Optional) Remove or review the updateDisplayStateToExplanation() call if it overwrites your text.
+      // this.updateDisplayStateToExplanation();
+      // this.cdRef.detectChanges();
+  
+      // ✅ Ensure correctness checks are performed
       console.log('[onOptionClicked] Calling handleCorrectnessOutcome...');
       await this.handleCorrectnessOutcome(true);
+  
+      // ✅ Ensure feedback displays under the selected option
       console.log('[onOptionClicked] Displaying feedback for selected option...');
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
       this.cdRef.detectChanges();
   
+      // ✅ Enable "Next" button
       console.log('[onOptionClicked] Enabling Next button...');
       this.answerSelected.emit(true);
+  
       setTimeout(() => {
         console.log('[onOptionClicked] Triggering change detection...');
         this.cdRef.markForCheck();
@@ -2821,9 +2849,10 @@ export class QuizQuestionComponent
   
       console.log('[onOptionClicked] Function execution complete.');
     } catch (error) {
-      console.error(`[onOptionClicked] Error for question ${this.currentQuestionIndex}:`, error);
+      console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
   }
+  
   
   
   
