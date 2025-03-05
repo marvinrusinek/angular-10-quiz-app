@@ -317,6 +317,11 @@ export class QuizQuestionComponent
       this.initializeSharedOptionConfig();
     }
 
+    if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
+      this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
+      console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
+    }
+
     // Update selection message on currentQuestionIndex or isAnswered changes
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
