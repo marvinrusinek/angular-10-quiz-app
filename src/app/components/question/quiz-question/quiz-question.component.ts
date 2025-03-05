@@ -318,6 +318,7 @@ export class QuizQuestionComponent
     }
 
     if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
+      // Update the fixed index whenever currentQuestionIndex changes.
       this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
       console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
     }
