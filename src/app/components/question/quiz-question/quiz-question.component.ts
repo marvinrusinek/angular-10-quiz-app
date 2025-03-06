@@ -2864,7 +2864,7 @@ export class QuizQuestionComponent
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       const lockedQuestionIndex = this.fixedQuestionIndex;
       console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
@@ -2919,7 +2919,95 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
-  }  
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    try {
+      const lockedQuestionIndex = this.fixedQuestionIndex;
+      console.log(`[onOptionClicked] 🚀 Clicked option for question ${lockedQuestionIndex}, Selected Option:`, event.option);
+
+      // ✅ Diagnostic: Check optionsToDisplay status
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn(`[onOptionClicked] ⚠️ optionsToDisplay is empty for Q${lockedQuestionIndex}, populating...`);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        this.optionsToDisplay = this.populateOptionsToDisplay();
+        console.log('[onOptionClicked] ✅ optionsToDisplay populated:', this.optionsToDisplay);
+      } else {
+        console.log(`[onOptionClicked] ✅ optionsToDisplay already populated for Q${lockedQuestionIndex}:`, this.optionsToDisplay);
+      }
+
+      // ✅ Diagnostic: Verify foundOption
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+      if (!foundOption) {
+        console.error(`[onOptionClicked] ❌ No matching option found for Q${lockedQuestionIndex}. optionId: ${event.option?.optionId}`);
+        return;
+      }
+      console.log(`[onOptionClicked] ✅ Valid option found for Q${lockedQuestionIndex}:`, foundOption);
+
+      if (!this.isFeedbackApplied) {
+        console.warn(`[onOptionClicked] ⚠️ Feedback not applied yet for Q${lockedQuestionIndex}. Applying now...`);
+        await this.applyOptionFeedback(foundOption);
+        console.log(`[onOptionClicked] ✅ Feedback applied for Q${lockedQuestionIndex}.`);
+      }
+
+      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+        console.log(`[onOptionClicked] ✅ Marking Q${lockedQuestionIndex} as answered.`);
+        this.selectedOptionService.isAnsweredSubject.next(true);
+      }
+
+      // ✅ Diagnostic: Explanation retrieval
+      console.log(`[onOptionClicked] 🔍 Attempting to retrieve stored explanation for Q${lockedQuestionIndex}...`);
+      let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+
+      if (!explanationText) {
+        console.log(`[onOptionClicked] ⚠️ No stored explanation for Q${lockedQuestionIndex}, fetching...`);
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
+        console.log(`[onOptionClicked] 🚀 Fetched explanation for Q${lockedQuestionIndex}:`, explanationText);
+
+        // Store immediately after fetching
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        console.log(`[onOptionClicked] ✅ Stored fetched explanation for Q${lockedQuestionIndex}.`);
+      } else {
+        console.log(`[onOptionClicked] ✅ Using already stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+      }
+
+      if (!explanationText?.trim()) {
+        console.warn(`[onOptionClicked] ⚠️ Empty explanation fetched for Q${lockedQuestionIndex}, setting default.`);
+        explanationText = 'No explanation available.';
+      }
+
+      // Apply explanation clearly to the UI
+      console.log(`[onOptionClicked] ✅ Applying explanation text to UI for Q${lockedQuestionIndex}:`, explanationText);
+      this.explanationToDisplay = explanationText;
+      this.explanationToDisplayChange.emit(explanationText);
+      this.showExplanationChange.emit(true);
+      this.cdRef.detectChanges();
+
+      // ✅ Additional diagnostic logs for correctness handling
+      console.log(`[onOptionClicked] 🔍 Calling handleCorrectnessOutcome for Q${lockedQuestionIndex}...`);
+      await this.handleCorrectnessOutcome(true);
+
+      // Feedback display diagnostic
+      console.log(`[onOptionClicked] ✅ Displaying feedback for optionId: ${event.option?.optionId}`);
+      this.showFeedbackForOption[event.option?.optionId || 0] = true;
+      this.cdRef.detectChanges();
+
+      // Enable Next button diagnostic
+      console.log(`[onOptionClicked] ✅ Enabling Next button for Q${lockedQuestionIndex}`);
+      this.answerSelected.emit(true);
+
+      setTimeout(() => {
+        console.log(`[onOptionClicked] 🔄 Marking for check after Q${lockedQuestionIndex} option click.`);
+        this.cdRef.markForCheck();
+      });
+
+      console.log(`[onOptionClicked] ✅ Complete for question ${lockedQuestionIndex}.`);
+
+    } catch (error) {
+      console.error(`[onOptionClicked] ❌ Error encountered for Q${this.fixedQuestionIndex}:`, error);
+    }
+  }
   
   
   /* async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
