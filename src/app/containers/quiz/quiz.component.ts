@@ -661,6 +661,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[loadQuestionContents] ✅ Options loaded:`, this.options);
             console.log(`[loadQuestionContents] ✅ Explanation text loaded:`, this.explanationToDisplay);
 
+            this.isQuestionDataReady; // custom boolean to guard rendering
+
             this.isQuestionDisplayed = true;
             this.cdRef.detectChanges();
 
