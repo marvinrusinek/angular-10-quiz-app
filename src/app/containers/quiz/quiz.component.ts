@@ -74,6 +74,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   currentQuestionType: string;
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
+  options: Option[] = [];
+  questionData: QuizQuestion;
 
   currentQuiz: Quiz;
   routeSubscription: Subscription;
@@ -84,7 +86,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   resources: Resource[];
   answers = [];
   answered = false;
-  options: Option[] = [];
   multipleAnswer = false;
   indexOfQuizId: number;
   status: QuizStatus;
@@ -602,58 +603,61 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
-        console.log(`🔹 [QuizComponent] Loading Question ${questionIndex}...`);
+        console.log(`[loadQuestionContents] 🔄 Loading Question ${questionIndex}...`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
-        this.updateTooltip('Please select an option to continue...');
-
-        // ✅ Explicitly clear previous question data
-        this.optionsToDisplay = [];
-        this.explanationToDisplay = '';
 
         // ✅ Ensure UI resets before new data loads
+        this.questionData = null;
+        this.options = [];
+        this.explanationToDisplay = '';
         this.cdRef.detectChanges();
-
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) return;
-        if (typeof questionIndex !== 'number' || questionIndex < 0) return;
 
         this.timerService.stopTimer();
         this.timerService.resetTimer();
 
-        let data = { question: null, options: [], explanation: '' };
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) return;
+        if (typeof questionIndex !== 'number' || questionIndex < 0) return;
 
         try {
             const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
             const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
             const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
-            data = await lastValueFrom(
-                forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+            // Explicitly type the forkJoin result to resolve squiggles
+            const data = await firstValueFrom(
+                forkJoin({
+                    question: question$,
+                    options: options$,
+                    explanation: explanation$
+                }).pipe(
                     tap(finalData => console.log('[loadQuestionContents] ✅ forkJoin completed:', finalData)),
                     catchError(error => {
                         console.error('Error in forkJoin:', error);
                         return of({ question: null, options: [], explanation: '' });
                     })
                 )
-            );
+            ) as { question: QuizQuestion | null; options: Option[]; explanation: string };
 
             if (!data.question || !Array.isArray(data.options)) {
-                console.warn(`No valid question data for index ${questionIndex}.`);
+                console.warn(`[loadQuestionContents] No valid question data for index ${questionIndex}.`);
                 return;
             }
 
-            // ✅ Reset before setting new data
-            this.optionsToDisplay = [];
+            // ✅ Reset options explicitly before setting new data
+            this.options = [];
             this.cdRef.detectChanges();
 
-            this.currentQuestion = { ...data.question } as QuizQuestion;
-            this.optionsToDisplay = [...data.options] as Option[];
+            this.questionData = data.question;
+            this.options = [...data.options];
             this.explanationToDisplay = data.explanation;
 
-            console.log(`✅ [QuizComponent] Options AFTER reset:`, this.optionsToDisplay);
+            console.log(`[loadQuestionContents] ✅ Question data loaded:`, this.questionData);
+            console.log(`[loadQuestionContents] ✅ Options loaded:`, this.options);
+            console.log(`[loadQuestionContents] ✅ Explanation text loaded:`, this.explanationToDisplay);
 
             this.isQuestionDisplayed = true;
             this.cdRef.detectChanges();
@@ -661,18 +665,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (!this.selectedOptionService.isAnsweredSubject.value) {
                 this.timerService.startTimer();
             }
+
         } catch (error) {
             console.error('Error loading question contents:', error);
-            return;
         } finally {
             this.isLoading = false;
             this.cdRef.detectChanges();
         }
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('[loadQuestionContents] Unexpected error:', error);
     }
-}
-
+  }
 
   private restoreQuestionState(): void {
     this.quizService.getCurrentQuestion(this.currentQuestionIndex).subscribe({
