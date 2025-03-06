@@ -71,11 +71,11 @@ export class QuizQuestionComponent
     correctAnswersText?: string;
     options: Option[]
   };
-  @Input() questionData: QuizQuestion;
+  @Input() questionData!: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
-  @Input() options: Option[];
+  @Input() options!: Option[];
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
