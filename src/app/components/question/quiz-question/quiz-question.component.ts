@@ -320,7 +320,12 @@ export class QuizQuestionComponent
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
 
-      this.optionsToDisplay = this.populateOptionsToDisplay();
+      // Use the incoming options directly
+      if (this.options && this.options.length) {
+        this.optionsToDisplay = [...this.options];
+      } else {
+        this.optionsToDisplay = this.populateOptionsToDisplay();
+      }
       this.cdRef.detectChanges();
     }
 
