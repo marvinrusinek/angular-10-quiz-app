@@ -2874,16 +2874,14 @@ export class QuizQuestionComponent
       const lockedQuestionIndex = this.fixedQuestionIndex;
       console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
   
-      // ✅ Ensure optionsToDisplay is populated before proceeding
-      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      // Populate options if missing (no other reset here!)
+      if (!this.optionsToDisplay?.length) {
         await new Promise(resolve => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
-      if (!foundOption) {
-        return;
-      }
+      if (!foundOption) return;
   
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
@@ -2893,15 +2891,10 @@ export class QuizQuestionComponent
         this.selectedOptionService.isAnsweredSubject.next(true);
       }
   
-      // 🔄 Reset UI explanation before fetching again
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false);
-      this.cdRef.detectChanges();
-  
-      // const lockedQuestionIndex = this.fixedQuestionIndex; // Use this consistently
-  
+      // 🔍 Check explanation from stored state ONLY (avoid resetting here!)
       let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+  
+      // 🚀 Fetch explanation only if NOT stored already
       if (!explanationText) {
         explanationText = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
@@ -2909,27 +2902,29 @@ export class QuizQuestionComponent
         this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
       }
   
-      if (!explanationText || explanationText.trim() === '') {
+      if (!explanationText?.trim()) {
         explanationText = 'No explanation available.';
       }
   
-      // ✅ Always display fetched/stored explanation
+      // ✅ Always directly apply explanation text without resetting beforehand
       this.explanationToDisplay = explanationText;
       this.explanationToDisplayChange.emit(explanationText);
       this.showExplanationChange.emit(true);
       this.cdRef.detectChanges();
   
+      // Correctness handling
       await this.handleCorrectnessOutcome(true);
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
       this.cdRef.detectChanges();
   
+      // Next button enabling
       this.answerSelected.emit(true);
       setTimeout(() => this.cdRef.markForCheck());
   
     } catch (error) {
-      console.error(`[onOptionClicked] Error:`, error);
+      console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
-  }
+  }  
   
   
   /* async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
