@@ -99,9 +99,9 @@ export class QuizQuestionComponent
   questionRenderComplete = new EventEmitter<void>();
   private lastProcessedQuestionIndex: number | null = null;
   private _lockedCurrentIndex!: number;
-  public explanationsCache: { [index: number]: string } = {};
-  public explanationsMap: { [index: number]: string } = {};
-  public fixedQuestionIndex = 0;
+  explanationsCache: { [index: number]: string } = {};
+  explanationsMap: { [index: number]: string } = {};
+  fixedQuestionIndex = 0;
 
   combinedQuestionData$: Subject<{
     questionText: string;
