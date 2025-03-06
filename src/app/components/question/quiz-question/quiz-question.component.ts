@@ -2757,7 +2757,7 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       // Use the fixed question index captured in ngOnInit
       const lockedQuestionIndex = this.fixedQuestionIndex;
@@ -2863,8 +2863,8 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
-  } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  }
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       const lockedQuestionIndex = this.fixedQuestionIndex;
       console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
@@ -2919,7 +2919,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
-  }
+  } */
   /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       const lockedQuestionIndex = this.fixedQuestionIndex;
