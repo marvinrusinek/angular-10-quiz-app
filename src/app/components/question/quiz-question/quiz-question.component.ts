@@ -320,7 +320,7 @@ export class QuizQuestionComponent
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
 
-      this.optionsToDisplay = this.options ? [...this.options] : [];
+      this.optionsToDisplay = this.populateOptionsToDisplay();
       console.log('[QuizQuestionComponent] optionsToDisplay after reset:', this.optionsToDisplay);
 
       this.cdRef.detectChanges();
