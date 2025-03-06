@@ -311,19 +311,23 @@ export class QuizQuestionComponent
   ngOnChanges(changes: SimpleChanges): void {
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
 
-    if (changes.currentQuestionIndex) {
-      this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-      console.log('[QuizQuestionComponent] Updated fixedQuestionIndex:', this.fixedQuestionIndex);
+    if (changes.currentQuestionIndex || changes.options) {
+      if (changes.currentQuestionIndex) {
+        this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
+        console.log('[QuizQuestionComponent] Updated fixedQuestionIndex:', this.fixedQuestionIndex);
+      }
 
-      // Explicitly reset explanation for every question change
+      // Always reset explanation when question changes
       this.explanationToDisplay = '';
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
 
-      // Use the incoming options directly
+      // Populate options correctly
       if (this.options && this.options.length) {
+        console.log('[QuizQuestionComponent] options loaded via input binding:', this.options);
         this.optionsToDisplay = [...this.options];
       } else {
+        console.warn('[QuizQuestionComponent] No options input found, calling populateOptionsToDisplay...');
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
       this.cdRef.detectChanges();
