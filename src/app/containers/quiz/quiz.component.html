@@ -21,7 +21,7 @@
       <ng-content></ng-content>
 
       <ng-container *ngIf="isContentAvailable || (isContentAvailable$ | async); else noQuestion">
-        <codelab-quiz-question
+        <codelab-quiz-question *ngIf="questionData && options?.length"
           #quizQuestionComponent
           [quizData]="quizComponentData"
           [displayState$]="displayState$"
