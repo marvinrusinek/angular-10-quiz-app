@@ -312,18 +312,20 @@ export class QuizQuestionComponent
     const isSubsequentChange = (change: SimpleChange) =>
       change && !change.firstChange;
     
-    if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
+    if (changes.currentQuestionIndex) {
       this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-      console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
     
-      // 🔄 Reset explanation when the question index changes
+      // Reset explanation text every time the question changes.
       this.explanationToDisplay = '';
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
     
-      // 🔄 Reset options displayed for new question
+      // Re-populate options for the new question
       this.optionsToDisplay = this.populateOptionsToDisplay();
+
       this.cdRef.detectChanges();
+
+      console.log(`[ngOnChanges] fixedQuestionIndex set to:`, this.fixedQuestionIndex);
     }
 
     // Initialize configurations when questionData changes
