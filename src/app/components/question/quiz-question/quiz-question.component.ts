@@ -207,25 +207,30 @@ export class QuizQuestionComponent
 
   private _fixedQuestionIndex = 0;
 
-@Input()
-set currentQuestionIndex(index: number) {
-  console.log('[QuizQuestionComponent] currentQuestionIndex updated to:', index);
-  this._fixedQuestionIndex = index;
-
-  // ✅ Reset explanation text state ONLY here
-  this.explanationToDisplay = '';
-  this.explanationToDisplayChange.emit('');
-  this.showExplanationChange.emit(false);
-
-  // ✅ Remove the line that repopulates options here if it was causing issues
-  // this.optionsToDisplay = this.populateOptionsToDisplay();  <-- REMOVE THIS
-
-  this.cdRef.detectChanges();
-}
-
-get fixedQuestionIndex(): number {
-  return this._fixedQuestionIndex;
-}
+  @Input()
+  set currentQuestionIndex(index: number) {
+    console.log('[QuizQuestionComponent] currentQuestionIndex updated to:', index);
+    this._fixedQuestionIndex = index;
+  
+    // ✅ Reset explanation UI state whenever question changes
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange.emit('');
+    this.showExplanationChange.emit(false);
+  
+    // ✅ Safely populate options ONLY if inputs are ready
+    if (this.questionData && this.options?.length > 0) {
+      this.optionsToDisplay = this.populateOptionsToDisplay();
+    } else {
+      console.warn('[QuizQuestionComponent] ⚠️ Not populating options yet; inputs not ready.');
+    }
+  
+    this.cdRef.detectChanges();
+  }
+  
+  get fixedQuestionIndex(): number {
+    return this._fixedQuestionIndex;
+  }
+  
 
 
 
