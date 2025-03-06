@@ -2864,7 +2864,7 @@ export class QuizQuestionComponent
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
   } */
-  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       const lockedQuestionIndex = this.fixedQuestionIndex;
       console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
@@ -2919,8 +2919,8 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
-  } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  }
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       const lockedQuestionIndex = this.fixedQuestionIndex;
       console.log(`[onOptionClicked] 🚀 Clicked option for question ${lockedQuestionIndex}, Selected Option:`, event.option);
@@ -3007,7 +3007,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error encountered for Q${this.fixedQuestionIndex}:`, error);
     }
-  }
+  } */
   
   
   /* async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
