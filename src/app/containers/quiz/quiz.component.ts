@@ -644,32 +644,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             ) as { question: QuizQuestion | null; options: Option[]; explanation: string };
 
-            if (!data.question || !Array.isArray(data.options)) {
-                console.warn(`[loadQuestionContents] No valid question data for index ${questionIndex}.`);
-                return;
+            if (data.question && Array.isArray(data.options)) {
+              this.questionData = data.question;
+              this.options = [...data.options]; // Passes directly to child
+              this.explanationToDisplay = data.explanation;
+            } else {
+                console.warn(`[QuizComponent] Incomplete data received for question ${questionIndex}`);
             }
-
-            // ✅ Reset options explicitly before setting new data
-            this.options = [];
-            this.cdRef.detectChanges();
-
-            this.questionData = data.question;
-            this.options = [...data.options];
-            this.explanationToDisplay = data.explanation;
-
-            console.log(`[loadQuestionContents] ✅ Question data loaded:`, this.questionData);
-            console.log(`[loadQuestionContents] ✅ Options loaded:`, this.options);
-            console.log(`[loadQuestionContents] ✅ Explanation text loaded:`, this.explanationToDisplay);
-
-            this.isQuestionDataReady; // custom boolean to guard rendering
 
             this.isQuestionDisplayed = true;
             this.cdRef.detectChanges();
 
             if (!this.selectedOptionService.isAnsweredSubject.value) {
-                this.timerService.startTimer();
+              this.timerService.startTimer();
             }
-
         } catch (error) {
             console.error('Error loading question contents:', error);
         } finally {
