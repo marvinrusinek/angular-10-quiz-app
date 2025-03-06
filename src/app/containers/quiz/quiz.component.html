@@ -24,6 +24,9 @@
         <codelab-quiz-question
           #quizQuestionComponent
           [quizData]="quizComponentData"
+          [currentQuestionIndex]="currentQuestionIndex"
+          [questionData]="questionData"
+          [options]="options"
           [displayState$]="displayState$"
           (answer)="selectedAnswer($event)"
           (answeredChange)="onAnsweredChange($event)"
