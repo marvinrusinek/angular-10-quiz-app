@@ -75,7 +75,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   options: Option[] = [];
-  questionData: QuizQuestion;
+  questionData!: QuizQuestion;
 
   currentQuiz: Quiz;
   routeSubscription: Subscription;
@@ -115,7 +115,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   questionIndex: number;
-  currentQuestionIndex = 0;
+  currentQuestionIndex! = 0;
   totalQuestions = 0;
   progressPercentage = new BehaviorSubject<number>(0);
   correctCount: number;
@@ -144,6 +144,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   isQuestionDisplayed = false;
+
+  isQuestionDataReady = false;
   
   isNavigating = false;
   private isNavigatedByUrl = false;
