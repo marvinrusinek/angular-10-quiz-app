@@ -79,7 +79,7 @@ export class QuizQuestionComponent
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  @Input() currentQuestionIndex = 0;
+  // @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> =
@@ -101,7 +101,7 @@ export class QuizQuestionComponent
   private _lockedCurrentIndex!: number;
   public explanationsCache: { [index: number]: string } = {};
   public explanationsMap: { [index: number]: string } = {};
-  public fixedQuestionIndex = 0;
+  // public fixedQuestionIndex = 0;
 
   combinedQuestionData$: Subject<{
     questionText: string;
@@ -204,6 +204,30 @@ export class QuizQuestionComponent
   };
 
   private destroy$: Subject<void> = new Subject<void>();
+
+  private _fixedQuestionIndex = 0;
+
+@Input()
+set currentQuestionIndex(index: number) {
+  console.log('[QuizQuestionComponent] currentQuestionIndex updated to:', index);
+  this._fixedQuestionIndex = index;
+
+  // ✅ Reset explanation text state ONLY here
+  this.explanationToDisplay = '';
+  this.explanationToDisplayChange.emit('');
+  this.showExplanationChange.emit(false);
+
+  // ✅ Remove the line that repopulates options here if it was causing issues
+  // this.optionsToDisplay = this.populateOptionsToDisplay();  <-- REMOVE THIS
+
+  this.cdRef.detectChanges();
+}
+
+get fixedQuestionIndex(): number {
+  return this._fixedQuestionIndex;
+}
+
+
 
   constructor(
     protected quizService: QuizService,
