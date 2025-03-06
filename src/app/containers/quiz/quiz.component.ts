@@ -609,63 +609,70 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
-        this.isNextButtonEnabled = false;
 
-        // ✅ Ensure UI resets before new data loads
-        this.questionData = null;
+        // Explicitly reset state before fetching new data
         this.options = [];
+        this.questionData = null;
         this.explanationToDisplay = '';
+
         this.cdRef.detectChanges();
 
-        this.timerService.stopTimer();
-        this.timerService.resetTimer();
-
         const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) return;
-        if (typeof questionIndex !== 'number' || questionIndex < 0) return;
+        if (!quizId) {
+            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
+            return;
+        }
 
         try {
             const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
             const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
             const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
-            // Explicitly type the forkJoin result to resolve squiggles
             const data = await firstValueFrom(
-                forkJoin({
-                    question: question$,
-                    options: options$,
-                    explanation: explanation$
-                }).pipe(
+                forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
                     tap(finalData => console.log('[loadQuestionContents] ✅ forkJoin completed:', finalData)),
                     catchError(error => {
-                        console.error('Error in forkJoin:', error);
+                        console.error('[loadQuestionContents] Error in forkJoin:', error);
                         return of({ question: null, options: [], explanation: '' });
                     })
                 )
-            ) as { question: QuizQuestion | null; options: Option[]; explanation: string };
+            ) as { question: QuizQuestion; options: Option[]; explanation: string };
 
-            if (data.question && Array.isArray(data.options)) {
-              this.questionData = data.question;
-              this.options = [...data.options]; // Passes directly to child
-              this.explanationToDisplay = data.explanation;
-            } else {
-                console.warn(`[QuizComponent] Incomplete data received for question ${questionIndex}`);
+            if (!data.question || !Array.isArray(data.options)) {
+                console.warn(`[loadQuestionContents] Incomplete data received for question ${questionIndex}`);
+                return;
             }
 
+            // Assign fetched data directly
+            this.questionData = data.question;
+            this.options = [...data.options];
+            this.explanationToDisplay = data.explanation;
+
+            console.log(`[loadQuestionContents] ✅ Data loaded:`, {
+                questionData: this.questionData,
+                options: this.options,
+                explanation: this.explanationToDisplay
+            });
+
+            // Set ready states after data is loaded
             this.isQuestionDisplayed = true;
+            this.isLoading = false;
+
             this.cdRef.detectChanges();
 
             if (!this.selectedOptionService.isAnsweredSubject.value) {
-              this.timerService.startTimer();
+                this.timerService.startTimer();
             }
+
         } catch (error) {
-            console.error('Error loading question contents:', error);
-        } finally {
+            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
             this.isLoading = false;
             this.cdRef.detectChanges();
         }
     } catch (error) {
-        console.error('[loadQuestionContents] Unexpected error:', error);
+        console.error('[loadQuestionContents] ❌ Unexpected error:', error);
+        this.isLoading = false;
+        this.cdRef.detectChanges();
     }
   }
 
