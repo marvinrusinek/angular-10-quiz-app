@@ -311,17 +311,25 @@ export class QuizQuestionComponent
   ngOnChanges(changes: SimpleChanges): void {
     const isSubsequentChange = (change: SimpleChange) =>
       change && !change.firstChange;
+    
+    if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
+      this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
+      console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
+    
+      // 🔄 Reset explanation when the question index changes
+      this.explanationToDisplay = '';
+      this.explanationToDisplayChange.emit('');
+      this.showExplanationChange.emit(false);
+    
+      // 🔄 Reset options displayed for new question
+      this.optionsToDisplay = this.populateOptionsToDisplay();
+      this.cdRef.detectChanges();
+    }
 
     // Initialize configurations when questionData changes
     if (changes.questionData) {
       console.log('questionData changed:', this.questionData);
       this.initializeSharedOptionConfig();
-    }
-
-    if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
-      // Update the fixed index whenever currentQuestionIndex changes.
-      this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-      console.log('[QuizQuestionComponent] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
     }
 
     // Update selection message on currentQuestionIndex or isAnswered changes
