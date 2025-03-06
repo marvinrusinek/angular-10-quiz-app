@@ -313,7 +313,7 @@ export class QuizQuestionComponent
 
     if (changes.currentQuestionIndex) {
       this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-      console.log('[ngOnChanges] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
+      console.log('[QuizQuestionComponent] Updated fixedQuestionIndex:', this.fixedQuestionIndex);
 
       // Explicitly reset explanation for every question change
       this.explanationToDisplay = '';
@@ -321,8 +321,6 @@ export class QuizQuestionComponent
       this.showExplanationChange.emit(false);
 
       this.optionsToDisplay = this.populateOptionsToDisplay();
-      console.log('[QuizQuestionComponent] optionsToDisplay after reset:', this.optionsToDisplay);
-
       this.cdRef.detectChanges();
     }
 
