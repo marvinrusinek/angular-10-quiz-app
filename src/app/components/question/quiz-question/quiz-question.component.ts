@@ -309,60 +309,51 @@ export class QuizQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const isSubsequentChange = (change: SimpleChange) =>
-      change && !change.firstChange;
-  
-    if (changes.currentQuestionIndex || changes.options || changes.questionData) {
-      if (changes.currentQuestionIndex) {
-        this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-  
-        // ✅ Explicitly reset explanation every time the question changes.
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
-  
-        console.log(`[ngOnChanges] fixedQuestionIndex set to:`, this.fixedQuestionIndex);
-      }
-  
-      // ✅ Populate options only once explicitly
-      this.optionsToDisplay = this.populateOptionsToDisplay();
+    const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
+
+    if (changes.currentQuestionIndex) {
+      this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
+      console.log('[ngOnChanges] fixedQuestionIndex updated to:', this.fixedQuestionIndex);
+
+      // Explicitly reset explanation for every question change
+      this.explanationToDisplay = '';
+      this.explanationToDisplayChange.emit('');
+      this.showExplanationChange.emit(false);
+
       this.cdRef.detectChanges();
     }
-  
-    // Initialize shared config when questionData changes
+
+    // Initialize configurations when questionData changes
     if (changes.questionData) {
+      console.log('questionData changed:', this.questionData);
       this.initializeSharedOptionConfig();
     }
-  
+
     // Update selection message on currentQuestionIndex or isAnswered changes
     if (changes.currentQuestionIndex || changes.isAnswered) {
       this.updateSelectionMessage(this.isAnswered);
     }
-  
+
+    // Update options to display if options or questionData changes
+    if (changes.options || changes.questionData) {
+      this.optionsToDisplay = this.options;
+    }
+
     // Process correct answers and selected options when they change
-    if (
-      isSubsequentChange(changes.correctAnswers) ||
-      isSubsequentChange(changes.selectedOptions)
-    ) {
+    if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
       this.updateCorrectAnswersAndMessage();
     }
-  
+
     // Handle question and selectedOptions changes
-    if (
-      isSubsequentChange(changes.currentQuestion) ||
-      isSubsequentChange(changes.selectedOptions)
-    ) {
-      this.handleQuestionAndOptionsChange(
-        changes.currentQuestion,
-        changes.selectedOptions
-      );
+    if (isSubsequentChange(changes.currentQuestion) || isSubsequentChange(changes.selectedOptions)) {
+      this.handleQuestionAndOptionsChange(changes.currentQuestion, changes.selectedOptions);
     }
-  
+
     // Reset feedback if reset change is detected
     if (changes.reset?.currentValue) {
       this.resetFeedback();
     }
-  }  
+  }
 
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
