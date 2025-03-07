@@ -78,11 +78,16 @@ export class QuizQuestionComponent
   // @Input() options!: Option[];
 
   @Input() set options(options: Option[]) {
-    console.log('[QuizQuestionComponent] options input changed:', options);
-    if (options) {
-      this.optionsToDisplay = [...options];
-      this.cdRef.detectChanges();
+    console.log('[QuizQuestionComponent] ✅ options input received:', options);
+
+    if (options?.length) {
+        this.optionsToDisplay = [...options];  // ✅ Store in optionsToDisplay
+        this.shouldDisplayOptions = true; // ✅ Ensure the options are visible
+    } else {
+        this.shouldDisplayOptions = false; // Prevent displaying empty options
     }
+    
+    this.cdRef.detectChanges();
   }
   
 
