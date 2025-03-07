@@ -115,7 +115,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   questionIndex: number;
-  currentQuestionIndex! = 0;
+  currentQuestionIndex = 0;
   totalQuestions = 0;
   progressPercentage = new BehaviorSubject<number>(0);
   correctCount: number;
