@@ -81,15 +81,14 @@ export class QuizQuestionComponent
     console.log('[QuizQuestionComponent] ✅ options input received:', options);
 
     if (options?.length) {
-        this.optionsToDisplay = [...options];  // ✅ Store in optionsToDisplay
-        this.shouldDisplayOptions = true; // ✅ Ensure the options are visible
+      this.optionsToDisplay = [...options];  // store in optionsToDisplay
+      this.data = { ...this.data, options };  // update data.options
     } else {
-        this.shouldDisplayOptions = false; // Prevent displaying empty options
+      this.data = { ...this.data, options: [] }; // ensure it is always defined
     }
-    
+
     this.cdRef.detectChanges();
   }
-  
 
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
