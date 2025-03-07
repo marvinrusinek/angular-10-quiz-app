@@ -25,8 +25,9 @@
           *ngIf="isQuestionDisplayed && options?.length"
           #quizQuestionComponent
           [quizData]="quizComponentData"
-          
-          
+          [options]="options"
+          [questionData]="questionData"
+          [currentQuestionIndex]="currentQuestionIndex"
           [displayState$]="displayState$"
           (answer)="selectedAnswer($event)"
           (answeredChange)="onAnsweredChange($event)"
