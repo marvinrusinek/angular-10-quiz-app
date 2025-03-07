@@ -78,15 +78,15 @@ export class QuizQuestionComponent
   // @Input() options!: Option[];
 
   @Input() set options(options: Option[]) {
-    console.log('[QuizQuestionComponent] ✅ options input received:', options);
+    console.log('[QuizQuestionComponent] 🔄 options input received:', options);
     
     if (options && options.length > 0) {
-        this.optionsToDisplay = [...options]; // ✅ Only update if options exist
+        console.log('[QuizQuestionComponent] ✅ Setting optionsToDisplay:', options);
+        this.optionsToDisplay = [...options]; 
+        this.cdRef.detectChanges();
     } else {
-        console.warn('[QuizQuestionComponent] ⚠️ Received empty options array, ignoring update.');
+        console.warn('[QuizQuestionComponent] ⚠️ Received empty options, ignoring update.');
     }
-
-    this.cdRef.detectChanges();
   }
 
   @Input() optionsToDisplay: Option[] = [];
