@@ -639,22 +639,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             ) as { question: QuizQuestion; options: Option[]; explanation: string };
 
-            if (data.question && Array.isArray(data.options) && data.options.length > 0) {
-              this.questionData = data.question;
+            if (data.question && Array.isArray(data.options)) {
+              console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
+              console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
           
-              // ✅ Only set options if the array is not empty
-              if (data.options.length > 0) {
-                  this.options = [...data.options];  
-              } else {
-                  console.warn(`[QuizComponent] ⚠️ Skipping empty options array for Q${questionIndex}`);
-              }
+              this.questionData = data.question;
+              this.options = [...data.options];  // ✅ Check if this gets populated correctly
+          
+              console.log(`[QuizComponent] ✅ Options AFTER setting:`, this.options);
           
               this.explanationToDisplay = data.explanation;
               this.isQuestionDisplayed = true;
               this.isLoading = false;
               this.cdRef.detectChanges();
             } else {
-              console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
+                console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
             }
           
             if (!this.selectedOptionService.isAnsweredSubject.value) {
