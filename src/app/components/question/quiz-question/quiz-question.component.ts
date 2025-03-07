@@ -79,12 +79,11 @@ export class QuizQuestionComponent
 
   @Input() set options(options: Option[]) {
     console.log('[QuizQuestionComponent] ✅ options input received:', options);
-
-    if (options?.length) {
-      this.optionsToDisplay = [...options];  // store in optionsToDisplay
-      this.data = { ...this.data, options };  // update data.options
+    
+    if (options && options.length > 0) {
+        this.optionsToDisplay = [...options]; // ✅ Only update if options exist
     } else {
-      this.data = { ...this.data, options: [] }; // ensure it is always defined
+        console.warn('[QuizQuestionComponent] ⚠️ Received empty options array, ignoring update.');
     }
 
     this.cdRef.detectChanges();
