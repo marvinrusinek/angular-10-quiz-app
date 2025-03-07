@@ -609,6 +609,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
+        this.isNextButtonEnabled = false;
 
         // Explicitly reset state before fetching new data
         this.options = [];
