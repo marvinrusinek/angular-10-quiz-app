@@ -639,21 +639,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             ) as { question: QuizQuestion; options: Option[]; explanation: string };
 
-            if (!data.question || !Array.isArray(data.options)) {
-                console.warn(`[loadQuestionContents] Incomplete data received for question ${questionIndex}`);
-                return;
+            if (data.question && Array.isArray(data.options)) {
+              this.questionData = data.question;
+              this.optionsToDisplay = [...data.options];  // ✅ Ensure this is populated
+              this.explanationToDisplay = data.explanation;
+          
+              this.isQuestionDisplayed = true;
+              this.cdRef.detectChanges();
             }
-
-            // Assign fetched data directly
-            this.questionData = data.question;
-            this.options = [...data.options];
-            this.explanationToDisplay = data.explanation;
-
-            console.log(`[loadQuestionContents] ✅ Data loaded:`, {
-                questionData: this.questionData,
-                options: this.options,
-                explanation: this.explanationToDisplay
-            });
 
             // Set ready states after data is loaded
             this.isQuestionDisplayed = true;
@@ -662,9 +655,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.cdRef.detectChanges();
 
             if (!this.selectedOptionService.isAnsweredSubject.value) {
-                this.timerService.startTimer();
+              this.timerService.startTimer();
             }
-
         } catch (error) {
             console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
             this.isLoading = false;
