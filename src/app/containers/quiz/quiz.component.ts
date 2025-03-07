@@ -641,17 +641,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             if (data.question && Array.isArray(data.options) && data.options.length > 0) {
               this.questionData = data.question;
-              this.options = [...data.options];  // ✅ Ensure this is populated correctly
+          
+              // ✅ Only set options if the array is not empty
+              if (data.options.length > 0) {
+                  this.options = [...data.options];  
+              } else {
+                  console.warn(`[QuizComponent] ⚠️ Skipping empty options array for Q${questionIndex}`);
+              }
+          
               this.explanationToDisplay = data.explanation;
-              
-              // Set ready states after data is loaded
               this.isQuestionDisplayed = true;
               this.isLoading = false;
               this.cdRef.detectChanges();
             } else {
-                console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
+              console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
             }
-
+          
             if (!this.selectedOptionService.isAnsweredSubject.value) {
               this.timerService.startTimer();
             }
