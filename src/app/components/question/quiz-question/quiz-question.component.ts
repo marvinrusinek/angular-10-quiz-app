@@ -1914,7 +1914,7 @@ export class QuizQuestionComponent
   }
 
   trackByOption(index: number, option: Option): string | number {
-    return option.optionId || index; // Use optionId or index as unique identifier
+    return option.optionId || index;
   }
 
   public get shouldDisplayTextContent(): boolean {
