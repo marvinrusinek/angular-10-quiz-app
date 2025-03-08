@@ -330,6 +330,7 @@ export class QuizQuestionComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log(`[QuizQuestionComponent] 🔄 ngOnChanges triggered with changes:`, changes);
+    console.trace(`[QuizQuestionComponent] 🟠 Stack Trace - ngOnChanges for Q${this.fixedQuestionIndex}`);
 
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
 
