@@ -351,6 +351,7 @@ export class QuizQuestionComponent
             console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
         } */
         if (changes.options) {
+          console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
           console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
           
           // Ensure options are updated only when valid data is received
@@ -361,7 +362,7 @@ export class QuizQuestionComponent
               console.warn(`[QuizQuestionComponent] ⚠️ No valid options found for Q${this.fixedQuestionIndex}, keeping previous options.`);
           }
         }
-        
+
         // ✅ Populate options correctly
         if (this.options && this.options.length) {
             console.log(`[QuizQuestionComponent] ✅ Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
