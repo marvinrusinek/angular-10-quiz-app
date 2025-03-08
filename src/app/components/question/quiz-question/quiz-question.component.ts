@@ -249,11 +249,16 @@ export class QuizQuestionComponent
       selectedOptionService,
       cdRef
     );
-    console.log(`[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
   }
 
   async ngOnInit(): Promise<void> {
     this.fixedQuestionIndex = this.currentQuestionIndex;
+
+    console.log(`[QuizQuestionComponent] 🔄 Checking data in ngOnInit for Q${this.fixedQuestionIndex}:`, this.data);
+    console.log(`[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions in ngOnInit for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
+
+
+    console.log(`[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
 
     console.log(`[QuizQuestionComponent] ✅ shouldDisplayOptions value:`, this.shouldDisplayOptions);
 
