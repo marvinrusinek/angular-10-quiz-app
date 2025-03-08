@@ -79,8 +79,9 @@ export class QuizQuestionComponent
 
   @Input() set options(options: Option[]) {
     console.log('[QuizQuestionComponent] ✅ options input received:', options);
-    if (options && options.length > 0) {
+    if (options) {
       this.optionsToDisplay = [...options];
+      console.log(`[QuizQuestionComponent] ✅ optionsToDisplay set:`, this.optionsToDisplay);
       this.cdRef.detectChanges();
     } else {
       console.warn('[QuizQuestionComponent] ⚠️ No options received.');
