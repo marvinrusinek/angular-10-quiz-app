@@ -329,12 +329,14 @@ export class QuizQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(`[QuizQuestionComponent] 🔄 ngOnChanges triggered with changes:`, changes);
+
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
 
     if (changes.currentQuestionIndex || changes.options) {
         if (changes.currentQuestionIndex) {
             this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-            console.log(`[QuizQuestionComponent] 🔄 Updated fixedQuestionIndex to:`, this.fixedQuestionIndex);
+            console.log(`[QuizQuestionComponent] 🔄 Updated fixedQuestionIndex to:`, this.fixedQuestionIndex); 
         }
 
         // Always reset explanation when question changes
@@ -343,14 +345,21 @@ export class QuizQuestionComponent
         this.explanationToDisplayChange.emit('');
         this.showExplanationChange.emit(false);
 
-        // Populate options correctly
+        // ✅ Log the previous and new options received
+        if (changes.options) {
+            console.log(`[QuizQuestionComponent] 🟢 PREVIOUS options for Q${this.fixedQuestionIndex}:`, changes.options.previousValue);
+            console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+        }
+
+        // ✅ Populate options correctly
         if (this.options && this.options.length) {
-            console.log(`[QuizQuestionComponent] 🟢 Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
+            console.log(`[QuizQuestionComponent] ✅ Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
             this.optionsToDisplay = [...this.options];
         } else {
             console.warn(`[QuizQuestionComponent] ⚠️ No options input found for Q${this.fixedQuestionIndex}, calling populateOptionsToDisplay...`);
             this.optionsToDisplay = this.populateOptionsToDisplay();
         }
+
         console.log(`[QuizQuestionComponent] ✅ optionsToDisplay set for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
         this.cdRef.detectChanges();
     }
