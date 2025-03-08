@@ -366,6 +366,7 @@ export class QuizQuestionComponent
 
     // Update options to display if options or questionData changes
     if (changes.options || changes.questionData) {
+      console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.currentQuestionIndex}:`, changes.options.currentValue);
       this.optionsToDisplay = this.options;
     }
 
