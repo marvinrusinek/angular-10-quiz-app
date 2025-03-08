@@ -3281,42 +3281,6 @@ export class QuizQuestionComponent
     this.cdRef.markForCheck();
   }
 
-  private async reloadCurrentQuestion(): Promise<void> {
-    try {
-      const quizId = this.quizService.getCurrentQuizId();
-      if (!quizId) {
-        throw new Error('[reloadCurrentQuestion] No active quiz ID found.');
-      }
-
-      const question = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(quizId, this.currentQuestionIndex)
-      );
-
-      if (question) {
-        console.log('[reloadCurrentQuestion] Question reloaded:', question);
-        this.currentQuestion = question;
-
-        // Ensure options are initialized
-        this.optionsToDisplay = question.options.map(option => ({
-          ...option,
-          active: option.active ?? true,
-          feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false,
-          selected: this.selectedOptionService.isSelectedOption(option)
-        }));
-
-        console.log('[reloadCurrentQuestion] Options restored:', this.optionsToDisplay);
-      } else {
-        throw new Error('[reloadCurrentQuestion] Failed to reload question.');
-      }
-    } catch (error) {
-      console.error('[reloadCurrentQuestion] Error:', error);
-      this.currentQuestion = null;
-      this.optionsToDisplay = [];
-      this.optionBindings = [];
-    }
-  }
-
   private restoreFeedbackState(): void {
     try {
       console.log('[restoreFeedbackState] Current question:', this.currentQuestion);
