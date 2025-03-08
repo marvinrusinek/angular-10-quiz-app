@@ -617,12 +617,13 @@ export class QuizQuestionComponent
         }
       }
   
+      // Always reset at the beginning of restore
+      this.optionsToDisplay = [];
+
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         const lastKnownOptions = this.quizService.getLastKnownOptions();
         if (lastKnownOptions && lastKnownOptions.length > 0) {
           this.optionsToDisplay = [...lastKnownOptions];
-        } else {
-          this.optionsToDisplay = [];
         }
       }
   
