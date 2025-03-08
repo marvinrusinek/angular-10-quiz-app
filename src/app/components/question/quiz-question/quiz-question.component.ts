@@ -1708,7 +1708,6 @@ export class QuizQuestionComponent
 
       // Reset selection and feedback states
       this.selectedOptionId = null;
-      this.optionsToDisplay = [];
 
       this.resetQuestionStateBeforeNavigation(); // Ensure previous states are cleared
 
