@@ -249,6 +249,7 @@ export class QuizQuestionComponent
       selectedOptionService,
       cdRef
     );
+    console.log(`[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
   }
 
   async ngOnInit(): Promise<void> {
