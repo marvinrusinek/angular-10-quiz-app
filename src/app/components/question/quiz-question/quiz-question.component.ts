@@ -75,7 +75,7 @@ export class QuizQuestionComponent
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
-  // @Input() options!: Option[];
+  //@Input() options!: Option[];
 
   @Input()
   set options(options: Option[]) {
