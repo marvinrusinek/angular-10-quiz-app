@@ -332,57 +332,64 @@ export class QuizQuestionComponent
     const isSubsequentChange = (change: SimpleChange) => change && !change.firstChange;
 
     if (changes.currentQuestionIndex || changes.options) {
-      if (changes.currentQuestionIndex) {
-        this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
-        console.log('[QuizQuestionComponent] Updated fixedQuestionIndex:', this.fixedQuestionIndex);
-      }
+        if (changes.currentQuestionIndex) {
+            this.fixedQuestionIndex = changes.currentQuestionIndex.currentValue;
+            console.log(`[QuizQuestionComponent] 🔄 Updated fixedQuestionIndex to:`, this.fixedQuestionIndex);
+        }
 
-      // Always reset explanation when question changes
-      this.explanationToDisplay = '';
-      this.explanationToDisplayChange.emit('');
-      this.showExplanationChange.emit(false);
+        // Always reset explanation when question changes
+        console.log(`[QuizQuestionComponent] 🔄 Resetting explanation text for Q${this.fixedQuestionIndex}`);
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
 
-      // Populate options correctly
-      if (this.options && this.options.length) {
-        console.log('[QuizQuestionComponent] options loaded via input binding:', this.options);
-        this.optionsToDisplay = [...this.options];
-      } else {
-        console.warn('[QuizQuestionComponent] No options input found, calling populateOptionsToDisplay...');
-        this.optionsToDisplay = this.populateOptionsToDisplay();
-      }
-      this.cdRef.detectChanges();
+        // Populate options correctly
+        if (this.options && this.options.length) {
+            console.log(`[QuizQuestionComponent] 🟢 Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
+            this.optionsToDisplay = [...this.options];
+        } else {
+            console.warn(`[QuizQuestionComponent] ⚠️ No options input found for Q${this.fixedQuestionIndex}, calling populateOptionsToDisplay...`);
+            this.optionsToDisplay = this.populateOptionsToDisplay();
+        }
+        console.log(`[QuizQuestionComponent] ✅ optionsToDisplay set for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
+        this.cdRef.detectChanges();
     }
 
     // Initialize configurations when questionData changes
     if (changes.questionData) {
-      console.log('questionData changed:', this.questionData);
-      this.initializeSharedOptionConfig();
+        console.log(`[QuizQuestionComponent] 🔄 questionData changed for Q${this.fixedQuestionIndex}:`, this.questionData);
+        this.initializeSharedOptionConfig();
     }
 
     // Update selection message on currentQuestionIndex or isAnswered changes
     if (changes.currentQuestionIndex || changes.isAnswered) {
-      this.updateSelectionMessage(this.isAnswered);
+        console.log(`[QuizQuestionComponent] 🔄 Updating selection message for Q${this.fixedQuestionIndex}, isAnswered:`, this.isAnswered);
+        this.updateSelectionMessage(this.isAnswered);
     }
 
     // Update options to display if options or questionData changes
     if (changes.options || changes.questionData) {
-      console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.currentQuestionIndex}:`, changes.options.currentValue);
-      this.optionsToDisplay = this.options;
+        console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, changes.options?.currentValue);
+        this.optionsToDisplay = this.options;
+        console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
     }
 
     // Process correct answers and selected options when they change
     if (isSubsequentChange(changes.correctAnswers) || isSubsequentChange(changes.selectedOptions)) {
-      this.updateCorrectAnswersAndMessage();
+        console.log(`[QuizQuestionComponent] 🔄 Processing correct answers and selected options for Q${this.fixedQuestionIndex}`);
+        this.updateCorrectAnswersAndMessage();
     }
 
     // Handle question and selectedOptions changes
     if (isSubsequentChange(changes.currentQuestion) || isSubsequentChange(changes.selectedOptions)) {
-      this.handleQuestionAndOptionsChange(changes.currentQuestion, changes.selectedOptions);
+        console.log(`[QuizQuestionComponent] 🔄 Handling question and options change for Q${this.fixedQuestionIndex}`);
+        this.handleQuestionAndOptionsChange(changes.currentQuestion, changes.selectedOptions);
     }
 
     // Reset feedback if reset change is detected
     if (changes.reset?.currentValue) {
-      this.resetFeedback();
+        console.log(`[QuizQuestionComponent] 🔄 Resetting feedback for Q${this.fixedQuestionIndex}`);
+        this.resetFeedback();
     }
   }
 
