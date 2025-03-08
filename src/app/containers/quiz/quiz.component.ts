@@ -605,6 +605,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
+        console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
+        console.trace(`[QuizComponent] Stack Trace for loadQuestionContents() call`);
         console.log(`[loadQuestionContents] 🔄 Loading Question ${questionIndex}...`);
 
         this.isLoading = true;
