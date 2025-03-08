@@ -346,11 +346,22 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
 
         // ✅ Log the previous and new options received
-        if (changes.options) {
+        /* if (changes.options) {
             console.log(`[QuizQuestionComponent] 🟢 PREVIOUS options for Q${this.fixedQuestionIndex}:`, changes.options.previousValue);
             console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+        } */
+        if (changes.options) {
+          console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+          
+          // Ensure options are updated only when valid data is received
+          if (changes.options.currentValue && changes.options.currentValue.length) {
+              this.optionsToDisplay = [...changes.options.currentValue];
+              console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
+          } else {
+              console.warn(`[QuizQuestionComponent] ⚠️ No valid options found for Q${this.fixedQuestionIndex}, keeping previous options.`);
+          }
         }
-
+        
         // ✅ Populate options correctly
         if (this.options && this.options.length) {
             console.log(`[QuizQuestionComponent] ✅ Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
