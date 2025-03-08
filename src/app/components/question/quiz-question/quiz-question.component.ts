@@ -85,7 +85,7 @@ export class QuizQuestionComponent
     } else {
       console.warn('[QuizQuestionComponent] ⚠️ No options received.');
     }
-  }  
+  }
 
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
@@ -252,6 +252,12 @@ export class QuizQuestionComponent
 
   async ngOnInit(): Promise<void> {
     this.fixedQuestionIndex = this.currentQuestionIndex;
+
+    console.log('[QuizQuestionComponent] ✅ Initialized with:', {
+      questionData: this.questionData,
+      options: this.optionsToDisplay
+    });
+    
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
