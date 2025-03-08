@@ -495,6 +495,7 @@ export class QuizQuestionComponent
       // Only reset if optionsToDisplay is not already empty
       if (this.optionsToDisplay.length > 0) {
         console.log('[setOptionsToDisplay] 🚨 Clearing options due to invalid data.');
+        console.warn(`[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack);
         this.optionsToDisplay = [];
         this.optionBindings = [];
       }
@@ -599,6 +600,7 @@ export class QuizQuestionComponent
   }
 
   private restoreQuizState(): void {
+    console.log(`[restoreQuizState] 🚀 Called for Q${this.currentQuestionIndex}`);
     try {
       // Restore explanation text
       this.currentExplanationText = sessionStorage.getItem(`explanationText`) || '';
@@ -623,7 +625,6 @@ export class QuizQuestionComponent
       // ✅ Only reset if options are already empty or need updating
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.log('[restoreQuizState] 🔄 Resetting options before restoring.');
-        this.optionsToDisplay = [];
         
         const lastKnownOptions = this.quizService.getLastKnownOptions();
         if (lastKnownOptions && lastKnownOptions.length > 0) {
@@ -632,6 +633,8 @@ export class QuizQuestionComponent
       }
 
       console.log('[restoreQuizState] ✅ Options after restore:', this.optionsToDisplay);
+
+      console.log(`[restoreQuizState] 🟢 Options after restoring:`, this.optionsToDisplay);
   
       // Restore selected options safely and apply feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
@@ -1090,6 +1093,7 @@ export class QuizQuestionComponent
 
     // ✅ Only reset if necessary
     if (this.optionsToDisplay.length !== question.options.length) {
+      console.warn(`[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack);
       this.optionsToDisplay = [];
     }
 
@@ -1714,9 +1718,6 @@ export class QuizQuestionComponent
     try {
       console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
 
-      // Ensure all previous selections and highlights are cleared
-      this.optionsToDisplay = [];
-
       // Reset selection and feedback states
       this.selectedOptionId = null;
 
@@ -1752,6 +1753,7 @@ export class QuizQuestionComponent
       return true;
     } catch (error) {
       console.error('Error loading question:', error);
+      console.warn(`[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack);
       this.optionsToDisplay = []; // clear options in case of error
       return false;
     } finally {
@@ -3985,7 +3987,6 @@ export class QuizQuestionComponent
   }
 
   private resetStateForNewQuestion(): void {
-    this.optionsToDisplay = [];
     this.showFeedbackForOption = {};
     this.showFeedback = false;
     this.correctMessage = '';
@@ -4459,7 +4460,6 @@ export class QuizQuestionComponent
   
         // ✅ Ensure we clear previous options before updating
         console.log(`[waitForQuestionData] 🧹 Clearing optionsToDisplay before updating for Q${this.currentQuestionIndex}`);
-        this.optionsToDisplay = [];
 
         // ✅ Now set the new options AFTER clearing
         this.optionsToDisplay = [...question.options];
