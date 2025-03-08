@@ -646,21 +646,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
           
               this.questionData = data.question;
-              this.options = [...data.options];  // ✅ Check if this gets populated correctly
+              this.options = [...data.options]; // ✅ Ensures the @Input() passes the correct array
+              this.optionsToDisplay = [...data.options]; // ✅ This should be used internally if needed
           
               console.log(`[QuizComponent] ✅ Options AFTER setting:`, this.options);
+              console.log(`[QuizComponent] ✅ OptionsToDisplay AFTER setting:`, this.optionsToDisplay);
           
               this.explanationToDisplay = data.explanation;
               this.isQuestionDisplayed = true;
               this.isLoading = false;
-              this.cdRef.detectChanges();
-            } else {
-                console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
-            }
           
-            if (!this.selectedOptionService.isAnsweredSubject.value) {
-              this.timerService.startTimer();
-            }
+              this.cdRef.detectChanges();
+          } else {
+              console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
+          }
+                    
+          if (!this.selectedOptionService.isAnsweredSubject.value) {
+            this.timerService.startTimer();
+          }
         } catch (error) {
             console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
             this.isLoading = false;
