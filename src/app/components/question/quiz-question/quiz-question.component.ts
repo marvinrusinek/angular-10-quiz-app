@@ -383,6 +383,8 @@ export class QuizQuestionComponent
           }
         }
 
+        console.log(`[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions in ngOnChanges for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
+
         // ✅ Populate options correctly
         if (this.options && this.options.length) {
             console.log(`[QuizQuestionComponent] ✅ Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
