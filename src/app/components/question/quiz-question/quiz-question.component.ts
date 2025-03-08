@@ -77,15 +77,17 @@ export class QuizQuestionComponent
   @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   // @Input() options!: Option[];
 
-  @Input() set options(options: Option[]) {
+  @Input()
+  set options(options: Option[]) {
     console.log('[QuizQuestionComponent] 🔄 options input received:', options);
-    
+
+    // Only update if the new options are non-empty
     if (options && options.length > 0) {
-        console.log('[QuizQuestionComponent] ✅ Setting optionsToDisplay:', options);
-        this.optionsToDisplay = [...options]; 
-        this.cdRef.detectChanges();
+      this.optionsToDisplay = [...options];
+      console.log('[QuizQuestionComponent] ✅ Setting optionsToDisplay:', this.optionsToDisplay);
+      this.cdRef.detectChanges();
     } else {
-        console.warn('[QuizQuestionComponent] ⚠️ Received empty options, ignoring update.');
+      console.warn('[QuizQuestionComponent] ⚠️ Ignoring empty options update');
     }
   }
 
