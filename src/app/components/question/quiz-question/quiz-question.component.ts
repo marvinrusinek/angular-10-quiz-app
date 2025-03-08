@@ -358,6 +358,7 @@ export class QuizQuestionComponent
             console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
         } */
         if (changes.options) {
+          console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
           console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
           console.log(`[QuizQuestionComponent] 🟢 NEW options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
           
@@ -401,6 +402,7 @@ export class QuizQuestionComponent
     // Initialize configurations when questionData changes
     if (changes.questionData) {
         console.log(`[QuizQuestionComponent] 🔄 questionData changed for Q${this.fixedQuestionIndex}:`, this.questionData);
+        console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
         this.initializeSharedOptionConfig();
     }
 
