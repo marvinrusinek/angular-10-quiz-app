@@ -641,6 +641,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             ) as { question: QuizQuestion; options: Option[]; explanation: string };
 
+            console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
+
             if (data.question && Array.isArray(data.options) && data.options.length > 0) {
                 console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
                 console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
