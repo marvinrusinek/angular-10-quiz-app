@@ -4449,6 +4449,10 @@ export class QuizQuestionComponent
         // ✅ Ensure we clear previous options before updating
         console.log(`[waitForQuestionData] 🧹 Clearing optionsToDisplay before updating for Q${this.currentQuestionIndex}`);
         this.optionsToDisplay = [];
+
+        // ✅ Now set the new options AFTER clearing
+        this.optionsToDisplay = [...question.options];
+        console.log(`[waitForQuestionData] ✅ Options updated for Q${this.currentQuestionIndex}:`, this.optionsToDisplay);
   
         // ✅ Explicitly type options as `Option[]`
         this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(take(1))
