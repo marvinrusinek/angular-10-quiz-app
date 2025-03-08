@@ -608,14 +608,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
         console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
         console.trace(`[QuizComponent] Stack Trace for loadQuestionContents() call`);
-        console.log(`[loadQuestionContents] 🔄 Loading Question ${questionIndex}...`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
 
         // Explicitly reset state before fetching new data
-        this.options = [];
+        this.optionsToDisplay = []; // ✅ Ensure previous options are cleared
         this.questionData = null;
         this.explanationToDisplay = '';
 
@@ -632,41 +631,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
             const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
-            const data = await firstValueFrom(
+            const data = await lastValueFrom(
                 forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
-                    tap(finalData => console.log('[loadQuestionContents] ✅ forkJoin completed:', finalData)),
+                    tap(finalData => console.log('[QuizComponent] ✅ forkJoin completed:', finalData)),
                     catchError(error => {
-                        console.error('[loadQuestionContents] Error in forkJoin:', error);
+                        console.error('[QuizComponent] ❌ Error in forkJoin:', error);
                         return of({ question: null, options: [], explanation: '' });
                     })
                 )
             ) as { question: QuizQuestion; options: Option[]; explanation: string };
 
-            if (data.question && Array.isArray(data.options)) {
-              console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
-              console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
-          
-              this.questionData = data.question;
-              this.options = [...data.options]; // ✅ Ensures the @Input() passes the correct array
-              this.optionsToDisplay = [...data.options]; // ✅ This should be used internally if needed
+            if (data.question && Array.isArray(data.options) && data.options.length > 0) {
+                console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
+                console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
 
-              console.log(`[QuizComponent] ✅ Passing options to QuizQuestionComponent:`, this.optionsToDisplay);
-          
-              console.log(`[QuizComponent] ✅ Options AFTER setting:`, this.options);
-              console.log(`[QuizComponent] ✅ OptionsToDisplay AFTER setting:`, this.optionsToDisplay);
-          
-              this.explanationToDisplay = data.explanation;
-              this.isQuestionDisplayed = true;
-              this.isLoading = false;
-          
-              this.cdRef.detectChanges();
-          } else {
-              console.warn(`[QuizComponent] ⚠️ Skipping update: No valid question/options available for question ${questionIndex}`);
-          }
-                    
-          if (!this.selectedOptionService.isAnsweredSubject.value) {
-            this.timerService.startTimer();
-          }
+                this.questionData = data.question;
+                this.optionsToDisplay = [...data.options]; // ✅ Ensures options are correctly passed to QuizQuestionComponent
+
+                console.log(`[QuizComponent] ✅ Passing options to QuizQuestionComponent:`, this.optionsToDisplay);
+
+                this.explanationToDisplay = data.explanation;
+                this.isQuestionDisplayed = true;
+                this.isLoading = false;
+
+                this.cdRef.detectChanges();
+            } else {
+                console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}. Skipping update.`);
+                this.optionsToDisplay = []; // ✅ Ensure options are explicitly reset if invalid data
+            }
+
+            if (!this.selectedOptionService.isAnsweredSubject.value) {
+                this.timerService.startTimer();
+            }
         } catch (error) {
             console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
             this.isLoading = false;
