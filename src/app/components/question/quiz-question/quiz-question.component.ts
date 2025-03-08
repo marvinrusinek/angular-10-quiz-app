@@ -1754,8 +1754,6 @@ export class QuizQuestionComponent
       return true;
     } catch (error) {
       console.error('Error loading question:', error);
-      console.warn(`[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack);
-      this.optionsToDisplay = []; // clear options in case of error
       return false;
     } finally {
       this.isLoading = false;
