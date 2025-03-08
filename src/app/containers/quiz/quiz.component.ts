@@ -403,10 +403,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetOptionState(); // Ensure no lingering selection state
 
     // Load the first question's contents
-    setTimeout(() => {
+    /* setTimeout(() => {
       console.log('[ngOnInit] 🟢 Calling loadQuestionContents() after view setup.');
       this.loadQuestionContents(this.currentQuestionIndex);
-    }, 150); // short delay allows ViewChild bindings to be established
+    }, 150); // short delay allows ViewChild bindings to be established */
     
     // Reset the answered state initially
     this.selectedOptionService.setAnswered(false);
