@@ -605,6 +605,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
+        console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
         console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
         console.trace(`[QuizComponent] Stack Trace for loadQuestionContents() call`);
         console.log(`[loadQuestionContents] 🔄 Loading Question ${questionIndex}...`);
@@ -649,7 +650,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               this.options = [...data.options]; // ✅ Ensures the @Input() passes the correct array
               this.optionsToDisplay = [...data.options]; // ✅ This should be used internally if needed
 
-              console.log(`[QuizComponent] ✅ Passing options to QuizQuestionComponent:`, this.options);
+              console.log(`[QuizComponent] ✅ Passing options to QuizQuestionComponent:`, this.optionsToDisplay);
           
               console.log(`[QuizComponent] ✅ Options AFTER setting:`, this.options);
               console.log(`[QuizComponent] ✅ OptionsToDisplay AFTER setting:`, this.optionsToDisplay);
@@ -2890,6 +2891,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   handleNoQuestionsAvailable(): void {
+    console.warn('[QuizComponent] ❌ No questions available. Resetting state.', new Error().stack);
     this.questions = [];
     this.currentQuestion = null;
     this.questionToDisplay = 'No questions available.';
