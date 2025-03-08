@@ -1078,17 +1078,22 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
-    // Always reset before setting new options
-    this.optionsToDisplay = [];
-
-    if (!question || !question.options) {
+    if (!question || !question.options?.length) {
       console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
       return;
     }
 
+    console.log('[loadOptionsForQuestion] 🚀 Before setting options:', this.optionsToDisplay);
+
+    // ✅ Only reset if necessary
+    if (this.optionsToDisplay.length !== question.options.length) {
+      this.optionsToDisplay = [];
+    }
+
     this.optionsToDisplay = [...question.options];
 
-    console.log('[loadOptionsForQuestion] ✅ Loaded options:', this.optionsToDisplay);
+    console.log('[loadOptionsForQuestion] ✅ Options successfully set:', this.optionsToDisplay);
+
 
     const currentQuestion = this.quizService.currentQuestion.getValue();
     if (!currentQuestion) {
