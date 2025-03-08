@@ -620,15 +620,18 @@ export class QuizQuestionComponent
         }
       }
   
-      // Always reset at the beginning of restore
-      this.optionsToDisplay = [];
-
+      // ✅ Only reset if options are already empty or need updating
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.log('[restoreQuizState] 🔄 Resetting options before restoring.');
+        this.optionsToDisplay = [];
+        
         const lastKnownOptions = this.quizService.getLastKnownOptions();
         if (lastKnownOptions && lastKnownOptions.length > 0) {
           this.optionsToDisplay = [...lastKnownOptions];
         }
       }
+
+      console.log('[restoreQuizState] ✅ Options after restore:', this.optionsToDisplay);
   
       // Restore selected options safely and apply feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
