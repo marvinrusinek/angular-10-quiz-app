@@ -370,6 +370,19 @@ export class QuizQuestionComponent
           }
         }
 
+        if (changes.data) {
+          console.log(`[QuizQuestionComponent] 🟢 New data received for Q${this.fixedQuestionIndex}:`, this.data);
+          
+          // ✅ Check options after data is updated
+          if (this.data?.options && this.data.options.length > 0) {
+              console.log(`[QuizQuestionComponent] ✅ Options received in ngOnChanges for Q${this.fixedQuestionIndex}:`, this.data.options);
+              this.optionsToDisplay = [...this.data.options];
+          } else {
+              console.warn(`[QuizQuestionComponent] ⚠️ No valid options received for Q${this.fixedQuestionIndex}.`);
+              this.optionsToDisplay = [];
+          }
+        }
+
         // ✅ Populate options correctly
         if (this.options && this.options.length) {
             console.log(`[QuizQuestionComponent] ✅ Options received via input binding for Q${this.fixedQuestionIndex}:`, this.options);
