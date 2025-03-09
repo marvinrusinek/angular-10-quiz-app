@@ -10,11 +10,11 @@
 
     <!-- Options content -->
     <div *ngIf="shouldDisplayOptions" class="options-container">
-      <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
+      <div *ngFor="let optionBinding of optionsToDisplay; trackBy: trackByOption">
         <app-shared-option
           [disabled]="!optionBinding.active"
           [config]="sharedOptionConfig"
-          [option]="optionBinding.option"
+          [option]="optionBinding"
           [options]="optionsToDisplay"
           [optionBinding]="optionBinding"
           [showFeedback]="showFeedback"
