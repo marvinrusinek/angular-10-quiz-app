@@ -1042,7 +1042,7 @@ export class QuizService implements OnDestroy {
                 ...option,
                 optionId: option.optionId ?? index,
                 correct: option.correct ?? false,
-                feedback: option.feedback ?? "⚠️ No feedback available" // ✅ Ensure feedback is set
+                feedback: option.feedback ?? "⚠️ No feedback available" // Ensure feedback is defined
             }));
 
             // 🔍 Log options including feedback
@@ -1060,6 +1060,7 @@ export class QuizService implements OnDestroy {
         })
     );
   }
+
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
