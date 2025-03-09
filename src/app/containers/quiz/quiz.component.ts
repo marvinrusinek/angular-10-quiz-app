@@ -653,8 +653,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 });
 
                 this.questionData = data.question;
-                this.optionsToDisplay = [...data.options]; // ✅ Ensures options are correctly passed to QuizQuestionComponent
-
+                this.optionsToDisplay = [...data.options];
                 this.explanationToDisplay = data.explanation;
                 this.isQuestionDisplayed = true;
                 this.isLoading = false;
