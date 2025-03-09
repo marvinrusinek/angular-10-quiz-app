@@ -647,17 +647,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
                 console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
 
-                // 🔍 Log feedback BEFORE setting optionsToDisplay
+                // 🔍 Check if feedback exists BEFORE setting optionsToDisplay
                 data.options.forEach((opt, i) => {
-                  console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback:`, opt.feedback);
+                  console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
                 });
 
                 this.questionData = data.question;
                 this.optionsToDisplay = [...data.options];
 
-                // 🔍 Verify feedback AFTER setting optionsToDisplay
+                // 🔍 Check feedback AFTER setting optionsToDisplay
                 this.optionsToDisplay.forEach((opt, i) => {
-                  console.log(`[QuizComponent] 🔍 Option ${i} feedback AFTER setting in optionsToDisplay:`, opt.feedback);
+                  console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
                 });
 
                 this.explanationToDisplay = data.explanation;
