@@ -340,6 +340,14 @@ export class QuizQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.options) {
+      console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+    }
+
+    if (changes.questionData) {
+      console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
+    }
+
     if (changes.options && changes.options.currentValue) {
       this.optionsToDisplay = [...changes.options.currentValue];
     }
