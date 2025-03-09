@@ -340,16 +340,26 @@ export class QuizQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(`[QuizQuestionComponent] 🔄 ngOnChanges triggered for Q${this.fixedQuestionIndex} with changes:`, changes);
+
     if (changes.options) {
       console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+        
+      // Check if feedback is present in received options
+      changes.options.currentValue?.forEach((opt: any, i: number) => {
+        console.log(`[QuizQuestionComponent] 🔍 Received Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback);
+      });
     }
 
     if (changes.questionData) {
       console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
     }
 
+    // Ensure optionsToDisplay is only updated when valid options are received
     if (changes.options && changes.options.currentValue) {
+      console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
       this.optionsToDisplay = [...changes.options.currentValue];
+      console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
     }
   }
 
