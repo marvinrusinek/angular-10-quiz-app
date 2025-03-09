@@ -254,6 +254,8 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     this.fixedQuestionIndex = this.currentQuestionIndex;
 
+    console.log(`[QuizQuestionComponent] 🟢 shouldDisplayOptions for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
+
     console.log(`[QuizQuestionComponent] 🟢 Initial questionData for Q${this.fixedQuestionIndex}:`, this.questionData);
     console.log(`[QuizQuestionComponent] 🟢 Initial options for Q${this.fixedQuestionIndex}:`, this.options);
 
@@ -2002,8 +2004,11 @@ export class QuizQuestionComponent
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
-  public get shouldDisplayOptions(): boolean {
+  /* public get shouldDisplayOptions(): boolean {
     return this.data?.options && this.data.options.length > 0;
+  } */
+  public get shouldDisplayOptions(): boolean {
+    return this.questionData?.options && this.questionData.options.length > 0;
   }
 
   public shouldHideOptions(): boolean {
