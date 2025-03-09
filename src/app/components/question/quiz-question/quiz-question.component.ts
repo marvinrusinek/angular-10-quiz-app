@@ -254,6 +254,9 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     this.fixedQuestionIndex = this.currentQuestionIndex;
 
+    console.log(`[QuizQuestionComponent] 🟢 Initial questionData for Q${this.fixedQuestionIndex}:`, this.questionData);
+    console.log(`[QuizQuestionComponent] 🟢 Initial options for Q${this.fixedQuestionIndex}:`, this.options);
+
     console.log(`[QuizQuestionComponent] 🔄 Checking data in ngOnInit for Q${this.fixedQuestionIndex}:`, this.data);
     console.log(`[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions in ngOnInit for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
 
