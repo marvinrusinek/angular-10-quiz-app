@@ -964,7 +964,7 @@ export class QuizService implements OnDestroy {
   }
 
   // Get the current options for the current quiz and question
-  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
+  /* getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
       console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
@@ -985,6 +985,42 @@ export class QuizService implements OnDestroy {
       }),
       catchError((error) => {
         console.error(`Error fetching options for Q${questionIndex}:`, error);
+        return of([]);
+      })
+    );
+  } */
+  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
+    if (!Number.isInteger(questionIndex) || questionIndex < 0) {
+      console.error(`[QuizService] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+      return of([]);
+    }
+  
+    return this.getQuestionByIndex(questionIndex).pipe(
+      map((question) => {
+        if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+          console.warn(`[QuizService] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
+          return [];
+        }
+  
+        console.log(`[QuizService] ✅ Retrieved options for Q${questionIndex}:`, question.options);
+  
+        // Ensure `feedback` is set
+        const processedOptions = question.options.map((option, index) => ({
+          ...option,
+          optionId: option.optionId ?? index, // Preserve existing optionId if available
+          correct: option.correct ?? false, // Ensure `correct` property exists
+          feedback: option.feedback ?? '' // Ensure `feedback` exists (default to empty string)
+        }));
+  
+        // Log feedback for each option
+        processedOptions.forEach((opt, i) => {
+          console.log(`[QuizService] 🔍 Option ${i} feedback for Q${questionIndex}:`, opt.feedback);
+        });
+  
+        return processedOptions;
+      }),
+      catchError((error) => {
+        console.error(`[QuizService] ❌ Error fetching options for Q${questionIndex}:`, error);
         return of([]);
       })
     );
