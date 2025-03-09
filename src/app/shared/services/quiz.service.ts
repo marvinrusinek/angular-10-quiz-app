@@ -989,7 +989,7 @@ export class QuizService implements OnDestroy {
       })
     );
   } */
-  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
+  /* getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
       console.error(`[QuizService] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
@@ -1024,7 +1024,40 @@ export class QuizService implements OnDestroy {
         return of([]);
       })
     );
-  }  
+  } */
+  getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
+    if (!Number.isInteger(questionIndex) || questionIndex < 0) {
+        console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+        return of([]);
+    }
+
+    return this.getQuestionByIndex(questionIndex).pipe(
+        map((question) => {
+            if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+                console.warn(`No options found for Q${questionIndex}. Returning empty array.`);
+                return [];
+            }
+
+            const optionsWithFeedback = question.options.map((option, index) => ({
+                ...option,
+                optionId: option.optionId ?? index, // Preserve existing optionId
+                correct: option.correct ?? false, // Ensure `correct` property exists
+                feedback: option.feedback ?? "No feedback available" // ✅ Ensure feedback exists
+            }));
+
+            // 🔍 Log feedback in QuizService before returning
+            optionsWithFeedback.forEach((opt, i) => {
+                console.log(`[QuizService] 🔍 Ensuring feedback for Q${questionIndex}, Option ${i}:`, opt.feedback);
+            });
+
+            return optionsWithFeedback;
+        }),
+        catchError((error) => {
+            console.error(`Error fetching options for Q${questionIndex}:`, error);
+            return of([]);
+        })
+    );
+  }
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
