@@ -1038,19 +1038,17 @@ export class QuizService implements OnDestroy {
                 return [];
             }
 
-            const optionsWithFeedback = question.options.map((option, index) => ({
+            const processedOptions = question.options.map((option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index, // Preserve existing optionId
-                correct: option.correct ?? false, // Ensure `correct` property exists
-                feedback: option.feedback ?? "No feedback available" // ✅ Ensure feedback exists
+                optionId: option.optionId ?? index, 
+                correct: option.correct ?? false,
+                feedback: option.feedback !== undefined ? option.feedback : "⚠️ Missing feedback"  // ✅ Ensure feedback is preserved
             }));
 
-            // 🔍 Log feedback in QuizService before returning
-            optionsWithFeedback.forEach((opt, i) => {
-                console.log(`[QuizService] 🔍 Ensuring feedback for Q${questionIndex}, Option ${i}:`, opt.feedback);
-            });
+            // 🔍 Log processed options before returning
+            console.log(`[QuizService] ✅ Returning options for Q${questionIndex}:`, processedOptions);
 
-            return optionsWithFeedback;
+            return processedOptions;
         }),
         catchError((error) => {
             console.error(`Error fetching options for Q${questionIndex}:`, error);
