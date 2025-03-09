@@ -647,9 +647,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
                 console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
 
-                // Add log to check if feedback exists
+                // 🔍 Log feedback BEFORE setting optionsToDisplay
                 data.options.forEach((opt, i) => {
-                  console.log(`[QuizComponent] 🔍 Option ${i} feedback:`, opt.feedback);
+                  console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback:`, opt.feedback);
                 });
 
                 this.questionData = data.question;
