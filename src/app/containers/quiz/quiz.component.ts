@@ -1023,8 +1023,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('[QuizComponent] 🔄 ngOnChanges() triggered with:', changes);
-
     if (changes['currentQuestionIndex']) {
       this.loadCurrentQuestion();
     }
