@@ -76,18 +76,6 @@ export class QuizQuestionComponent
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   @Input() options!: Option[];
-
-  /* @Input() set options(options: Option[]) {
-    console.log('[QuizQuestionComponent] ✅ options input received:', options);
-    if (options) {
-      this.optionsToDisplay = [...options];
-      console.log(`[QuizQuestionComponent] ✅ optionsToDisplay set:`, this.optionsToDisplay);
-      this.cdRef.detectChanges();
-    } else {
-      console.warn('[QuizQuestionComponent] ⚠️ No options received.');
-    }
-  } */
-
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
