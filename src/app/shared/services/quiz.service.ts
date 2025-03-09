@@ -1042,11 +1042,15 @@ export class QuizService implements OnDestroy {
                 ...option,
                 optionId: option.optionId ?? index, 
                 correct: option.correct ?? false,
-                feedback: option.feedback !== undefined ? option.feedback : "⚠️ Missing feedback"  // ✅ Ensure feedback is preserved
+                feedback: option.feedback ?? "⚠️ No feedback available"  // ✅ Ensure feedback is preserved
             }));
 
             // 🔍 Log processed options before returning
             console.log(`[QuizService] ✅ Returning options for Q${questionIndex}:`, processedOptions);
+
+            processedOptions.forEach((opt, i) => {
+                console.log(`[QuizService] 🔍 Q${questionIndex} - Option ${i} feedback:`, opt.feedback);
+            });
 
             return processedOptions;
         }),
