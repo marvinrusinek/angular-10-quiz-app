@@ -420,7 +420,11 @@ export class QuizQuestionComponent
     // Update options to display if options or questionData changes
     if (changes.options || changes.questionData) {
         console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, changes.options?.currentValue);
-        this.optionsToDisplay = this.options;
+
+        console.log(`[QuizQuestionComponent] 🟡 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.options);
+        this.optionsToDisplay = this.options || [];
+        console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
+        
         console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
     }
 
