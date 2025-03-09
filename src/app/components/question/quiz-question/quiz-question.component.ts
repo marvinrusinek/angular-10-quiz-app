@@ -340,22 +340,8 @@ export class QuizQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(`[QuizQuestionComponent] 🔄 ngOnChanges triggered for Q${this.fixedQuestionIndex}`, changes);
-
-    if (changes.options) {
-        console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
-    }
-
-    if (changes.questionData) {
-        console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
-    }
-
     if (changes.options && changes.options.currentValue) {
-        console.log(`[QuizQuestionComponent] 🟢 BEFORE setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
-
-        this.optionsToDisplay = [...changes.options.currentValue];
-
-        console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay for Q${this.fixedQuestionIndex}:`, this.optionsToDisplay);
+      this.optionsToDisplay = [...changes.options.currentValue];
     }
   }
 
