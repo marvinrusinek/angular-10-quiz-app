@@ -327,29 +327,33 @@ export class QuizQuestionComponent
     }, 50);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void { 
     if (changes.options) {
         console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
         
         // 🔍 Log feedback for each option BEFORE setting optionsToDisplay
         changes.options.currentValue?.forEach((opt: any, i: number) => {
-            console.log(`[QuizQuestionComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback);
+            console.log(`[QuizQuestionComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
         });
 
         if (changes.options.currentValue) {
+            // ✅ Set optionsToDisplay
             this.optionsToDisplay = [...changes.options.currentValue];
 
             // 🔍 Log feedback AFTER setting optionsToDisplay
             this.optionsToDisplay.forEach((opt, i) => {
-                console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback);
+                console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
             });
+        } else {
+            console.warn(`[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`);
         }
     }
 
     if (changes.questionData) {
-        console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
+      console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
     }
   }
+
 
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
