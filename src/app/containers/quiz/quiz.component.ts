@@ -777,12 +777,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
-        console.log(`[QuizComponent] 🚀 Loading content for Q${questionIndex}`);
+        console.log(`[QuizComponent] 🚀 Loading content for Q${questionIndex} at ${new Date().toISOString()}`);
+        console.trace(`[QuizComponent] Stack Trace - loadQuestionContents() for Q${questionIndex}`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
 
+        // ✅ Reset state before fetching new data
         this.optionsToDisplay = [];
         this.questionData = null;
         this.explanationToDisplay = '';
@@ -791,7 +793,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-            console.warn(`[QuizComponent] ❌ No quiz ID available.`);
+            console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
             return;
         }
 
@@ -808,20 +810,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
                     tap(finalData => console.log(`[QuizComponent] ✅ forkJoin completed for Q${questionIndex}:`, finalData)),
                     catchError(error => {
-                        console.error(`[QuizComponent] ❌ Error in forkJoin:`, error);
+                        console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
                         return of({ question: null, options: [], explanation: '' } as FetchedData);
                     })
                 )
             );
 
-            if (!data || !data.options || data.options.length === 0) {
-                console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}.`);
+            // ✅ Log the received data for verification
+            console.log(`[QuizComponent] 🔍 Raw question data received for Q${questionIndex}:`, data.question);
+            console.log(`[QuizComponent] 🔍 Raw options data received for Q${questionIndex}:`, data.options);
+            console.log(`[QuizComponent] 🔍 Raw explanation received for Q${questionIndex}:`, data.explanation);
+
+            if (!data.options || data.options.length === 0) {
+                console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}. Skipping update.`);
                 return;
             }
 
-            console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
-
             // ✅ Ensure options have feedback before passing to QQC
+            console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
             data.options.forEach((opt, i) => {
                 console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
@@ -850,9 +856,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.isQuestionDisplayed = true;
             this.isLoading = false;
 
+            console.log(`[QuizComponent] 🎯 Successfully loaded content for Q${questionIndex}`);
             this.cdRef.detectChanges();
         } catch (error) {
-            console.error(`[QuizComponent] ❌ Error loading question contents:`, error);
+            console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
             this.isLoading = false;
             this.cdRef.detectChanges();
         }
