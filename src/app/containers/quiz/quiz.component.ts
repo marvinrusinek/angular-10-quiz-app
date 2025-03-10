@@ -814,24 +814,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             );
 
-            // ✅ Ensure `data` is defined before accessing properties
-            if (!data) {
-                console.error(`[QuizComponent] ❌ Data is null for Q${questionIndex}.`);
-                return;
-            }
-
-            console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
-
-            if (!data.options || data.options.length === 0) {
+            if (!data || !data.options || data.options.length === 0) {
                 console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}.`);
                 return;
             }
 
             console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
 
-            // ✅ Ensure options have feedback
+            // ✅ Ensure options have feedback before passing to QQC
             data.options.forEach((opt, i) => {
-                console.log(`[QuizComponent] 🔍 Before Feedback Processing - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+                console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
 
             // ✅ Inject feedback if missing
