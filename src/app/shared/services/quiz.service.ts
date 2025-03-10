@@ -1067,33 +1067,33 @@ export class QuizService implements OnDestroy {
   } */
   getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-        console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+        console.error(`[QuizService] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
         return of([]);
     }
 
-    return this.getQuestionByIndex(questionIndex).pipe(
+    const question$ = this.getQuestionByIndex(questionIndex);
+    
+    if (!question$) {
+        console.error(`[QuizService] ❌ getQuestionByIndex(${questionIndex}) returned undefined.`);
+        return of([]);
+    }
+
+    return question$.pipe(
         map((question) => {
             if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-                console.warn(`No options found for Q${questionIndex}. Returning empty array.`);
+                console.warn(`[QuizService] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
                 return [];
             }
 
-            console.log(`[QuizService] ✅ Retrieved options for Q${questionIndex}:`, question.options);
-
-            // Log feedback for each option in getCurrentOptions()
-            question.options.forEach((opt, i) => {
-                console.log(`[QuizService] 🔍 BEFORE returning - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback');
-            });
-
             return question.options.map((option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index,
-                correct: option.correct ?? false,
-                feedback: option.feedback ?? '⚠️ No feedback' // Ensure feedback exists
+                optionId: option.optionId ?? index, // Preserve existing optionId if available
+                correct: option.correct ?? false, // Ensure `correct` property exists
+                feedback: option.feedback ?? '⚠️ No feedback available', // Ensure feedback is defined
             }));
         }),
         catchError((error) => {
-            console.error(`Error fetching options for Q${questionIndex}:`, error);
+            console.error(`[QuizService] ❌ Error fetching options for Q${questionIndex}:`, error);
             return of([]);
         })
     );
