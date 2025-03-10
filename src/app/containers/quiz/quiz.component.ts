@@ -603,7 +603,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Unexpected error:', error);
     }
   } */
-  async loadQuestionContents(questionIndex: number): Promise<void> {
+  async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
         console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
         console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
@@ -622,8 +622,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-          console.warn('[loadQuestionContents] ❌ No quiz ID available.');
-          return;
+            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
+            return;
         }
 
         try {
@@ -649,21 +649,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
                 // 🔍 Check if feedback exists BEFORE setting optionsToDisplay
                 data.options.forEach((opt, i) => {
-                  console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
+                    console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, 
+                        opt.feedback ?? '⚠️ No feedback available');
                 });
 
                 this.questionData = data.question;
 
-                // Log feedback for each option
+                // 🔍 Log feedback before passing options to QuizQuestionComponent
+                console.log(`[QuizComponent] 🟢 Passing options for Q${this.currentQuestionIndex} to QQC:`);
                 data.options.forEach((opt, i) => {
-                  console.log(`[QuizComponent] 🔍 BEFORE passing to QQC - Q${this.currentQuestionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+                    console.log(`   🔹 Option ${i}:`, opt);
+                    console.log(`   🔹 Feedback:`, opt.feedback ?? '⚠️ No feedback available');
                 });
 
                 this.optionsToDisplay = [...data.options];
 
                 // 🔍 Check feedback AFTER setting optionsToDisplay
+                console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay for Q${questionIndex}:`);
                 this.optionsToDisplay.forEach((opt, i) => {
-                  console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
+                    console.log(`   ✅ Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
                 });
 
                 this.explanationToDisplay = data.explanation;
