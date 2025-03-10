@@ -623,22 +623,21 @@ export class QuizService implements OnDestroy {
     );
   } */
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
-    console.log(`[QuizService] 🔍 Fetching question at index ${index}`);
-
     return this.questions$.pipe(
-        tap(questions => {
+        filter((questions) => {
             if (!questions || questions.length === 0) {
                 console.warn(`[QuizService] ⚠️ No questions available.`);
-            } else {
-                console.log(`[QuizService] ✅ Total available questions: ${questions.length}`);
+                return false;
             }
+            return true;
         }),
-        filter((questions) => questions.length > 0),
         take(1),
         map((questions: QuizQuestion[]) => {
+            console.log(`[QuizService] 🔍 Processing request for Q${index}. Available questions:`, questions.length);
+
             if (index < 0 || index >= questions.length) {
                 console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
-                return null;
+                return null; 
             }
 
             const question = questions[index];
@@ -648,12 +647,13 @@ export class QuizService implements OnDestroy {
                 return null;
             }
 
-            console.log(`[QuizService] ✅ Retrieved question for Q${index}:`, question);
+            // ✅ Inject feedback for options if missing
+            question.options = question.options.map((opt, i) => ({
+                ...opt,
+                feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
+            }));
 
-            // 🔍 Log BEFORE returning question
-            question.options.forEach((opt, i) => {
-                console.log(`[QuizService] 🔍 BEFORE returning - Q${index} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
-            });
+            console.log(`[QuizService] ✅ Final options for Q${index}:`, question.options);
 
             return question;
         }),
@@ -663,7 +663,6 @@ export class QuizService implements OnDestroy {
         })
     );
   }
-
 
   getCurrentQuestionByIndex(
     quizId: string,
