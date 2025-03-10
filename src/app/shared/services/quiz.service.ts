@@ -1068,28 +1068,21 @@ export class QuizService implements OnDestroy {
     );
   } */
   getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
-    console.log(`[QuizService] 🔍 Fetching options for Q${questionIndex}`);
-
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-        console.error(`[QuizService] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+        console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
         return of([]);
     }
 
     return this.getQuestionByIndex(questionIndex).pipe(
-        tap(question => {
-            if (!question) {
-                console.warn(`[QuizService] ⚠️ No question found for Q${questionIndex}. Returning empty options.`);
-            } else {
-                console.log(`[QuizService] ✅ Retrieved question for Q${questionIndex}:`, question);
-            }
-        }),
         map((question) => {
             if (!question || !Array.isArray(question.options) || question.options.length === 0) {
                 console.warn(`[QuizService] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
                 return [];
             }
 
-            // 🔍 Log BEFORE returning options
+            console.log(`[QuizService] ✅ Retrieved options for Q${questionIndex}:`, question.options);
+
+            // 🔍 Log feedback before returning options
             question.options.forEach((opt, i) => {
                 console.log(`[QuizService] 🔍 BEFORE returning - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
@@ -1097,15 +1090,8 @@ export class QuizService implements OnDestroy {
             return question.options.map((option, index) => ({
                 ...option,
                 optionId: option.optionId ?? index,
-                correct: option.correct ?? false,
-                feedback: option.feedback ?? '⚠️ No feedback available' // Ensure feedback exists
+                correct: option.correct ?? false
             }));
-        }),
-        tap(options => {
-            // 🔍 Log AFTER processing options
-            options.forEach((opt, i) => {
-                console.log(`[QuizService] ✅ AFTER processing - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
-            });
         }),
         catchError((error) => {
             console.error(`[QuizService] ❌ Error fetching options for Q${questionIndex}:`, error);
