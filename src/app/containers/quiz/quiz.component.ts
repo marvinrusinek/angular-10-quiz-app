@@ -1237,52 +1237,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async loadQuizData(): Promise<boolean> {
-    console.log('[QuizComponent] 🚀 Starting loadQuizData()...');
-
     if (this.isQuizLoaded) {
-        console.log('[QuizComponent] ✅ Quiz data already loaded. Skipping reload.');
+        console.log('Quiz data already loaded, skipping load.');
         return true;
     }
 
     if (!this.quizId) {
-        console.error('[QuizComponent] ❌ Quiz ID is missing. Cannot fetch quiz data.');
+        console.error('Quiz ID is missing. Cannot fetch quiz data.');
         return false;
     }
 
     try {
-        console.log(`[QuizComponent] 🔍 Fetching quiz data for Quiz ID: ${this.quizId}`);
-
         const quiz = await firstValueFrom(
             this.quizDataService.getQuiz(this.quizId).pipe(take(1), takeUntil(this.destroy$))
         ) as Quiz;
 
         if (!quiz) {
-            console.error('[QuizComponent] ❌ Quiz is null or undefined. Failed to load quiz data.');
+            console.error('Quiz is null or undefined. Failed to load quiz data.');
             return false;
         }
 
         if (!quiz.questions || quiz.questions.length === 0) {
-            console.error('[QuizComponent] ❌ Quiz has no questions or questions array is missing:', quiz);
+            console.error('Quiz has no questions or questions array is missing:', quiz);
             return false;
         }
 
         console.log(`[QuizComponent] ✅ Loaded Quiz with ${quiz.questions.length} questions.`);
 
-        // 🔍 Log feedback for each option BEFORE setting quiz data
+        // 🔍 Log each question and check its options
         quiz.questions.forEach((question, qIndex) => {
-            console.log(`\n[QuizComponent] 🔍 BEFORE setting quiz data - Q${qIndex}: ${question.questionText}`);
-
-            if (!question.options || question.options.length === 0) {
-                console.warn(`[QuizComponent] ⚠️ Q${qIndex} has NO OPTIONS!`);
-                return;
-            }
-
-            question.options.forEach((opt, i) => {
-                console.log(`   🟢 Q${qIndex} Option ${i}:`);
-                console.log(`      - Text: "${opt.text}"`);
-                console.log(`      - Correct: ${opt.correct}`);
-                console.log(`      - Feedback: "${opt.feedback ?? '⚠️ No feedback available'}"`);
-            });
+          console.log(`[QuizComponent] 🔍 BEFORE setting quiz data - Q${qIndex}:`, question.questionText);
+          console.log(`[QuizComponent] 🔍 Checking options array for Q${qIndex}:`, question.options);
+      
+          question.options.forEach((opt, i) => {
+              console.log(`[QuizComponent] 🔍 BEFORE setting quiz data - Q${qIndex} Option ${i}:`, opt);
+              console.log(`[QuizComponent] 🔍 Feedback for Q${qIndex} Option ${i}:`, opt.feedback ?? '⚠️ No feedback available');
+          });
         });
 
         // Assign quiz data
@@ -1291,19 +1281,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = this.questions[this.currentQuestionIndex];
         this.isQuizLoaded = true;
 
-        console.log('[QuizComponent] ✅ Quiz data successfully assigned.');
-
         return true;
     } catch (error) {
-        console.error('[QuizComponent] ❌ Error loading quiz data:', error);
+        console.error('Error loading quiz data:', error);
         return false;
     } finally {
         if (!this.isQuizLoaded) {
-            console.warn('[QuizComponent] ⚠️ Quiz loading failed. Resetting questions to an empty array.');
+            console.warn('Quiz loading failed. Resetting questions to an empty array.');
             this.questions = [];
         }
     }
   }
+
 
   private subscribeRouterAndInit(): void {
     this.routerSubscription = this.activatedRoute.data.subscribe((data) => {
