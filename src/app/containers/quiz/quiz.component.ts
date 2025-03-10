@@ -777,7 +777,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
-        console.log(`[QuizComponent] 🚀 Loading question content for Q${questionIndex}`);
+        console.log(`[QuizComponent] 🚀 Loading content for Q${questionIndex}`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
@@ -817,38 +817,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 return;
             }
 
-            // 🔍 Log options BEFORE processing feedback
-            console.log(`[QuizComponent] 🔍 BEFORE processing feedback for Q${questionIndex} options:`, data.options);
+            console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
 
             // ✅ Check if options already have feedback
-            let hasExistingFeedback = data.options.every(opt => !!opt.feedback);
-            console.log(`[QuizComponent] 🔍 Do options already have feedback for Q${questionIndex}?:`, hasExistingFeedback);
-
-            let updatedOptions: Option[];
-            if (!hasExistingFeedback) {
-                // ✅ Generate feedback using `FeedbackService`
-                const correctOptions = data.options.filter(opt => opt.correct);
-                const feedbackArray = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
-                console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
-
-                updatedOptions = data.options.map((opt, i) => ({
-                    ...opt,
-                    feedback: feedbackArray[i] ?? `⚠️ Default feedback for Q${questionIndex} Option ${i}`
-                }));
-            } else {
-                console.log(`[QuizComponent] ✅ Options already had feedback, skipping generation.`);
-                updatedOptions = [...data.options];
-            }
-
-            // 🔍 Log options AFTER processing feedback
-            updatedOptions.forEach((opt, i) => {
-                console.log(`[QuizComponent] ✅ FINAL Option ${i} feedback for Q${questionIndex}:`, opt.feedback);
+            data.options.forEach((opt, i) => {
+                console.log(`[QuizComponent] 🔍 Before Feedback Processing - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
 
-            // ✅ Set optionsToDisplay after merging feedback
-            this.optionsToDisplay = [...updatedOptions];
-            console.log(`[QuizComponent] ✅ Final options for Q${questionIndex} (Passing to QQC):`, this.optionsToDisplay);
+            // ✅ Inject feedback if missing
+            const correctOptions = data.options.filter(opt => opt.correct);
+            const feedbackArray = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
+            console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
 
+            // ✅ Assign feedback to options before passing to QQC
+            data.options = data.options.map((opt, i) => ({
+                ...opt,
+                feedback: feedbackArray[i] ?? `⚠️ Default feedback for Q${questionIndex} Option ${i}`
+            }));
+
+            // ✅ Confirm feedback is set before passing to QQC
+            data.options.forEach((opt, i) => {
+                console.log(`[QuizComponent] ✅ Final feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
+            });
+
+            this.optionsToDisplay = [...data.options];
             this.questionData = data.question;
             this.explanationToDisplay = data.explanation;
             this.isQuestionDisplayed = true;
