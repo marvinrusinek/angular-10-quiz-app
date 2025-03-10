@@ -696,14 +696,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
     }
   } */
-  async loadQuestionContents(questionIndex: number): Promise<void> {
+  async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
-        console.log(`[QuizComponent] 🚀 Loading question contents for Q${questionIndex}`);
+        console.log(`[QuizComponent] 🚀 loadQuestionContents() called for Q${questionIndex}`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
-        this.optionsToDisplay = [];
+
+        this.optionsToDisplay = []; 
         this.questionData = null;
         this.explanationToDisplay = '';
 
@@ -711,7 +712,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-            console.warn('[QuizComponent] ❌ No quiz ID available.');
+            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
             return;
         }
 
@@ -733,10 +734,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[QuizComponent] ✅ Loaded questionData for Q${questionIndex}:`, data.question);
 
             if (data.question && Array.isArray(data.options) && data.options.length > 0) {
-                console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
                 console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
 
-                // 🔍 Log feedback before setting optionsToDisplay
+                // 🔍 Check if feedback exists BEFORE setting optionsToDisplay
                 data.options.forEach((opt, i) => {
                     console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
                 });
@@ -744,9 +744,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 this.questionData = data.question;
                 this.optionsToDisplay = [...data.options];
 
-                // 🔍 Log feedback after setting optionsToDisplay
+                // 🔍 Check feedback AFTER setting optionsToDisplay
                 this.optionsToDisplay.forEach((opt, i) => {
-                    console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ Undefined feedback');
+                    console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
                 });
 
                 this.explanationToDisplay = data.explanation;
@@ -756,15 +756,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 this.cdRef.detectChanges();
             } else {
                 console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}. Skipping update.`);
-                this.optionsToDisplay = [];
+                this.optionsToDisplay = []; 
+            }
+
+            if (!this.selectedOptionService.isAnsweredSubject.value) {
+                this.timerService.startTimer();
             }
         } catch (error) {
-            console.error('[QuizComponent] ❌ Error loading question contents:', error);
+            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
             this.isLoading = false;
             this.cdRef.detectChanges();
         }
     } catch (error) {
-        console.error('[QuizComponent] ❌ Unexpected error:', error);
+        console.error('[loadQuestionContents] ❌ Unexpected error:', error);
         this.isLoading = false;
         this.cdRef.detectChanges();
     }
