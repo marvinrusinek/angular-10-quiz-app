@@ -658,11 +658,12 @@ export class QuizService implements OnDestroy {
             return question;
         }),
         catchError((error: Error) => {
-          console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
-          return of(null);
+            console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
+            return of(null);
         })
     );
   }
+
 
   getCurrentQuestionByIndex(
     quizId: string,
@@ -1095,8 +1096,9 @@ export class QuizService implements OnDestroy {
 
             return question.options.map((option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index, // Preserve existing optionId if available
-                correct: option.correct ?? false // Ensure `correct` property exists
+                optionId: option.optionId ?? index,
+                correct: option.correct ?? false,
+                feedback: option.feedback ?? '⚠️ No feedback available' // Ensure feedback exists
             }));
         }),
         tap(options => {
