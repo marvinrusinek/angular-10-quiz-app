@@ -796,19 +796,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
+            // ✅ Define expected return types
+            type FetchedData = { question: QuizQuestion | null; options: Option[] | null; explanation: string | null };
+
+            // ✅ Fetch question, options, and explanation
             const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
             const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
             const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
-            const data = await lastValueFrom(
+            const data: FetchedData = await lastValueFrom(
                 forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
                     tap(finalData => console.log(`[QuizComponent] ✅ forkJoin completed for Q${questionIndex}:`, finalData)),
                     catchError(error => {
                         console.error(`[QuizComponent] ❌ Error in forkJoin:`, error);
-                        return of({ question: null, options: [], explanation: '' });
+                        return of({ question: null, options: [], explanation: '' } as FetchedData);
                     })
                 )
             );
+
+            // ✅ Ensure `data` is defined before accessing properties
+            if (!data) {
+                console.error(`[QuizComponent] ❌ Data is null for Q${questionIndex}.`);
+                return;
+            }
 
             console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
 
@@ -819,7 +829,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
 
-            // ✅ Check if options already have feedback
+            // ✅ Ensure options have feedback
             data.options.forEach((opt, i) => {
                 console.log(`[QuizComponent] 🔍 Before Feedback Processing - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
@@ -830,19 +840,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
 
             // ✅ Assign feedback to options before passing to QQC
-            data.options = data.options.map((opt, i) => ({
+            const updatedOptions = data.options.map((opt, i) => ({
                 ...opt,
                 feedback: feedbackArray[i] ?? `⚠️ Default feedback for Q${questionIndex} Option ${i}`
             }));
 
-            // ✅ Confirm feedback is set before passing to QQC
-            data.options.forEach((opt, i) => {
+            // ✅ Confirm feedback before passing to QQC
+            updatedOptions.forEach((opt, i) => {
                 console.log(`[QuizComponent] ✅ Final feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
             });
 
-            this.optionsToDisplay = [...data.options];
-            this.questionData = data.question;
-            this.explanationToDisplay = data.explanation;
+            // ✅ Set values after checking
+            this.optionsToDisplay = [...updatedOptions];
+            this.questionData = data.question ?? ({} as QuizQuestion);
+            this.explanationToDisplay = data.explanation ?? '';
+
             this.isQuestionDisplayed = true;
             this.isLoading = false;
 
