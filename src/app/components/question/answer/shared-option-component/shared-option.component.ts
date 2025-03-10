@@ -553,13 +553,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   }
 
   private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
+    const questionIndex = this.quizService.getCurrentQuestionIndex(); // ✅ Always retrieve from QuizService
+
+    if (!optionBinding || !optionBinding.option) {
+      console.error(`[SharedOptionComponent] ❌ Attempted to emit optionSelected event but optionBinding or option is undefined.`);
+      return;
+    }
+
+    console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected event for Q${questionIndex}...`);
+    console.log(`[SharedOptionComponent] 🟢 Emitting option ID: ${optionBinding.option.optionId}`);
+    console.log(`[SharedOptionComponent] 🟢 Option Data:`, optionBinding.option);
+    console.log(`[SharedOptionComponent] 🟢 Event Data: { index: ${index}, checked: ${checked} }`);
+
     const eventData = {
       option: optionBinding.option,
       index: index,
       checked: checked
     };
+
     this.optionSelected.emit(eventData);
-    console.log('Emitting optionSelected event:', eventData);
   }
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
