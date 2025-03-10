@@ -4245,8 +4245,6 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.selectionMessageService.resetMessage();
 
-    this.cdRef.detectChanges(); // Trigger change detection after resetting state
-
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
