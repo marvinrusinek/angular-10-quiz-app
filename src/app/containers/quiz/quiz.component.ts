@@ -772,7 +772,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('[loadQuestionContents] ❌ Unexpected error:', error);
         this.isLoading = false;
         this.cdRef.detectChanges();
-   }
+    }
   }
 
   private restoreQuestionState(): void {
