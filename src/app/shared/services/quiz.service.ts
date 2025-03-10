@@ -623,18 +623,19 @@ export class QuizService implements OnDestroy {
     );
   } */
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+    console.log(`[QuizService] 🔍 Fetching question at index ${index}`);
+
     return this.questions$.pipe(
-        filter((questions: QuizQuestion[]) => {
+        tap(questions => {
             if (!questions || questions.length === 0) {
                 console.warn(`[QuizService] ⚠️ No questions available.`);
-                return false;
+            } else {
+                console.log(`[QuizService] ✅ Total available questions: ${questions.length}`);
             }
-            return true;
         }),
+        filter((questions) => questions.length > 0),
         take(1),
         map((questions: QuizQuestion[]) => {
-            console.log(`[QuizService] 🔍 Processing request for Q${index}. Available questions:`, questions.length);
-
             if (index < 0 || index >= questions.length) {
                 console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
                 return null;
@@ -649,7 +650,7 @@ export class QuizService implements OnDestroy {
 
             console.log(`[QuizService] ✅ Retrieved question for Q${index}:`, question);
 
-            // 🔍 Log feedback for each option before returning the question
+            // 🔍 Log BEFORE returning question
             question.options.forEach((opt, i) => {
                 console.log(`[QuizService] 🔍 BEFORE returning - Q${index} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
@@ -1066,42 +1067,45 @@ export class QuizService implements OnDestroy {
     );
   } */
   getCurrentOptions(questionIndex: number = this.currentQuestionIndex ?? 0): Observable<Option[]> {
+    console.log(`[QuizService] 🔍 Fetching options for Q${questionIndex}`);
+
     if (!Number.isInteger(questionIndex) || questionIndex < 0) {
-        console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
+        console.error(`[QuizService] ❌ Invalid questionIndex: ${questionIndex}. Returning empty options.`);
         return of([]);
     }
 
     return this.getQuestionByIndex(questionIndex).pipe(
         tap(question => {
             if (!question) {
-                console.warn(`[QuizService] ⚠️ No question found for Q${questionIndex}.`);
+                console.warn(`[QuizService] ⚠️ No question found for Q${questionIndex}. Returning empty options.`);
             } else {
                 console.log(`[QuizService] ✅ Retrieved question for Q${questionIndex}:`, question);
             }
         }),
-        map(question => {
+        map((question) => {
             if (!question || !Array.isArray(question.options) || question.options.length === 0) {
                 console.warn(`[QuizService] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
                 return [];
             }
 
-            console.log(`[QuizService] 🔍 Processing options for Q${questionIndex}:`, question.options);
-
-            return question.options.map((option, index) => {
-                console.log(`[QuizService] 🔍 BEFORE returning - Q${questionIndex} Option ${index} feedback:`, option.feedback ?? '⚠️ No feedback available');
-
-                return {
-                    ...option,
-                    optionId: option.optionId ?? index, // Preserve existing optionId if available
-                    correct: option.correct ?? false,   // Ensure `correct` property exists
-                    feedback: option.feedback ?? '⚠️ No feedback available' // Ensure feedback exists
-                };
+            // 🔍 Log BEFORE returning options
+            question.options.forEach((opt, i) => {
+                console.log(`[QuizService] 🔍 BEFORE returning - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
+
+            return question.options.map((option, index) => ({
+                ...option,
+                optionId: option.optionId ?? index, // Preserve existing optionId if available
+                correct: option.correct ?? false // Ensure `correct` property exists
+            }));
         }),
         tap(options => {
-            console.log(`[QuizService] ✅ Final options for Q${questionIndex}:`, options);
+            // 🔍 Log AFTER processing options
+            options.forEach((opt, i) => {
+                console.log(`[QuizService] ✅ AFTER processing - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+            });
         }),
-        catchError(error => {
+        catchError((error) => {
             console.error(`[QuizService] ❌ Error fetching options for Q${questionIndex}:`, error);
             return of([]);
         })
