@@ -43,25 +43,25 @@ export class FeedbackService {
 
     // Store the last known correct optionsToDisplay
     if (optionsToDisplay && optionsToDisplay.length > 0) {
-        this.lastKnownOptions = [...optionsToDisplay];
+      this.lastKnownOptions = [...optionsToDisplay];
     }
 
     if (!optionsToDisplay || optionsToDisplay.length === 0) {
-        console.warn(`[FeedbackService] ❌ No options to display.`);
-        return 'Feedback unavailable.';
+      console.warn(`[FeedbackService] ❌ No options to display.`);
+      return 'Feedback unavailable.';
     }
 
     // Ensure all correct options are present
     const indices = optionsToDisplay
-        .map((option, index) => option.correct ? index + 1 : null)
-        .filter((index): index is number => index !== null)
-        .sort((a, b) => a - b);
+      .map((option, index) => option.correct ? index + 1 : null)
+      .filter((index): index is number => index !== null)
+      .sort((a, b) => a - b);
 
     console.log(`[FeedbackService] 🔍 Identified correct option indices:`, indices);
 
     if (indices.length === 0) {
-        console.warn(`[FeedbackService] ❌ No matching correct options found.`);
-        return 'No correct options found for this question.';
+      console.warn(`[FeedbackService] ❌ No matching correct options found.`);
+      return 'No correct options found for this question.';
     }
 
     const message = this.formatFeedbackMessage(indices);
