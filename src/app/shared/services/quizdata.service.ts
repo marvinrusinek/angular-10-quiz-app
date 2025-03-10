@@ -114,7 +114,7 @@ export class QuizDataService implements OnDestroy {
       })
     );
   } */
-  getQuiz(quizId: string): Observable<Quiz> {
+  getQuiz(quizId: string): Observable<Quiz> { 
     return this.quizzes$.pipe(
         filter(quizzes => {
             if (!quizzes || quizzes.length === 0) {
@@ -129,13 +129,15 @@ export class QuizDataService implements OnDestroy {
                 throw new Error(`[QuizDataService] ❌ Quiz with ID ${quizId} not found.`);
             }
 
-            console.log(`[QuizDataService] ✅ Retrieved Quiz Data for quizId: ${quizId}:`, quiz);
+            // 🔍 Log the raw quiz data before processing
+            console.log(`[QuizDataService] ✅ Retrieved Quiz Data for quizId: ${quizId}`, JSON.stringify(quiz, null, 2));
 
-            // 🔍 Log questions and options to verify feedback
+            // 🔍 Log all questions and options for verification
             quiz.questions.forEach((question, qIndex) => {
-                console.log(`[QuizDataService] 🔍 Question ${qIndex}:`, question.questionText);
+                console.log(`[QuizDataService] 🔍 Question ${qIndex}: ${question.questionText}`);
+
                 question.options.forEach((opt, i) => {
-                    console.log(`[QuizDataService] 🔍 Q${qIndex} Option ${i}:`, opt);
+                    console.log(`[QuizDataService] 🔍 Q${qIndex} Option ${i}:`, JSON.stringify(opt, null, 2));
                     console.log(`[QuizDataService] 🔍 BEFORE returning - Feedback for Q${qIndex} Option ${i}:`, opt.feedback ?? '⚠️ No feedback available');
                 });
             });
