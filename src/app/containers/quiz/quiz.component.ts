@@ -706,7 +706,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
 
-        // ✅ Explicitly reset state before fetching new data
+        // ✅ Reset state before fetching new data
         this.optionsToDisplay = [];
         this.questionData = null;
         this.explanationToDisplay = '';
@@ -720,30 +720,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // ✅ Fetch question, options, and feedback separately
+            // ✅ Fetch question & options without feedback
             const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
             const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
-            const feedback$ = this.feedbackService.getFeedbackForQuestion(questionIndex).pipe(take(1));
+            const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
             const data = await lastValueFrom(
-                forkJoin({ question: question$, options: options$, feedback: feedback$ }).pipe(
+                forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
                     tap(finalData => console.log('[QuizComponent] ✅ forkJoin completed:', finalData)),
                     catchError(error => {
                         console.error('[QuizComponent] ❌ Error in forkJoin:', error);
-                        return of({ question: null, options: [], feedback: [] });
+                        return of({ question: null, options: [], explanation: '' });
                     })
                 )
             );
 
             console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
 
-            // ✅ Inject feedback into options before setting `optionsToDisplay`
-            if (data.options && data.feedback) {
-                data.options = data.options.map((opt, i) => ({
-                    ...opt,
-                    feedback: data.feedback[i] ?? `Default feedback for Q${questionIndex} Option ${i}`
-                }));
+            if (!data.options || data.options.length === 0) {
+                console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}.`);
+                return;
             }
+
+            // ✅ Generate feedback using `FeedbackService` in `QuizComponent` **instead of calling `QuizService` in `FeedbackService`**
+            const feedbackArray = this.feedbackService.generateFeedbackForOptions(data.options);
+            console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
+
+            // ✅ Inject feedback into options before setting `optionsToDisplay`
+            data.options = data.options.map((opt, i) => ({
+                ...opt,
+                feedback: feedbackArray[i] ?? `Default feedback for Q${questionIndex} Option ${i}`
+            }));
 
             // ✅ Set optionsToDisplay after merging feedback
             this.optionsToDisplay = [...data.options];
