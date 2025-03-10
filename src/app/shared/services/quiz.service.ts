@@ -1038,11 +1038,18 @@ export class QuizService implements OnDestroy {
                 return [];
             }
 
+            console.log(`[QuizService] ✅ Retrieved options for Q${questionIndex}:`, question.options);
+
+            // Log feedback for each option in getCurrentOptions()
+            question.options.forEach((opt, i) => {
+                console.log(`[QuizService] 🔍 BEFORE returning - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback');
+            });
+
             return question.options.map((option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index, // ✅ Ensure optionId is set
-                correct: option.correct ?? false, 
-                feedback: option.feedback ?? `⚠️ No feedback for Option ${index}` // ✅ Ensure feedback exists
+                optionId: option.optionId ?? index,
+                correct: option.correct ?? false,
+                feedback: option.feedback ?? '⚠️ No feedback' // Ensure feedback exists
             }));
         }),
         catchError((error) => {
@@ -1051,7 +1058,6 @@ export class QuizService implements OnDestroy {
         })
     );
   }
-
 
   getFallbackQuestion(): QuizQuestion | null {
     // Check if quizData is available and has at least one question
