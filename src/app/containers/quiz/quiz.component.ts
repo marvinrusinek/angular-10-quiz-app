@@ -1268,11 +1268,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log(`[QuizComponent] ✅ Loaded Quiz with ${quiz.questions.length} questions.`);
 
-        // 🔍 Log feedback before setting quiz data
+        // 🔍 Log feedback for each option BEFORE setting quiz data
         quiz.questions.forEach((question, qIndex) => {
-            console.log(`[QuizComponent] 🔍 BEFORE setting quiz data - Question ${qIndex}:`, question.questionText);
+            console.log(`\n[QuizComponent] 🔍 BEFORE setting quiz data - Q${qIndex}: ${question.questionText}`);
+
+            if (!question.options || question.options.length === 0) {
+                console.warn(`[QuizComponent] ⚠️ Q${qIndex} has NO OPTIONS!`);
+                return;
+            }
+
             question.options.forEach((opt, i) => {
-                console.log(`   🟢 Q${qIndex} Option ${i}: Text="${opt.text}", Feedback="${opt.feedback ?? '⚠️ No feedback available'}"`);
+                console.log(`   🟢 Q${qIndex} Option ${i}:`);
+                console.log(`      - Text: "${opt.text}"`);
+                console.log(`      - Correct: ${opt.correct}`);
+                console.log(`      - Feedback: "${opt.feedback ?? '⚠️ No feedback available'}"`);
             });
         });
 
