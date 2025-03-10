@@ -1071,26 +1071,24 @@ export class QuizService implements OnDestroy {
         return of([]);
     }
 
-    const question$ = this.getQuestionByIndex(questionIndex);
-    
-    if (!question$) {
-        console.error(`[QuizService] ❌ getQuestionByIndex(${questionIndex}) returned undefined.`);
-        return of([]);
-    }
-
-    return question$.pipe(
+    return this.getQuestionByIndex(questionIndex).pipe(
         map((question) => {
             if (!question || !Array.isArray(question.options) || question.options.length === 0) {
                 console.warn(`[QuizService] ⚠️ No options found for Q${questionIndex}. Returning empty array.`);
                 return [];
             }
 
-            return question.options.map((option, index) => ({
-                ...option,
-                optionId: option.optionId ?? index, // Preserve existing optionId if available
-                correct: option.correct ?? false, // Ensure `correct` property exists
-                feedback: option.feedback ?? '⚠️ No feedback available', // Ensure feedback is defined
-            }));
+            console.log(`[QuizService] ✅ Loaded options for Q${questionIndex}:`, question.options);
+
+            return question.options.map((option, i) => {
+                console.log(`[QuizService] 🔍 BEFORE returning - Q${questionIndex} Option ${i} feedback:`, option.feedback ?? '⚠️ No feedback available');
+                return {
+                    ...option,
+                    optionId: option.optionId ?? i, 
+                    correct: option.correct ?? false, 
+                    feedback: option.feedback ?? '⚠️ No feedback available'
+                };
+            });
         }),
         catchError((error) => {
             console.error(`[QuizService] ❌ Error fetching options for Q${questionIndex}:`, error);
