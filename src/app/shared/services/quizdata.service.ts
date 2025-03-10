@@ -97,7 +97,7 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  getQuiz(quizId: string): Observable<Quiz> {
+  /* getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       filter(quizzes => quizzes.length > 0), // Ensure quizzes are loaded
       map(quizzes => {
@@ -112,6 +112,41 @@ export class QuizDataService implements OnDestroy {
         console.error('Error fetching quiz:', error);
         return of(null as Quiz);
       })
+    );
+  } */
+  getQuiz(quizId: string): Observable<Quiz | null> {
+    return this.quizzes$.pipe(
+        filter(quizzes => {
+            if (!quizzes || quizzes.length === 0) {
+                console.warn(`[QuizDataService] ⚠️ No quizzes available.`);
+                return false;
+            }
+            return true;
+        }),
+        map(quizzes => {
+            const quiz = quizzes.find(q => q.quizId === quizId);
+            if (!quiz) {
+                throw new Error(`[QuizDataService] ❌ Quiz with ID ${quizId} not found.`);
+            }
+
+            console.log(`[QuizDataService] ✅ Retrieved Quiz Data for quizId: ${quizId}:`, quiz);
+
+            // 🔍 Log each question and its options
+            quiz.questions.forEach((question, qIndex) => {
+                console.log(`[QuizDataService] 🔍 Question ${qIndex}:`, question.questionText);
+                question.options.forEach((opt, i) => {
+                    console.log(`[QuizDataService] 🔍 Q${qIndex} Option ${i}:`, opt);
+                    console.log(`[QuizDataService] 🔍 Feedback for Q${qIndex} Option ${i}:`, opt.feedback ?? '⚠️ No feedback available');
+                });
+            });
+
+            return quiz;
+        }),
+        take(1), // Ensure it completes after one emission
+        catchError(error => {
+            console.error(`[QuizDataService] ❌ Error fetching quiz:`, error);
+            return of(null as Quiz);
+        })
     );
   }
 
