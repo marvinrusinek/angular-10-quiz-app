@@ -653,6 +653,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 });
 
                 this.questionData = data.question;
+
+                // Log feedback for each option
+                data.options.forEach((opt, i) => {
+                  console.log(`[QuizComponent] 🔍 BEFORE passing to QQC - Q${this.currentQuestionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+                });
+
                 this.optionsToDisplay = [...data.options];
 
                 // 🔍 Check feedback AFTER setting optionsToDisplay
