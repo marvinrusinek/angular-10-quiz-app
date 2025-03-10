@@ -3149,11 +3149,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 next: (options: Option[]) => {
                   this.optionsToDisplay = options || [];
                   console.log('Loaded options:', this.optionsToDisplay);
-  
-                  // Ensure UI updates
-                  this.ngZone.run(() => {
-                    this.cdRef.detectChanges();
-                  });
                 },
                 error: (error) => {
                   console.error('Error fetching options:', error);
