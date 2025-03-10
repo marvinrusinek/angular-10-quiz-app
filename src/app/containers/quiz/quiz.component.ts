@@ -27,6 +27,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { FeedbackService } from '../../shared/services/feedback.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -194,6 +195,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private quizQuestionManagerService: QuizQuestionManagerService,
     private timerService: TimerService,
     private explanationTextService: ExplanationTextService,
+    private feedbackService: FeedbackService,
     private selectionMessageService: SelectionMessageService,
     private selectedOptionService: SelectedOptionService,
     private resetStateService: ResetStateService,
@@ -694,18 +696,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
     }
   } */
-  async loadQuestionContents(questionIndex: number): Promise<void> { 
+  async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
         console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
         console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
-        console.trace(`[QuizComponent] Stack Trace for loadQuestionContents() call`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
 
-        // Explicitly reset state before fetching new data
-        this.optionsToDisplay = []; 
+        // Reset state before fetching new data
+        this.optionsToDisplay = [];
         this.questionData = null;
         this.explanationToDisplay = '';
 
@@ -735,30 +736,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
 
             if (data.question && Array.isArray(data.options) && data.options.length > 0) {
-                console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
-                console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
+                console.log(`[QuizComponent] ✅ Loaded Options (Before Feedback Assignment):`, data.options);
 
-                // 🔍 Check if feedback exists BEFORE setting optionsToDisplay
+                // 🟢 Generate feedback before assigning options
                 data.options.forEach((opt, i) => {
-                    console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+                    opt.feedback = this.feedbackService.generateFeedbackForOptions(
+                        data.question.options.filter(opt => opt.correct), // Pass correct options
+                        data.options
+                    );
+                    console.log(`[QuizComponent] ✅ Assigned Feedback - Q${questionIndex} Option ${i}:`, opt.feedback);
                 });
 
                 this.questionData = data.question;
-
-                // 🔍 Log feedback before passing options to QuizQuestionComponent
-                console.log(`[QuizComponent] 🟢 Passing options for Q${this.currentQuestionIndex} to QQC:`);
-                data.options.forEach((opt, i) => {
-                    console.log(`   🔹 Option ${i}:`, opt);
-                    console.log(`   🔹 Feedback:`, opt.feedback ?? '⚠️ No feedback available');
-                });
-
                 this.optionsToDisplay = [...data.options];
-
-                // 🔍 Check feedback AFTER setting optionsToDisplay
-                console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay for Q${questionIndex}:`);
-                this.optionsToDisplay.forEach((opt, i) => {
-                    console.log(`   ✅ Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
-                });
 
                 this.explanationToDisplay = data.explanation;
                 this.isQuestionDisplayed = true;
@@ -766,8 +756,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
                 this.cdRef.detectChanges();
             } else {
-                console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}. Skipping update.`);
-                this.optionsToDisplay = []; // ✅ Ensure options are explicitly reset if invalid data
+                console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}.`);
+                this.optionsToDisplay = [];
             }
 
             if (!this.selectedOptionService.isAnsweredSubject.value) {
@@ -782,7 +772,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('[loadQuestionContents] ❌ Unexpected error:', error);
         this.isLoading = false;
         this.cdRef.detectChanges();
-    }
+   }
   }
 
   private restoreQuestionState(): void {
