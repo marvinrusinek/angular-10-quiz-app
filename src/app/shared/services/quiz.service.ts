@@ -658,8 +658,8 @@ export class QuizService implements OnDestroy {
             return question;
         }),
         catchError((error: Error) => {
-            console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
-            return of(null);
+          console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
+          return of(null);
         })
     );
   }
