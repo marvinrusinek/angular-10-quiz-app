@@ -832,8 +832,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
 
-            // ✅ Generate a **single feedback message** for all options in the question
+            // ✅ Debugging Log: Check if correctOptions are being selected properly
             const correctOptions = data.options.filter(opt => opt.correct);
+            console.log(`[QuizComponent] 🔍 Correct options for Q${questionIndex}:`, correctOptions);
+
+            // ✅ Debugging Log: Check if generateFeedbackForOptions is being called with correct data
+            console.log(`[QuizComponent] 🚀 Calling generateFeedbackForOptions for Q${questionIndex}`);
             const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
             console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
 
@@ -857,6 +861,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.isLoading = false;
 
             console.log(`[QuizComponent] 🎯 Successfully loaded content for Q${questionIndex}`);
+            console.log(`[QuizComponent] 🚀 Final optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
+            
             this.cdRef.detectChanges();
         } catch (error) {
             console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
