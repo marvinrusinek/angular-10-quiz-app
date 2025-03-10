@@ -7,7 +7,7 @@ import { isValidOption } from '../../shared/utils/option-utils';
 export class FeedbackService {
   lastKnownOptions: Option[] = [];
 
-  /* public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
+  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
     if (!correctOptions || correctOptions.length === 0) {
       console.warn('[generateFeedbackForOptions] ❌ No correct options provided.');
       return 'No correct answers available for this question.';
@@ -27,13 +27,6 @@ export class FeedbackService {
     const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
     console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
 
-    // ✅ Ensure correctFeedback is an array by mapping each option to the same message
-    const feedbackArray = optionsToDisplay.map(() => correctFeedback);
-    console.log('[generateFeedbackForOptions] ✅ Final feedback array:', feedbackArray);
-
-    return feedbackArray;
-
-
     if (!correctFeedback || correctFeedback.trim() === '') {
       console.warn('[generateFeedbackForOptions] ❌ setCorrectMessage returned empty or invalid feedback. Falling back...');
       return 'Feedback unavailable.';
@@ -41,31 +34,6 @@ export class FeedbackService {
 
     console.log('[generateFeedbackForOptions] ✅ Final Generated Feedback:', correctFeedback);
     return correctFeedback;
-  } */
-  public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string[] {
-    if (!correctOptions || correctOptions.length === 0) {
-      console.warn('[generateFeedbackForOptions] ❌ No correct options provided.');
-      return optionsToDisplay.map(() => 'No correct answers available for this question.');
-    }
-
-    if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.warn('[generateFeedbackForOptions] ❌ No options to display. STOPPING BEFORE CALLING setCorrectMessage.');
-      return optionsToDisplay.map(() => 'Feedback unavailable.');
-    }
-
-    const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
-    console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
-
-    if (!correctFeedback || correctFeedback.trim() === '') {
-      console.warn('[generateFeedbackForOptions] ❌ setCorrectMessage returned empty or invalid feedback. Falling back...');
-      return optionsToDisplay.map(() => 'Feedback unavailable.');
-    }
-
-    // ✅ Ensure correctFeedback is returned as an array mapping each option
-    const feedbackArray = optionsToDisplay.map(() => correctFeedback);
-    console.log('[generateFeedbackForOptions] ✅ Final feedback array:', feedbackArray);
-
-    return feedbackArray;
   }
 
   public setCorrectMessage(correctOptions?: Option[], optionsToDisplay?: Option[]): string {
