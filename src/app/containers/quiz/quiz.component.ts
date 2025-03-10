@@ -698,14 +698,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
-        console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
-        console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
+        console.log(`[QuizComponent] 🚀 Loading question contents for Q${questionIndex}`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
-
-        // Reset state before fetching new data
         this.optionsToDisplay = [];
         this.questionData = null;
         this.explanationToDisplay = '';
@@ -714,7 +711,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
+            console.warn('[QuizComponent] ❌ No quiz ID available.');
             return;
         }
 
@@ -733,22 +730,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             ) as { question: QuizQuestion; options: Option[]; explanation: string };
 
-            console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
+            console.log(`[QuizComponent] ✅ Loaded questionData for Q${questionIndex}:`, data.question);
 
             if (data.question && Array.isArray(data.options) && data.options.length > 0) {
-                console.log(`[QuizComponent] ✅ Loaded Options (Before Feedback Assignment):`, data.options);
+                console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
+                console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
 
-                // 🟢 Generate feedback before assigning options
+                // 🔍 Log feedback before setting optionsToDisplay
                 data.options.forEach((opt, i) => {
-                    opt.feedback = this.feedbackService.generateFeedbackForOptions(
-                        data.question.options.filter(opt => opt.correct), // Pass correct options
-                        data.options
-                    );
-                    console.log(`[QuizComponent] ✅ Assigned Feedback - Q${questionIndex} Option ${i}:`, opt.feedback);
+                    console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
                 });
 
                 this.questionData = data.question;
                 this.optionsToDisplay = [...data.options];
+
+                // 🔍 Log feedback after setting optionsToDisplay
+                this.optionsToDisplay.forEach((opt, i) => {
+                    console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ Undefined feedback');
+                });
 
                 this.explanationToDisplay = data.explanation;
                 this.isQuestionDisplayed = true;
@@ -756,20 +755,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
                 this.cdRef.detectChanges();
             } else {
-                console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}.`);
+                console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}. Skipping update.`);
                 this.optionsToDisplay = [];
             }
-
-            if (!this.selectedOptionService.isAnsweredSubject.value) {
-                this.timerService.startTimer();
-            }
         } catch (error) {
-            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+            console.error('[QuizComponent] ❌ Error loading question contents:', error);
             this.isLoading = false;
             this.cdRef.detectChanges();
         }
     } catch (error) {
-        console.error('[loadQuestionContents] ❌ Unexpected error:', error);
+        console.error('[QuizComponent] ❌ Unexpected error:', error);
         this.isLoading = false;
         this.cdRef.detectChanges();
     }
