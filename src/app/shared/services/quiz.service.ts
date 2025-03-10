@@ -622,43 +622,45 @@ export class QuizService implements OnDestroy {
       })
     );
   } */
-  getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
-    return this.questions$.pipe(
-        filter((questions) => {
+  getQuestionByIndex(index: number): void {
+    this.questions$.pipe(
+        filter((questions: QuizQuestion[]) => {
             if (!questions || questions.length === 0) {
                 console.warn(`[QuizDataService] ⚠️ No questions available.`);
                 return false;
             }
             return true;
         }),
-        take(1), // Take only the first emission
-        map((questions: QuizQuestion[]) => {
+        take(1) // Take only the first emission
+    ).subscribe({
+        next: (questions) => {
+            console.log(`[QuizService] 🔍 Processing request for Q${index}. Available questions:`, questions.length);
+
             if (index < 0 || index >= questions.length) {
                 console.warn(`[QuizDataService] ⚠️ Invalid question index ${index}. Returning null.`);
-                return null; // Return null for out-of-bounds index
+                return;
             }
 
             const question = questions[index];
 
             if (!question || !question.options) {
                 console.warn(`[QuizDataService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
-                return null;
+                return;
             }
 
-            console.log(`[QuizDataService] ✅ Retrieved question for Q${index}:`, question);
+            console.log(`[QuizService] ✅ Retrieved question for Q${index}:`, question);
 
             // 🔍 Log feedback for each option before returning the question
             question.options.forEach((opt, i) => {
-                console.log(`[QuizDataService] 🔍 BEFORE returning - Q${index} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+                console.log(`[QuizService] 🔍 BEFORE returning - Q${index} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
 
-            return question;
-        }),
-        catchError((error: Error) => {
+            // Perform further processing if needed
+        },
+        error: (error) => {
             console.error(`[QuizDataService] ❌ Error fetching question at index ${index}:`, error);
-            return of(null);
-        })
-    );
+        }
+    });
   }
 
   getCurrentQuestionByIndex(
