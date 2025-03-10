@@ -77,20 +77,4 @@ export class FeedbackService {
   
     return `The correct ${optionsText} ${optionStrings}.`;
   }
-
-  getFeedbackForQuestion(questionIndex: number): Observable<string[]> {
-    return this.quizService.getQuestionByIndex(questionIndex).pipe(
-        map(question => {
-            if (!question || !question.options) {
-                console.warn(`[FeedbackService] ⚠️ No options available for Q${questionIndex}. Returning empty feedback.`);
-                return [];
-            }
-            return question.options.map(opt => opt.feedback ?? `Default feedback for Q${questionIndex} Option ${opt.optionId ?? '?'}`);
-        }),
-        catchError(error => {
-            console.error(`[FeedbackService] ❌ Error fetching feedback for Q${questionIndex}:`, error);
-            return of([]);
-        })
-    );
-  }
 }
