@@ -603,7 +603,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Unexpected error:', error);
     }
   } */
-  async loadQuestionContents(questionIndex: number): Promise<void> { 
+  /* async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
         console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
         console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
@@ -651,6 +651,96 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 data.options.forEach((opt, i) => {
                     console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, 
                         opt.feedback ?? '⚠️ No feedback available');
+                });
+
+                this.questionData = data.question;
+
+                // 🔍 Log feedback before passing options to QuizQuestionComponent
+                console.log(`[QuizComponent] 🟢 Passing options for Q${this.currentQuestionIndex} to QQC:`);
+                data.options.forEach((opt, i) => {
+                    console.log(`   🔹 Option ${i}:`, opt);
+                    console.log(`   🔹 Feedback:`, opt.feedback ?? '⚠️ No feedback available');
+                });
+
+                this.optionsToDisplay = [...data.options];
+
+                // 🔍 Check feedback AFTER setting optionsToDisplay
+                console.log(`[QuizComponent] ✅ AFTER setting optionsToDisplay for Q${questionIndex}:`);
+                this.optionsToDisplay.forEach((opt, i) => {
+                    console.log(`   ✅ Option ${i} feedback:`, opt.feedback ?? "⚠️ Undefined feedback");
+                });
+
+                this.explanationToDisplay = data.explanation;
+                this.isQuestionDisplayed = true;
+                this.isLoading = false;
+
+                this.cdRef.detectChanges();
+            } else {
+                console.warn(`[QuizComponent] ⚠️ No valid question/options available for Q${questionIndex}. Skipping update.`);
+                this.optionsToDisplay = []; // ✅ Ensure options are explicitly reset if invalid data
+            }
+
+            if (!this.selectedOptionService.isAnsweredSubject.value) {
+                this.timerService.startTimer();
+            }
+        } catch (error) {
+            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
+    } catch (error) {
+        console.error('[loadQuestionContents] ❌ Unexpected error:', error);
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+    }
+  } */
+  async loadQuestionContents(questionIndex: number): Promise<void> { 
+    try {
+        console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
+        console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
+        console.trace(`[QuizComponent] Stack Trace for loadQuestionContents() call`);
+
+        this.isLoading = true;
+        this.isQuestionDisplayed = false;
+        this.isNextButtonEnabled = false;
+
+        // Explicitly reset state before fetching new data
+        this.optionsToDisplay = []; 
+        this.questionData = null;
+        this.explanationToDisplay = '';
+
+        this.cdRef.detectChanges();
+
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
+            return;
+        }
+
+        try {
+            const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+            const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+            const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
+
+            const data = await lastValueFrom(
+                forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+                    tap(finalData => console.log('[QuizComponent] ✅ forkJoin completed:', finalData)),
+                    catchError(error => {
+                        console.error('[QuizComponent] ❌ Error in forkJoin:', error);
+                        return of({ question: null, options: [], explanation: '' });
+                    })
+                )
+            ) as { question: QuizQuestion; options: Option[]; explanation: string };
+
+            console.log(`[QuizComponent] 🟢 Loaded questionData for Q${questionIndex}:`, data.question);
+
+            if (data.question && Array.isArray(data.options) && data.options.length > 0) {
+                console.log(`[QuizComponent] ✅ Loaded Question:`, data.question);
+                console.log(`[QuizComponent] ✅ Loaded Options (Before Setting):`, data.options);
+
+                // 🔍 Check if feedback exists BEFORE setting optionsToDisplay
+                data.options.forEach((opt, i) => {
+                    console.log(`[QuizComponent] 🔍 BEFORE setting optionsToDisplay - Q${questionIndex} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
                 });
 
                 this.questionData = data.question;
