@@ -114,7 +114,7 @@ export class QuizDataService implements OnDestroy {
       })
     );
   } */
-  getQuiz(quizId: string): Observable<Quiz | null> {
+  getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
         filter(quizzes => {
             if (!quizzes || quizzes.length === 0) {
@@ -131,18 +131,18 @@ export class QuizDataService implements OnDestroy {
 
             console.log(`[QuizDataService] ✅ Retrieved Quiz Data for quizId: ${quizId}:`, quiz);
 
-            // 🔍 Log each question and its options
+            // 🔍 Log questions and options to verify feedback
             quiz.questions.forEach((question, qIndex) => {
                 console.log(`[QuizDataService] 🔍 Question ${qIndex}:`, question.questionText);
                 question.options.forEach((opt, i) => {
                     console.log(`[QuizDataService] 🔍 Q${qIndex} Option ${i}:`, opt);
-                    console.log(`[QuizDataService] 🔍 Feedback for Q${qIndex} Option ${i}:`, opt.feedback ?? '⚠️ No feedback available');
+                    console.log(`[QuizDataService] 🔍 BEFORE returning - Feedback for Q${qIndex} Option ${i}:`, opt.feedback ?? '⚠️ No feedback available');
                 });
             });
 
             return quiz;
         }),
-        take(1), // Ensure it completes after one emission
+        take(1),
         catchError(error => {
             console.error(`[QuizDataService] ❌ Error fetching quiz:`, error);
             return of(null as Quiz);
