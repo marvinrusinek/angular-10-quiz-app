@@ -777,15 +777,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
-        console.log(`[QuizComponent] 🚀 Before setting optionsToDisplay:`, this.optionsToDisplay);
-        console.log(`[QuizComponent] 🚨 loadQuestionContents() called for Q${questionIndex} at`, new Date().toISOString());
-        console.trace(`[QuizComponent] Stack Trace for loadQuestionContents() call`);
+        console.log(`[QuizComponent] 🚀 Loading question content for Q${questionIndex}`);
 
         this.isLoading = true;
         this.isQuestionDisplayed = false;
         this.isNextButtonEnabled = false;
 
-        // ✅ Reset state before fetching new data
         this.optionsToDisplay = [];
         this.questionData = null;
         this.explanationToDisplay = '';
@@ -794,21 +791,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
+            console.warn(`[QuizComponent] ❌ No quiz ID available.`);
             return;
         }
 
         try {
-            // ✅ Fetch question & options without feedback
             const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
             const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
             const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
             const data = await lastValueFrom(
                 forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
-                    tap(finalData => console.log('[QuizComponent] ✅ forkJoin completed:', finalData)),
+                    tap(finalData => console.log(`[QuizComponent] ✅ forkJoin completed for Q${questionIndex}:`, finalData)),
                     catchError(error => {
-                        console.error('[QuizComponent] ❌ Error in forkJoin:', error);
+                        console.error(`[QuizComponent] ❌ Error in forkJoin:`, error);
                         return of({ question: null, options: [], explanation: '' });
                     })
                 )
@@ -821,35 +817,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 return;
             }
 
-            // ✅ Check if optionsToDisplay already has feedback before calling FeedbackService
+            // 🔍 Log options BEFORE processing feedback
+            console.log(`[QuizComponent] 🔍 BEFORE processing feedback for Q${questionIndex} options:`, data.options);
+
+            // ✅ Check if options already have feedback
             let hasExistingFeedback = data.options.every(opt => !!opt.feedback);
-            console.log(`[QuizComponent] 🔍 Checking if options already have feedback for Q${questionIndex}:`, hasExistingFeedback);
+            console.log(`[QuizComponent] 🔍 Do options already have feedback for Q${questionIndex}?:`, hasExistingFeedback);
 
             let updatedOptions: Option[];
-            if (hasExistingFeedback) {
-                console.log(`[QuizComponent] ✅ Options already have feedback, skipping feedback generation.`);
-                updatedOptions = [...data.options];
-            } else {
+            if (!hasExistingFeedback) {
                 // ✅ Generate feedback using `FeedbackService`
                 const correctOptions = data.options.filter(opt => opt.correct);
                 const feedbackArray = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
                 console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
 
-                // ✅ Inject feedback into options
                 updatedOptions = data.options.map((opt, i) => ({
                     ...opt,
-                    feedback: feedbackArray[i] ?? `Default feedback for Q${questionIndex} Option ${i}`
+                    feedback: feedbackArray[i] ?? `⚠️ Default feedback for Q${questionIndex} Option ${i}`
                 }));
+            } else {
+                console.log(`[QuizComponent] ✅ Options already had feedback, skipping generation.`);
+                updatedOptions = [...data.options];
             }
 
-            // ✅ Log each option and ensure it has feedback before passing to QQC
+            // 🔍 Log options AFTER processing feedback
             updatedOptions.forEach((opt, i) => {
-                console.log(`[QuizComponent] 🔍 Final options for Q${questionIndex} - Option ${i} Feedback:`, opt.feedback);
+                console.log(`[QuizComponent] ✅ FINAL Option ${i} feedback for Q${questionIndex}:`, opt.feedback);
             });
 
             // ✅ Set optionsToDisplay after merging feedback
             this.optionsToDisplay = [...updatedOptions];
-            console.log(`[QuizComponent] ✅ Final options with feedback for Q${questionIndex}:`, this.optionsToDisplay);
+            console.log(`[QuizComponent] ✅ Final options for Q${questionIndex} (Passing to QQC):`, this.optionsToDisplay);
 
             this.questionData = data.question;
             this.explanationToDisplay = data.explanation;
@@ -858,12 +856,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             this.cdRef.detectChanges();
         } catch (error) {
-            console.error('[loadQuestionContents] ❌ Error loading question contents:', error);
+            console.error(`[QuizComponent] ❌ Error loading question contents:`, error);
             this.isLoading = false;
             this.cdRef.detectChanges();
         }
     } catch (error) {
-        console.error('[loadQuestionContents] ❌ Unexpected error:', error);
+        console.error(`[QuizComponent] ❌ Unexpected error:`, error);
         this.isLoading = false;
         this.cdRef.detectChanges();
     }
