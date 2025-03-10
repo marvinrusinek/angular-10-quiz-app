@@ -622,8 +622,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
-            console.warn('[loadQuestionContents] ❌ No quiz ID available.');
-            return;
+          console.warn('[loadQuestionContents] ❌ No quiz ID available.');
+          return;
         }
 
         try {
