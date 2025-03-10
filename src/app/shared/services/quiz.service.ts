@@ -1038,16 +1038,12 @@ export class QuizService implements OnDestroy {
                 return [];
             }
 
-            // ✅ Ensure feedback exists
             return question.options.map((option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index,
-                correct: option.correct ?? false,
-                feedback: option.feedback ?? "⚠️ No feedback available" // Ensure feedback is always present
+                optionId: option.optionId ?? index, // ✅ Ensure optionId is set
+                correct: option.correct ?? false, 
+                feedback: option.feedback ?? `⚠️ No feedback for Option ${index}` // ✅ Ensure feedback exists
             }));
-        }),
-        tap((options) => {
-            console.log(`[QuizService] ✅ Options after mapping for Q${questionIndex}:`, options);
         }),
         catchError((error) => {
             console.error(`Error fetching options for Q${questionIndex}:`, error);

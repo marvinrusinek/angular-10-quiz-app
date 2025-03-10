@@ -2811,6 +2811,8 @@ export class QuizQuestionComponent
         console.error(`[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.`);
         return;
       }
+      console.log(`[onOptionClicked] 🔍 Option feedback:`, foundOption.feedback);
+
       console.log(`[onOptionClicked] Valid option found for question ${lockedQuestionIndex}:`, foundOption);
   
       // ✅ Prevent clicking before feedback is ready
