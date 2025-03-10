@@ -832,15 +832,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
 
-            // ✅ Inject feedback if missing
+            // ✅ Generate a **single feedback message** for all options in the question
             const correctOptions = data.options.filter(opt => opt.correct);
-            const feedbackArray = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
-            console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
+            const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
+            console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
 
-            // ✅ Assign feedback to options before passing to QQC
-            const updatedOptions = data.options.map((opt, i) => ({
+            // ✅ Apply the **same feedback message** to all options
+            const updatedOptions = data.options.map((opt) => ({
                 ...opt,
-                feedback: feedbackArray[i] ?? `⚠️ Default feedback for Q${questionIndex} Option ${i}`
+                feedback: feedbackMessage // ✅ Apply the **same feedback** to all options
             }));
 
             // ✅ Confirm feedback before passing to QQC
