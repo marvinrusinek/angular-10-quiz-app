@@ -742,8 +742,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 return;
             }
 
+            const correctOptions = data.options.filter(opt => opt.correct);
+
             // ✅ Generate feedback using `FeedbackService` in `QuizComponent` **instead of calling `QuizService` in `FeedbackService`**
-            const feedbackArray = this.feedbackService.generateFeedbackForOptions(data.options);
+            const feedbackArray = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
             console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackArray);
 
             // ✅ Inject feedback into options before setting `optionsToDisplay`
