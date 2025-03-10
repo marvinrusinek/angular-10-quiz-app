@@ -2801,6 +2801,9 @@ export class QuizQuestionComponent
         await new Promise(resolve => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
+
+      console.log(`[onOptionClicked] Received optionId:`, event.option?.optionId);
+      console.log(`[onOptionClicked] Available options in optionsToDisplay:`, this.optionsToDisplay);
   
       // ✅ Find the selected option
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
@@ -3275,7 +3278,6 @@ export class QuizQuestionComponent
 
     // ✅ Ensure UI updates **after** applying feedback
     if (this.showFeedbackForOption[selectedOption.optionId]) {
-        this.cdRef.detectChanges();
         console.log('[applyOptionFeedback] 🔄 UI updated.');
     } else {
         console.warn(`[applyOptionFeedback] ❌ UI update skipped. No feedback detected for optionId ${selectedOption.optionId}`);
