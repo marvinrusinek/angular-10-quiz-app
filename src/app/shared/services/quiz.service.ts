@@ -605,7 +605,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+  /* getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
       filter((questions) => {
         return questions.length > 0;
@@ -620,6 +620,44 @@ export class QuizService implements OnDestroy {
       catchError((error: Error) => {
         return of(null); // Fallback to null on error
       })
+    );
+  } */
+  getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+    return this.questions$.pipe(
+        filter((questions) => {
+            if (!questions || questions.length === 0) {
+                console.warn(`[QuizDataService] ⚠️ No questions available.`);
+                return false;
+            }
+            return true;
+        }),
+        take(1), // Take only the first emission
+        map((questions: QuizQuestion[]) => {
+            if (index < 0 || index >= questions.length) {
+                console.warn(`[QuizDataService] ⚠️ Invalid question index ${index}. Returning null.`);
+                return null; // Return null for out-of-bounds index
+            }
+
+            const question = questions[index];
+
+            if (!question || !question.options) {
+                console.warn(`[QuizDataService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
+                return null;
+            }
+
+            console.log(`[QuizDataService] ✅ Retrieved question for Q${index}:`, question);
+
+            // 🔍 Log feedback for each option before returning the question
+            question.options.forEach((opt, i) => {
+                console.log(`[QuizDataService] 🔍 BEFORE returning - Q${index} Option ${i} feedback:`, opt.feedback ?? '⚠️ No feedback available');
+            });
+
+            return question;
+        }),
+        catchError((error: Error) => {
+            console.error(`[QuizDataService] ❌ Error fetching question at index ${index}:`, error);
+            return of(null);
+        })
     );
   }
 
