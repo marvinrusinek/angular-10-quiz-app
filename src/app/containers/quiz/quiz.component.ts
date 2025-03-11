@@ -847,6 +847,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 ...opt,
                 feedback: feedbackMessage // ✅ Apply the **same feedback** to all options
             }));
+            console.log(`[QuizComponent] 🔍 Checking optionsToDisplay for Q${questionIndex}:`, updatedOptions);
 
             // ✅ Confirm feedback before passing to QQC
             updatedOptions.forEach((opt, i) => {
