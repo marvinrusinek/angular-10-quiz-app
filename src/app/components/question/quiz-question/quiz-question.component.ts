@@ -2858,7 +2858,7 @@ export class QuizQuestionComponent
 
         // ✅ Call updateExplanationText to fetch and display explanation
         console.log(`[onOptionClicked] 🚀 Calling updateExplanationText for Q${lockedQuestionIndex}`);
-        await this.updateExplanationText(this.currentQuestionIndex - 1);
+        await this.updateExplanationText(this.currentQuestionIndex);
 
         // ✅ Ensure correctness checks are performed
         console.log('[onOptionClicked] Calling handleCorrectnessOutcome...');
