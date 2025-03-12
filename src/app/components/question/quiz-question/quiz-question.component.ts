@@ -4264,23 +4264,24 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ Ensure index is properly locked and adjusted
-    const lockedQuestionIndex = questionIndex; // No need for -1
+    // 🔒 **Fix index mismatch issue**
+    const lockedQuestionIndex = Math.max(0, questionIndex); // Ensure non-negative index
     console.log(`[updateExplanationText] 🔒 Locked explanation update to Q${lockedQuestionIndex}`);
 
-    // ✅ Fetch the correct explanation
+    // ✅ **Check if explanation is already stored**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
+    // 🚀 **Fetch explanation only if not stored**
     if (!explanationText) {
         console.log(`[updateExplanationText] 🚀 No stored explanation found for Q${lockedQuestionIndex}. Fetching from service...`);
         try {
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
-            console.log(`[updateExplanationText] ✅ Fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
+            console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
 
-            // ✅ Store it in the state to prevent redundant fetching
+            // ✅ **Store it to avoid redundant fetching**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
@@ -4290,19 +4291,19 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ Ensure explanation text is valid before applying it
+    // ✅ **Ensure explanation is valid before updating UI**
     if (!explanationText || explanationText.trim() === '') {
         console.warn(`[updateExplanationText] ⚠️ Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
         explanationText = 'No explanation available.';
     }
 
-    // ✅ Update the UI **only if the index is still correct**
+    // 🛑 **Fix Issue: Only update explanation if the index is still correct**
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
         return;
     }
 
-    // ✅ Apply Explanation to UI
+    // ✅ **Apply Explanation to UI**
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
