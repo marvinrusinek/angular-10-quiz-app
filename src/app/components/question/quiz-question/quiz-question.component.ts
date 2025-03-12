@@ -89,6 +89,7 @@ export class QuizQuestionComponent
   @Input() showFeedback = false;
   @Input() selectionMessage: string;
   @Input() reset: boolean;
+  @Input() explanationToDisplay = '';
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -4301,7 +4302,7 @@ export class QuizQuestionComponent
     const lockedQuestionIndex = questionIndex;
     console.log(`[updateExplanationText] 🔒 Locked explanation update to Q${lockedQuestionIndex}`);
 
-    if (!this.quiz.questions[lockedQuestionIndex]) {
+    if (!this.quiz?.questions || !this.quiz.questions[lockedQuestionIndex]) {
         console.error(`[updateExplanationText] ❌ Question not found at index ${lockedQuestionIndex}`);
         return;
     }
@@ -4309,16 +4310,22 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🔍 Current question for explanation update:`, this.quiz.questions[lockedQuestionIndex]);
 
     const explanationText = await this.getExplanationText(lockedQuestionIndex);
-    console.log(`[updateExplanationText] ✅ Explanation for Q${lockedQuestionIndex}:`, explanationText);
+    console.log(`[updateExplanationText] ✅ Retrieved Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
         return;
     }
 
+    // ✅ Ensure Explanation Text Updates
+    console.log(`[updateExplanationText] 🚀 Updating explanationToDisplay for Q${lockedQuestionIndex}`);
+
     this.explanationToDisplay = explanationText;
-    this.explanationToDisplayChange.emit(explanationText);
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
+
+    console.log(`[updateExplanationText] 🔥 Explanation emitted for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
+
     this.cdRef.detectChanges();
   }
 
