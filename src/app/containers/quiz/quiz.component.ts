@@ -848,6 +848,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             const correctOptions = data.options.filter(opt => opt.correct);
             console.log(`[QuizComponent] 🔍 Correct options for Q${questionIndex}:`, correctOptions);
 
+            console.log(`[QuizComponent] 🔍 Passing correctOptions to generateFeedbackForOptions for Q${questionIndex}:`, correctOptions);
+            console.log(`[QuizComponent] 🔍 Passing optionsToDisplay to generateFeedbackForOptions for Q${questionIndex}:`, data.options);
+
             // ✅ Ensure `generateFeedbackForOptions` receives correct data
             console.log(`[QuizComponent] 🚀 Calling generateFeedbackForOptions for Q${questionIndex}`);
             const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
@@ -859,6 +862,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 feedback: feedbackMessage // ✅ Apply the **same feedback** to all options
             }));
             console.log(`[QuizComponent] 🔍 Checking optionsToDisplay for Q${questionIndex}:`, updatedOptions);
+            console.log(`[QuizComponent] 🔍 Checking updatedOptions before setting optionsToDisplay for Q${questionIndex}:`, updatedOptions);
+
 
             // ✅ Ensure correct feedback assignment before passing to `QuizQuestionComponent`
             updatedOptions.forEach((opt, i) => {
@@ -869,6 +874,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             // ✅ Set values after verifying correct question-index mapping
             this.optionsToDisplay = [...updatedOptions];
+
+            console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, this.optionsToDisplay);
+
             this.questionData = data.question ?? ({} as QuizQuestion);
             this.explanationToDisplay = data.explanation ?? '';
 

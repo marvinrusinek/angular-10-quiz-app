@@ -171,6 +171,8 @@ export class QuizQuestionComponent
   private isExplanationLocked = true;
   currentExplanationText = '';
 
+  private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
+
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation';
     answered: boolean;
