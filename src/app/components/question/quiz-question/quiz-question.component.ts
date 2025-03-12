@@ -4302,30 +4302,33 @@ export class QuizQuestionComponent
     const lockedQuestionIndex = questionIndex;
     console.log(`[updateExplanationText] 🔒 Locked explanation update to Q${lockedQuestionIndex}`);
 
-    if (!this.quiz?.questions || !this.quiz.questions[lockedQuestionIndex]) {
+    if (!this.quiz.questions[lockedQuestionIndex]) {
         console.error(`[updateExplanationText] ❌ Question not found at index ${lockedQuestionIndex}`);
         return;
     }
 
     console.log(`[updateExplanationText] 🔍 Current question for explanation update:`, this.quiz.questions[lockedQuestionIndex]);
 
+    // ✅ Fetch explanation text
     const explanationText = await this.getExplanationText(lockedQuestionIndex);
-    console.log(`[updateExplanationText] ✅ Retrieved Explanation for Q${lockedQuestionIndex}:`, explanationText);
+    console.log(`[updateExplanationText] ✅ Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
+    // ✅ Prevent race conditions / incorrect updates
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
         return;
     }
 
-    // ✅ Ensure Explanation Text Updates
-    console.log(`[updateExplanationText] 🚀 Updating explanationToDisplay for Q${lockedQuestionIndex}`);
-
+    // ✅ Apply the explanation text
     this.explanationToDisplay = explanationText;
+    console.log(`[updateExplanationText] 🎯 FINAL explanationToDisplay for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
+
+    // ✅ Emit changes
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
+    console.log(`[updateExplanationText] 🚀 Explanation emitted for Q${lockedQuestionIndex}.`);
 
-    console.log(`[updateExplanationText] 🔥 Explanation emitted for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
-
+    // ✅ Trigger Change Detection
     this.cdRef.detectChanges();
   }
 
