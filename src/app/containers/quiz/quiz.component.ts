@@ -798,77 +798,64 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         try {
-            // ✅ Define expected return types
-            type FetchedData = { question: QuizQuestion | null; options: Option[] | null; explanation: string | null };
+            // ✅ Fetch question, options, and explanation
+            const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+            const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+            const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
 
-            // ✅ Fetch question, options, and explanation **ENSURING CORRECT INDEX**
-            const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(
-                take(1),
-                tap(question => console.log(`[QuizComponent] ✅ Retrieved question for Q${questionIndex}:`, question))
-            );
-
-            const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(
-                take(1),
-                tap(options => console.log(`[QuizComponent] ✅ Retrieved options for Q${questionIndex}:`, options))
-            );
-
-            const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-                take(1),
-                tap(explanation => console.log(`[QuizComponent] ✅ Retrieved explanation for Q${questionIndex}:`, explanation))
-            );
-
-            // ✅ Fetch all data together
-            const data: FetchedData = await lastValueFrom(
+            const data = await lastValueFrom(
                 forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
                     tap(finalData => console.log(`[QuizComponent] ✅ forkJoin completed for Q${questionIndex}:`, finalData)),
                     catchError(error => {
                         console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
-                        return of({ question: null, options: [], explanation: '' } as FetchedData);
+                        return of({ question: null, options: [], explanation: '' });
                     })
                 )
             );
 
-            // ✅ Validate retrieved data
-            console.log(`[QuizComponent] 🔍 Raw question data for Q${questionIndex}:`, data.question);
-            console.log(`[QuizComponent] 🔍 Raw options data for Q${questionIndex}:`, data.options);
-            console.log(`[QuizComponent] 🔍 Raw explanation data for Q${questionIndex}:`, data.explanation);
+            // ✅ Log received data
+            console.log(`[QuizComponent] 🔍 Raw question data received for Q${questionIndex}:`, data.question);
+            console.log(`[QuizComponent] 🔍 Raw options data received for Q${questionIndex}:`, data.options);
+            console.log(`[QuizComponent] 🔍 Raw explanation received for Q${questionIndex}:`, data.explanation);
 
             if (!data.options || data.options.length === 0) {
                 console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}. Skipping update.`);
                 return;
             }
 
-            // ✅ Check if options are correctly retrieved before applying feedback
+            // ✅ Ensure options have feedback before passing to QQC
             console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
             data.options.forEach((opt, i) => {
                 console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
             });
 
-            // ✅ Extract correct options **for the current question**
+            // ✅ Debugging Log: Check if correctOptions are being selected properly
             const correctOptions = data.options.filter(opt => opt.correct);
             console.log(`[QuizComponent] 🔍 Correct options for Q${questionIndex}:`, correctOptions);
 
-            // ✅ Ensure `generateFeedbackForOptions` receives correct data
+            // ✅ Ensure `generateFeedbackForOptions` is called with correct data
             console.log(`[QuizComponent] 🚀 Calling generateFeedbackForOptions for Q${questionIndex}`);
             const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
             console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
 
-            // ✅ Apply the **same feedback message** to all options (ensuring every option has the correct message)
+            // ✅ Apply the same feedback message to all options
             const updatedOptions = data.options.map((opt) => ({
                 ...opt,
                 feedback: feedbackMessage // ✅ Apply the **same feedback** to all options
             }));
+            
             console.log(`[QuizComponent] 🔍 Checking optionsToDisplay for Q${questionIndex}:`, updatedOptions);
 
-            // ✅ Ensure correct feedback assignment before passing to `QuizQuestionComponent`
+            // ✅ Confirm feedback before passing to QQC
             updatedOptions.forEach((opt, i) => {
                 console.log(`[QuizComponent] ✅ Final feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
             });
 
-            console.log(`[QuizComponent] 🔍 Final options before passing to QQC for Q${questionIndex}:`, updatedOptions);
-
-            // ✅ Set values after verifying correct question-index mapping
+            // ✅ Ensure optionsToDisplay is **fully updated** before passing to `QuizQuestionComponent`
             this.optionsToDisplay = [...updatedOptions];
+            console.log(`[QuizComponent] 🚀 Final optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
+
+            // ✅ Set other question data
             this.questionData = data.question ?? ({} as QuizQuestion);
             this.explanationToDisplay = data.explanation ?? '';
 
@@ -876,9 +863,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.isLoading = false;
 
             console.log(`[QuizComponent] 🎯 Successfully loaded content for Q${questionIndex}`);
-            console.log(`[QuizComponent] 🚀 Final optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
-            
+
+            // ✅ Ensure options persist in UI
             this.cdRef.detectChanges();
+
         } catch (error) {
             console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
             this.isLoading = false;
