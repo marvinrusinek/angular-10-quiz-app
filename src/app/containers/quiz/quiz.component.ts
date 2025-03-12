@@ -3553,6 +3553,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizQuestionComponent.isAnswered = false;
         }
 
+        // ✅ Update explanation when question changes
+        this.explanationToDisplay = this.questions[this.currentQuestionIndex]?.explanation || '⚠️ No explanation available';
+        this.quizQuestionComponent.explanationToDisplayChange.emit(this.explanationToDisplay);
+
         // Update Next button state
         console.log('Evaluating Next button state based on selection...');
         const shouldEnableNextButton = this.isAnyOptionSelected();
