@@ -1,5 +1,4 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { Location } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -205,8 +204,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private ngZone: NgZone,
-    private cdRef: ChangeDetectorRef,
-    private location: Location
+    private cdRef: ChangeDetectorRef
   ) {
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
