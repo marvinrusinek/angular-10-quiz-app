@@ -329,24 +329,24 @@ export class QuizQuestionComponent
 
   ngOnChanges(changes: SimpleChanges): void { 
     if (changes.options) {
-      console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+        console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
         
-      // Log feedback for each option BEFORE setting optionsToDisplay
-      changes.options.currentValue?.forEach((opt: Option, i: number) => {
-        console.log(`[QuizQuestionComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
-      });
-
-      if (changes.options.currentValue) {
-        // Set optionsToDisplay
-        this.optionsToDisplay = [...changes.options.currentValue];
-
-        // Log feedback AFTER setting optionsToDisplay
-        this.optionsToDisplay.forEach((opt: Option, i: number) => {
-          console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
+        // 🔍 Log feedback for each option BEFORE setting optionsToDisplay
+        changes.options.currentValue?.forEach((opt: any, i: number) => {
+            console.log(`[QuizQuestionComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
         });
-      } else {
-        console.warn(`[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`);
-      }
+
+        if (changes.options.currentValue) {
+            // ✅ Set optionsToDisplay
+            this.optionsToDisplay = [...changes.options.currentValue];
+
+            // 🔍 Log feedback AFTER setting optionsToDisplay
+            this.optionsToDisplay.forEach((opt, i) => {
+                console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
+            });
+        } else {
+            console.warn(`[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`);
+        }
     }
 
     if (changes.questionData) {
