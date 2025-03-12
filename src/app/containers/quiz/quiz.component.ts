@@ -980,7 +980,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             // ✅ Set values **ONLY AFTER ensuring correct mapping**
             this.optionsToDisplay = [...updatedOptions];
             console.log(`[QuizComponent] 🚀 Assigned optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
-            
+            console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, this.optionsToDisplay);
+
             this.questionData = data.question ?? ({} as QuizQuestion);
             this.explanationToDisplay = data.explanation ?? '';
 
