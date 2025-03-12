@@ -937,6 +937,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 )
             );
 
+            // ✅ Validate retrieved data
             console.log(`[QuizComponent] 🔍 Raw question data for Q${questionIndex}:`, data.question);
             console.log(`[QuizComponent] 🔍 Raw options data for Q${questionIndex}:`, data.options);
             console.log(`[QuizComponent] 🔍 Raw explanation data for Q${questionIndex}:`, data.explanation);
@@ -946,6 +947,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 return;
             }
 
+            // ✅ Verify if the correct question index is being used
             console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
             data.options.forEach((opt, i) => {
                 console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
@@ -955,7 +957,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             const correctOptions = data.options.filter(opt => opt.correct);
             console.log(`[QuizComponent] 🔍 Correct options for Q${questionIndex}:`, correctOptions);
 
-            // ✅ Ensure `generateFeedbackForOptions` receives correct data
+            // ✅ Ensure `generateFeedbackForOptions` receives correct data for each question
             console.log(`[QuizComponent] 🚀 Calling generateFeedbackForOptions for Q${questionIndex}`);
             const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
             console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
@@ -967,14 +969,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }));
             console.log(`[QuizComponent] 🔍 Checking updatedOptions before setting optionsToDisplay for Q${questionIndex}:`, updatedOptions);
 
-            // ✅ Log final `optionsToDisplay` to ensure feedback is set
+            // ✅ Double-check the assigned feedback before setting optionsToDisplay
             updatedOptions.forEach((opt, i) => {
                 console.log(`[QuizComponent] ✅ Final feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
             });
 
             console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, updatedOptions);
 
-            // ✅ Set values after verifying correct question-index mapping
+            // ✅ Set values **ONLY AFTER ensuring correct mapping**
             this.optionsToDisplay = [...updatedOptions];
             this.questionData = data.question ?? ({} as QuizQuestion);
             this.explanationToDisplay = data.explanation ?? '';
