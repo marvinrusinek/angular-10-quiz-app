@@ -4298,7 +4298,7 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // ✅ Update display using the locked value (avoid referencing this.currentQuestionIndex here)
+    // ✅ Update display using the locked value
     console.log(`[updateExplanationText] 📌 Setting explanation for Q${lockedQuestionIndex}:`, explanationText);
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
