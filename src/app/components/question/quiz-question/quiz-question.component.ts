@@ -355,9 +355,11 @@ export class QuizQuestionComponent
       console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
     }
   } */
-  ngOnChanges(changes: SimpleChanges): void { 
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.options) {
-        const receivedOptions = JSON.stringify(changes.options.currentValue);
+      console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
+      
+      const receivedOptions = JSON.stringify(changes.options.currentValue);
 
         // ✅ Prevent duplicate logging
         if (this.lastLoggedOptions !== receivedOptions) {
