@@ -980,12 +980,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[QuizComponent] 🚀 Assigned optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
             console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, this.optionsToDisplay);
 
-            this.questionData = data.question ?? ({} as QuizQuestion);
+            // ✅ Ensure the explanation is updated **AFTER options are displayed**
+            setTimeout(() => {
+              if (this.quizQuestionComponent) {
+                  console.log(`[QuizComponent] 🔍 Calling updateExplanationText for Q${questionIndex}`);
+                  this.quizQuestionComponent.updateExplanationText(questionIndex);
+              } else {
+                  console.warn(`[QuizComponent] ⚠️ quizQuestionComponent is not available for Q${questionIndex}. Cannot update explanation.`);
+              }
+            }, 100); // Small delay to ensure `quizQuestionComponent` is available
 
-            // ✅ Ensure explanation is updated **AFTER** loading question data
-            console.log(`[QuizComponent] 🔍 Calling updateExplanationText for Q${questionIndex}`);
-            await this.quizQuestionComponent.updateExplanationText(questionIndex);
-            this.explanationToDisplay = data.explanation ?? '';
+            this.questionData = data.question ?? ({} as QuizQuestion);
+            
+            // this.explanationToDisplay = data.explanation ?? '';
 
             this.isQuestionDisplayed = true;
             this.isLoading = false;
