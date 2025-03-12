@@ -4283,6 +4283,7 @@ export class QuizQuestionComponent
 
             // Store explanation in state to prevent refetching
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            console.log(`[updateExplanationText] 🔒 Stored explanation in state for Q${lockedQuestionIndex}`);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
@@ -4298,9 +4299,12 @@ export class QuizQuestionComponent
     }
 
     // ✅ Update display using the locked value (avoid referencing this.currentQuestionIndex here)
+    console.log(`[updateExplanationText] 📌 Setting explanation for Q${lockedQuestionIndex}:`, explanationText);
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
+    
+    console.log(`[updateExplanationText] 🔄 Triggering UI update for Q${lockedQuestionIndex}`);
     this.cdRef.detectChanges();
 
     console.log(`[updateExplanationText] 🎯 Final Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
