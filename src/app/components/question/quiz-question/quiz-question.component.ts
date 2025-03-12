@@ -388,7 +388,11 @@ export class QuizQuestionComponent
 
     if (changes.questionData) {
         console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
-     }
+    }
+
+    if (changes.explanationToDisplay) {
+      console.log(`[QuizQuestionComponent] 🔍 Explanation updated for Q${this.fixedQuestionIndex}:`, this.explanationToDisplay);
+    }
   }
 
   ngOnDestroy(): void {
