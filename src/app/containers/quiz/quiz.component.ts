@@ -775,7 +775,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
     }
   } */
-  async loadQuestionContents(questionIndex: number): Promise<void> { 
+  /* async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
         console.log(`[QuizComponent] 🚀 Loading content for Q${questionIndex} at ${new Date().toISOString()}`);
         console.trace(`[QuizComponent] Stack Trace - loadQuestionContents() for Q${questionIndex}`);
@@ -877,6 +877,104 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, this.optionsToDisplay);
 
+            this.questionData = data.question ?? ({} as QuizQuestion);
+            this.explanationToDisplay = data.explanation ?? '';
+
+            this.isQuestionDisplayed = true;
+            this.isLoading = false;
+
+            console.log(`[QuizComponent] 🎯 Successfully loaded content for Q${questionIndex}`);
+            console.log(`[QuizComponent] 🚀 Final optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
+            
+            this.cdRef.detectChanges();
+        } catch (error) {
+            console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
+            this.isLoading = false;
+            this.cdRef.detectChanges();
+        }
+    } catch (error) {
+        console.error(`[QuizComponent] ❌ Unexpected error:`, error);
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+    }
+  } */
+  async loadQuestionContents(questionIndex: number): Promise<void> { 
+    try {
+        console.log(`[QuizComponent] 🚀 Loading content for Q${questionIndex} at ${new Date().toISOString()}`);
+        console.trace(`[QuizComponent] Stack Trace - loadQuestionContents() for Q${questionIndex}`);
+
+        this.isLoading = true;
+        this.isQuestionDisplayed = false;
+        this.isNextButtonEnabled = false;
+
+        // ✅ Reset state before fetching new data
+        this.optionsToDisplay = [];
+        this.questionData = null;
+        this.explanationToDisplay = '';
+
+        this.cdRef.detectChanges();
+
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+            console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
+            return;
+        }
+
+        try {
+            type FetchedData = { question: QuizQuestion | null; options: Option[] | null; explanation: string | null };
+
+            const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+            const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+            const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
+
+            const data: FetchedData = await lastValueFrom(
+                forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+                    tap(finalData => console.log(`[QuizComponent] ✅ forkJoin completed for Q${questionIndex}:`, finalData)),
+                    catchError(error => {
+                        console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
+                        return of({ question: null, options: [], explanation: '' } as FetchedData);
+                    })
+                )
+            );
+
+            console.log(`[QuizComponent] 🔍 Raw question data for Q${questionIndex}:`, data.question);
+            console.log(`[QuizComponent] 🔍 Raw options data for Q${questionIndex}:`, data.options);
+            console.log(`[QuizComponent] 🔍 Raw explanation data for Q${questionIndex}:`, data.explanation);
+
+            if (!data.options || data.options.length === 0) {
+                console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}. Skipping update.`);
+                return;
+            }
+
+            console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
+            data.options.forEach((opt, i) => {
+                console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
+            });
+
+            // ✅ Extract correct options **for the current question**
+            const correctOptions = data.options.filter(opt => opt.correct);
+            console.log(`[QuizComponent] 🔍 Correct options for Q${questionIndex}:`, correctOptions);
+
+            // ✅ Ensure `generateFeedbackForOptions` receives correct data
+            console.log(`[QuizComponent] 🚀 Calling generateFeedbackForOptions for Q${questionIndex}`);
+            const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
+            console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
+
+            // ✅ Apply the **same feedback message** to all options (ensuring every option has the correct message)
+            const updatedOptions = data.options.map((opt) => ({
+                ...opt,
+                feedback: feedbackMessage // ✅ Apply the **same feedback** to all options
+            }));
+            console.log(`[QuizComponent] 🔍 Checking updatedOptions before setting optionsToDisplay for Q${questionIndex}:`, updatedOptions);
+
+            updatedOptions.forEach((opt, i) => {
+                console.log(`[QuizComponent] ✅ Final feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
+            });
+
+            console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, updatedOptions);
+
+            // ✅ Set values after verifying correct question-index mapping
+            this.optionsToDisplay = [...updatedOptions];
             this.questionData = data.question ?? ({} as QuizQuestion);
             this.explanationToDisplay = data.explanation ?? '';
 
