@@ -960,13 +960,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
             console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
 
-            // ✅ Apply the **same feedback message** to all options (ensuring every option has the correct message)
+            // ✅ Apply the **same feedback message** to all options
             const updatedOptions = data.options.map((opt) => ({
                 ...opt,
-                feedback: feedbackMessage // ✅ Apply the **same feedback** to all options
+                feedback: feedbackMessage
             }));
             console.log(`[QuizComponent] 🔍 Checking updatedOptions before setting optionsToDisplay for Q${questionIndex}:`, updatedOptions);
 
+            // ✅ Log final `optionsToDisplay` to ensure feedback is set
             updatedOptions.forEach((opt, i) => {
                 console.log(`[QuizComponent] ✅ Final feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
             });
