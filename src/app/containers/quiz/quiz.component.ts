@@ -457,6 +457,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngAfterViewInit(): void {
     this.initializeDisplayVariables();
+    this.loadQuestionContents(this.currentQuestionIndex);
   }
 
   public onAnsweredChange(isAnswered: boolean): void {
@@ -3537,7 +3538,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false);
 
-        await this.loadQuestionContents(this.currentQuestionIndex);
+        // await this.loadQuestionContents(this.currentQuestionIndex);
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
 
         const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
@@ -3594,7 +3595,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = previousQuestionIndex;
 
       // Combine fetching data and initializing question state into a single method
-      await this.loadQuestionContents(this.currentQuestionIndex);
+      // await this.loadQuestionContents(this.currentQuestionIndex);
       await this.prepareQuestionForDisplay(this.currentQuestionIndex);
       this.resetUI();
 
