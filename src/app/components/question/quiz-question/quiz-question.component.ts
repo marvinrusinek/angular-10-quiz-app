@@ -5292,20 +5292,24 @@ export class QuizQuestionComponent
   }
 
   public async getExplanationText(questionIndex: number): Promise<string> {
-    console.log(`Fetching explanation for question index: ${questionIndex}`);
+    console.log(`[getExplanationText] 🟢 Fetching explanation for Q${questionIndex}`);
+
     try {
-      const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        )
-      );
-      return explanationText;
+        const explanationText = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+
+        if (!explanationText || explanationText.trim() === '') {
+            console.warn(`[getExplanationText] ⚠️ Empty or undefined explanation for Q${questionIndex}. Using fallback.`);
+            return 'No explanation available for this question.';
+        }
+
+        console.log(`[getExplanationText] ✅ Successfully retrieved explanation for Q${questionIndex}:`, explanationText);
+        return explanationText;
+
     } catch (error) {
-      console.error(
-        `Error fetching explanation for index ${questionIndex}:`,
-        error
-      );
-      return 'Error loading explanation.';
+        console.error(`[getExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
+        return 'Error loading explanation.';
     }
   }
 
