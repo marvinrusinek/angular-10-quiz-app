@@ -4235,27 +4235,6 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  /* async updateExplanationText(questionIndex: number): Promise<void> {
-    const questionState = this.quizStateService.getQuestionState(
-      this.quizId,
-      questionIndex
-    );
-
-    if (questionState.isAnswered) {
-      try {
-        const explanationText = await this.getExplanationText(questionIndex);
-        this.explanationToDisplayChange.emit(explanationText); // Emit the explanation text
-        this.showExplanationChange.emit(true); // Emit the flag to show the explanation
-      } catch (error) {
-        console.error('Error fetching explanation text:', error);
-        this.explanationToDisplayChange.emit('Error loading explanation.'); // Emit an error message
-        this.showExplanationChange.emit(true); // Still show the explanation area with the error message
-      }
-    } else {
-      this.explanationToDisplayChange.emit(''); // Clear the explanation text
-      this.showExplanationChange.emit(false); // Emit the flag to hide the explanation
-    }
-  } */
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
