@@ -4264,9 +4264,19 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔒 **Fix index mismatch issue**
-    const lockedQuestionIndex = Math.max(0, questionIndex); // Ensure non-negative index
+    // 🔒 **Ensure the correct index is used**
+    const lockedQuestionIndex = questionIndex;
     console.log(`[updateExplanationText] 🔒 Locked explanation update to Q${lockedQuestionIndex}`);
+
+    // ✅ **Double-check if the correct question is being referenced**
+    console.log(`[updateExplanationText] 🔍 Current question being updated:`, this.quiz.questions[lockedQuestionIndex]);
+
+    // ✅ **Ensure we are fetching the correct explanation index**
+    const validQuestionIndices = this.quiz.questions.map((q, index) => index);
+    if (!validQuestionIndices.includes(lockedQuestionIndex)) {
+        console.warn(`[updateExplanationText] ⚠️ Invalid question index ${lockedQuestionIndex}. Skipping update.`);
+        return;
+    }
 
     // ✅ **Check if explanation is already stored**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
@@ -4297,9 +4307,9 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // 🛑 **Fix Issue: Only update explanation if the index is still correct**
+    // 🛑 **Fix Issue: Prevent Off-by-One Errors**
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Skipping update.`);
+        console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Expected ${this.currentQuestionIndex}, but got ${lockedQuestionIndex}. Skipping update.`);
         return;
     }
 
