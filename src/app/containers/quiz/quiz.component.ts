@@ -3586,10 +3586,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   async advanceToPreviousQuestion(): Promise<void> {
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
+    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+      firstValueFrom(this.quizStateService.isLoading$),
+      firstValueFrom(this.quizStateService.isNavigating$),
+      firstValueFrom(this.isButtonEnabled$)
+    ]);
+
+    // Prevent navigation if any blocking conditions are met
+    if (isLoading || isNavigating || !isEnabled) {
+      console.warn('Cannot advance - One of the conditions is blocking navigation.');
       return;
     }
+
+    /* if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return;
+    } */
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
