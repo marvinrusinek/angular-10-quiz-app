@@ -4240,7 +4240,7 @@ export class QuizQuestionComponent
 
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
-    
+
     if (!this.quiz || !this.quiz.questions || !this.quiz.questions[questionIndex]) {
         console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
         return;
@@ -4260,12 +4260,11 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
-    if (lockedQuestionIndex === 0) {
-        console.log(`[updateExplanationText] 🚨 Special Case: Ensuring Q1 uses index 0.`);
-        lockedQuestionIndex = 0;
+    // ✅ **Ensure the question exists at the locked index**
+    if (!this.quiz.questions[lockedQuestionIndex]) {
+        console.warn(`[updateExplanationText] ⚠️ No question found at locked index ${lockedQuestionIndex}.`);
+        return;
     }
-
-    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
     // ✅ **Check if question is answered**
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
@@ -4287,6 +4286,13 @@ export class QuizQuestionComponent
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
+
+            // 🚀 NEW: 🔍 **Ensure the correct explanation was retrieved**
+            if (!explanationText.includes(`Q${lockedQuestionIndex}`)) {
+                console.error(`[updateExplanationText] ❌ ERROR! Explanation mismatch detected! Expected Q${lockedQuestionIndex}, got:`, explanationText);
+                explanationText = `Error: Incorrect explanation retrieved for Q${lockedQuestionIndex}.`;
+            }
+
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
 
             // ✅ **Store it to prevent redundant fetching**
