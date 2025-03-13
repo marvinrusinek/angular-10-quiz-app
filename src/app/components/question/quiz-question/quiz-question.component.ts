@@ -4264,12 +4264,20 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔒 **Fix Indexing Issues**
+    // 🔒 **Fix Indexing Issues Specifically for Q1**
     let lockedQuestionIndex = questionIndex;
+
     if (this.currentQuestionIndex !== questionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Mismatched indices! Expected ${this.currentQuestionIndex}, received ${questionIndex}. Correcting...`);
-        lockedQuestionIndex = this.currentQuestionIndex; // ✅ Force correction
+        lockedQuestionIndex = this.currentQuestionIndex;
     }
+
+    // 🚨 **Special Case: Ensure Q1 Gets the Right Explanation**
+    if (lockedQuestionIndex === 0) {
+        console.log(`[updateExplanationText] 🚨 Special Case: Forcing correct index for Q1!`);
+        lockedQuestionIndex = 0; // Ensure Q1 stays at index 0
+    }
+
     console.log(`[updateExplanationText] 🔒 Using corrected index: Q${lockedQuestionIndex}`);
 
     // ✅ **Ensure this is a valid question index**
