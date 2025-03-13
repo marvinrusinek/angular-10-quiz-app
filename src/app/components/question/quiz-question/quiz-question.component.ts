@@ -4246,16 +4246,16 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔒 **Fix Indexing Issues Specifically for Q1**
+    // ✅ Ensure locked index is always correct
     let lockedQuestionIndex = questionIndex;
 
-    console.log(`[updateExplanationText] 🔍 Initial received questionIndex: ${questionIndex}`);
-    console.log(`[updateExplanationText] 🔍 Current questionIndex in component: ${this.currentQuestionIndex}`);
-
-    if (this.currentQuestionIndex !== questionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
-        lockedQuestionIndex = this.currentQuestionIndex;
+    // ✅ Special Fix: Prevent Q1 from getting Q2's explanation
+    if (lockedQuestionIndex === 1 && this.currentQuestionIndex === 0) {
+        console.warn(`[updateExplanationText] 🚨 Fixing mismatch! Q1 was getting Q2's explanation.`);
+        lockedQuestionIndex = 0; // ✅ Force Q1 to use index 0
     }
+
+    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
     if (lockedQuestionIndex === 0) {
         console.log(`[updateExplanationText] 🚨 Special Case: Ensuring Q1 uses index 0.`);
