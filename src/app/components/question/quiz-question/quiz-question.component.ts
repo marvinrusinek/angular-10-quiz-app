@@ -4264,17 +4264,17 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔒 **Ensure the correct index is used**
-    const lockedQuestionIndex = questionIndex;
-    console.log(`[updateExplanationText] 🔒 Locked explanation update to Q${lockedQuestionIndex}`);
+    // 🔒 **Fix Indexing Issues**
+    let lockedQuestionIndex = questionIndex;
+    if (this.currentQuestionIndex !== questionIndex) {
+        console.warn(`[updateExplanationText] ⚠️ Mismatched indices! Expected ${this.currentQuestionIndex}, received ${questionIndex}. Correcting...`);
+        lockedQuestionIndex = this.currentQuestionIndex; // ✅ Force correction
+    }
+    console.log(`[updateExplanationText] 🔒 Using corrected index: Q${lockedQuestionIndex}`);
 
-    // ✅ **Double-check if the correct question is being referenced**
-    console.log(`[updateExplanationText] 🔍 Current question being updated:`, this.quiz.questions[lockedQuestionIndex]);
-
-    // ✅ **Ensure we are fetching the correct explanation index**
-    const validQuestionIndices = this.quiz.questions.map((q, index) => index);
-    if (!validQuestionIndices.includes(lockedQuestionIndex)) {
-        console.warn(`[updateExplanationText] ⚠️ Invalid question index ${lockedQuestionIndex}. Skipping update.`);
+    // ✅ **Ensure this is a valid question index**
+    if (!this.quiz.questions[lockedQuestionIndex]) {
+        console.warn(`[updateExplanationText] ⚠️ No question found at corrected index ${lockedQuestionIndex}.`);
         return;
     }
 
@@ -4291,7 +4291,7 @@ export class QuizQuestionComponent
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
 
-            // ✅ **Store it to avoid redundant fetching**
+            // ✅ **Store it to prevent redundant fetching**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
@@ -4307,7 +4307,7 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // 🛑 **Fix Issue: Prevent Off-by-One Errors**
+    // ✅ **Enforce correct index usage**
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Expected ${this.currentQuestionIndex}, but got ${lockedQuestionIndex}. Skipping update.`);
         return;
