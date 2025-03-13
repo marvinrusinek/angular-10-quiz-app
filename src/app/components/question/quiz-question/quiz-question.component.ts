@@ -4243,23 +4243,24 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔒 **Fix Indexing Issues Specifically for Q1**
+    // 🔒 **Fix Indexing Issues Only If Necessary**
     let lockedQuestionIndex = questionIndex;
 
     console.log(`[updateExplanationText] 🔍 Initial received questionIndex: ${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current questionIndex in component: ${this.currentQuestionIndex}`);
 
+    // ✅ **Ensure the index is valid but don't force corrections unnecessarily**
     if (this.currentQuestionIndex !== questionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
-        lockedQuestionIndex = this.currentQuestionIndex;
+        console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected Q${this.currentQuestionIndex}, received Q${questionIndex}.`);
+        
+        // ✅ Only adjust if questionIndex is clearly wrong
+        if (questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
+            console.warn(`[updateExplanationText] ⚠️ Invalid question index! Using currentQuestionIndex instead.`);
+            lockedQuestionIndex = this.currentQuestionIndex;
+        }
     }
 
-    if (lockedQuestionIndex === 0) {
-        console.log(`[updateExplanationText] 🚨 Special Case: Ensuring Q1 uses index 0.`);
-        lockedQuestionIndex = 0;
-    }
-
-    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
+    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: Q${lockedQuestionIndex}`);
 
     // ✅ **Ensure the question exists at the locked index**
     if (!this.quiz.questions[lockedQuestionIndex]) {
@@ -4305,7 +4306,7 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // ✅ **Check if we are modifying the correct question**
+    // ✅ **Ensure explanation updates only for the correct question**
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Expected ${this.currentQuestionIndex}, but got ${lockedQuestionIndex}. Skipping update.`);
         return;
