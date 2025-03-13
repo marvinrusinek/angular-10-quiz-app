@@ -4237,7 +4237,7 @@ export class QuizQuestionComponent
 
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
-
+    
     if (!this.quiz || !this.quiz.questions || !this.quiz.questions[questionIndex]) {
         console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
         return;
@@ -4246,26 +4246,28 @@ export class QuizQuestionComponent
     // 🔒 **Fix Indexing Issues Specifically for Q1**
     let lockedQuestionIndex = questionIndex;
 
+    console.log(`[updateExplanationText] 🔍 Initial received questionIndex: ${questionIndex}`);
+    console.log(`[updateExplanationText] 🔍 Current questionIndex in component: ${this.currentQuestionIndex}`);
+
     if (this.currentQuestionIndex !== questionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatched indices! Expected ${this.currentQuestionIndex}, received ${questionIndex}. Correcting...`);
+        console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
         lockedQuestionIndex = this.currentQuestionIndex;
     }
 
-    // 🚨 **Special Case: Ensure Q1 Gets the Right Explanation**
     if (lockedQuestionIndex === 0) {
-        console.log(`[updateExplanationText] 🚨 Special Case: Forcing correct index for Q1!`);
-        lockedQuestionIndex = 0; // Ensure Q1 stays at index 0
+        console.log(`[updateExplanationText] 🚨 Special Case: Ensuring Q1 uses index 0.`);
+        lockedQuestionIndex = 0;
     }
 
-    console.log(`[updateExplanationText] 🔒 Using corrected index: Q${lockedQuestionIndex}`);
+    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
-    // ✅ **Ensure this is a valid question index**
+    // ✅ **Ensure the question exists at the locked index**
     if (!this.quiz.questions[lockedQuestionIndex]) {
-        console.warn(`[updateExplanationText] ⚠️ No question found at corrected index ${lockedQuestionIndex}.`);
+        console.warn(`[updateExplanationText] ⚠️ No question found at locked index ${lockedQuestionIndex}.`);
         return;
     }
 
-    // ✅ **Check if the question is answered before proceeding**
+    // ✅ **Check if question is answered**
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Checking question state for Q${lockedQuestionIndex}:`, questionState);
 
@@ -4303,19 +4305,20 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // ✅ **Enforce correct index usage**
+    // ✅ **Check if we are modifying the correct question**
     if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Expected ${this.currentQuestionIndex}, but got ${lockedQuestionIndex}. Skipping update.`);
         return;
     }
 
     // ✅ **Apply Explanation to UI**
+    console.log(`[updateExplanationText] 🟢 Applying explanation for Q${lockedQuestionIndex}:`, explanationText);
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
     this.cdRef.detectChanges();
 
-    console.log(`[updateExplanationText] 🎯 Final Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
+    console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
 
   handleAudioPlayback(isCorrect: boolean): void {
