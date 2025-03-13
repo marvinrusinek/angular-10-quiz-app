@@ -4278,6 +4278,15 @@ export class QuizQuestionComponent
         return;
     }
 
+    // ✅ **Check if the question is answered before proceeding**
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🔍 Checking question state for Q${lockedQuestionIndex}:`, questionState);
+
+    if (!questionState || !questionState.isAnswered) {
+        console.warn(`[updateExplanationText] ⚠️ Question ${lockedQuestionIndex} has not been answered yet. Skipping explanation update.`);
+        return;
+    }
+
     // ✅ **Check if explanation is already stored**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
