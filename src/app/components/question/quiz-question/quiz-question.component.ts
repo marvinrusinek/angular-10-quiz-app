@@ -4251,13 +4251,13 @@ export class QuizQuestionComponent
     // ✅ Ensure locked index is always correct
     let lockedQuestionIndex = questionIndex;
 
-    // 🚨 **Fix Q1 Indexing Issue**
-    if (this.currentQuestionIndex === 0) {
-        console.warn(`[updateExplanationText] 🚨 Fixing mismatch! Forcing Q1 to use index 0.`);
-        lockedQuestionIndex = 0;
+    // 🚀 **Fix Q1 Indexing Issue**
+    if (this.currentQuestionIndex === 0 || questionIndex === 0) {
+      console.warn(`[updateExplanationText] 🚨 Fixing mismatch! Forcing Q1 to use index 0.`);
+      lockedQuestionIndex = 0;
     } else if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
-        lockedQuestionIndex = this.currentQuestionIndex;
+      console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
+      lockedQuestionIndex = this.currentQuestionIndex;
     }
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
