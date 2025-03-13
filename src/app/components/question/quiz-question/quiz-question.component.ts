@@ -3648,6 +3648,7 @@ export class QuizQuestionComponent
   private applyCooldownAndFinalize(): void {
     setTimeout(() => {
       this.isOptionSelected = false;
+      console.log(`[applyCooldownAndFinalize] 🔍 Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
       this.updateExplanationText(this.currentQuestionIndex);
     }, 300);
 
