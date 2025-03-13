@@ -1052,10 +1052,10 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ Fix: Use `index` directly instead of shifting it down
-    const questionIndex = Math.max(0, index); 
+    // ✅ Fix: Directly use `index` and prevent negative values
+    const questionIndex = Math.max(0, index);
 
-    if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
+    if (questionIndex >= this.questionsArray.length) {
         console.error(`[setQuestionFirst] ❌ Invalid question index: ${questionIndex}`);
         return;
     }
@@ -1069,15 +1069,15 @@ export class QuizQuestionComponent
 
     console.log(`[setQuestionFirst] ✅ Setting question for index: ${questionIndex}`);
 
-    // ✅ Fix: Always update question (even if text matches) to refresh explanations
+    // ✅ Update the current question
     this.currentQuestion = question;
     this.quizService.setCurrentQuestion(question);
 
-    // ✅ Assign options IMMEDIATELY to avoid async issues
+    // ✅ Ensure options are set immediately to prevent async issues
     this.optionsToDisplay = [...(question.options ?? [])];
     console.log(`[setQuestionFirst] 📝 Options set for question:`, this.optionsToDisplay);
 
-    // ✅ Ensure explanation is updated properly
+    // ✅ Ensure option feedback is updated correctly
     if (this.lastProcessedQuestionIndex !== questionIndex || questionIndex === 0) {
         console.log(`[setQuestionFirst] 🟢 Applying option feedback...`);
         this.applyOptionFeedbackToAllOptions();
@@ -1086,10 +1086,13 @@ export class QuizQuestionComponent
         console.warn(`[setQuestionFirst] ⚠️ Feedback already processed. Skipping.`);
     }
 
-    // ✅ Ensure explanation updates correctly
+    // ✅ **Force Explanation Update for Correct Question**
     setTimeout(() => {
-        console.log(`[setQuestionFirst] 🔍 Updating explanation for Q${questionIndex}...`);
+        console.log(`[setQuestionFirst] 🔍 FORCING updateExplanationText for Q${questionIndex}`);
+        
+        // 🚀 **Explicitly pass correct `questionIndex` to avoid shifting**
         this.updateExplanationIfAnswered(questionIndex, question);
+        
         this.questionRenderComplete.emit();
     }, 50);
   }
