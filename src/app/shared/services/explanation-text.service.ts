@@ -126,9 +126,10 @@ export class ExplanationTextService {
     return this.formattedExplanation$;
   } */
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    console.log('[DEBUG] 🔍 Requesting explanation for index:', index);
-    console.log('[DEBUG] 🔍 Stored explanations before fetching:', this.formattedExplanations);
-    console.log('[ExplanationTextService] Stored explanations:', JSON.stringify(this.formattedExplanations, null, 2));
+    console.log(`[DEBUG] 🔍 Requesting explanation for index: ${index}`);
+    
+    // ✅ Log all stored explanations before fetching
+    console.log(`[DEBUG] 🔍 FULL STORED EXPLANATIONS:`, JSON.stringify(this.formattedExplanations, null, 2));
 
     let explanationText: string;
 
@@ -143,13 +144,14 @@ export class ExplanationTextService {
             explanationText = 'No explanation available';
         }
     } else {
-        console.log(`[DEBUG] ❌ Index ${index} is out of bounds or no explanation stored.`);
+        console.log(`[DEBUG] ❌ ERROR! Index ${index} not found in stored explanations.`);
         explanationText = 'Question index out of bounds or no explanation available';
     }
 
-    this.formattedExplanationSubject.next(explanationText);
+    // ✅ Log the final explanation before emitting
+    console.log(`[DEBUG] 🔍 FINAL EXPLANATION for Q${index}:`, explanationText);
 
-    console.log('[DEBUG] 🔍 Explanation emitted:', explanationText);
+    this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
   }
   /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
