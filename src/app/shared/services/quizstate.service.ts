@@ -169,7 +169,7 @@ export class QuizStateService {
   }
 
   // Store explanation for a question
-  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+  /* setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
       this.quizState[quizId] = {};
     }
@@ -191,6 +191,31 @@ export class QuizStateService {
     console.log(`[QuizStateService] 🟢 STORED Explanation for Q${questionIndex}:`, explanation);
     console.log(`[QuizStateService] 🟢 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
+  } */
+  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+    // ✅ Ensure quizId exists
+    if (!this.quizState[quizId]) {
+        this.quizState[quizId] = {}; 
+    }
+
+    console.log(`[QuizStateService] 🟢 Storing Explanation for Q${questionIndex}:`, explanation);
+
+    // 🔍 Check if explanation already exists
+    const existingExplanation = this.quizState[quizId][questionIndex]?.explanation;
+
+    if (existingExplanation && existingExplanation === explanation) {
+        console.warn(`[QuizStateService] ⚠️ Explanation for Q${questionIndex} is already stored and matches. Skipping storage.`);
+        return;
+    }
+
+    // ✅ Store the explanation correctly
+    this.quizState[quizId][questionIndex] = {
+        ...(this.quizState[quizId][questionIndex] || {}), // Ensure existing data is not lost
+        explanation
+    };
+
+    console.log(`[QuizStateService] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[QuizStateService] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
   }
 
   // Method to retrieve stored explanation text
