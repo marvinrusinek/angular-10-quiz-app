@@ -4241,28 +4241,27 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
+    console.log(`[updateExplanationText] 🟢 START: Updating explanation for Q${questionIndex}`);
 
     if (!this.quiz || !this.quiz.questions || !this.quiz.questions[questionIndex]) {
-        console.error(`[updateExplanationText] ❌ Question not found at index ${questionIndex}`);
+        console.error(`[updateExplanationText] ❌ ERROR: No question found at index ${questionIndex}`);
         return;
     }
 
-    // ✅ Ensure locked index is always correct
     let lockedQuestionIndex = questionIndex;
 
-    // 🚨 **Fix Q1 Indexing Issue**
+    // 🚨 **Ensure Correct Indexing for Q1**
     if (this.currentQuestionIndex === 0) {
         console.warn(`[updateExplanationText] 🚨 Fixing mismatch! Forcing Q1 to use index 0.`);
         lockedQuestionIndex = 0;
     } else if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
+        console.warn(`[updateExplanationText] ⚠️ Index Mismatch: Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting to ${this.currentQuestionIndex}`);
         lockedQuestionIndex = this.currentQuestionIndex;
     }
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
-    // ✅ **Ensure the question exists at the locked index**
+    // ✅ Ensure the question exists at the locked index
     if (!this.quiz.questions[lockedQuestionIndex]) {
         console.warn(`[updateExplanationText] ⚠️ No question found at locked index ${lockedQuestionIndex}.`);
         return;
@@ -4273,56 +4272,38 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🔍 Checking question state for Q${lockedQuestionIndex}:`, questionState);
 
     if (!questionState || !questionState.isAnswered) {
-        console.warn(`[updateExplanationText] ⚠️ Question ${lockedQuestionIndex} has not been answered yet. Skipping explanation update.`);
+        console.warn(`[updateExplanationText] ⚠️ Question ${lockedQuestionIndex} is not answered. Skipping explanation update.`);
         return;
     }
 
-    // ✅ **Check if explanation is already stored**
+    // ✅ **Retrieve stored explanation**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-    // 🚀 **Fetch explanation only if not stored**
+    // 🚀 **Fetch explanation if not stored**
     if (!explanationText) {
-        console.log(`[updateExplanationText] 🚀 No stored explanation found for Q${lockedQuestionIndex}. Fetching from service...`);
+        console.log(`[updateExplanationText] 🚀 No stored explanation found. Fetching from service...`);
         try {
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
 
-            // 🚀 NEW: 🔍 **Ensure the correct explanation was retrieved**
-            if (!explanationText.includes(`Q${lockedQuestionIndex}`)) {
-                console.error(`[updateExplanationText] ❌ ERROR! Explanation mismatch detected! Expected Q${lockedQuestionIndex}, got:`, explanationText);
-                explanationText = `Error: Incorrect explanation retrieved for Q${lockedQuestionIndex}.`;
-            }
+            console.log(`[updateExplanationText] ✅ Fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
 
-            console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
-
-            // ✅ **Store it to prevent redundant fetching**
+            // ✅ **Store fetched explanation to prevent duplicate requests**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
-            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            console.error(`[updateExplanationText] ❌ ERROR: Failed to fetch explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
         }
     } else {
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ **Ensure explanation is valid before updating UI**
-    if (!explanationText || explanationText.trim() === '') {
-        console.warn(`[updateExplanationText] ⚠️ Retrieved empty explanation for Q${lockedQuestionIndex}, setting default message.`);
-        explanationText = 'No explanation available.';
-    }
-
-    // 🚀 **🔥 SAFEGUARD: Prevent Q1 from getting Q2’s explanation**
-    if (lockedQuestionIndex === 0 && explanationText.includes('Q2')) {
-        console.error(`[updateExplanationText] ❌ ERROR! Q1 is getting Q2's explanation!`);
-        explanationText = 'Forcing correct explanation for Q1.';
-    }
-
-    // ✅ **Check if we are modifying the correct question**
-    if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Explanation index mismatch! Expected ${this.currentQuestionIndex}, but got ${lockedQuestionIndex}. Skipping update.`);
-        return;
+    // 🚀 **Confirm Explanation Matches Question**
+    if (lockedQuestionIndex === 0 && explanationText.includes('Q1')) {
+        console.error(`[updateExplanationText] ❌ ERROR: Q1 is retrieving Q2's explanation! Explanation text:`, explanationText);
+        return; // 🔴 Prevent incorrect explanation assignment
     }
 
     // ✅ **Apply Explanation to UI**
