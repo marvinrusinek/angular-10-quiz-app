@@ -986,7 +986,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   console.log(`[QuizComponent] 🔍 BEFORE Calling updateExplanationText`);
                   console.log(`[QuizComponent] ✅ Current Question Index BEFORE call:`, this.currentQuestionIndex);
                   console.log(`[QuizComponent] ✅ Question Index being passed to updateExplanationText:`, questionIndex);
-                  
+
+                  console.log(`[QuizComponent] 🚀 Calling updateExplanationText for Q${questionIndex} from loadQuestionContents()`);
+
                   // ✅ Pass the correct `questionIndex` instead of `this.currentQuestionIndex`
                   this.quizQuestionComponent.updateExplanationText(questionIndex);
               } else {
