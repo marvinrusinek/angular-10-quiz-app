@@ -4241,54 +4241,38 @@ export class QuizQuestionComponent
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
+
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
-    // 🔍 **Ensure the question exists**
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
-      console.error(`[updateExplanationText] ❌ ERROR: Quiz questions are NOT loaded!`);
-
-      // 🔄 Retry after a short delay to allow loading
-      setTimeout(() => this.updateExplanationText(questionIndex), 100);
-      return;
+        console.error(`[updateExplanationText] ❌ ERROR: Quiz questions are NOT loaded!`);
+        return;
     }
 
-    // 🔍 Log available question indices
     console.log(`[updateExplanationText] 🔍 Available Question Indices:`, Object.keys(this.quiz.questions));
 
-    // 🚨 Check if the requested question index exists
     if (!this.quiz.questions[questionIndex]) {
-      console.error(`[updateExplanationText] ❌ ERROR: Question NOT FOUND at index ${questionIndex} in updateExplanationText()`);
-      return;
+        console.error(`[updateExplanationText] ❌ ERROR: Question NOT FOUND at index ${questionIndex}`);
+        return;
     }
 
     console.log(`[updateExplanationText] ✅ Confirmed Question Exists for Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
-    // 🔒 **Fix Indexing Issues**
     let lockedQuestionIndex = questionIndex;
 
-    console.log(`[updateExplanationText] 🔍 Initial received questionIndex: ${questionIndex}`);
-    console.log(`[updateExplanationText] 🔍 Current component questionIndex: ${this.currentQuestionIndex}`);
-
-    // **Force Q1 to use index 0** (Prevent Q1/Q2 Mismatch)
     if (questionIndex === 0) {
-      console.warn(`[updateExplanationText] 🚨 Fixing Q1 indexing. Ensuring lockedQuestionIndex = 0`);
-      lockedQuestionIndex = 0;
-    } 
-    else if (questionIndex !== this.currentQuestionIndex) {
-      console.warn(`[updateExplanationText] ⚠️ Index mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Keeping ${questionIndex}.`);
-      lockedQuestionIndex = questionIndex; // Keep the original passed index
+        console.warn(`[updateExplanationText] 🚨 Fixing Q1 indexing. Ensuring lockedQuestionIndex = 0`);
+        lockedQuestionIndex = 0;
     }
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
-    // ✅ **Ensure Question Exists at the Locked Index**
     if (!this.quiz.questions[lockedQuestionIndex]) {
         console.warn(`[updateExplanationText] ⚠️ No question found at corrected index ${lockedQuestionIndex}.`);
         return;
     }
 
-    // ✅ **Check if Question is Answered**
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Checking if Q${lockedQuestionIndex} is answered:`, questionState);
 
@@ -4297,12 +4281,10 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔍 **Check if Explanation is Already Stored**
     console.log(`[updateExplanationText] 🔍 Checking stored explanation BEFORE fetching for Q${lockedQuestionIndex}...`);
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-    // 🚀 **Fetch Explanation If Not Stored**
     if (!explanationText) {
         console.log(`[updateExplanationText] 🚀 No stored explanation found for Q${lockedQuestionIndex}. Fetching from service...`);
         try {
@@ -4310,20 +4292,6 @@ export class QuizQuestionComponent
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
-
-            // 🚨 **Check for Q1/Q2 Swap Issue**
-            if (lockedQuestionIndex === 0 && explanationText.includes("Q2")) {
-                console.error(`[updateExplanationText] ❌ ERROR: Q1 received Q2's explanation!`);
-                explanationText = `Error: Incorrect explanation retrieved for Q${lockedQuestionIndex}.`;
-            }
-
-            // 📝 **Store Explanation**
-            if (explanationText) {
-                console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
-                this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            } else {
-                console.warn(`[DEBUG] ⚠️ Explanation text is EMPTY for Q${lockedQuestionIndex}, skipping storage.`);
-            }
         } catch (error) {
             console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
@@ -4332,19 +4300,14 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ **Ensure Explanation is Valid Before Applying to UI**
     if (!explanationText || explanationText.trim() === '') {
         console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
         explanationText = 'No explanation available.';
     }
 
-    // 🚀 **🔥 Final Safeguard: Prevent Q1/Q2 Swap**
-    if (lockedQuestionIndex === 0 && explanationText.includes("Q2")) {
-        console.error(`[updateExplanationText] ❌ ERROR: Q1 is STILL getting Q2's explanation! Overriding...`);
-        explanationText = 'Fixing incorrect explanation for Q1.';
-    }
+    console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
+    this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
 
-    // ✅ **Apply Explanation to UI**
     console.log(`[updateExplanationText] 🟢 Applying explanation for Q${lockedQuestionIndex}:`, explanationText);
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
@@ -4353,7 +4316,6 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
-  
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
