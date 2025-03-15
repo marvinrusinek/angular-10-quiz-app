@@ -126,10 +126,8 @@ export class ExplanationTextService {
     return this.formattedExplanation$;
   } */
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    console.log(`[DEBUG] 🔍 Requesting explanation for index: ${index}`);
-    
-    // ✅ Log all stored explanations before fetching
-    console.log(`[DEBUG] 🔍 FULL STORED EXPLANATIONS:`, JSON.stringify(this.formattedExplanations, null, 2));
+    console.log('[ExplanationTextService] 🔍 Requesting explanation for index:', index);
+    console.log('[ExplanationTextService] 🔍 FULL STORED EXPLANATIONS:', JSON.stringify(this.formattedExplanations, null, 2));
 
     let explanationText: string;
 
@@ -137,23 +135,21 @@ export class ExplanationTextService {
         const formattedExplanation = this.formattedExplanations[index];
 
         if (formattedExplanation && formattedExplanation.explanation) {
-            console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
+            console.log(`[ExplanationTextService] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
             explanationText = formattedExplanation.explanation;
         } else {
-            console.log(`[DEBUG] ⚠️ No explanation text found for index ${index}`);
+            console.log(`[ExplanationTextService] ⚠️ No explanation text found for Q${index}`);
             explanationText = 'No explanation available';
         }
     } else {
-        console.log(`[DEBUG] ❌ ERROR! Index ${index} not found in stored explanations.`);
-        explanationText = 'Question index out of bounds or no explanation available';
+        console.log(`[ExplanationTextService] ❌ No explanation stored for Q${index}.`);
+        explanationText = 'Explanation not available.';
     }
 
-    // ✅ Log the final explanation before emitting
-    console.log(`[DEBUG] 🔍 FINAL EXPLANATION for Q${index}:`, explanationText);
-
-    this.formattedExplanationSubject.next(explanationText);
-    return this.formattedExplanation$;
+    console.log('[ExplanationTextService] 🔍 Emitting explanation:', explanationText);
+    return of(explanationText);
   }
+
   /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log('[DEBUG] Requesting explanation for index:', index);
     console.log('[DEBUG] Stored explanations before fetching:', this.formattedExplanations);
