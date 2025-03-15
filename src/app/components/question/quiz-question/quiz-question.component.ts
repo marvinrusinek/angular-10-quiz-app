@@ -4245,10 +4245,21 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
     // 🔍 **Ensure the question exists**
-    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[questionIndex]) {
-        console.error(`[updateExplanationText] ❌ ERROR: Question not found at index ${questionIndex}`);
-        return;
+    if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
+      console.error(`[updateExplanationText] ❌ ERROR: Quiz questions are NOT loaded!`);
+      return;
     }
+
+    // 🔍 Log available question indices
+    console.log(`[updateExplanationText] 🔍 Available Question Indices:`, Object.keys(this.quiz.questions));
+
+    // 🚨 Check if the requested question index exists
+    if (!this.quiz.questions[questionIndex]) {
+      console.error(`[updateExplanationText] ❌ ERROR: Question NOT FOUND at index ${questionIndex} in updateExplanationText()`);
+      return;
+    }
+
+    console.log(`[updateExplanationText] ✅ Confirmed Question Exists for Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
     // 🔒 **Fix Indexing Issues**
     let lockedQuestionIndex = questionIndex;
