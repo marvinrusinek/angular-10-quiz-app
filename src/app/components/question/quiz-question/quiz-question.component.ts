@@ -4282,12 +4282,16 @@ export class QuizQuestionComponent
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Checking if Q${lockedQuestionIndex} is answered:`, questionState);
 
-    if (!questionState || (!questionState.isAnswered && lockedQuestionIndex !== 0)) {
-      console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has NOT been answered. Skipping explanation update.`);
+    if (!questionState) {
+      console.warn(`[updateExplanationText] ⚠️ No state found for Q${lockedQuestionIndex}. Skipping explanation update.`);
       return;
+    }
+
+    if (!questionState.isAnswered) {
+      console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has NOT been answered yet.`);
     } else {
-      console.log(`[updateExplanationText] ✅ Allowing explanation update for Q${lockedQuestionIndex}, even if unanswered.`);
-    }  
+      console.log(`[updateExplanationText] ✅ Allowing explanation update for Q${lockedQuestionIndex}.`);
+    }
 
     console.log(`[updateExplanationText] 🔍 Checking stored explanation BEFORE fetching for Q${lockedQuestionIndex}...`);
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
