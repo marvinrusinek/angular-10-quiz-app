@@ -2864,7 +2864,7 @@ export class QuizQuestionComponent
         console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from onOptionClicked()`);
         
         console.log(`🟢 [BEFORE CALL] Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
-        await this.updateExplanationText(this.currentQuestionIndex);
+        await this.updateExplanationText(lockedQuestionIndex);
         
         console.log(`[onOptionClicked] ✅ Finished updateExplanationText() for Q${this.currentQuestionIndex}`);
 
@@ -4246,9 +4246,9 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`🔵 [FORCE LOG] Entered updateExplanationText() for Q${questionIndex}`);
-    console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
+    console.log(`🔵 [DEBUG] Entered updateExplanationText() for Q${questionIndex}`);
 
+    // ✅ Ensure quiz and questions exist
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
         console.error(`[updateExplanationText] ❌ ERROR: Quiz questions are NOT loaded!`);
         return;
@@ -4256,6 +4256,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🔍 Available Question Indices:`, Object.keys(this.quiz.questions));
 
+    // ✅ Check if requested question index exists
     if (!this.quiz.questions[questionIndex]) {
         console.error(`[updateExplanationText] ❌ ERROR: Question NOT FOUND at index ${questionIndex}`);
         return;
@@ -4263,6 +4264,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] ✅ Confirmed Question Exists for Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
+    // 🔒 Lock index for consistency
     let lockedQuestionIndex = questionIndex;
 
     if (questionIndex === 0) {
@@ -4277,6 +4279,7 @@ export class QuizQuestionComponent
         return;
     }
 
+    // ✅ Check if the question is answered
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Checking if Q${lockedQuestionIndex} is answered:`, questionState);
 
@@ -4285,10 +4288,12 @@ export class QuizQuestionComponent
         return;
     }
 
+    // 🔍 Check if an explanation is already stored
     console.log(`[updateExplanationText] 🔍 Checking stored explanation BEFORE fetching for Q${lockedQuestionIndex}...`);
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
+    // 🚀 Fetch explanation if not stored
     if (!explanationText) {
         console.log(`[updateExplanationText] 🚀 No stored explanation found for Q${lockedQuestionIndex}. Fetching from service...`);
         try {
@@ -4304,14 +4309,22 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
+    // 🚨 **Check if the explanation matches the correct question**
+    if (lockedQuestionIndex === 0 && explanationText.includes("Q1")) {
+        console.error(`[updateExplanationText] ❌ ERROR: Q1 is getting Q2's explanation!`);
+    }
+
+    // ✅ Ensure explanation is valid before updating UI
     if (!explanationText || explanationText.trim() === '') {
         console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
         explanationText = 'No explanation available.';
     }
 
+    // 📝 Store Explanation
     console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
     this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
 
+    // ✅ Apply explanation to UI
     console.log(`[updateExplanationText] 🟢 Applying explanation for Q${lockedQuestionIndex}:`, explanationText);
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
