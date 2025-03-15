@@ -193,6 +193,7 @@ export class QuizStateService {
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+    console.log(`[QuizStateService] 🟢 setQuestionExplanation() CALLED!`);
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
@@ -216,6 +217,7 @@ export class QuizStateService {
 
 // Method to retrieve stored explanation text
 getStoredExplanation(quizId: string, questionIndex: number): string | null {
+  console.log(`[QuizStateService] 🟢 getStoredExplanation() CALLED!`);
     console.log(`[QuizStateService] 🟢 Retrieving explanation for Q${questionIndex}`);
 
     if (!this.quizState[quizId]) {
