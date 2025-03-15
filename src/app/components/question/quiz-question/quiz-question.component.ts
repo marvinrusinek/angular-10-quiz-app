@@ -4402,6 +4402,7 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
 
+
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
       this.audioList = [...this.audioList, this.correctAudioSource];
