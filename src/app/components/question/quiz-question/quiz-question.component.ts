@@ -4243,6 +4243,7 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`🔵 [FORCE LOG] Entered updateExplanationText() for Q${questionIndex}`);
     console.log(`[updateExplanationText] 🟢 Updating explanation for Q${questionIndex}`);
 
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
