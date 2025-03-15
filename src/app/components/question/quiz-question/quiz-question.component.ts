@@ -4241,7 +4241,6 @@ export class QuizQuestionComponent
     // Delay to ensure reset completes before new state updates
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
-
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 START: Updating explanation for Q${questionIndex}`);
 
@@ -4317,6 +4316,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
+  
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
