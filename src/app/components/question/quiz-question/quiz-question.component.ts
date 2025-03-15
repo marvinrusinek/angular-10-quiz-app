@@ -4266,13 +4266,18 @@ export class QuizQuestionComponent
 
     let lockedQuestionIndex = questionIndex;
 
-    // 🚀 **Ensure Correct Index for Q1**
+    // 🚀 **Ensure Correct Index Handling**
     if (questionIndex === 0) {
         console.warn(`[updateExplanationText] 🚨 Fixing Q1 indexing. Ensuring lockedQuestionIndex = 0`);
         lockedQuestionIndex = 0;
+    } 
+    // 🔥 Prevent overwriting correct question indices
+    else if (questionIndex !== this.currentQuestionIndex) {
+        console.warn(`[updateExplanationText] ⚠️ Mismatch detected! Expected ${this.currentQuestionIndex}, received ${questionIndex}. Using ${this.currentQuestionIndex}.`);
+        lockedQuestionIndex = this.currentQuestionIndex;
     }
 
-    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
+    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex after corrections: ${lockedQuestionIndex}`);
 
     if (!this.quiz.questions[lockedQuestionIndex]) {
         console.warn(`[updateExplanationText] ⚠️ No question found at corrected index ${lockedQuestionIndex}.`);
