@@ -4288,6 +4288,7 @@ export class QuizQuestionComponent
                 console.error(`[updateExplanationText] ❌ ERROR: Q1 received Q2's explanation!`);
             }
 
+            console.log(`[DEBUG] 🚀 Calling setQuestionExplanation() for Q${lockedQuestionIndex} with:`, explanationText);
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
