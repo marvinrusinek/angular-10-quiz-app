@@ -4257,13 +4257,13 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🔍 Current component questionIndex: ${this.currentQuestionIndex}`);
 
     // **Force Q1 to use index 0** (Prevent Q1/Q2 Mismatch)
-    if (this.currentQuestionIndex === 0) {
-        console.warn(`[updateExplanationText] 🚨 Fixing Q1 indexing. Forcing lockedQuestionIndex = 0`);
-        lockedQuestionIndex = 0;
+    if (questionIndex === 0) {
+      console.warn(`[updateExplanationText] 🚨 Fixing Q1 indexing. Ensuring lockedQuestionIndex = 0`);
+      lockedQuestionIndex = 0;
     } 
-    else if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Index mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Correcting...`);
-        lockedQuestionIndex = this.currentQuestionIndex;
+    else if (questionIndex !== this.currentQuestionIndex) {
+      console.warn(`[updateExplanationText] ⚠️ Index mismatch! Expected ${this.currentQuestionIndex}, got ${questionIndex}. Keeping ${questionIndex}.`);
+      lockedQuestionIndex = questionIndex; // Keep the original passed index
     }
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
