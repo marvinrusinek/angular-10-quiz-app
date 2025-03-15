@@ -4287,7 +4287,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    if (!questionState.isAnswered) {
+    if (!questionState?.isAnswered) {
       console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has NOT been answered yet.`);
     } else {
       console.log(`[updateExplanationText] ✅ Allowing explanation update for Q${lockedQuestionIndex}.`);
