@@ -4247,6 +4247,9 @@ export class QuizQuestionComponent
     // 🔍 **Ensure the question exists**
     if (!this.quiz || !this.quiz.questions || this.quiz.questions.length === 0) {
       console.error(`[updateExplanationText] ❌ ERROR: Quiz questions are NOT loaded!`);
+
+      // 🔄 Retry after a short delay to allow loading
+      setTimeout(() => this.updateExplanationText(questionIndex), 100);
       return;
     }
 
