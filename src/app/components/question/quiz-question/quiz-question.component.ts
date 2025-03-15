@@ -4289,7 +4289,13 @@ export class QuizQuestionComponent
             }
 
             console.log(`[DEBUG] 🚀 Calling setQuestionExplanation() for Q${lockedQuestionIndex} with:`, explanationText);
-            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            console.log(`[DEBUG] 🟢 Checking before storing explanation in setQuestionExplanation() for Q${lockedQuestionIndex}:`, explanationText);
+            if (explanationText) {
+              console.log(`[DEBUG] 🚀 Calling setQuestionExplanation() for Q${lockedQuestionIndex} with:`, explanationText);
+              this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+          } else {
+              console.warn(`[DEBUG] ⚠️ Explanation text is EMPTY for Q${lockedQuestionIndex}, skipping storage.`);
+          }
         } catch (error) {
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
