@@ -4299,6 +4299,15 @@ export class QuizQuestionComponent
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
+
+            // 🔥 **Ensure Explanation is Stored Before UI Update**
+            if (explanationText && explanationText.trim() !== '') {
+                console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
+                this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            } else {
+                console.warn(`[DEBUG] ⚠️ Explanation text is EMPTY for Q${lockedQuestionIndex}, skipping storage.`);
+                explanationText = 'No explanation available.';
+            }
         } catch (error) {
             console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
             return;
@@ -4307,20 +4316,19 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ **Ensure Explanation is Valid Before Applying to UI**
-    if (!explanationText || explanationText.trim() === '') {
-        console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
-        explanationText = 'No explanation available.';
-    }
-
-    // 🚨 **Final Safeguard for Q1 Explanation**
+    // ✅ **Final Safeguard: Verify Q1's Explanation**
     if (lockedQuestionIndex === 0) {
         console.log(`[updateExplanationText] 🚀 Q1 Explanation Check:`, explanationText);
         
-        // If Q1 accidentally gets Q2's explanation, force correction
+        // 🔍 Expected Q1 Explanation from the Quiz Object
         const expectedQ1Explanation = this.quiz.questions[0]?.explanation;
+
         if (explanationText !== expectedQ1Explanation) {
-            console.error(`[updateExplanationText] ❌ ERROR: Q1 retrieved incorrect explanation! Forcing correction...`);
+            console.error(`[updateExplanationText] ❌ ERROR: Q1 retrieved incorrect explanation!`);
+            console.log(`[updateExplanationText] 🔍 Expected Explanation:`, expectedQ1Explanation);
+            console.log(`[updateExplanationText] 🔍 Retrieved Explanation:`, explanationText);
+
+            // 🚨 **Force Correction**
             explanationText = expectedQ1Explanation || "Fixing explanation for Q1";
             console.log(`[updateExplanationText] ✅ Overriding with correct explanation for Q1:`, explanationText);
         }
