@@ -4262,15 +4262,12 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] ✅ Confirmed Question Exists for Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
-    // ✅ **Force Q1 to Always Use Index 0**
+    // ✅ **Ensure Correct Index Usage**
     let lockedQuestionIndex = questionIndex;
-    if (questionIndex === 0) {
-        console.warn(`[updateExplanationText] 🚨 Fixing Q1 indexing. Ensuring lockedQuestionIndex = 0`);
-        lockedQuestionIndex = 0;
-    }
-    if (questionIndex === 1 && this.currentQuestionIndex !== 1) {
-        console.warn(`[updateExplanationText] 🚨 Fixing Q2 indexing. Ensuring lockedQuestionIndex = 1`);
-        lockedQuestionIndex = 1;
+
+    // 🔍 **LOGGING to ensure Q1 pulls the right data**
+    if (lockedQuestionIndex === 0) {
+        console.warn(`[updateExplanationText] 🚀 Q1 Detected! Verifying explanation integrity.`);
     }
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
@@ -4303,11 +4300,19 @@ export class QuizQuestionComponent
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
 
-            // 🔥 **Force Q1/Q2 to Store Correctly**
-            if (lockedQuestionIndex === 0 || lockedQuestionIndex === 1) {
-                console.log(`[DEBUG] 🚀 FORCE STORING explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
+            // 🔍 **Check for Q1 pulling Q2’s explanation**
+            if (lockedQuestionIndex === 0 && explanationText.includes(this.quiz.questions[1]?.explanation || "UNDEFINED")) {
+                console.error(`[updateExplanationText] ❌ ERROR: Q1 retrieved Q2's explanation!`);
+                explanationText = 'Error: Incorrect explanation retrieved for Q1. Fetching again...';
+                
+                // 🚀 **Re-fetch to correct the issue**
+                explanationText = await firstValueFrom(
+                    this.explanationTextService.getFormattedExplanationTextForQuestion(0)
+                );
+                console.log(`[updateExplanationText] ✅ Re-fetched Correct Explanation for Q1:`, explanationText);
             }
 
+            console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
