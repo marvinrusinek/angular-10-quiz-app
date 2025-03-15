@@ -197,14 +197,14 @@ export class QuizStateService {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[QuizStateService] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[QuizStateService] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // Prevent overwriting existing explanation
-    if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[QuizStateService] ⚠️ Explanation for Q${questionIndex} already exists:`, this.quizState[quizId][questionIndex].explanation);
-        return;
+    // 🚀 **Ensure the correct explanation is stored**
+    if (!explanation.includes(`Q${questionIndex}`)) {
+        console.error(`[QuizStateService] ❌ ERROR! Storing MISMATCHED explanation! Expected Q${questionIndex}, got:`, explanation);
     }
 
+    // ✅ **Always store the latest explanation**
     this.quizState[quizId][questionIndex] = {
         ...(this.quizState[quizId][questionIndex] || {}),
         explanation
@@ -212,19 +212,17 @@ export class QuizStateService {
 
     console.log(`[QuizStateService] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
     console.log(`[QuizStateService] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
-  }
+}
 
-  // Method to retrieve stored explanation text
-  getStoredExplanation(quizId: string, questionIndex: number): string | null {
-    console.log(`[QuizStateService] 🟢 Attempting to retrieve stored explanation for Q${questionIndex}`);
+// Method to retrieve stored explanation text
+getStoredExplanation(quizId: string, questionIndex: number): string | null {
+    console.log(`[QuizStateService] 🟢 Retrieving explanation for Q${questionIndex}`);
 
-    // Ensure quiz state exists
     if (!this.quizState[quizId]) {
         console.warn(`[QuizStateService] ⚠️ No stored quiz state found for quizId: ${quizId}`);
         return null;
     }
 
-    // Ensure explanation exists for the given question index
     if (!this.quizState[quizId][questionIndex]?.explanation) {
         console.warn(`[QuizStateService] ⚠️ No stored explanation found for Q${questionIndex} in quiz ${quizId}`);
         console.log(`[QuizStateService] 🔍 FULL STATE DURING RETRIEVAL:`, JSON.stringify(this.quizState, null, 2));
@@ -233,12 +231,16 @@ export class QuizStateService {
 
     const storedExplanation = this.quizState[quizId][questionIndex].explanation;
 
+    // 🚀 **Check if retrieved explanation is correct**
+    if (!storedExplanation.includes(`Q${questionIndex}`)) {
+        console.error(`[QuizStateService] ❌ ERROR! Retrieved explanation does NOT belong to Q${questionIndex}!`, storedExplanation);
+    }
+
     console.log(`[QuizStateService] ✅ RETRIEVED Explanation for Q${questionIndex}:`, storedExplanation);
     console.log(`[QuizStateService] 🔍 FULL STATE DURING RETRIEVAL:`, JSON.stringify(this.quizState, null, 2));
 
     return storedExplanation;
   }
-
 
   createDefaultQuestionState(): QuestionState {
     return {
