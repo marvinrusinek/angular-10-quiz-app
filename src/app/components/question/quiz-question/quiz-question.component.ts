@@ -2861,7 +2861,8 @@ export class QuizQuestionComponent
 
         // ✅ Call updateExplanationText to fetch and display explanation
         console.log(`[onOptionClicked] 🚀 Calling updateExplanationText for Q${lockedQuestionIndex}`);
-        await this.updateExplanationText(this.currentQuestionIndex);
+        console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from onOptionClicked()`);
+        await this.updateExplanationText(this.fixedQuestionIndex);
         console.log(`[onOptionClicked] ✅ Finished updateExplanationText() for Q${this.currentQuestionIndex}`);
 
         // ✅ Ensure correctness checks are performed
@@ -3649,6 +3650,7 @@ export class QuizQuestionComponent
     setTimeout(() => {
       this.isOptionSelected = false;
       console.log(`[applyCooldownAndFinalize] 🔍 Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
+      console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from applyCooldownAndFinalize()`);
       this.updateExplanationText(this.currentQuestionIndex);
     }, 300);
 
