@@ -193,31 +193,34 @@ export class QuizStateService {
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
-    console.log(`[QuizStateService] 🟢 setQuestionExplanation() CALLED!`);
+    console.log(`[DEBUG] 🚀 Attempting to STORE Explanation for Q${questionIndex}:`, explanation);
+
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[QuizStateService] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
+    // ✅ Log the BEFORE state
+    console.log(`[DEBUG] 🔍 BEFORE Storing, Current State:`, JSON.stringify(this.quizState, null, 2));
 
-    // 🚀 **Ensure the correct explanation is stored**
-    if (!explanation.includes(`Q${questionIndex}`)) {
-        console.error(`[QuizStateService] ❌ ERROR! Storing MISMATCHED explanation! Expected Q${questionIndex}, got:`, explanation);
+    // Prevent overwriting existing explanation
+    if (this.quizState[quizId][questionIndex]?.explanation) {
+        console.warn(`[DEBUG] ⚠️ Explanation for Q${questionIndex} already exists:`, this.quizState[quizId][questionIndex].explanation);
+        return;
     }
 
-    // ✅ **Always store the latest explanation**
     this.quizState[quizId][questionIndex] = {
         ...(this.quizState[quizId][questionIndex] || {}),
         explanation
     };
 
-    console.log(`[QuizStateService] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
-    console.log(`[QuizStateService] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
-}
+    // ✅ Log the AFTER state
+    console.log(`[DEBUG] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[DEBUG] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
+  }
 
-// Method to retrieve stored explanation text
-getStoredExplanation(quizId: string, questionIndex: number): string | null {
-  console.log(`[QuizStateService] 🟢 getStoredExplanation() CALLED!`);
+  // Method to retrieve stored explanation text
+  getStoredExplanation(quizId: string, questionIndex: number): string | null {
+    console.log(`[QuizStateService] 🟢 getStoredExplanation() CALLED!`);
     console.log(`[QuizStateService] 🟢 Retrieving explanation for Q${questionIndex}`);
 
     if (!this.quizState[quizId]) {
