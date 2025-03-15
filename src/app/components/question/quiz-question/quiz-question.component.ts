@@ -4266,7 +4266,7 @@ export class QuizQuestionComponent
     let lockedQuestionIndex = questionIndex;
 
     if (lockedQuestionIndex === 0) {
-        console.warn(`[updateExplanationText] 🚀 Q1 Detected! Ensuring index stays 0.`);
+        console.warn(`[updateExplanationText] 🚀 Ensuring Q1 uses index 0.`);
         lockedQuestionIndex = 0;
     }
 
@@ -4299,15 +4299,6 @@ export class QuizQuestionComponent
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
-
-            // 🔥 **Ensure Explanation is Stored Before UI Update**
-            if (explanationText && explanationText.trim() !== '') {
-                console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
-                this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            } else {
-                console.warn(`[DEBUG] ⚠️ Explanation text is EMPTY for Q${lockedQuestionIndex}, skipping storage.`);
-                explanationText = 'No explanation available.';
-            }
         } catch (error) {
             console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
             return;
@@ -4316,7 +4307,13 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ **Final Safeguard: Verify Q1's Explanation**
+    // ✅ **Ensure Explanation is Valid Before Applying to UI**
+    if (!explanationText || explanationText.trim() === '') {
+        console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
+        explanationText = 'No explanation available.';
+    }
+
+    // 🚀 **Final Safeguard: Verify Q1's Explanation**
     if (lockedQuestionIndex === 0) {
         console.log(`[updateExplanationText] 🚀 Q1 Explanation Check:`, explanationText);
         
@@ -4333,6 +4330,10 @@ export class QuizQuestionComponent
             console.log(`[updateExplanationText] ✅ Overriding with correct explanation for Q1:`, explanationText);
         }
     }
+
+    // ✅ **Store Explanation**
+    console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
+    this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
 
     // ✅ **Apply Explanation to UI**
     console.log(`[updateExplanationText] 🟢 Applying explanation for Q${lockedQuestionIndex}:`, explanationText);
