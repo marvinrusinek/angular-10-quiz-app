@@ -4246,68 +4246,51 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`🔵 [FORCE LOG] Entered updateExplanationText() for Q${questionIndex}`);
+    console.log(`🔵 [FORCE LOG] updateExplanationText() called for index: ${questionIndex}`);
   
     if (!this.quiz?.questions?.[questionIndex]) {
-      console.error(`[updateExplanationText] ❌ ERROR: Question NOT FOUND at index ${questionIndex}`);
+      console.error(`[updateExplanationText] ❌ Question NOT FOUND at index ${questionIndex}`);
       return;
     }
   
-    const lockedQuestionIndex = questionIndex;
-    const question = this.quiz.questions[lockedQuestionIndex];
-  
-    console.log(`[updateExplanationText] ✅ Question #${lockedQuestionIndex} loaded:`, question.questionText);
-  
-    // ✅ **Check Question State**
-    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
-    console.log(`[updateExplanationText] 🔍 QuestionState for Q${lockedQuestionIndex}:`, questionState);
-  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     if (!questionState?.isAnswered) {
-      console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} NOT answered.`);
+      console.warn(`[updateExplanationText] ⚠️ Question ${questionIndex} NOT answered yet.`);
       return;
     }
   
-    // 🔍 **Check Stored Explanation**
-    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-    console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
   
-    // 🚀 **Fetch only if not stored**
     if (!explanationText) {
-      console.log(`[updateExplanationText] 🚀 Fetching from ExplanationTextService for Q${lockedQuestionIndex}...`);
       try {
         explanationText = await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
   
-        console.log(`[updateExplanationText] ✅ Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
+        // 🔥 Crucial Verification:
+        const correctExplanation = this.quiz.questions[questionIndex].explanation.trim();
+        if (explanationText.trim() !== correctExplanation) {
+          console.error(`[updateExplanationText] 🚨 Explanation mismatch for Question ${questionIndex}`);
+          console.log(`[updateExplanationText] 🟢 Correct explanation:`, correctExplanation);
+          console.log(`[updateExplanationText] 🔴 Fetched explanation:`, explanationText);
+  
+          explanationText = correctExplanation; // FORCE CORRECT explanation
+        }
+  
+        this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
       } catch (error) {
-        console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
+        console.error(`[updateExplanationText] ❌ Fetch Error for Question ${questionIndex}:`, error);
         explanationText = 'Error loading explanation.';
       }
     }
   
-    // 🚨 **FINAL VERIFICATION STEP (CRUCIAL)**
-    const correctExplanation = question.explanation.trim();
-    if (explanationText.trim() !== correctExplanation) {
-      console.error(`[updateExplanationText] 🚨 MISMATCH! Explanation mismatch for Q${lockedQuestionIndex}`);
-      console.log(`[updateExplanationText] 🟢 Correct explanation:`, correctExplanation);
-      console.log(`[updateExplanationText] 🔴 Incorrect explanation retrieved:`, explanationText);
-  
-      // 🚨 **FORCING CORRECT EXPLANATION**
-      explanationText = correctExplanation;
-    }
-  
-    // ✅ **STORE CORRECT EXPLANATION**
-    this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-  
-    // ✅ **Apply Explanation to UI**
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
     this.cdRef.detectChanges();
   
-    console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
-  }
+    console.log(`[updateExplanationText] 🎯 Displayed explanation for Question ${questionIndex}:`, explanationText);
+  }  
   
 
   handleAudioPlayback(isCorrect: boolean): void {
