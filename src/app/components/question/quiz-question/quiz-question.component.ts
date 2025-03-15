@@ -4262,9 +4262,9 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] ✅ Confirmed Question Exists for Q${questionIndex}:`, this.quiz.questions[questionIndex]);
 
-    // ✅ **Ensure Correct Index Usage**
     let lockedQuestionIndex = questionIndex;
 
+    // 🚀 **Ensure Q1 Always Uses Index 0**
     if (lockedQuestionIndex === 0) {
         console.warn(`[updateExplanationText] 🚀 Ensuring Q1 uses index 0.`);
         lockedQuestionIndex = 0;
@@ -4313,7 +4313,7 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // 🚀 **Final Safeguard: Verify Q1's Explanation**
+    // 🚀 **Final Safeguard: Verify Q1's Explanation Before Applying**
     if (lockedQuestionIndex === 0) {
         console.log(`[updateExplanationText] 🚀 Q1 Explanation Check:`, explanationText);
         
