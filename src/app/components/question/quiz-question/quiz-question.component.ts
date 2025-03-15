@@ -4265,9 +4265,9 @@ export class QuizQuestionComponent
     // ✅ **Ensure Correct Index Usage**
     let lockedQuestionIndex = questionIndex;
 
-    // 🔍 **LOGGING to ensure Q1 pulls the right data**
     if (lockedQuestionIndex === 0) {
-        console.warn(`[updateExplanationText] 🚀 Q1 Detected! Verifying explanation integrity.`);
+        console.warn(`[updateExplanationText] 🚀 Q1 Detected! Ensuring index stays 0.`);
+        lockedQuestionIndex = 0;
     }
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
@@ -4299,21 +4299,6 @@ export class QuizQuestionComponent
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
-
-            // 🔍 **Check for Q1 pulling Q2’s explanation**
-            if (lockedQuestionIndex === 0 && explanationText.includes(this.quiz.questions[1]?.explanation || "UNDEFINED")) {
-                console.error(`[updateExplanationText] ❌ ERROR: Q1 retrieved Q2's explanation!`);
-                explanationText = 'Error: Incorrect explanation retrieved for Q1. Fetching again...';
-                
-                // 🚀 **Re-fetch to correct the issue**
-                explanationText = await firstValueFrom(
-                    this.explanationTextService.getFormattedExplanationTextForQuestion(0)
-                );
-                console.log(`[updateExplanationText] ✅ Re-fetched Correct Explanation for Q1:`, explanationText);
-            }
-
-            console.log(`[DEBUG] 🚀 Storing explanation in quizStateService for Q${lockedQuestionIndex}:`, explanationText);
-            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
             return;
@@ -4328,7 +4313,20 @@ export class QuizQuestionComponent
         explanationText = 'No explanation available.';
     }
 
-    // 🚀 **Final Step: Apply Explanation to UI**
+    // 🚨 **Final Safeguard for Q1 Explanation**
+    if (lockedQuestionIndex === 0) {
+        console.log(`[updateExplanationText] 🚀 Q1 Explanation Check:`, explanationText);
+        
+        // If Q1 accidentally gets Q2's explanation, force correction
+        const expectedQ1Explanation = this.quiz.questions[0]?.explanation;
+        if (explanationText !== expectedQ1Explanation) {
+            console.error(`[updateExplanationText] ❌ ERROR: Q1 retrieved incorrect explanation! Forcing correction...`);
+            explanationText = expectedQ1Explanation || "Fixing explanation for Q1";
+            console.log(`[updateExplanationText] ✅ Overriding with correct explanation for Q1:`, explanationText);
+        }
+    }
+
+    // ✅ **Apply Explanation to UI**
     console.log(`[updateExplanationText] 🟢 Applying explanation for Q${lockedQuestionIndex}:`, explanationText);
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
