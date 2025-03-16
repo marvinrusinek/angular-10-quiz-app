@@ -2899,9 +2899,10 @@ export class QuizQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         const lockedQuestionIndex = this.currentQuestionIndex;
+        const correctIndex = this.currentQuestionIndex;
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
-        this.markQuestionAsAnswered(lockedQuestionIndex);
+        this.markQuestionAsAnswered(correctIndex);
 
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
