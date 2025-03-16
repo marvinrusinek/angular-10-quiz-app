@@ -343,35 +343,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
 
     this.activatedRoute.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((params: ParamMap) => {
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((params: ParamMap) => {
         const quizId = params.get('quizId');
         const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // default to 1-based
-        const internalIndex = questionIndex - 1; // 🚨 subtract clearly ONCE HERE!
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // Default to 1-based
+        const internalIndex = questionIndex - 1; // 🚨 Convert to 0-based explicitly
 
-        console.log(`[QuizComponent] 🚩 quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
+        console.log(`[QuizComponent] 🚩 Route param changed: quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
 
         if (quizId) {
-          this.quizId = quizId;
+            this.quizId = quizId;
 
-          // ✅ Store the correctly mapped question index
-          this.currentQuestionIndex = internalIndex; // 🌟 Now properly 0-based
+            // ✅ Store the correctly mapped question index
+            this.currentQuestionIndex = internalIndex; // 🌟 Now properly 0-based
 
-          if (!isNaN(internalIndex) && internalIndex >= 0) {
-            if (this.currentQuestionIndex !== internalIndex) {
-              this.resetUIAndNavigate(internalIndex); // ✅ internalIndex clearly passed
+            if (!isNaN(internalIndex) && internalIndex >= 0) {
+                this.resetUIAndNavigate(internalIndex);
+            } else {
+                console.warn(`[QuizComponent] ⚠️ Invalid questionIndex in route, defaulting to 0.`);
+                this.resetUIAndNavigate(0);
             }
-          } else {
-            console.warn(`[QuizComponent] ⚠️ Invalid questionIndex in route, defaulting to 0.`);
-            if (this.currentQuestionIndex !== 0) {
-              this.resetUIAndNavigate(0);
-            }
-          }
 
-          this.initializeQuizBasedOnRouteParams();
+            this.initializeQuizBasedOnRouteParams();
         } else {
-          console.error(`[QuizComponent] ❌ No quizId in route.`);
+            console.error(`[QuizComponent] ❌ No quizId in route.`);
         }
     });
 
