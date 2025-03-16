@@ -356,7 +356,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quizId = quizId;
 
             // ✅ Set correct question index
-            this.currentQuestionIndex = internalIndex; 
+            this.currentQuestionIndex = internalIndex;
 
             if (!isNaN(internalIndex) && internalIndex >= 0) {
                 this.resetUIAndNavigate(internalIndex);
