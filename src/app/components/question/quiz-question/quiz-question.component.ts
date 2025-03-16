@@ -4690,7 +4690,7 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(true);
     this.cdRef.detectChanges();
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     const lockedQuestionIndex = questionIndex; // ✅ clearly use exactly as passed
     console.log(`[updateExplanationText] 🚩 lockedQuestionIndex: ${lockedQuestionIndex}`);
 
@@ -4719,7 +4719,64 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
 
     console.log(`[updateExplanationText] 🎯 Displayed for ${lockedQuestionIndex}: ${explanationText}`);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 🔵 Received questionIndex: ${questionIndex}`);
+    console.log(`[updateExplanationText] 🔵 Current questionIndex in component: ${this.currentQuestionIndex}`);
+  
+    // ✅ Explicit correction: Subtract one only if the questionIndex is 1-based
+    const lockedQuestionIndex = this.currentQuestionIndex > 0
+      ? this.currentQuestionIndex - 1
+      : 0;
+  
+    console.log(`[updateExplanationText] 🔒 Corrected lockedQuestionIndex: ${lockedQuestionIndex}`);
+  
+    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[lockedQuestionIndex]) {
+      console.error(`[updateExplanationText] ❌ No question found at corrected index ${lockedQuestionIndex}`);
+      return;
+    }
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🔍 Question State for Q${lockedQuestionIndex}:`, questionState);
+  
+    if (!questionState?.isAnswered) {
+      console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} not answered yet. Skipping.`);
+      return;
+    }
+  
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+  
+    if (!explanationText) {
+      try {
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
+  
+        console.log(`[updateExplanationText] ✅ Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
+  
+        // 🔥 Always store after fetching
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+      } catch (error) {
+        console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+        explanationText = 'Error loading explanation.';
+      }
+    } else {
+      console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+    }
+  
+    if (!explanationText || explanationText.trim() === '') {
+      explanationText = 'No explanation available.';
+    }
+  
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
+  
+    console.log(`[updateExplanationText] 🎯 FINAL Explanation displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
+  
 
 
   handleAudioPlayback(isCorrect: boolean): void {
