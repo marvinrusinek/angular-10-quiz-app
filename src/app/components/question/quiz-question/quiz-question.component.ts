@@ -4666,7 +4666,7 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(true);
     this.cdRef.detectChanges();
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     const lockedQuestionIndex = questionIndex;  // 🔥 No subtraction here!
     console.log(`[updateExplanationText] lockedQuestionIndex:`, lockedQuestionIndex);
 
@@ -4689,6 +4689,36 @@ export class QuizQuestionComponent
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
     this.cdRef.detectChanges();
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    const lockedQuestionIndex = questionIndex; // ✅ clearly use exactly as passed
+    console.log(`[updateExplanationText] 🚩 lockedQuestionIndex: ${lockedQuestionIndex}`);
+
+    if (!this.quiz?.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ Question not found at ${lockedQuestionIndex}`);
+        return;
+    }
+
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+    if (!questionState || !questionState.isAnswered) {
+        console.warn(`[updateExplanationText] ❌ Question ${lockedQuestionIndex} not answered`);
+        return;
+    }
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    if (!explanationText) {
+        explanationText = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+    }
+
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
+
+    console.log(`[updateExplanationText] 🎯 Displayed for ${lockedQuestionIndex}: ${explanationText}`);
   }
 
 
