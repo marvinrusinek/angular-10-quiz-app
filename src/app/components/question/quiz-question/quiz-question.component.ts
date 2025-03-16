@@ -2820,6 +2820,9 @@ export class QuizQuestionComponent
         const lockedQuestionIndex = this.currentQuestionIndex;
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
+        // ✅ Mark the current question as answered immediately after selection
+        this.markQuestionAsAnswered(this.currentQuestionIndex);
+
         // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
