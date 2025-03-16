@@ -2817,7 +2817,7 @@ export class QuizQuestionComponent
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         // Use the fixed question index captured in ngOnInit
-        const lockedQuestionIndex = this.fixedQuestionIndex;
+        const lockedQuestionIndex = this.currentQuestionIndex;
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
         // ✅ Ensure optionsToDisplay is populated before proceeding
