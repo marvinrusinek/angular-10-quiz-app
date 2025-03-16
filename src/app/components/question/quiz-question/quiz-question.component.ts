@@ -2900,10 +2900,10 @@ export class QuizQuestionComponent
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
-        const lockedQuestionIndex = this.currentQuestionIndex - 1;
+        const lockedQuestionIndex = this.currentQuestionIndex;
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
-        this.markQuestionAsAnswered(this.currentQuestionIndex);
+        this.markQuestionAsAnswered(lockedQuestionIndex);
 
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
@@ -4641,8 +4641,32 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(true);
     if (this.cdRef) this.cdRef.detectChanges();
   }  */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     const lockedQuestionIndex = questionIndex;
+    console.log(`[updateExplanationText] lockedQuestionIndex:`, lockedQuestionIndex);
+
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+    if (!questionState || !questionState.isAnswered) {
+        console.warn(`[updateExplanationText] Q${lockedQuestionIndex} not answered`);
+        return;
+    }
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+
+    if (!explanationText) {
+        explanationText = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+    }
+
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    const lockedQuestionIndex = questionIndex;  // 🔥 No subtraction here!
     console.log(`[updateExplanationText] lockedQuestionIndex:`, lockedQuestionIndex);
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
