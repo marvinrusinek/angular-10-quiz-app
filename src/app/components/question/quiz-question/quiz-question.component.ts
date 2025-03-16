@@ -311,27 +311,26 @@ export class QuizQuestionComponent
 
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-
-    // Load the initial question and options immediately
-    const index = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+  
+    const index = this.currentQuestionIndex; // Trust only the initialized currentQuestionIndex from ngOnInit
     const question = this.questionsArray[index];
+  
     if (question) {
       this.quizService.setCurrentQuestion(question);
       this.loadOptionsForQuestion(question);
+    } else {
+      console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
+      return;
     }
-
+  
     setTimeout(() => {
-      const explanationText = question
-        ? question.explanation
-        : 'No explanation available';
-
-      // Only after rendering is complete, update the explanation
+      const explanationText = question.explanation || 'No explanation available';
       if (this.questionsArray && this.questionsArray.length > 0) {
         this.updateExplanationUI(index, explanationText);
       }
       this.setInitialMessage();
     }, 50);
-  }
+  }  
 
   /* ngOnChanges(changes: SimpleChanges): void { 
     if (changes.options) {
