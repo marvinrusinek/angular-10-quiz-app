@@ -347,27 +347,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .subscribe((params: ParamMap) => {
         const quizId = params.get('quizId');
         const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // default to 1-based
+        const internalIndex = questionIndex - 1; // 🚨 subtract clearly ONCE HERE!
 
-        console.log(`[QuizComponent.ngOnInit] currentQuestionIndex:`, questionIndex);
+        console.log(`[QuizComponent] 🚩 quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
 
         if (quizId) {
           this.quizId = quizId;
-          if (!isNaN(questionIndex) && questionIndex >= 0) {
-            if (this.currentQuestionIndex !== questionIndex) {
-              this.resetUIAndNavigate(questionIndex);
+
+          if (!isNaN(internalIndex) && internalIndex >= 0) {
+            if (this.currentQuestionIndex !== internalIndex) {
+              this.resetUIAndNavigate(internalIndex); // ✅ internalIndex clearly passed
             }
           } else {
-            console.warn(`[QuizComponent.ngOnInit] Invalid questionIndex, defaulting to 0`);
+            console.warn(`[QuizComponent] ⚠️ Invalid questionIndex in route, defaulting to 0.`);
             if (this.currentQuestionIndex !== 0) {
               this.resetUIAndNavigate(0);
             }
           }
+
           this.initializeQuizBasedOnRouteParams();
         } else {
-          console.error(`[QuizComponent.ngOnInit] Quiz ID missing`);
+          console.error(`[QuizComponent] ❌ No quizId in route.`);
         }
-      });
+    });
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
