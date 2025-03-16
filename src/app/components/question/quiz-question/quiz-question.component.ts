@@ -2931,7 +2931,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        await this.updateExplanationText(this.currentQuestionIndex - 1);
+        await this.updateExplanationText(lockedQuestionIndex);
 
         await this.handleCorrectnessOutcome(true);
 
@@ -4835,8 +4835,8 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`🔵 [FORCE LOG] updateExplanationText called for questionIndex: ${questionIndex}`);
   
-    // ✅ Ensure zero-based indexing is properly handled
-    const lockedQuestionIndex = questionIndex;
+    // ✅ Convert 1-based index to 0-based (ONLY if necessary)
+    const lockedQuestionIndex = Math.max(0, questionIndex); 
 
     console.log(`[updateExplanationText] 🔒 Using lockedQuestionIndex: ${lockedQuestionIndex}`);
 
@@ -4853,7 +4853,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    // ✅ **Ensure the explanation is fetched for the exact correct index**
+    // ✅ **Ensure explanation is retrieved for the correct question**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Stored Explanation Q${lockedQuestionIndex}:`, explanationText);
 
@@ -4865,7 +4865,7 @@ export class QuizQuestionComponent
 
             console.log(`[updateExplanationText] 🚀 Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
 
-            // ✅ **Explicitly store the explanation at the correct index**
+            // ✅ **Explicitly store explanation under correct index**
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
@@ -4873,7 +4873,7 @@ export class QuizQuestionComponent
         }
     }
 
-    // 🔥 **Final safeguard: Ensure explanation is correctly assigned**
+    // 🔥 **Final check to ensure correct explanation is displayed**
     const actualStoredExplanation = this.explanationTextService.formattedExplanations[lockedQuestionIndex]?.explanation;
 
     if (actualStoredExplanation && explanationText !== actualStoredExplanation) {
