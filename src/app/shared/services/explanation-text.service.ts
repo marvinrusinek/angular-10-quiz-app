@@ -101,7 +101,8 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
   } */
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+
+  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log(`[DEBUG] 🟢 Requesting explanation for Q${index}`);
     console.log(`[DEBUG] 🔍 Stored explanations BEFORE fetching:`, JSON.stringify(this.formattedExplanations, null, 2));
 
@@ -125,7 +126,32 @@ export class ExplanationTextService {
     console.log(`[DEBUG] 🚀 Emitting explanation for Q${index}:`, explanationText);
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
-  }
+  } */
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    console.log(`[ExplanationTextService] 🚨 Request received for explanation index: ${index}`);
+    console.log(`[ExplanationTextService] 📌 Current formatted explanations:`, this.formattedExplanations);
+  
+    let explanationText: string;
+  
+    // ✅ CRITICAL FIX HERE: Ensure the EXACT correct index is accessed.
+    if (this.formattedExplanations && this.formattedExplanations[index]) {
+      const correctExplanationFromSource = this.formattedExplanations[index].explanation;
+  
+      console.log(`[ExplanationTextService] 🔍 Found stored explanation at index ${index}:`, correctExplanationFromSource);
+      
+      // 🚨 Ensure we NEVER mistakenly use explanation from wrong index.
+      explanationText = correctExplanationFromSource || 'No explanation available.';
+    } else {
+      console.error(`[ExplanationTextService] ❌ Explanation index ${index} is NOT FOUND or invalid.`);
+      explanationText = 'Explanation not available.';
+    }
+  
+    // 🔍 Clearly log exactly what's being emitted.
+    console.log(`[ExplanationTextService] 🚀 Final explanation emitted for index ${index}:`, explanationText);
+  
+    // 🚨 Emit the explanation directly to avoid async race conditions.
+    return of(explanationText);
+  }  
 
   /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log('[DEBUG] Requesting explanation for index:', index);
