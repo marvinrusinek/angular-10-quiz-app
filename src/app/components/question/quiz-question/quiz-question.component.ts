@@ -2864,7 +2864,7 @@ export class QuizQuestionComponent
         console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from onOptionClicked()`);
         
         console.log(`🟢 [BEFORE CALL] Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
-        await this.updateExplanationText(this.currentQuestionIndex - 1);
+        await this.updateExplanationText(lockedQuestionIndex);
         
         console.log(`[onOptionClicked] ✅ Finished updateExplanationText() for Q${this.currentQuestionIndex}`);
 
