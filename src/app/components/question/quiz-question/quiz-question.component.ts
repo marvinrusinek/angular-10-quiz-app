@@ -2814,14 +2814,14 @@ export class QuizQuestionComponent
         console.error('[onOptionClicked] ❌ Unhandled error:', error);
     }
   } */
-  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+  /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
         // Use the fixed question index captured in ngOnInit
-        const lockedQuestionIndex = this.currentQuestionIndex;
+        const lockedQuestionIndex = this.currentQuestionIndex - 1;
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
         // ✅ Mark the current question as answered immediately after selection
-        this.markQuestionAsAnswered(this.currentQuestionIndex - 1);
+        this.markQuestionAsAnswered(this.currentQuestionIndex);
 
         // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2867,7 +2867,7 @@ export class QuizQuestionComponent
         console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from onOptionClicked()`);
         
         console.log(`🟢 [BEFORE CALL] Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
-        await this.updateExplanationText(lockedQuestionIndex - 1);
+        await this.updateExplanationText(lockedQuestionIndex);
         
         console.log(`[onOptionClicked] ✅ Finished updateExplanationText() for Q${this.currentQuestionIndex}`);
 
@@ -2893,7 +2893,57 @@ export class QuizQuestionComponent
     } catch (error) {
         console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
+  } */
+  public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
+    try {
+        const lockedQuestionIndex = this.currentQuestionIndex;
+        console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
+
+        this.markQuestionAsAnswered(lockedQuestionIndex);
+
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            this.optionsToDisplay = this.populateOptionsToDisplay();
+        }
+
+        const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+        if (!foundOption) {
+            console.error(`[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.`);
+            return;
+        }
+
+        if (!this.isFeedbackApplied) {
+            await this.applyOptionFeedback(foundOption);
+        }
+
+        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+            this.selectedOptionService.isAnsweredSubject.next(true);
+        }
+
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
+        this.cdRef.detectChanges();
+
+        await this.updateExplanationText(this.currentQuestionIndex);
+
+        await this.handleCorrectnessOutcome(true);
+
+        this.showFeedbackForOption[event.option?.optionId || 0] = true;
+        this.cdRef.detectChanges();
+
+        this.answerSelected.emit(true);
+
+        setTimeout(() => {
+            this.cdRef.markForCheck();
+        });
+    } catch (error) {
+        console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
+    }
   }
+
+
   /* public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
       const lockedQuestionIndex = this.fixedQuestionIndex;
@@ -4608,7 +4658,7 @@ export class QuizQuestionComponent
   
     console.log(`[updateExplanationText] 🎯 Final Explanation for Q${lockedQuestionIndex}:`, explanationText);
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Received questionIndex: ${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Component's currentQuestionIndex: ${this.currentQuestionIndex}`);
 
@@ -4616,6 +4666,45 @@ export class QuizQuestionComponent
     const lockedQuestionIndex = questionIndex === this.currentQuestionIndex
       ? questionIndex - 1
       : questionIndex;
+
+    console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
+
+    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ No question data at locked index ${lockedQuestionIndex}`);
+        return;
+    }
+
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+    if (!questionState || !questionState.isAnswered) {
+        console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} is NOT answered yet. Skipping.`);
+        return;
+    }
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+
+    if (!explanationText) {
+        explanationText = await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+        );
+        console.log(`[updateExplanationText] ✅ Fetched Explanation from Service for Q${lockedQuestionIndex}:`, explanationText);
+        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+    } else {
+        console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+    }
+
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
+
+    console.log(`[updateExplanationText] 🎯 Displayed Explanation for Q${lockedQuestionIndex}:`, explanationText);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 🟢 Received questionIndex: ${questionIndex}`);
+    console.log(`[updateExplanationText] 🔍 Component's currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+    // Always use the currentQuestionIndex as the correct source of truth.
+    const lockedQuestionIndex = this.currentQuestionIndex;
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
