@@ -367,7 +367,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             this.initializeQuizBasedOnRouteParams();
         } else {
-          console.error(`[QuizComponent] ❌ No quizId in route.`);
+            console.error(`[QuizComponent] ❌ No quizId in route.`);
         }
     });
 
