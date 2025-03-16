@@ -2821,7 +2821,7 @@ export class QuizQuestionComponent
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
         // ✅ Mark the current question as answered immediately after selection
-        this.markQuestionAsAnswered(this.currentQuestionIndex);
+        this.markQuestionAsAnswered(this.currentQuestionIndex - 1);
 
         // ✅ Ensure optionsToDisplay is populated before proceeding
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2867,7 +2867,7 @@ export class QuizQuestionComponent
         console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from onOptionClicked()`);
         
         console.log(`🟢 [BEFORE CALL] Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
-        await this.updateExplanationText(lockedQuestionIndex);
+        await this.updateExplanationText(lockedQuestionIndex - 1);
         
         console.log(`[onOptionClicked] ✅ Finished updateExplanationText() for Q${this.currentQuestionIndex}`);
 
