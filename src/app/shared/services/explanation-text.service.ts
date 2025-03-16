@@ -78,6 +78,8 @@ export class ExplanationTextService {
   }
   
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    console.table(this.formattedExplanations);  // 👈 Add this line here for sanity check
+    console.log(`[ExplanationTextService] 🔍 Requested explanation index: ${index}`);
     console.log(`[DEBUG] 🟢 Requesting explanation for Q${index}`);
     console.log(`[DEBUG] 🔍 Stored explanations BEFORE fetching:`, JSON.stringify(this.formattedExplanations, null, 2));
 
