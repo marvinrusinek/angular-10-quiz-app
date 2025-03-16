@@ -4661,7 +4661,7 @@ export class QuizQuestionComponent
   
     console.log(`[updateExplanationText] 🎯 Final Explanation for Q${lockedQuestionIndex}:`, explanationText);
   } */
-  /* async updateExplanationText(questionIndex: number): Promise<void> {
+  async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🟢 Received questionIndex: ${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Component's currentQuestionIndex: ${this.currentQuestionIndex}`);
 
@@ -4701,39 +4701,6 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
 
     console.log(`[updateExplanationText] 🎯 Displayed Explanation for Q${lockedQuestionIndex}:`, explanationText);
-  } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`[updateExplanationText] 🟢 Received explicit questionIndex: ${questionIndex}`);
-
-    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[questionIndex]) {
-        console.error(`[updateExplanationText] ❌ No question data at index ${questionIndex}`);
-        return;
-    }
-
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    if (!questionState || !questionState.isAnswered) {
-        console.warn(`[updateExplanationText] ⚠️ Question ${questionIndex} not answered yet.`);
-        return;
-    }
-
-    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
-
-    if (!explanationText) {
-        explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-        );
-        this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
-        console.log(`[updateExplanationText] ✅ Fetched and stored explanation for Q${questionIndex}:`, explanationText);
-    } else {
-        console.log(`[updateExplanationText] ✅ Using stored explanation for Q${questionIndex}:`, explanationText);
-    }
-
-    this.explanationToDisplay = explanationText;
-    this.explanationToDisplayChange.emit(explanationText);
-    this.showExplanationChange.emit(true);
-    this.cdRef.detectChanges();
-
-    console.log(`[updateExplanationText] 🎯 Displayed explanation for Q${questionIndex}:`, explanationText);
   }
   
 
