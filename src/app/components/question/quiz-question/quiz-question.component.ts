@@ -3737,15 +3737,22 @@ export class QuizQuestionComponent
   }
 
   private markQuestionAsAnswered(questionIndex: number): void {
-    const questionState = this.initializeQuestionState(questionIndex);
-    questionState.isAnswered = true;
-
+    const questionState = this.quizStateService.getQuestionState(
+      this.quizId,
+      questionIndex
+    );
+  
+    if (questionState) {
+      questionState.isAnswered = true;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+    } else {
+      console.error(`[markQuestionAsAnswered] ❌ Question state not found for Q${questionIndex}`);
+    }
+  
     if (!this.quizStateService.isAnswered$) {
       this.quizStateService.setAnswerSelected(true);
     }
-
-    console.log(`[markQuestionAsAnswered] ✅ Marked Q${questionIndex} as answered.`);
-  }
+  }  
 
   private async processSelectedOption(
     option: SelectedOption,
