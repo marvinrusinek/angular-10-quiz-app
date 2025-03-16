@@ -2864,7 +2864,7 @@ export class QuizQuestionComponent
         console.log(`[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from onOptionClicked()`);
         
         console.log(`🟢 [BEFORE CALL] Calling updateExplanationText() for Q${this.currentQuestionIndex}`);
-        await this.updateExplanationText(lockedQuestionIndex);
+        await this.updateExplanationText(this.currentQuestionIndex);
         
         console.log(`[onOptionClicked] ✅ Finished updateExplanationText() for Q${this.currentQuestionIndex}`);
 
@@ -4348,7 +4348,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 🔍 Requested questionIndex: ${questionIndex}`);
 
     // 🔥 CRITICAL FIX: ALWAYS subtract 1 to match your zero-based indexing
@@ -4413,6 +4413,58 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 🚩 Called with questionIndex: ${questionIndex}`);
+    console.log(`[updateExplanationText] 🚩 Current component questionIndex: ${this.currentQuestionIndex}`);
+
+    const lockedQuestionIndex = this.currentQuestionIndex;
+    console.log(`[updateExplanationText] 🔒 Locked question index used: ${lockedQuestionIndex}`);
+
+    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ No question found at lockedQuestionIndex: ${lockedQuestionIndex}`);
+        return;
+    }
+
+    const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🚩 Question state for Q${lockedQuestionIndex}:`, questionState);
+
+    if (!questionState || !questionState.isAnswered) {
+        console.warn(`[updateExplanationText] ⚠️ Question ${lockedQuestionIndex} has not been answered yet. Skipping explanation.`);
+        return;
+    }
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🚩 Stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+
+    if (!explanationText) {
+        console.log(`[updateExplanationText] 🚩 Fetching new explanation for Q${lockedQuestionIndex}...`);
+        try {
+            explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+            );
+
+            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
+
+            if (!explanationText || explanationText.trim() === '') {
+                console.warn(`[updateExplanationText] ⚠️ Fetched explanation is empty for Q${lockedQuestionIndex}.`);
+                explanationText = 'No explanation available.';
+            }
+
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        } catch (error) {
+            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            explanationText = 'Error loading explanation.';
+        }
+    }
+
+    console.log(`[updateExplanationText] 🚩 Applying explanation for Q${lockedQuestionIndex}:`, explanationText);
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
+
+    console.log(`[updateExplanationText] 🎯 Final Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
   
 
