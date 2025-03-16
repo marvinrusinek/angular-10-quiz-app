@@ -4612,8 +4612,10 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🟢 Received questionIndex: ${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Component's currentQuestionIndex: ${this.currentQuestionIndex}`);
 
-    // 🔒 Always use component's currentQuestionIndex for safety
-    const lockedQuestionIndex = this.currentQuestionIndex;
+    // 🔑 Explicitly ensure we use zero-based indexing only if necessary:
+    const lockedQuestionIndex = questionIndex === this.currentQuestionIndex
+      ? questionIndex - 1
+      : questionIndex;
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
 
