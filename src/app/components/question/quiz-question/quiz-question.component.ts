@@ -2929,7 +2929,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        await this.updateExplanationText(this.currentQuestionIndex);
+        await this.updateExplanationText(correctIndex);
 
         await this.handleCorrectnessOutcome(true);
 
