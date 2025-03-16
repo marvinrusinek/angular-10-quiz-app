@@ -347,9 +347,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .subscribe((params: ParamMap) => {
         const quizId = params.get('quizId');
         const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 0;
+        // 🚨 CRITICAL: Adjust the question index right here only!
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) - 1 : 0;
 
-        console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, questionIndex=${questionIndex}`);
+        console.log(`[DEBUG] NGONINIT Route param changed: quizId=${quizId}, adjusted questionIndex=${questionIndex}`);
 
         if (quizId) {
           this.quizId = quizId;
@@ -366,7 +367,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
 
           // Initialize quiz based on the current route parameters
-          // Ensure this doesn't cause unwanted reinitialization
           this.initializeQuizBasedOnRouteParams();
         } else {
           console.error(`[DEBUG] NGONINIT Quiz ID is not provided in the route`);
