@@ -244,12 +244,12 @@ export class QuizQuestionComponent
 
   async ngOnInit(): Promise<void> {
     const routeIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-  
-    // 🚨 CRITICAL: DO NOT SUBTRACT 1 HERE!
-    const index = (isNaN(routeIndex) ? 0 : routeIndex);
+    const index = (isNaN(routeIndex) ? 1 : routeIndex) - 1;
 
     this.fixedQuestionIndex = index;
-    this.currentQuestionIndex = index; // Ensure consistency
+    console.log(`[QuizQuestionComponent.ngOnInit] fixedQuestionIndex set to:`, this.fixedQuestionIndex);
+    
+    // this.currentQuestionIndex = index; // Ensure consistency
 
     console.log(`[QuizQuestionComponent] 🟢 shouldDisplayOptions for Q${this.fixedQuestionIndex}:`, this.shouldDisplayOptions);
 
