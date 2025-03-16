@@ -348,15 +348,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const quizId = params.get('quizId');
         const questionIndexParam = params.get('questionIndex');
         const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // Default to 1-based
-        const internalIndex = questionIndex - 1; // 🚨 Convert to 0-based explicitly
+        const internalIndex = questionIndex - 1; // ✅ Convert to 0-based
 
         console.log(`[QuizComponent] 🚩 Route param changed: quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
 
         if (quizId) {
             this.quizId = quizId;
 
-            // ✅ Store the correctly mapped question index
-            this.currentQuestionIndex = internalIndex; // 🌟 Now properly 0-based
+            // ✅ Set correct question index
+            this.currentQuestionIndex = internalIndex; 
 
             if (!isNaN(internalIndex) && internalIndex >= 0) {
                 this.resetUIAndNavigate(internalIndex);
