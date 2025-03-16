@@ -4705,7 +4705,7 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🟢 Received questionIndex: ${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Component's currentQuestionIndex: ${this.currentQuestionIndex}`);
 
-    // Always use the currentQuestionIndex as the correct source of truth.
+    // ✅ FIXED: Use currentQuestionIndex directly without subtracting
     const lockedQuestionIndex = this.currentQuestionIndex;
 
     console.log(`[updateExplanationText] 🔒 FINAL lockedQuestionIndex: ${lockedQuestionIndex}`);
@@ -4740,7 +4740,6 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 Displayed Explanation for Q${lockedQuestionIndex}:`, explanationText);
   }
-  
   
 
   handleAudioPlayback(isCorrect: boolean): void {
