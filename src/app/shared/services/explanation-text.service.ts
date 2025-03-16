@@ -76,31 +76,6 @@ export class ExplanationTextService {
 
     return of(explanationObject.explanation);
   }
-
-  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    console.log('[DEBUG] Checking formatted explanations for index:', index);
-    console.log('[DEBUG] Current stored explanations:', this.formattedExplanations);
-
-    let explanationText: string;
-
-    if (index in this.formattedExplanations) {
-        const formattedExplanation = this.formattedExplanations[index];
-
-        if (formattedExplanation && formattedExplanation.explanation) {
-            explanationText = formattedExplanation.explanation;
-            console.log(`[DEBUG] Found explanation for Q${index}:`, explanationText);
-        } else {
-            console.log(`[WARNING] No explanation text found for Q${index}`);
-            explanationText = 'No explanation available';
-        }
-    } else {
-        console.log(`[ERROR] Index ${index} is out of bounds or no explanation stored.`);
-        explanationText = 'Question index out of bounds or no explanation available';
-    }
-
-    this.formattedExplanationSubject.next(explanationText);
-    return this.formattedExplanation$;
-  } */
   
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log(`[DEBUG] 🟢 Requesting explanation for Q${index}`);
@@ -109,48 +84,24 @@ export class ExplanationTextService {
     let explanationText: string;
 
     if (index in this.formattedExplanations) {
-        const formattedExplanation = this.formattedExplanations[index];
+      const formattedExplanation = this.formattedExplanations[index];
 
-        if (formattedExplanation && formattedExplanation.explanation) {
-            console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
-            explanationText = formattedExplanation.explanation;
-        } else {
-            console.warn(`[DEBUG] ⚠️ No explanation text found for Q${index}`);
-            explanationText = 'No explanation available';
-        }
+      if (formattedExplanation && formattedExplanation.explanation) {
+        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
+        explanationText = formattedExplanation.explanation;
+      } else {
+        console.warn(`[DEBUG] ⚠️ No explanation text found for Q${index}`);
+        explanationText = 'No explanation available';
+      }
     } else {
-        console.error(`[DEBUG] ❌ Q${index} is out of bounds or no explanation stored.`);
-        explanationText = 'Question index out of bounds or no explanation available';
+      console.error(`[DEBUG] ❌ Q${index} is out of bounds or no explanation stored.`);
+      explanationText = 'Question index out of bounds or no explanation available';
     }
 
     console.log(`[DEBUG] 🚀 Emitting explanation for Q${index}:`, explanationText);
     this.formattedExplanationSubject.next(explanationText);
     return this.formattedExplanation$;
   }
-
-  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    console.log('[DEBUG] Requesting explanation for index:', index);
-    console.log('[DEBUG] Stored explanations before fetching:', this.formattedExplanations);
-  
-    let explanationText: string;
-  
-    if (this.formattedExplanations && index in this.formattedExplanations) {
-      const formattedExplanation = this.formattedExplanations[index];
-      if (formattedExplanation && formattedExplanation.explanation) {
-        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
-        explanationText = formattedExplanation.explanation;
-      } else {
-        console.log(`[DEBUG] ⚠️ No explanation text found for index ${index}`);
-        explanationText = 'No explanation available';
-      }
-    } else {
-      console.log(`[DEBUG] ❌ Index ${index} is out of bounds or no explanation stored.`);
-      explanationText = 'Question index out of bounds or no explanation available';
-    }
-  
-    console.log('[DEBUG] Returning explanation:', explanationText);
-    return of(explanationText);
-  } */
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
