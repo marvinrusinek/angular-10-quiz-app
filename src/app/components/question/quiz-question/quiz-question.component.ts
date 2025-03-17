@@ -5343,11 +5343,10 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    // ✅ **Force Correct Index for Q1**
-    const lockedQuestionIndex = questionIndex >= 0 ? questionIndex : 0;
+    // ✅ **Ensure Proper Indexing**
+    const lockedQuestionIndex = Math.max(questionIndex, 0);
     console.log(`[updateExplanationText] 🔄 Final Locked Index: Q${lockedQuestionIndex}`);
 
-    // 🔍 **Check if Question Exists**
     if (!this.quiz?.questions[lockedQuestionIndex]) {
         console.error(`[updateExplanationText] ❌ No question found at index Q${lockedQuestionIndex}`);
         return;
@@ -5361,29 +5360,29 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🔥 **Force correct retrieval from stored explanations**
+    // 🔥 **Retrieve Explanation & Fix Incorrect Indexing**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
-
-    // 🛑 **Fix Explanation Swapping for Q1**
-    if (lockedQuestionIndex === 0 && explanationText?.includes('Q2')) {
-        console.error(`[updateExplanationText] ❌ ERROR! Q1 received Q2's explanation. Fixing.`);
-        explanationText = this.explanationTextService.formattedExplanations[0]?.explanation || 'No explanation available.';
-    }
 
     if (!explanationText) {
         explanationText = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
         );
-
         console.log(`[updateExplanationText] 🚀 Successfully fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
-        
+
         // ✅ **Store Correct Explanation for Future Retrieval**
         if (explanationText && explanationText.trim()) {
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } else {
             explanationText = 'No explanation available.';
         }
+    }
+
+    // 🛑 **Fix Q1 Displaying Q2’s Explanation**
+    const correctExplanationForQ1 = this.explanationTextService.formattedExplanations[0]?.explanation;
+    if (lockedQuestionIndex === 0 && explanationText !== correctExplanationForQ1) {
+        console.error(`[updateExplanationText] ❌ ERROR! Q1 received incorrect explanation. Fixing.`);
+        explanationText = correctExplanationForQ1 || 'No explanation available.';
     }
 
     this.explanationToDisplay = explanationText;
