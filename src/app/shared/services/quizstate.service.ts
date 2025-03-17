@@ -200,9 +200,7 @@ export class QuizStateService {
     console.log(`[setQuestionExplanation] ✅ Storing Explanation for Q${questionIndex}:`, explanation);
 
     // 🔥 Force storing explicitly by `questionIndex`
-    this.quizState[quizId][questionIndex] = {
-      explanation
-    };
+    this.quizState[quizId][questionIndex] = { explanation };
 
     console.log(`[setQuestionExplanation] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
   }
