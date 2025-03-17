@@ -5347,6 +5347,7 @@ export class QuizQuestionComponent
     // ✅ Ensure we use the correct index
     const lockedQuestionIndex = Math.max(0, questionIndex); // Ensure non-negative index
     console.log(`[updateExplanationText] 🔒 Corrected lockedQuestionIndex: ${lockedQuestionIndex}`);
+    console.log(`[updateExplanationText] 🔍 Using Locked Index: Q${lockedQuestionIndex}`);
 
     // ✅ Confirm question exists
     if (!this.quiz?.questions[lockedQuestionIndex]) {
