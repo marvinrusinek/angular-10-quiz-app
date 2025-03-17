@@ -348,35 +348,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     .subscribe((params: ParamMap) => {
         const quizId = params.get('quizId');
         const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // Default to 1-based index
-        const internalIndex = Math.max(questionIndex - 1, 0); // ✅ Ensure 0-based index, avoid negatives
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1;
+        const internalIndex = Math.max(questionIndex - 1, 0);  // ✅ Fix 0-based indexing
 
         console.log(`[QuizComponent] 🚩 Route param changed: quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
 
         if (!quizId) {
-            console.error(`[QuizComponent] ❌ No quizId found in route.`);
+            console.error(`[QuizComponent] ❌ No quizId in route.`);
             return;
         }
 
         this.quizId = quizId;
+        this.currentQuestionIndex = internalIndex;  // ✅ Ensure correct index is used
 
-        // ✅ **Only update if the index has actually changed**
-        if (this.currentQuestionIndex !== internalIndex) {
-            console.log(`[QuizComponent] 🔄 Updating currentQuestionIndex: ${internalIndex}`);
-            this.currentQuestionIndex = internalIndex;
+        if (!isNaN(internalIndex) && internalIndex >= 0) {
             this.resetUIAndNavigate(internalIndex);
         } else {
-            console.warn(`[QuizComponent] ⚠️ Ignoring redundant navigation to Q${internalIndex}`);
+            console.warn(`[QuizComponent] ⚠️ Invalid questionIndex in route, defaulting to 0.`);
+            this.resetUIAndNavigate(0);
         }
 
-        // ✅ **Ensure quiz initializes correctly without interference**
         if (!this.quizInitialized) {
-            console.log(`[QuizComponent] 🚀 Initializing quiz for the first time.`);
             this.initializeQuizBasedOnRouteParams();
-            this.quizInitialized = true;  // ✅ Prevent reinitialization issues
+            this.quizInitialized = true;
         }
     });
-
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
