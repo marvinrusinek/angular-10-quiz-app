@@ -65,6 +65,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   quizId = '';
   quizResources: QuizResource[];
   quizQuestions: QuizQuestion[];
+  quizInitialized = false;
   question!: QuizQuestion;
   questions: QuizQuestion[];
   question$!: Observable<[QuizQuestion, Option[]]>;
@@ -347,29 +348,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     .subscribe((params: ParamMap) => {
         const quizId = params.get('quizId');
         const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // Default to 1-based
-        const internalIndex = questionIndex - 1; // ✅ Convert to 0-based
+        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1; // Default to 1-based index
+        const internalIndex = Math.max(questionIndex - 1, 0); // ✅ Ensure 0-based index, avoid negatives
 
         console.log(`[QuizComponent] 🚩 Route param changed: quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
 
-        if (quizId) {
-            this.quizId = quizId;
+        if (!quizId) {
+            console.error(`[QuizComponent] ❌ No quizId found in route.`);
+            return;
+        }
 
-            // ✅ Set correct question index
+        this.quizId = quizId;
+
+        // ✅ **Only update if the index has actually changed**
+        if (this.currentQuestionIndex !== internalIndex) {
+            console.log(`[QuizComponent] 🔄 Updating currentQuestionIndex: ${internalIndex}`);
             this.currentQuestionIndex = internalIndex;
-
-            if (!isNaN(internalIndex) && internalIndex >= 0) {
-                this.resetUIAndNavigate(internalIndex);
-            } else {
-                console.warn(`[QuizComponent] ⚠️ Invalid questionIndex in route, defaulting to 0.`);
-                this.resetUIAndNavigate(0);
-            }
-
-            this.initializeQuizBasedOnRouteParams();
+            this.resetUIAndNavigate(internalIndex);
         } else {
-            console.error(`[QuizComponent] ❌ No quizId in route.`);
+            console.warn(`[QuizComponent] ⚠️ Ignoring redundant navigation to Q${internalIndex}`);
+        }
+
+        // ✅ **Ensure quiz initializes correctly without interference**
+        if (!this.quizInitialized) {
+            console.log(`[QuizComponent] 🚀 Initializing quiz for the first time.`);
+            this.initializeQuizBasedOnRouteParams();
+            this.quizInitialized = true;  // ✅ Prevent reinitialization issues
         }
     });
+
 
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
