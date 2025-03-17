@@ -197,15 +197,21 @@ export class QuizStateService {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
     
-    // 🔍 Log Before Storage
+    // 🚨 Log Before Storage
     console.log(`[setQuestionExplanation] 🔍 BEFORE Storing:`, JSON.stringify(this.quizState, null, 2));
 
-    // 🚀 Store explicitly
+    // 🛑 **Check if already set to prevent overwriting!**
+    if (this.quizState[quizId][questionIndex]?.explanation) {
+        console.warn(`[setQuestionExplanation] ⚠️ Explanation already exists for Q${questionIndex}, skipping storage.`);
+        return;
+    }
+
+    // ✅ Store the explanation under the correct index
     this.quizState[quizId][questionIndex] = { explanation };
 
-    // 🔍 Log After Storage
+    // 🚨 Log After Storage
     console.log(`[setQuestionExplanation] ✅ AFTER Storing:`, JSON.stringify(this.quizState, null, 2));
   }
 
@@ -218,6 +224,7 @@ export class QuizStateService {
         return null;
     }
 
+    // ✅ Explicitly retrieve explanation for the correct index
     const storedExplanation = this.quizState[quizId][questionIndex]?.explanation || null;
 
     console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
