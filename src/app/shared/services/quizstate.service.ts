@@ -197,31 +197,31 @@ export class QuizStateService {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
-    console.log(`[setQuestionExplanation] 📌 FULL STATE BEFORE Storage:`, JSON.stringify(this.quizState, null, 2));
-
+    console.log(`[setQuestionExplanation] 📌 Attempting to Store Explanation for Q${questionIndex}:`, explanation);
+    
     if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ Overwriting Explanation for Q${questionIndex}`);
+        console.warn(`[setQuestionExplanation] ⚠️ WARNING: Overwriting Explanation for Q${questionIndex}`);
     }
 
     this.quizState[quizId][questionIndex] = { explanation };
 
-    console.log(`[setQuestionExplanation] ✅ Stored Explanation for Q${questionIndex}:`, explanation);
-    console.log(`[setQuestionExplanation] 📌 FULL STATE AFTER Storage:`, JSON.stringify(this.quizState, null, 2));
+    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
+    console.table(this.quizState[quizId]);
   }
 
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
-    console.log(`[getStoredExplanation] 📌 FULL STATE BEFORE Retrieval:`, JSON.stringify(this.quizState, null, 2));
-
+    
     const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
 
     if (storedExplanation) {
-        console.log(`[getStoredExplanation] ✅ Found Explanation for Q${questionIndex}:`, storedExplanation);
+        console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
     } else {
-        console.warn(`[getStoredExplanation] ⚠️ No stored explanation found for Q${questionIndex}`);
+        console.warn(`[getStoredExplanation] ⚠️ No Stored Explanation for Q${questionIndex}`);
     }
+
+    console.table(this.quizState[quizId]); // 🔥 Log full state for verification
 
     return storedExplanation;
   }
