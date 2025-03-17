@@ -200,7 +200,6 @@ export class QuizStateService {
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
     console.log(`[setQuestionExplanation] 📌 FULL STATE BEFORE Storage:`, JSON.stringify(this.quizState, null, 2));
 
-    // Prevent overwriting with incorrect data
     if (this.quizState[quizId][questionIndex]?.explanation) {
         console.warn(`[setQuestionExplanation] ⚠️ Overwriting Explanation for Q${questionIndex}`);
     }
@@ -213,10 +212,10 @@ export class QuizStateService {
 
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
-    const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
-    
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
     console.log(`[getStoredExplanation] 📌 FULL STATE BEFORE Retrieval:`, JSON.stringify(this.quizState, null, 2));
+
+    const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
 
     if (storedExplanation) {
         console.log(`[getStoredExplanation] ✅ Found Explanation for Q${questionIndex}:`, storedExplanation);
