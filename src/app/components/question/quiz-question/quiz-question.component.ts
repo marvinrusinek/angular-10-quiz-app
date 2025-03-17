@@ -5342,9 +5342,11 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📝 Checking Explanation for Q${questionIndex}`);
 
+    // ✅ **Ensure locked index is correct**
     const lockedQuestionIndex = questionIndex; 
     console.log(`[updateExplanationText] 🔒 Using Locked Index: Q${lockedQuestionIndex}`);
 
+    // ✅ **Check if explanation is already stored correctly**
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
     if (!explanationText) {
@@ -5353,6 +5355,7 @@ export class QuizQuestionComponent
         );
         console.log(`[updateExplanationText] 🚀 Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
+        // ✅ **Ensure correct index is used in storage**
         this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
     }
 
