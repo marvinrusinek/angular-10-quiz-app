@@ -5342,7 +5342,7 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📝 Checking Explanation for Q${questionIndex}`);
 
-    const lockedQuestionIndex = questionIndex; // 🚨 Confirm this is correct
+    const lockedQuestionIndex = questionIndex; 
     console.log(`[updateExplanationText] 🔒 Using Locked Index: Q${lockedQuestionIndex}`);
 
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
@@ -5362,7 +5362,6 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
-  
 
 
   handleAudioPlayback(isCorrect: boolean): void {
