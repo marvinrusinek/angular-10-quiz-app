@@ -193,29 +193,18 @@ export class QuizStateService {
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
-    console.log(`🔵 [FORCE LOG] Entered setQuestionExplanation() for Q${questionIndex}`);
-    console.log(`[DEBUG] 🟢 Entered setQuestionExplanation() for Q${questionIndex} with quizId: ${quizId}`);
-
-    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
-    
     if (!this.quizState[quizId]) {
-        this.quizState[quizId] = {};
+      this.quizState[quizId] = {};
     }
 
-    console.log(`[QuizStateService] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[setQuestionExplanation] ✅ Storing Explanation for Q${questionIndex}:`, explanation);
 
-    if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[QuizStateService] ⚠️ Explanation for Q${questionIndex} already exists:`, this.quizState[quizId][questionIndex].explanation);
-        return;
-    }
-
+    // 🔥 Force storing explicitly by `questionIndex`
     this.quizState[quizId][questionIndex] = {
-        ...(this.quizState[quizId][questionIndex] || {}),
-        explanation
+      explanation
     };
 
-    console.log(`[QuizStateService] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
-    console.log(`[QuizStateService] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
+    console.log(`[setQuestionExplanation] 🔍 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
   }
 
   // Method to retrieve stored explanation text
@@ -229,13 +218,8 @@ export class QuizStateService {
         return null;
     }
 
-    if (!this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[QuizStateService] ⚠️ No stored explanation found for Q${questionIndex} in quiz ${quizId}`);
-        console.log(`[QuizStateService] 🔍 FULL STATE DURING RETRIEVAL:`, JSON.stringify(this.quizState, null, 2));
-        return null;
-    }
-
-    const storedExplanation = this.quizState[quizId][questionIndex].explanation;
+    // ✅ Ensure questionIndex is used correctly
+    const storedExplanation = this.quizState[quizId][questionIndex]?.explanation || null;
     console.log(`[QuizStateService] ✅ RETRIEVED Explanation for Q${questionIndex}:`, storedExplanation);
     
     return storedExplanation;
