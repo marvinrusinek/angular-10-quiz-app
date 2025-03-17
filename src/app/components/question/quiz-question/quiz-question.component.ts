@@ -5341,6 +5341,8 @@ export class QuizQuestionComponent
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`🔵 [updateExplanationText] Called for questionIndex: ${questionIndex}`);
+
+    console.log(`[updateExplanationText] 📝 Checking Explanation for Q${questionIndex}:`, this.quiz.questions[questionIndex]?.explanation);
     
     // ✅ Ensure we use the correct index
     const lockedQuestionIndex = Math.max(0, questionIndex); // Ensure non-negative index
