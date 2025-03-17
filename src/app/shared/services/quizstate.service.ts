@@ -195,6 +195,8 @@ export class QuizStateService {
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     console.log(`🔵 [FORCE LOG] Entered setQuestionExplanation() for Q${questionIndex}`);
     console.log(`[DEBUG] 🟢 Entered setQuestionExplanation() for Q${questionIndex} with quizId: ${quizId}`);
+
+    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
     
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
@@ -219,6 +221,8 @@ export class QuizStateService {
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     console.log(`[DEBUG] 🟢 Entered getStoredExplanation() for Q${questionIndex} with quizId: ${quizId}`);
+
+    console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}:`, this.quizState[quizId]?.[questionIndex]?.explanation);
 
     if (!this.quizState[quizId]) {
         console.warn(`[QuizStateService] ⚠️ No stored quiz state found for quizId: ${quizId}`);
