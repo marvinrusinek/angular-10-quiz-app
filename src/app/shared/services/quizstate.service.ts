@@ -199,14 +199,14 @@ export class QuizStateService {
 
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
     
-    // 🔍 Log before storage
-    console.log(`[setQuestionExplanation] 🔍 Before Storing:`, JSON.stringify(this.quizState, null, 2));
+    // 🔍 Log Before Storage
+    console.log(`[setQuestionExplanation] 🔍 BEFORE Storing:`, JSON.stringify(this.quizState, null, 2));
 
     // 🚀 Store explicitly
     this.quizState[quizId][questionIndex] = { explanation };
 
-    // 🔍 Log after storage
-    console.log(`[setQuestionExplanation] ✅ After Storing:`, JSON.stringify(this.quizState, null, 2));
+    // 🔍 Log After Storage
+    console.log(`[setQuestionExplanation] ✅ AFTER Storing:`, JSON.stringify(this.quizState, null, 2));
   }
 
   // Method to retrieve stored explanation text
@@ -214,8 +214,8 @@ export class QuizStateService {
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
 
     if (!this.quizState[quizId]) {
-      console.warn(`[getStoredExplanation] ⚠️ No stored state for quiz ${quizId}`);
-      return null;
+        console.warn(`[getStoredExplanation] ⚠️ No stored state for quiz ${quizId}`);
+        return null;
     }
 
     const storedExplanation = this.quizState[quizId][questionIndex]?.explanation || null;
