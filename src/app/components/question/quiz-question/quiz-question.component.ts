@@ -3289,7 +3289,7 @@ export class QuizQuestionComponent
       this.showExplanationChange.emit(false);
       this.cdRef.detectChanges();
 
-      await this.updateExplanationText(this.currentQuestionIndex);
+      await this.updateExplanationText(lockedQuestionIndex);
 
       await this.handleCorrectnessOutcome(true);
 
@@ -5906,7 +5906,7 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
     // ✅ **Fix: Explicitly Use Correct Indexing**
-    const lockedQuestionIndex = questionIndex;
+    const lockedQuestionIndex = questionIndex; // 🔥 Make sure we're using the correct index
 
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
