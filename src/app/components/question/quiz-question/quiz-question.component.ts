@@ -288,8 +288,10 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    const routeIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    this.currentQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex;
+    const routeIndex =
+      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; // ✅ Subtract ONCE, clearly!
+    this.currentQuestionIndex = routeIndex; // ensures correct index
 
     console.log(
       `[QQC.ngOnInit] 🚩 Route index=${routeIndex}, fixedQuestionIndex=${this.fixedQuestionIndex}`
@@ -3247,7 +3249,6 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
-    console.log(`[onOptionClicked] 🎯 Clicked on Q${this.currentQuestionIndex}`);
     try {
       const lockedQuestionIndex = this.currentQuestionIndex;
       console.log(
