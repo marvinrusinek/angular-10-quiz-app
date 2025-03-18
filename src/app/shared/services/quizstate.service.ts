@@ -199,10 +199,9 @@ export class QuizStateService {
 
     console.log(`[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // ✅ Prevent overwriting if already stored
+    // 🚨 Verify the stored explanation to catch overwriting issues
     if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ Explanation for Q${questionIndex} already exists. Skipping.`);
-        return;
+        console.warn(`[setQuestionExplanation] ⚠️ Explanation for Q${questionIndex} already exists:`, this.quizState[quizId][questionIndex].explanation);
     }
 
     this.quizState[quizId][questionIndex] = {
@@ -210,7 +209,7 @@ export class QuizStateService {
         explanation
     };
 
-    console.log(`[setQuestionExplanation] ✅ Stored Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
+    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
     console.table(this.quizState);
   }
 
