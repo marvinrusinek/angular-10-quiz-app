@@ -199,9 +199,8 @@ export class QuizStateService {
 
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // 🔥 **Ensure no overwriting issue**
     if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ Explanation already exists for Q${questionIndex}. Overwriting?`, this.quizState[quizId][questionIndex].explanation);
+        console.warn(`[setQuestionExplanation] ⚠️ Explanation already exists for Q${questionIndex}.`);
     }
 
     this.quizState[quizId][questionIndex] = {
