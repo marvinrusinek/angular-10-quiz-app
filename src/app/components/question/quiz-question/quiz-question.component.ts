@@ -5396,7 +5396,6 @@ export class QuizQuestionComponent
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
-    console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
     const lockedQuestionIndex = questionIndex; // ✅ Use the provided index directly
 
