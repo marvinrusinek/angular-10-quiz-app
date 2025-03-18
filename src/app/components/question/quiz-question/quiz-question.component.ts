@@ -5905,7 +5905,6 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    // ✅ Use the given index directly
     const lockedQuestionIndex = questionIndex;
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
