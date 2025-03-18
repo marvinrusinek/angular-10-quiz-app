@@ -214,7 +214,8 @@ export class QuizStateService {
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
     
     const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
-
+    console.log(`[getStoredExplanation] 🔍 Explanation Retrieved for Q${questionIndex}:`, storedExplanation);
+    
     if (storedExplanation) {
         console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
     } else {
