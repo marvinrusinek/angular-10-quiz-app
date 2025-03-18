@@ -2901,7 +2901,7 @@ export class QuizQuestionComponent
   } */
   public override async onOptionClicked(event: { option: SelectedOption | null; index: number; checked: boolean; }): Promise<void> {
     try {
-      const lockedQuestionIndex = Math.max(0, this.currentQuestionIndex);
+      const lockedQuestionIndex = this.currentQuestionIndex;
         console.log(`[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`, event.option);
 
         this.markQuestionAsAnswered(this.currentQuestionIndex);
@@ -2931,7 +2931,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(false);
         this.cdRef.detectChanges();
 
-        await this.updateExplanationText(this.currentQuestionIndex);
+        await this.updateExplanationText(lockedQuestionIndex);
 
         await this.handleCorrectnessOutcome(true);
 
@@ -5398,7 +5398,7 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    const lockedQuestionIndex = questionIndex;
+    const lockedQuestionIndex = questionIndex; // Ensure we use the correct index
 
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
@@ -5415,9 +5415,9 @@ export class QuizQuestionComponent
         return;
     }
 
-    // 🚀 Ensure Q1 is retrieved correctly
-    if (lockedQuestionIndex === 0) {
-        console.log(`[updateExplanationText] 🔍 Ensuring Q1's explanation is retrieved correctly.`);
+    // 🚀 Ensure Q1/Q2 are retrieved correctly
+    if (lockedQuestionIndex <= 1) {
+        console.log(`[updateExplanationText] 🔍 Ensuring Q1 and Q2 explanations are retrieved correctly.`);
     }
 
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
@@ -5440,6 +5440,11 @@ export class QuizQuestionComponent
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
         }
+    }
+
+    // ✅ **Final Check: Ensure Correct Explanation is Displayed**
+    if (lockedQuestionIndex === 1 && explanationText.includes('Q0')) {
+        console.error(`[updateExplanationText] ❌ ERROR: Q2 is still displaying Q1's explanation!`);
     }
 
     this.explanationToDisplay = explanationText;
