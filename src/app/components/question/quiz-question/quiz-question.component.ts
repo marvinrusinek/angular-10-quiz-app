@@ -5398,7 +5398,7 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    const lockedQuestionIndex = questionIndex; // Ensure we use the correct index
+    const lockedQuestionIndex = questionIndex; // ✅ Use the provided index directly
 
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
@@ -5413,11 +5413,6 @@ export class QuizQuestionComponent
     if (!questionState || !questionState.isAnswered) {
         console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has not been answered yet.`);
         return;
-    }
-
-    // 🚀 Ensure Q1/Q2 are retrieved correctly
-    if (lockedQuestionIndex <= 1) {
-        console.log(`[updateExplanationText] 🔍 Ensuring Q1 and Q2 explanations are retrieved correctly.`);
     }
 
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
@@ -5440,11 +5435,6 @@ export class QuizQuestionComponent
             console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
         }
-    }
-
-    // ✅ **Final Check: Ensure Correct Explanation is Displayed**
-    if (lockedQuestionIndex === 1 && explanationText.includes('Q0')) {
-        console.error(`[updateExplanationText] ❌ ERROR: Q2 is still displaying Q1's explanation!`);
     }
 
     this.explanationToDisplay = explanationText;
