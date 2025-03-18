@@ -197,15 +197,17 @@ export class QuizStateService {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // 🚨 Prevent overwriting Q1
-    if (questionIndex === 0 && this.quizState[quizId][questionIndex]) {
-        console.warn(`[setQuestionExplanation] ⚠️ Preventing Overwrite: Q1's explanation already stored.`);
-        return;
+    // 🔥 **Ensure no overwriting issue**
+    if (this.quizState[quizId][questionIndex]?.explanation) {
+        console.warn(`[setQuestionExplanation] ⚠️ Explanation already exists for Q${questionIndex}. Overwriting?`, this.quizState[quizId][questionIndex].explanation);
     }
 
-    this.quizState[quizId][questionIndex] = { explanation };
+    this.quizState[quizId][questionIndex] = {
+        ...(this.quizState[quizId][questionIndex] || {}),
+        explanation
+    };
 
     console.log(`[setQuestionExplanation] ✅ Stored Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   }
@@ -220,7 +222,7 @@ export class QuizStateService {
     }
 
     const explanation = this.quizState[quizId][questionIndex].explanation;
-    console.log(`[getStoredExplanation] ✅ Explanation Retrieved for Q${questionIndex}:`, explanation);
+    console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, explanation);
 
     return explanation;
   }
