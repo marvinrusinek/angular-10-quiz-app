@@ -288,16 +288,8 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    const routeIndex =
-      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-    this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; // ✅ Subtract ONCE, clearly!
-    
-    if (!isNaN(routeIndex) && routeIndex >= 0) {
-      this.currentQuestionIndex = routeIndex; // ✅ Update the component’s index correctly
-    } else {
-      console.warn(`[ngOnInit] ⚠️ Invalid route index, defaulting to 0.`);
-      this.currentQuestionIndex = 0;
-    }
+    const routeIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    this.currentQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex;
 
     console.log(
       `[QQC.ngOnInit] 🚩 Route index=${routeIndex}, fixedQuestionIndex=${this.fixedQuestionIndex}`
