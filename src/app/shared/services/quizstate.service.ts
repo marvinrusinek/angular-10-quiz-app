@@ -193,20 +193,15 @@ export class QuizStateService {
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
+
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[setQuestionExplanation] 📌 Attempting to Store Explanation for Q${questionIndex}:`, explanation);
-    
-    if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ WARNING: Overwriting Explanation for Q${questionIndex}`);
-    }
-
     this.quizState[quizId][questionIndex] = { explanation };
 
-    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
-    console.table(this.quizState[quizId]);
+    console.log(`[setQuestionExplanation] ✅ Stored Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   }
 
   // Method to retrieve stored explanation text
