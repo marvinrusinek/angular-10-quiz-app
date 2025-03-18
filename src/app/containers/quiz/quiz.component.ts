@@ -3936,7 +3936,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }  
   
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn('Invalid questionIndex: ${questionIndex}. Navigation aborted.');
@@ -3977,7 +3977,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     return true;
+  } */
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 📌 Requested Navigation Index: ${questionIndex}`);
+
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return false;
+    }
+
+    if (this.debounceNavigation) {
+        console.warn('[navigateToQuestion] ⏳ Navigation debounce active. Skipping navigation.');
+        return false;
+    }
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 500);
+
+    // ✅ Ensure currentQuestionIndex updates correctly
+    this.currentQuestionIndex = questionIndex;
+    console.log(`[navigateToQuestion] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
+
+    // ✅ Fix navigation index mismatch
+    const targetUrl = `/question/${this.quizId}/${questionIndex}`;
+    console.log(`[navigateToQuestion] 🔄 Navigating to: ${targetUrl}`);
+
+    try {
+        const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
+
+        if (navigationSuccess) {
+            console.log(`[navigateToQuestion] ✅ Successfully navigated to Q${questionIndex}`);
+
+            // ✅ Fetch and store question data to prevent stale state
+            await this.fetchAndSetQuestionData(questionIndex);
+            console.log(`[navigateToQuestion] ✅ Fetched Data for Q${questionIndex}`);
+
+            // ✅ Ensure badge is updated correctly
+            this.quizService.updateBadgeText(this.currentQuestionIndex + 1, this.totalQuestions);
+            localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+        } else {
+            console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
+        }
+    } catch (error) {
+        console.error(`[navigateToQuestion] ❌ Error navigating to Q${questionIndex}:`, error);
+    }
+
+    return true;
   }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
