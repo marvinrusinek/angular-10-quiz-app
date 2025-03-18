@@ -291,7 +291,13 @@ export class QuizQuestionComponent
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; // ✅ Subtract ONCE, clearly!
-    this.currentQuestionIndex = routeIndex; // ensures correct index
+    
+    if (!isNaN(routeIndex) && routeIndex >= 0) {
+      this.currentQuestionIndex = routeIndex; // ✅ Update the component’s index correctly
+    } else {
+      console.warn(`[ngOnInit] ⚠️ Invalid route index, defaulting to 0.`);
+      this.currentQuestionIndex = 0;
+    }
 
     console.log(
       `[QQC.ngOnInit] 🚩 Route index=${routeIndex}, fixedQuestionIndex=${this.fixedQuestionIndex}`
@@ -3249,6 +3255,7 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log(`[onOptionClicked] 🎯 Clicked on Q${this.currentQuestionIndex}`);
     try {
       const lockedQuestionIndex = this.currentQuestionIndex;
       console.log(
