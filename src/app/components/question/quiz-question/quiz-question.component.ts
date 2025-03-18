@@ -5343,8 +5343,9 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Component's Current Index: Q${this.currentQuestionIndex}`);
 
+    // ✅ Explicitly Correct Indexing
     const lockedQuestionIndex = Math.max(questionIndex, 0);
-    console.log(`[updateExplanationText] 🔄 Final Locked Index: Q${lockedQuestionIndex}`);
+    console.log(`[updateExplanationText] 🔄 Using Locked Index: Q${lockedQuestionIndex}`);
 
     if (!this.quiz?.questions[lockedQuestionIndex]) {
         console.error(`[updateExplanationText] ❌ ERROR: No question found at index Q${lockedQuestionIndex}`);
@@ -5352,14 +5353,12 @@ export class QuizQuestionComponent
     }
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
-    console.log(`[updateExplanationText] 🔍 Question State for Q${lockedQuestionIndex}:`, questionState);
-
     if (!questionState || !questionState.isAnswered) {
-        console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has NOT been answered yet.`);
+        console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has NOT been answered.`);
         return;
     }
 
-    // ✅ **Retrieve Explanation**
+    // ✅ Retrieve Explanation (Prevent Overwriting)
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
     console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
@@ -5367,7 +5366,7 @@ export class QuizQuestionComponent
         explanationText = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
         );
-        console.log(`[updateExplanationText] 🚀 Successfully Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
+        console.log(`[updateExplanationText] 🚀 Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
         if (explanationText && explanationText.trim()) {
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
@@ -5376,7 +5375,7 @@ export class QuizQuestionComponent
         }
     }
 
-    // 🛑 **Fix Q1 Getting Q2’s Explanation**
+    // 🛑 **Prevent Q1 from Receiving Q2’s Explanation**
     const correctExplanationForQ1 = this.explanationTextService.formattedExplanations[0]?.explanation;
     if (lockedQuestionIndex === 0 && explanationText !== correctExplanationForQ1) {
         console.error(`[updateExplanationText] ❌ ERROR! Q1 received incorrect explanation. Fixing.`);
