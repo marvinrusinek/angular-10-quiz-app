@@ -193,11 +193,17 @@ export class QuizStateService {
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
-    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
-
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
+
+    // 🚨 Ensure Q1 is stored correctly before proceeding to Q2
+    if (questionIndex === 0 && this.quizState[quizId][questionIndex]) {
+        console.warn(`[setQuestionExplanation] ⚠️ Q1 already has an explanation. Preventing overwrite.`);
+        return;
+    }
+
+    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
     this.quizState[quizId][questionIndex] = { explanation };
 
@@ -207,19 +213,16 @@ export class QuizStateService {
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
-    
-    const storedExplanation = this.quizState[quizId]?.[questionIndex]?.explanation || null;
-    console.log(`[getStoredExplanation] 🔍 Explanation Retrieved for Q${questionIndex}:`, storedExplanation);
-    
-    if (storedExplanation) {
-        console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
-    } else {
-        console.warn(`[getStoredExplanation] ⚠️ No Stored Explanation for Q${questionIndex}`);
+
+    if (!this.quizState[quizId] || !this.quizState[quizId][questionIndex]) {
+        console.warn(`[getStoredExplanation] ⚠️ No stored explanation found for Q${questionIndex}.`);
+        return null;
     }
 
-    console.table(this.quizState[quizId]); // 🔥 Log full state for verification
-
-    return storedExplanation;
+    const explanation = this.quizState[quizId][questionIndex].explanation;
+    console.log(`[getStoredExplanation] ✅ Explanation Retrieved for Q${questionIndex}:`, explanation);
+    
+    return explanation;
   }
 
   logStoredExplanations(quizId: string): void {
