@@ -5907,10 +5907,8 @@ export class QuizQuestionComponent
 
     let lockedQuestionIndex = questionIndex;
 
-    if (questionIndex === this.currentQuestionIndex) {
-        console.warn(`[updateExplanationText] 🔄 Index matches currentQuestionIndex, keeping ${questionIndex}`);
-    } else {
-        console.warn(`[updateExplanationText] 🔄 Adjusting index to ${this.currentQuestionIndex}`);
+    if (this.currentQuestionIndex !== questionIndex) {
+        console.warn(`[updateExplanationText] ⚠️ Mismatch! Adjusting index to ${this.currentQuestionIndex}`);
         lockedQuestionIndex = this.currentQuestionIndex;
     }
 
@@ -5922,7 +5920,7 @@ export class QuizQuestionComponent
     }
 
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
-    
+
     if (!explanationText) {
         explanationText = await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
