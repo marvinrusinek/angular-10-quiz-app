@@ -3521,6 +3521,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setNavigating(true);
     
     try {
+      if (this.currentQuestionIndex === 0) {
+        console.log(`[advanceToNextQuestion] ✅ Storing Q1 explanation before navigating.`);
+        this.quizQuestionComponent.updateExplanationText(this.currentQuestionIndex);
+      }
+
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         // Increment question index before fetching
         this.currentQuestionIndex++;
