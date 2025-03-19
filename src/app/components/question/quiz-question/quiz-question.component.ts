@@ -5924,7 +5924,7 @@ export class QuizQuestionComponent
 
     if (!explanationText) {
         explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
         );
         console.log(`[updateExplanationText] ✅ Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
         this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
@@ -5939,6 +5939,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
+
 
 
   handleAudioPlayback(isCorrect: boolean): void {
