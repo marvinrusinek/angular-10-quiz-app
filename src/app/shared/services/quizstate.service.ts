@@ -216,18 +216,22 @@ export class QuizStateService {
   }
 
   // Method to retrieve stored explanation text
-  getStoredExplanation(quizId: string, questionIndex: number): string | null {
-    console.log(`\n[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
+  public getStoredExplanation(quizId: string, questionIndex: number): string | null {
+    console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
 
-    if (!this.quizState[quizId] || !this.quizState[quizId][questionIndex]) {
-        console.warn(`[getStoredExplanation] ❌ No Explanation Stored for Q${questionIndex}!`);
+    if (!this.quizState[quizId]) {
+        console.warn(`[getStoredExplanation] ⚠️ No quizState found for quizId=${quizId}`);
         return null;
     }
 
-    const storedExplanation = this.quizState[quizId][questionIndex].explanation;
-    
+    const storedExplanation = this.quizState[quizId][questionIndex]?.explanation;
+
+    if (!storedExplanation) {
+        console.warn(`[getStoredExplanation] ⚠️ No stored explanation found for Q${questionIndex}`);
+        return null;
+    }
+
     console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
-    console.table(this.quizState[quizId]);  // 🚀 Print the whole stored state for cross-checking
     return storedExplanation;
   }
 
