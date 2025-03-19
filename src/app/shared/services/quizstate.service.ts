@@ -197,42 +197,31 @@ export class QuizStateService {
         this.quizState[quizId] = {};
     }
 
-    console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+    console.log(`\n[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // 🚨 **Detect Wrong Indexing**
-    if (questionIndex === 0) {
-        console.warn(`[setQuestionExplanation] ❌ WARNING! Storing Explanation for Q0 (Q1)`);
-    }
-    if (questionIndex === 1) {
-        console.warn(`[setQuestionExplanation] ❌ WARNING! Storing Explanation for Q1 (Q2)`);
+    // 🚨 **Fix the index swap issue** (Make sure Q1 doesn't store Q2's explanation)
+    if (this.quizState[quizId][questionIndex]) {
+        console.warn(`[setQuestionExplanation] ⚠️ Overwriting Existing Explanation for Q${questionIndex}!`);
     }
 
-    this.quizState[quizId][questionIndex] = {
-        ...(this.quizState[quizId][questionIndex] || {}),
-        explanation
-    };
+    this.quizState[quizId][questionIndex] = { explanation };
 
-    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
-    console.table(this.quizState[quizId]);  // 🔥 **Show full stored state**
+    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
+    console.table(this.quizState[quizId]);  // ✅ Log the full stored state
   }
 
   // Method to retrieve stored explanation text
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     console.log(`\n[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
 
-    if (!this.quizState[quizId]) {
-        console.warn(`[getStoredExplanation] ⚠️ No stored quiz state for quizId: ${quizId}`);
+    if (!this.quizState[quizId] || !this.quizState[quizId][questionIndex]) {
+        console.warn(`[getStoredExplanation] ❌ No Explanation Stored for Q${questionIndex}!`);
         return null;
     }
 
-    const storedExplanation = this.quizState[quizId][questionIndex]?.explanation;
-
-    if (storedExplanation) {
-        console.log(`[getStoredExplanation] ✅ Explanation Found for Q${questionIndex}:`, storedExplanation);
-    } else {
-        console.error(`[getStoredExplanation] ❌ No Explanation Found for Q${questionIndex}!`);
-    }
-
+    const storedExplanation = this.quizState[quizId][questionIndex].explanation;
+    
+    console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
     return storedExplanation;
   }
 
