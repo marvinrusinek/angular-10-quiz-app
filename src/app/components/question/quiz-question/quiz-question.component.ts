@@ -5905,8 +5905,8 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    // ✅ Ensure the correct index is always used
-    const lockedQuestionIndex = questionIndex; // Do NOT shift index here
+    // ✅ Ensure we use the correct index
+    const lockedQuestionIndex = questionIndex;
 
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
@@ -5925,8 +5925,12 @@ export class QuizQuestionComponent
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${lockedQuestionIndex}`);
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
-    // ✅ 🚀 Force fetching explanation if Q1 has incorrect data
-    if (!explanationText || lockedQuestionIndex === 0) {
+    // 🚀 **Ensure Q1 is Stored Properly**
+    if (lockedQuestionIndex === 0) {
+        console.log(`[updateExplanationText] 🚀 Ensuring Q1's explanation is correctly stored.`);
+    }
+
+    if (!explanationText) {
         console.log(`[updateExplanationText] 🚀 Fetching Explanation from Service for Q${lockedQuestionIndex}...`);
         try {
             explanationText = await firstValueFrom(
@@ -5934,7 +5938,11 @@ export class QuizQuestionComponent
             );
             console.log(`[updateExplanationText] ✅ Successfully fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-            // ✅ Store the fetched explanation to ensure it doesn't get overwritten
+            // ✅ **Ensure Q1’s Explanation is Stored**
+            if (lockedQuestionIndex === 0) {
+                console.log(`[updateExplanationText] 🚀 Storing explanation for Q1 in quizStateService.`);
+            }
+
             this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
             console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
@@ -5944,7 +5952,6 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ **Ensure Explanation is Valid Before Applying to UI**
     if (!explanationText || explanationText.trim() === '') {
         console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
         explanationText = 'No explanation available.';
