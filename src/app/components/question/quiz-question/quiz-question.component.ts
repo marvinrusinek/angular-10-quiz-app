@@ -3289,7 +3289,7 @@ export class QuizQuestionComponent
       this.showExplanationChange.emit(false);
       this.cdRef.detectChanges();
 
-      await this.updateExplanationText(lockedQuestionIndex);
+      await this.updateExplanationText(this.currentQuestionIndex);
 
       await this.handleCorrectnessOutcome(true);
 
