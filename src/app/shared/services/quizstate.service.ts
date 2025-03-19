@@ -192,21 +192,19 @@ export class QuizStateService {
     console.log(`[QuizStateService] 🟢 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
-  public setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
 
-    console.log(`[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+    console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // 🚨 **Prevent Overwriting**
-    if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ Explanation for Q${questionIndex} ALREADY exists:`, this.quizState[quizId][questionIndex].explanation);
-        return;
-    }
-
+    // 🔥 **🚨 EXTRA LOGGING TO CATCH Q1/Q2 SWAP 🚨**
     if (questionIndex === 0) {
-        console.log(`[setQuestionExplanation] 🚀 Ensuring Q1 explanation is stored before moving to Q2.`);
+        console.error(`[setQuestionExplanation] ❌ Q1's explanation is being stored at Q${questionIndex}!`);
+    }
+    if (questionIndex === 1) {
+        console.error(`[setQuestionExplanation] ❌ Q2's explanation is being stored at Q${questionIndex}!`);
     }
 
     this.quizState[quizId][questionIndex] = {
@@ -215,30 +213,27 @@ export class QuizStateService {
     };
 
     console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
+    console.table(this.quizState[quizId]);  // ✅ Full state for debugging
   }
 
   // Method to retrieve stored explanation text
-  public getStoredExplanation(quizId: string, questionIndex: number): string | null {
-    console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
+  getStoredExplanation(quizId: string, questionIndex: number): string | null {
+    console.log(`\n[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}`);
 
     if (!this.quizState[quizId]) {
-        console.warn(`[getStoredExplanation] ❌ No stored quiz state found for quizId: ${quizId}`);
+        console.warn(`[getStoredExplanation] ⚠️ No stored quiz state for quizId: ${quizId}`);
         return null;
     }
 
-    if (!this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[getStoredExplanation] ❌ No stored explanation for Q${questionIndex}`);
-        return null;
+    const storedExplanation = this.quizState[quizId][questionIndex]?.explanation;
+
+    // 🚨 EXTRA LOGGING TO CATCH INDEXING ISSUES 🚨
+    if (storedExplanation) {
+        console.log(`[getStoredExplanation] ✅ Explanation Found for Q${questionIndex}:`, storedExplanation);
+    } else {
+        console.error(`[getStoredExplanation] ❌ No Explanation Found for Q${questionIndex}!`);
     }
 
-    const storedExplanation = this.quizState[quizId][questionIndex].explanation;
-    
-    // 🚨 **Ensure Q1's explanation is not being replaced by Q2**
-    if (questionIndex === 0 && storedExplanation.includes("Q2")) {
-        console.error(`[getStoredExplanation] ❌ ERROR: Q1 is retrieving Q2's explanation.`);
-    }
-
-    console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
     return storedExplanation;
   }
 
