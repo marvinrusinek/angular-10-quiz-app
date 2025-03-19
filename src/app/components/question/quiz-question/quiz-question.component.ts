@@ -5907,6 +5907,7 @@ export class QuizQuestionComponent
 
     let lockedQuestionIndex = questionIndex;
 
+    // ✅ FIX: If there's a mismatch, use the correct index
     if (this.currentQuestionIndex !== questionIndex) {
         console.warn(`[updateExplanationText] ⚠️ Mismatch! Adjusting index to ${this.currentQuestionIndex}`);
         lockedQuestionIndex = this.currentQuestionIndex;
