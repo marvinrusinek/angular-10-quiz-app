@@ -199,12 +199,12 @@ export class QuizStateService {
 
     console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // 🚨 **Catch Incorrect Indexing**
+    // 🚨 **Detect Wrong Indexing**
     if (questionIndex === 0) {
-        console.warn(`[setQuestionExplanation] 🔴 WARNING! Storing Explanation for Q0 (Q1)`);
+        console.warn(`[setQuestionExplanation] ❌ WARNING! Storing Explanation for Q0 (Q1)`);
     }
     if (questionIndex === 1) {
-        console.warn(`[setQuestionExplanation] 🔴 WARNING! Storing Explanation for Q1 (Q2)`);
+        console.warn(`[setQuestionExplanation] ❌ WARNING! Storing Explanation for Q1 (Q2)`);
     }
 
     this.quizState[quizId][questionIndex] = {
@@ -227,7 +227,6 @@ export class QuizStateService {
 
     const storedExplanation = this.quizState[quizId][questionIndex]?.explanation;
 
-    // 🚨 **Check if Explanation is Wrongly Stored**
     if (storedExplanation) {
         console.log(`[getStoredExplanation] ✅ Explanation Found for Q${questionIndex}:`, storedExplanation);
     } else {
