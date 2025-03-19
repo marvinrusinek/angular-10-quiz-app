@@ -3256,7 +3256,7 @@ export class QuizQuestionComponent
         event.option
       );
 
-      this.markQuestionAsAnswered(this.currentQuestionIndex);
+      this.markQuestionAsAnswered(lockedQuestionIndex);
 
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn(
@@ -3289,7 +3289,7 @@ export class QuizQuestionComponent
       this.showExplanationChange.emit(false);
       this.cdRef.detectChanges();
 
-      await this.updateExplanationText(this.currentQuestionIndex);
+      await this.updateExplanationText(lockedQuestionIndex);
 
       await this.handleCorrectnessOutcome(true);
 
