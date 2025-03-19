@@ -218,12 +218,12 @@ export class QuizStateService {
 
   logStoredExplanations(quizId: string): void {
     if (!this.quizState[quizId]) {
-        console.warn(`[DEBUG] 🚨 No stored explanations found for quizId=${quizId}`);
-        return;
+      console.warn(`[DEBUG] 🚨 No stored explanations found for quizId=${quizId}`);
+      return;
     }
 
     console.log(`[DEBUG] 📌 CURRENTLY STORED EXPLANATIONS for quizId=${quizId}:`);
-    console.table(this.quizState[quizId]);  // ✅ LOG STORED EXPLANATIONS
+    console.table(this.quizState[quizId]);  // LOG STORED EXPLANATIONS
   }
 
   createDefaultQuestionState(): QuestionState {
@@ -245,7 +245,7 @@ export class QuizStateService {
       const defaultState = this.createDefaultQuestionState();
       // Apply the default state to each question using its index as the identifier within the specific quiz's state map
       this.quizStates[quizId].set(index, defaultState);
-    }    
+    }
   }
   
   updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {

@@ -5905,48 +5905,52 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    // ✅ **Fix: Explicitly Use Correct Indexing**
-    const lockedQuestionIndex = questionIndex; // 🔥 Make sure we're using the correct index
+    // ✅ Ensure the correct index is always used
+    const lockedQuestionIndex = questionIndex; // Do NOT shift index here
 
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
-    if (!this.quiz?.questions[lockedQuestionIndex]) {
-        console.error(`[updateExplanationText] ❌ No question at index ${lockedQuestionIndex}`);
+    if (!this.quiz || !this.quiz.questions || !this.quiz.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ No question data at locked index Q${lockedQuestionIndex}`);
         return;
     }
 
     const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
-    console.log(`[updateExplanationText] 🔍 Question State for Q${lockedQuestionIndex}:`, questionState);
-
     if (!questionState || !questionState.isAnswered) {
-        console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} has not been answered yet.`);
+        console.warn(`[updateExplanationText] ⚠️ Q${lockedQuestionIndex} is NOT answered yet. Skipping.`);
         return;
     }
 
-    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
-    console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+    // 🔍 **Check if Explanation is Already Stored**
+    console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${lockedQuestionIndex}`);
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
-    if (!explanationText) {
+    // ✅ 🚀 Force fetching explanation if Q1 has incorrect data
+    if (!explanationText || lockedQuestionIndex === 0) {
+        console.log(`[updateExplanationText] 🚀 Fetching Explanation from Service for Q${lockedQuestionIndex}...`);
         try {
             explanationText = await firstValueFrom(
                 this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
             );
+            console.log(`[updateExplanationText] ✅ Successfully fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
-            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
-
-            if (explanationText) {
-                this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
-            } else {
-                explanationText = 'No explanation available.';
-            }
+            // ✅ Store the fetched explanation to ensure it doesn't get overwritten
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
         } catch (error) {
-            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            console.error(`[updateExplanationText] ❌ ERROR fetching explanation for Q${lockedQuestionIndex}:`, error);
             explanationText = 'Error loading explanation.';
         }
+    } else {
+        console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
+    }
+
+    // ✅ **Ensure Explanation is Valid Before Applying to UI**
+    if (!explanationText || explanationText.trim() === '') {
+        console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
+        explanationText = 'No explanation available.';
     }
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
-    
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
