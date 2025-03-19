@@ -5925,11 +5925,6 @@ export class QuizQuestionComponent
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${lockedQuestionIndex}`);
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
-    // 🚀 **Ensure Q1 is Stored Properly**
-    if (lockedQuestionIndex === 0) {
-        console.log(`[updateExplanationText] 🚀 Ensuring Q1's explanation is correctly stored.`);
-    }
-
     if (!explanationText) {
         console.log(`[updateExplanationText] 🚀 Fetching Explanation from Service for Q${lockedQuestionIndex}...`);
         try {
