@@ -197,17 +197,19 @@ export class QuizStateService {
         this.quizState[quizId] = {};
     }
 
-    console.log(`\n[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
+    console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // 🚨 **Fix the index swap issue** (Make sure Q1 doesn't store Q2's explanation)
-    if (this.quizState[quizId][questionIndex]) {
-        console.warn(`[setQuestionExplanation] ⚠️ Overwriting Existing Explanation for Q${questionIndex}!`);
+    // 🔥 🚨 FIX: If the explanation is already stored for this index, log an error
+    if (this.quizState[quizId][questionIndex]?.explanation) {
+        console.error(`[setQuestionExplanation] ⚠️ ERROR: Explanation for Q${questionIndex} ALREADY EXISTS:`, this.quizState[quizId][questionIndex].explanation);
+        return; // ✅ Prevent overwriting
     }
 
+    // ✅ Store the explanation for the correct question index
     this.quizState[quizId][questionIndex] = { explanation };
 
     console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
-    console.table(this.quizState[quizId]);  // ✅ Log the full stored state
+    console.table(this.quizState[quizId]);  // ✅ Log the full stored state for verification
   }
 
   // Method to retrieve stored explanation text
