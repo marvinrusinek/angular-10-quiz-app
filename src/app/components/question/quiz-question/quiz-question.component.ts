@@ -5902,52 +5902,50 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🎯 Final Explanation for Q${lockedQuestionIndex}:`, explanationText);
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`\n🔵 [updateExplanationText] ENTERED for Q${questionIndex}`);
-    console.log(`⚡ Current Component Index: ${this.currentQuestionIndex}`);
-    console.log(`🔄 Locked Index Before Fetching: Q${questionIndex}`);
-    console.log(`🛠️ Explanation Storage BEFORE Fetching:`);
-    console.log(`🛠️ [QUIZ STATE] Explanation Storage BEFORE Fetching for quizId=${this.quizId}`);
-    console.table(this.quizStateService.quizState[this.quizId] ?? {});
-    
-    let lockedQuestionIndex = questionIndex;
-    
-    // 🚀 LOG THE CURRENT EXPLANATION STATE BEFORE FETCHING
-    console.log(`[updateExplanationText] 🔍 Stored Explanation State BEFORE Fetching:`, this.quizStateService.quizState);
-    
-    // 🚀 FIX INDEX MISMATCH IF IT EXISTS
-    if (this.currentQuestionIndex !== questionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatch detected! Adjusting index to ${this.currentQuestionIndex}`);
-        lockedQuestionIndex = this.currentQuestionIndex;
-    }
+    console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
 
+    // 🔥 Ensure the correct index is used
+    const lockedQuestionIndex = questionIndex;
+
+    console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
     if (!this.quiz?.questions[lockedQuestionIndex]) {
-        console.error(`[updateExplanationText] ❌ No question data at index ${lockedQuestionIndex}`);
+        console.error(`[updateExplanationText] ❌ No question at index ${lockedQuestionIndex}`);
         return;
     }
 
-    // 🚀 CHECK IF THE EXPLANATION IS ALREADY STORED BEFORE FETCHING
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
     if (!explanationText) {
-        explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
-        );
-        console.log(`[updateExplanationText] ✅ Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
-        this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        console.warn(`[updateExplanationText] 🚨 No stored explanation found! Fetching from service...`);
+
+        try {
+            explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+            );
+
+            if (explanationText) {
+                console.log(`[updateExplanationText] ✅ Successfully fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
+                this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+            } else {
+                explanationText = 'No explanation available.';
+            }
+        } catch (error) {
+            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            explanationText = 'Error loading explanation.';
+        }
     } else {
-        console.log(`[updateExplanationText] ✅ Using Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+        console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
+    // ✅ Ensure explanation is displayed correctly
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
-    this.cdRef.detectChanges();
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
-
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
