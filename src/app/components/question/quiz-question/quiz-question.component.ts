@@ -5923,7 +5923,7 @@ export class QuizQuestionComponent
         return;
     }
 
-    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
     console.log(`[updateExplanationText] 🔍 Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
 
     if (!explanationText) {
