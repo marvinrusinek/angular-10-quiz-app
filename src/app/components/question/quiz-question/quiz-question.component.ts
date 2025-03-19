@@ -5904,27 +5904,31 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`\n[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
-
+    
     let lockedQuestionIndex = questionIndex;
-
-    // ✅ FIX: If there's a mismatch, use the correct index
+    
+    // 🚀 LOG THE CURRENT EXPLANATION STATE BEFORE FETCHING
+    console.log(`[updateExplanationText] 🔍 Stored Explanation State BEFORE Fetching:`, this.quizStateService.quizState);
+    
+    // 🚀 FIX INDEX MISMATCH IF IT EXISTS
     if (this.currentQuestionIndex !== questionIndex) {
-        console.warn(`[updateExplanationText] ⚠️ Mismatch! Adjusting index to ${this.currentQuestionIndex}`);
+        console.warn(`[updateExplanationText] ⚠️ Mismatch detected! Adjusting index to ${this.currentQuestionIndex}`);
         lockedQuestionIndex = this.currentQuestionIndex;
     }
 
     console.log(`[updateExplanationText] 🔄 Final Locked Index Before Fetching: Q${lockedQuestionIndex}`);
 
     if (!this.quiz?.questions[lockedQuestionIndex]) {
-        console.error(`[updateExplanationText] ❌ No question at index Q${lockedQuestionIndex}`);
+        console.error(`[updateExplanationText] ❌ No question data at index ${lockedQuestionIndex}`);
         return;
     }
 
+    // 🚀 CHECK IF THE EXPLANATION IS ALREADY STORED BEFORE FETCHING
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
     if (!explanationText) {
         explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+            this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
         );
         console.log(`[updateExplanationText] ✅ Fetched Explanation for Q${lockedQuestionIndex}:`, explanationText);
         this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
@@ -5939,7 +5943,6 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
-
 
 
   handleAudioPlayback(isCorrect: boolean): void {
