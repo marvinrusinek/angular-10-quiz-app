@@ -5902,8 +5902,11 @@ export class QuizQuestionComponent
     console.log(`[updateExplanationText] 🎯 Final Explanation for Q${lockedQuestionIndex}:`, explanationText);
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`\n[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
-    console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
+    console.log(`\n🔵 [updateExplanationText] ENTERED for Q${questionIndex}`);
+    console.log(`⚡ Current Component Index: ${this.currentQuestionIndex}`);
+    console.log(`🔄 Locked Index Before Fetching: Q${questionIndex}`);
+    console.log(`🛠️ Explanation Storage BEFORE Fetching:`);
+    console.table(this.quizStateService.quizState[this.quizId] || {});
     
     let lockedQuestionIndex = questionIndex;
     
