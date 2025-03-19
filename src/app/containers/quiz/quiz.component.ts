@@ -3528,7 +3528,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         // Increment question index before fetching
-        this.currentQuestionIndex++;
+        this.currentQuestionIndex += 1;
+        this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
+        console.log(`[advanceToNextQuestion] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
         
         // Fetch and set next question
         const questionLoaded = await this.fetchAndSetNextQuestion();
