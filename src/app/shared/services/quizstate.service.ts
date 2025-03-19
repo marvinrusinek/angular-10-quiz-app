@@ -194,20 +194,19 @@ export class QuizStateService {
   } */
   public setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
-      this.quizState[quizId] = {};
+        this.quizState[quizId] = {};
     }
 
     console.log(`[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // ✅ Prevent overwriting explanations
+    // 🚨 **Prevent Overwriting**
     if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ Explanation for Q${questionIndex} already exists:`, this.quizState[quizId][questionIndex].explanation);
+        console.warn(`[setQuestionExplanation] ⚠️ Explanation for Q${questionIndex} ALREADY exists:`, this.quizState[quizId][questionIndex].explanation);
         return;
     }
 
-    // ✅ Ensure Q1’s explanation is stored before moving to Q2
     if (questionIndex === 0) {
-        console.log(`[setQuestionExplanation] 🚨 Forcing Q1 explanation storage.`);
+        console.log(`[setQuestionExplanation] 🚀 Ensuring Q1 explanation is stored before moving to Q2.`);
     }
 
     this.quizState[quizId][questionIndex] = {
@@ -215,7 +214,7 @@ export class QuizStateService {
         explanation
     };
 
-    console.log(`[setQuestionExplanation] ✅ CORRECTLY STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
+    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   }
 
   // Method to retrieve stored explanation text
