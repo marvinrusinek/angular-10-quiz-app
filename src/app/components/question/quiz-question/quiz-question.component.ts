@@ -5905,7 +5905,6 @@ export class QuizQuestionComponent
     console.log(`\n[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
 
-    // 🚨 **Force Correct Indexing for Q1**
     let lockedQuestionIndex = questionIndex;
 
     if (questionIndex === this.currentQuestionIndex) {
@@ -5941,6 +5940,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
+
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
