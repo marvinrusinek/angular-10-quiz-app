@@ -199,20 +199,16 @@ export class QuizStateService {
 
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // Ensure Q1 (index 0) is stored properly
-    if (questionIndex === 0) {
-        console.warn(`[setQuestionExplanation] 🚨 Fixing Q1 Indexing Issue! Forcing correct explanation storage.`);
+    // ✅ Fix: Ensure Q1 does not get overwritten incorrectly
+    if (this.quizState[quizId][questionIndex]) {
+        console.warn(`[setQuestionExplanation] ⚠️ Overwriting existing explanation for Q${questionIndex}`);
     }
 
-    // Store explanation only if it's not empty
-    if (explanation.trim() !== '') {
-        this.quizState[quizId][questionIndex] = { explanation };
-        console.log(`[setQuestionExplanation] ✅ CORRECTLY STORED Explanation for Q${questionIndex}:`, explanation);
-    } else {
-        console.warn(`[setQuestionExplanation] ⚠️ Skipping storage - Explanation is empty for Q${questionIndex}`);
-    }
+    // ✅ Store explanation properly by index
+    this.quizState[quizId][questionIndex] = { explanation };
 
-    console.log(`[QUIZ STATE] 🔍 Explanation Storage AFTER Fix for quizId=${quizId}:`, this.quizState[quizId]);
+    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
+    console.table(this.quizState[quizId]);
   }
 
   // Method to retrieve stored explanation text
