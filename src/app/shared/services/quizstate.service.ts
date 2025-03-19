@@ -192,26 +192,27 @@ export class QuizStateService {
     console.log(`[QuizStateService] 🟢 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
-  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+  public setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
 
-    console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // 🚀 LOGGING BEFORE STORING
-    console.log(`[setQuestionExplanation] 🔍 CURRENT STATE BEFORE STORAGE:`, this.quizState[quizId]);
-
-    if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.error(`[setQuestionExplanation] ⚠️ ERROR: Explanation for Q${questionIndex} ALREADY EXISTS:`, this.quizState[quizId][questionIndex].explanation);
-        return;
+    // Ensure Q1 (index 0) is stored properly
+    if (questionIndex === 0) {
+        console.warn(`[setQuestionExplanation] 🚨 Fixing Q1 Indexing Issue! Forcing correct explanation storage.`);
     }
 
-    // ✅ Store Explanation
-    this.quizState[quizId][questionIndex] = { explanation };
+    // Store explanation only if it's not empty
+    if (explanation.trim() !== '') {
+        this.quizState[quizId][questionIndex] = { explanation };
+        console.log(`[setQuestionExplanation] ✅ CORRECTLY STORED Explanation for Q${questionIndex}:`, explanation);
+    } else {
+        console.warn(`[setQuestionExplanation] ⚠️ Skipping storage - Explanation is empty for Q${questionIndex}`);
+    }
 
-    console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
-    console.table(this.quizState[quizId]);  // 🚀 Print the stored state again after storage
+    console.log(`[QUIZ STATE] 🔍 Explanation Storage AFTER Fix for quizId=${quizId}:`, this.quizState[quizId]);
   }
 
   // Method to retrieve stored explanation text

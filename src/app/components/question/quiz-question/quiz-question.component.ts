@@ -5906,7 +5906,8 @@ export class QuizQuestionComponent
     console.log(`⚡ Current Component Index: ${this.currentQuestionIndex}`);
     console.log(`🔄 Locked Index Before Fetching: Q${questionIndex}`);
     console.log(`🛠️ Explanation Storage BEFORE Fetching:`);
-    console.table(this.quizStateService.quizState[this.quizId] || {});
+    console.log(`🛠️ [QUIZ STATE] Explanation Storage BEFORE Fetching for quizId=${this.quizId}`);
+    console.table(this.quizStateService.quizState[this.quizId] ?? {});
     
     let lockedQuestionIndex = questionIndex;
     
