@@ -199,17 +199,19 @@ export class QuizStateService {
 
     console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // 🔥 🚨 FIX: If the explanation is already stored for this index, log an error
+    // 🚀 LOGGING BEFORE STORING
+    console.log(`[setQuestionExplanation] 🔍 CURRENT STATE BEFORE STORAGE:`, this.quizState[quizId]);
+
     if (this.quizState[quizId][questionIndex]?.explanation) {
         console.error(`[setQuestionExplanation] ⚠️ ERROR: Explanation for Q${questionIndex} ALREADY EXISTS:`, this.quizState[quizId][questionIndex].explanation);
-        return; // ✅ Prevent overwriting
+        return;
     }
 
-    // ✅ Store the explanation for the correct question index
+    // ✅ Store Explanation
     this.quizState[quizId][questionIndex] = { explanation };
 
     console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
-    console.table(this.quizState[quizId]);  // ✅ Log the full stored state for verification
+    console.table(this.quizState[quizId]);  // 🚀 Print the stored state again after storage
   }
 
   // Method to retrieve stored explanation text
@@ -224,6 +226,7 @@ export class QuizStateService {
     const storedExplanation = this.quizState[quizId][questionIndex].explanation;
     
     console.log(`[getStoredExplanation] ✅ Retrieved Explanation for Q${questionIndex}:`, storedExplanation);
+    console.table(this.quizState[quizId]);  // 🚀 Print the whole stored state for cross-checking
     return storedExplanation;
   }
 
