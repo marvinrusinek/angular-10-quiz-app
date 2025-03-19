@@ -199,12 +199,12 @@ export class QuizStateService {
 
     console.log(`\n[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
 
-    // 🔥 **🚨 EXTRA LOGGING TO CATCH Q1/Q2 SWAP 🚨**
+    // 🚨 **Catch Incorrect Indexing**
     if (questionIndex === 0) {
-        console.error(`[setQuestionExplanation] ❌ Q1's explanation is being stored at Q${questionIndex}!`);
+        console.warn(`[setQuestionExplanation] 🔴 WARNING! Storing Explanation for Q0 (Q1)`);
     }
     if (questionIndex === 1) {
-        console.error(`[setQuestionExplanation] ❌ Q2's explanation is being stored at Q${questionIndex}!`);
+        console.warn(`[setQuestionExplanation] 🔴 WARNING! Storing Explanation for Q1 (Q2)`);
     }
 
     this.quizState[quizId][questionIndex] = {
@@ -213,7 +213,7 @@ export class QuizStateService {
     };
 
     console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
-    console.table(this.quizState[quizId]);  // ✅ Full state for debugging
+    console.table(this.quizState[quizId]);  // 🔥 **Show full stored state**
   }
 
   // Method to retrieve stored explanation text
@@ -227,7 +227,7 @@ export class QuizStateService {
 
     const storedExplanation = this.quizState[quizId][questionIndex]?.explanation;
 
-    // 🚨 EXTRA LOGGING TO CATCH INDEXING ISSUES 🚨
+    // 🚨 **Check if Explanation is Wrongly Stored**
     if (storedExplanation) {
         console.log(`[getStoredExplanation] ✅ Explanation Found for Q${questionIndex}:`, storedExplanation);
     } else {
