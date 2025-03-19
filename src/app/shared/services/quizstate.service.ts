@@ -192,18 +192,26 @@ export class QuizStateService {
     console.log(`[QuizStateService] 🟢 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
-  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+  public setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
-        this.quizState[quizId] = {};
+      this.quizState[quizId] = {};
     }
 
-    // 🔥 **Fix: Ensure Correct Explanation is Stored**
+    console.log(`[setQuestionExplanation] 📝 Attempting to store Explanation for Q${questionIndex}:`, explanation);
+
+    // ✅ Prevent overwriting explanations
     if (this.quizState[quizId][questionIndex]?.explanation) {
-        console.warn(`[setQuestionExplanation] ⚠️ Overwriting existing explanation for Q${questionIndex}`);
+        console.warn(`[setQuestionExplanation] ⚠️ Explanation for Q${questionIndex} already exists:`, this.quizState[quizId][questionIndex].explanation);
+        return;
+    }
+
+    // ✅ Ensure Q1’s explanation is stored before moving to Q2
+    if (questionIndex === 0) {
+        console.log(`[setQuestionExplanation] 🚨 Forcing Q1 explanation storage.`);
     }
 
     this.quizState[quizId][questionIndex] = {
-        ...this.quizState[quizId][questionIndex],
+        ...(this.quizState[quizId][questionIndex] || {}),
         explanation
     };
 
