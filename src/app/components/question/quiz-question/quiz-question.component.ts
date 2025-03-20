@@ -3244,7 +3244,7 @@ export class QuizQuestionComponent
         console.error(`[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`, error);
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3306,6 +3306,72 @@ export class QuizQuestionComponent
         `[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`,
         error
       );
+    }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+}): Promise<void> {
+    try {
+        const lockedQuestionIndex = this.currentQuestionIndex;
+        console.log(
+            `[onOptionClicked] Option clicked for question ${lockedQuestionIndex}, Selected Option:`,
+            event.option
+        );
+
+        this.markQuestionAsAnswered(lockedQuestionIndex);
+
+        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+            console.warn(
+                '[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...'
+            );
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            this.optionsToDisplay = this.populateOptionsToDisplay();
+        }
+
+        const foundOption = this.optionsToDisplay.find(
+            (opt) => opt.optionId === event.option?.optionId
+        );
+        if (!foundOption) {
+            console.error(
+                `[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.`
+            );
+            return;
+        }
+
+        if (!this.isFeedbackApplied) {
+            await this.applyOptionFeedback(foundOption);
+        }
+
+        if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+            this.selectedOptionService.isAnsweredSubject.next(true);
+        }
+
+        // 🛑 Remove explanation clearing before fetching
+        await this.updateExplanationText(lockedQuestionIndex);
+
+        // ✅ Only reset explanation display after update
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange.emit('');
+        this.showExplanationChange.emit(false);
+        this.cdRef.detectChanges();
+
+        await this.handleCorrectnessOutcome(true);
+
+        this.showFeedbackForOption[event.option?.optionId || 0] = true;
+        this.cdRef.detectChanges();
+
+        this.answerSelected.emit(true);
+
+        setTimeout(() => {
+            this.cdRef.markForCheck();
+        });
+    } catch (error) {
+        console.error(
+            `[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`,
+            error
+        );
     }
   }
 
@@ -5901,7 +5967,7 @@ export class QuizQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 Final Explanation for Q${lockedQuestionIndex}:`, explanationText);
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
     
     const lockedQuestionIndex = questionIndex;
@@ -5931,6 +5997,45 @@ export class QuizQuestionComponent
         }
     }
 
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+
+    console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+
+    // Ensure we're working with the correct question
+    const lockedQuestionIndex = questionIndex;
+    console.log(`[updateExplanationText] 🔄 Using locked index Q${lockedQuestionIndex}`);
+
+    if (!this.quiz?.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ No question at index Q${lockedQuestionIndex}`);
+        return;
+    }
+
+    console.log(`[updateExplanationText] ✅ Confirmed question exists for Q${lockedQuestionIndex}`);
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+
+    if (!explanationText) {
+        try {
+            explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+            );
+            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
+
+            // Store explanation with proper index
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        } catch (error) {
+            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            explanationText = 'Error loading explanation.';
+        }
+    }
+
+    // Ensure explanation is set only for the correct question
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
