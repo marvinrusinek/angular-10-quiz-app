@@ -4010,7 +4010,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // ✅ Update the current question index BEFORE navigating
     this.currentQuestionIndex = questionIndex;
-    this.quizStateService.setCurrentQuestionIndex(this.currentQuestionIndex); 
+    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex); 
     console.log(`[navigateToQuestion] ✅ Updated currentQuestionIndex to: ${this.currentQuestionIndex}`);
 
     // Construct the correct URL for navigation
