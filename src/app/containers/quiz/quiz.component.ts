@@ -3947,8 +3947,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: Q${questionIndex}. Navigation aborted.`);
-        return false;
+      console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: Q${questionIndex}. Navigation aborted.`);
+      return false;
     }
 
     // Prevent excessive navigation calls
