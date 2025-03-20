@@ -3943,45 +3943,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 📌 Requested Navigation to Q${questionIndex}`);
+
     // Validate the question index
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn('Invalid questionIndex: ${questionIndex}. Navigation aborted.');
-      return false;
+        console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: Q${questionIndex}. Navigation aborted.`);
+        return false;
     }
-  
+
     // Prevent excessive navigation calls
     if (this.debounceNavigation) {
-      console.warn('Navigation debounce active. Skipping navigation.');
-      return false;
+        console.warn(`[navigateToQuestion] ⏳ Navigation debounce active. Skipping navigation.`);
+        return false;
     }
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 500);
-  
-    // Update the current question index
+
+    // ✅ Update the current question index **BEFORE navigation**
     this.currentQuestionIndex = questionIndex;
-  
+    console.log(`[navigateToQuestion] 🔄 Updated currentQuestionIndex to Q${this.currentQuestionIndex}`);
+
     // Construct the correct URL for navigation
     const questionNumber = questionIndex + 1;
     const targetUrl = `/question/${this.quizId}/${questionNumber}`;
-  
+
     try {
-      const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
-  
-      if (navigationSuccess) {
-        // Fetch and set the data for the current question
-        await this.fetchAndSetQuestionData(questionIndex);
-  
-        // Update the badge number (1-based) after successful data fetch
-        const badgeNumber = this.currentQuestionIndex + 1;
-        this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-      } else {
-        console.warn('Navigation to ${targetUrl} failed.');
-      }
+        const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
+
+        if (navigationSuccess) {
+            console.log(`[navigateToQuestion] ✅ Successfully navigated to Q${questionIndex}`);
+
+            // ✅ Ensure correct question data is loaded
+            await this.fetchAndSetQuestionData(questionIndex);
+
+            // ✅ Verify badge number matches current index
+            const badgeNumber = this.currentQuestionIndex + 1;
+            this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+            localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+
+            console.log(`[navigateToQuestion] 🏷️ Badge Updated: Q${badgeNumber}/${this.totalQuestions}`);
+        } else {
+            console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
+        }
     } catch (error) {
-      console.error('Error navigating to questionIndex ${questionIndex}:', error);
+        console.error(`[navigateToQuestion] ❌ Error navigating to Q${questionIndex}:`, error);
     }
-  
+
     return true;
   }
 
