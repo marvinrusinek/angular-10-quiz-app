@@ -201,9 +201,10 @@ export class QuizStateService {
         this.quizState[quizId][questionIndex] = {};
     }
 
-    this.quizState[quizId][questionIndex] = { explanation }; // ✅ Store explanation as an object
+    this.quizState[quizId][questionIndex] = { explanation };
 
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[setQuestionExplanation] 🔍 Current QuizState:`, JSON.stringify(this.quizState));
   }
 
   // Method to retrieve stored explanation text
