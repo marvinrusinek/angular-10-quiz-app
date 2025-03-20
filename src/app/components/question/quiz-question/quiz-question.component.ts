@@ -5904,7 +5904,7 @@ export class QuizQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 Requested Index: Q${questionIndex}`);
 
-    // 🔥 Ensure the correct index is used
+    // 🔒 Ensure correct index
     const lockedQuestionIndex = questionIndex;
 
     console.log(`[updateExplanationText] 🔍 Current Component Index: Q${this.currentQuestionIndex}`);
@@ -5915,6 +5915,7 @@ export class QuizQuestionComponent
         return;
     }
 
+    // ✅ Ensure we retrieve the correct stored explanation
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
 
     if (!explanationText) {
@@ -5939,13 +5940,22 @@ export class QuizQuestionComponent
         console.log(`[updateExplanationText] ✅ Using stored explanation for Q${lockedQuestionIndex}:`, explanationText);
     }
 
-    // ✅ Ensure explanation is displayed correctly
+    // ✅ Ensure explanation is valid
+    if (!explanationText || explanationText.trim() === '') {
+        console.warn(`[updateExplanationText] ⚠️ Empty explanation for Q${lockedQuestionIndex}, setting default.`);
+        explanationText = 'No explanation available.';
+    }
+
+    // ✅ Apply to UI
     this.explanationToDisplay = explanationText;
     this.explanationToDisplayChange.emit(explanationText);
     this.showExplanationChange.emit(true);
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, explanationText);
   }
+
+
+
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
