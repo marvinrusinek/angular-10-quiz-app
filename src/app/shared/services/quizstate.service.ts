@@ -194,21 +194,21 @@ export class QuizStateService {
   } */
   public setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
-        this.quizState[quizId] = {};
-    }
+      this.quizState[quizId] = {};
+    }  
 
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
 
-    // ✅ Fix: Ensure Q1 does not get overwritten incorrectly
-    if (this.quizState[quizId][questionIndex]) {
-        console.warn(`[setQuestionExplanation] ⚠️ Overwriting existing explanation for Q${questionIndex}`);
+    // 🚨 Prevent overwriting with incorrect data
+    if (this.quizState[quizId][questionIndex] && this.quizState[quizId][questionIndex].explanation !== explanation) {
+        console.warn(`[setQuestionExplanation] ⚠️ WARNING: Potential overwrite detected for Q${questionIndex}.`);
     }
 
-    // ✅ Store explanation properly by index
+    // ✅ Store correctly
     this.quizState[quizId][questionIndex] = { explanation };
 
     console.log(`[setQuestionExplanation] ✅ STORED Explanation for Q${questionIndex}:`, explanation);
-    console.table(this.quizState[quizId]);
+    console.table(this.quizState[quizId]); // 🚀 Debug all stored explanations
   }
 
   // Method to retrieve stored explanation text
@@ -220,10 +220,12 @@ export class QuizStateService {
         return null;
     }
 
+    // ✅ Retrieve explanation
     const storedExplanation = this.quizState[quizId][questionIndex]?.explanation;
 
     if (!storedExplanation) {
         console.warn(`[getStoredExplanation] ⚠️ No stored explanation found for Q${questionIndex}`);
+        console.table(this.quizState[quizId]); // 🚀 Debug stored explanations
         return null;
     }
 
