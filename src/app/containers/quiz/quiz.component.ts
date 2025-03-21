@@ -1506,146 +1506,94 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // This function loads the question corresponding to the provided index.
-  /* async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
-    try {
-      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
-
-      // Validate question index
-      if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
-        console.error('[loadQuestionByRouteIndex] Question index out of bounds:', questionIndex);
-        return;
-      }
-
-      // Get the current question
-      const question = this.quiz.questions[questionIndex];
-      this.questionToDisplay = question.questionText;
-
-      // Assign option IDs dynamically and normalize options
-      const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
-        
-      // Create immutable copy to prevent race conditions
-      this.optionsToDisplay = [...optionsWithIds].map((option, optionIndex) => ({
-        ...option,
-        feedback: 'Loading feedback...',
-        showIcon: option.showIcon ?? false,
-        active: option.active ?? true,
-        selected: option.selected ?? false,
-        correct: !!option.correct,
-        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
-          ? option.optionId
-          : optionIndex + 1
-      }));
-
-      console.log('[loadQuestionByRouteIndex] Options to Display:', this.optionsToDisplay);
-
-      // Check for correct answers
-      const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
-      if (!correctOptions.length) {
-        console.warn('[loadQuestionByRouteIndex] No correct answers available for this question:', question);
-      } else {
-        console.log('[loadQuestionByRouteIndex] Correct options identified:', correctOptions);
-      }
-
-      // Ensure feedback is generated **AFTER** options are fully initialized
-      setTimeout(() => {
-        console.log('[loadQuestionByRouteIndex] Applying feedback after delay...');
-        this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-      }, 100);
-
-      // Fetch explanation text and feedback in parallel
-      const [feedbackResult, explanationResult] = await Promise.allSettled([
-        this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
-        this.fetchFormattedExplanationText(questionIndex)
-      ]);
-
-      // Handle feedback generation result
-      if (feedbackResult.status === 'fulfilled') {
-        this.feedbackText = feedbackResult.value;
-        console.log('[loadQuestionByRouteIndex] Generated Feedback Text:', this.feedbackText);
-      } else {
-        console.error('[loadQuestionByRouteIndex] Feedback generation failed:', feedbackResult.reason);
-        this.feedbackText = 'Could not generate feedback. Please try again.';
-      }
-
-      // Handle explanation fetch result
-      if (explanationResult.status === 'rejected') {
-        console.error('[loadQuestionByRouteIndex] Explanation fetch failed:', explanationResult.reason);
-      }
-
-      // Ensure UI updates
-      setTimeout(() => {
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-      }, 200);
-    } catch (error) {
-      console.error('[loadQuestionByRouteIndex] Error loading question:', error);
-      this.feedbackText = 'Error loading question details.';
-      this.cdRef.markForCheck();
-    }
-  } */
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
+      console.log(`[loadQuestionByRouteIndex] 🚀 Navigating to Q${questionIndex}`);
   
-      // Validate question index
+      // Validate index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
         return;
       }
   
-      // Reset feedback state to ensure fresh application
+      // Reset feedback and UI state
       this.resetFeedbackState();
   
-      // Get the current question
       const question = this.quiz.questions[questionIndex];
       this.questionToDisplay = question.questionText;
   
-      // Assign option IDs dynamically and normalize options
+      // Assign and normalize option structure
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
-  
-      // Ensure options are structured correctly
-      this.optionsToDisplay = optionsWithIds.map((option, optionIndex) => ({
+      this.optionsToDisplay = optionsWithIds.map((option, index) => ({
         ...option,
-        feedback: '', // Reset feedback initially
+        feedback: 'Loading feedback...', // placeholder text
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
         correct: !!option.correct,
-        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId)
-          ? option.optionId
-          : optionIndex + 1
+        optionId: typeof option.optionId === 'number' && !isNaN(option.optionId) ? option.optionId : index + 1
       }));
   
-      // Ensure `optionsToDisplay` is fully set before restoring selections
+      console.log('[loadQuestionByRouteIndex] ✅ Options to Display:', this.optionsToDisplay);
+  
+      // Warn if no correct options are marked
+      const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+      if (!correctOptions.length) {
+        console.warn('[loadQuestionByRouteIndex] ⚠️ No correct answers found for this question.');
+      }
+  
+      // Restore selected options
       setTimeout(() => {
         this.restoreSelectedOptions();
   
-        // Apply feedback only after selection restoration is completed
-        setTimeout(() => {  
-          // Ensure optionsToDisplay is populated before applying feedback
+        setTimeout(() => {
+          // Safety check for empty options
           if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[loadQuestionByRouteIndex] ⚠️ optionsToDisplay is empty! Attempting to repopulate...');
+            console.warn('[loadQuestionByRouteIndex] ⚠️ optionsToDisplay is empty! Attempting fallback...');
             this.quizQuestionComponent?.populateOptionsToDisplay();
           }
   
-          // Reapply feedback only after selections are properly restored
-          setTimeout(() => {
-            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
-            if (previouslySelectedOption) {
-              this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
-            } else {
-              console.log('[loadQuestionByRouteIndex] ⚠️ No previously selected option found. Applying feedback to all options.');
-              this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-            }
+          // Apply feedback
+          const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+          if (previouslySelectedOption) {
+            this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
+          } else {
+            console.log('[loadQuestionByRouteIndex] ℹ️ No previously selected option. Applying feedback to all.');
+            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+          }
   
-            // Ensure UI updates after applying feedback
-            this.cdRef.detectChanges();
-            this.cdRef.markForCheck();
-          }, 50); // Ensures selections are fully restored before applying feedback
-        }, 100); // Ensures `restoreSelectedOptions()` completes before applying feedback
-      }, 150); // Ensures `optionsToDisplay` is fully populated before proceeding
+          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
+        }, 50);
+      }, 150);
+  
+      // Fetch feedback and explanation text in parallel
+      const [feedbackResult, explanationResult] = await Promise.allSettled([
+        this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
+        this.fetchFormattedExplanationText(questionIndex)
+      ]);
+  
+      if (feedbackResult.status === 'fulfilled') {
+        this.feedbackText = feedbackResult.value;
+        console.log('[loadQuestionByRouteIndex] 🧠 Feedback Text:', this.feedbackText);
+      } else {
+        console.error('[loadQuestionByRouteIndex] ❌ Feedback generation failed:', feedbackResult.reason);
+        this.feedbackText = 'Could not generate feedback. Please try again.';
+      }
+  
+      if (explanationResult.status === 'rejected') {
+        console.error('[loadQuestionByRouteIndex] ❌ Explanation fetch failed:', explanationResult.reason);
+      }
+  
+      // Final UI update after async work
+      setTimeout(() => {
+        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
+      }, 200);
+  
     } catch (error) {
-      console.error('[loadQuestionByRouteIndex] ❌ Error loading question:', error);
+      console.error('[loadQuestionByRouteIndex] ❌ Unexpected error:', error);
+      this.feedbackText = 'Error loading question details.';
       this.cdRef.markForCheck();
     }
   }  
