@@ -128,10 +128,6 @@ export class QuizDataService implements OnDestroy {
         if (!quiz) {
           throw new Error(`[QuizDataService] ❌ Quiz with ID ${quizId} not found.`);
         }
-  
-        // ✅ You can keep this if you still want a summary-level log
-        console.log(`[QuizDataService] ✅ Retrieved Quiz Data for quizId: ${quizId}`, quiz);
-  
         return quiz;
       }),
       take(1),
