@@ -1834,7 +1834,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     const data: QuizQuestion = { 
       questionText: questionData.questionText,
-      explanation: questionData.explanation || '',  // ✅ Ensure explanation exists
+      explanation: questionData.explanation || '',  // ensure explanation exists
       options: questionData.options || [],
       type: (questionData.type as QuestionType) ?? QuestionType.SingleAnswer
     };
