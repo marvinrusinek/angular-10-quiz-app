@@ -2497,6 +2497,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.currentQuestion = question;
             this.optionsToDisplay = question.options;
 
+            this.resetUIAndNavigate(this.currentQuestionIndex);
+
             // Ensure feedback is applied for the first question
             // this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
           } else {
