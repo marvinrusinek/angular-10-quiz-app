@@ -3526,7 +3526,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         // Increment question index before fetching
-        this.currentQuestionIndex += 1;
+        this.currentQuestionIndex++;
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
         console.log(`[advanceToNextQuestion] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
         
@@ -3551,9 +3551,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const nextQuestionIndex = this.currentQuestionIndex + 1;
         localStorage.setItem('savedQuestionIndex', JSON.stringify(nextQuestionIndex));
 
-        if (this.quizQuestionComponent) {
-          this.quizQuestionComponent.resetExplanation();
-        }
+        this.quizQuestionComponent?.resetExplanation();
 
         // Update Next button state
         const shouldEnableNextButton = this.isAnyOptionSelected();
@@ -4082,9 +4080,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`); */
 
             // Check per-question answered state
+            console.log(`[updateExplanationText] ⏳ START for Q${questionIndex}`);
             const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+            console.log(`[updateExplanationText] 🔍 isAnswered: ${isAnswered} for Q${questionIndex}`);
+
             if (!isAnswered) {
+              console.log(`[updateExplanationText] 🚫 Skipping update — question not answered`);
               this.explanationToDisplay = ''; // Optional if this controls visibility
+              return;
             }
 
             console.log(`[navigateToQuestion] ✅ Confirmed updateExplanationText(${questionIndex}) was called`);
