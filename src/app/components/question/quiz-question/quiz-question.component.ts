@@ -4874,6 +4874,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    console.log(`[updateExplanationText] 🧪 QUESTION TEXT at Q${lockedQuestionIndex}:`, this.quiz?.questions[lockedQuestionIndex]?.questionText);
+
     console.log(`[updateExplanationText] ✅ Confirmed question exists for Q${lockedQuestionIndex}`);
 
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
