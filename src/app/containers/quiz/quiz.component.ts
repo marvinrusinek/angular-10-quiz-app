@@ -2492,25 +2492,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       )
       .subscribe({
         next: (question: QuizQuestion | null) => {
-          if (question) {
-            this.currentQuiz = this.quizService.getActiveQuiz();
-            this.currentQuestion = question;
-            this.optionsToDisplay = question.options;
-
-            this.resetUIAndNavigate(this.currentQuestionIndex);
-
-            // Ensure feedback is applied for the first question
-            // this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
-          } else {
-            console.error('No question data available after fetch.');
-          }
+          (async () => {
+            if (question) {
+              this.currentQuiz = this.quizService.getActiveQuiz();
+      
+              // ✅ Let this handle everything: question, options, explanation
+              await this.resetUIAndNavigate(this.currentQuestionIndex);
+      
+              // ❌ Don't manually set question/options here — already handled in navigation logic
+              // this.currentQuestion = question;
+              // this.optionsToDisplay = question.options;
+      
+              // ✅ If needed, apply feedback here *after* question is fully rendered
+              // this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
+            } else {
+              console.error('No question data available after fetch.');
+            }
+          })(); // 👈 immediately invoked async function
         },
         error: (error) => console.error('Error during subscription:', error),
         complete: () =>
           console.log(
             'Route parameters processed and question loaded successfully.'
           ),
-      });
+      });      
   }
 
   initializeQuizFromRoute(): void {
