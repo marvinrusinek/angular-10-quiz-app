@@ -4083,17 +4083,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log(`[navigateToQuestion] ✅ Badge updated to Q${badgeNumber}`);
 
             // ✅ Explicitly update explanation for Q1
-            if (questionIndex === 0) {
+            /* if (questionIndex === 0) {
                 console.log(`[navigateToQuestion] 🟢 Calling updateExplanationText(0) for Q1`);
             }
-            console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
+            console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`); */
 
-            if (this.isAnswered) {
+            // Check per-question answered state
+            const isAnswered = await this.isQuestionAnswered(questionIndex);
+
+            if (isAnswered) {
               await this.quizQuestionComponent.updateExplanationText(questionIndex);
             } else {
               this.explanationToDisplay = ''; // ❌ Ensure explanation is blank if not answered
-              this.explanationToDisplayChange.emit('');
-              this.showExplanationChange.emit(false);
             }
 
             console.log(`[navigateToQuestion] ✅ Confirmed updateExplanationText(${questionIndex}) was called`);
