@@ -2496,19 +2496,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (question) {
               this.currentQuiz = this.quizService.getActiveQuiz();
       
-              // ✅ Let this handle everything: question, options, explanation
+              // Let this handle everything: question, options, explanation
               await this.resetUIAndNavigate(this.currentQuestionIndex);
       
-              // ❌ Don't manually set question/options here — already handled in navigation logic
-              // this.currentQuestion = question;
-              // this.optionsToDisplay = question.options;
-      
-              // ✅ If needed, apply feedback here *after* question is fully rendered
+              // If needed, apply feedback here *after* question is fully rendered
               // this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
             } else {
               console.error('No question data available after fetch.');
             }
-          })(); // 👈 immediately invoked async function
+          })(); // immediately invoked async function
         },
         error: (error) => console.error('Error during subscription:', error),
         complete: () =>
@@ -4091,7 +4087,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log(`[navigateToQuestion] 🟢 Calling updateExplanationText(0) for Q1`);
             }
             console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
-            await this.quizQuestionComponent.updateExplanationText(questionIndex);
+
+            if (this.isAnswered) {
+              await this.quizQuestionComponent.updateExplanationText(questionIndex);
+            } else {
+              this.explanationToDisplay = ''; // ❌ Ensure explanation is blank if not answered
+              this.explanationToDisplayChange.emit('');
+              this.showExplanationChange.emit(false);
+            }
+
             console.log(`[navigateToQuestion] ✅ Confirmed updateExplanationText(${questionIndex}) was called`);
         } else {
             console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
