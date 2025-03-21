@@ -240,16 +240,6 @@ export class QuizStateService {
     return explanation;
   }
 
-  logStoredExplanations(quizId: string): void {
-    if (!this.quizState[quizId]) {
-      console.warn(`[DEBUG] 🚨 No stored explanations found for quizId=${quizId}`);
-      return;
-    }
-
-    console.log(`[DEBUG] 📌 CURRENTLY STORED EXPLANATIONS for quizId=${quizId}:`);
-    console.table(this.quizState[quizId]);  // LOG STORED EXPLANATIONS
-  }
-
   createDefaultQuestionState(): QuestionState {
     return {
       isAnswered: false,
