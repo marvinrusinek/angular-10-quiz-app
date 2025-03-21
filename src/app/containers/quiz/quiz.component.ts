@@ -546,9 +546,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             // ✅ Verify if the correct question index is being used
             console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
-            data.options.forEach((opt, i) => {
-                console.log(`[QuizComponent] 🔍 Before Feedback - Q${questionIndex} Option ${i} Feedback:`, opt.feedback ?? '⚠️ No feedback available');
-            });
 
             // ✅ Extract correct options **for the current question**
             const correctOptions = data.options.filter(opt => opt.correct);
@@ -568,10 +565,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             // ✅ Double-check the assigned feedback before setting optionsToDisplay
             console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, updatedOptions);
-            updatedOptions.forEach((opt, i) => {
-                console.log(`[QuizComponent] ✅ Confirming FINAL feedback for Q${questionIndex} Option ${i}:`, opt.feedback);
-            });
-
+            
             console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, updatedOptions);
 
             // ✅ Set values **ONLY AFTER ensuring correct mapping**
@@ -1090,17 +1084,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         console.log(`[QuizComponent] ✅ Loaded Quiz with ${quiz.questions.length} questions.`);
-
-        // 🔍 Log each question and check its options
-        quiz.questions.forEach((question, qIndex) => {
-          console.log(`[QuizComponent] 🔍 BEFORE setting quiz data - Q${qIndex}:`, question.questionText);
-          console.log(`[QuizComponent] 🔍 Checking options array for Q${qIndex}:`, question.options);
-      
-          question.options.forEach((opt, i) => {
-              console.log(`[QuizComponent] 🔍 BEFORE setting quiz data - Q${qIndex} Option ${i}:`, opt);
-              console.log(`[QuizComponent] 🔍 Feedback for Q${qIndex} Option ${i}:`, opt.feedback ?? '⚠️ No feedback available');
-          });
-        });
 
         // Assign quiz data
         this.quiz = quiz;
