@@ -97,23 +97,6 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0), // Ensure quizzes are loaded
-      map(quizzes => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error(`Quiz with ID ${quizId} not found`);
-        }
-        return quiz;
-      }),
-      take(1), // Ensure it completes after one emission
-      catchError(error => {
-        console.error('Error fetching quiz:', error);
-        return of(null as Quiz);
-      })
-    );
-  } */
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       filter(quizzes => {
