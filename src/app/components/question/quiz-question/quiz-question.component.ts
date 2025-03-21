@@ -583,17 +583,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       feedback: option.feedback ?? undefined,
       showIcon: option.showIcon ?? false,
       selected: false, // reset selection
-      highlighted: false, // reset highlighting
+      highlighted: false // reset highlighting
     }));
-
-    console.log(
-      '[setOptionsToDisplay] Updated optionsToDisplay:',
-      this.optionsToDisplay
-    );
-    console.log(
-      '[setOptionsToDisplay] Updated optionBindings:',
-      this.optionBindings
-    );
   }
 
   private renderDisplay(): void {
