@@ -192,7 +192,7 @@ export class QuizStateService {
     console.log(`[QuizStateService] 🟢 FULL STATE AFTER STORAGE:`, JSON.stringify(this.quizState, null, 2));
     console.log(`[QuizStateService] ✅ Confirmed Storage for Q${questionIndex}:`, this.quizState[quizId][questionIndex].explanation);
   } */
-  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+  /* setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
     if (!this.quizState[quizId]) {
         this.quizState[quizId] = {};
     }
@@ -205,14 +205,38 @@ export class QuizStateService {
 
     console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
     console.log(`[setQuestionExplanation] 🔍 Current QuizState:`, JSON.stringify(this.quizState));
+  } */
+  setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
+    if (!this.quizState[quizId]) {
+        this.quizState[quizId] = {};
+    }
+
+    if (!this.quizState[quizId][questionIndex]) {
+        this.quizState[quizId][questionIndex] = {};
+    }
+
+    this.quizState[quizId][questionIndex] = { explanation };
+
+    console.log(`[setQuestionExplanation] 📝 Storing Explanation for Q${questionIndex}:`, explanation);
+    console.log(`[setQuestionExplanation] 🔍 FULL STATE:`, JSON.stringify(this.quizState, null, 2));
   }
 
   // Method to retrieve stored explanation text
-  getStoredExplanation(quizId: string, questionIndex: number): string | null {
+  /* getStoredExplanation(quizId: string, questionIndex: number): string | null {
     const explanationObject = this.quizState[quizId]?.[questionIndex];
     const explanation = explanationObject?.explanation || null;
 
     console.log(`[getStoredExplanation] 🔍 Retrieving Explanation for Q${questionIndex}:`, explanation);
+    return explanation;
+  } */
+  getStoredExplanation(quizId: string, questionIndex: number): string | null {
+    console.log(`[getStoredExplanation] 🔍 Looking for Q${questionIndex} in quizState`);
+    console.log(`[getStoredExplanation] 🧐 Current QuizState:`, JSON.stringify(this.quizState, null, 2));
+
+    const explanationObject = this.quizState[quizId]?.[questionIndex];
+    const explanation = explanationObject?.explanation || null;
+
+    console.log(`[getStoredExplanation] 🏆 Retrieved Explanation for Q${questionIndex}:`, explanation);
     return explanation;
   }
 
