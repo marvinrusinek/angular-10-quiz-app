@@ -4117,7 +4117,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Error during option click:', error);
     } finally {
       // Finalize cooldowns
-      this.applyCooldownAndFinalize();
+      this.finalizeAnswerProcessing();
     }
   }
 
@@ -4205,18 +4205,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private applyCooldownAndFinalize(): void {
-    setTimeout(() => {
-      this.isOptionSelected = false;
-      console.log(
-        `[applyCooldownAndFinalize] 🔍 Calling updateExplanationText() for Q${this.currentQuestionIndex}`
-      );
-      console.log(
-        `[QuizQuestionComponent] 🚀 Calling updateExplanationText for Q${this.currentQuestionIndex} from applyCooldownAndFinalize()`
-      );
-      this.updateExplanationText(this.currentQuestionIndex);
-    }, 300);
-
+  private finalizeAnswerProcessing(): void {
+    this.isOptionSelected = false;
     this.finalizeLoadingState();
   }
 
