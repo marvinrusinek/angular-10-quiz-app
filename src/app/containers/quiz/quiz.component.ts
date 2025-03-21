@@ -4094,7 +4094,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (isAnswered) {
               await this.quizQuestionComponent.updateExplanationText(questionIndex);
             } else {
-              this.explanationToDisplay = ''; // ❌ Ensure explanation is blank if not answered
+              this.explanationToDisplay = ''; // ensure explanation is blank if not answered
+              // this.explanationToDisplayChange.emit('');
+              // this.showExplanationChange.emit(false);
             }
 
             console.log(`[navigateToQuestion] ✅ Confirmed updateExplanationText(${questionIndex}) was called`);
