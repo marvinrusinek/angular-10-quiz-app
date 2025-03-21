@@ -3312,15 +3312,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.selectedOptionService.isAnsweredSubject.next(true);
         }
 
-        // 🛑 Remove explanation clearing before fetching
         await this.updateExplanationText(lockedQuestionIndex);
-
-        // ✅ Only reset explanation display after update
-        this.explanationToDisplay = '';
-        this.explanationToDisplayChange.emit('');
-        this.showExplanationChange.emit(false);
-        this.cdRef.detectChanges();
-
         await this.handleCorrectnessOutcome(true);
 
         this.showFeedbackForOption[event.option?.optionId || 0] = true;
