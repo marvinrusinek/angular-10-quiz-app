@@ -1508,7 +1508,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // This function loads the question corresponding to the provided index.
   async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
     try {
-      console.log([loadQuestionByRouteIndex] Navigating to Q${questionIndex});
+      console.log(`[loadQuestionByRouteIndex] Navigating to Q${questionIndex}`);
   
       // Validate question index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
