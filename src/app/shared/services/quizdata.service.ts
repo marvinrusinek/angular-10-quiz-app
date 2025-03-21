@@ -139,7 +139,6 @@ export class QuizDataService implements OnDestroy {
   }
   
   updateContentAvailableState(isAvailable: boolean): void {
-    console.log('Updating isContentAvailable$ in QuizService:', isAvailable);
     this.isContentAvailableSubject.next(isAvailable);
   }
   
