@@ -4083,7 +4083,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (questionIndex === 0) {
                 console.log(`[navigateToQuestion] 🟢 Calling updateExplanationText(0) for Q1`);
             }
+            console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
             await this.quizQuestionComponent.updateExplanationText(questionIndex);
+            console.log(`[navigateToQuestion] ✅ Confirmed updateExplanationText(${questionIndex}) was called`);
         } else {
             console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
         }
