@@ -3553,8 +3553,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.resetExplanation();
-          this.quizQuestionComponent.explanationToDisplay = '';
-          this.quizQuestionComponent.isAnswered = false;
         }
 
         // Update Next button state
