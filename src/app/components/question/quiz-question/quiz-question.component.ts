@@ -4904,7 +4904,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
 
     const lockedQuestionIndex = questionIndex;
@@ -4942,6 +4942,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showExplanationChange.emit(true);
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+
+    if (!this.quiz?.questions[questionIndex]) {
+        console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
+        return;
+    }
+
+    console.log(`[updateExplanationText] 🧪 QUESTION TEXT at Q${questionIndex}:`, this.quiz.questions[questionIndex].questionText);
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
+    console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${questionIndex}:`, explanationText);
+
+    if (!explanationText) {
+        try {
+            console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${questionIndex}...`);
+            explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+            );
+
+            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+
+            this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+        } catch (error) {
+            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
+            explanationText = 'Error loading explanation.';
+        }
+    }
+
+    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
+
+    console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
   }
 
   handleAudioPlayback(isCorrect: boolean): void {
