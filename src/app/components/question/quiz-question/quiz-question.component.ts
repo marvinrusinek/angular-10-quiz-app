@@ -4863,7 +4863,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
 
     const lockedQuestionIndex = questionIndex;
@@ -4898,6 +4898,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // Ensure explanation is not set to undefined
+    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
+
+    console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${lockedQuestionIndex}:`, this.explanationToDisplay);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+
+    const lockedQuestionIndex = questionIndex;
+    console.log(`[updateExplanationText] 🔄 Using locked index Q${lockedQuestionIndex}`);
+
+    if (!this.quiz?.questions[lockedQuestionIndex]) {
+        console.error(`[updateExplanationText] ❌ No question at index Q${lockedQuestionIndex}`);
+        return;
+    }
+
+    console.log(`[updateExplanationText] ✅ Confirmed question exists for Q${lockedQuestionIndex}`);
+    console.log(`[updateExplanationText] 🧪 QUESTION TEXT at Q${lockedQuestionIndex}:`, this.quiz.questions[lockedQuestionIndex].questionText);
+
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, lockedQuestionIndex);
+    console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${lockedQuestionIndex}:`, explanationText);
+
+    if (!explanationText) {
+        try {
+            console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${lockedQuestionIndex}...`);
+            explanationText = await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(lockedQuestionIndex)
+            );
+
+            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
+
+            this.quizStateService.setQuestionExplanation(this.quizId, lockedQuestionIndex, explanationText);
+        } catch (error) {
+            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${lockedQuestionIndex}:`, error);
+            explanationText = 'Error loading explanation.';
+        }
+    }
+
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
