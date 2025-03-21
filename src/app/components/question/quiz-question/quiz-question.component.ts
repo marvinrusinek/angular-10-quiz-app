@@ -547,19 +547,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private setOptionsToDisplay(): void {
-    console.log(
-      `[setOptionsToDisplay] Called for question:`,
-      this.currentQuestion?.questionText
-    );
-    console.log(
-      `[setOptionsToDisplay] Current question options before update:`,
-      this.currentQuestion?.options
-    );
-
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-      console.warn(
-        '[setOptionsToDisplay] No valid options in current question.'
-      );
+      console.warn('[setOptionsToDisplay] No valid options in current question.');
 
       // Only reset if optionsToDisplay is not already empty
       if (this.optionsToDisplay.length > 0) {
@@ -567,8 +556,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           '[setOptionsToDisplay] 🚨 Clearing options due to invalid data.'
         );
         console.warn(
-          `[DEBUG] ❌ Clearing optionsToDisplay at:`,
-          new Error().stack
+          `[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack
         );
         this.optionsToDisplay = [];
         this.optionBindings = [];
