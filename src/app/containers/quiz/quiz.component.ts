@@ -4086,7 +4086,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             if (!isAnswered) {
               console.log(`[updateExplanationText] 🚫 Skipping update — question not answered`);
-              this.explanationToDisplay = ''; // Optional if this controls visibility
+              this.explanationToDisplay = '';
               return;
             }
 
