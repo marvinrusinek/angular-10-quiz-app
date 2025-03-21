@@ -4081,7 +4081,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
             // Check per-question answered state
             console.log(`[updateExplanationText] ⏳ START for Q${questionIndex}`);
-            const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
+            const isAnswered = await this.isQuestionAnswered(questionIndex); // ✅ use questionIndex, not currentQuestionIndex
             console.log(`[updateExplanationText] 🔍 isAnswered: ${isAnswered} for Q${questionIndex}`);
 
             if (!isAnswered) {
