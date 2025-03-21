@@ -348,7 +348,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
 
-    const index = this.currentQuestionIndex; // Trust only the initialized currentQuestionIndex from ngOnInit
+    const index = this.currentQuestionIndex; // trust only the initialized currentQuestionIndex from ngOnInit
     const question = this.questionsArray[index];
 
     if (question) {
@@ -369,70 +369,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }, 50);
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void { 
-    if (changes.options) {
-        console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`, changes.options.currentValue);
-        
-        // 🔍 Log feedback for each option BEFORE setting optionsToDisplay
-        changes.options.currentValue?.forEach((opt: any, i: number) => {
-            console.log(`[QuizQuestionComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
-        });
-
-        if (changes.options.currentValue) {
-            // ✅ Set optionsToDisplay
-            this.optionsToDisplay = [...changes.options.currentValue];
-
-            // 🔍 Log feedback AFTER setting optionsToDisplay
-            this.optionsToDisplay.forEach((opt, i) => {
-                console.log(`[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`, opt.feedback ?? '⚠️ No feedback available');
-            });
-        } else {
-            console.warn(`[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`);
-        }
-    }
-
-    if (changes.questionData) {
-      console.log(`[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`, changes.questionData.currentValue);
-    }
-  } */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.options) {
-      console.log(
-        `[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`,
-        changes.options.currentValue
-      );
-
       const receivedOptions = JSON.stringify(changes.options.currentValue);
 
-      // ✅ Prevent duplicate logging
+      // Prevent duplicate logging
       if (this.lastLoggedOptions !== receivedOptions) {
-        console.log(
-          `[QuizQuestionComponent] 🟢 ngOnChanges received options for Q${this.fixedQuestionIndex}:`,
-          changes.options.currentValue
-        );
-
-        // 🔍 Log feedback for each option BEFORE setting optionsToDisplay
-        changes.options.currentValue?.forEach((opt: any, i: number) => {
-          console.log(
-            `[QuizQuestionComponent] 🔍 BEFORE setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`,
-            opt.feedback ?? '⚠️ No feedback available'
-          );
-        });
-
         this.lastLoggedOptions = receivedOptions;
       }
 
       if (changes.options.currentValue) {
-        // ✅ Set optionsToDisplay
+        // Set optionsToDisplay
         this.optionsToDisplay = [...changes.options.currentValue];
-
-        // 🔍 Log feedback AFTER setting optionsToDisplay
-        this.optionsToDisplay.forEach((opt, i) => {
-          console.log(
-            `[QuizQuestionComponent] ✅ AFTER setting optionsToDisplay - Option ${i} feedback for Q${this.fixedQuestionIndex}:`,
-            opt.feedback ?? '⚠️ No feedback available'
-          );
-        });
       } else {
         console.warn(
           `[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`
