@@ -2761,132 +2761,71 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
+  private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
-    
-    // ✅ Lock the explanation fetch to the current questionIndex at the time of call
+  
+    // Lock the question index at the time of call
     const lockedQuestionIndex = this.currentQuestionIndex;
     console.log(`[fetchAndUpdateExplanationText] 🔒 Locked question index: ${lockedQuestionIndex}`);
-
+  
+    // Early exit if question index has changed
     if (lockedQuestionIndex !== questionIndex) {
-        console.warn(`[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`);
-        return;
+      console.warn(`[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`);
+      return;
     }
-
+  
     try {
-        const explanationText = await this.getExplanationText(lockedQuestionIndex);
-        console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${lockedQuestionIndex}:`, explanationText);
-
-        // ✅ Ensure that no stale updates overwrite the correct explanation
-        if (lockedQuestionIndex !== this.currentQuestionIndex) {
-            console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`);
-            return;
-        }
-
-        this.explanationToDisplay = explanationText;
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
-        this.cdRef.detectChanges();
-    } catch (error) {
-        console.error('[fetchAndUpdateExplanationText] ❌ Error fetching explanation text:', error);
-        this.explanationToDisplayChange.emit('Error loading explanation.');
-        this.showExplanationChange.emit(true);
-    }
-  } */
-  // ... existing code ...
-  private async fetchAndUpdateExplanationText(
-    questionIndex: number
-  ): Promise<void> {
-    console.log(
-      `[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`
-    );
-
-    try {
-      // First check if we have the explanation in session storage
-      const storedExplanation = sessionStorage.getItem(
-        `explanationText_${questionIndex}`
-      );
-
+      // Check session storage
+      const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
       if (storedExplanation) {
-        console.log(
-          `[fetchAndUpdateExplanationText] ✅ Found explanation in session storage for Q${questionIndex}`
-        );
-        this.explanationToDisplay = storedExplanation;
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
-
-        // Also update the service cache
-        this.explanationTextService.formattedExplanations[questionIndex] = {
-          questionIndex: questionIndex,
-          explanation: storedExplanation,
-        };
-
+        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in session storage for Q${questionIndex}`);
+        this.applyExplanation(storedExplanation, questionIndex);
         return;
       }
-
-      // If not in session storage, check if it's in the service cache
-      if (
-        this.explanationTextService.formattedExplanations[questionIndex] &&
-        this.explanationTextService.formattedExplanations[questionIndex]
-          .explanation
-      ) {
-        const cachedExplanation =
-          this.explanationTextService.formattedExplanations[questionIndex]
-            .explanation;
-        console.log(
-          `[fetchAndUpdateExplanationText] ✅ Found explanation in service cache for Q${questionIndex}`
-        );
-
-        this.explanationToDisplay = cachedExplanation;
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
-
-        // Save to session storage for future use
-        sessionStorage.setItem(
-          `explanationText_${questionIndex}`,
-          cachedExplanation
-        );
-
+  
+      // Check service cache
+      const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
+      if (cachedExplanation) {
+        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in service cache for Q${questionIndex}`);
+        this.applyExplanation(cachedExplanation, questionIndex);
+  
+        // Store in session storage for future use
+        sessionStorage.setItem(`explanationText_${questionIndex}`, cachedExplanation);
         return;
       }
-
-      // If not found in cache or storage, fetch it from the service
-      console.log(
-        `[fetchAndUpdateExplanationText] 🔄 Fetching explanation for Q${questionIndex}...`
-      );
+  
+      // Fetch explanation from service
+      console.log(`[fetchAndUpdateExplanationText] 🔄 Fetching explanation for Q${questionIndex}...`);
       const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        )
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
       );
-
-      console.log(
-        `[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`,
-        explanationText
-      );
-
-      // Store in service cache
+      console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+  
+      // Confirm the question index hasn’t changed during async fetch
+      if (lockedQuestionIndex !== this.currentQuestionIndex) {
+        console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`);
+        return;
+      }
+  
+      // Cache and display
       this.explanationTextService.formattedExplanations[questionIndex] = {
-        questionIndex: questionIndex,
-        explanation: explanationText,
+        questionIndex,
+        explanation: explanationText
       };
-
-      // Store in session storage
-      sessionStorage.setItem(
-        `explanationText_${questionIndex}`,
-        explanationText
-      );
-
-      // Update UI
-      this.explanationToDisplay = explanationText;
-      this.explanationToDisplayChange.emit(this.explanationToDisplay);
-      this.showExplanationChange.emit(true);
+      sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
+      this.applyExplanation(explanationText, questionIndex);
     } catch (error) {
-      console.error(
-        `[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
-        error
-      );
+      console.error(`[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
+      this.explanationToDisplayChange.emit('Error loading explanation.');
+      this.showExplanationChange.emit(true);
     }
+  }
+  
+  private applyExplanation(explanation: string, questionIndex: number): void {
+    this.explanationToDisplay = explanation;
+    this.explanationToDisplayChange.emit(explanation);
+    this.showExplanationChange.emit(true);
+    this.cdRef.detectChanges();
   }
 
   // ====================== Helper Functions ======================
