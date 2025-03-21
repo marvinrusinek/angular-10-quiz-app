@@ -254,52 +254,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngOnInit(): Promise<void> {
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-    this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; // ✅ Subtract ONCE, clearly!
     this.currentQuestionIndex = routeIndex; // ensures correct index
-
-    console.log(
-      `[QQC.ngOnInit] 🚩 Route index=${routeIndex}, fixedQuestionIndex=${this.fixedQuestionIndex}`
-    );
-
-    // this.currentQuestionIndex = index; // Ensure consistency
-
-    console.log(
-      `[QuizQuestionComponent] 🟢 shouldDisplayOptions for Q${this.fixedQuestionIndex}:`,
-      this.shouldDisplayOptions
-    );
-
-    console.log(
-      `[QuizQuestionComponent] 🟢 Initial questionData for Q${this.fixedQuestionIndex}:`,
-      this.questionData
-    );
-    console.log(
-      `[QuizQuestionComponent] 🟢 Initial options for Q${this.fixedQuestionIndex}:`,
-      this.options
-    );
-
-    console.log(
-      `[QuizQuestionComponent] 🔄 Checking data in ngOnInit for Q${this.fixedQuestionIndex}:`,
-      this.data
-    );
-    console.log(
-      `[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions in ngOnInit for Q${this.fixedQuestionIndex}:`,
-      this.shouldDisplayOptions
-    );
-
-    console.log(
-      `[QuizQuestionComponent] 🔄 Checking shouldDisplayOptions for Q${this.fixedQuestionIndex}:`,
-      this.shouldDisplayOptions
-    );
-
-    console.log(
-      `[QuizQuestionComponent] ✅ shouldDisplayOptions value:`,
-      this.shouldDisplayOptions
-    );
-
-    console.log('[QuizQuestionComponent] ✅ Initialized with:', {
-      questionData: this.questionData,
-      options: this.optionsToDisplay,
-    });
+    this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1;
 
     try {
       // Call the parent class's ngOnInit method
@@ -2688,63 +2644,93 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
-  
-    // Lock the question index at the time of call
-    const lockedQuestionIndex = this.currentQuestionIndex;
-    console.log(`[fetchAndUpdateExplanationText] 🔒 Locked question index: ${lockedQuestionIndex}`);
-  
-    // Early exit if question index has changed
-    if (lockedQuestionIndex !== questionIndex) {
-      console.warn(`[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`);
-      return;
-    }
-  
+  private async fetchAndUpdateExplanationText(
+    questionIndex: number
+  ): Promise<void> {
+    console.log(
+      `[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`
+    );
+
     try {
-      // Check session storage
+      // First check if we have the explanation in session storage
       const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
+
       if (storedExplanation) {
-        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in session storage for Q${questionIndex}`);
-        this.applyExplanation(storedExplanation, questionIndex);
+        console.log(
+          `[fetchAndUpdateExplanationText] ✅ Found explanation in session storage for Q${questionIndex}`
+        );
+        this.explanationToDisplay = storedExplanation;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+
+        // Also update the service cache
+        this.explanationTextService.formattedExplanations[questionIndex] = {
+          questionIndex: questionIndex,
+          explanation: storedExplanation,
+        };
+
         return;
       }
-  
-      // Check service cache
-      const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
-      if (cachedExplanation) {
-        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in service cache for Q${questionIndex}`);
-        this.applyExplanation(cachedExplanation, questionIndex);
-  
-        // Store in session storage for future use
-        sessionStorage.setItem(`explanationText_${questionIndex}`, cachedExplanation);
+
+      // If not in session storage, check if it's in the service cache
+      if (
+        this.explanationTextService.formattedExplanations[questionIndex] &&
+        this.explanationTextService.formattedExplanations[questionIndex]
+          .explanation
+      ) {
+        const cachedExplanation =
+          this.explanationTextService.formattedExplanations[questionIndex]
+            .explanation;
+        console.log(
+          `[fetchAndUpdateExplanationText] ✅ Found explanation in service cache for Q${questionIndex}`
+        );
+
+        this.explanationToDisplay = cachedExplanation;
+        this.explanationToDisplayChange.emit(this.explanationToDisplay);
+        this.showExplanationChange.emit(true);
+
+        // Save to session storage for future use
+        sessionStorage.setItem(
+          `explanationText_${questionIndex}`,
+          cachedExplanation
+        );
+
         return;
       }
-  
-      // Fetch explanation from service
-      console.log(`[fetchAndUpdateExplanationText] 🔄 Fetching explanation for Q${questionIndex}...`);
-      const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+
+      // If not found in cache or storage, fetch it from the service
+      console.log(
+        `[fetchAndUpdateExplanationText] 🔄 Fetching explanation for Q${questionIndex}...`
       );
-      console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
-  
-      // Confirm the question index hasn’t changed during async fetch
-      if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`);
-        return;
-      }
-  
-      // Cache and display
+      const explanationText = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(
+          questionIndex
+        )
+      );
+
+      console.log(
+        `[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`,
+        explanationText
+      );
+
+      // Store in service cache
       this.explanationTextService.formattedExplanations[questionIndex] = {
-        questionIndex,
-        explanation: explanationText
+        questionIndex: questionIndex,
+        explanation: explanationText,
       };
+
+      // Store in session storage
       sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
-      this.applyExplanation(explanationText, questionIndex);
-    } catch (error) {
-      console.error(`[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
-      this.explanationToDisplayChange.emit('Error loading explanation.');
+
+      // Update UI
+      this.explanationToDisplay = explanationText;
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
+    } catch (error) {
+      console.error(
+        `[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
+        error
+      );      
     }
   }
   
