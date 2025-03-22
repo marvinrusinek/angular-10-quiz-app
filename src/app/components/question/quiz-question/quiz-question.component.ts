@@ -1603,7 +1603,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // Render display to ensure all elements are updated
-      this.renderDisplay();
+      // this.renderDisplay();
     } catch (error) {
       console.error(
         '[initializeComponent] Error during initialization:',
