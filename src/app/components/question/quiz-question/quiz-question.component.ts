@@ -1474,6 +1474,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public ensureExplanationTextDisplay(explanationText?: string): void {
+    console.log('[💡 Explanation Render Triggered]', {
+      displayMode: this.displayMode$.getValue(),
+      shouldDisplayExplanation: this.shouldDisplayExplanation,
+      isAnswered: this.isAnswered,
+      explanationToDisplay: this.explanationToDisplay
+    });
+    
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
       console.log(
         'Blocked: Attempted to show explanation in incorrect mode or when not answered.'
