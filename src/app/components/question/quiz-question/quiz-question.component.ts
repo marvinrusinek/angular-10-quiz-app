@@ -3133,6 +3133,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Update the display mode
     this.displayMode = 'explanation';
+    console.log('[🟡 Setting displayMode$ to "explanation"] in XYZ method');
     this.displayMode$.next('explanation');
 
     // Ensure explanation is visible
