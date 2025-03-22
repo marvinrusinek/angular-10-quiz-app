@@ -747,10 +747,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         distinctUntilChanged(),
         tap((mode: 'question' | 'explanation') => {
           console.log(`Reactive display mode update to: ${mode}`);
-          if (!this.isRestoringState) {
-            // Skip during restoration
-            this.displayMode$.next(mode);
-            this.applyDisplayMode(mode);
+          
+          // log during restoration (optional)
+          if (this.isRestoringState) {
+            console.log(`[Restoration] Skipping displayMode$.next(${mode}) due to isRestoringState`);
+          } else {
+            console.log(`[Init] Skipping displayMode$.next(${mode}) — only updated on user action`);
           }
         }),
         catchError((error) => {
@@ -761,16 +763,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .subscribe();
   }
 
-  // Helper function to enforce the display mode directly
-  private applyDisplayMode(mode: 'question' | 'explanation'): void {
+  // Helper function to enforce the display mode directly -- not being called, potentially remove
+  /* private applyDisplayMode(mode: 'question' | 'explanation'): void {
     if (mode === 'question') {
-      this.ensureQuestionTextDisplay();
-      console.log('Display mode set to question');
+      // Only show question text if question hasn't been answered yet
+      if (!this.isAnswered || !this.shouldDisplayExplanation) {
+        this.ensureQuestionTextDisplay();
+        console.log('✅ Display mode set to question');
+      } else {
+        console.log('⛔ Skipping question display — explanation is intended.');
+      }
     } else if (mode === 'explanation') {
-      this.ensureExplanationTextDisplay();
-      console.log('Display mode set to explanation');
+      // Only show explanation if question is actually answered
+      if (this.isAnswered) {
+        this.ensureExplanationTextDisplay();
+        console.log('✅ Display mode set to explanation');
+      } else {
+        console.log('⛔ Skipping explanation display — question not yet answered.');
+      }
     }
-  }
+  } */
 
   // Update selection message based on the current question state
   private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
@@ -1463,14 +1475,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayModeSubscription = displayModeObservable.subscribe(
       (mode: 'question' | 'explanation') => {
         // Using the `next` method of BehaviorSubject to emit new display mode
-        this.displayMode$.next(mode);
+        // this.displayMode$.next(mode);
 
         // Update display based on current mode
-        if (mode === 'question') {
+        /* if (mode === 'question') {
           this.ensureQuestionTextDisplay();
         } else if (mode === 'explanation') {
           this.ensureExplanationTextDisplay();
-        }
+        } */
+        console.log('[initializeDisplaySubscriptions] Skipped early display mode update:', mode);
       }
     );
   }
