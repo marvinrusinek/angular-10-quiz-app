@@ -787,7 +787,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           if (this.isRestoringState) {
             console.log(`[🛠️ Restoration] Skipping displayMode$ update (${mode})`);
           } else {
-            // Just log — do NOT emit to displayMode$ here
             console.log(`[👀 Observed isAnswered ➡️ ${mode}] — no displayMode$ update`);
           }
         }),
@@ -797,7 +796,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         })
       )
       .subscribe();
-  }  
+  }
 
   // Helper function to enforce the display mode directly -- not being called, potentially remove
   /* private applyDisplayMode(mode: 'question' | 'explanation'): void {
