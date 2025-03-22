@@ -4436,7 +4436,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
 
     // Check if the question has been answered
-    if (questionState && questionState.isAnswered) {
+    if (questionState && questionState.isAnswered && this.shouldDisplayExplanation) {
       // If answered, fetch and set the formatted explanation text for the question
       try {
         // Fetch explanation text specific to the current question index
