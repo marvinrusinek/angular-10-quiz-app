@@ -97,8 +97,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     answered: boolean;
   }>({ mode: 'question', answered: false });
   public displayMode$ = this.displayStateSubject
-  .asObservable()
-  .pipe(map((state) => state.mode));
+    .asObservable()
+    .pipe(map((state) => state.mode));
 
   public isContentAvailable$: Observable<boolean>;
 
