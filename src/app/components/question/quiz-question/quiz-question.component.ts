@@ -1959,7 +1959,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.setOptionsToDisplay();
 
         this.feedbackText = '';
-        this.displayState = { mode: 'question', answered: false };
+        // this.displayState = { mode: 'question', answered: false };
         this.ensureQuestionTextDisplay();
         this.cdRef.detectChanges();
       });
