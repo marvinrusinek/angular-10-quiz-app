@@ -685,11 +685,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
 
-    if (!this.displayMode$) {
-      console.warn('[❗] displayMode$ is not initialized yet.');
-      return;
-    }
-
     currentQuizAndOptions$.pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -729,9 +724,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.formattedExplanation$.pipe(
         map(value => value ?? ''),
         distinctUntilChanged()
-      )
+      ),
+      this.displayMode$
     ]).pipe(
-      switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+      switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation, displayMode]) => {
         console.log('Data Received for Combination:', {
           currentQuizData,
           numberOfCorrectAnswers,
@@ -747,7 +743,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
             currentOptions: [],
             options: [],
             questionText: 'No question available',
-            explanationText: '',
+            explanation: '',
             correctAnswersText: '',
             isExplanationDisplayed: false,
             isNavigatingToPrevious: false
@@ -777,7 +773,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           currentOptions: [],
           options: [],
           questionText: 'Error loading question',
-          explanationText: '',
+          explanation: '',
           correctAnswersText: '',
           isExplanationDisplayed: false,
           isNavigatingToPrevious: false
@@ -885,7 +881,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         currentOptions: [],
         options: [],
         questionText: 'No question available',
-        explanationText: '',
+        explanation: '',
         correctAnswersText: '',
         isExplanationDisplayed: false,
         isNavigatingToPrevious: false
@@ -897,7 +893,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       currentOptions: currentOptions,
       options: currentOptions,
       questionText: currentQuestion.questionText,
-      explanationText: isExplanationDisplayed ? formattedExplanation : '',
+      explanation: isExplanationDisplayed ? formattedExplanation : '',
       correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
       isExplanationDisplayed: isExplanationDisplayed,
       isNavigatingToPrevious: false
