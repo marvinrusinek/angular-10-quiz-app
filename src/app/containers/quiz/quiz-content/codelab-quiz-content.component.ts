@@ -53,6 +53,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
 
+  displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
   explanationDisplayed = false;
   isExplanationDisplayed = false;
@@ -91,14 +92,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   combinedText$: Observable<string>;
   textToDisplay = '';
-
-  private displayStateSubject = new BehaviorSubject<{
-    mode: 'question' | 'explanation';
-    answered: boolean;
-  }>({ mode: 'question', answered: false });
-  public displayMode$ = this.displayStateSubject
-    .asObservable()
-    .pipe(map((state) => state.mode));
 
   public isContentAvailable$: Observable<boolean>;
 
