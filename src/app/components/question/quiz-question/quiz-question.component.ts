@@ -5087,8 +5087,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private handleExplanationError(questionIndex: number): void {
     this.explanationToDisplay = 'Error fetching explanation. Please try again.';
-    this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    this.showExplanationChange.emit(true);
+    if (this.isAnswered && this.shouldDisplayExplanation) {
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+    }
   }
 
   private async ensureQuestionIsFullyLoaded(index: number): Promise<void> {
