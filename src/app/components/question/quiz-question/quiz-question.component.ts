@@ -3200,6 +3200,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayMode = 'explanation';
     console.log('[🟡 Setting displayMode$ to "explanation"] in updateDisplayStateToExplanation');
     this.displayMode$.next('explanation');
+    console.log('[🟡 SET displayMode$ ➡️ explanation]');
   
     // Ensure explanation is visible
     this.shouldDisplayExplanation = true;
