@@ -795,8 +795,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     let displayText = data.questionText ?? '';
 
     if (data.isExplanationDisplayed) {
-      if (data.explanationText) {
-        displayText += ` ${data.explanationText}`;
+      if (data.explanation) {
+        displayText += ` ${data.explanation}`;
       }
     } else if (data.correctAnswersText) {
       // Only append the correct answers text if explanation is not displayed
