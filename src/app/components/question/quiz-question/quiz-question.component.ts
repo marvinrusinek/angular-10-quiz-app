@@ -535,7 +535,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }));
   }
 
-  private renderDisplay(): void {
+  /* private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
 
     if (
@@ -553,7 +553,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Fallback to displaying question text in all other cases
       this.ensureQuestionTextDisplay();
     }
-  }
+  } */
+  private renderDisplay(): void {
+    const currentState = this.displayStateSubject.getValue();
+  
+    console.log('[🖼 renderDisplay()] currentState =', currentState);
+  
+    if (
+      this.forceQuestionDisplay ||
+      this.isExplanationLocked ||
+      !this.isExplanationReady
+    ) {
+      console.log('[ℹ️ renderDisplay()] → Showing question (flags not ready for explanation)');
+      this.ensureQuestionTextDisplay();
+      return;
+    }
+  
+    if (
+      currentState.mode === 'explanation' &&
+      currentState.answered &&
+      this.isAnswered && // guard with local state
+      this.shouldDisplayExplanation && // additional protection
+      this.displayMode$.getValue() === 'explanation' // sync with BehaviorSubject
+    ) {
+      console.log('[ℹ️ renderDisplay()] → Showing explanation');
+      this.setExplanationText();
+      this.ensureExplanationTextDisplay(this.currentExplanationText);
+    } else {
+      console.log('[ℹ️ renderDisplay()] → Fallback: Showing question');
+      this.ensureQuestionTextDisplay();
+    }
+  }  
 
   private updateRenderingFlags(): void {
     this.forceQuestionDisplay = false;
