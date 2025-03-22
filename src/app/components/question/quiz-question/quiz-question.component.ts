@@ -5256,8 +5256,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Directly update and emit explanation text
     this.explanationToDisplay = explanationText;
-    this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    this.showExplanationChange.emit(true);
+
+    if (this.isAnswered && this.shouldDisplayExplanation) {
+      this.explanationToDisplayChange.emit(this.explanationToDisplay);
+      this.showExplanationChange.emit(true);
+    }
   }
 
   private updateExplanationUI(
@@ -5292,7 +5295,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Wait for the question to be rendered before updating the explanation
       this.waitForQuestionRendering()
         .then(() => {
-          if (this.isQuestionAnswered(adjustedIndex)) {
+          if (this.shouldDisplayExplanation && this.isQuestionAnswered(adjustedIndex)) {
             // Clear any previous explanation state
             this.clearExplanationState();
             this.explanationToDisplay = explanationText;
