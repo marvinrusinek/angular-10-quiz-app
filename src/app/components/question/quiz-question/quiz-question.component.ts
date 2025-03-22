@@ -3119,38 +3119,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Updates the display to explanation mode.
   private updateDisplayStateToExplanation(): void {
-    console.log(
-      '[updateDisplayStateToExplanation] 🔄 Updating display state to explanation mode'
-    );
-
+    console.log('[updateDisplayStateToExplanation] 🔄 Attempting to update display state to explanation mode');
+  
     // Get answered state from SelectedOptionService
     const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
-
+  
+    // Guard conditions to prevent premature execution
+    if (!isAnswered || !this.shouldDisplayExplanation) {
+      console.log('[⛔ BLOCKED] updateDisplayStateToExplanation – isAnswered:', isAnswered, 'shouldDisplayExplanation:', this.shouldDisplayExplanation);
+      return;
+    }
+  
+    if (this.displayMode$.getValue() === 'explanation') {
+      console.log('[ℹ️ SKIP] Already in explanation mode.');
+      return;
+    }
+  
+    // Proceed with updating state
+    console.log('[updateDisplayStateToExplanation] 🔄 Updating display state to explanation mode');
+  
     // Update the display state
     this.displayState = { mode: 'explanation', answered: isAnswered };
     this.displayStateSubject.next(this.displayState);
     this.displayStateChange.emit(this.displayState);
-
+  
     // Update the display mode
     this.displayMode = 'explanation';
-    console.log('[🟡 Setting displayMode$ to "explanation"] in XYZ method');
+    console.log('[🟡 Setting displayMode$ to "explanation"] in updateDisplayStateToExplanation');
     this.displayMode$.next('explanation');
-
+  
     // Ensure explanation is visible
     this.shouldDisplayExplanation = true;
     this.explanationVisible = true;
     this.isExplanationTextDisplayed = true;
-
+  
     // Update rendering flags
     this.forceQuestionDisplay = false;
     this.readyForExplanationDisplay = true;
     this.isExplanationReady = true;
     this.isExplanationLocked = false;
-
-    console.log(
-      '[updateDisplayStateToExplanation] ✅ Display state updated to explanation mode'
-    );
-  }
+  
+    console.log('[updateDisplayStateToExplanation] ✅ Display state updated to explanation mode');
+  }  
 
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(
