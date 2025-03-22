@@ -3370,8 +3370,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-      console.log(`[DEBUG] 🔄 resetUIAndNavigate() triggered for questionIndex: ${questionIndex}`);
-
       // Validate badge and route consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex + 1) {
@@ -3388,7 +3386,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
   
       // Navigate to the specified question
-      console.log('Navigating to question index: ${questionIndex}');
       await this.navigateToQuestion(questionIndex);
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
