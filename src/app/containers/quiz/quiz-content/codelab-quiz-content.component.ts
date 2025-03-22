@@ -795,12 +795,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
     let displayText = data.questionText ?? '';
-  
-    if (data.isExplanationDisplayed) {
-      if (data.explanation) {
-        console.log('[🟡 Explanation included in displayText]:', data.explanation);
-        displayText += ` ${data.explanation}`;
-      }
+    
+    if (data.isExplanationDisplayed && data.explanation) {
+      console.log('[🟡 Explanation included in displayText]:', data.explanation);
+      displayText += ` ${data.explanation}`;
     } else if (data.correctAnswersText) {
       console.log('[📘 CorrectAnswersText included]:', data.correctAnswersText);
       displayText += ` ${data.correctAnswersText}`;
@@ -809,7 +807,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   
     return displayText.trim();
-  }
+  }  
 
   async initializeQuestionState(): Promise<void> {
     this.subscribeToQuestionState();
