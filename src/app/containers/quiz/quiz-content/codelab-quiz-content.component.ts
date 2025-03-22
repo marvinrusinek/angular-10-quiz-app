@@ -807,7 +807,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   
     return displayText.trim();
-  }  
+  }
 
   async initializeQuestionState(): Promise<void> {
     this.subscribeToQuestionState();
