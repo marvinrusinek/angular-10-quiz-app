@@ -685,6 +685,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
 
+    if (!this.displayMode$) {
+      console.warn('[❗] displayMode$ is not initialized yet.');
+      return;
+    }
+
     currentQuizAndOptions$.pipe(
       takeUntil(this.destroy$)
     ).subscribe({
