@@ -2765,8 +2765,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   private applyExplanation(explanation: string, questionIndex: number): void {
     this.explanationToDisplay = explanation;
-    this.explanationToDisplayChange.emit(explanation);
-    this.showExplanationChange.emit(true);
+
+    if (this.shouldDisplayExplanation && this.isAnswered) {
+      this.explanationToDisplayChange.emit(explanation);
+      this.showExplanationChange.emit(true);
+    }
+    
     this.cdRef.detectChanges();
   }
 
@@ -3577,9 +3581,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
-        this.explanationToDisplayChange.emit(explanationText);
-        this.showExplanationChange.emit(true);
-        this.displayExplanation = true;
+
+        if (this.isAnswered && this.shouldDisplayExplanation) {
+          this.explanationToDisplayChange.emit(explanationText);
+          this.showExplanationChange.emit(true);
+          this.displayExplanation = true;
+        }
 
         const correctOptions = questionData.options.filter(
           (opt) => opt.correct
@@ -3597,19 +3604,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           '[handleOptionProcessingAndFeedback] ❌ Invalid question data when handling option processing.'
         );
         throw new Error('Invalid question data');
-
-        this.explanationToDisplay = 'Error: Invalid question data';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
       }
     } catch (error) {
       console.error('[handleOptionProcessingAndFeedback] ❌ Error:', error);
       this.explanationToDisplay =
         'Error processing question. Please try again.';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    } finally {
+    } /* finally {
       this.showExplanationChange.emit(true);
       this.displayExplanation = true;
-    }
+    } */
   }
 
   private async updateQuestionState(option: SelectedOption): Promise<void> {
