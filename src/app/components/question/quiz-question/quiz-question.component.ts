@@ -1112,8 +1112,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
 
           // Ensure explanation is displayed
-          this.showExplanationChange.emit(true);
-          this.updateDisplayStateToExplanation();
+          if (isAnswered && this.shouldDisplayExplanation) {
+            this.showExplanationChange.emit(true);
+            this.updateDisplayStateToExplanation();
+          }
           this.cdRef.detectChanges();
         }
       } catch (error) {
@@ -1341,7 +1343,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number,
     question: QuizQuestion
   ): void {
-    if (this.isQuestionAnswered(index)) {
+    if (this.isQuestionAnswered(index) && this.shouldDisplayExplanation) {
       const explanationText =
         this.explanationTextService.prepareExplanationText(question); // Or define in component
       this.explanationToDisplay = explanationText;
