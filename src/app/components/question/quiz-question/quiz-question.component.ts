@@ -1394,8 +1394,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Use a short delay to ensure the question renders first
     setTimeout(() => {
       this.quizService.setNextExplanationText(formattedExplanation);
-      this.explanationToDisplayChange.emit(formattedExplanation);
-      this.showExplanationChange.emit(true); // Ensure it's shown in the UI
+
+      if (this.shouldDisplayExplanation && this.isAnswered) {
+        this.explanationToDisplayChange.emit(formattedExplanation);
+        this.showExplanationChange.emit(true); // Ensure it's shown in the UI
+      }
     }, 50);
   }
 
@@ -2752,8 +2755,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.applyExplanation(explanationText, questionIndex);
     } catch (error) {
       console.error(`[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
-      this.explanationToDisplayChange.emit('Error loading explanation.');
-      this.showExplanationChange.emit(true);
+
+      if (this.shouldDisplayExplanation && this.isAnswered) {
+        this.explanationToDisplayChange.emit('Error loading explanation.');
+        this.showExplanationChange.emit(true);
+      }
     }
   }
   
