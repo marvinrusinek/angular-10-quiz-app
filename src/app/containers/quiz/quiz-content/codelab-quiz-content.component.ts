@@ -724,8 +724,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.formattedExplanation$.pipe(
         map(value => value ?? ''),
         distinctUntilChanged()
-      ),
-      this.displayMode$.pipe(distinctUntilChanged())
+      )
     ]).pipe(
       switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
         console.log('Data Received for Combination:', {
