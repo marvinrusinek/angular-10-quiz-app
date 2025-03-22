@@ -1955,7 +1955,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (question) {
               this.currentQuiz = this.quizService.getActiveQuiz();
       
-              // Load and render the current question, its options, and any explanation text
+              // Resets UI, clears previous data, navigates, and sets up question, options, and explanation
               await this.resetUIAndNavigate(this.currentQuestionIndex);
       
               // If needed, apply feedback here *after* question is fully rendered
