@@ -784,22 +784,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         map((isAnswered) => (isAnswered ? 'explanation' : 'question')),
         distinctUntilChanged(),
         tap((mode: 'question' | 'explanation') => {
-          console.log(`Reactive display mode update to: ${mode}`);
-          
-          // log during restoration (optional)
           if (this.isRestoringState) {
-            console.log(`[Restoration] Skipping displayMode$.next(${mode}) due to isRestoringState`);
+            console.log(`[🛠️ Restoration] Skipping displayMode$ update (${mode})`);
           } else {
-            console.log(`[Init] Skipping displayMode$.next(${mode}) — only updated on user action`);
+            // Just log — do NOT emit to displayMode$ here
+            console.log(`[👀 Observed isAnswered ➡️ ${mode}] — no displayMode$ update`);
           }
         }),
         catchError((error) => {
-          console.error('Error in display mode subscription:', error);
-          return of('question');
+          console.error('❌ Error in display mode subscription:', error);
+          return of('question'); // safe fallback
         })
       )
       .subscribe();
-  }
+  }  
 
   // Helper function to enforce the display mode directly -- not being called, potentially remove
   /* private applyDisplayMode(mode: 'question' | 'explanation'): void {
