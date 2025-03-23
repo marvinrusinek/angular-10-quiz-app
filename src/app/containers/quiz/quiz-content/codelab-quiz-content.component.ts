@@ -212,7 +212,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeComponent();
     this.initializeQuestionState();
     this.initializeSubscriptions();
-    this.setupCombinedTextObservable();
+    // this.setupCombinedTextObservable();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
