@@ -771,9 +771,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           ...currentQuizData,
           questionText: currentQuizData.currentQuestion.questionText || 'No question text available',
           options: currentQuizData.currentOptions || [],
+          explanation: formattedExplanation,
           isNavigatingToPrevious: false,
-          isExplanationDisplayed,
-          explanation: formattedExplanation
+          isExplanationDisplayed
         };
     
         return this.calculateCombinedQuestionData(
@@ -962,19 +962,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged()),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
-      this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged()),
-      this.currentQuestion$.pipe(startWith(null), distinctUntilChanged())
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
-      map(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, index, currentQ]) => {
-        const questionText = currentQ?.questionText ?? 'No question available';
-  
-        if (shouldShowExplanation && formattedExplanation) {
-          console.log('[✅ combinedText$] Showing explanation:', formattedExplanation);
-          return `${questionText} ${formattedExplanation}`.trim();
-        }
-  
-        console.log('[✅ combinedText$] Showing question:', questionText);
-        return questionText;
+      switchMap(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex]) =>
+        this.determineTextToDisplay([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex])
+      ),
+      tap(result => {
+        console.log('[✅ combinedText$] Final Display Text:', result);
       }),
       distinctUntilChanged(),
       startWith(''),
@@ -985,30 +979,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }  
 
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
-    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
-  ): Observable<string> {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-  
-    const displayExplanation = currentIndex === 0 || (shouldDisplayExplanation && questionState?.explanationDisplayed);
-  
-    return this.isCurrentQuestionMultipleAnswer().pipe(
-      map(isMultipleAnswer => {
-        let textToDisplay = '';
-  
-        if (displayExplanation && formattedExplanation) {
-          textToDisplay = formattedExplanation;
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          textToDisplay = this.questionToDisplay || '';
-          this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
-        }
-  
-        return textToDisplay;
-      })
-    );
-  } */
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
