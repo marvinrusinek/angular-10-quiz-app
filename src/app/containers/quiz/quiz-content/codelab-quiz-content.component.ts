@@ -772,7 +772,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           questionText: currentQuizData.currentQuestion.questionText || 'No question text available',
           options: currentQuizData.currentOptions || [],
           isNavigatingToPrevious: false,
-          isExplanationDisplayed
+          isExplanationDisplayed,
+          explanation: formattedExplanation
         };
     
         return this.calculateCombinedQuestionData(
