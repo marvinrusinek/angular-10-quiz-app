@@ -4864,37 +4864,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ) {
         throw new Error('Current question index is not set');
       }
-
+  
       // Fetch the current question data
       const questionData = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
       );
-
+  
       if (!this.quizQuestionManagerService.isValidQuestionData(questionData)) {
         throw new Error('Invalid question data');
       }
-
+  
       // Process the explanation text
       console.log(
         `Raw explanation for question ${this.currentQuestionIndex}:`,
         questionData.explanation
       );
-
+  
       // Use the raw explanation as a fallback
       let explanationText =
         questionData.explanation ?? 'No explanation available';
-
+  
       // Process the explanation text
       const processedExplanation = await this.processExplanationText(
         questionData,
         this.currentQuestionIndex
       );
-
+  
       // Use the processed explanation if available
       if (processedExplanation && processedExplanation.explanation) {
         explanationText = processedExplanation.explanation;
       }
-
+  
       // Update the explanation display properties
       this.explanationToDisplay = explanationText;
       this.explanationTextService.updateFormattedExplanation(explanationText);
@@ -4902,7 +4902,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplayChange.emit(explanationText);
       this.showExplanationChange.emit(true);
       this.displayExplanation = true;
-
+  
+      // ✅ Mark explanation as displayed in quiz state
+      const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
+      if (questionState) {
+        questionState.explanationDisplayed = true;
+        this.quizStateService.setQuestionState(this.quizId, this.currentQuestionIndex, questionState);
+        console.log(`[manageExplanationDisplay] ✅ Marked Q${this.currentQuestionIndex} explanationDisplayed = true`);
+      } else {
+        console.warn(`[manageExplanationDisplay] ⚠️ Could not find question state for Q${this.currentQuestionIndex}`);
+      }
+  
       console.log(
         `Explanation display updated for question ${this.currentQuestionIndex}:`,
         explanationText.substring(0, 50) + '...'
@@ -4919,7 +4929,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.displayExplanation = true;
     }
-  }
+  }  
 
   // Helper method to clear explanation
   resetExplanation(): void {
