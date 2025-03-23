@@ -2515,44 +2515,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async updateQuestionStateAndExplanation(
-    questionIndex: number
-  ): Promise<void> {
-    const questionState = this.quizStateService.getQuestionState(
-      this.quizId,
-      questionIndex
-    );
+  private async updateQuestionStateAndExplanation(questionIndex: number): Promise<void> {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
   
     if (!questionState.selectedOptions) {
       questionState.selectedOptions = [];
     }
   
-    if (questionState.isAnswered) {
-      // ✅ If the question has been answered, show the explanation
+    const isAnswered = questionState.isAnswered;
+    const explanationAlreadyDisplayed = questionState.explanationDisplayed;
+  
+    // 💡 Only disable if it's a fresh unanswered question AND explanation not yet shown
+    const shouldDisableExplanation = !isAnswered && !explanationAlreadyDisplayed;
+  
+    if (isAnswered || explanationAlreadyDisplayed) {
       this.explanationToDisplay = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        )
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
       );
   
       this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.showExplanation = true;
-    } else {
+    } else if (shouldDisableExplanation) {
       this.explanationToDisplay = '';
-  
-      // ✅ Only disable explanation display if it was previously shown
-      if (this.showExplanation) {
-        this.explanationTextService.setShouldDisplayExplanation(false);
-      }
-  
+      this.explanationTextService.setShouldDisplayExplanation(false);
       this.showExplanation = false;
     }
   
-    console.log(
-      `Explanation for question ${questionIndex}:`,
-      this.explanationToDisplay
-    );
+    console.log(`[🛠️ updateQuestionStateAndExplanation] Q${questionIndex}:`, {
+      isAnswered,
+      explanationAlreadyDisplayed,
+      shouldDisableExplanation,
+      explanation: this.explanationToDisplay
+    });
   }  
 
   async initializeFirstQuestion(): Promise<void> {
