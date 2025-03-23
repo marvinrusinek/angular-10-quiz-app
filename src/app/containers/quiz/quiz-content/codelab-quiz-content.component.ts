@@ -984,6 +984,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+    
+    console.log('[🧪 questionState]', questionState);
+    console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
+
     const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
   
     return this.currentQuestion.pipe(
