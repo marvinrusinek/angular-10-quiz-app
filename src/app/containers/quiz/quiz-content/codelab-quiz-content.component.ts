@@ -1019,35 +1019,28 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       take(1),
       switchMap((question: QuizQuestion | null) => {
         console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
-
-        return this.currentQuestion.pipe(
-          take(1),
-          switchMap((question: QuizQuestion | null) => {
-            console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
-        
-            return this.isCurrentQuestionMultipleAnswer().pipe(
-              map(isMultipleAnswer => {
-                let textToDisplay = '';
-        
-                if (displayExplanation && formattedExplanation) {
-                  console.log('[🟡 Showing Explanation]', formattedExplanation);
-                  textToDisplay = formattedExplanation;
-                } else if (question?.questionText) {
-                  console.log('[🔵 Showing Question]', question.questionText);
-                  textToDisplay = question.questionText;
-                } else {
-                  console.warn('[⚠️ Missing question text]');
-                  textToDisplay = 'No question available';
-                }
-        
-                this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
-                return textToDisplay;
-              })
-            );
+    
+        return this.isCurrentQuestionMultipleAnswer().pipe(
+          map(isMultipleAnswer => {
+            let textToDisplay = '';
+    
+            if (displayExplanation && formattedExplanation) {
+              console.log('[🟡 Showing Explanation]', formattedExplanation);
+              textToDisplay = formattedExplanation;
+            } else if (question?.questionText) {
+              console.log('[🔵 Showing Question]', question.questionText);
+              textToDisplay = question.questionText;
+            } else {
+              console.warn('[⚠️ Missing question text]');
+              textToDisplay = 'No question available';
+            }
+    
+            this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
+            return textToDisplay;
           })
-        );        
+        );
       })
-    );
+    );    
   }
   
   
