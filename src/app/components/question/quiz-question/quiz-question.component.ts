@@ -2686,10 +2686,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       await this.updateExplanationText(lockedQuestionIndex);
-  
-      console.log('[onOptionClicked] 💡 Setting shouldDisplayExplanation = true');
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
       await this.handleCorrectnessOutcome(true);
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
