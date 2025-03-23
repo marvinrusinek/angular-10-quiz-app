@@ -157,6 +157,7 @@ export class ExplanationTextService {
   }
 
   updateFormattedExplanation(explanation: string): void {
+    console.log('[💬 formattedExplanation$ EMITTED]', explanation);
     if (explanation) {
       console.log('updateFormattedExplanation called with:', explanation);
       console.log('formattedExplanationSubject current value:', this.formattedExplanationSubject.getValue());
