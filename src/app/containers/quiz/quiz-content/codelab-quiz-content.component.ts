@@ -685,6 +685,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
 
+    currentQuizAndOptions$.pipe(tap(v => console.log('[🔍 currentQuizAndOptions$]', v))).subscribe();
+    this.numberOfCorrectAnswers$.pipe(tap(v => console.log('[🔍 numberOfCorrectAnswers$]', v))).subscribe();
+    this.isExplanationTextDisplayed$.pipe(tap(v => console.log('[🔍 isExplanationTextDisplayed$]', v))).subscribe();
+    this.formattedExplanation$.pipe(tap(v => console.log('[🔍 formattedExplanation$]', v))).subscribe();
+    this.displayMode$.pipe(tap(v => console.log('[🔍 displayMode$]', v))).subscribe();
+
     currentQuizAndOptions$.pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -786,6 +792,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.log('Final Combined Question Data (Map):', data);
         return this.constructDisplayText(data) ?? 'No question data available';
       }),
+      tap(data => console.log('[🧪 combinedQuestionData$ EMIT]', data)),
       catchError(error => {
         console.error('Error processing combined text:', error);
         return of('Error loading question data');
@@ -794,6 +801,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
+    console.log("MY CONSTRUCT DISPLAY TEXT");
     console.log('[🌀 constructDisplayText] Current data:', data);
     let displayText = data.questionText ?? '';
     
