@@ -131,7 +131,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);  
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -798,11 +798,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
 
     this.combinedText$ = this.combinedQuestionData$.pipe(
+      tap(data => console.log('[🧪 combinedQuestionData$ EMIT]', data)),
       map(data => {
         console.log('Final Combined Question Data (Map):', data);
         return this.constructDisplayText(data) ?? 'No question data available';
       }),
-      tap(data => console.log('[🧪 combinedQuestionData$ EMIT]', data)),
       catchError(error => {
         console.error('Error processing combined text:', error);
         return of('Error loading question data');
@@ -811,8 +811,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
-    console.log("MY CONSTRUCT DISPLAY TEXT");
-    console.log('[🌀 constructDisplayText] Current data:', data);
+    console.log('[🌀 constructDisplayText] Current data:', JSON.stringify(data));
+
     let displayText = data.questionText ?? '';
     
     if (data.isExplanationDisplayed && data.explanation) {
