@@ -3469,6 +3469,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (questionState) {
       questionState.isAnswered = true;
+      questionState.explanationDisplayed = true;
+      
       this.quizStateService.setQuestionState(
         this.quizId,
         questionIndex,
