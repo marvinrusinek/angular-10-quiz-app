@@ -4115,43 +4115,53 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
-
+  
     if (!this.quiz?.questions[questionIndex]) {
-        console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
-        return;
+      console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
+      return;
     }
-
+  
     console.log(`[updateExplanationText] 🧪 QUESTION TEXT at Q${questionIndex}:`, this.quiz.questions[questionIndex].questionText);
-
+  
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
     console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${questionIndex}:`, explanationText);
-
+  
     if (!explanationText) {
-        try {
-            console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${questionIndex}...`);
-            explanationText = await firstValueFrom(
-                this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-            );
-
-            console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
-
-            this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
-        } catch (error) {
-            console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
-            explanationText = 'Error loading explanation.';
-        }
+      try {
+        console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${questionIndex}...`);
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+  
+        console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+  
+        this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+      } catch (error) {
+        console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
+        explanationText = 'Error loading explanation.';
+      }
     }
-
+  
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
-
+  
     this.explanationTextService.setIsExplanationTextDisplayed(true); // triggers isExplanationTextDisplayed$
     this.explanationTextService.setShouldDisplayExplanation(true);  // triggers shouldDisplayExplanation$
     this.explanationTextService.updateFormattedExplanation(explanationText); // updates formattedExplanation$
-
+  
+    // ✅ Mark the explanation as displayed in quiz state
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState) {
+      questionState.explanationDisplayed = true;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+      console.log(`[updateExplanationText] ✅ Marked Q${questionIndex} explanationDisplayed = true`);
+    } else {
+      console.warn(`[updateExplanationText] ⚠️ Could not find question state for Q${questionIndex}`);
+    }
+  
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
-  }
+  }  
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
