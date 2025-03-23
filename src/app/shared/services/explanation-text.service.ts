@@ -261,8 +261,16 @@ export class ExplanationTextService {
   }
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
-    this.shouldDisplayExplanationSource.next(shouldDisplay);
-  }
+    console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
+  
+    const current = this.shouldDisplayExplanationSource.getValue();
+    if (current !== shouldDisplay) {
+      this.shouldDisplayExplanationSource.next(shouldDisplay);
+      console.log('[💬 shouldDisplayExplanation$ EMITTED]', shouldDisplay);
+    } else {
+      console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
+    }
+  }  
 
   private isQuestionValid(question: QuizQuestion): boolean {
     return question && 
