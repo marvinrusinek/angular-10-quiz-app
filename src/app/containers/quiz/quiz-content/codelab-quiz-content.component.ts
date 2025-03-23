@@ -685,12 +685,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
 
-    currentQuizAndOptions$.pipe(tap(v => console.log('[🔍 currentQuizAndOptions$]', v))).subscribe();
-    this.numberOfCorrectAnswers$.pipe(tap(v => console.log('[🔍 numberOfCorrectAnswers$]', v))).subscribe();
-    this.isExplanationTextDisplayed$.pipe(tap(v => console.log('[🔍 isExplanationTextDisplayed$]', v))).subscribe();
-    this.formattedExplanation$.pipe(tap(v => console.log('[🔍 formattedExplanation$]', v))).subscribe();
-    this.displayMode$.pipe(tap(v => console.log('[🔍 displayMode$]', v))).subscribe();
-
     currentQuizAndOptions$.pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -730,8 +724,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.formattedExplanation$.pipe(
         map(value => value ?? ''),
         distinctUntilChanged()
-      ),
-      this.displayMode$
+      )
     ]).pipe(
       switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation, displayMode]) => {
         console.log('Data Received for Combination:', {
