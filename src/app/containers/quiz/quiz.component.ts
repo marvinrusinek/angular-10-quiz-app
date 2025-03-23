@@ -2522,33 +2522,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizId,
       questionIndex
     );
-
+  
     if (!questionState.selectedOptions) {
       questionState.selectedOptions = [];
     }
-
+  
     if (questionState.isAnswered) {
-      // Convert the Observable to a Promise and await its value
+      // ✅ If the question has been answered, show the explanation
       this.explanationToDisplay = await firstValueFrom(
         this.explanationTextService.getFormattedExplanationTextForQuestion(
           questionIndex
         )
       );
-
+  
       this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.showExplanation = true;
     } else {
       this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
+  
+      // ✅ Only disable explanation display if it was previously shown
+      if (this.showExplanation) {
+        this.explanationTextService.setShouldDisplayExplanation(false);
+      }
+  
       this.showExplanation = false;
     }
-
+  
     console.log(
       `Explanation for question ${questionIndex}:`,
       this.explanationToDisplay
     );
-  }
+  }  
 
   async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
