@@ -3470,7 +3470,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (questionState) {
       questionState.isAnswered = true;
       questionState.explanationDisplayed = true;
-      
+
       this.quizStateService.setQuestionState(
         this.quizId,
         questionIndex,
@@ -4145,6 +4145,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
+
+    this.explanationTextService.setIsExplanationTextDisplayed(true); // triggers isExplanationTextDisplayed$
+    this.explanationTextService.setShouldDisplayExplanation(true);  // triggers shouldDisplayExplanation$
+    this.explanationTextService.updateFormattedExplanation(explanationText); // updates formattedExplanation$
 
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
   }
