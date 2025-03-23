@@ -212,7 +212,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeComponent();
     this.initializeQuestionState();
     this.initializeSubscriptions();
-    // this.setupCombinedTextObservable();
+    this.setupCombinedTextObservable();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
@@ -938,7 +938,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }  
 
-  private setupCombinedTextObservable(): void {
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
@@ -954,9 +954,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('');
       })
     );
+  } */
+  private setupCombinedTextObservable(): void {
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
+      this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
+      this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged()),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged()),
+      this.currentQuestion$.pipe(startWith(null), distinctUntilChanged())
+    ]).pipe(
+      map(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, index, currentQ]) => {
+        const questionText = currentQ?.questionText ?? 'No question available';
+  
+        if (shouldShowExplanation && formattedExplanation) {
+          console.log('[✅ combinedText$] Showing explanation:', formattedExplanation);
+          return `${questionText} ${formattedExplanation}`.trim();
+        }
+  
+        console.log('[✅ combinedText$] Showing question:', questionText);
+        return questionText;
+      }),
+      distinctUntilChanged(),
+      startWith(''),
+      catchError((error: Error) => {
+        console.error('Error in combinedText$ observable:', error);
+        return of('Error loading content');
+      })
+    );
   }  
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
@@ -979,7 +1007,42 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return textToDisplay;
       })
     );
+  } */
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
+    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  ): Observable<string> {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+    const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
+  
+    return this.currentQuestion.pipe(
+      take(1),
+      switchMap((question: QuizQuestion | null) => {
+        console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
+        
+        return this.isCurrentQuestionMultipleAnswer().pipe(
+          map(isMultipleAnswer => {
+            let textToDisplay = '';
+  
+            if (displayExplanation && formattedExplanation) {
+              console.log('[🟡 Showing Explanation]', formattedExplanation);
+              textToDisplay = formattedExplanation;
+            } else if (question?.questionText) {
+              console.log('[🔵 Showing Question]', question.questionText);
+              textToDisplay = question.questionText;
+            } else {
+              console.warn('[⚠️ Missing question text]');
+              textToDisplay = 'No question available';
+            }
+  
+            this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
+            return textToDisplay;
+          })
+        );
+      })
+    );
   }
+  
   
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
