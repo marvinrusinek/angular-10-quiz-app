@@ -2659,50 +2659,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }): Promise<void> {
     try {
       const lockedQuestionIndex = this.currentQuestionIndex;
-
+      console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
+  
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn(
-          '[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...'
-        );
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
         await new Promise((resolve) => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
-
+  
       const foundOption = this.optionsToDisplay.find(
         (opt) => opt.optionId === event.option?.optionId
       );
       if (!foundOption) {
-        console.error(
-          `[onOptionClicked] Option not found for question ${lockedQuestionIndex}. Skipping feedback.`
-        );
+        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}. Skipping feedback.`);
         return;
       }
-
+  
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
       }
+  
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
-
+  
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
       }
-
+  
       await this.updateExplanationText(lockedQuestionIndex);
+  
+      console.log('[onOptionClicked] 💡 Setting shouldDisplayExplanation = true');
+      this.explanationTextService.setShouldDisplayExplanation(true);
+  
       await this.handleCorrectnessOutcome(true);
-
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
-
+  
       setTimeout(() => {
         this.cdRef.markForCheck();
       });
     } catch (error) {
-      console.error(
-        `[onOptionClicked] Error for question ${this.fixedQuestionIndex}:`,
-        error
-      );
+      console.error(`[onOptionClicked] ❌ Error for Q${this.fixedQuestionIndex}:`, error);
     }
-  }
+  }  
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
