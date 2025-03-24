@@ -959,6 +959,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       switchMap(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex]) =>
         this.determineTextToDisplay([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex])
       ),
+      map(text => text.trim()),
+      filter(text => text.length > 0), // Filter out empty strings
       tap(result => {
         console.log('[✅ combinedText$] Final Display Text:', result);
       }),
