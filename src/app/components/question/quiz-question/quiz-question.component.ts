@@ -2686,6 +2686,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       await this.updateExplanationText(lockedQuestionIndex);
+      // await this.updateQuestionStateAndExplanation(lockedQuestionIndex);
       await this.handleCorrectnessOutcome(true);
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
