@@ -78,24 +78,21 @@ export class ExplanationTextService {
   }
   
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    let explanationText: string;
-
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
-
-      if (formattedExplanation && formattedExplanation.explanation) {
+  
+      if (formattedExplanation?.explanation?.trim()) {
         console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
-        explanationText = formattedExplanation.explanation;
+        this.formattedExplanationSubject.next(formattedExplanation.explanation);
       } else {
-        console.warn(`[DEBUG] ⚠️ No explanation text found for Q${index}`);
-        explanationText = 'No explanation available';
+        console.warn(`[DEBUG] ⚠️ No valid explanation text found for Q${index}`);
+        this.formattedExplanationSubject.next('');
       }
     } else {
       console.error(`[DEBUG] ❌ Q${index} is out of bounds or no explanation stored.`);
-      explanationText = 'Question index out of bounds or no explanation available';
+      this.formattedExplanationSubject.next('');
     }
-
-    this.formattedExplanationSubject.next(explanationText);
+  
     return this.formattedExplanation$;
   }
 
