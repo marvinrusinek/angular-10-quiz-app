@@ -2682,7 +2682,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
-      }
+        console.log('✅ [onOptionClicked] isAnswered set to TRUE');
+      } else {
+        console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
+      }      
 
       this.explanationTextService.setShouldDisplayExplanation(true);
   
