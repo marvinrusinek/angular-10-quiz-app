@@ -983,9 +983,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const displayExplanation = questionState?.explanationDisplayed;
 
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
-    console.log('[🧪 explanationDisplayed]', explanationDisplayed);
+    console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
     console.log('[🧪 formattedExplanation]', formattedExplanation);
     console.log('[🧪 displayExplanation]', displayExplanation);
+    console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
+    console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
   
     return this.currentQuestion.pipe(
       take(1),
