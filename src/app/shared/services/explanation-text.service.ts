@@ -162,6 +162,7 @@ export class ExplanationTextService {
       console.log('updateFormattedExplanation called with:', explanation);
       console.log('formattedExplanationSubject current value:', this.formattedExplanationSubject.getValue());
     }
+    console.log('[💬 formattedExplanation$ EMITTED]', explanation);
     this.formattedExplanationSubject.next(explanation);
   }
 
