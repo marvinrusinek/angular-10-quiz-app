@@ -995,7 +995,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
     // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
-    const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
+    // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
+    const displayExplanation = questionState?.explanationDisplayed;
 
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
     console.log('[🧪 explanationDisplayed]', explanationDisplayed);
