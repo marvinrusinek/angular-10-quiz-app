@@ -2899,6 +2899,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Notify subscribers of the selected option
     this.selectedOption$.next(option);
+
+    // Display explanation after selecting an answer
+    this.updateQuestionStateAndExplanation(this.currentQuestionIndex);
   }
 
   shouldDisplayExplanation(): boolean {
