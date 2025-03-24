@@ -972,6 +972,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       ),
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
+      debounceTime(10),
       switchMap(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex]) =>
         this.determineTextToDisplay([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex])
       ),
