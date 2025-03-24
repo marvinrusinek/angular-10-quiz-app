@@ -153,15 +153,6 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
-  /* updateFormattedExplanation(explanation: string): void {
-    console.log('[💬 formattedExplanation$ EMITTED]', explanation);
-    if (explanation) {
-      console.log('updateFormattedExplanation called with:', explanation);
-      console.log('formattedExplanationSubject current value:', this.formattedExplanationSubject.getValue());
-    }
-    console.log('[💬 formattedExplanation$ EMITTED]', explanation);
-    this.formattedExplanationSubject.next(explanation);
-  } */
   updateFormattedExplanation(explanation: string): void {
     const trimmed = explanation?.trim();
   
