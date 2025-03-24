@@ -976,48 +976,32 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-    const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
-    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
-    // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
-    const displayExplanation = questionState?.explanationDisplayed;
-
-    console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
-    console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
-    console.log('[🧪 formattedExplanation]', formattedExplanation);
-    console.log('[🧪 displayExplanation]', displayExplanation);
-    console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
-    console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+    // 🔥 FORCE stability by explicitly using shouldDisplayExplanation Observable
+    const displayExplanation = shouldDisplayExplanation || questionState?.explanationDisplayed;
   
     return this.currentQuestion.pipe(
       take(1),
       switchMap((question: QuizQuestion | null) => {
-        console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
-  
         return this.isCurrentQuestionMultipleAnswer().pipe(
           map(isMultipleAnswer => {
-            let textToDisplay = '';
-  
-            if (displayExplanation && formattedExplanation?.trim()) {
+            if (displayExplanation && formattedExplanation.trim().length > 0) {
+              // Display explanation if flagged and explanation is available
               console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
-              console.log('[🟡 Showing Explanation]', formattedExplanation);
-              textToDisplay = formattedExplanation;
-            } else if (question?.questionText) {
-              console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
-              console.log('[🔵 Showing Question]', question.questionText);
-              textToDisplay = question.questionText;
-            } else {
-              console.warn('[⚠️ Missing question text]');
-              textToDisplay = 'No question available';
+              this.shouldDisplayCorrectAnswers = false;
+              return formattedExplanation;
             }
   
-            this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
-            return textToDisplay;
+            // Fallback to question text
+            const questionText = question?.questionText || 'No question available';
+            console.log('[ℹ️ DISPLAYING QUESTION]', questionText);
+            this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+            return questionText;
           })
         );
       })
     );
-  } 
+  }  
   
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
