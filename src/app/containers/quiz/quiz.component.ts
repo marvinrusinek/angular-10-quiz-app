@@ -2973,8 +2973,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         // Reset state for the new question
-        this.resetOptionState();
-        this.isOptionSelected = false;
+        // this.resetOptionState();
+        // this.isOptionSelected = false;
+
+        // Reset question answered state explicitly
         this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false);
 
