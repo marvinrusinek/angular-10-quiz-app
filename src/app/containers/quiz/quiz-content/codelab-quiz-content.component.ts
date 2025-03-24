@@ -951,11 +951,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.shouldDisplayExplanation$.pipe(
         startWith(false),
         distinctUntilChanged(),
+        filter(text => text.trim().length > 0), // Avoid empty text triggering UI updates
         tap(val => console.log('[💬 shouldDisplayExplanation$ EMITTED]', val))
       ),
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
-      debounceTime(10), // gives state time to settle
+      debounceTime(50), // gives state time to settle
       switchMap(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex]) =>
         this.determineTextToDisplay([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex])
       ),
