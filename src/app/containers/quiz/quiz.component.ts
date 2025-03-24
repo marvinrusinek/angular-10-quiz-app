@@ -713,43 +713,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   updateAndSyncNextButtonState(isEnabled: boolean): void {
-    if (!isEnabled) {
-      console.warn(`[updateAndSyncNextButtonState] 🚨 DISABLING Next button!`, new Error().stack);
-      console.warn(`[updateAndSyncNextButtonState] ❌ Next button was disabled by:`, {
-        isAnswered: this.selectedOptionService.isAnsweredSubject.getValue(),
-        isLoading: this.quizStateService.isLoadingSubject.getValue(),
-        isNavigating: this.quizStateService.isNavigatingSubject.getValue(),
-        isButtonEnabled: this.isButtonEnabled$,
-      });
-
-      // Additional log to trace `isLoading`
-      console.warn(`[updateAndSyncNextButtonState] 🔍 Tracing isLoading updates...`);
-      this.quizStateService.isLoading$.subscribe((loading) => {
-        console.log(`[isLoading] Updated value:`, loading);
-      });
-    } else {
-      console.log(`[updateAndSyncNextButtonState] ✅ Enabling Next button.`);
-    }
-
+    console.log('[🔄 updateAndSyncNextButtonState] Next button enabled:', isEnabled);
+  
     this.ngZone.run(() => {
-      console.log('[updateAndSyncNextButtonState] 🔄 Updating Next button state:', isEnabled);
-
       this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
-
+  
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
         'pointer-events': isEnabled ? 'auto' : 'none',
       };
-
-      console.log('[updateAndSyncNextButtonState] ✅ Next button enabled state:', this.isNextButtonEnabled);
-
+  
       this.cdRef.markForCheck();
     });
-
+  
     this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
-    console.log('Next button tooltip synchronized.');
-  }
+  }  
 
   // Tooltip for next button
   private initializeTooltip(): void {
