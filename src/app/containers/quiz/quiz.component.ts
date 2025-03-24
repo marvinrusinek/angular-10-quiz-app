@@ -666,29 +666,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private initializeNextButtonState(): void {
     this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject.asObservable().pipe(
-        startWith(false) // Start with false (no answer selected)
-      ),
-      this.quizStateService.isLoading$.pipe(
-        map((loading) => !loading), // Emit true when NOT loading
-        startWith(true)
-      ),
-      this.quizStateService.isNavigating$.pipe(
-        map((navigating) => !navigating), // Emit true when NOT navigating
-        startWith(true)
-      ),
+      this.selectedOptionService.isAnsweredSubject,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
     ]).pipe(
-      map(([isAnswered, isLoaded, isIdle]) => {
-        return isAnswered && isLoaded && isIdle;
+      map(([isAnswered, isLoading, isNavigating]) => {
+        const isEnabled = isAnswered && !isLoading && !isNavigating;
+        console.log('[🔄 initializeNextButtonState] isEnabled:', isEnabled, { isAnswered, isLoading, isNavigating });
+        return isEnabled;
       }),
       distinctUntilChanged(),
-      shareReplay(1) // Ensure multiple subscribers get the latest value
+      shareReplay(1)
     );
   
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.updateAndSyncNextButtonState(isEnabled);
     });
-  }
+  }  
   
   private evaluateNextButtonState(): boolean {
     // Reset options state to ensure no residual state interferes
