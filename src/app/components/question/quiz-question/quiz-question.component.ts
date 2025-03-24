@@ -324,8 +324,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     setTimeout(() => {
-      const explanationText =
-        question.explanation || 'No explanation available';
+      const explanationText = question.explanation || 'No explanation available';
       if (this.questionsArray && this.questionsArray.length > 0) {
         this.updateExplanationUI(index, explanationText);
       }
