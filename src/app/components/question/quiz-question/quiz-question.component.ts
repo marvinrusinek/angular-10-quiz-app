@@ -2684,11 +2684,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
       }
+
+      this.explanationTextService.setShouldDisplayExplanation(true);
   
       await this.updateExplanationText(lockedQuestionIndex);
       await this.handleCorrectnessOutcome(true);
-
       this.markQuestionAsAnswered(lockedQuestionIndex);
+      
       this.answerSelected.emit(true);
   
       setTimeout(() => {
