@@ -156,7 +156,7 @@ export class ExplanationTextService {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
-  updateFormattedExplanation(explanation: string): void {
+  /* updateFormattedExplanation(explanation: string): void {
     console.log('[💬 formattedExplanation$ EMITTED]', explanation);
     if (explanation) {
       console.log('updateFormattedExplanation called with:', explanation);
@@ -164,7 +164,20 @@ export class ExplanationTextService {
     }
     console.log('[💬 formattedExplanation$ EMITTED]', explanation);
     this.formattedExplanationSubject.next(explanation);
-  }
+  } */
+  updateFormattedExplanation(explanation: string): void {
+    const trimmed = explanation?.trim();
+  
+    if (!trimmed) {
+      console.warn('[💬 updateFormattedExplanation] ❌ Ignoring empty or blank explanation');
+      return;
+    }
+  
+    console.log('[💬 updateFormattedExplanation] ✅ Emitting explanation:', trimmed);
+    console.log('[💬 Previous explanation]', this.formattedExplanationSubject.getValue());
+  
+    this.formattedExplanationSubject.next(trimmed);
+  }  
 
   // Method to sanitize explanation text
   private sanitizeExplanation(explanation: string): string {
