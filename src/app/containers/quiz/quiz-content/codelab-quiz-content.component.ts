@@ -978,16 +978,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
-    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
-    // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
-    const displayExplanation = questionState?.explanationDisplayed;
-
+    // Only true if both conditions are met and explanation is non-empty.
+    const displayExplanation = shouldDisplayExplanation && explanationDisplayed && formattedExplanation.trim() !== '';
+  
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
-    console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
+    console.log('[🧪 explanationDisplayed]', explanationDisplayed);
     console.log('[🧪 formattedExplanation]', formattedExplanation);
     console.log('[🧪 displayExplanation]', displayExplanation);
-    console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
-    console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
   
     return this.currentQuestion.pipe(
       take(1),
@@ -998,17 +995,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           map(isMultipleAnswer => {
             let textToDisplay = '';
   
-            if (displayExplanation && formattedExplanation?.trim()) {
-              console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
-              console.log('[🟡 Showing Explanation]', formattedExplanation);
+            if (displayExplanation) {
               textToDisplay = formattedExplanation;
+              console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
             } else if (question?.questionText) {
-              console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
-              console.log('[🔵 Showing Question]', question.questionText);
               textToDisplay = question.questionText;
+              console.log('[ℹ️ DISPLAYING QUESTION]', question.questionText);
             } else {
-              console.warn('[⚠️ Missing question text]');
               textToDisplay = 'No question available';
+              console.warn('[⚠️ Missing question text]');
             }
   
             this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
@@ -1017,7 +1012,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         );
       })
     );
-  } 
+  }  
   
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
