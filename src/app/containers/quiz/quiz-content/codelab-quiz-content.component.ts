@@ -994,13 +994,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
-    console.log('[🧪 questionState]', questionState);
+    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
+    const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
+
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
     console.log('[🧪 explanationDisplayed]', explanationDisplayed);
     console.log('[🧪 formattedExplanation]', formattedExplanation);
-  
-    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
-    const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
+    console.log('[🧪 displayExplanation]', displayExplanation);
   
     return this.currentQuestion.pipe(
       take(1),
@@ -1012,9 +1012,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
             let textToDisplay = '';
   
             if (displayExplanation && formattedExplanation?.trim()) {
+              console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
               console.log('[🟡 Showing Explanation]', formattedExplanation);
               textToDisplay = formattedExplanation;
             } else if (question?.questionText) {
+              console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
               console.log('[🔵 Showing Question]', question.questionText);
               textToDisplay = question.questionText;
             } else {
