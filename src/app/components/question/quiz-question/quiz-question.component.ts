@@ -2689,12 +2689,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await this.updateExplanationText(lockedQuestionIndex);
       await this.handleCorrectnessOutcome(true);
       this.markQuestionAsAnswered(lockedQuestionIndex);
-      
       this.answerSelected.emit(true);
   
-      setTimeout(() => {
-        this.cdRef.markForCheck();
-      });
+      setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error for Q${this.fixedQuestionIndex}:`, error);
     }
