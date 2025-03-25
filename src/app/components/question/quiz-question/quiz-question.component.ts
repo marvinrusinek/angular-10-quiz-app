@@ -2682,36 +2682,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
-      } else {
-        console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
-      }      
+      }
   
-      this.explanationTextService.setShouldDisplayExplanation(true); 
-  
-      // ✅ Set explanationDisplayed state immediately (CRITICAL FIX!)
+      // ✅ Set explanationDisplayed state immediately
       const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
       if (questionState && !questionState.explanationDisplayed) {
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
+  
+        // CRITICAL: Immediately emit this change to trigger UI update
+        this.explanationTextService.setShouldDisplayExplanation(true);
       }
   
-      // Now safely call updateExplanationText
+      // Fetch and emit explanation text AFTER state is set
       await this.updateExplanationText(lockedQuestionIndex);
   
-      // Mark the question as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
-  
-      // Emit the event signaling an answer selection
       this.answerSelected.emit(true);
-  
       await this.handleCorrectnessOutcome(true);
   
       setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error for Q${this.fixedQuestionIndex}:`, error);
     }
-  }
+  }  
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
