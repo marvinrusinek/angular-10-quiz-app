@@ -173,7 +173,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private isProcessingClick = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
-    answered: false,
+    answered: false
   };
   private forceQuestionDisplay = true;
   readyForExplanationDisplay = false;
