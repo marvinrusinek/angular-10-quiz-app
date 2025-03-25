@@ -154,13 +154,18 @@ export class ExplanationTextService {
   }
 
   updateFormattedExplanation(explanation: string): void {
-    if (explanation?.trim().length > 0) {
-      console.log('[💬 updateFormattedExplanation] ✅ Emitting meaningful explanation:', explanation.trim());
-      this.formattedExplanationSubject.next(explanation.trim());
-    } else {
-      console.warn('[💬 updateFormattedExplanation] ⚠️ Ignored empty explanation text.');
+    const trimmed = explanation?.trim();
+  
+    if (!trimmed) {
+      console.warn('[💬 updateFormattedExplanation] ❌ Ignoring empty or blank explanation');
+      return;
     }
-  }  
+  
+    console.log('[💬 updateFormattedExplanation] ✅ Emitting explanation:', trimmed);
+    console.log('[💬 Previous explanation]', this.formattedExplanationSubject.getValue());
+  
+    this.formattedExplanationSubject.next(trimmed);
+  }
 
   // Method to sanitize explanation text
   private sanitizeExplanation(explanation: string): string {

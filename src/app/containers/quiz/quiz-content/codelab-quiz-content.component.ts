@@ -966,9 +966,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
-    // const displayExplanation = questionState?.explanationDisplayed;
-    const displayExplanation = shouldDisplayExplanation && explanationDisplayed && formattedExplanation.trim().length > 0;
+    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
+    // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
+    const displayExplanation = questionState?.explanationDisplayed;
 
+    console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
+    console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
+    console.log('[🧪 formattedExplanation]', formattedExplanation);
+    console.log('[🧪 displayExplanation]', displayExplanation);
+    console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
+    console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+  
     return this.currentQuestion.pipe(
       take(1),
       switchMap((question: QuizQuestion | null) => {
@@ -978,7 +986,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           map(isMultipleAnswer => {
             let textToDisplay = '';
   
-            if (displayExplanation) {
+            if (displayExplanation && formattedExplanation?.trim()) {
               console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
               console.log('[🟡 Showing Explanation]', formattedExplanation);
               textToDisplay = formattedExplanation;
@@ -997,7 +1005,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         );
       })
     );
-  } 
+  }
   
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
