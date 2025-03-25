@@ -954,9 +954,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
       filter(([_, __, explanation, shouldShow]) => {
-        const show = shouldShow && explanation?.trim().length > 0;
-        console.log('[🛂 filter]', { explanation, shouldShow, show });
-        return !shouldShow || show;
+        const allow = !shouldShow || (shouldShow && explanation?.trim().length > 0);
+        console.log('[🛂 combineLatest filter check]', {
+          shouldShow,
+          explanation,
+          allow
+        });
+        return allow;
       }),
       debounceTime(20), // delay final switchMap execution to allow things to settle
       switchMap(params => this.determineTextToDisplay(params)),
