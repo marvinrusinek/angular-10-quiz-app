@@ -940,33 +940,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }  
 
   private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
-      this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
-      this.explanationTextService.formattedExplanation$.pipe(
-        startWith(''), debounceTime(10), distinctUntilChanged(),
-        tap(val => console.log('[formattedExplanation$ emitted]', val))
+    this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
+      withLatestFrom(
+        this.nextQuestion$.pipe(startWith(null)),
+        this.previousQuestion$.pipe(startWith(null)),
+        this.explanationTextService.formattedExplanation$.pipe(startWith('')),
+        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+        this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
       ),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        startWith(false), debounceTime(10),
-        tap(val => console.log('[shouldDisplayExplanation$ emitted]', val))
-      ),
-      this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
-    ]).pipe(
-      filter(([_, __, explanation, shouldShow]) => {
-        const allow = !shouldShow || (shouldShow && explanation?.trim().length > 0);
-        console.log('[🛂 combineLatest filter check]', {
-          shouldShow,
-          explanation,
+      map(([_, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex]) => {
+        return [nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex] as const;
+      }),
+      filter(([_, __, formattedExplanation, shouldDisplayExplanation]) => {
+        const show = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
+        const allow = !shouldDisplayExplanation || show;
+        console.log('[🛂 filtered trigger]', {
+          shouldDisplayExplanation,
+          formattedExplanation,
           allow
         });
         return allow;
       }),
-      debounceTime(20), // delay final switchMap execution to allow things to settle
       switchMap(params => this.determineTextToDisplay(params)),
-      tap(result => console.log('[combinedText$ FINAL result]', result)),
-      distinctUntilChanged(),
       startWith(''),
+      distinctUntilChanged(),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading content');
