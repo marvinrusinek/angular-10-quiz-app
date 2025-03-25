@@ -4073,6 +4073,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+
+    // Reset explanation stream before fetching new one
+    this.explanationTextService.updateFormattedExplanation('');
   
     if (!this.quiz?.questions[questionIndex]) {
       console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
