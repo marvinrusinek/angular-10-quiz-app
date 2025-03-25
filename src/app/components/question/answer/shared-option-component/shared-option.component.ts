@@ -552,7 +552,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     element._elementRef.nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
   }
 
-  private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
+  /* private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
     const questionIndex = this.quizService.getCurrentQuestionIndex(); // ✅ Always retrieve from QuizService
 
     if (!optionBinding || !optionBinding.option) {
@@ -572,7 +572,25 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     };
 
     this.optionSelected.emit(eventData);
-  }
+  } */
+  private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
+    const questionIndex = this.quizService.getCurrentQuestionIndex();
+  
+    if (!optionBinding || !optionBinding.option) {
+      console.error(`[SharedOptionComponent] ❌ Cannot emit optionSelected: Missing option at index ${index}`);
+      console.error(`[SharedOptionComponent] ❌ optionBinding:`, optionBinding);
+      return;
+    }
+  
+    const eventData = {
+      option: optionBinding.option,
+      index: index,
+      checked: checked
+    };
+  
+    console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected:`, eventData);
+    this.optionSelected.emit(eventData);
+  }  
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
     this.updateHighlighting();
