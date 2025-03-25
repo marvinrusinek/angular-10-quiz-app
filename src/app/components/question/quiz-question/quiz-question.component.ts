@@ -2641,6 +2641,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await new Promise((resolve) => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
+
+      console.log('[onOptionClicked] 📦 event.option:', event.option);
+      console.log('[onOptionClicked] 📦 optionsToDisplay:', this.optionsToDisplay);
   
       const foundOption = this.optionsToDisplay.find(
         (opt) => opt.optionId === event.option?.optionId
