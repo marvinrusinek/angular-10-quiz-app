@@ -943,18 +943,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
-      this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged()),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+      this.explanationTextService.formattedExplanation$.pipe(
+        startWith(''), distinctUntilChanged(),
+        tap(val => console.log('[formattedExplanation$ emitted]', val))
+      ),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        startWith(false), distinctUntilChanged(),
+        tap(val => console.log('[shouldDisplayExplanation$ emitted]', val))
+      ),
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
-      debounceTime(50), // Prevent rapid toggling
-      switchMap(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex]) =>
-        this.determineTextToDisplay([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex])
-      ),
+      debounceTime(10),
+      switchMap(params => this.determineTextToDisplay(params)),
+      tap(result => console.log('[combinedText$ FINAL result]', result)),
       distinctUntilChanged(),
+      startWith(''),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
-        return of('');
+        return of('Error loading content');
       })
     );
   }  
@@ -968,7 +974,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
     // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
     // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
-    const displayExplanation = questionState?.explanationDisplayed;
+    // const displayExplanation = questionState?.explanationDisplayed;
+    const displayExplanation = shouldDisplayExplanation && formattedExplanation.trim() !== '';
 
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
     console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
