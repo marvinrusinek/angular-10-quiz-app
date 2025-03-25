@@ -4108,6 +4108,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
   
+    // Emit final explanation
     this.explanationTextService.updateFormattedExplanation(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
