@@ -2633,6 +2633,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
   }): Promise<void> {
     try {
+      console.log('[onOptionClicked] 📦 event.option:', event.option);
+
+      if (!event.option) {
+        console.warn('[onOptionClicked] ⚠️ Received undefined option in event. Skipping explanation setup.');
+        return;
+      }
+
       const lockedQuestionIndex = this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
   
