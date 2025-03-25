@@ -4022,7 +4022,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  /* async updateExplanationText(questionIndex: number): Promise<void> {
+  async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
   
     if (!this.quiz?.questions[questionIndex]) {
@@ -4073,8 +4073,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
-  }  */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  }
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
   
     if (!this.quiz?.questions[questionIndex]) {
@@ -4124,7 +4124,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
-  }
+  } */
   
 
   handleAudioPlayback(isCorrect: boolean): void {
