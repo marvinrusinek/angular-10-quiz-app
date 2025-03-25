@@ -2659,51 +2659,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const lockedQuestionIndex = this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
   
+      // Ensure options are populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        console.warn('[onOptionClicked] ❌ optionsToDisplay empty, retrying...');
+        await new Promise(resolve => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
+      // Validate selected option
       const foundOption = this.optionsToDisplay.find(
-        (opt) => opt.optionId === event.option?.optionId
+        opt => opt.optionId === event.option?.optionId
       );
       if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}. Skipping feedback.`);
+        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}.`);
         return;
       }
   
+      // Apply feedback immediately if needed
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
+        this.isFeedbackApplied = true; // Ensure flag is set
+        console.log(`[onOptionClicked] ✅ Feedback applied for Q${lockedQuestionIndex}`);
       }
   
+      // Update feedback state
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
   
+      // Set question as answered
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
       } else {
-        console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
-      }      
-
-      // Fetch and set explanation text
-      await this.updateExplanationText(lockedQuestionIndex);
-
+        console.log('⚠️ [onOptionClicked] isAnswered already TRUE');
+      }
+  
+      // Mark explanation ready for display FIRST
       this.explanationTextService.setShouldDisplayExplanation(true);
-      
-      // Mark the question as answered
+      console.log('[onOptionClicked] ✅ setShouldDisplayExplanation(true) called!');
+  
+      // THEN fetch and set explanation text
+      await this.updateExplanationText(lockedQuestionIndex);
+  
+      // Mark the question state as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
-
-      // Emit the event signaling an answer selection
+  
+      // Emit answer selected event
       this.answerSelected.emit(true);
-
+  
+      // Handle correctness outcome (scoring, etc.)
       await this.handleCorrectnessOutcome(true);
   
       setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error for Q${this.fixedQuestionIndex}:`, error);
     }
-  }  
+  }
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
