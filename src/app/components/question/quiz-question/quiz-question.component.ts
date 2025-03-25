@@ -2687,13 +2687,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
       }      
 
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
+      // Fetch and set explanation text
       await this.updateExplanationText(lockedQuestionIndex);
-      await this.handleCorrectnessOutcome(true);
+
+      this.explanationTextService.setShouldDisplayExplanation(true);
       
+      // Mark the question as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
+
+      // Emit the event signaling an answer selection
       this.answerSelected.emit(true);
+
+      await this.handleCorrectnessOutcome(true);
   
       setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
