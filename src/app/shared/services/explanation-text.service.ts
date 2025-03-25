@@ -265,6 +265,7 @@ export class ExplanationTextService {
   }
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
+    console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
     console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
   
     const current = this.shouldDisplayExplanationSource.getValue();
