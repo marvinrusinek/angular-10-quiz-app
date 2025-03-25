@@ -35,6 +35,9 @@ export class ExplanationTextService {
   shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
+  private explanationTrigger = new Subject<void>();
+  explanationTrigger$ = this.explanationTrigger.asObservable();
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -275,7 +278,11 @@ export class ExplanationTextService {
     } else {
       console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
     }
-  }  
+  }
+  
+  triggerExplanationEvaluation(): void {
+    this.explanationTrigger.next();
+  }
 
   private isQuestionValid(question: QuizQuestion): boolean {
     return question && 
