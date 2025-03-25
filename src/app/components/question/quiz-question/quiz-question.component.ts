@@ -2677,6 +2677,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
 
+      // Set display flag
       this.explanationTextService.setShouldDisplayExplanation(true);
   
       // Fetch and emit explanation text AFTER state set
