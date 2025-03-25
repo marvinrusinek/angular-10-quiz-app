@@ -514,12 +514,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Only reset if optionsToDisplay is not already empty
       if (this.optionsToDisplay.length > 0) {
-        console.log(
-          '[setOptionsToDisplay] 🚨 Clearing options due to invalid data.'
-        );
-        console.warn(
-          `[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack
-        );
+        console.log('[setOptionsToDisplay] 🚨 Clearing options due to invalid data.');
+        console.warn(`[DEBUG] ❌ Clearing optionsToDisplay at:`, new Error().stack);
         this.optionsToDisplay = [];
         this.optionBindings = [];
       }
@@ -537,25 +533,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }));
   }
 
-  /* private renderDisplay(): void {
-    const currentState = this.displayStateSubject.getValue();
-
-    if (
-      this.forceQuestionDisplay ||
-      this.isExplanationLocked ||
-      !this.isExplanationReady
-    ) {
-      // Default to displaying question text
-      this.ensureQuestionTextDisplay();
-    } else if (currentState.mode === 'explanation' && currentState.answered) {
-      // Display explanation text only if mode is 'explanation' and the question is answered
-      this.setExplanationText(); // Set the explanation text before displaying
-      this.ensureExplanationTextDisplay(this.currentExplanationText); // Use the correct explanation text
-    } else {
-      // Fallback to displaying question text in all other cases
-      this.ensureQuestionTextDisplay();
-    }
-  } */
   private renderDisplay(): void {
     const currentState = this.displayStateSubject.getValue();
   
