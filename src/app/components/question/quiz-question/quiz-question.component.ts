@@ -2686,13 +2686,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
       }
   
-      // ✅ Critical ordering fix: set flags immediately
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
-      // ✅ Fetch explanation text FIRST, and THEN mark as displayed.
+      // FIRST: Fetch and set explanation text clearly BEFORE triggering UI update
       await this.updateExplanationText(lockedQuestionIndex);
   
-      // ✅ Mark explanationDisplayed AFTER fetching successfully.
+      // NOW explicitly trigger UI to show explanation (AFTER TEXT READY)
+      this.explanationTextService.setShouldDisplayExplanation(true);
+  
+      // Mark explanationDisplayed AFTER fetching successfully
       const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
       if (questionState) {
         questionState.explanationDisplayed = true;
@@ -2702,10 +2702,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn(`[onOptionClicked] ⚠️ Question state missing for Q${lockedQuestionIndex}`);
       }
   
-      // ✅ Mark the question as answered
+      // Mark the question as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
   
-      // ✅ Emit event after everything is stable
+      // Emit event after stable UI state
       this.answerSelected.emit(true);
   
       await this.handleCorrectnessOutcome(true);
@@ -4045,7 +4045,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
   
     if (!this.quiz?.questions[questionIndex]) {
@@ -4096,7 +4096,59 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
-  }  
+  }  */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+  
+    if (!this.quiz?.questions[questionIndex]) {
+      console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
+      return;
+    }
+  
+    console.log(`[updateExplanationText] 🧪 QUESTION TEXT at Q${questionIndex}:`, this.quiz.questions[questionIndex].questionText);
+  
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
+    console.log(`[updateExplanationText] 🔍 Retrieved Stored Explanation for Q${questionIndex}:`, explanationText);
+  
+    if (!explanationText) {
+      try {
+        console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${questionIndex}...`);
+        // 🚨 Removed setShouldDisplayExplanation(false) here!
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+  
+        console.log(`[updateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
+  
+        this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+      } catch (error) {
+        console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
+        explanationText = 'Error loading explanation.';
+      }
+    }
+  
+    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
+  
+    this.explanationTextService.updateFormattedExplanation(explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+  
+    console.log('[💥 updateExplanationText] Calling setShouldDisplayExplanation(true)');
+    this.explanationTextService.setShouldDisplayExplanation(true);
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState) {
+      questionState.explanationDisplayed = true;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+      console.log(`[updateExplanationText] ✅ Marked Q${questionIndex} explanationDisplayed = true`);
+    } else {
+      console.warn(`[updateExplanationText] ⚠️ Could not find question state for Q${questionIndex}`);
+    }
+  
+    console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
+  }
+  
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
