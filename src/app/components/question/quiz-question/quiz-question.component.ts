@@ -2661,7 +2661,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
@@ -2684,26 +2684,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
       } else {
         console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
-      }      
+      }
   
-      // ✅ CRITICAL FIX HERE:
-      this.explanationTextService.setShouldDisplayExplanation(true); // <-- Move BEFORE updating explanation text!
-      
-      // ✅ Immediately set explanationDisplayed state (CRITICAL!)
+      // ✅ Critical ordering fix: set flags immediately
+      this.explanationTextService.setShouldDisplayExplanation(true);
+  
+      // ✅ Fetch explanation text FIRST, and THEN mark as displayed.
+      await this.updateExplanationText(lockedQuestionIndex);
+  
+      // ✅ Mark explanationDisplayed AFTER fetching successfully.
       const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
       if (questionState) {
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
+      } else {
+        console.warn(`[onOptionClicked] ⚠️ Question state missing for Q${lockedQuestionIndex}`);
       }
   
-      // ✅ Fetch and set explanation text AFTER marking the state
-      await this.updateExplanationText(lockedQuestionIndex);
-      
-      // Mark the question as answered
+      // ✅ Mark the question as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
   
-      // Emit the event signaling an answer selection
+      // ✅ Emit event after everything is stable
       this.answerSelected.emit(true);
   
       await this.handleCorrectnessOutcome(true);
