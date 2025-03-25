@@ -154,6 +154,7 @@ export class ExplanationTextService {
   }
 
   updateFormattedExplanation(explanation: string): void {
+    console.log('[💬 updateFormattedExplanation] explanation emitted:', explanation);
     const trimmed = explanation?.trim();
   
     if (!trimmed) {
