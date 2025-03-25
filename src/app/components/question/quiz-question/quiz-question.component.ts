@@ -2660,8 +2660,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
   
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting...');
+        await new Promise((resolve) => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
@@ -2669,7 +2669,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         (opt) => opt.optionId === event.option?.optionId
       );
       if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}. Skipping feedback.`);
+        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}.`);
         return;
       }
   
@@ -2684,28 +2684,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
       } else {
         console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
-      }
+      }      
   
-      // FIRST: Fetch and set explanation text clearly BEFORE triggering UI update
-      await this.updateExplanationText(lockedQuestionIndex);
+      this.explanationTextService.setShouldDisplayExplanation(true); 
   
-      // NOW explicitly trigger UI to show explanation (AFTER TEXT READY)
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
-      // Mark explanationDisplayed AFTER fetching successfully
+      // ✅ Set explanationDisplayed state immediately (CRITICAL FIX!)
       const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
-      if (questionState) {
+      if (questionState && !questionState.explanationDisplayed) {
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
-      } else {
-        console.warn(`[onOptionClicked] ⚠️ Question state missing for Q${lockedQuestionIndex}`);
       }
+  
+      // Now safely call updateExplanationText
+      await this.updateExplanationText(lockedQuestionIndex);
   
       // Mark the question as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
   
-      // Emit event after stable UI state
+      // Emit the event signaling an answer selection
       this.answerSelected.emit(true);
   
       await this.handleCorrectnessOutcome(true);
