@@ -86,7 +86,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   shouldDisplayNumberCorrectText$: Observable<boolean>;
 
-  questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false); // Use BehaviorSubject
+  questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   public isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
 
