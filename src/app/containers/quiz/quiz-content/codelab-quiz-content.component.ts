@@ -944,29 +944,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.explanationTextService.formattedExplanation$.pipe(
-        startWith(''), distinctUntilChanged(),
+        startWith(''), debounceTime(10), distinctUntilChanged(),
         tap(val => console.log('[formattedExplanation$ emitted]', val))
       ),
       this.explanationTextService.shouldDisplayExplanation$.pipe(
-        startWith(false), distinctUntilChanged(),
+        startWith(false), debounceTime(10),
         tap(val => console.log('[shouldDisplayExplanation$ emitted]', val))
       ),
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
-      filter(([_, __, formattedExplanation, shouldDisplayExplanation]) => {
-        const explanationReady = formattedExplanation?.trim().length > 0;
-        const showExplanation = shouldDisplayExplanation && explanationReady;
-        const allowThrough = !shouldDisplayExplanation || showExplanation;
-      
-        console.log('[🛂 filter check]', {
-          shouldDisplayExplanation,
-          formattedExplanation,
-          allowThrough
-        });
-      
-        return allowThrough;
+      filter(([_, __, explanation, shouldShow]) => {
+        const show = shouldShow && explanation?.trim().length > 0;
+        console.log('[🛂 filter]', { explanation, shouldShow, show });
+        return !shouldShow || show;
       }),
-      debounceTime(10),
+      debounceTime(20), // delay final switchMap execution to allow things to settle
       switchMap(params => this.determineTextToDisplay(params)),
       tap(result => console.log('[combinedText$ FINAL result]', result)),
       distinctUntilChanged(),
