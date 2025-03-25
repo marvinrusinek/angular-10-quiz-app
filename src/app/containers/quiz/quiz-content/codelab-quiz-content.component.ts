@@ -943,30 +943,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.combinedText$ = combineLatest([
       this.nextQuestion$.pipe(startWith(null), distinctUntilChanged()),
       this.previousQuestion$.pipe(startWith(null), distinctUntilChanged()),
-      this.explanationTextService.formattedExplanation$.pipe(
-        startWith(''),
-        distinctUntilChanged(),
-        tap(val => console.log('[💬 formattedExplanation$ EMITTED]', val))
-      ),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        startWith(false),
-        distinctUntilChanged(),
-        tap(val => console.log('[💬 shouldDisplayExplanation$ EMITTED]', val))
-      ),
+      this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged()),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
-      debounceTime(50), // gives state time to settle
+      debounceTime(50), // Prevent rapid toggling
       switchMap(([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex]) =>
         this.determineTextToDisplay([nextQ, prevQ, formattedExplanation, shouldShowExplanation, currentIndex])
       ),
-      tap(result => {
-        console.log('[✅ combinedText$] Final Display Text:', result);
-      }),
       distinctUntilChanged(),
-      startWith(''),
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
-        return of('Error loading content');
+        return of('');
       })
     );
   }  
