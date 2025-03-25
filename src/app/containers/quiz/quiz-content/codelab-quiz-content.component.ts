@@ -965,7 +965,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }  
 
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
@@ -1011,7 +1011,34 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         );
       })
     );
-  }
+  } */
+  private determineTextToDisplay( 
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
+    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  ): Observable<string> {
+  
+    const displayExplanation = shouldDisplayExplanation && !!formattedExplanation.trim();
+  
+    console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
+    console.log('[🧪 formattedExplanation]', formattedExplanation);
+    console.log('[🧪 displayExplanation]', displayExplanation);
+  
+    return this.currentQuestion.pipe(
+      take(1),
+      map((question: QuizQuestion | null) => {
+        if (displayExplanation) {
+          console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+          return formattedExplanation;
+        } else if (question?.questionText) {
+          console.log('[ℹ️ DISPLAYING QUESTION]', question.questionText);
+          return question.questionText;
+        } else {
+          console.warn('[⚠️ Missing question text]');
+          return 'No question available';
+        }
+      })
+    );
+  }  
   
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
