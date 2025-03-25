@@ -2659,54 +2659,53 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const lockedQuestionIndex = this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
   
-      // Ensure options are populated
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.warn('[onOptionClicked] ❌ optionsToDisplay empty, retrying...');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting for population...');
+        await new Promise((resolve) => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
-      // Validate selected option
       const foundOption = this.optionsToDisplay.find(
-        opt => opt.optionId === event.option?.optionId
+        (opt) => opt.optionId === event.option?.optionId
       );
       if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}.`);
+        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}. Skipping feedback.`);
         return;
       }
   
-      // Apply feedback immediately if needed
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
-        this.isFeedbackApplied = true; // Ensure flag is set
-        console.log(`[onOptionClicked] ✅ Feedback applied for Q${lockedQuestionIndex}`);
       }
   
-      // Update feedback state
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
   
-      // Set question as answered
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
       } else {
-        console.log('⚠️ [onOptionClicked] isAnswered already TRUE');
+        console.log('⚠️ [onOptionClicked] isAnswered was already TRUE');
+      }      
+  
+      // ✅ CRITICAL FIX HERE:
+      this.explanationTextService.setShouldDisplayExplanation(true); // <-- Move BEFORE updating explanation text!
+      
+      // ✅ Immediately set explanationDisplayed state (CRITICAL!)
+      const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
+      if (questionState) {
+        questionState.explanationDisplayed = true;
+        this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
+        console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
   
-      // Mark explanation ready for display FIRST
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      console.log('[onOptionClicked] ✅ setShouldDisplayExplanation(true) called!');
-  
-      // THEN fetch and set explanation text
+      // ✅ Fetch and set explanation text AFTER marking the state
       await this.updateExplanationText(lockedQuestionIndex);
-  
-      // Mark the question state as answered
+      
+      // Mark the question as answered
       this.markQuestionAsAnswered(lockedQuestionIndex);
   
-      // Emit answer selected event
+      // Emit the event signaling an answer selection
       this.answerSelected.emit(true);
   
-      // Handle correctness outcome (scoring, etc.)
       await this.handleCorrectnessOutcome(true);
   
       setTimeout(() => this.cdRef.markForCheck());
