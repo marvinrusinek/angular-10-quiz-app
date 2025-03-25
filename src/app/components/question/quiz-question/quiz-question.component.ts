@@ -1935,6 +1935,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         throw new Error(
           `No question found for index ${this.currentQuestionIndex}`
         );
+      
+      // Reset explanation state before rendering the new question
+      this.explanationTextService.updateFormattedExplanation('');
+      this.explanationTextService.setShouldDisplayExplanation(false);
 
       this.ngZone.run(() => {
         this.currentQuestion = { ...potentialQuestion };
