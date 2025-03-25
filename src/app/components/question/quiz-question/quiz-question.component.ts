@@ -4050,6 +4050,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!explanationText) {
       try {
         console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${questionIndex}...`);
+        this.explanationTextService.setShouldDisplayExplanation(false);
         explanationText = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
@@ -4067,10 +4068,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
   
+    this.explanationTextService.updateFormattedExplanation(explanationText); // updates formattedExplanation$
     this.explanationTextService.setIsExplanationTextDisplayed(true); // triggers isExplanationTextDisplayed$
+    
     console.log('[💥 updateExplanationText] Calling setShouldDisplayExplanation(true)');
     this.explanationTextService.setShouldDisplayExplanation(true);  // triggers shouldDisplayExplanation$
-    this.explanationTextService.updateFormattedExplanation(explanationText); // updates formattedExplanation$
   
     // ✅ Mark the explanation as displayed in quiz state
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
