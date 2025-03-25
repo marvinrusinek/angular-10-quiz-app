@@ -2678,12 +2678,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       this.explanationTextService.setShouldDisplayExplanation(true);
-
-      // Trigger re-evaluation
-      this.explanationTextService.triggerExplanationEvaluation();
   
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
+
+      // Trigger re-evaluation
+      this.explanationTextService.triggerExplanationEvaluation();
   
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
