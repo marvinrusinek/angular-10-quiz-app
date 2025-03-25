@@ -2674,6 +2674,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationTextService.setShouldDisplayExplanation(true);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
+
+      this.explanationTextService.setShouldDisplayExplanation(true);
   
       // 🔥 Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
@@ -4105,9 +4107,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     this.explanationTextService.updateFormattedExplanation(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-  
-    console.log('[💥 updateExplanationText] Calling setShouldDisplayExplanation(true)');
-    this.explanationTextService.setShouldDisplayExplanation(true);
   
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     if (questionState) {
