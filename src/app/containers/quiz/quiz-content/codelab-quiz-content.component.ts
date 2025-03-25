@@ -1017,15 +1017,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
   
-    // const displayExplanation = shouldDisplayExplanation && !!formattedExplanation.trim();
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
-    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
-    // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
-    const displayExplanation = questionState?.explanationDisplayed;
+    // 🚩 Only show explanation if all conditions align properly
+    const displayExplanation = shouldDisplayExplanation && explanationDisplayed && !!formattedExplanation.trim();
   
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
+    console.log('[🧪 explanationDisplayed]', explanationDisplayed);
     console.log('[🧪 formattedExplanation]', formattedExplanation);
     console.log('[🧪 displayExplanation]', displayExplanation);
   
@@ -1044,7 +1043,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         }
       })
     );
-  }  
+  }
   
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
