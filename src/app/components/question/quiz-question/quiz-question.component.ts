@@ -2661,18 +2661,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
       }
   
-      // ✅ Set explanationDisplayed state immediately
+      // 🔥 CRITICAL FIX (set explanationDisplayed IMMEDIATELY)
       const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
       if (questionState && !questionState.explanationDisplayed) {
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
-        console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
-  
-        // CRITICAL: Immediately emit this change to trigger UI update
         this.explanationTextService.setShouldDisplayExplanation(true);
+        console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
   
-      // Fetch and emit explanation text AFTER state is set
+      // 🔥 Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
   
       this.markQuestionAsAnswered(lockedQuestionIndex);
