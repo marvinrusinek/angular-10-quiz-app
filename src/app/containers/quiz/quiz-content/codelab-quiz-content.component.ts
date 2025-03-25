@@ -966,17 +966,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
   
-    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed;
-    // const displayExplanation = shouldDisplayExplanation && questionState?.explanationDisplayed;
-    const displayExplanation = questionState?.explanationDisplayed;
+    // const displayExplanation = questionState?.explanationDisplayed;
+    const displayExplanation = shouldDisplayExplanation && explanationDisplayed && formattedExplanation.trim().length > 0;
 
-    console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
-    console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
-    console.log('[🧪 formattedExplanation]', formattedExplanation);
-    console.log('[🧪 displayExplanation]', displayExplanation);
-    console.log('[ℹ️ DISPLAYING QUESTION]', question?.questionText);
-    console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
-  
     return this.currentQuestion.pipe(
       take(1),
       switchMap((question: QuizQuestion | null) => {
@@ -986,7 +978,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           map(isMultipleAnswer => {
             let textToDisplay = '';
   
-            if (displayExplanation && formattedExplanation?.trim()) {
+            if (displayExplanation) {
               console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
               console.log('[🟡 Showing Explanation]', formattedExplanation);
               textToDisplay = formattedExplanation;
