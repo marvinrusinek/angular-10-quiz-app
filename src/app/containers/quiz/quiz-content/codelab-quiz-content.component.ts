@@ -1012,27 +1012,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   } */
-  private determineTextToDisplay( 
+  private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
   
-    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
-    const explanationDisplayed = questionState?.explanationDisplayed ?? false;
-  
-    // 🚩 Only show explanation if all conditions align properly
-    // const displayExplanation = shouldDisplayExplanation && explanationDisplayed && !!formattedExplanation.trim();
-    const displayExplanation = questionState?.explanationDisplayed;
-  
     console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
-    console.log('[🧪 explanationDisplayed]', explanationDisplayed);
     console.log('[🧪 formattedExplanation]', formattedExplanation);
-    console.log('[🧪 displayExplanation]', displayExplanation);
   
     return this.currentQuestion.pipe(
       take(1),
       map((question: QuizQuestion | null) => {
-        if (displayExplanation) {
+        const hasExplanation = shouldDisplayExplanation && formattedExplanation?.trim();
+  
+        if (hasExplanation) {
           console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
           return formattedExplanation;
         } else if (question?.questionText) {
