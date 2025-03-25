@@ -309,10 +309,10 @@ export class ExplanationTextService {
   resetExplanationState(): void {
     this.formattedExplanationSubject.next('');
     this.explanationTexts = {};
-    this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
-    this.isExplanationTextDisplayedSource.next(false);
+  
     this.shouldDisplayExplanationSource.next(false);
-  }
+    this.isExplanationTextDisplayedSource.next(false);
+  }  
 
   resetProcessedQuestionsState(): void {
     this.processedQuestions = new Set<string>();
