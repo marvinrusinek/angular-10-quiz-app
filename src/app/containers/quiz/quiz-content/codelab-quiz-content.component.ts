@@ -953,11 +953,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       ),
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0), distinctUntilChanged())
     ]).pipe(
-      // ✅ Add filter here to wait until explanation is actually available
       filter(([_, __, formattedExplanation, shouldDisplayExplanation]) => {
-        const showIt = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
-        console.log('[🛂 filter check] showIt:', showIt);
-        return !shouldDisplayExplanation || showIt;
+        const explanationReady = formattedExplanation?.trim().length > 0;
+        const showExplanation = shouldDisplayExplanation && explanationReady;
+        const allowThrough = !shouldDisplayExplanation || showExplanation;
+      
+        console.log('[🛂 filter check]', {
+          shouldDisplayExplanation,
+          formattedExplanation,
+          allowThrough
+        });
+      
+        return allowThrough;
       }),
       debounceTime(10),
       switchMap(params => this.determineTextToDisplay(params)),
