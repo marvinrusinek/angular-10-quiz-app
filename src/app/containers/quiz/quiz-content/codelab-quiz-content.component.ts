@@ -1012,7 +1012,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   } */
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
     [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
   ): Observable<string> {
@@ -1039,7 +1039,49 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         }
       })
     );
+  } */
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
+    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  ): Observable<string> {
+    const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
+    const explanationDisplayed = questionState?.explanationDisplayed ?? false;
+  
+    const displayExplanation = questionState?.explanationDisplayed;
+  
+    console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
+    console.log('[🧪 explanationDisplayed]', questionState?.explanationDisplayed);
+    console.log('[🧪 formattedExplanation]', formattedExplanation);
+    console.log('[🧪 displayExplanation]', displayExplanation);
+  
+    return this.currentQuestion.pipe(
+      take(1),
+      switchMap((question: QuizQuestion | null) => {
+        console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
+  
+        return this.isCurrentQuestionMultipleAnswer().pipe(
+          map(isMultipleAnswer => {
+            let textToDisplay = '';
+  
+            if (displayExplanation && formattedExplanation?.trim()) {
+              console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+              textToDisplay = formattedExplanation;
+            } else if (question?.questionText) {
+              console.log('[ℹ️ DISPLAYING QUESTION]', question.questionText);
+              textToDisplay = question.questionText;
+            } else {
+              console.warn('[⚠️ Missing question text]');
+              textToDisplay = 'No question available';
+            }
+  
+            this.shouldDisplayCorrectAnswers = !displayExplanation && isMultipleAnswer;
+            return textToDisplay;
+          })
+        );
+      })
+    );
   }
+  
  
   /* private determineTextToDisplay( 
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
