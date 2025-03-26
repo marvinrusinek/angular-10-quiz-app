@@ -4082,7 +4082,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
-
+  
     // Reset explanation stream before fetching new one
     this.explanationTextService.updateFormattedExplanation('');
   
@@ -4099,7 +4099,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!explanationText) {
       try {
         console.log(`[updateExplanationText] 🕵️‍♂️ No stored explanation, fetching now for Q${questionIndex}...`);
-        // 🚨 Removed setShouldDisplayExplanation(false) here!
         explanationText = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
@@ -4112,7 +4111,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         explanationText = 'Error loading explanation.';
       }
     }
-
+  
     // Final protection against wrong index overwrites
     console.log(`[updateExplanationText] 🧠 Validating final emit: questionIndex=${questionIndex}, current=${this.currentQuestionIndex}`);
     const currentIndexStillValid = questionIndex === this.currentQuestionIndex;
@@ -4124,7 +4123,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Emit final explanation
     this.explanationTextService.updateFormattedExplanation(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-
+  
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
@@ -4139,6 +4138,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
+  
+    // ✅ Manual trigger if conditions are valid
+    if (
+      questionIndex === this.currentQuestionIndex &&
+      explanationText?.trim()
+    ) {
+      console.log(`[updateExplanationText] ✅ Manually triggering display after setting explanation for Q${questionIndex}`);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.triggerExplanationEvaluation();
+    }
   }  
 
   handleAudioPlayback(isCorrect: boolean): void {
