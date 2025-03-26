@@ -943,16 +943,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
       delay(10), // ⏳ Give change detection + loadQuestion() a moment to run
       withLatestFrom(
+        this.quizService.getCurrentQuiz().pipe(startWith(null)),
         this.nextQuestion$.pipe(startWith(null)),
         this.previousQuestion$.pipe(startWith(null)),
         this.explanationTextService.formattedExplanation$.pipe(startWith('')),
         this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
         this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
       ),
-      map(([_, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex]) => {
+      map(([_, quiz, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex]) => {
         // const currentQuestion = this.questions?.[currentIndex] ?? null;
-        const currentQuiz = this.quizService.getCurrentQuiz();
-        const currentQuestion = currentQuiz?.questions?.[currentIndex] ?? null;
+        const currentQuestion = quiz?.questions?.[currentIndex] ?? null;
       
         return [
           nextQ,
