@@ -2684,7 +2684,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await this.updateExplanationText(lockedQuestionIndex);
 
       // Adding slight pause to let the stream catch up
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 25));
 
       // Trigger re-evaluation
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
