@@ -2684,6 +2684,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await this.updateExplanationText(lockedQuestionIndex);
 
       // Trigger re-evaluation
+      console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
       this.explanationTextService.triggerExplanationEvaluation();
   
       this.markQuestionAsAnswered(lockedQuestionIndex);
