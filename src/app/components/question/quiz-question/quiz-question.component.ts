@@ -2673,15 +2673,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (questionState && !questionState.explanationDisplayed) {
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
-        this.explanationTextService.setShouldDisplayExplanation(true);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
-
-      // Set display flag
-      this.explanationTextService.setShouldDisplayExplanation(true);
   
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
+
+      // Set display flag
+      this.explanationTextService.setShouldDisplayExplanation(true);
 
       // Adding slight pause to let the stream catch up
       await new Promise(resolve => setTimeout(resolve, 25));
