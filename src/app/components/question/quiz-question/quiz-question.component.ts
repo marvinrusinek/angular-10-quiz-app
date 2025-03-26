@@ -4120,7 +4120,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    // ✅ Manual trigger block moved BEFORE explanation is emitted
+    // ✅ Manual trigger block moved BEFORE final explanation emit
     if (
       questionIndex === this.currentQuestionIndex &&
       explanationText?.trim()
@@ -4129,10 +4129,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.triggerExplanationEvaluation();
     }
-  
-    // ✅ Emit final explanation AFTER trigger
-    this.explanationTextService.updateFormattedExplanation(explanationText);
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
   
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
@@ -4147,8 +4143,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn(`[updateExplanationText] ⚠️ Could not find question state for Q${questionIndex}`);
     }
   
+    // ✅ Final explanation emit must come last
+    this.explanationTextService.updateFormattedExplanation(explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+  
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
-  }
+  }  
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
