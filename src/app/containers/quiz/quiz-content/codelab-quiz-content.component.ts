@@ -1133,37 +1133,48 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );    
   } */
+  
   private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [
       QuizQuestion | null,
       QuizQuestion | null,
       string,
       boolean,
-      number,
-      QuizQuestion | null
+      number
     ]
   ): Observable<string> {
-    const isMultipleAnswer = this.quizService.isMultipleAnswer(currentQuestion); // Or however you determine it
+    const question = this.currentQuestion;
   
-    let textToDisplay = '';
-  
-    if (shouldDisplayExplanation && formattedExplanation?.trim()) {
-      console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
-      textToDisplay = formattedExplanation;
-    } else if (currentQuestion?.questionText) {
-      console.log('[ℹ️ DISPLAYING QUESTION]', currentQuestion.questionText);
-      textToDisplay = currentQuestion.questionText;
-    } else {
-      console.warn('[⚠️ Missing question text]');
-      textToDisplay = 'No question available';
+    if (!question && !shouldDisplayExplanation) {
+      console.warn('[⚠️ No question loaded yet — skipping display]');
+      return of(''); // Show nothing until question loads
     }
   
-    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+    return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
+      map((isMultipleAnswer: boolean) => {
+        let textToDisplay = '';
   
-    return of(textToDisplay);
-  }
+        if (shouldDisplayExplanation && formattedExplanation?.trim()) {
+          console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+          textToDisplay = formattedExplanation;
+        } else if (question?.questionText) {
+          console.log('[ℹ️ DISPLAYING QUESTION]', question.questionText);
+          textToDisplay = question.questionText;
+        } else {
+          console.warn('[⚠️ Missing question text]');
+          textToDisplay = 'No question available';
+        }
   
+        this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
   
+        return textToDisplay;
+      }),
+      catchError((error) => {
+        console.error('[❌ Error in determineTextToDisplay]', error);
+        return of('Error loading question text');
+      })
+    );
+  }  
  
   /* private determineTextToDisplay( 
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
