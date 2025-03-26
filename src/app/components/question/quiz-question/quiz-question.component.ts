@@ -2683,6 +2683,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
 
+      // Adding slight pause to let the stream catch up
+      await new Promise(resolve => setTimeout(resolve, 10));
+
       // Trigger re-evaluation
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
       this.explanationTextService.triggerExplanationEvaluation();
