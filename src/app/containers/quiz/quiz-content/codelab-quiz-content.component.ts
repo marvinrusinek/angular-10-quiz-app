@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, delay, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -941,6 +941,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
+      delay(10), // ⏳ Give change detection + loadQuestion() a moment to run
       withLatestFrom(
         this.nextQuestion$.pipe(startWith(null)),
         this.previousQuestion$.pipe(startWith(null)),
@@ -949,7 +950,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
       ),
       map(([_, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex]) => {
-        return [nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex] as const;
+        const currentQuestion = this.questions?.[currentIndex] ?? null;
+      
+        return [
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation,
+          currentIndex,
+          currentQuestion // ✅ Add this to params
+        ] as const;
       }),
       filter(([_, __, formattedExplanation, shouldDisplayExplanation]) => {
         const show = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
