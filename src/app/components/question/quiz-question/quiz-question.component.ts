@@ -4120,6 +4120,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn(`[updateExplanationText] ⚠️ Skipping update — stale index Q${questionIndex} !== current Q${this.currentQuestionIndex}`);
       return;
     }
+
+    // Final protection against wrong index overwrites
+    if (questionIndex !== this.currentQuestionIndex) {
+      console.warn(`[updateExplanationText] 🛑 Skipping emit — questionIndex Q${questionIndex} !== current Q${this.currentQuestionIndex}`);
+      return;
+    }
   
     // Emit final explanation
     this.explanationTextService.updateFormattedExplanation(explanationText);
