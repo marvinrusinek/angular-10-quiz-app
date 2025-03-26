@@ -950,7 +950,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
       ),
       map(([_, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex]) => {
-        const currentQuestion = this.questions?.[currentIndex] ?? null;
+        // const currentQuestion = this.questions?.[currentIndex] ?? null;
+        const currentQuiz = this.quizService.getCurrentQuiz();
+        const currentQuestion = currentQuiz?.questions?.[currentIndex] ?? null;
       
         return [
           nextQ,
