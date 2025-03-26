@@ -997,15 +997,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       number
     ]
   ): Observable<string> {
-    const question = this.currentQuestion?.getValue(); // ✅ FIXED HERE
+    const question = this.currentQuestion?.getValue();
+    console.log('[🧪 determineTextToDisplay] currentQuestion:', question);
+
+    if (!question) {
+      console.warn('[🚨 currentQuestion is null or undefined]');
+    }    
   
-    if (!question && !shouldDisplayExplanation) {
-      console.warn('[⚠️ No question loaded yet — skipping display]');
+    if (!question?.questionText && !shouldDisplayExplanation) {
+      console.warn('[🧨 Question text not available yet]');
       return of('');
     }
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
       map((isMultipleAnswer: boolean) => {
+        console.log('[🧪 inside map] question:', question);
+        console.log('[🧪 shouldDisplayExplanation]', shouldDisplayExplanation);
+        console.log('[🧪 formattedExplanation]', formattedExplanation);
+        
         let textToDisplay = '';
   
         if (shouldDisplayExplanation && formattedExplanation?.trim()) {
