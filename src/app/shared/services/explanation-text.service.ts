@@ -281,7 +281,15 @@ export class ExplanationTextService {
   }
   
   triggerExplanationEvaluation(): void {
-    this.explanationTrigger.next();
+    const currentExplanation = this.formattedExplanationSubject.getValue();
+    const shouldShow = this.shouldDisplayExplanationSource.getValue();
+  
+    if (shouldShow && currentExplanation?.trim()) {
+      console.log('[triggerExplanationEvaluation] ✅ Triggering explanation logic');
+      this.explanationTrigger.next();
+    } else {
+      console.warn('[triggerExplanationEvaluation] ⛔️ Skipped — missing explanation or display flag');
+    }
   }
 
   private isQuestionValid(question: QuizQuestion): boolean {
