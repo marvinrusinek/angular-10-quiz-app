@@ -4120,7 +4120,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    // Emit final explanation
+    // ✅ Manual trigger block moved BEFORE explanation is emitted
+    if (
+      questionIndex === this.currentQuestionIndex &&
+      explanationText?.trim()
+    ) {
+      console.log(`[updateExplanationText] ✅ Manually triggering display after setting explanation for Q${questionIndex}`);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.triggerExplanationEvaluation();
+    }
+  
+    // ✅ Emit final explanation AFTER trigger
     this.explanationTextService.updateFormattedExplanation(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
@@ -4138,18 +4148,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
+  }
   
-    // ✅ Manual trigger if conditions are valid
-    if (
-      questionIndex === this.currentQuestionIndex &&
-      explanationText?.trim()
-    ) {
-      console.log(`[updateExplanationText] ✅ Manually triggering display after setting explanation for Q${questionIndex}`);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationTextService.triggerExplanationEvaluation();
-    }
-  }  
-
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
       this.audioList = [...this.audioList, this.correctAudioSource];
