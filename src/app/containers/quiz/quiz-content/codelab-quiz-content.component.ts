@@ -941,26 +941,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
-      delay(10), // ⏳ Give change detection + loadQuestion() a moment to run
+      delay(10), // allow state/streams to settle
       withLatestFrom(
+        this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
         this.quizService.getCurrentQuiz().pipe(startWith(null)),
         this.nextQuestion$.pipe(startWith(null)),
         this.previousQuestion$.pipe(startWith(null)),
-        this.explanationTextService.formattedExplanation$.pipe(startWith('')),
-        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-        this.quizStateService.currentQuestionIndex$.pipe(startWith(0))
+        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+        this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged())
       ),
-      map(([_, quiz, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex]) => {
-        // const currentQuestion = this.questions?.[currentIndex] ?? null;
+      map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
         const currentQuestion = quiz?.questions?.[currentIndex] ?? null;
-      
+  
         return [
           nextQ,
           prevQ,
           formattedExplanation,
           shouldDisplayExplanation,
           currentIndex,
-          currentQuestion // ✅ Add this to params
+          currentQuestion
         ] as const;
       }),
       filter(([___, ____, formattedExplanation, shouldDisplayExplanation]) => {
@@ -975,9 +974,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       tap(([nextQ, prevQ, explanation, shouldDisplay, index, currentQuestion]) => {
         console.log('[📦 CombinedText Params]', {
-          nextQ, prevQ, explanation, shouldDisplay, index, currentQuestion
+          nextQ,
+          prevQ,
+          explanation,
+          shouldDisplay,
+          index,
+          currentQuestion
         });
-      }),      
+      }),
       switchMap(params => this.determineTextToDisplay(params)),
       startWith(''),
       distinctUntilChanged(),
@@ -986,7 +990,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading content');
       })
     );
-  }  
+  }
   
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [
