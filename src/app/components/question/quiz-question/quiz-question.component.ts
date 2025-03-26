@@ -4114,16 +4114,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
 
+    // Final protection against wrong index overwrites
     console.log(`[updateExplanationText] 🧠 Validating final emit: questionIndex=${questionIndex}, current=${this.currentQuestionIndex}`);
     const currentIndexStillValid = questionIndex === this.currentQuestionIndex;
     if (!currentIndexStillValid) {
       console.warn(`[updateExplanationText] ⚠️ Skipping update — stale index Q${questionIndex} !== current Q${this.currentQuestionIndex}`);
-      return;
-    }
-
-    // Final protection against wrong index overwrites
-    if (questionIndex !== this.currentQuestionIndex) {
-      console.warn(`[updateExplanationText] 🛑 Skipping emit — questionIndex Q${questionIndex} !== current Q${this.currentQuestionIndex}`);
       return;
     }
   
