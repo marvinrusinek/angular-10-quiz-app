@@ -1143,11 +1143,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       number
     ]
   ): Observable<string> {
-    const question = this.currentQuestion;
+    const question = this.currentQuestion?.getValue(); // ✅ FIXED HERE
   
     if (!question && !shouldDisplayExplanation) {
       console.warn('[⚠️ No question loaded yet — skipping display]');
-      return of(''); // Show nothing until question loads
+      return of('');
     }
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
@@ -1174,7 +1174,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading question text');
       })
     );
-  }  
+  }
+  
  
   /* private determineTextToDisplay( 
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
