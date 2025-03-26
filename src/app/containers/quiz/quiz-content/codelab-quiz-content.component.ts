@@ -963,7 +963,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           currentQuestion // ✅ Add this to params
         ] as const;
       }),
-      filter(([_, __, formattedExplanation, shouldDisplayExplanation]) => {
+      filter(([___, ____, formattedExplanation, shouldDisplayExplanation]) => {
         const show = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
         const allow = !shouldDisplayExplanation || show;
         console.log('[🛂 filtered trigger]', {
@@ -973,6 +973,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         });
         return allow;
       }),
+      tap(([nextQ, prevQ, explanation, shouldDisplay, index, currentQuestion]) => {
+        console.log('[📦 CombinedText Params]', {
+          nextQ, prevQ, explanation, shouldDisplay, index, currentQuestion
+        });
+      }),      
       switchMap(params => this.determineTextToDisplay(params)),
       startWith(''),
       distinctUntilChanged(),
@@ -1058,9 +1063,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   } */
-  private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]:
-    [QuizQuestion | null, QuizQuestion | null, string, boolean, number]
+  /* private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]:
+    [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null]
   ): Observable<string> {
     const questionState = this.quizStateService.getQuestionState(this.quizId, currentIndex);
     const explanationDisplayed = questionState?.explanationDisplayed ?? false;
@@ -1072,7 +1077,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     console.log('[🧪 formattedExplanation]', formattedExplanation);
     console.log('[🧪 displayExplanation]', displayExplanation);
   
-    /* return this.currentQuestion.pipe(
+    / return this.currentQuestion.pipe(
       take(1),
       switchMap((question: QuizQuestion | null) => {
         console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
@@ -1097,8 +1102,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           })
         );
       })
-    ); */
-    return this.currentQuestion.pipe(
+    ); /
+    return currentQuestion.pipe(
       take(1),
       switchMap((question: QuizQuestion | null) => {
         if (!question && !shouldDisplayExplanation) {
@@ -1127,7 +1132,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         );
       })
     );    
+  } */
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
+      QuizQuestion | null,
+      QuizQuestion | null,
+      string,
+      boolean,
+      number,
+      QuizQuestion | null
+    ]
+  ): Observable<string> {
+    const isMultipleAnswer = this.quizService.isMultipleAnswer(currentQuestion); // Or however you determine it
+  
+    let textToDisplay = '';
+  
+    if (shouldDisplayExplanation && formattedExplanation?.trim()) {
+      console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+      textToDisplay = formattedExplanation;
+    } else if (currentQuestion?.questionText) {
+      console.log('[ℹ️ DISPLAYING QUESTION]', currentQuestion.questionText);
+      textToDisplay = currentQuestion.questionText;
+    } else {
+      console.warn('[⚠️ Missing question text]');
+      textToDisplay = 'No question available';
+    }
+  
+    this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+  
+    return of(textToDisplay);
   }
+  
   
  
   /* private determineTextToDisplay( 
