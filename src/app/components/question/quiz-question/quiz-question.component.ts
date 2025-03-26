@@ -4113,6 +4113,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
     this.showExplanationChange.emit(true);
+
+    console.log(`[updateExplanationText] 🧠 Validating final emit: questionIndex=${questionIndex}, current=${this.currentQuestionIndex}`);
+    const currentIndexStillValid = questionIndex === this.currentQuestionIndex;
+    if (!currentIndexStillValid) {
+      console.warn(`[updateExplanationText] ⚠️ Skipping update — stale index Q${questionIndex} !== current Q${this.currentQuestionIndex}`);
+      return;
+    }
   
     // Emit final explanation
     this.explanationTextService.updateFormattedExplanation(explanationText);
@@ -4128,8 +4135,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
-  }
-  
+  }  
 
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
