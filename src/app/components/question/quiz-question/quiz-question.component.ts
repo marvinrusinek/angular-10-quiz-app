@@ -4109,10 +4109,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         explanationText = 'Error loading explanation.';
       }
     }
-  
-    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
-    this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    this.showExplanationChange.emit(true);
 
     // Final protection against wrong index overwrites
     console.log(`[updateExplanationText] 🧠 Validating final emit: questionIndex=${questionIndex}, current=${this.currentQuestionIndex}`);
@@ -4125,6 +4121,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Emit final explanation
     this.explanationTextService.updateFormattedExplanation(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
+
+    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
   
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
     if (questionState) {
