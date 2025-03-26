@@ -1070,7 +1070,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     console.log('[🧪 formattedExplanation]', formattedExplanation);
     console.log('[🧪 displayExplanation]', displayExplanation);
   
-    return this.currentQuestion.pipe(
+    /* return this.currentQuestion.pipe(
       take(1),
       switchMap((question: QuizQuestion | null) => {
         console.log('[🔍 determineTextToDisplay] currentQuestion:', question);
@@ -1095,7 +1095,36 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           })
         );
       })
-    );
+    ); */
+    return this.currentQuestion.pipe(
+      take(1),
+      switchMap((question: QuizQuestion | null) => {
+        if (!question && !shouldDisplayExplanation) {
+          console.warn('[⛔️ currentQuestion is not ready — skipping render]');
+          return of(''); // or return EMPTY if you want to render nothing
+        }
+    
+        return this.isCurrentQuestionMultipleAnswer().pipe(
+          map((isMultipleAnswer: boolean) => {
+            let textToDisplay = '';
+    
+            if (shouldDisplayExplanation && formattedExplanation?.trim()) {
+              console.log('[✅ DISPLAYING EXPLANATION]', formattedExplanation);
+              textToDisplay = formattedExplanation;
+            } else if (question?.questionText) {
+              console.log('[ℹ️ DISPLAYING QUESTION]', question.questionText);
+              textToDisplay = question.questionText;
+            } else {
+              console.warn('[⚠️ Missing question text]');
+              textToDisplay = '';
+            }
+    
+            this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+            return textToDisplay;
+          })
+        );
+      })
+    );    
   }
   
  
