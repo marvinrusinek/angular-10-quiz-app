@@ -2690,8 +2690,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       await firstValueFrom(
         this.explanationTextService.formattedExplanation$.pipe(
           filter((text) => !!text?.trim()),
-          take(1),
-          timeout(300) // prevent hanging forever
+          take(1)
         )
       );
   
