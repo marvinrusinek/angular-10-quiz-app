@@ -1017,7 +1017,7 @@ private determineTextToDisplay(
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
       map((isMultipleAnswer: boolean) => {
-        let textToDisplay;
+        let textToDisplay = '';
 
         if (shouldDisplayExplanation && formattedExplanation?.trim()) {
           textToDisplay = formattedExplanation;
