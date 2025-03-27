@@ -847,7 +847,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private resetOptionState(): void {
     this.isOptionSelected = false;
+  
+    // Clear both selection and answered state
     this.selectedOptionService.setOptionSelected(false);
+    this.selectedOptionService.setAnswered(false);
   }
 
   ngOnDestroy(): void {
