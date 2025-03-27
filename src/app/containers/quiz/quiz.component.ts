@@ -3334,7 +3334,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 500);
 
-    this.currentQuestionIndex = questionIndex;
     console.log(`[navigateToQuestion] ✅ Updated currentQuestionIndex to: ${this.currentQuestionIndex}`);
 
     const questionNumber = questionIndex + 1;
