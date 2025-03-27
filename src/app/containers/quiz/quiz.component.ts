@@ -3460,7 +3460,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Error during quiz restart:', error);
       });
   } */
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     this.resetQuizState();
   
     // Always stop timer cleanly
@@ -3511,7 +3511,77 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }).catch((error) => {
       console.error('Error during quiz restart:', error);
     });
-  }  
+  } */
+  restartQuiz(): void {
+    this.resetQuizState();
+  
+    // Always stop timer cleanly
+    this.timerService.stopTimer?.();
+  
+    // Force sync to first question
+    this.quizService.setCurrentQuestionIndex(0);
+  
+    // Navigate to question 1
+    this.router.navigate(['/question', this.quizId, 1]).then(() => {
+      setTimeout(async () => {
+        try {
+          // 🔒 Sync state before reloading content
+          this.currentQuestionIndex = 0;
+  
+          if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+  
+            const firstQuestion = this.questions[0];
+            if (firstQuestion) {
+              this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
+              this.quizQuestionComponent.loadDynamicComponent();
+            } else {
+              console.error('First question not found during quiz restart.');
+            }
+          } else {
+            console.warn('QuizQuestionComponent not available yet.');
+          }
+  
+          // 🧼 Reset visual/UI state
+          this.resetUI();
+          this.resetOptionState();
+          this.initializeFirstQuestion();
+  
+          // 🎯 Force index sync after view init
+          this.quizService.setCurrentQuestionIndex(0);
+  
+          // 🧠 Reset explanation stream
+          this.explanationTextService.resetExplanationText();
+  
+          // ✅ Fetch and emit explanation for Q0
+          await this.quizQuestionComponent?.updateExplanationText(0);
+  
+          // ⏳ Wait until formatted explanation emits
+          await firstValueFrom(
+            this.explanationTextService.formattedExplanation$.pipe(
+              filter((text) => !!text?.trim()),
+              take(1)
+            )
+          );
+  
+          // ✅ Now allow explanation display again
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.explanationTextService.triggerExplanationEvaluation();
+  
+          // 🏷️ Update badge for Q1
+          this.quizService.updateBadgeText(1, this.totalQuestions);
+  
+          // ⏱️ Start timer again
+          this.timerService.startTimer(this.timerService.timePerQuestion);
+          console.log('[QuizComponent] Timer started for new quiz.');
+        } catch (error) {
+          console.error('Error fetching and displaying the first question:', error);
+        }
+      }, 50);
+    }).catch((error) => {
+      console.error('Error during quiz restart:', error);
+    });
+  }
   
   private resetQuizState(): void {
     console.log('[resetQuizState] 🔄 Resetting quiz state...');
