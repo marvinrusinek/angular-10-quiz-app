@@ -3515,17 +3515,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     this.resetQuizState();
   
-    // Always stop timer cleanly
+    // ✅ Always stop timer cleanly
     this.timerService.stopTimer?.();
   
-    // Force sync to first question
+    // ✅ Force sync to first question index
     this.quizService.setCurrentQuestionIndex(0);
   
-    // Navigate to question 1
+    // ✅ Navigate to question 1
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
       setTimeout(async () => {
         try {
-          // 🔒 Sync state before reloading content
+          // 🔒 Sync internal index
           this.currentQuestionIndex = 0;
   
           if (this.quizQuestionComponent) {
@@ -3542,21 +3542,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('QuizQuestionComponent not available yet.');
           }
   
-          // 🧼 Reset visual/UI state
+          // 🧼 Reset UI and option states
           this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
   
-          // 🎯 Force index sync after view init
+          // 🎯 Ensure current index is known across services
           this.quizService.setCurrentQuestionIndex(0);
   
-          // 🧠 Reset explanation stream
+          // 🧠 Reset explanation stream first
           this.explanationTextService.resetExplanationText();
   
           // ✅ Fetch and emit explanation for Q0
           await this.quizQuestionComponent?.updateExplanationText(0);
   
-          // ⏳ Wait until formatted explanation emits
+          // ⏳ Wait until explanation is emitted to the stream
           await firstValueFrom(
             this.explanationTextService.formattedExplanation$.pipe(
               filter((text) => !!text?.trim()),
@@ -3564,24 +3564,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             )
           );
   
-          // ✅ Now allow explanation display again
+          // ✅ Now allow explanation to display
           this.explanationTextService.setShouldDisplayExplanation(true);
+  
+          // ✅ Trigger display evaluation stream
           this.explanationTextService.triggerExplanationEvaluation();
   
           // 🏷️ Update badge for Q1
           this.quizService.updateBadgeText(1, this.totalQuestions);
   
-          // ⏱️ Start timer again
+          // ⏱️ Restart the timer for the first question
           this.timerService.startTimer(this.timerService.timePerQuestion);
           console.log('[QuizComponent] Timer started for new quiz.');
         } catch (error) {
           console.error('Error fetching and displaying the first question:', error);
         }
-      }, 50);
+      }, 50); // short delay to let route settle
     }).catch((error) => {
       console.error('Error during quiz restart:', error);
     });
-  }
+  }  
   
   private resetQuizState(): void {
     console.log('[resetQuizState] 🔄 Resetting quiz state...');
