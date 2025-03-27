@@ -331,54 +331,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  async ngOnInit(): Promise<void> { 
+  async ngOnInit(): Promise<void> {
     this.initializeDisplayVariables();
-
-    // Initialize route parameters and subscribe to updates
-    this.initializeRouteParameters();
-
+  
+    // ✅ Centralized routing + quiz setup
+    this.initializeQuizData();
+  
+    // 🔍 (Optional) Log router navigation events for debugging
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
       }
     });
-
-    this.activatedRoute.paramMap
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const questionIndexParam = params.get('questionIndex');
-        const questionIndex = questionIndexParam ? Number(questionIndexParam) : 1;
-        const internalIndex = Math.max(questionIndex - 1, 0);  // ✅ Fix 0-based indexing
-
-        console.log(`[QuizComponent] 🚩 Route param changed: quizId=${quizId}, route questionIndex=${questionIndex}, internalIndex=${internalIndex}`);
-
-        if (!quizId) {
-            console.error(`[QuizComponent] ❌ No quizId in route.`);
-            return;
-        }
-
-        this.quizId = quizId;
-        this.currentQuestionIndex = internalIndex;  // ✅ Ensure correct index is used
-
-        if (!isNaN(internalIndex) && internalIndex >= 0) {
-            this.resetUIAndNavigate(internalIndex);
-        } else {
-            console.warn(`[QuizComponent] ⚠️ Invalid questionIndex in route, defaulting to 0.`);
-            this.resetUIAndNavigate(0);
-        }
-
-        if (!this.quizInitialized) {
-            this.initializeQuizBasedOnRouteParams();
-            this.quizInitialized = true;
-        }
-    });
-
+  
+    // ✅ Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions; // ensure total questions is set
-        let startingIndex = this.quizService.getCurrentQuestionIndex();
-
+        this.totalQuestions = totalQuestions;
+        const startingIndex = this.quizService.getCurrentQuestionIndex();
+  
         if (!this.hasInitializedBadge) {
           this.quizService.updateBadgeText(startingIndex + 1, totalQuestions);
           this.hasInitializedBadge = true;
@@ -389,50 +360,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('Total questions not available yet.');
       }
     });
-
+  
+    // ✅ Progress bar sync
     this.progressBarService.progress$.subscribe((progressValue) => {
-      this.progressPercentage.next(progressValue); // Update the BehaviorSubject
-    });    
+      this.progressPercentage.next(progressValue);
+    });
     this.progressBarService.setProgress(0);
-
+  
+    // ✅ Answer state and navigation setup
     this.subscribeToOptionSelection();
-
     this.handleNavigationToQuestion(this.currentQuestionIndex);
-
-    this.initializeNextButtonState(); // Initialize button state observables
-    this.initializeTooltip(); // Set up tooltip logic
-    this.resetOptionState(); // Ensure no lingering selection state
-
-    // Load the first question's contents
-    /* setTimeout(() => {
-      console.log('[ngOnInit] 🟢 Calling loadQuestionContents() after view setup.');
-      this.loadQuestionContents(this.currentQuestionIndex);
-    }, 150); // short delay allows ViewChild bindings to be established */
-    
-    // Reset the answered state initially
+    this.initializeNextButtonState();
+    this.initializeTooltip();
+    this.resetOptionState();
     this.selectedOptionService.setAnswered(false);
-
+    this.resetQuestionState();
+    this.subscribeToSelectionMessage();
+  
+    // 🧠 Explanation text subscription
     this.quizService.nextExplanationText$.subscribe((text) => {
       this.explanationToDisplay = text;
     });
-
-    // Move resetQuestionState here
-    this.resetQuestionState();
-
-    this.subscribeToSelectionMessage();
-
-    // Resolve and fetch quiz data
-    this.initializeQuizData();
-
-    // Initialize and shuffle questions
+  
+    // 🧩 Initialize any quiz-specific data
     this.initializeQuestions();
-
-    // Fetch and display the current question
     this.initializeCurrentQuestion();
-
     this.checkIfAnswerSelected();
+  }
+  
 
-    /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
+  /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
       tap((options) => console.log('options$ emitted:::::', options)),
       catchError((error) => {
         console.error('Error in options$:', error);
@@ -452,7 +409,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       startWith(false)
     ); */
-  }
+
 
   ngAfterViewInit(): void {
     this.initializeDisplayVariables();
