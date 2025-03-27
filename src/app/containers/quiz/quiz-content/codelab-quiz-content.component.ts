@@ -939,7 +939,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }  
 
-  private setupCombinedTextObservable(): void {
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
       delay(10),
       withLatestFrom(
@@ -988,9 +988,46 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading content');
       })
     ) as Observable<string>;
-  }
+  } */
+  private setupCombinedTextObservable(): void {
+    this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
+      delay(10),
+      withLatestFrom(
+        this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+        this.quizService.getCurrentQuiz().pipe(startWith(null)),
+        this.nextQuestion$.pipe(startWith(null)),
+        this.previousQuestion$.pipe(startWith(null)),
+        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+        this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
+      ),
+      map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
+        const currentQuestion = quiz?.questions?.[currentIndex] ?? null;
   
-  private determineTextToDisplay(
+        return [
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation,
+          currentIndex,
+          currentQuestion
+        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
+      }),
+      filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
+        return !shouldDisplayExplanation || !!currentQuestion?.questionText;
+      }),
+      auditTime(0),
+      debounceTime(5),
+      switchMap(params => this.determineTextToDisplay(params)),
+      startWith(''),
+      distinctUntilChanged(),
+      catchError((error: Error) => {
+        console.error('Error in combinedText$ observable:', error);
+        return of('Error loading content');
+      })
+    ) as Observable<string>;
+  }  
+  
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
       QuizQuestion | null,
       QuizQuestion | null,
@@ -1038,7 +1075,44 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading question text');
       })
     );
-  }  
+  } */
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
+      QuizQuestion | null,
+      QuizQuestion | null,
+      string,
+      boolean,
+      number,
+      QuizQuestion | null
+    ]
+  ): Observable<string> {
+    if (!currentQuestion || !currentQuestion.questionText) {
+      console.warn('[⚠️ determineTextToDisplay] Missing currentQuestion or questionText');
+      return of('');
+    }
+  
+    return this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion).pipe(
+      map((isMultiple: boolean) => {
+        let text = '';
+  
+        if (shouldDisplayExplanation && formattedExplanation?.trim()) {
+          text = formattedExplanation;
+          console.log('[✅ Showing EXPLANATION]');
+        } else {
+          text = currentQuestion.questionText;
+          console.log('[🧾 Showing QUESTION TEXT]');
+        }
+  
+        this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultiple;
+        return text;
+      }),
+      catchError(err => {
+        console.error('[determineTextToDisplay] Error:', err);
+        return of('Error loading text');
+      })
+    );
+  }
+  
 
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
