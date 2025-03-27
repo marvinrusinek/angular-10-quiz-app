@@ -3335,7 +3335,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     setTimeout(() => (this.debounceNavigation = false), 500);
 
     this.currentQuestionIndex = questionIndex;
-    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
     console.log(`[navigateToQuestion] ✅ Updated currentQuestionIndex to: ${this.currentQuestionIndex}`);
 
     const questionNumber = questionIndex + 1;
@@ -3345,6 +3344,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
 
       if (navigationSuccess) {
+        // ✅ Update state *after* navigation success
+        this.currentQuestionIndex = questionIndex;
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+        console.log(`[navigateToQuestion] 🚀 Navigated to Q${questionIndex}`);
         console.log(`[navigateToQuestion] 🚀 Successfully navigated to Q${questionIndex}`);
 
         await this.fetchAndSetQuestionData(questionIndex);
