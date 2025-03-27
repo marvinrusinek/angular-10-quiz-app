@@ -1867,88 +1867,72 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
+        takeUntil(this.destroy$),
         switchMap((params: ParamMap) => {
-          const questionIndex = +params.get('questionIndex');
-          if (isNaN(questionIndex) || questionIndex < 0) {
-            console.error(
-              'Question index is not a valid number or is negative:',
-              questionIndex
-            );
+          const quizId = params.get('quizId');
+          const questionIndexParam = params.get('questionIndex');
+          const routeIndex = questionIndexParam ? Number(questionIndexParam) : 1;
+          const internalIndex = Math.max(routeIndex - 1, 0); // ✅ Convert to 0-based
+  
+          console.log(`[Route Init] 📍 quizId=${quizId}, routeIndex=${routeIndex}, internalIndex=${internalIndex}`);
+  
+          if (!quizId) {
+            console.error('[Route Init] ❌ No quizId found in URL.');
             return EMPTY;
           }
+  
+          this.quizId = quizId;
+          this.currentQuestionIndex = internalIndex;
+  
           return this.handleRouteParams(params).pipe(
             catchError((error: Error) => {
-              console.error('Error in handling route parameters:', error);
+              console.error('[Route Init] ❌ Error in handleRouteParams:', error);
               return EMPTY;
             })
           );
         }),
         switchMap((data) => {
           const { quizData, questionIndex } = data;
-
-          if (
-            !quizData ||
-            typeof quizData !== 'object' ||
-            !quizData.questions ||
-            !Array.isArray(quizData.questions)
-          ) {
-            console.error(
-              'Quiz data is missing, not an object, or the questions array is invalid:',
-              quizData
-            );
+  
+          if (!quizData || !Array.isArray(quizData.questions)) {
+            console.error('[Route Init] ❌ Invalid quiz data or missing questions array.', quizData);
             return EMPTY;
           }
-
-          // Adjust the last question index to be the maximum index of the questions array
+  
           const lastIndex = quizData.questions.length - 1;
           const adjustedIndex = Math.min(questionIndex, lastIndex);
-
-          // Handle the case where the adjusted index is negative
-          if (adjustedIndex < 0) {
-            console.error(
-              'Adjusted question index is negative:',
-              adjustedIndex
-            );
-            return EMPTY;
-          }
-
-          // Set the active quiz and retrieve the question by index
+          this.currentQuestionIndex = adjustedIndex;
+  
+          // ✅ Apply quiz data + state
           this.quizService.setActiveQuiz(quizData);
           this.quizService.setCurrentQuestionIndex(adjustedIndex);
-          this.currentQuestionIndex = adjustedIndex; 
           this.initializeQuizState();
+  
           return this.quizService.getQuestionByIndex(adjustedIndex);
         }),
         catchError((error: Error) => {
-          console.error('Observable chain failed:', error);
+          console.error('[Route Init] ❌ Failed to initialize quiz:', error);
           return EMPTY;
         })
       )
       .subscribe({
-        next: (question: QuizQuestion | null) => {
-          (async () => {
-            if (question) {
-              this.currentQuiz = this.quizService.getActiveQuiz();
-
-              // Ensure current index is known to the app before navigating
-              this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
-      
-              // Resets UI, clears previous data, navigates, and sets up question, options, and explanation
-              await this.resetUIAndNavigate(this.currentQuestionIndex);
-      
-              // If needed, apply feedback here *after* question is fully rendered
-              // this.quizQuestionComponent.applyOptionFeedbackToAllOptions();
-            } else {
-              console.error('No question data available after fetch.');
-            }
-          })(); // immediately invoked async function
+        next: async (question: QuizQuestion | null) => {
+          if (!question) {
+            console.error('[Route Init] ❌ No question returned.');
+            return;
+          }
+  
+          this.currentQuiz = this.quizService.getActiveQuiz();
+  
+          console.log(`[Route Init] ✅ Question Loaded: Q${this.currentQuestionIndex}`);
+  
+          // 👇 Ensures everything resets and loads cleanly
+          await this.resetUIAndNavigate(this.currentQuestionIndex);
         },
-        error: (error) => console.error('Error during subscription:', error),
-        complete: () =>
-          console.log(
-            'Route parameters processed and question loaded successfully.'
-          ),
-      });      
+        complete: () => {
+          console.log('[Route Init] 🟢 Initialization complete.');
+        }
+      });
   }
 
   initializeQuizFromRoute(): void {
