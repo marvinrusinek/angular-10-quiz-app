@@ -3584,7 +3584,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     this.resetQuizState();
   
-    // Stop timer safely
+    // Stop timer cleanly
     this.timerService.stopTimer?.();
   
     // Navigate to Q1
@@ -3594,7 +3594,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.currentQuestionIndex = 0;
           this.quizService.setCurrentQuestionIndex(0);
   
-          // Ensure QuizQuestionComponent is ready
           if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
   
@@ -3605,38 +3604,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
           }
   
-          // Reset UI
           this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
   
-          // 🧠 Reset explanation state
+          this.quizService.updateBadgeText(1, this.totalQuestions);
+  
+          // 🧠 Reset explanation flags before waiting
           this.explanationTextService.resetExplanationText();
           this.explanationTextService.setShouldDisplayExplanation(false);
   
-          // 🔁 Wait for index sync + stream settle
-          await new Promise(resolve => setTimeout(resolve, 25));
+          // ✅ Let view init finish before explanation logic
+          setTimeout(async () => {
+            await this.quizQuestionComponent?.updateExplanationText(0);
   
-          // ✅ Fetch and emit explanation text for Q1
-          await this.quizQuestionComponent?.updateExplanationText(0);
+            await firstValueFrom(
+              this.explanationTextService.formattedExplanation$.pipe(
+                filter((text) => !!text?.trim()),
+                take(1)
+              )
+            );
   
-          // ⏳ Wait until explanation text is available
-          await firstValueFrom(
-            this.explanationTextService.formattedExplanation$.pipe(
-              filter((text) => !!text?.trim()),
-              take(1)
-            )
-          );
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            this.explanationTextService.triggerExplanationEvaluation();
   
-          // ✅ Now allow explanation display
-          this.explanationTextService.setShouldDisplayExplanation(true);
-          this.explanationTextService.triggerExplanationEvaluation();
-  
-          // 🔢 Update badge
-          this.quizService.updateBadgeText(1, this.totalQuestions);
-  
-          // ⏱️ Restart timer
-          this.timerService.startTimer(this.timerService.timePerQuestion);
+            // ⏱️ Start timer *after* explanation logic completes
+            this.timerService.startTimer(this.timerService.timePerQuestion);
+            console.log('[QuizComponent] Timer started after restart ✅');
+          }, 0);
   
         } catch (error) {
           console.error('❌ Error during quiz restart:', error);
