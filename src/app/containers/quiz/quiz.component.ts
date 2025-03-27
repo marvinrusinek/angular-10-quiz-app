@@ -3584,16 +3584,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     this.resetQuizState();
   
-    // Stop timer cleanly
-    this.timerService.stopTimer?.();
+    // ✅ ACTUALLY stop the timer (you were referencing the method)
+    this.timerService.stopTimer();
+  
+    // Reset internal index
+    this.currentQuestionIndex = 0;
+    this.quizService.setCurrentQuestionIndex(0);
   
     // Navigate to Q1
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
+      // Wait for navigation + component render
       setTimeout(async () => {
         try {
-          this.currentQuestionIndex = 0;
-          this.quizService.setCurrentQuestionIndex(0);
-  
+          // ✅ Reset child component state
           if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
   
@@ -3604,20 +3607,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
           }
   
+          // ✅ Reset UI
           this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
   
+          // ✅ Update badge
           this.quizService.updateBadgeText(1, this.totalQuestions);
   
-          // 🧠 Reset explanation flags before waiting
+          // ✅ Reset explanation state
           this.explanationTextService.resetExplanationText();
           this.explanationTextService.setShouldDisplayExplanation(false);
   
-          // ✅ Let view init finish before explanation logic
+          // ⏳ WAIT FOR view + child render
           setTimeout(async () => {
+            // ✅ Fetch explanation after view is ready
             await this.quizQuestionComponent?.updateExplanationText(0);
   
+            // ✅ Wait until explanation actually emits
             await firstValueFrom(
               this.explanationTextService.formattedExplanation$.pipe(
                 filter((text) => !!text?.trim()),
@@ -3625,18 +3632,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               )
             );
   
+            // ✅ Now allow it to display
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.triggerExplanationEvaluation();
   
-            // ⏱️ Start timer *after* explanation logic completes
+            // ✅ START timer (after everything's displayed)
             this.timerService.startTimer(this.timerService.timePerQuestion);
-            console.log('[QuizComponent] Timer started after restart ✅');
-          }, 0);
+            console.log('[QuizComponent] ✅ Timer restarted after quiz reset.');
+  
+          }, 100); // 👈 this delay ensures explanation DOM + logic settle
   
         } catch (error) {
-          console.error('❌ Error during quiz restart:', error);
+          console.error('❌ Error restarting quiz:', error);
         }
-      }, 50);
+      }, 50); // 👈 slight delay for navigation to settle
     });
   }
   
