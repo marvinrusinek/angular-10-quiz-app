@@ -4093,21 +4093,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
+    // 🔄 Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
     this.options = [];
     this.feedbackText = '';
     this.displayState = { mode: 'question', answered: false };
-    this.explanationLocked = false; // Reset explanation lock
+    this.explanationLocked = false;
+  
+    // 🧼 Reset explanation
     this.explanationToDisplay = '';
-    this.explanationTextService.explanationText$.next('');
     this.explanationToDisplayChange.emit('');
+    this.explanationTextService.explanationText$.next('');
     this.explanationTextService.updateFormattedExplanation('');
-    this.showExplanationChange.emit(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetExplanationText();
+    this.showExplanationChange.emit(false);
+  
+    // 🔁 Reset selection state and feedback
     this.selectionMessageService.resetMessage();
-
-    // Delay to ensure reset completes before new state updates
+    this.selectedOptionService.setAnswered(false);
+    this.showFeedbackForOption = {};      // ✅ NEW
+    this.isFeedbackApplied = false;       // ✅ NEW
+  
+    // ⏳ Small delay to ensure reset completes
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
