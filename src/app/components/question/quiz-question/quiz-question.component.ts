@@ -2629,7 +2629,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2715,7 +2715,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error for Q${this.fixedQuestionIndex}:`, error);
     }
-  }  
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    try {
+      const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      console.log(`[onOptionClicked] 🔒 Q${lockedIndex} clicked.`, event.option);
+  
+      if (!this.optionsToDisplay?.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        this.optionsToDisplay = this.populateOptionsToDisplay();
+      }
+  
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+      if (!foundOption) return;
+  
+      if (!this.isFeedbackApplied) {
+        await this.applyOptionFeedback(foundOption);
+      }
+  
+      this.showFeedbackForOption[event.option?.optionId || 0] = true;
+  
+      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+        this.selectedOptionService.isAnsweredSubject.next(true);
+      }
+  
+      const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
+      if (qState && !qState.explanationDisplayed) {
+        qState.explanationDisplayed = true;
+        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+      }
+  
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+      // ✅ Fetch and emit explanation
+      await this.updateExplanationText(lockedIndex);
+  
+      // ✅ Wait until explanation is emitted to stream
+      await firstValueFrom(
+        this.explanationTextService.formattedExplanation$.pipe(
+          filter(text => !!text?.trim()),
+          take(1)
+        )
+      );
+  
+      // ✅ Now allow it to display
+      this.explanationTextService.setShouldDisplayExplanation(true);
+  
+      await new Promise(resolve => setTimeout(resolve, 10));
+      this.explanationTextService.triggerExplanationEvaluation();
+  
+      this.markQuestionAsAnswered(lockedIndex);
+      this.answerSelected.emit(true);
+      await this.handleCorrectnessOutcome(true);
+  
+      setTimeout(() => this.cdRef.markForCheck());
+    } catch (error) {
+      console.error(`[onOptionClicked] ❌ Error:`, error);
+    }
+  }
+  
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
