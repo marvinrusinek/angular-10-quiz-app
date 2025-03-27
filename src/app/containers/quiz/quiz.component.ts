@@ -3515,7 +3515,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error during quiz restart:', error);
     });
   } */
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     this.resetQuizState(); // ✅ clears explanation, feedback, UI, timer, state
   
     // ⏹ Stop timer
@@ -3580,7 +3580,67 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }).catch((error) => {
       console.error('❌ Navigation error on restart:', error);
     });
-  }
+  } */
+  restartQuiz(): void {
+    this.resetQuizState();
+  
+    // Stop timer safely
+    this.timerService.stopTimer?.();
+  
+    // Navigate to Q1
+    this.router.navigate(['/question', this.quizId, 1]).then(() => {
+      setTimeout(async () => {
+        try {
+          this.currentQuestionIndex = 0;
+          this.quizService.setCurrentQuestionIndex(0);
+  
+          // Ensure QuizQuestionComponent is ready
+          if (this.quizQuestionComponent) {
+            await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+  
+            const firstQuestion = this.questions[0];
+            if (firstQuestion) {
+              this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
+              this.quizQuestionComponent.loadDynamicComponent();
+            }
+          }
+  
+          // Reset UI
+          this.resetUI();
+          this.resetOptionState();
+          this.initializeFirstQuestion();
+  
+          // 🧠 Reset explanation state
+          this.explanationTextService.resetExplanationText();
+  
+          // ⏳ Wait for index sync
+          await new Promise(resolve => setTimeout(resolve, 20));
+  
+          // ✅ Call updateExplanationText manually
+          await this.quizQuestionComponent?.updateExplanationText(0);
+  
+          // ✅ Wait until explanation text emits
+          await firstValueFrom(
+            this.explanationTextService.formattedExplanation$.pipe(
+              filter((text) => !!text?.trim()),
+              take(1)
+            )
+          );
+  
+          // ✅ Then allow explanation to display
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.explanationTextService.triggerExplanationEvaluation();
+  
+          // ⏱️ Restart timer
+          this.quizService.updateBadgeText(1, this.totalQuestions);
+          this.timerService.startTimer(this.timerService.timePerQuestion);
+  
+        } catch (error) {
+          console.error('❌ Error during quiz restart:', error);
+        }
+      }, 50);
+    });
+  }  
   
   private resetQuizState(): void {
     console.log('[resetQuizState] 🔄 Resetting quiz state...');
