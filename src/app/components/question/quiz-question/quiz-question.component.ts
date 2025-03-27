@@ -2685,11 +2685,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Set display flag
       this.explanationTextService.setShouldDisplayExplanation(true);
 
-      // Trigger re-evaluation
+      // Trigger re-evaluation directly after delay
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
-      setTimeout(() => {
-        this.explanationTextService.triggerExplanationEvaluation();
-      }, 10);  // let state settle before triggering stream
+      this.explanationTextService.triggerExplanationEvaluation();
   
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
