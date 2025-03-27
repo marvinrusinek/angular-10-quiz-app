@@ -1929,6 +1929,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           (async () => {
             if (question) {
               this.currentQuiz = this.quizService.getActiveQuiz();
+
+              // Ensure current index is known to the app before navigating
+              this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
       
               // Resets UI, clears previous data, navigates, and sets up question, options, and explanation
               await this.resetUIAndNavigate(this.currentQuestionIndex);
