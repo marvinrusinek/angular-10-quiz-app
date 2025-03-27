@@ -3476,8 +3476,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.createDefaultQuestionState();
     this.quizStateService.clearSelectedOptions();
     this.selectionMessageService.resetMessage();
+    
+    // ❌ FULL reset of explanation stream and state
+    this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
+    this.explanationTextService.triggerExplanationEvaluation();
 
     // Trigger resets in state management services
     this.resetStateService.triggerResetFeedback();
