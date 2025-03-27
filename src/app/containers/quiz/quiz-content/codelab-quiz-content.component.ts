@@ -997,7 +997,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ) as Observable<string>;
   }
   
-private determineTextToDisplay(
+  private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
       QuizQuestion | null,
       QuizQuestion | null,
