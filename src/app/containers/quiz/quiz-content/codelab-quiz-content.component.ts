@@ -948,16 +948,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.nextQuestion$.pipe(startWith(null)),
         this.previousQuestion$.pipe(startWith(null)),
         this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
-        this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged())
+        this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
       ),
       map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
         const questions = quiz?.questions ?? [];
-        const currentQuestion = questions[currentIndex] ?? null;
-      
-        if (!currentQuestion) {
-          console.warn('[❗ setupCombinedTextObservable] currentQuestion is null at index', currentIndex);
-        }
-      
+        const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
+  
         return [
           nextQ,
           prevQ,
@@ -966,26 +962,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           currentIndex,
           currentQuestion
         ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
-      }),      
-      filter(([___, ____, formattedExplanation, shouldDisplayExplanation]) => {
-        const show = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
-        const allow = !shouldDisplayExplanation || show;
-        console.log('[🛂 filtered trigger]', {
-          shouldDisplayExplanation,
-          formattedExplanation,
-          allow
-        });
-        return allow;
       }),
-      tap(([nextQ, prevQ, explanation, shouldDisplay, index, currentQuestion]) => {
+      filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
+        const valid = !shouldDisplayExplanation || !!currentQuestion?.questionText;
+        if (!valid) {
+          console.warn('[🛑 Skipping combinedText$ due to missing questionText]');
+        }
+        return valid;
+      }),
+      tap(([_, __, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]) => {
         console.log('[📦 CombinedText Params]', {
-          nextQ,
-          prevQ,
-          explanation,
-          shouldDisplay,
-          index,
-          currentQuestion
-        });c
+          currentIndex,
+          currentQuestion,
+          shouldDisplayExplanation,
+          formattedExplanation
+        });
       }),
       auditTime(0),
       debounceTime(5),
@@ -996,8 +987,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading content');
       })
-    ) as Observable<string>; // ✅ Explicitly cast it
-  }  
+    ) as Observable<string>;
+  }
   
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
