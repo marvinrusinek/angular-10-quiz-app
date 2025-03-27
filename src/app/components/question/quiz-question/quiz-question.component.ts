@@ -2675,6 +2675,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
+
+      this.quizService.setCurrentQuestionIndex(lockedQuestionIndex); // force sync current index
   
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
