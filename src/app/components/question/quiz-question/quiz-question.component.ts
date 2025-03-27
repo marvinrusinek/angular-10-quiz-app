@@ -2677,17 +2677,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       this.quizService.setCurrentQuestionIndex(lockedQuestionIndex); // force sync current index
+
+      // Set display flag
+      this.explanationTextService.setShouldDisplayExplanation(true);
   
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
 
-      // Set display flag
-      this.explanationTextService.setShouldDisplayExplanation(true);
-
-      // Pause to let all streams (index, quiz, explanation) settle
+      // Let everything settle (especially after formattedExplanation$ emit)
       await new Promise(resolve => setTimeout(resolve, 30));
 
-      // Trigger re-evaluation after everything is definitely in sync
+      // Trigger combinedText$ stream
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
       this.explanationTextService.triggerExplanationEvaluation();
   
