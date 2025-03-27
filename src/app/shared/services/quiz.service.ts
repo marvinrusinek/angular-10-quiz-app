@@ -343,7 +343,7 @@ export class QuizService implements OnDestroy {
     return this.activeQuiz;
   }
 
-  getCurrentQuiz(): Observable<Quiz | undefined> {
+  /* getCurrentQuiz(): Observable<Quiz | undefined> {
     const quiz = Array.isArray(this.quizData)
       ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
       : undefined;
@@ -354,6 +354,11 @@ export class QuizService implements OnDestroy {
     }
 
     return of(quiz);
+  } */
+  getCurrentQuiz(): Observable<Quiz> {
+    return this.currentQuizSubject.asObservable().pipe(
+      filter((quiz): quiz is Quiz => !!quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0)
+    );
   }
 
   getCurrentQuizId(): string {
