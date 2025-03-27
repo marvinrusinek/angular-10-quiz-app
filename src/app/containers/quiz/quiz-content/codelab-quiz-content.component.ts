@@ -1272,11 +1272,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         let textToDisplay = '';
   
         if (shouldDisplayExplanation && formattedExplanation?.trim()) {
-          console.log('[✅ SHOWING EXPLANATION]', formattedExplanation);
           textToDisplay = formattedExplanation;
+        } else if (question.questionText?.trim()) {
+          textToDisplay = question.questionText;
         } else {
-          console.log('[📝 SHOWING QUESTION]', questionText);
-          textToDisplay = questionText;
+          textToDisplay = 'No question available';
         }
   
         this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
