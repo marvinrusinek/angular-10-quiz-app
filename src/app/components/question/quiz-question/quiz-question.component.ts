@@ -2678,11 +2678,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.quizService.setCurrentQuestionIndex(lockedQuestionIndex); // force sync current index
 
-      // Set display flag
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
+
+      // Set display flag
+      this.explanationTextService.setShouldDisplayExplanation(true);
 
       // Let everything settle (especially after formattedExplanation$ emit)
       await new Promise(resolve => setTimeout(resolve, 30));
