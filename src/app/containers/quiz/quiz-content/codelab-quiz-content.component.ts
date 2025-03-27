@@ -1026,7 +1026,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     ) as Observable<string>;
   }  */
-  private setupCombinedTextObservable(): void {
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
       delay(10), // Let streams stabilize
   
@@ -1073,6 +1073,81 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           index,
           currentQuestion,
           shouldShow,
+          explanation
+        });
+      }),
+  
+      auditTime(0),
+      debounceTime(10),
+  
+      switchMap(params => this.determineTextToDisplay(params)),
+  
+      startWith(''),
+      distinctUntilChanged(),
+  
+      catchError((error: Error) => {
+        console.error('Error in combinedText$ observable:', error);
+        return of('Error loading content');
+      })
+    ) as Observable<string>;
+  } */
+  private setupCombinedTextObservable(): void {
+    this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
+      delay(10), // Let streams stabilize
+  
+      withLatestFrom(
+        this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+        this.quizService.getCurrentQuiz().pipe(startWith(null)),
+        this.nextQuestion$.pipe(startWith(null)),
+        this.previousQuestion$.pipe(startWith(null)),
+        this.explanationTextService.shouldDisplayExplanation$.pipe(
+          startWith(false),
+          distinctUntilChanged()
+        ),
+        this.explanationTextService.formattedExplanation$.pipe(
+          startWith(''),
+          distinctUntilChanged()
+        )
+      ),
+  
+      // 🧱 Step 2: Filter until quiz & questions are ready
+      filter(([_, __, quiz]) => {
+        const ready = !!quiz?.questions?.length;
+        if (!ready) {
+          console.warn('[⛔ combinedText$] Skipping — quiz or questions not ready');
+        }
+        return ready;
+      }),
+  
+      map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
+        const questions = quiz?.questions ?? [];
+        const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
+  
+        return [
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation,
+          currentIndex,
+          currentQuestion
+        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
+      }),
+  
+      // ✅ Step 1: Block if both explanation and question are missing
+      filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
+        const questionReady = !!currentQuestion?.questionText?.trim();
+        const allow = shouldDisplayExplanation || questionReady;
+        if (!allow) {
+          console.warn('[⛔ combinedText$] Blocked — no question text or explanation ready');
+        }
+        return allow;
+      }),
+  
+      tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
+        console.log('[📦 combinedText$ Params]', {
+          currentIndex: index,
+          questionText: currentQuestion?.questionText,
+          shouldShowExplanation: shouldShow,
           explanation
         });
       }),
