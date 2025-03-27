@@ -4080,7 +4080,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
   
     // Reset explanation stream before fetching new one
@@ -4148,6 +4148,57 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
     console.log(`[updateExplanationText] 🎯 FINAL Explanation Displayed for Q${questionIndex}:`, this.explanationToDisplay);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+  
+    this.explanationTextService.updateFormattedExplanation(''); // Reset first
+  
+    if (!this.quiz?.questions[questionIndex]) {
+      console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
+      return;
+    }
+  
+    const currentQuestion = this.quiz.questions[questionIndex];
+    console.log(`[updateExplanationText] 🧪 QUESTION TEXT at Q${questionIndex}:`, currentQuestion.questionText);
+  
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
+    if (!explanationText) {
+      try {
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+        this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+      } catch (error) {
+        console.error(`[updateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
+        explanationText = 'Error loading explanation.';
+      }
+    }
+  
+    // ❗Verify index is still correct before emitting
+    if (questionIndex !== this.currentQuestionIndex) {
+      console.warn(`[updateExplanationText] ⚠️ Stale index, skipping emit for Q${questionIndex}`);
+      return;
+    }
+  
+    // Set explanation display flags
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState) {
+      questionState.explanationDisplayed = true;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+    }
+  
+    // ✅ Emit explanation *last* to ensure index/state are ready
+    this.explanationTextService.updateFormattedExplanation(explanationText);
+  
+    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
+  
+    console.log(`[updateExplanationText] ✅ FINAL Explanation Displayed for Q${questionIndex}:`, explanationText);
   }  
   
   handleAudioPlayback(isCorrect: boolean): void {
