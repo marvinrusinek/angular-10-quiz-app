@@ -3612,14 +3612,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           // 🧠 Reset explanation state
           this.explanationTextService.resetExplanationText();
+          this.explanationTextService.setShouldDisplayExplanation(false);
   
-          // ⏳ Wait for index sync
-          await new Promise(resolve => setTimeout(resolve, 20));
+          // 🔁 Wait for index sync + stream settle
+          await new Promise(resolve => setTimeout(resolve, 25));
   
-          // ✅ Call updateExplanationText manually
+          // ✅ Fetch and emit explanation text for Q1
           await this.quizQuestionComponent?.updateExplanationText(0);
   
-          // ✅ Wait until explanation text emits
+          // ⏳ Wait until explanation text is available
           await firstValueFrom(
             this.explanationTextService.formattedExplanation$.pipe(
               filter((text) => !!text?.trim()),
@@ -3627,12 +3628,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             )
           );
   
-          // ✅ Then allow explanation to display
+          // ✅ Now allow explanation display
           this.explanationTextService.setShouldDisplayExplanation(true);
           this.explanationTextService.triggerExplanationEvaluation();
   
-          // ⏱️ Restart timer
+          // 🔢 Update badge
           this.quizService.updateBadgeText(1, this.totalQuestions);
+  
+          // ⏱️ Restart timer
           this.timerService.startTimer(this.timerService.timePerQuestion);
   
         } catch (error) {
@@ -3640,7 +3643,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       }, 50);
     });
-  }  
+  }
   
   private resetQuizState(): void {
     console.log('[resetQuizState] 🔄 Resetting quiz state...');
