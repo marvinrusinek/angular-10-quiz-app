@@ -2750,6 +2750,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
+
+      // ⏳ Let BehaviorSubject emit and settle (very important!)
+      await new Promise(resolve => setTimeout(resolve, 30));
   
       // ✅ Fetch and emit explanation
       await this.updateExplanationText(lockedIndex);
