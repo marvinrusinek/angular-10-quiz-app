@@ -1094,6 +1094,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
       delay(10), // Let state settle
+  
       withLatestFrom(
         this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
         this.quizService.getCurrentQuiz().pipe(startWith(null)),
@@ -1102,10 +1103,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
         this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
       ),
+  
       map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
         const questions = quiz?.questions ?? [];
         const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
-        return [nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion] as [
+  
+        return [
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation,
+          currentIndex,
+          currentQuestion
+        ] as [
           QuizQuestion | null,
           QuizQuestion | null,
           string,
@@ -1114,10 +1124,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           QuizQuestion | null
         ];
       }),
+  
       // ✅ New: prevent 'No question available.'
       filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
         return shouldDisplayExplanation || !!currentQuestion?.questionText?.trim();
       }),
+  
       tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
         console.log('[📦 combinedText$ Params]', {
           currentIndex: index,
@@ -1126,17 +1138,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           explanation
         });
       }),
+  
       auditTime(0),
       debounceTime(10),
+  
       switchMap(params => this.determineTextToDisplay(params)),
-      startWith(''),
+  
+      // ✅ Emit placeholder initially
+      startWith('Loading question...'),
+  
       distinctUntilChanged(),
+  
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading content');
       })
     ) as Observable<string>;
   }
+  
   
   /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
