@@ -2685,6 +2685,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 🧠 Fetch + emit explanation (this will update formattedExplanation$)
       await this.updateExplanationText(lockedQuestionIndex);
+
+      // Wait for explanation text to emit (non-empty)
+      await firstValueFrom(
+        this.explanationTextService.formattedExplanation$.pipe(
+          filter((text) => !!text?.trim()),
+          take(1),
+          timeout(300) // prevent hanging forever
+        )
+      );
   
       // ✅ Set display flag AFTER explanation is ready
       this.explanationTextService.setShouldDisplayExplanation(true);
