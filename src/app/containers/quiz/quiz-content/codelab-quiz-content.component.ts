@@ -1267,8 +1267,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     const question = currentQuestion;
   
     if (!question || !question.questionText?.trim()) {
-      console.warn('[⛔ determineTextToDisplay] No valid question available — skipping render');
-      return of(''); // Prevent flicker of fallback text
+      console.warn('[🧨 determineTextToDisplay] ❌ Invalid question or missing text:', question);
+      return of('No question available.');
     }
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
