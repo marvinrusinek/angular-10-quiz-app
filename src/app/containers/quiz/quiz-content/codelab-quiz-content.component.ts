@@ -989,7 +989,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     ) as Observable<string>;
   } */
-  private setupCombinedTextObservable(): void {
+  /* private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
       delay(10),
       withLatestFrom(
@@ -1025,7 +1025,72 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading content');
       })
     ) as Observable<string>;
-  }  
+  }  */
+  private setupCombinedTextObservable(): void {
+    this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
+      delay(10), // Let streams stabilize
+  
+      withLatestFrom(
+        this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+        this.quizService.getCurrentQuiz().pipe(startWith(null)),
+        this.nextQuestion$.pipe(startWith(null)),
+        this.previousQuestion$.pipe(startWith(null)),
+        this.explanationTextService.shouldDisplayExplanation$.pipe(
+          startWith(false),
+          distinctUntilChanged()
+        ),
+        this.explanationTextService.formattedExplanation$.pipe(
+          startWith(''),
+          distinctUntilChanged()
+        )
+      ),
+  
+      map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
+        const questions = quiz?.questions ?? [];
+        const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
+  
+        return [
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation,
+          currentIndex,
+          currentQuestion
+        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
+      }),
+  
+      filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
+        const questionReady = !!currentQuestion?.questionText?.trim();
+        const allow = shouldDisplayExplanation || questionReady;
+        if (!allow) {
+          console.warn('[⛔ combinedText$] Blocked — no question text or explanation ready');
+        }
+        return allow;
+      }),
+  
+      tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
+        console.log('[📦 combinedText$ Params]', {
+          index,
+          currentQuestion,
+          shouldShow,
+          explanation
+        });
+      }),
+  
+      auditTime(0),
+      debounceTime(10),
+  
+      switchMap(params => this.determineTextToDisplay(params)),
+  
+      startWith(''),
+      distinctUntilChanged(),
+  
+      catchError((error: Error) => {
+        console.error('Error in combinedText$ observable:', error);
+        return of('Error loading content');
+      })
+    ) as Observable<string>;
+  }
   
   /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
@@ -1076,7 +1141,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   } */
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
       QuizQuestion | null,
       QuizQuestion | null,
@@ -1111,7 +1176,50 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading text');
       })
     );
+  } */
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
+      QuizQuestion | null,
+      QuizQuestion | null,
+      string,
+      boolean,
+      number,
+      QuizQuestion | null
+    ]
+  ): Observable<string> {
+    const question = currentQuestion;
+  
+    if (!question || !question.questionText?.trim()) {
+      console.warn('[⛔ determineTextToDisplay] No valid question available — skipping render');
+      return of(''); // Prevent flicker of fallback text
+    }
+  
+    return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
+      map((isMultipleAnswer: boolean) => {
+        let textToDisplay = '';
+  
+        if (shouldDisplayExplanation && formattedExplanation?.trim()) {
+          console.log('[✅ SHOWING EXPLANATION]', formattedExplanation);
+          textToDisplay = formattedExplanation;
+        } else if (question.questionText?.trim()) {
+          console.log('[📝 SHOWING QUESTION]', question.questionText);
+          textToDisplay = question.questionText;
+        } else {
+          console.warn('[⚠️ Missing questionText, fallback triggered]');
+          textToDisplay = 'No question available';
+        }
+  
+        this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+        return textToDisplay;
+      }),
+  
+      catchError((error) => {
+        console.error('[❌ Error in determineTextToDisplay]', error);
+        return of('Error loading question text');
+      })
+    );
   }
+  
   
 
   private setupCorrectAnswersTextDisplay(): void {
