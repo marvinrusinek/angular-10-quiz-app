@@ -2637,7 +2637,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       console.log('[onOptionClicked] 📦 event.option:', event.option);
 
-      const lockedQuestionIndex = this.currentQuestionIndex;
+      const lockedQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
   
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
