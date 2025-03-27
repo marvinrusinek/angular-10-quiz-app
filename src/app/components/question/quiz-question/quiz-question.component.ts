@@ -2679,13 +2679,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Fetch and emit explanation text AFTER state set
       await this.updateExplanationText(lockedQuestionIndex);
 
-      // Adding slight pause to let the stream catch up
-      await new Promise(resolve => setTimeout(resolve, 25));
-
       // Set display flag
       this.explanationTextService.setShouldDisplayExplanation(true);
 
-      // Trigger re-evaluation directly after delay
+      // Pause to let all streams (index, quiz, explanation) settle
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      // Trigger re-evaluation after everything is definitely in sync
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
       this.explanationTextService.triggerExplanationEvaluation();
   
