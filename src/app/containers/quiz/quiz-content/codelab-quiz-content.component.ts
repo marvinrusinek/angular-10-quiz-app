@@ -1135,10 +1135,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
       // ✅ Step 1: Block if both explanation and question are missing
       filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
+        const explanationReady = shouldDisplayExplanation;
         const questionReady = !!currentQuestion?.questionText?.trim();
-        const allow = shouldDisplayExplanation || questionReady;
+        const allow = explanationReady || questionReady;
+      
         if (!allow) {
-          console.warn('[⛔ combinedText$] Blocked — no question text or explanation ready');
+          console.warn('[⛔ combinedText$] Blocked — neither explanation nor valid question text present.');
         }
         return allow;
       }),
