@@ -1269,17 +1269,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
       map((isMultipleAnswer: boolean) => {
-        let textToDisplay = '';
+        const explanationReady = shouldDisplayExplanation && formattedExplanation?.trim();
+        const questionReady = questionText;
   
-        if (shouldDisplayExplanation && formattedExplanation?.trim()) {
-          textToDisplay = formattedExplanation;
-        } else if (question.questionText?.trim()) {
-          textToDisplay = question.questionText;
-        } else {
-          textToDisplay = 'No question available';
-        }
+        const textToDisplay = explanationReady
+          ? formattedExplanation.trim()
+          : questionReady;
   
         this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
+  
+        console.log(`[✅ determineTextToDisplay] Displaying:`, textToDisplay);
         return textToDisplay;
       }),
   
