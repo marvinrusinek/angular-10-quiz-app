@@ -2687,10 +2687,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Trigger re-evaluation
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
-      // Let state settle before triggering stream
       setTimeout(() => {
         this.explanationTextService.triggerExplanationEvaluation();
-      }, 10);
+      }, 10);  // let state settle before triggering stream
   
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
