@@ -1914,6 +1914,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
           // Set the active quiz and retrieve the question by index
           this.quizService.setActiveQuiz(quizData);
+          this.quizService.setCurrentQuestionIndex(adjustedIndex);
+          this.currentQuestionIndex = adjustedIndex; 
           this.initializeQuizState();
           return this.quizService.getQuestionByIndex(adjustedIndex);
         }),
