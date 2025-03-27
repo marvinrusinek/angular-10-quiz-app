@@ -1152,7 +1152,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       switchMap(params => this.determineTextToDisplay(params)),
   
       // ✅ Emit placeholder initially
-      startWith('Loading question...'),
+      startWith(currentQuestion.getValue()),
   
       distinctUntilChanged(),
   
