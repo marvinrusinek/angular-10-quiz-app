@@ -1017,7 +1017,7 @@ private determineTextToDisplay(
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
       map((isMultipleAnswer: boolean) => {
-        let textToDisplay = '';
+        let textToDisplay;
 
         if (shouldDisplayExplanation && formattedExplanation?.trim()) {
           textToDisplay = formattedExplanation;
@@ -1029,12 +1029,9 @@ private determineTextToDisplay(
         }
   
         this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
-  
-        console.log(`[✅ determineTextToDisplay] Displaying:`, textToDisplay);
-        console.log('[✅ combinedText]', textToDisplay)
+
         return textToDisplay;
       }),
-  
       catchError((error) => {
         console.error('[❌ Error in determineTextToDisplay]', error);
         return of('Error loading question text');
