@@ -2636,66 +2636,74 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }): Promise<void> {
     try {
       console.log('[onOptionClicked] 📦 event.option:', event.option);
-
+  
+      // 🔐 Use fixed index from route or fallback to current
       const lockedQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Locked Q${lockedQuestionIndex}`);
   
+      // ✅ Wait briefly and ensure options are available
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
         console.warn('[onOptionClicked] ❌ optionsToDisplay is empty. Waiting...');
         await new Promise((resolve) => setTimeout(resolve, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
-
-      console.log('[onOptionClicked] 📦 event.option:', event.option);
+  
       console.log('[onOptionClicked] 📦 optionsToDisplay:', this.optionsToDisplay);
   
       const foundOption = this.optionsToDisplay.find(
         (opt) => opt.optionId === event.option?.optionId
       );
+  
       if (!foundOption) {
-        console.error(`[onOptionClicked] Option not found for Q${lockedQuestionIndex}.`);
+        console.error(`[onOptionClicked] ❌ Option not found for Q${lockedQuestionIndex}.`);
         return;
       }
   
+      // ✅ Apply feedback before doing anything else
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
       }
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
   
+      // ✅ Mark as answered
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('✅ [onOptionClicked] isAnswered set to TRUE');
       }
   
-      // 🔥 CRITICAL FIX (set explanationDisplayed IMMEDIATELY)
+      // ✅ Set explanationDisplayed in question state before anything else
       const questionState = this.quizStateService.getQuestionState(this.quizId, lockedQuestionIndex);
       if (questionState && !questionState.explanationDisplayed) {
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedQuestionIndex, questionState);
         console.log(`[onOptionClicked] ✅ Marked Q${lockedQuestionIndex} explanationDisplayed = true`);
       }
-
-      this.quizService.setCurrentQuestionIndex(lockedQuestionIndex); // force sync current index
-
-      // Fetch and emit explanation text AFTER state set
+  
+      // 🔐 Force sync current question index BEFORE explanation fetch
+      this.quizService.setCurrentQuestionIndex(lockedQuestionIndex);
+  
+      // 🧠 Fetch + emit explanation (this will update formattedExplanation$)
       await this.updateExplanationText(lockedQuestionIndex);
-
-      // Set display flag
+  
+      // ✅ Set display flag AFTER explanation is ready
       this.explanationTextService.setShouldDisplayExplanation(true);
-
-      // Let everything settle (especially after formattedExplanation$ emit)
+  
+      // ⏳ Give BehaviorSubjects a moment to emit
       await new Promise(resolve => setTimeout(resolve, 30));
-
-      // Trigger combinedText$ stream
+  
+      // 🚀 Now trigger the combinedText$ stream
       console.log(`[onOptionClicked] 🚀 Triggering explanation display for Q${lockedQuestionIndex}`);
       this.explanationTextService.triggerExplanationEvaluation();
   
+      // 🧼 Final cleanup and state emitters
       this.markQuestionAsAnswered(lockedQuestionIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
   
+      // 📦 Let Angular detect any pending changes
       setTimeout(() => this.cdRef.markForCheck());
+  
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error for Q${this.fixedQuestionIndex}:`, error);
     }
