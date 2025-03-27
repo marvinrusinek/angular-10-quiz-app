@@ -1100,14 +1100,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.quizService.getCurrentQuiz().pipe(startWith(null)),
         this.nextQuestion$.pipe(startWith(null)),
         this.previousQuestion$.pipe(startWith(null)),
-        this.explanationTextService.shouldDisplayExplanation$.pipe(
-          startWith(false),
-          distinctUntilChanged()
-        ),
-        this.explanationTextService.formattedExplanation$.pipe(
-          startWith(''),
-          distinctUntilChanged()
-        )
+        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+        this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
       ),
   
       map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
@@ -1131,7 +1125,18 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         ];
       }),
   
-      // ✅ Let all values through — allow determineTextToDisplay to decide
+      // ✅ New: prevent 'No question available.'
+      filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
+        const explanationReady = shouldDisplayExplanation;
+        const questionReady = !!currentQuestion?.questionText?.trim();
+        const allow = explanationReady || questionReady;
+      
+        if (!allow) {
+          console.warn('[⛔ combinedText$] Skipping — no valid questionText or explanation');
+        }
+        return allow;
+      }),
+  
       tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
         console.log('[📦 combinedText$ Params]', {
           currentIndex: index,
@@ -1146,7 +1151,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
       switchMap(params => this.determineTextToDisplay(params)),
   
-      startWith(currentQuestion),
+      // ✅ Emit placeholder initially
+      startWith('Loading question...'),
   
       distinctUntilChanged(),
   
