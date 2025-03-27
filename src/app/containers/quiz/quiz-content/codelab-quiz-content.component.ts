@@ -1092,21 +1092,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ) as Observable<string>;
   } */
   private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.isDisplayReady$,
-      this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
-      this.quizService.getCurrentQuiz().pipe(startWith(null)),
-      this.nextQuestion$.pipe(startWith(null)),
-      this.previousQuestion$.pipe(startWith(null)),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
-      this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
-    ]).pipe(
-      // ✅ Filter until readiness is confirmed
-      filter(([isReady]) => {
-        if (!isReady) {
-          console.warn('[⛔ combinedText$] Display not ready');
+    this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
+      delay(10), // Let streams stabilize
+  
+      withLatestFrom(
+        this.isDisplayReady$,
+        this.explanationTextService.explanationTrigger$,
+        this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+        this.quizService.getCurrentQuiz().pipe(startWith(null)),
+        this.nextQuestion$.pipe(startWith(null)),
+        this.previousQuestion$.pipe(startWith(null)),
+        this.explanationTextService.shouldDisplayExplanation$.pipe(
+          startWith(false),
+          distinctUntilChanged()
+        ),
+        this.explanationTextService.formattedExplanation$.pipe(
+          startWith(''),
+          distinctUntilChanged()
+        )
+      ),
+  
+      // 🧱 Step 2: Filter until quiz & questions are ready
+      filter(([_, __, quiz]) => {
+        const ready = !!quiz?.questions?.length;
+        if (!ready) {
+          console.warn('[⛔ combinedText$] Skipping — quiz or questions not ready');
         }
-        return isReady;
+        return ready;
       }),
   
       map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
@@ -1123,16 +1135,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
       }),
   
-      // ✅ Only emit if either question or explanation text is ready
+      // ✅ Step 1: Block if both explanation and question are missing
       filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
         const explanationReady = shouldDisplayExplanation;
         const questionReady = !!currentQuestion?.questionText?.trim();
         const allow = explanationReady || questionReady;
-  
+      
         if (!allow) {
           console.warn('[⛔ combinedText$] Blocked — neither explanation nor valid question text present.');
         }
-  
         return allow;
       }),
   
@@ -1147,14 +1158,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
       auditTime(0),
       debounceTime(10),
+  
       switchMap(params => this.determineTextToDisplay(params)),
+  
       startWith(''),
       distinctUntilChanged(),
+  
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading content');
       })
-    );
+    ) as Observable<string>;
   }
   
   /* private determineTextToDisplay(
