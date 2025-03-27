@@ -1127,7 +1127,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
       // ✅ New: prevent 'No question available.'
       filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
-        return shouldDisplayExplanation || !!currentQuestion?.questionText?.trim();
+        const explanationReady = shouldDisplayExplanation;
+        const questionReady = !!currentQuestion?.questionText?.trim();
+        const allow = explanationReady || questionReady;
+      
+        if (!allow) {
+          console.warn('[⛔ combinedText$] Skipping — no valid questionText or explanation');
+        }
+        return allow;
       }),
   
       tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
