@@ -334,6 +334,9 @@ export class QuizService implements OnDestroy {
     this.questionsList = quiz.questions;
     this.questionsSubject.next(quiz.questions);
     this.questions = quiz.questions;
+
+    // Push quiz into observable stream
+    this.currentQuizSubject.next(quiz);
   }
 
   getActiveQuiz(): Quiz | null {
