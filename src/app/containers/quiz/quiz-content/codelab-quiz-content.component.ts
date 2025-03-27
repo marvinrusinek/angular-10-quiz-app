@@ -1017,19 +1017,16 @@ private determineTextToDisplay(
   
     return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
       map((isMultipleAnswer: boolean) => {
-        const explanationReady = shouldDisplayExplanation && formattedExplanation?.trim();
-        const questionReady = questionText;
-  
-        let textToDisplay;
-        /* const textToDisplay = explanationReady
-          ? formattedExplanation.trim()
-          : questionReady; */
+        let textToDisplay = '';
 
         if (shouldDisplayExplanation && formattedExplanation?.trim()) {
           textToDisplay = formattedExplanation;
         } else if (question.questionText?.trim()) {
           textToDisplay = question.questionText;
-        }  
+        } else {
+          console.warn('[determineTextToDisplay] ⚠️ Missing both explanation and question text');
+          textToDisplay = 'No content available.';
+        }
   
         this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
   
