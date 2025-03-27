@@ -1093,60 +1093,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   } */
   private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
-      delay(10), // Let streams stabilize
-  
+      delay(10), // Let state settle
       withLatestFrom(
-        this.isDisplayReady$,
-        this.explanationTextService.explanationTrigger$,
         this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
         this.quizService.getCurrentQuiz().pipe(startWith(null)),
         this.nextQuestion$.pipe(startWith(null)),
         this.previousQuestion$.pipe(startWith(null)),
-        this.explanationTextService.shouldDisplayExplanation$.pipe(
-          startWith(false),
-          distinctUntilChanged()
-        ),
-        this.explanationTextService.formattedExplanation$.pipe(
-          startWith(''),
-          distinctUntilChanged()
-        )
+        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+        this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
       ),
-  
-      // 🧱 Step 2: Filter until quiz & questions are ready
-      filter(([_, __, quiz]) => {
-        const ready = !!quiz?.questions?.length;
-        if (!ready) {
-          console.warn('[⛔ combinedText$] Skipping — quiz or questions not ready');
-        }
-        return ready;
-      }),
-  
       map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
         const questions = quiz?.questions ?? [];
         const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
-  
-        return [
-          nextQ,
-          prevQ,
-          formattedExplanation,
-          shouldDisplayExplanation,
-          currentIndex,
-          currentQuestion
-        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
+        return [nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion] as [
+          QuizQuestion | null,
+          QuizQuestion | null,
+          string,
+          boolean,
+          number,
+          QuizQuestion | null
+        ];
       }),
-  
-      // ✅ Step 1: Block if both explanation and question are missing
+      // ✅ New: prevent 'No question available.'
       filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
-        const explanationReady = shouldDisplayExplanation;
-        const questionReady = !!currentQuestion?.questionText?.trim();
-        const allow = explanationReady || questionReady;
-      
-        if (!allow) {
-          console.warn('[⛔ combinedText$] Blocked — neither explanation nor valid question text present.');
-        }
-        return allow;
+        return shouldDisplayExplanation || !!currentQuestion?.questionText?.trim();
       }),
-  
       tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
         console.log('[📦 combinedText$ Params]', {
           currentIndex: index,
@@ -1155,15 +1126,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           explanation
         });
       }),
-  
       auditTime(0),
       debounceTime(10),
-  
       switchMap(params => this.determineTextToDisplay(params)),
-  
       startWith(''),
       distinctUntilChanged(),
-  
       catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading content');
@@ -1267,8 +1234,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ]
   ): Observable<string> {
     const question = currentQuestion;
+    const questionText = question?.questionText?.trim();
   
-    if (!question || !question.questionText?.trim()) {
+    if (!question || !questionText) {
       console.warn('[🧨 determineTextToDisplay] ❌ Invalid question or missing text:', question);
       return of('No question available.');
     }
@@ -1280,12 +1248,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         if (shouldDisplayExplanation && formattedExplanation?.trim()) {
           console.log('[✅ SHOWING EXPLANATION]', formattedExplanation);
           textToDisplay = formattedExplanation;
-        } else if (question.questionText?.trim()) {
-          console.log('[📝 SHOWING QUESTION]', question.questionText);
-          textToDisplay = question.questionText;
         } else {
-          console.warn('[⚠️ Missing questionText, fallback triggered]');
-          textToDisplay = 'No question available';
+          console.log('[📝 SHOWING QUESTION]', questionText);
+          textToDisplay = questionText;
         }
   
         this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
@@ -1298,8 +1263,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }
-  
-  
 
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
