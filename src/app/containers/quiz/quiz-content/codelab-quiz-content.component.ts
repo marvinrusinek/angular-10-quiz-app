@@ -1092,19 +1092,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ) as Observable<string>;
   } */
   private setupCombinedTextObservable(): void {
-    this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
-      delay(10), // Let state settle
-  
-      withLatestFrom(
-        this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
-        this.quizService.getCurrentQuiz().pipe(startWith(null)),
-        this.nextQuestion$.pipe(startWith(null)),
-        this.previousQuestion$.pipe(startWith(null)),
-        this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
-        this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
-      ),
-  
-      map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
+    this.combinedText$ = combineLatest([
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+      this.quizService.getCurrentQuiz().pipe(startWith(null)),
+      this.nextQuestion$.pipe(startWith(null)),
+      this.previousQuestion$.pipe(startWith(null)),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+      this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
+    ]).pipe(
+      map(([currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
         const questions = quiz?.questions ?? [];
         const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
   
@@ -1115,17 +1111,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           shouldDisplayExplanation,
           currentIndex,
           currentQuestion
-        ] as [
-          QuizQuestion | null,
-          QuizQuestion | null,
-          string,
-          boolean,
-          number,
-          QuizQuestion | null
-        ];
+        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
       }),
   
-      // ✅ Step 1: Only proceed if explanation or questionText is ready
       filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
         const explanationReady = shouldDisplayExplanation;
         const questionReady = !!currentQuestion?.questionText?.trim();
@@ -1137,7 +1125,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return allow;
       }),
   
-      // ✅ Step 2: Debug emitted data
       tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
         console.log('[📦 combinedText$ Params]', {
           currentIndex: index,
@@ -1147,14 +1134,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         });
       }),
   
-      // ✅ Step 3: Debounce, then switch to displaying logic
       auditTime(0),
       debounceTime(10),
-  
       switchMap(params => this.determineTextToDisplay(params)),
   
-      // ✅ Instead of 'Loading question...', emit null initially and handle in template
-      startWith(''), // avoids premature "No question available." fallback
+      startWith('Loading question...'),
   
       distinctUntilChanged(),
   
@@ -1163,7 +1147,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return of('Error loading content');
       })
     ) as Observable<string>;
-  }  
+  }
+  
+  
+  
   
   /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
@@ -1273,13 +1260,21 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         const explanationReady = shouldDisplayExplanation && formattedExplanation?.trim();
         const questionReady = questionText;
   
-        const textToDisplay = explanationReady
+        let textToDisplay;
+        /* const textToDisplay = explanationReady
           ? formattedExplanation.trim()
-          : questionReady;
+          : questionReady; */
+
+        if (shouldDisplayExplanation && formattedExplanation?.trim()) {
+          textToDisplay = formattedExplanation;
+        } else if (question.questionText?.trim()) {
+          textToDisplay = question.questionText;
+        }  
   
         this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
   
         console.log(`[✅ determineTextToDisplay] Displaying:`, textToDisplay);
+        console.log('[✅ combinedText]', textToDisplay)
         return textToDisplay;
       }),
   
