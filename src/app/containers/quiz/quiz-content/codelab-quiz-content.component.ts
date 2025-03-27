@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, delay, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -941,7 +941,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = this.explanationTextService.explanationTrigger$.pipe(
-      delay(10), // allow state/streams to settle
+      delay(10),
       withLatestFrom(
         this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
         this.quizService.getCurrentQuiz().pipe(startWith(null)),
@@ -951,8 +951,13 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged())
       ),
       map(([_, currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
-        const currentQuestion = quiz?.questions?.[currentIndex] ?? null;
-  
+        const questions = quiz?.questions ?? [];
+        const currentQuestion = questions[currentIndex] ?? null;
+      
+        if (!currentQuestion) {
+          console.warn('[❗ setupCombinedTextObservable] currentQuestion is null at index', currentIndex);
+        }
+      
         return [
           nextQ,
           prevQ,
@@ -960,8 +965,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           shouldDisplayExplanation,
           currentIndex,
           currentQuestion
-        ] as const;
-      }),
+        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
+      }),      
       filter(([___, ____, formattedExplanation, shouldDisplayExplanation]) => {
         const show = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
         const allow = !shouldDisplayExplanation || show;
@@ -980,8 +985,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           shouldDisplay,
           index,
           currentQuestion
-        });
+        });c
       }),
+      auditTime(0),
+      debounceTime(5),
       switchMap(params => this.determineTextToDisplay(params)),
       startWith(''),
       distinctUntilChanged(),
@@ -989,27 +996,26 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.error('Error in combinedText$ observable:', error);
         return of('Error loading content');
       })
-    );
-  }
+    ) as Observable<string>; // ✅ Explicitly cast it
+  }  
   
   private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex]: [
+    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
       QuizQuestion | null,
       QuizQuestion | null,
       string,
       boolean,
-      number
+      number,
+      QuizQuestion | null
     ]
   ): Observable<string> {
-    const question = this.currentQuestion?.getValue();
-    console.log('[🧪 determineTextToDisplay] currentQuestion:', question);
-
+    const question = currentQuestion;;
     if (!question) {
       console.warn('[🚨 currentQuestion is null or undefined]');
     }    
   
-    if (!question?.questionText && !shouldDisplayExplanation) {
-      console.warn('[🧨 Question text not available yet]');
+    if (!question || !question.questionText) {
+      console.warn('[🧨 Question is null or missing questionText]', question);
       return of('');
     }
   
