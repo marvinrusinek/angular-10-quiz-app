@@ -652,30 +652,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
   
   private evaluateNextButtonState(): boolean {
-    // Reset options state to ensure no residual state interferes
+    // 🔄 Clear any residual option state before evaluation
     this.resetOptionState();
-
-    // Retrieve the current state from the necessary subjects
+  
+    // 🔍 Get current state flags
     const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-
-    // Determine if the next button should be enabled
-    const shouldEnable = isAnswered && !isLoading && !isNavigating;
-
+  
+    console.log('[🧪 evaluateNextButtonState]', { isAnswered, isLoading, isNavigating });
+  
+    // ✅ Force enable Next button for multiple-answer questions (temp logic)
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-      console.log('Forcing next button enable for multiple-answer question.');
-      return true; // Temporarily bypass the logic for multiple-answer questions
+      console.log('[🟢 Multi-answer] Forcing Next button enabled.');
+      this.updateAndSyncNextButtonState(true);
+      return true;
     }
-
-    // Sync the observable state for the next button
+  
+    // ✅ Standard rule: enable only if answered, not loading/navigating
+    const shouldEnable = isAnswered && !isLoading && !isNavigating;
+  
+    // 🔄 Update reactive state
     this.isButtonEnabledSubject.next(shouldEnable);
-
-    // Update the local state and synchronize the button's appearance
     this.isNextButtonEnabled = shouldEnable;
     this.updateAndSyncNextButtonState(shouldEnable);
-
-    // Return the final state
+  
+    console.log('[🔁 Next Button Evaluated]', { shouldEnable });
+  
     return shouldEnable;
   }
 
