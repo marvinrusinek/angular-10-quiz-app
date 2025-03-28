@@ -2634,6 +2634,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log('[✅ onOptionClicked] Fired with event:', event);
+
     try {
       const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Q${lockedIndex} clicked.`, event.option);
@@ -2651,12 +2653,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
+
+      const isAnsweredCurrent = this.selectedOptionService.isAnsweredSubject.getValue();
+      console.log('[🧪 QQC] isAnsweredSubject current value before set:', isAnsweredCurrent);
+
+      if (!isAnsweredCurrent) {
+        this.selectedOptionService.isAnsweredSubject.next(true);
+        console.log('[✅ QQC] isAnsweredSubject set to TRUE');
+      }
   
-      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+      /* if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('[✅ isAnsweredSubject] Set to TRUE in onOptionClicked');
       }
-      console.log('[🧪 After setting isAnsweredSubject] current value:', this.selectedOptionService.isAnsweredSubject.getValue());
+      console.log('[🧪 After setting isAnsweredSubject] current value:', this.selectedOptionService.isAnsweredSubject.getValue()); */
   
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
