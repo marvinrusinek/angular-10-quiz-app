@@ -858,7 +858,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Clear both selection and answered state
     this.selectedOptionService.setOptionSelected(false);
-    this.selectedOptionService.setAnswered(false);
+    // this.selectedOptionService.setAnswered(false);
   }
 
   ngOnDestroy(): void {
@@ -2969,7 +2969,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setAnswered(false);
         console.log('[✅ finally] Answered state reset AFTER navigation settled.');
         this.cdRef.detectChanges();
-      }, 100);
+      }, 200);
     }
   }
   
