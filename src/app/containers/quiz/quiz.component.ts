@@ -2906,13 +2906,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion()] clicked!');
   
-    // ✅ Debounce guard — prevents duplicate trigger
     if (this.isNavigating) {
       console.warn('[⏳] Navigation already in progress. Aborting duplicate call.');
       return;
     }
   
-    // ✅ Preemptively mark navigation in progress
     this.isNavigating = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setNavigating(true);
@@ -2924,7 +2922,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         firstValueFrom(this.isButtonEnabled$)
       ]);
   
-      // ✅ Block if external conditions are invalid (but allow internal isNavigating guard to take priority)
       if (isLoading || isNavigatingExternal || !isEnabled) {
         console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', { isLoading, isNavigatingExternal, isEnabled });
         return;
@@ -2941,7 +2938,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
   
-        this.selectedOptionService.isAnsweredSubject.next(false);
+        // ✅ Reset answered state *after* loading the question
+        console.log('[🔁 Resetting answered state after question load]');
+        this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
@@ -2956,6 +2955,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
       } else {
+        console.log('[✅ advanceToNextQuestion] Last question reached — navigating to results...');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
       }
     } catch (error) {
