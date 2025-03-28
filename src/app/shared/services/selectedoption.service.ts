@@ -321,7 +321,7 @@ export class SelectedOptionService {
 
     // Clear feedback and reset answered state
     this.showFeedbackForOptionSubject.next({});
-    this.resetAnsweredState();
+    // this.resetAnsweredState();
   }
 
   clearOptions(): void {
