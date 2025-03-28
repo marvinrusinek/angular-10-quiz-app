@@ -2889,8 +2889,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
+  onDebugClick(): void {
+    console.log('✅ [onDebugClick] Button clicked');
+  }  
+
   public async advanceToNextQuestion(): Promise<void> {
-    console.log('[🟢 advanceToNextQuestion()] triggered from button click');
+    console.log('[🟢 advanceToNextQuestion()] clicked!');
 
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
