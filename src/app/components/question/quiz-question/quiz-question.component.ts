@@ -2635,6 +2635,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
   }): Promise<void> {
     console.log('[✅ onOptionClicked] Fired with event:', event);
+
+    console.log('[🧪 BEFORE answered]', this.selectedOptionService.isAnsweredSubject.getValue());
+    this.selectedOptionService.setAnswered(true);
+    console.log('[✅ AFTER answered]', this.selectedOptionService.isAnsweredSubject.getValue());
   
     try {
       const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
