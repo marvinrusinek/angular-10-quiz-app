@@ -427,9 +427,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public onAnsweredChange(isAnswered: boolean): void {
-    console.log('Answered state updated:', isAnswered);
-    this.selectedOptionService.isAnsweredSubject.next(isAnswered);
-    this.evaluateNextButtonState();
+    if (!this.isNavigating) {
+      this.selectedOptionService.setAnswered(isAnswered);
+      this.evaluateNextButtonState();
+    }
   }
 
   initializeDisplayVariables(): void {
@@ -791,14 +792,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isAnswered = true;
     sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, "explanation");
   
-    const isOptionSelected = this.isAnyOptionSelected();
+    /* const isOptionSelected = this.isAnyOptionSelected();
     this.isAnswered = isOptionSelected;
     sessionStorage.setItem('isAnswered', String(this.isAnswered));
 
     this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);
     this.quizStateService.setAnswerSelected(isOptionSelected);  // Set answer state and lock display
   
-    console.log('Option selected, isOptionSelected:', isOptionSelected);
+    console.log('Option selected, isOptionSelected:', isOptionSelected); */
+    this.isAnswered = true;
+    sessionStorage.setItem('isAnswered', 'true');
+    this.quizStateService.setAnswerSelected(true);
 
     // Store displayExplanation directly
     const displayExplanation = this.isAnswered;
