@@ -685,5 +685,5 @@ export class SelectedOptionService {
       '[getFallbackQuestionIndex] No keys found in selectedOptionsMap. Defaulting to 0. This may indicate no options were selected yet.'
     );
     return 0;
-  }  
+  }
 }
