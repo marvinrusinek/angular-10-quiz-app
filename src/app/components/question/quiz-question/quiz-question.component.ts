@@ -2635,7 +2635,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
   }): Promise<void> {
     console.log('[✅ onOptionClicked] Fired with event:', event);
-
+  
     try {
       const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       console.log(`[onOptionClicked] 🔒 Q${lockedIndex} clicked.`, event.option);
@@ -2653,20 +2653,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
-
-      const isAnsweredCurrent = this.selectedOptionService.isAnsweredSubject.getValue();
-      console.log('[🧪 QQC] isAnsweredSubject current value before set:', isAnsweredCurrent);
-
-      if (!isAnsweredCurrent) {
+  
+      // ✅ Set answered state and trigger change detection
+      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
         console.log('[✅ QQC] isAnsweredSubject set to TRUE');
+        this.cdRef.detectChanges(); // 🔄 Force change detection
       }
-  
-      /* if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-        this.selectedOptionService.isAnsweredSubject.next(true);
-        console.log('[✅ isAnsweredSubject] Set to TRUE in onOptionClicked');
-      }
-      console.log('[🧪 After setting isAnsweredSubject] current value:', this.selectedOptionService.isAnsweredSubject.getValue()); */
   
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
@@ -2675,14 +2668,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
-
-      // ⏳ Let BehaviorSubject emit and settle (very important!)
+  
+      // ⏳ Wait briefly to stabilize state
       await new Promise(resolve => setTimeout(resolve, 30));
   
-      // ✅ Fetch and emit explanation
+      // 🧠 Update explanation text
       await this.updateExplanationText(lockedIndex);
   
-      // ✅ Wait until explanation is emitted to stream
+      // ⏳ Wait for explanation to emit before showing
       await firstValueFrom(
         this.explanationTextService.formattedExplanation$.pipe(
           filter(text => !!text?.trim()),
@@ -2690,9 +2683,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
       );
   
-      // ✅ Now allow it to display
+      // Now allow it to display
       this.explanationTextService.setShouldDisplayExplanation(true);
-  
       await new Promise(resolve => setTimeout(resolve, 10));
       this.explanationTextService.triggerExplanationEvaluation();
   
@@ -2705,6 +2697,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`[onOptionClicked] ❌ Error:`, error);
     }
   }
+  
   
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
