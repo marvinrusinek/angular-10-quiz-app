@@ -2926,7 +2926,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       ]);
   
       if (isLoading || isNavigatingExternal || !isEnabled) {
-        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', { isLoading, isNavigatingExternal, isEnabled });
+        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
+          isLoading,
+          isNavigatingExternal,
+          isEnabled
+        });
         return;
       }
   
@@ -2941,14 +2945,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
   
-        // ✅ Reset answered state *after* loading the question
-        console.log('[🔁 Resetting answered state after question load]');
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-  
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
   
-        const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
+        const nextQuestion = await firstValueFrom(
+          this.quizService.getQuestionByIndex(this.currentQuestionIndex)
+        );
         this.quizService.setCurrentQuestion(nextQuestion);
   
         localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex + 1));
@@ -2964,6 +2965,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
     } finally {
+      // ✅ Reset answer state here AFTER navigation is fully completed
+      console.log('[🧹 FINALLY block] Resetting answered + loading flags after navigation');
+  
+      this.selectedOptionService.setAnswered(false);  // 🟢 moved here
+      this.quizStateService.setAnswered(false);       // 🟢 moved here
+  
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
