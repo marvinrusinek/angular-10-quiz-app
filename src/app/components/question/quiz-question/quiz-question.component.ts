@@ -2323,7 +2323,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           next: (questions: QuizQuestion[]) => {
             // Initialize the first question
             if (questions && questions.length > 0) {
-              this.selectedOptionService.resetAnsweredState();
+              // this.selectedOptionService.resetAnsweredState();
 
               const selectedOptions =
                 this.selectedOptionService.getSelectedOptions();
@@ -3770,9 +3770,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.explanationText$.next('');
     this.showExplanationChange.emit(false);
     this.selectedOptionService.clearOptions();
-    this.selectedOptionService.setOptionSelected(false);
     this.selectedOptionService.clearSelectedOption();
-    this.selectedOptionService.resetAnsweredState();
+    this.selectedOptionService.setOptionSelected(false);
+    this.selectedOptionService.setAnswered(false); 
+    // this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
