@@ -615,10 +615,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.warn('No question data available for the given index.');
         }
   
-        // Reset answered state and options for the new question
-        this.selectedOptionService.clearSelectedOption();
-        this.selectedOptionService.isAnsweredSubject.next(false);
-  
         // Restore previously selected options, if any
         await this.restoreSelectionState();
 
@@ -3231,8 +3227,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
-    this.selectedOptionService.isAnsweredSubject.next(false);
-
     try {
       const nextQuestion = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
