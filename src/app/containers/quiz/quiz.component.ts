@@ -637,6 +637,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.isLoading$,
       this.quizStateService.isNavigating$
     ]).pipe(
+      tap(([isAnswered, isLoading, isNavigating]) => {
+        console.log('[🔍 isButtonEnabled$ state]', { isAnswered, isLoading, isNavigating });
+      }),
       map(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
         console.log('[🔄 initializeNextButtonState] isEnabled:', isEnabled, {
