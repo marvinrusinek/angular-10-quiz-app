@@ -777,38 +777,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): void {
-    if (!isUserAction) {
-      return;
-    }
+    if (!isUserAction) return;
   
     const { option, checked } = event;
   
+    // Handle selection logic based on question type
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
       this.updateMultipleAnswerSelection(option, checked);
     }
-
-    this.isAnswered = true;
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, "explanation");
   
-    /* const isOptionSelected = this.isAnyOptionSelected();
-    this.isAnswered = isOptionSelected;
-    sessionStorage.setItem('isAnswered', String(this.isAnswered));
-
-    this.selectedOptionService.isAnsweredSubject.next(isOptionSelected);
-    this.quizStateService.setAnswerSelected(isOptionSelected);  // Set answer state and lock display
+    // ✅ Only set isAnswered if it hasn't been set already
+    const currentAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
+    if (!currentAnswered) {
+      this.selectedOptionService.setAnswered(true);
+      console.log('[✅ onOptionSelected] Question marked as answered.');
+    } else {
+      console.log('[ℹ️ onOptionSelected] Already answered — skipping duplicate update.');
+    }
   
-    console.log('Option selected, isOptionSelected:', isOptionSelected); */
     this.isAnswered = true;
     sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
+    sessionStorage.setItem('displayExplanation', 'true');
+  
+    // 🔄 Sync quiz state service
     this.quizStateService.setAnswerSelected(true);
-
-    // Store displayExplanation directly
-    const displayExplanation = this.isAnswered;
-    sessionStorage.setItem('displayExplanation', String(displayExplanation));
-    
-    // Immediately evaluate Next button state
+  
+    // ✅ Evaluate next button state after selection
     this.evaluateNextButtonState();
   }
   
