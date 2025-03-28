@@ -685,9 +685,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   updateAndSyncNextButtonState(isEnabled: boolean): void {
-    console.log('[🔄 updateAndSyncNextButtonState] Next button enabled:', isEnabled);
-  
     this.ngZone.run(() => {
+      console.log('[🔄 updateAndSyncNextButtonState] Next button enabled:', isEnabled);
       this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
   
@@ -2906,61 +2905,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion()] clicked!');
-
-    const [isLoading, isNavigating, isEnabled] = await Promise.all([
-      firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$),
-      firstValueFrom(this.isButtonEnabled$)
-    ]);
-
-    // Prevent navigation if any blocking conditions are met
-    /* if (isLoading || isNavigating || !isEnabled) {
-      console.warn('Cannot advance - One of the conditions is blocking navigation.');
+  
+    // ✅ Debounce guard — prevents duplicate trigger
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress. Aborting duplicate call.');
       return;
-    } */
-
-    // Mark navigation as in progress
+    }
+  
+    // ✅ Preemptively mark navigation in progress
     this.isNavigating = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setNavigating(true);
-    
+  
     try {
+      const [isLoading, isNavigatingExternal, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+      ]);
+  
+      // ✅ Block if external conditions are invalid (but allow internal isNavigating guard to take priority)
+      if (isLoading || isNavigatingExternal || !isEnabled) {
+        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', { isLoading, isNavigatingExternal, isEnabled });
+        return;
+      }
+  
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
-        // Increment question index before fetching
         this.currentQuestionIndex++;
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
         console.log(`[advanceToNextQuestion] ✅ Updated currentQuestionIndex: ${this.currentQuestionIndex}`);
-        
-        // Fetch and set next question
+  
         const questionLoaded = await this.fetchAndSetNextQuestion();
         if (!questionLoaded) {
-          console.warn('No question found for next index. Aborting navigation.');
+          console.warn('[advanceToNextQuestion] ❌ Question load failed. Aborting navigation.');
           return;
         }
-
-        // Reset state for the new question
-        // this.resetOptionState();
-        // this.isOptionSelected = false;
-
-        // Reset question answered state explicitly
+  
         this.selectedOptionService.isAnsweredSubject.next(false);
         this.quizStateService.setAnswered(false);
-
+  
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-
+  
         const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(this.currentQuestionIndex));
-        this.quizService.setCurrentQuestion(nextQuestion); // ensure question is updated
-
-        const nextQuestionIndex = this.currentQuestionIndex + 1;
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(nextQuestionIndex));
-
+        this.quizService.setCurrentQuestion(nextQuestion);
+  
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex + 1));
+  
         this.quizQuestionComponent?.resetExplanation();
-
-        // Update Next button state
+  
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
       } else {
-        // Last question reached, navigating to results page
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
       }
     } catch (error) {
@@ -2968,7 +2963,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);        
+      this.quizStateService.setLoading(false);
       this.cdRef.detectChanges();
     }
   }
