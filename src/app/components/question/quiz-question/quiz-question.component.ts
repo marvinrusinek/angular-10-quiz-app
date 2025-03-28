@@ -4030,7 +4030,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // 🔁 Reset selection state and feedback
     this.selectionMessageService.resetMessage();
-    this.selectedOptionService.setAnswered(false);
+    // this.selectedOptionService.setAnswered(false);
     this.showFeedbackForOption = {};      // ✅ NEW
     this.isFeedbackApplied = false;       // ✅ NEW
   

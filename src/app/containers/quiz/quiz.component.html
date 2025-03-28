@@ -91,7 +91,12 @@
           </button>
         </div>
 
-        <button (click)="advanceToNextQuestion()" style="background: lime;">
+        <!-- DEBUG: Always visible test button -->
+        <button
+          type="button"
+          style="background: lime; z-index: 9999; position: relative;"
+          (click)="advanceToNextQuestion()"
+        >
           TEST NEXT BUTTON
         </button>
 
@@ -110,7 +115,7 @@
             [ngStyle]="nextButtonStyle"
             aria-label="Next Question"
           >
-            <i class="material-icons">navigate_next</i>
+            <i class="material-icons">navigate_next</i>NEXT REAL
           </button>
         </div>
         <div style="color: lime; font-size: 12px; margin-top: 8px;">

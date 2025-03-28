@@ -383,7 +383,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeNextButtonState();
     this.initializeTooltip();
     this.resetOptionState();
-    this.selectedOptionService.setAnswered(false);
+    // this.selectedOptionService.setAnswered(false);
     this.resetQuestionState();
     this.subscribeToSelectionMessage();
   
@@ -628,6 +628,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private initializeNextButtonState(): void {
+    console.log('[🧪 QuizComponent] initializing button state stream...');
+
     this.isButtonEnabled$ = combineLatest([
       this.selectedOptionService.isAnsweredSubject,
       this.quizStateService.isLoading$,
@@ -853,8 +855,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
 
-    this.quizStateService.setAnswered(false);
-    this.quizStateService.setLoading(false);
+    // this.quizStateService.setAnswered(false);
+    // this.quizStateService.setLoading(false);
     this.cdRef.detectChanges();
   }
 
