@@ -348,11 +348,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeQuizData();
   
     // 🔍 (Optional) Log router navigation events for debugging
-    this.router.events.subscribe(event => {
+    /* this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
       }
-    });
+    }); */
   
     // ✅ Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
@@ -2914,10 +2914,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ]);
 
     // Prevent navigation if any blocking conditions are met
-    if (isLoading || isNavigating || !isEnabled) {
+    /* if (isLoading || isNavigating || !isEnabled) {
       console.warn('Cannot advance - One of the conditions is blocking navigation.');
       return;
-    }
+    } */
 
     // Mark navigation as in progress
     this.isNavigating = true;
