@@ -325,13 +325,6 @@ export class QuizStateService {
     }
   }
 
-  stopLoading(): void {
-    if (this.isLoading()) {
-      console.log('Loading stopped');
-      this.loadingSubject.next(false);
-    }
-  }
-
   resetState(): void {
     // this.currentQuestionIndex$.next(0);
     this.quizQuestionCreated = false;
