@@ -631,6 +631,7 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean): void {
+    console.log(`[📌 SelectedOptionService] setAnswered(${isAnswered})`);
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
   }
