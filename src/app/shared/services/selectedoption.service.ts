@@ -651,7 +651,7 @@ export class SelectedOptionService {
   }
 
   resetAnsweredState(): void {
-    this.isAnsweredSubject.next(false);
+    // this.isAnsweredSubject.next(false);
     this.selectedOptionSubject.next(null);
     this.showFeedbackForOptionSubject.next({});
     this.selectedOption = null;
