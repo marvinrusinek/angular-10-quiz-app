@@ -332,6 +332,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    this.selectedOptionService.isAnsweredSubject.subscribe(val =>
+      console.log('[🧪 isAnsweredSubject]', val)
+    );
+    this.quizStateService.isLoading$.subscribe(val =>
+      console.log('[🧪 isLoading$]', val)
+    );
+    this.quizStateService.isNavigating$.subscribe(val =>
+      console.log('[🧪 isNavigating$]', val)
+    );    
+
     this.initializeDisplayVariables();
   
     // ✅ Centralized routing + quiz setup

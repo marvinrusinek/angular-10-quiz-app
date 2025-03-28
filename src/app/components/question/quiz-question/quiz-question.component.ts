@@ -2654,7 +2654,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true);
+        console.log('[✅ isAnsweredSubject] Set to TRUE in onOptionClicked');
       }
+      console.log('[🧪 After setting isAnsweredSubject] current value:', this.selectedOptionService.isAnsweredSubject.getValue());
   
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
