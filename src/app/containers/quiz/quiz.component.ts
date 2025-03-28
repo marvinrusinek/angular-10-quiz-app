@@ -639,7 +639,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ]).pipe(
       map(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
-        console.log('[🔄 initializeNextButtonState] isEnabled:', isEnabled, { isAnswered, isLoading, isNavigating });
+        console.log('[🔄 initializeNextButtonState] isEnabled:', isEnabled, {
+          isAnswered,
+          isLoading,
+          isNavigating,
+          source: 'combineLatest'
+        });
         return isEnabled;
       }),
       distinctUntilChanged(),
