@@ -91,38 +91,16 @@
           </button>
         </div>
 
-        <!-- DEBUG: Always visible test button -->
-        <button
-          type="button"
-          style="background: lime; z-index: 9999; position: relative;"
-          (click)="advanceToNextQuestion()"
-        >
-          TEST NEXT BUTTON
-        </button>
-
         <div class="next-question-nav" [hidden]="shouldHideNextButton">
           <button
             type="button"
-            #nextButton="matTooltip"
-            mat-icon-button
-            routerLinkActive="active"
             (click)="advanceToNextQuestion()"
-            (window:keydown.ArrowRight)="advanceToNextQuestion()"
-            (window:keydown.Enter)="advanceToNextQuestion()"              
-            matTooltipPosition="above"
-            [matTooltip]="nextButtonTooltip$ | async"
             [disabled]="!(isButtonEnabled$ | async)"
             [ngStyle]="nextButtonStyle"
             aria-label="Next Question"
           >
             <i class="material-icons">navigate_next</i>NEXT REAL
           </button>
-        </div>
-        <div style="color: lime; font-size: 12px; margin-top: 8px;">
-          isAnswered: {{ selectedOptionService.isAnsweredSubject | async }} <br />
-          isLoading: {{ quizStateService.isLoading$ | async }} <br />
-          isNavigating: {{ quizStateService.isNavigating$ | async }} <br />
-          Button Enabled: {{ isButtonEnabled$ | async }}
         </div>
         
         <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
