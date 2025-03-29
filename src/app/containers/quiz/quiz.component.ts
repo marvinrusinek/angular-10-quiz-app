@@ -2967,7 +2967,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
 
-      // Delay resetting isAnswered to avoid race condition
+      // Only reset isAnswered after navigation + rendering are done
       setTimeout(() => {
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
