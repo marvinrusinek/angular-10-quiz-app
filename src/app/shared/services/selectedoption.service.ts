@@ -630,11 +630,22 @@ export class SelectedOptionService {
     });
   }
 
-  setAnswered(isAnswered: boolean): void {
+  /* setAnswered(isAnswered: boolean): void {
     console.log(`[🧩 setAnswered] isAnswered = ${isAnswered}`, new Error().stack?.split('\n')[2]);
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
-  }  
+  } */
+  setAnswered(isAnswered: boolean): void {
+    const current = this.isAnsweredSubject.getValue();
+  
+    if (current !== isAnswered) {
+      console.log('[🧩 setAnswered] isAnswered =', isAnswered);
+      this.isAnsweredSubject.next(isAnswered);
+      sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
+    } else {
+      console.log('[🟡 setAnswered] No change needed (already', current + ')');
+    }
+  }
 
   setAnsweredState(isAnswered: boolean): void {
     // Emit only if the answered state has actually changed
