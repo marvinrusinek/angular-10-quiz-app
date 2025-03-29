@@ -630,11 +630,6 @@ export class SelectedOptionService {
     });
   }
 
-  /* setAnswered(isAnswered: boolean): void {
-    console.log(`[🧩 setAnswered] isAnswered = ${isAnswered}`, new Error().stack?.split('\n')[2]);
-    this.isAnsweredSubject.next(isAnswered);
-    sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
-  } */
   setAnswered(isAnswered: boolean): void {
     const current = this.isAnsweredSubject.getValue();
   
