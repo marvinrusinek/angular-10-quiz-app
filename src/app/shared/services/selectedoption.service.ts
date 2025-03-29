@@ -650,14 +650,6 @@ export class SelectedOptionService {
     return this.isAnsweredSubject.getValue();
   }
 
-  /* resetAnsweredState(): void {
-    // this.isAnsweredSubject.next(false);
-    this.selectedOptionSubject.next(null);
-    this.showFeedbackForOptionSubject.next({});
-    this.selectedOption = null;
-    this.isOptionSelectedSubject.next(false);
-  } */
-
   resetSelectedOption(): void {
     this.isOptionSelectedSubject.next(false);
   }
@@ -669,7 +661,7 @@ export class SelectedOptionService {
         optionId: index,
         text: `Default Option ${index + 1}`,
         correct: index === 0, // Default to the first option as correct
-        selected: false,
+        selected: false
       }));
     return defaultOptions;
   }
