@@ -3779,7 +3779,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.clearOptions();
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.setOptionSelected(false);
-    this.selectedOptionService.setAnswered(false); 
+    // this.selectedOptionService.setAnswered(false); 
     // this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
