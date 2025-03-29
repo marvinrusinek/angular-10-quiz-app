@@ -2701,9 +2701,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error:`, error);
     }
-  }
-  
-  
+  }  
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
