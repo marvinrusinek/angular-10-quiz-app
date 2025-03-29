@@ -631,10 +631,10 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean): void {
-    console.log(`[📌 SelectedOptionService] setAnswered(${isAnswered})`);
+    console.log(`[🧩 setAnswered] isAnswered = ${isAnswered}`, new Error().stack?.split('\n')[2]);
     this.isAnsweredSubject.next(isAnswered);
     sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
-  }
+  }  
 
   setAnsweredState(isAnswered: boolean): void {
     // Emit only if the answered state has actually changed
