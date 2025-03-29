@@ -334,8 +334,7 @@ export class SelectedOptionService {
     return this.selectedOption$.pipe(
       startWith(this.selectedOptionSubject.getValue()), // Emit the current state immediately when subscribed
       map(option => option !== null), // Determine if an option is selected
-      distinctUntilChanged(), // Emit only when the selection state changes
-      tap(isSelected => this.isOptionSelectedSubject.next(isSelected)) // Update the subject with the new state
+      distinctUntilChanged() // Emit only when the selection state changes
     );
   }  
 
