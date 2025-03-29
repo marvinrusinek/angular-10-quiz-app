@@ -431,7 +431,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
   
         // Immediate state updates
         this.selectedOptionService.setOptionSelected(true);
-        this.selectedOptionService.isAnsweredSubject.next(true);
+        // this.selectedOptionService.isAnsweredSubject.next(true);
   
         // Check if the option state changes correctly
         if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
@@ -594,7 +594,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
     this.updateHighlighting();
-    this.selectedOptionService.isAnsweredSubject.next(true);
+    // this.selectedOptionService.isAnsweredSubject.next(true);
     this.cdRef.detectChanges();
   }
 
@@ -651,7 +651,7 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
 
     // Mark question as answered
-    this.selectedOptionService.isAnsweredSubject.next(true);
+    // this.selectedOptionService.isAnsweredSubject.next(true);
   
     if (this.isNavigatingBackwards) {
       console.log('Handling backward navigation for:', clonedOption);
