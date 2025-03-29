@@ -2659,10 +2659,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
   
       // ✅ Set answered state and trigger change detection
-      if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+      /* if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
         this.selectedOptionService.isAnsweredSubject.next(true); // uses .next(true) and saves to session
         console.log('[✅ QQC] isAnsweredSubject set to TRUE');
         this.cdRef.detectChanges(); // 🔄 Force change detection
+      } */
+      const isAnsweredCurrent = this.selectedOptionService.isAnsweredSubject.getValue();
+      console.log('[🧪 BEFORE answered]', isAnsweredCurrent);
+
+      if (!isAnsweredCurrent) {
+        this.selectedOptionService.setAnswered(true);
+        console.log('[✅ AFTER answered]', this.selectedOptionService.isAnsweredSubject.getValue());
       }
   
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
