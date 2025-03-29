@@ -650,13 +650,13 @@ export class SelectedOptionService {
     return this.isAnsweredSubject.getValue();
   }
 
-  resetAnsweredState(): void {
+  /* resetAnsweredState(): void {
     // this.isAnsweredSubject.next(false);
     this.selectedOptionSubject.next(null);
     this.showFeedbackForOptionSubject.next({});
     this.selectedOption = null;
     this.isOptionSelectedSubject.next(false);
-  }
+  } */
 
   resetSelectedOption(): void {
     this.isOptionSelectedSubject.next(false);
