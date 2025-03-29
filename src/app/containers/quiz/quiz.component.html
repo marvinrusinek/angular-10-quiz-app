@@ -94,7 +94,14 @@
         <div class="next-question-nav" [hidden]="shouldHideNextButton">
           <button
             type="button"
+            #nextButton="matTooltip"
+            mat-icon-button
+            routerLinkActive="active"
             (click)="advanceToNextQuestion()"
+            (window:keydown.ArrowRight)="advanceToNextQuestion()"
+            (window:keydown.Enter)="advanceToNextQuestion()"              
+            matTooltipPosition="above"
+            [matTooltip]="nextButtonTooltip$ | async"
             [disabled]="!(isButtonEnabled$ | async)"
             [ngStyle]="nextButtonStyle"
             aria-label="Next Question"
