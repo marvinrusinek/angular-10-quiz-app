@@ -2960,21 +2960,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
     } finally {
-      // Reset answer state here AFTER navigation is fully completed
+      // Reset navigation/loading flags immediately
       console.log('[🧹 FINALLY block] Resetting answered + loading flags after navigation');
-  
+    
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
-
-      // Only reset isAnswered after navigation + rendering are done
+    
+      // Delay reset of isAnswered AFTER UI has time to render
       setTimeout(() => {
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
         console.log('[✅ finally] Answered state reset AFTER navigation settled.');
         this.cdRef.detectChanges();
-      }, 200);
-    }
+      }, 300);
+    }    
   }
   
   async advanceToPreviousQuestion(): Promise<void> {
