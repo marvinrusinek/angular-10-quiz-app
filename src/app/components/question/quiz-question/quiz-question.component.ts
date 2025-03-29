@@ -3235,7 +3235,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         '[handleCorrectnessOutcome] ✅ Setting answerSelected to true.'
       );
       this.answerSelected.emit(true);
-      this.selectedOptionService.isAnsweredSubject.next(true);
+      // this.selectedOptionService.isAnsweredSubject.next(true);
     }
 
     // Ensure explanation text is preserved if not already set
@@ -3345,7 +3345,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean
   ): void {
     this.selectedOptionService.setOptionSelected(true);
-    this.selectedOptionService.isAnsweredSubject.next(true);
+    // this.selectedOptionService.isAnsweredSubject.next(true);
 
     if (!this.explanationLocked) {
       this.explanationLocked = true;
