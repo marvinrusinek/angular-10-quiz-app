@@ -2635,10 +2635,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
   }): Promise<void> {
     console.log('[✅ onOptionClicked] Fired with event:', event);
-
-    console.log('[🧪 BEFORE answered]', this.selectedOptionService.isAnsweredSubject.getValue());
     this.selectedOptionService.setAnswered(true);
-    console.log('[✅ AFTER answered]', this.selectedOptionService.isAnsweredSubject.getValue());
   
     try {
       const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
@@ -2658,14 +2655,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
   
-      const isAnsweredCurrent = this.selectedOptionService.isAnsweredSubject.getValue();
-      console.log('[🧪 BEFORE answered]', isAnsweredCurrent);
-
-      if (!isAnsweredCurrent) {
-        this.selectedOptionService.setAnswered(true);
-        console.log('[✅ AFTER answered]', this.selectedOptionService.isAnsweredSubject.getValue());
-      }
-  
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
         qState.explanationDisplayed = true;
@@ -2674,13 +2663,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
   
-      // ⏳ Wait briefly to stabilize state
+      // Wait briefly to stabilize state
       await new Promise(resolve => setTimeout(resolve, 30));
   
-      // 🧠 Update explanation text
+      // Update explanation text
       await this.updateExplanationText(lockedIndex);
   
-      // ⏳ Wait for explanation to emit before showing
+      // Wait for explanation to emit before showing
       await firstValueFrom(
         this.explanationTextService.formattedExplanation$.pipe(
           filter(text => !!text?.trim()),
@@ -2701,7 +2690,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (error) {
       console.error(`[onOptionClicked] ❌ Error:`, error);
     }
-  }  
+  }
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
