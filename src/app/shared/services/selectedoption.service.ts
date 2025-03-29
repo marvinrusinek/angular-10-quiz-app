@@ -318,11 +318,10 @@ export class SelectedOptionService {
       this.selectedOption = null;
       this.selectedOptionSubject.next(null);
     }
-
-    // Clear feedback and reset answered state
+  
+    // Only clear feedback state here — do NOT touch answered state
     this.showFeedbackForOptionSubject.next({});
-    // this.resetAnsweredState();
-  }
+  }  
 
   clearOptions(): void {
     this.selectedOptionSubject.next(null);
