@@ -2322,22 +2322,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
         .subscribe({
           next: (questions: QuizQuestion[]) => {
-            // Initialize the first question
             if (questions && questions.length > 0) {
-              // this.selectedOptionService.resetAnsweredState();
-
-              const selectedOptions =
-                this.selectedOptionService.getSelectedOptions();
-              const hasAnswered =
-                Array.isArray(selectedOptions) && selectedOptions.length > 0;
-
-              this.selectedOptionService.setAnsweredState(hasAnswered);
-              console.log(
-                'Initial answered state for the first question:',
-                hasAnswered
-              );
+              // ✅ Only set answered state if selectedOptions is not null or empty
+              const selectedOptions = this.selectedOptionService.getSelectedOptions();
+              const hasAnswered = Array.isArray(selectedOptions) && selectedOptions.length > 0;
+          
+              if (hasAnswered) {
+                this.selectedOptionService.setAnsweredState(true);
+                console.log('[✅ QQC] Answered state restored as TRUE for selected options');
+              } else {
+                console.log('[⚠️ QQC] Skipping setAnsweredState(false) to avoid overwrite');
+              }
             }
-          },
+          },          
           error: (err) => {
             console.error('Error fetching questions:', err);
           },
