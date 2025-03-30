@@ -3110,14 +3110,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         totalQuestions: this.totalQuestions
       });
   
-      if (isLoading || isNavigatingExternal || !isEnabled) {
+      /* if (isLoading || isNavigatingExternal || !isEnabled) {
         console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
           isLoading,
           isNavigatingExternal,
           isEnabled
         });
         return;
-      }
+      } */
   
       const nextIndex = this.currentQuestionIndex + 1;
       if (nextIndex < this.totalQuestions) {
