@@ -3444,7 +3444,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }  
   
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[navigateToQuestion] 🏁 Starting Navigation to Q${questionIndex}`);
 
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3504,7 +3504,64 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     return true;
+  } */
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Starting Navigation to Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index Q${questionIndex}. Navigation Aborted.`);
+      return false;
+    }
+  
+    if (this.debounceNavigation) {
+      console.warn(`[navigateToQuestion] ⏳ Navigation debounce active. Skipping navigation.`);
+      return false;
+    }
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 500);
+  
+    const questionNumber = questionIndex + 1;
+    const targetUrl = `/question/${this.quizId}/${questionNumber}`;
+    console.log(`[navigateToQuestion] 🌐 Attempting route to: ${targetUrl}`);
+  
+    try {
+      const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
+  
+      if (navigationSuccess) {
+        console.log(`[navigateToQuestion] 🚀 Successfully navigated to Q${questionIndex}`);
+  
+        // ✅ Only update the index *after* successful navigation
+        this.currentQuestionIndex = questionIndex;
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+        console.log(`[navigateToQuestion] 📍 Synced currentQuestionIndex to ${questionIndex}`);
+  
+        await this.fetchAndSetQuestionData(questionIndex);
+        console.log(`[navigateToQuestion] 📌 fetchAndSetQuestionData() completed for Q${questionIndex}`);
+  
+        const badgeNumber = this.currentQuestionIndex + 1;
+        this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+  
+        // 🧠 Check if this question has already been answered
+        const isAnswered = await this.isQuestionAnswered(questionIndex);
+        if (!isAnswered) {
+          console.log(`[navigateToQuestion] 🚫 Skipping updateExplanationText — question not answered.`);
+          this.explanationToDisplay = '';
+          return true;
+        }
+  
+        console.log(`[navigateToQuestion] ✅ updateExplanationText(${questionIndex}) logic confirmed.`);
+        return true;
+      } else {
+        console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`[navigateToQuestion] ❌ Error navigating to Q${questionIndex}:`, error);
+      return false;
+    }
   }
+  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
