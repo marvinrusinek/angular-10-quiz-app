@@ -136,6 +136,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isLoading = false;
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
+  private quizAlreadyInitialized = false;
   questionTextLoaded = false;
   hasLoadingError = false;
 
@@ -1227,6 +1228,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private initializeQuiz(): void {
+    if (this.quizAlreadyInitialized) {
+      console.warn('[🛑 initializeQuiz] Already initialized. Skipping...');
+      return;
+    }
+  
+    console.log('[✅ initializeQuiz] Starting quiz init...');
+    this.quizAlreadyInitialized = true;
+  
     this.prepareQuizSession();
     this.initializeQuizDependencies();
     this.initializeQuizBasedOnRouteParams();
