@@ -251,7 +251,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('[🔍 QQC] SelectedOptionService instance:', this.selectedOptionService);
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     this.currentQuestionIndex = routeIndex; // ensures correct index
