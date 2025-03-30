@@ -2919,6 +2919,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         firstValueFrom(this.quizStateService.isNavigating$),
         firstValueFrom(this.isButtonEnabled$)
       ]);
+
+      console.log('[🔎 Check before block]', {
+        isLoading,
+        isNavigatingExternal,
+        isEnabled,
+        currentQuestionIndex: this.currentQuestionIndex,
+        totalQuestions: this.totalQuestions
+      });      
   
       if (isLoading || isNavigatingExternal || !isEnabled) {
         console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
