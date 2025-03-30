@@ -163,6 +163,10 @@ export class QuizDataService implements OnDestroy {
           return null;
         }
         const question = quiz.questions[questionIndex];
+        if (!question) {
+          console.error(`No question found at index ${questionIndex}`);
+          return null;
+        }
   
         // Check for undefined options and handle accordingly
         const options = question.options ?? [];
