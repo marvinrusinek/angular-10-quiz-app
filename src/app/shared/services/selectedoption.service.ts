@@ -5,7 +5,6 @@ import { distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { QuizService } from '../../shared/services/quiz.service';
 import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
@@ -44,10 +43,16 @@ export class SelectedOptionService {
   }
 
   constructor(
-    private quizService: QuizService,
     private ngZone: NgZone
   ) {
     console.log('[🧩 SelectedOptionService] Constructed!');
+    
+    this.isAnsweredSubject.subscribe(val => {
+      console.log('[🧩 isAnsweredSubject CHANGE] value =', val);
+      if (val === false) {
+        console.trace('[🧨 isAnsweredSubject was set to FALSE here]');
+      }
+    });
   }
 
   // potentially remove...
@@ -631,6 +636,7 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean): void {
+    console.log('[🧩 setAnswered] called with:', isAnswered);
     const current = this.isAnsweredSubject.getValue();
     if (current !== isAnswered) {
       console.log('[🧩 setAnswered] isAnswered =', isAnswered);
@@ -643,12 +649,14 @@ export class SelectedOptionService {
   }
   
   setAnsweredState(isAnswered: boolean): void {
-    // Emit only if the answered state has actually changed
-    if (this.isAnsweredSubject.getValue() !== isAnswered) {
-      console.log('SelectedOptionService: Answered state set to', isAnswered);
+    const current = this.isAnsweredSubject.getValue();
+  
+    if (current !== isAnswered) {
+      console.log('[🧨 setAnsweredState] isAnswered =', isAnswered);
+      console.trace("TRACE!!"); // 🔍 Trace the origin of the call
       this.isAnsweredSubject.next(isAnswered);
     } else {
-      console.log('SelectedOptionService: Answered state unchanged, still', isAnswered);
+      console.log('[🟡 setAnsweredState] No change needed (already', current + ')');
     }
   }
 
