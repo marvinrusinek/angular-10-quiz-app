@@ -963,17 +963,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /*************** ngOnInit barrel functions ******************/
-  private initializeRouteParameters(): void {
+  /* potentially remove: 
+    private initializeRouteParameters(): void {
     this.fetchRouteParams();
     this.subscribeRouterAndInit();
     this.subscribeToRouteParams();
     this.initializeRouteParams();
-  }
+  } */
 
   private initializeQuizData(): void {
     this.resolveQuizData();
     this.fetchQuizData();
-    this.initializeQuiz();
     this.initializeQuizFromRoute();
   }
 
