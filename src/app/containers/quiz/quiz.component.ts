@@ -3320,6 +3320,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } 
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+    const options = question?.options ?? [];
+
+    if (!question) {
+      console.error(`❌ No question found at index ${questionIndex}`);
+      return;
+    }
+
     try {
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn('Invalid questionIndex (${questionIndex}). Aborting fetch.');
@@ -3331,6 +3339,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = '';
       this.optionsToDisplay = []; // clear previous question options
       this.currentQuestion = null;
+      this.quizService.setCurrentQuestion(question);
       this.cdRef.detectChanges(); // refresh UI to ensure cleared state
 
       // Ensure small delay to sync with navigation
