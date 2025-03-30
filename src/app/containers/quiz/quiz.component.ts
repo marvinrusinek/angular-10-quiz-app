@@ -3547,7 +3547,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     return true;
   } */
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[navigateToQuestion] 🏁 Starting Navigation to Q${questionIndex}`);
   
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3600,6 +3600,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     } catch (error) {
       console.error(`[navigateToQuestion] ❌ Error navigating to Q${questionIndex}:`, error);
+      return false;
+    }
+  } */
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Start → Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      return false;
+    }
+  
+    if (this.debounceNavigation) {
+      console.warn(`[navigateToQuestion] ⏳ Debounce active. Skipping.`);
+      return false;
+    }
+  
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 400);
+  
+    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+  
+    try {
+      const success = await this.router.navigateByUrl(routeUrl);
+  
+      if (success) {
+        console.log(`[navigateToQuestion] ✅ Navigation to ${routeUrl}`);
+  
+        this.currentQuestionIndex = questionIndex;
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+        await this.fetchAndSetQuestionData(questionIndex);
+        this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+  
+        return true;
+      } else {
+        console.warn(`[navigateToQuestion] ❌ Navigation failed.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`[navigateToQuestion] ❌ Error:`, error);
       return false;
     }
   }
