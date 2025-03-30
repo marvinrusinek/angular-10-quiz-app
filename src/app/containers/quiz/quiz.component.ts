@@ -2949,6 +2949,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+        this.resetUI();
   
         const nextQuestion = await firstValueFrom(
           this.quizService.getQuestionByIndex(this.currentQuestionIndex)
