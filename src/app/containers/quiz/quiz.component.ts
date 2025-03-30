@@ -3313,9 +3313,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Ensure correctness state is checked
       await this.quizService.checkIfAnsweredCorrectly();
-      
-      // Call `resetUIAndNavigate()` to ensure correct navigation
-      await this.resetUIAndNavigate(questionIndex);
 
       // Start timer for the loaded question
       this.timerService.startTimer(this.timerService.timePerQuestion);
