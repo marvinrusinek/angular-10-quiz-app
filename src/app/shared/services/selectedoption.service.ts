@@ -46,7 +46,9 @@ export class SelectedOptionService {
   constructor(
     private quizService: QuizService,
     private ngZone: NgZone
-  ) {}
+  ) {
+    console.log('[🧩 SelectedOptionService] Constructed!');
+  }
 
   // potentially remove...
   /* get currentSelectedState(): boolean {
