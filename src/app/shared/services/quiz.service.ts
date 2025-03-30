@@ -1062,7 +1062,7 @@ export class QuizService implements OnDestroy {
     return this.currentQuestion.asObservable();
   }
 
-  async setCurrentQuestionIndex(index: number): Promise<void> {
+  /* async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
       if (!this.quizId) {
         console.error('Quiz ID is not available.');
@@ -1096,7 +1096,12 @@ export class QuizService implements OnDestroy {
     } catch (error) {
       console.error('[setCurrentQuestionIndex] ❌ Error:', error);
     }
-  }
+  } */
+  setCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndex = index;
+    this.currentQuestionIndexSource.next(index);
+    console.log('[✅ setCurrentQuestionIndex] New index:', index);
+  }  
 
   getCurrentQuestionIndex(): number {
     const selectedQuiz = this.quizData.find(
