@@ -3463,8 +3463,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       if (navigationSuccess) {
         // ✅ Update state *after* navigation success
-        this.currentQuestionIndex = questionIndex;
-        this.quizService.setCurrentQuestionIndex(questionIndex);
+        if (this.currentQuestionIndex !== questionIndex) {
+          this.currentQuestionIndex = questionIndex;
+          this.quizService.setCurrentQuestionIndex(questionIndex);
+          console.log(`[navigateToQuestion] 📍 Synced currentQuestionIndex to ${questionIndex}`);
+        } else {
+          console.log(`[navigateToQuestion] 🔁 currentQuestionIndex already matches ${questionIndex}, skipping set`);
+        }
+        
         console.log(`[navigateToQuestion] 🚀 Navigated to Q${questionIndex}`);
         console.log(`[navigateToQuestion] 🚀 Successfully navigated to Q${questionIndex}`);
 
