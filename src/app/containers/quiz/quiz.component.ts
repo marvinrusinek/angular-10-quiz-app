@@ -2901,7 +2901,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.trace('[🧨 TRACE] advanceToNextQuestion() called');
     console.log('[🟢 advanceToNextQuestion()] clicked!');
   
@@ -2950,7 +2950,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
   
         await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-        this.resetUI();
   
         const nextQuestion = await firstValueFrom(
           this.quizService.getQuestionByIndex(this.currentQuestionIndex)
@@ -2986,7 +2985,95 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
       }, 300);
     }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.trace('[🧨 TRACE] advanceToNextQuestion() called');
+    console.log('[🟢 advanceToNextQuestion()] clicked!');
+  
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress. Aborting duplicate call.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setNavigating(true);
+  
+    try {
+      const [isLoading, isNavigatingExternal, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+      ]);
+  
+      console.log('[🔎 Check before block]', {
+        isLoading,
+        isNavigatingExternal,
+        isEnabled,
+        currentQuestionIndex: this.currentQuestionIndex,
+        totalQuestions: this.totalQuestions
+      });
+  
+      if (isLoading || isNavigatingExternal || !isEnabled) {
+        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
+          isLoading,
+          isNavigatingExternal,
+          isEnabled
+        });
+        return;
+      }
+  
+      if (this.currentQuestionIndex < this.totalQuestions - 1) {
+        const nextIndex = this.currentQuestionIndex + 1;
+  
+        const questionLoaded = await this.fetchAndSetNextQuestion();
+        if (!questionLoaded) {
+          console.warn('[advanceToNextQuestion] ❌ Question load failed. Aborting navigation.');
+          return;
+        }
+  
+        this.currentQuestionIndex = nextIndex;
+        this.quizService.setCurrentQuestionIndex(nextIndex);
+        console.log(`[advanceToNextQuestion] ✅ Updated currentQuestionIndex: ${nextIndex}`);
+  
+        await this.prepareQuestionForDisplay(nextIndex);
+  
+        const nextQuestion = await firstValueFrom(
+          this.quizService.getQuestionByIndex(nextIndex)
+        );
+        this.quizService.setCurrentQuestion(nextQuestion);
+  
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(nextIndex + 1));
+  
+        this.quizQuestionComponent?.resetExplanation();
+  
+        const shouldEnableNextButton = this.isAnyOptionSelected();
+        this.updateAndSyncNextButtonState(shouldEnableNextButton);
+      } else {
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+      }
+    } catch (error) {
+      console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+  
+      setTimeout(() => {
+        const indexCheck = this.quizService.currentQuestionIndex;
+        if (indexCheck !== this.currentQuestionIndex) {
+          console.log('[✅ finally] Resetting isAnswered AFTER question index changed.');
+          this.selectedOptionService.setAnswered(false);
+          this.quizStateService.setAnswered(false);
+        } else {
+          console.log('[⛔ finally] Skipping isAnswered reset — index did not change.');
+        }
+  
+        this.cdRef.detectChanges();
+      }, 300);
+    }
   }
+  
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
@@ -3241,6 +3328,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
+    console.log('[🚚 fetchAndSetNextQuestion] Pulling new data for index:', this.currentQuestionIndex);
+
     try {
       const nextQuestion = await firstValueFrom(
         this.quizService.getQuestionByIndex(this.currentQuestionIndex)
