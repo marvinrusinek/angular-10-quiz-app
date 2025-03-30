@@ -2986,7 +2986,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }, 300);
     }
   } */
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.trace('[🧨 TRACE] advanceToNextQuestion() called');
     console.log('[🟢 advanceToNextQuestion()] clicked!');
   
@@ -3072,7 +3072,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
       }, 300);
     }
-  }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.log('[🧪 TEST] Manually advancing to index:', this.currentQuestionIndex + 1);
+  
+    const nextIndex = this.currentQuestionIndex + 1;
+    const nextQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(nextIndex));
+  
+    if (!nextQuestion) {
+      console.warn('[🧪 TEST] No question found. Aborting.');
+      return;
+    }
+  
+    this.currentQuestionIndex = nextIndex;
+    this.quizService.setCurrentQuestionIndex(nextIndex);
+    this.quizService.setCurrentQuestion(nextQuestion);
+  
+    console.log('[🧪 TEST] Successfully moved to next question:', nextIndex);
+  }  
   
   
   async advanceToPreviousQuestion(): Promise<void> {
