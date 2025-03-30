@@ -2969,17 +2969,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
     } finally {
-      // Reset navigation/loading flags immediately
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     
-      // Delay reset of isAnswered after UI has time to render
       setTimeout(() => {
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
+        const indexCheck = this.quizService.currentQuestionIndex;
+        if (indexCheck !== this.currentQuestionIndex) {
+          console.log('[✅ finally] Resetting isAnswered AFTER question index changed.');
+          this.selectedOptionService.setAnswered(false);
+          this.quizStateService.setAnswered(false);
+        } else {
+          console.log('[⛔ finally] Skipping isAnswered reset — index did not change.');
+        }
+    
+        this.cdRef.detectChanges();
       }, 300);
-    }    
   }
   
   async advanceToPreviousQuestion(): Promise<void> {
