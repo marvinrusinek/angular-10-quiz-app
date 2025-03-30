@@ -2985,6 +2985,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     
         this.cdRef.detectChanges();
       }, 300);
+    }
   }
   
   async advanceToPreviousQuestion(): Promise<void> {
