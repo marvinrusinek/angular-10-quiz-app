@@ -2975,12 +2975,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     
-      // Delay reset of isAnswered AFTER UI has time to render
+      // Delay reset of isAnswered after UI has time to render
       setTimeout(() => {
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
-        console.log('[✅ finally] Answered state reset AFTER navigation settled.');
-        this.cdRef.detectChanges();
       }, 300);
     }    
   }
