@@ -630,17 +630,16 @@ export class SelectedOptionService {
 
   setAnswered(isAnswered: boolean): void {
     const current = this.isAnsweredSubject.getValue();
-    console.log('[🧩 setAnswered] called with:', isAnswered);
-  
     if (current !== isAnswered) {
       console.log('[🧩 setAnswered] isAnswered =', isAnswered);
+      console.trace();
       this.isAnsweredSubject.next(isAnswered);
       sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
     } else {
       console.log('[🟡 setAnswered] No change needed (already', current + ')');
     }
   }
-
+  
   setAnsweredState(isAnswered: boolean): void {
     // Emit only if the answered state has actually changed
     if (this.isAnsweredSubject.getValue() !== isAnswered) {
