@@ -2962,15 +2962,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const shouldEnableNextButton = this.isAnyOptionSelected();
         this.updateAndSyncNextButtonState(shouldEnableNextButton);
       } else {
-        console.log('[✅ advanceToNextQuestion] Last question reached — navigating to results...');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
       }
     } catch (error) {
       console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
     } finally {
       // Reset navigation/loading flags immediately
-      console.log('[🧹 FINALLY block] Resetting answered + loading flags after navigation');
-    
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
