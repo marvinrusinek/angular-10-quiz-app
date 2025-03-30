@@ -2995,7 +2995,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }, 300);
     }
   } */
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.trace('[🧨 TRACE] advanceToNextQuestion() called');
     console.log('[🟢 advanceToNextQuestion()] clicked!');
   
@@ -3023,14 +3023,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         totalQuestions: this.totalQuestions
       });
   
-      /* if (isLoading || isNavigatingExternal || !isEnabled) {
+      if (isLoading || isNavigatingExternal || !isEnabled) {
         console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
           isLoading,
           isNavigatingExternal,
           isEnabled
         });
         return;
-      } */
+      }
   
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         const nextIndex = this.currentQuestionIndex + 1;
@@ -3081,8 +3081,69 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
       }, 300);
     }
-  }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.trace('[🧨 TRACE] advanceToNextQuestion() called');
+    console.log('[🟢 advanceToNextQuestion()] clicked!');
   
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress. Aborting duplicate call.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setNavigating(true);
+  
+    try {
+      const [isLoading, isNavigatingExternal, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+      ]);
+  
+      console.log('[🔎 Check before block]', {
+        isLoading,
+        isNavigatingExternal,
+        isEnabled,
+        currentQuestionIndex: this.currentQuestionIndex,
+        totalQuestions: this.totalQuestions
+      });
+  
+      if (isLoading || isNavigatingExternal || !isEnabled) {
+        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
+          isLoading,
+          isNavigatingExternal,
+          isEnabled
+        });
+        return;
+      }
+  
+      const nextIndex = this.currentQuestionIndex + 1;
+      if (nextIndex < this.totalQuestions) {
+        const navigated = await this.navigateToQuestion(nextIndex);
+        if (!navigated) {
+          console.warn('[advanceToNextQuestion] ❌ Navigation to next question failed.');
+          return;
+        }
+      } else {
+        console.log('[advanceToNextQuestion] 🏁 End of quiz, navigating to results page.');
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+      }
+    } catch (error) {
+      console.error('[advanceToNextQuestion] ❌ Error:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+  
+      setTimeout(() => {
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
+        this.cdRef.detectChanges();
+      }, 300);
+    }
+  }  
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
