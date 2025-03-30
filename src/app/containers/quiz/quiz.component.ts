@@ -2902,6 +2902,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
+    console.trace('[🧨 TRACE] advanceToNextQuestion() called');
     console.log('[🟢 advanceToNextQuestion()] clicked!');
   
     if (this.isNavigating) {
@@ -2928,14 +2929,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         totalQuestions: this.totalQuestions
       });      
   
-      /* if (isLoading || isNavigatingExternal || !isEnabled) {
+      if (isLoading || isNavigatingExternal || !isEnabled) {
         console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
           isLoading,
           isNavigatingExternal,
           isEnabled
         });
         return;
-      } */
+      }
   
       if (this.currentQuestionIndex < this.totalQuestions - 1) {
         this.currentQuestionIndex++;
