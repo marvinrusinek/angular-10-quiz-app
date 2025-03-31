@@ -3476,26 +3476,59 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
+      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`❌ Invalid questionIndex (${questionIndex})`);
+        return false;
+      }
+  
       const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
   
+      // 🔄 Reset prior state
       this.resetQuestionState();
-      this.currentQuestion = question;
-      this.optionsToDisplay = [...(question.options ?? [])];
+      this.explanationToDisplay = '';
+      this.optionsToDisplay = [];
+      this.currentQuestion = null;
+      this.cdRef.detectChanges(); // Trigger UI flush
+  
+      // ⏳ Slight delay to let UI clear
+      await new Promise(resolve => setTimeout(resolve, 30));
+  
+      // ✅ Assign clean state to question and options
+      const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
+      question.options = updatedOptions;
+  
+      this.currentQuestion = { ...question, options: updatedOptions };
+      this.optionsToDisplay = [...updatedOptions];
       this.explanationToDisplay = question.explanation ?? '';
   
+      // ✅ Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+  
+      // ✅ Update UI
       this.cdRef.detectChanges();
+  
+      // ✅ Optional: restart timer
+      this.timerService.startTimer(this.timerService.timePerQuestion);
+  
+      // ✅ Optional: check correctness state (if needed for display)
+      await this.quizService.checkIfAnsweredCorrectly();
+  
+      console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}:`, {
+        questionText: this.currentQuestion.questionText,
+        options: this.optionsToDisplay.length,
+      });
+  
       return true;
-    } catch (e) {
-      console.error(`[fetchAndSetQuestionData] ❌`, e);
+    } catch (error) {
+      console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
       return false;
     }
-  }
+  }  
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     console.log('[🚚 fetchAndSetNextQuestion] Pulling new data for index:', this.currentQuestionIndex);
