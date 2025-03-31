@@ -3319,7 +3319,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } 
 
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
     const options = question?.options ?? [];
 
@@ -3382,7 +3382,54 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error in fetchAndSetQuestionData():', error);
       return false;
     }
-  }
+  } */
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    try {
+      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[fetchAndSetQuestionData] ❌ Invalid questionIndex: ${questionIndex}`);
+        return false;
+      }
+  
+      const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+  
+      if (!question) {
+        console.error(`[fetchAndSetQuestionData] ❌ No question found at index: ${questionIndex}`);
+        return false;
+      }
+  
+      // ✅ Step 1: Clear existing state before applying new question
+      this.resetQuestionState();
+      this.explanationToDisplay = '';
+      this.optionsToDisplay = [];
+      this.currentQuestion = null;
+  
+      this.cdRef.detectChanges(); // 🔁 force clear UI
+  
+      // ✅ Step 2: Apply and prepare question data
+      const assignedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
+      this.currentQuestion = { ...question, options: assignedOptions };
+      this.optionsToDisplay = [...assignedOptions];
+      this.quizService.setCurrentQuestion(this.currentQuestion);
+  
+      // ✅ Step 3: Update explanation (if available)
+      const explanation = question.explanation ?? 'No explanation available';
+      this.explanationToDisplay = explanation;
+  
+      // ✅ Step 4: Update observable state and UI
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+      this.cdRef.detectChanges();
+  
+      // ✅ Step 5: Kick off any post-load logic
+      await this.quizService.checkIfAnsweredCorrectly();
+      this.timerService.startTimer(this.timerService.timePerQuestion);
+  
+      console.log(`[fetchAndSetQuestionData] ✅ Data loaded for Q${questionIndex}`);
+      return true;
+    } catch (error) {
+      console.error(`[fetchAndSetQuestionData] ❌ Error:`, error);
+      return false;
+    }
+  }  
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     console.log('[🚚 fetchAndSetNextQuestion] Pulling new data for index:', this.currentQuestionIndex);
