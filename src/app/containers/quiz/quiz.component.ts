@@ -3176,6 +3176,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       const nextIndex = this.currentQuestionIndex + 1;
+
       if (nextIndex >= this.totalQuestions) {
         console.log('[✅] Last question – navigating to results');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -3183,12 +3184,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       console.log('[🧭 advanceToNextQuestion] Calling navigateToQuestion() with index =', nextIndex);
+
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
         return;
       }
-  
+
+      // ✅ Call prepareQuestionForDisplay after navigation + question load
+      await this.prepareQuestionForDisplay(nextIndex);
+
+      this.quizQuestionComponent?.resetExplanation();
+
+      const shouldEnableNextButton = this.isAnyOptionSelected();
+      this.updateAndSyncNextButtonState(shouldEnableNextButton);
     } catch (e) {
       console.error('[advanceToNextQuestion] ❌ Error:', e);
     } finally {
