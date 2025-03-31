@@ -3125,7 +3125,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
     }
   } */
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion()] clicked!');
     if (this.isNavigating) return;
   
@@ -3159,7 +3159,50 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
       }, 200);
     }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.trace('[🧨 advanceToNextQuestion] CALLED');
+  
+    if (this.isNavigating) {
+      console.warn('[🛑] Already navigating – exiting early');
+      return;
+    }
+  
+    this.isNavigating = true;
+    console.log('[🚦] Proceeding with navigation');
+  
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setNavigating(true);
+  
+    try {
+      const nextIndex = this.currentQuestionIndex + 1;
+      if (nextIndex >= this.totalQuestions) {
+        console.log('[✅] Last question – navigating to results');
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        return;
+      }
+  
+      const success = await this.navigateToQuestion(nextIndex);
+      if (!success) {
+        console.warn('[❌] Navigation failed to Q' + nextIndex);
+        return;
+      }
+  
+    } catch (e) {
+      console.error('[advanceToNextQuestion] ❌ Error:', e);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+  
+      setTimeout(() => {
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
+        this.cdRef.detectChanges();
+      }, 200);
+    }
   }
+  
   
   
   
