@@ -3082,7 +3082,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }, 300);
     }
   } */
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.trace('[🧨 TRACE] advanceToNextQuestion() called');
     console.log('[🟢 advanceToNextQuestion()] clicked!');
   
@@ -3123,6 +3123,83 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
       this.cdRef.detectChanges();
+    }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.trace('[🧨 TRACE] advanceToNextQuestion() called');
+    console.log('[🟢 advanceToNextQuestion()] clicked!');
+  
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress. Aborting duplicate call.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizStateService.setLoading(true);
+    this.quizStateService.setNavigating(true);
+  
+    try {
+      const [isLoading, isNavigatingExternal, isEnabled] = await Promise.all([
+        firstValueFrom(this.quizStateService.isLoading$),
+        firstValueFrom(this.quizStateService.isNavigating$),
+        firstValueFrom(this.isButtonEnabled$)
+      ]);
+  
+      console.log('[🔎 Check before block]', {
+        isLoading,
+        isNavigatingExternal,
+        isEnabled,
+        currentQuestionIndex: this.currentQuestionIndex,
+        totalQuestions: this.totalQuestions
+      });
+  
+      if (isLoading || isNavigatingExternal || !isEnabled) {
+        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
+          isLoading,
+          isNavigatingExternal,
+          isEnabled
+        });
+        return;
+      }
+  
+      if (this.currentQuestionIndex < this.totalQuestions - 1) {
+        const nextIndex = this.currentQuestionIndex + 1;
+  
+        const navigationSuccess = await this.navigateToQuestion(nextIndex);
+        if (navigationSuccess) {
+          this.currentQuestionIndex = nextIndex;
+          this.quizService.setCurrentQuestionIndex(nextIndex);
+          localStorage.setItem('savedQuestionIndex', JSON.stringify(nextIndex));
+  
+          this.quizQuestionComponent?.resetExplanation();
+  
+          const shouldEnableNextButton = this.isAnyOptionSelected();
+          this.updateAndSyncNextButtonState(shouldEnableNextButton);
+        } else {
+          console.warn('[advanceToNextQuestion] ❌ Navigation failed.');
+        }
+      } else {
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+      }
+    } catch (error) {
+      console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+  
+      setTimeout(() => {
+        const indexCheck = this.quizService.currentQuestionIndex;
+        if (indexCheck !== this.currentQuestionIndex) {
+          console.log('[✅ finally] Resetting isAnswered AFTER question index changed.');
+          this.selectedOptionService.setAnswered(false);
+          this.quizStateService.setAnswered(false);
+        } else {
+          console.log('[⛔ finally] Skipping isAnswered reset — index did not change.');
+        }
+  
+        this.cdRef.detectChanges();
+      }, 300);
     }
   }  
   
@@ -3659,7 +3736,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   } */
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[navigateToQuestion] 🏁 Start → Q${questionIndex}`);
   
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3699,7 +3776,61 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[navigateToQuestion] ❌ Error:`, error);
       return false;
     }
+  } */
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Starting Navigation to Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index Q${questionIndex}. Navigation Aborted.`);
+      return false;
+    }
+  
+    if (this.debounceNavigation) {
+      console.warn(`[navigateToQuestion] ⏳ Navigation debounce active. Skipping navigation.`);
+      return false;
+    }
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 500);
+  
+    const questionNumber = questionIndex + 1;
+    const targetUrl = `/question/${this.quizId}/${questionNumber}`;
+  
+    try {
+      const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
+  
+      if (navigationSuccess) {
+        this.currentQuestionIndex = questionIndex;
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+        console.log(`[navigateToQuestion] 📍 Synced currentQuestionIndex to ${questionIndex}`);
+        console.log(`[navigateToQuestion] 🚀 Successfully navigated to Q${questionIndex}`);
+  
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        await this.fetchAndSetQuestionData(questionIndex);
+        console.log(`[navigateToQuestion] 📌 fetchAndSetQuestionData() completed for Q${questionIndex}`);
+  
+        const badgeNumber = this.currentQuestionIndex + 1;
+        this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
+  
+        const isAnswered = await this.isQuestionAnswered(questionIndex);
+        if (!isAnswered) {
+          console.log(`[navigateToQuestion] 🚫 Skipping explanation — question not answered.`);
+          this.explanationToDisplay = '';
+        } else {
+          console.log(`[navigateToQuestion] ✅ Explanation loaded for Q${questionIndex}`);
+        }
+  
+        return true;
+      } else {
+        console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`[navigateToQuestion] ❌ Error navigating to Q${questionIndex}:`, error);
+      return false;
+    }
   }
+  
   
 
   // Reset UI immediately before navigating
