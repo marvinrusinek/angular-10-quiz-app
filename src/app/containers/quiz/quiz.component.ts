@@ -3139,69 +3139,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setNavigating(true);
   
     try {
-      const [isLoading, isNavigatingExternal, isEnabled] = await Promise.all([
-        firstValueFrom(this.quizStateService.isLoading$),
-        firstValueFrom(this.quizStateService.isNavigating$),
-        firstValueFrom(this.isButtonEnabled$)
-      ]);
+      const current = this.currentQuestionIndex;
+      const next = current + 1;
   
-      console.log('[🔎 Check before block]', {
-        isLoading,
-        isNavigatingExternal,
-        isEnabled,
-        currentQuestionIndex: this.currentQuestionIndex,
-        totalQuestions: this.totalQuestions
-      });
-  
-      if (isLoading || isNavigatingExternal || !isEnabled) {
-        console.warn('[🚫 advanceToNextQuestion] Blocked: Conditions not met.', {
-          isLoading,
-          isNavigatingExternal,
-          isEnabled
-        });
+      if (next >= this.totalQuestions) {
+        console.log('[✅ advanceToNextQuestion] Last question reached — navigating to results...');
+        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         return;
       }
   
-      if (this.currentQuestionIndex < this.totalQuestions - 1) {
-        const nextIndex = this.currentQuestionIndex + 1;
-  
-        const navigationSuccess = await this.navigateToQuestion(nextIndex);
-        if (navigationSuccess) {
-          this.currentQuestionIndex = nextIndex;
-          this.quizService.setCurrentQuestionIndex(nextIndex);
-          localStorage.setItem('savedQuestionIndex', JSON.stringify(nextIndex));
-  
-          this.quizQuestionComponent?.resetExplanation();
-  
-          const shouldEnableNextButton = this.isAnyOptionSelected();
-          this.updateAndSyncNextButtonState(shouldEnableNextButton);
-        } else {
-          console.warn('[advanceToNextQuestion] ❌ Navigation failed.');
-        }
+      const navigated = await this.navigateToQuestion(next);
+      if (navigated) {
+        console.log(`[✅ advanceToNextQuestion] Navigation to Q${next} succeeded`);
       } else {
-        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        console.warn(`[⚠️ advanceToNextQuestion] Navigation to Q${next} failed`);
       }
-    } catch (error) {
-      console.error('[advanceToNextQuestion] ❌ Error during navigation:', error);
+    } catch (err) {
+      console.error('[❌ advanceToNextQuestion] Error:', err);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
   
+      // Reset answered flag only after successful navigation
       setTimeout(() => {
-        const indexCheck = this.quizService.currentQuestionIndex;
-        if (indexCheck !== this.currentQuestionIndex) {
-          console.log('[✅ finally] Resetting isAnswered AFTER question index changed.');
-          this.selectedOptionService.setAnswered(false);
-          this.quizStateService.setAnswered(false);
-        } else {
-          console.log('[⛔ finally] Skipping isAnswered reset — index did not change.');
-        }
-  
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
         this.cdRef.detectChanges();
       }, 300);
     }
-  }  
+  }
+  
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
