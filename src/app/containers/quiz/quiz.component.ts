@@ -3182,6 +3182,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
   
+      console.log('[🧭 advanceToNextQuestion] Calling navigateToQuestion() with index =', nextIndex);
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
