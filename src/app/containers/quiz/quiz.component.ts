@@ -3487,35 +3487,43 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      // 🔄 Reset prior state
+      // 🔄 Reset prior state FIRST before doing anything else
+      this.currentQuestion = null;
       this.resetQuestionState();
       this.explanationToDisplay = '';
       this.optionsToDisplay = [];
-      this.currentQuestion = null;
-      this.cdRef.detectChanges(); // Trigger UI flush
+      this.cdRef.detectChanges(); // Force flush of cleared UI
   
-      // ⏳ Slight delay to let UI clear
+      // ⏳ Delay to allow DOM cleanup
       await new Promise(resolve => setTimeout(resolve, 30));
   
-      // ✅ Assign clean state to question and options
+      // ✅ Set up clean state
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
       question.options = updatedOptions;
   
+      // 🧠 Build final question object and assign
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
-      this.explanationToDisplay = question.explanation ?? '';
   
-      // ✅ Sync global state
+      // 🧪 Only show explanation if the question was already answered
+      const isAnswered = await this.isQuestionAnswered(questionIndex);
+      if (isAnswered) {
+        this.explanationToDisplay = question.explanation ?? '';
+      } else {
+        this.explanationToDisplay = '';
+      }
+  
+      // 🔄 Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // ✅ Update UI
+      // 🔁 Refresh the UI
       this.cdRef.detectChanges();
   
-      // ✅ Optional: restart timer
+      // ⏱ Restart timer
       this.timerService.startTimer(this.timerService.timePerQuestion);
   
-      // ✅ Optional: check correctness state (if needed for display)
+      // ✅ (Optional) Evaluate correctness state
       await this.quizService.checkIfAnsweredCorrectly();
   
       console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}:`, {
