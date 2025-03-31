@@ -3126,49 +3126,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    console.trace('[🧨 TRACE] advanceToNextQuestion() called');
     console.log('[🟢 advanceToNextQuestion()] clicked!');
-  
-    if (this.isNavigating) {
-      console.warn('[⏳] Navigation already in progress. Aborting duplicate call.');
-      return;
-    }
+    if (this.isNavigating) return;
   
     this.isNavigating = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setNavigating(true);
   
     try {
-      const current = this.currentQuestionIndex;
-      const next = current + 1;
-  
-      if (next >= this.totalQuestions) {
-        console.log('[✅ advanceToNextQuestion] Last question reached — navigating to results...');
+      const nextIndex = this.currentQuestionIndex + 1;
+      if (nextIndex >= this.totalQuestions) {
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         return;
       }
   
-      const navigated = await this.navigateToQuestion(next);
-      if (navigated) {
-        console.log(`[✅ advanceToNextQuestion] Navigation to Q${next} succeeded`);
-      } else {
-        console.warn(`[⚠️ advanceToNextQuestion] Navigation to Q${next} failed`);
+      const success = await this.navigateToQuestion(nextIndex);
+      if (!success) {
+        console.warn('[❌] Navigation failed to Q' + nextIndex);
+        return;
       }
-    } catch (err) {
-      console.error('[❌ advanceToNextQuestion] Error:', err);
+  
+    } catch (e) {
+      console.error('[advanceToNextQuestion] ❌ Error:', e);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
   
-      // Reset answered flag only after successful navigation
       setTimeout(() => {
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
         this.cdRef.detectChanges();
-      }, 300);
+      }, 200);
     }
   }
+  
+  
   
   
   async advanceToPreviousQuestion(): Promise<void> {
@@ -3430,51 +3423,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
-      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`[fetchAndSetQuestionData] ❌ Invalid questionIndex: ${questionIndex}`);
-        return false;
-      }
-  
       const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
-  
       if (!question) {
-        console.error(`[fetchAndSetQuestionData] ❌ No question found at index: ${questionIndex}`);
+        console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
   
-      // ✅ Step 1: Clear existing state before applying new question
       this.resetQuestionState();
-      this.explanationToDisplay = '';
-      this.optionsToDisplay = [];
-      this.currentQuestion = null;
+      this.currentQuestion = question;
+      this.optionsToDisplay = [...(question.options ?? [])];
+      this.explanationToDisplay = question.explanation ?? '';
   
-      this.cdRef.detectChanges(); // 🔁 force clear UI
-  
-      // ✅ Step 2: Apply and prepare question data
-      const assignedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
-      this.currentQuestion = { ...question, options: assignedOptions };
-      this.optionsToDisplay = [...assignedOptions];
       this.quizService.setCurrentQuestion(this.currentQuestion);
-  
-      // ✅ Step 3: Update explanation (if available)
-      const explanation = question.explanation ?? 'No explanation available';
-      this.explanationToDisplay = explanation;
-  
-      // ✅ Step 4: Update observable state and UI
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
       this.cdRef.detectChanges();
-  
-      // ✅ Step 5: Kick off any post-load logic
-      await this.quizService.checkIfAnsweredCorrectly();
-      this.timerService.startTimer(this.timerService.timePerQuestion);
-  
-      console.log(`[fetchAndSetQuestionData] ✅ Data loaded for Q${questionIndex}`);
       return true;
-    } catch (error) {
-      console.error(`[fetchAndSetQuestionData] ❌ Error:`, error);
+    } catch (e) {
+      console.error(`[fetchAndSetQuestionData] ❌`, e);
       return false;
     }
-  }  
+  }
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     console.log('[🚚 fetchAndSetNextQuestion] Pulling new data for index:', this.currentQuestionIndex);
@@ -3745,59 +3713,174 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   } */
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[navigateToQuestion] 🏁 Starting Navigation to Q${questionIndex}`);
   
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`[navigateToQuestion] ❌ Invalid index Q${questionIndex}. Navigation Aborted.`);
+      console.warn(`[navigateToQuestion] ❌ Invalid index Q${questionIndex}.`);
       return false;
     }
   
     if (this.debounceNavigation) {
-      console.warn(`[navigateToQuestion] ⏳ Navigation debounce active. Skipping navigation.`);
+      console.warn(`[navigateToQuestion] ⏳ Debounced. Skipping.`);
       return false;
     }
+  
     this.debounceNavigation = true;
     setTimeout(() => (this.debounceNavigation = false), 500);
   
-    const questionNumber = questionIndex + 1;
-    const targetUrl = `/question/${this.quizId}/${questionNumber}`;
+    const targetUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    const navResult = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
+  
+    if (!navResult) {
+      console.warn(`[navigateToQuestion] ❌ Navigation failed to ${targetUrl}`);
+      return false;
+    }
+  
+    console.log(`[navigateToQuestion] 🚀 Navigation to ${targetUrl} succeeded`);
+  
+    // Update state
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+    const success = await this.fetchAndSetQuestionData(questionIndex);
+    if (!success) {
+      console.warn(`[navigateToQuestion] ❌ fetchAndSetQuestionData(${questionIndex}) failed`);
+      return false;
+    }
+  
+    const badgeNumber = questionIndex + 1;
+    this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+  
+    return true;
+  } */
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Starting Navigation to Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      return false;
+    }
+  
+    if (this.debounceNavigation) {
+      console.warn(`[navigateToQuestion] ⏳ Debounce active. Skipping.`);
+      return false;
+    }
+  
+    this.debounceNavigation = true;
+    setTimeout(() => (this.debounceNavigation = false), 500);
+  
+    const targetUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    console.log(`[navigateToQuestion] 🌐 Routing to ${targetUrl}`);
   
     try {
       const navigationSuccess = await this.router.navigateByUrl(targetUrl, { replaceUrl: false });
   
-      if (navigationSuccess) {
-        this.currentQuestionIndex = questionIndex;
-        this.quizService.setCurrentQuestionIndex(questionIndex);
-        console.log(`[navigateToQuestion] 📍 Synced currentQuestionIndex to ${questionIndex}`);
-        console.log(`[navigateToQuestion] 🚀 Successfully navigated to Q${questionIndex}`);
-  
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        await this.fetchAndSetQuestionData(questionIndex);
-        console.log(`[navigateToQuestion] 📌 fetchAndSetQuestionData() completed for Q${questionIndex}`);
-  
-        const badgeNumber = this.currentQuestionIndex + 1;
-        this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
-        localStorage.setItem('savedQuestionIndex', JSON.stringify(this.currentQuestionIndex));
-  
-        const isAnswered = await this.isQuestionAnswered(questionIndex);
-        if (!isAnswered) {
-          console.log(`[navigateToQuestion] 🚫 Skipping explanation — question not answered.`);
-          this.explanationToDisplay = '';
-        } else {
-          console.log(`[navigateToQuestion] ✅ Explanation loaded for Q${questionIndex}`);
-        }
-  
-        return true;
-      } else {
-        console.warn(`[navigateToQuestion] ❌ Navigation to ${targetUrl} failed.`);
+      if (!navigationSuccess) {
+        console.warn(`[navigateToQuestion] ❌ Navigation failed to ${targetUrl}`);
         return false;
       }
+  
+      console.log(`[navigateToQuestion] ✅ Navigation succeeded to ${targetUrl}`);
+  
+      // Sync internal index AFTER route change
+      this.currentQuestionIndex = questionIndex;
+      this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+      const dataFetched = await this.fetchAndSetQuestionData(questionIndex);
+      if (!dataFetched) {
+        console.warn(`[navigateToQuestion] ❌ Failed to load question data for index ${questionIndex}`);
+        return false;
+      }
+  
+      const badgeNumber = questionIndex + 1;
+      this.quizService.updateBadgeText(badgeNumber, this.totalQuestions);
+      localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+  
+      const isAnswered = await this.isQuestionAnswered(questionIndex);
+      if (!isAnswered) {
+        console.log(`[navigateToQuestion] ⚠️ Skipping explanation update — question not answered`);
+        this.explanationToDisplay = '';
+      } else {
+        console.log(`[navigateToQuestion] ✅ Question ${questionIndex} was answered — explanation update allowed`);
+      }
+  
+      return true;
     } catch (error) {
-      console.error(`[navigateToQuestion] ❌ Error navigating to Q${questionIndex}:`, error);
+      console.error(`[navigateToQuestion] ❌ Error during navigation:`, error);
       return false;
     }
+  } */
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Start Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`❌ Invalid index Q${questionIndex}`);
+      return false;
+    }
+  
+    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    const success = await this.router.navigateByUrl(routeUrl);
+    if (!success) {
+      console.warn(`❌ Route failed to ${routeUrl}`);
+      return false;
+    }
+  
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+    const fetched = await this.fetchAndSetQuestionData(questionIndex);
+    if (!fetched) return false;
+  
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+    return true;
+  } */
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      return false;
+    }
+  
+    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
+  
+    if (!navSuccess) {
+      console.warn(`[navigateToQuestion] ❌ Navigation to ${routeUrl} failed`);
+      return false;
+    }
+  
+    // 🔁 Reset previous question UI state FIRST
+    this.resetQuestionState();               // reset icons, selections, feedback
+    this.explanationToDisplay = '';
+    this.optionsToDisplay = [];
+    this.currentQuestion = null;
+    this.cdRef.detectChanges();              // force reset UI before new data
+  
+    // Small delay to flush rendering
+    await new Promise(res => setTimeout(res, 50));
+  
+    // ✅ Set new index and state
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+    const success = await this.fetchAndSetQuestionData(questionIndex);
+    if (!success) {
+      console.warn(`[navigateToQuestion] ❌ Failed to fetch question data`);
+      return false;
+    }
+  
+    // 💾 Save and update UI details
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+    this.cdRef.detectChanges(); // ensure Angular picks up the changes
+  
+    return true;
   }
+  
   
   
 
