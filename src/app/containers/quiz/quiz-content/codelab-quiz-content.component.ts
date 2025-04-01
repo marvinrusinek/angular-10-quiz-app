@@ -212,30 +212,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeComponent();
     this.initializeQuestionState();
     this.initializeSubscriptions();
-    this.setupCombinedTextObservable();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
 
-  private checkQuizQuestionComponentReadiness(): Observable<boolean> {
-    return new Observable<boolean>((observer) => {
-      const interval = setInterval(() => {
-        if (this.quizQuestionComponent) {
-          observer.next(true);
-          observer.complete();
-          clearInterval(interval);
-        }
-      }, 200);
-  
-      setTimeout(() => {
-        observer.next(false);
-        observer.complete();
-        clearInterval(interval);
-      }, 2000); // Maximum wait time of 2 seconds
-    });
-  }
-  
-  
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
       this.questionRendered.next(false);
@@ -798,15 +778,83 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
 
-    this.combinedText$ = this.combinedQuestionData$.pipe(
-      tap(data => console.log('[🧪 combinedQuestionData$ EMIT]', data)),
-      map(data => {
-        console.log('Final Combined Question Data (Map):', data);
-        return this.constructDisplayText(data) ?? 'No question data available';
+    this.combinedText$ = combineLatest([
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+      this.quizService.getCurrentQuiz().pipe(startWith(null)),
+      this.nextQuestion$.pipe(startWith(null)),
+      this.previousQuestion$.pipe(startWith(null)),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
+      this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged())
+    ]).pipe(
+      map(([currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
+        const questions = quiz?.questions ?? [];
+        const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
+    
+        return {
+          currentIndex,
+          quiz,
+          currentQuestion,
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation
+        };
       }),
+    
+      filter(({ shouldDisplayExplanation, currentQuestion }) => {
+        const questionReady = !!currentQuestion?.questionText?.trim();
+        const explanationReady = shouldDisplayExplanation;
+        const allow = questionReady || explanationReady;
+    
+        if (!allow) {
+          console.warn('[⛔ combinedText$] Skipping — no valid questionText or explanation');
+        }
+    
+        return allow;
+      }),
+    
+      tap(({ currentIndex, currentQuestion, shouldDisplayExplanation, formattedExplanation }) => {
+        console.log('[📦 combinedText$ Params]', {
+          currentIndex,
+          questionText: currentQuestion?.questionText,
+          shouldShowExplanation: shouldDisplayExplanation,
+          explanation: formattedExplanation
+        });
+      }),
+    
+      auditTime(0),
+      debounceTime(10),
+    
+      switchMap(({ currentQuestion, nextQ, prevQ, formattedExplanation, shouldDisplayExplanation, currentIndex }) => {
+        const hasExplanation = shouldDisplayExplanation && formattedExplanation?.trim().length > 0;
+        const fallbackText = currentQuestion?.questionText ?? 'No question data available';
+    
+        return this.determineTextToDisplay([
+          nextQ,
+          prevQ,
+          formattedExplanation,
+          shouldDisplayExplanation,
+          currentIndex,
+          currentQuestion
+        ]).pipe(
+          catchError(err => {
+            console.error('[❌ determineTextToDisplay] Error:', err);
+            return of(fallbackText);
+          })
+        );
+      }),
+    
+      startWith('Loading question...'),
+    
+      distinctUntilChanged(),
+    
+      tap(finalText => {
+        console.log('[🧪 Final Combined Text]:', finalText);
+      }),
+    
       catchError(error => {
-        console.error('Error processing combined text:', error);
-        return of('Error loading question data');
+        console.error('[combinedText$] ❌ Error:', error);
+        return of('Error loading content');
       })
     );
   }
@@ -938,64 +986,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
   }  
-  
-  private setupCombinedTextObservable(): void {
-    this.combinedText$ = combineLatest([
-      this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
-      this.quizService.getCurrentQuiz().pipe(startWith(null)),
-      this.nextQuestion$.pipe(startWith(null)),
-      this.previousQuestion$.pipe(startWith(null)),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
-      this.explanationTextService.formattedExplanation$.pipe(startWith('',), distinctUntilChanged())
-    ]).pipe(
-      map(([currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
-        const questions = quiz?.questions ?? [];
-        const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
-  
-        return [
-          nextQ,
-          prevQ,
-          formattedExplanation,
-          shouldDisplayExplanation,
-          currentIndex,
-          currentQuestion
-        ] as [QuizQuestion | null, QuizQuestion | null, string, boolean, number, QuizQuestion | null];
-      }),
-  
-      filter(([_, __, ___, shouldDisplayExplanation, ____, currentQuestion]) => {
-        const explanationReady = shouldDisplayExplanation;
-        const questionReady = !!currentQuestion?.questionText?.trim();
-        const allow = explanationReady || questionReady;
-  
-        if (!allow) {
-          console.warn('[⛔ combinedText$] Skipping — no valid questionText or explanation');
-        }
-        return allow;
-      }),
-  
-      tap(([_, __, explanation, shouldShow, index, currentQuestion]) => {
-        console.log('[📦 combinedText$ Params]', {
-          currentIndex: index,
-          questionText: currentQuestion?.questionText,
-          shouldShowExplanation: shouldShow,
-          explanation
-        });
-      }),
-  
-      auditTime(0),
-      debounceTime(10),
-      switchMap(params => this.determineTextToDisplay(params)),
-  
-      startWith('Loading question...'),
-  
-      distinctUntilChanged(),
-  
-      catchError((error: Error) => {
-        console.error('Error in combinedText$ observable:', error);
-        return of('Error loading content');
-      })
-    ) as Observable<string>;
-  }
   
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
