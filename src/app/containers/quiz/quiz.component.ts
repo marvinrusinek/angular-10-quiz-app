@@ -3471,6 +3471,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log(`[fetchAndSetQuestionData] ⚠️ CALLED for Q${questionIndex}`);
     try {
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`❌ Invalid questionIndex (${questionIndex})`);
@@ -3514,6 +3515,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+      this.questionToDisplay = question.questionText ?? 'No question text available';
   
       // ✅ Refresh UI
       this.cdRef.detectChanges();
@@ -3904,7 +3906,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
     return true;
   } */
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
   
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3935,6 +3937,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
     this.cdRef.detectChanges(); // Apply updates to UI
+    return true;
+  } */
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
+  
+    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      return false;
+    }
+  
+    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
+  
+    if (!navSuccess) {
+      console.warn(`[navigateToQuestion] ❌ Navigation to ${routeUrl} failed`);
+      return false;
+    }
+  
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+    const success = await this.fetchAndSetQuestionData(questionIndex);
+    if (!success) {
+      console.warn(`[navigateToQuestion] ❌ Failed to fetch question data`);
+      return false;
+    }
+  
+    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+    this.cdRef.detectChanges();
+  
     return true;
   }
 
