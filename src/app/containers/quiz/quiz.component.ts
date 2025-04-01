@@ -3490,25 +3490,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // 🔄 Reset UI and state BEFORE rendering anything new
       this.resetQuestionState();
-      this.explanationToDisplay = '';
-      this.optionsToDisplay = [];
       this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.explanationToDisplay = '';
       this.cdRef.detectChanges();
   
       // 🔄 Delay for UI flush
       await new Promise(res => setTimeout(res, 30));
-  
-      // 🧪 Check if the question has already been answered
-      const isAnswered = await this.isQuestionAnswered(questionIndex);
-  
+
       // ✅ Build updated options
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
+      // 🧪 Check if the question has already been answered
+      const isAnswered = await this.isQuestionAnswered(questionIndex);
+      this.explanationToDisplay = isAnswered ? question.explanation ?? '' : '';
+  
       // ✅ Assign to state
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
-      this.explanationToDisplay = isAnswered ? question.explanation ?? '' : '';
   
       // ✅ Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
