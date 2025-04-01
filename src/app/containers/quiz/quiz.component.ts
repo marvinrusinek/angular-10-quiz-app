@@ -3509,8 +3509,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Set shared and local state
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
-      this.explanationToDisplay = explanationText;
-      this.questionToDisplay = question.questionText ?? 'No question text available';
+
+      this.setQuestionDetails(
+        question.questionText ?? 'No question text available',
+        updatedOptions,
+        explanationText
+      );
       this.explanationTextService.setExplanationText(explanationText);
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
