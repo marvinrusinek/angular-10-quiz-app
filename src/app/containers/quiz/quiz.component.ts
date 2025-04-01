@@ -3489,6 +3489,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
+      this.explanationTextService.setExplanationText('');
       this.cdRef.detectChanges();
   
       // 🔄 Delay for UI flush
@@ -3500,7 +3501,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // 🧪 Check if the question has already been answered
       const isAnswered = await this.isQuestionAnswered(questionIndex);
-      this.explanationToDisplay = isAnswered ? question.explanation ?? '' : '';
+      const explanationText = isAnswered ? question.explanation ?? '' : '';
+
+      // ✅ Set it in both local state and service
+      this.explanationToDisplay = explanationText;
+      this.explanationTextService.setExplanationText(explanationText);
   
       // ✅ Assign to state
       this.currentQuestion = { ...question, options: updatedOptions };
@@ -3509,9 +3514,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-  
-      // 🧠 Also update display question text
-      this.questionToDisplay = question.questionText ?? 'No question text available';
+
+      // ✅ Update explanation text service
+      this.explanationTextService.setExplanationText(question.explanation ?? '');
   
       // ✅ Refresh UI
       this.cdRef.detectChanges();
