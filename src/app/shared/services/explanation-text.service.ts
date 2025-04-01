@@ -110,6 +110,8 @@ export class ExplanationTextService {
     const explanation = this.explanationMap.get(index) ?? '';
     const trimmed = explanation.trim();
     console.log(`[🧠 getFormattedExplanationTextForQuestion] Q${index}:`, trimmed);
+    console.log('[CHECK] Q1 getFormattedExplanationTextForQuestion called with:', index);
+    console.log('[CHECK] explanationMap:', this.explanationMap);
     this.formattedExplanationSubject.next(trimmed);
     return this.formattedExplanation$;
   }
