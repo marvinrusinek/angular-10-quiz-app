@@ -49,14 +49,14 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  setExplanationForIndex(index: number, explanation: string): void {
+  /* REMOVE setExplanationForIndex(index: number, explanation: string): void {
     const trimmed = (explanation ?? '').trim();
     this.explanationMap.set(index, trimmed);
     this.formattedExplanationSubject.next(trimmed); // ← caller guarantees this is for the current index
     console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
     console.log(`[✅ setExplanationForIndex] Q${index}:`, explanation);
     console.log('[🧩 explanationMap]', Array.from(this.explanationMap.entries()));
-  }
+  } */
 
   prepareExplanationText(question: QuizQuestion): string {
     // Assuming question has an 'explanation' property or similar
@@ -68,7 +68,7 @@ export class ExplanationTextService {
     this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
   }
 
-  setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+  /* setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
@@ -77,6 +77,23 @@ export class ExplanationTextService {
     if (this.explanationTexts[index] !== explanation) {
       this.explanationTexts[index] = explanation; // set the explanation for the specific index
       this.explanationText$.next(explanation);
+    }
+  } */
+  setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+    if (index < 0) {
+      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
+      return;
+    }
+  
+    const trimmed = (explanation ?? '').trim();
+    const prev = this.explanationMap.get(index);
+  
+    if (prev !== trimmed) {
+      this.explanationMap.set(index, trimmed);
+      this.formattedExplanationSubject.next(trimmed); // still assumes index is "current"
+  
+      console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
+      console.log('[🧩 explanationMap]', Array.from(this.explanationMap.entries()));
     }
   }
 
