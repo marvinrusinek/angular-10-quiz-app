@@ -54,6 +54,8 @@ export class ExplanationTextService {
     this.explanationMap.set(index, trimmed);
     this.formattedExplanationSubject.next(trimmed); // ← caller guarantees this is for the current index
     console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
+    console.log(`[✅ setExplanationForIndex] Q${index}:`, explanation);
+    console.log('[🧩 explanationMap]', Array.from(this.explanationMap.entries()));
   }
 
   prepareExplanationText(question: QuizQuestion): string {
