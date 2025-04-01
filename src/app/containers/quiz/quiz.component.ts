@@ -3481,49 +3481,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+      // 🧠 Fetch fully formatted question object
+      const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
   
-      // 🔄 Reset prior state BEFORE setting anything new
-      this.currentQuestion = null;
+      // 🔄 Reset UI and state BEFORE rendering anything new
       this.resetQuestionState();
       this.explanationToDisplay = '';
       this.optionsToDisplay = [];
+      this.currentQuestion = null;
       this.cdRef.detectChanges();
   
-      // ⏳ Allow UI to flush old state
-      await new Promise(resolve => setTimeout(resolve, 30));
+      // 🔄 Delay for UI flush
+      await new Promise(res => setTimeout(res, 30));
   
-      // 🧩 Assign clean state to options
-      const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
+      // 🧪 Check if the question has already been answered
+      const isAnswered = await this.isQuestionAnswered(questionIndex);
+  
+      // ✅ Build updated options
+      const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
+      // ✅ Assign to state
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
+      this.explanationToDisplay = isAnswered ? question.explanation ?? '' : '';
   
-      // 🎯 Set explanation if previously answered
-      const isAnswered = await this.isQuestionAnswered(questionIndex);
-      this.explanationToDisplay = isAnswered ? (question.explanation ?? '') : '';
-  
-      // 🔁 Sync state (centralized here!)
+      // ✅ Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // 🔄 Final UI update
+      // 🧠 Also update display question text
+      this.questionToDisplay = question.questionText ?? 'No question text available';
+  
+      // ✅ Refresh UI
       this.cdRef.detectChanges();
   
-      // ⏱ Restart timer for the question
+      // 🔁 Optional checks
+      await this.quizService.checkIfAnsweredCorrectly();
       this.timerService.startTimer(this.timerService.timePerQuestion);
   
-      // 🧠 (Optional) Re-evaluate correctness display
-      await this.quizService.checkIfAnsweredCorrectly();
-  
       console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}:`, {
-        questionText: this.currentQuestion.questionText,
-        options: this.optionsToDisplay.length,
+        questionText: this.questionToDisplay,
+        optionsCount: this.optionsToDisplay.length,
+        explanation: this.explanationToDisplay,
       });
   
       return true;
@@ -3531,34 +3535,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
       return false;
     }
-  }    
-
-  public async fetchAndSetNextQuestion(): Promise<boolean> {
-    console.log('[🚚 fetchAndSetNextQuestion] Pulling new data for index:', this.currentQuestionIndex);
-
-    try {
-      const nextQuestion = await firstValueFrom(
-        this.quizService.getQuestionByIndex(this.currentQuestionIndex)
-      );
-
-      if (!nextQuestion) {
-        console.warn('No question found for next index.');
-        return false;
-      }
-
-      this.quizService.setCurrentQuestion(nextQuestion);
-      
-      // Ensure the component subscribes to `currentQuestion$`
-      setTimeout(() => {
-        console.log('[fetchAndSetNextQuestion] 🔄 Forcing UI update...');
-        this.cdRef.detectChanges();
-      }, 50);
-      return true; // ensure the function always returns 'true' when successful
-    } catch (error) {
-      console.error('Error fetching next question:', error);
-      return false;
-    }
-  }
+  }  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
