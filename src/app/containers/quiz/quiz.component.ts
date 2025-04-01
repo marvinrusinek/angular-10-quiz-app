@@ -3487,43 +3487,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      // 🔄 Reset prior state FIRST before doing anything else
+      // 🔄 Reset prior state BEFORE setting anything new
       this.currentQuestion = null;
       this.resetQuestionState();
       this.explanationToDisplay = '';
       this.optionsToDisplay = [];
-      this.cdRef.detectChanges(); // Force flush of cleared UI
+      this.cdRef.detectChanges();
   
-      // ⏳ Delay to allow DOM cleanup
+      // ⏳ Allow UI to flush old state
       await new Promise(resolve => setTimeout(resolve, 30));
   
-      // ✅ Set up clean state
+      // 🧩 Assign clean state to options
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
       question.options = updatedOptions;
   
-      // 🧠 Build final question object and assign
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
   
-      // 🧪 Only show explanation if the question was already answered
+      // 🎯 Set explanation if previously answered
       const isAnswered = await this.isQuestionAnswered(questionIndex);
-      if (isAnswered) {
-        this.explanationToDisplay = question.explanation ?? '';
-      } else {
-        this.explanationToDisplay = '';
-      }
+      this.explanationToDisplay = isAnswered ? (question.explanation ?? '') : '';
   
-      // 🔄 Sync global state
+      // 🔁 Sync state (centralized here!)
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // 🔁 Refresh the UI
+      // 🔄 Final UI update
       this.cdRef.detectChanges();
   
-      // ⏱ Restart timer
+      // ⏱ Restart timer for the question
       this.timerService.startTimer(this.timerService.timePerQuestion);
   
-      // ✅ (Optional) Evaluate correctness state
+      // 🧠 (Optional) Re-evaluate correctness display
       await this.quizService.checkIfAnsweredCorrectly();
   
       console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}:`, {
@@ -3536,7 +3531,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
       return false;
     }
-  }  
+  }    
 
   public async fetchAndSetNextQuestion(): Promise<boolean> {
     console.log('[🚚 fetchAndSetNextQuestion] Pulling new data for index:', this.currentQuestionIndex);
@@ -3944,17 +3939,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   
-    // 🔁 Reset previous question UI state FIRST
-    this.resetQuestionState();               // reset icons, selections, feedback
-    this.explanationToDisplay = '';
-    this.optionsToDisplay = [];
-    this.currentQuestion = null;
-    this.cdRef.detectChanges();              // force reset UI before new data
-  
-    // Small delay to flush rendering
-    await new Promise(res => setTimeout(res, 50));
-  
-    // ✅ Set new index and state
+    // ✅ Update current index AFTER successful routing
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
   
@@ -3964,16 +3949,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   
-    // 💾 Save and update UI details
+    // 💾 Save and update UI elements
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
-    this.cdRef.detectChanges(); // ensure Angular picks up the changes
   
+    this.cdRef.detectChanges(); // Apply updates to UI
     return true;
   }
-  
-  
-  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
