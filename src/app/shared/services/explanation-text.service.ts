@@ -86,7 +86,7 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
   
@@ -102,6 +102,15 @@ export class ExplanationTextService {
       this.formattedExplanationSubject.next('');
     }
   
+    return this.formattedExplanation$;
+  } */
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    const explanation = this.explanationMap.get(index) ?? '';
+    const trimmedExplanation = explanation.trim();
+  
+    console.log(`[getFormattedExplanationTextForQuestion] index=${index}, explanation="${trimmedExplanation}"`);
+  
+    this.formattedExplanationSubject.next(trimmedExplanation);
     return this.formattedExplanation$;
   }
 
