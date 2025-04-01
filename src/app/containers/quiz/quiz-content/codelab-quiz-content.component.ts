@@ -848,7 +848,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ) as Observable<string>;    
   }
 
-  private constructDisplayText(data: CombinedQuestionDataType): string {
+  /* private constructDisplayText(data: CombinedQuestionDataType): string {
     console.log('[🌀 constructDisplayText] Current data:', JSON.stringify(data));
 
     let displayText = data.questionText ?? '';
@@ -864,6 +864,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }
   
     return displayText.trim();
+  } */
+  private constructDisplayText(data: CombinedQuestionDataType): string {
+    console.log('[🌀 constructDisplayText] Current data:', JSON.stringify(data));
+  
+    // 💬 Show only explanation when it's supposed to be displayed
+    if (data.isExplanationDisplayed && data.explanation) {
+      console.log('[🟡 Explanation included in displayText]:', data.explanation);
+      return data.explanation.trim();
+    }
+  
+    // 📘 Optionally include correctAnswersText if explanation is not shown
+    if (data.correctAnswersText) {
+      console.log('[📘 CorrectAnswersText included]:', data.correctAnswersText);
+      return data.correctAnswersText.trim();
+    }
+  
+    // 🌀 Default to question text (only before selection)
+    console.log('[🌀 Only question text shown]');
+    return data.questionText?.trim() ?? 'No question available';
   }
 
   async initializeQuestionState(): Promise<void> {
