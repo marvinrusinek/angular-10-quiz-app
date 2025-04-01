@@ -814,17 +814,26 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
     
       map(({ currentQuestion, formattedExplanation, shouldDisplayExplanation }) => {
+        const fallbackQuestion: QuizQuestion = {
+          questionText: 'No question text available',
+          options: [],
+          explanation: '',
+          type: QuestionType.SingleAnswer // or MultipleAnswer if that’s your default
+        };
+      
+        const safeQuestion = currentQuestion ?? fallbackQuestion;
+      
         const combinedData: CombinedQuestionDataType = {
-          currentQuestion: currentQuestion ?? { questionText: 'No question text available' },
-          currentOptions: currentQuestion?.options ?? [],
-          options: currentQuestion?.options ?? [],
-          questionText: currentQuestion?.questionText ?? 'No question text available',
+          currentQuestion: safeQuestion,
+          currentOptions: safeQuestion.options,
+          options: safeQuestion.options,
+          questionText: safeQuestion.questionText,
           explanation: formattedExplanation ?? '',
-          correctAnswersText: '', // optional: add logic here if needed
+          correctAnswersText: '', // optional: set if needed
           isExplanationDisplayed: shouldDisplayExplanation,
           isNavigatingToPrevious: false
         };
-    
+      
         const finalText = this.constructDisplayText(combinedData);
         console.log('[🧪 constructDisplayText OUTPUT]:', finalText);
         return finalText;
