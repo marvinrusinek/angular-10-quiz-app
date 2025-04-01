@@ -14,7 +14,6 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
-  private explanationMap = new Map<number, string>();
 
   processedQuestions: Set<string> = new Set<string>();
   currentQuestionExplanation: string | null = null;
@@ -49,15 +48,6 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  /* REMOVE setExplanationForIndex(index: number, explanation: string): void {
-    const trimmed = (explanation ?? '').trim();
-    this.explanationMap.set(index, trimmed);
-    this.formattedExplanationSubject.next(trimmed); // ← caller guarantees this is for the current index
-    console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
-    console.log(`[✅ setExplanationForIndex] Q${index}:`, explanation);
-    console.log('[🧩 explanationMap]', Array.from(this.explanationMap.entries()));
-  } */
-
   prepareExplanationText(question: QuizQuestion): string {
     // Assuming question has an 'explanation' property or similar
     return question.explanation || 'No explanation available';
@@ -86,14 +76,14 @@ export class ExplanationTextService {
     }
   
     const trimmed = (explanation ?? '').trim();
-    const prev = this.explanationMap.get(index);
+    const previous = this.explanationTexts[index];
   
-    if (prev !== trimmed) {
-      this.explanationMap.set(index, trimmed);
-      this.formattedExplanationSubject.next(trimmed); // still assumes index is "current"
+    if (previous !== trimmed) {
+      this.explanationTexts[index] = trimmed;
+      this.formattedExplanationSubject.next(trimmed); // assume this index is current
   
       console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
-      console.log('[🧩 explanationMap]', Array.from(this.explanationMap.entries()));
+      console.log('[🗂 explanationTexts]', this.explanationTexts);
     }
   }
 
@@ -108,6 +98,7 @@ export class ExplanationTextService {
   }
   
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    console.log(`[📞 getFormattedExplanationTextForQuestion CALLED] Q${index}`);
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
   
