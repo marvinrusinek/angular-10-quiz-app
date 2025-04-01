@@ -3520,7 +3520,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         questionIndex,
         isAnswered ? question.explanation ?? '' : ''
       ); */
-      this.explanationTextService.setExplanationForIndex(questionIndex, question.explanation ?? '');
+      this.explanationTextService.setExplanationText(explanationText);
+      this.explanationTextService.setExplanationForIndex(questionIndex, explanationText);
       console.log('[CHECK] Q1 setExplanationForIndex fired with:', questionIndex, question.explanation);
 
   
