@@ -14,6 +14,7 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
+  private explanationMap = new Map<number, string>();
 
   processedQuestions: Set<string> = new Set<string>();
   currentQuestionExplanation: string | null = null;
@@ -48,6 +49,11 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
+  setExplanationForIndex(index: number, text: string): void {
+    this.explanationMap.set(index, text);
+    this.formattedExplanationSubject.next(text);
+  }
+
   prepareExplanationText(question: QuizQuestion): string {
     // Assuming question has an 'explanation' property or similar
     return question.explanation || 'No explanation available';
@@ -80,7 +86,7 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
   
@@ -97,7 +103,26 @@ export class ExplanationTextService {
     }
   
     return this.formattedExplanation$;
+  } */
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    if (this.explanationMap.has(index)) {
+      const explanation = this.explanationMap.get(index)?.trim();
+  
+      if (explanation) {
+        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, explanation);
+        this.formattedExplanationSubject.next(explanation);
+      } else {
+        console.warn(`[DEBUG] ⚠️ No valid explanation text found for Q${index}`);
+        this.formattedExplanationSubject.next('');
+      }
+    } else {
+      console.error(`[DEBUG] ❌ Q${index} not found in explanationMap.`);
+      this.formattedExplanationSubject.next('');
+    }
+  
+    return this.formattedExplanation$;
   }
+  
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
