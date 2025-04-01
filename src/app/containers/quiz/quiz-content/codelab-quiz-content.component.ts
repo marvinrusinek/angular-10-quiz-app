@@ -188,7 +188,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       startWith(false)
     );
     
-  
     this.isContentAvailable$.pipe(
       distinctUntilChanged(),
     ).subscribe((isAvailable) => {
