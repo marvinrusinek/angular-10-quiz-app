@@ -3511,8 +3511,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
       // 🧠 Also update display question text
-      this.questionToDisplay = question.questionText ?? 'No question text available';
-  
+      // this.questionToDisplay = question.questionText ?? 'No question text available';
+
+      this.explanationTextService.setFormattedExplanationText(
+        isAnswered ? question.explanation ?? '' : ''
+      );
+      this.explanationTextService.setShouldDisplayExplanation(isAnswered);
+
       // ✅ Refresh UI
       this.cdRef.detectChanges();
   
