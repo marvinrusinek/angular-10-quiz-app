@@ -3477,6 +3477,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
+      // 🔄 Reset UI and state BEFORE rendering anything new
+      this.resetQuestionState();
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.explanationToDisplay = '';
+      this.questionToDisplay = '';
+      this.explanationTextService.setExplanationText('');
+      this.cdRef.detectChanges();
+  
+      // 🔄 Delay for UI flush
+      await new Promise(res => setTimeout(res, 30));
+  
       // 🧠 Fetch fully formatted question object
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
@@ -3484,17 +3496,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      // 🔄 Reset UI and state BEFORE rendering anything new
-      this.resetQuestionState();
-      this.currentQuestion = null;
-      this.optionsToDisplay = [];
-      this.explanationToDisplay = '';
-      this.explanationTextService.setExplanationText('');
-      this.cdRef.detectChanges();
-  
-      // 🔄 Delay for UI flush
-      await new Promise(res => setTimeout(res, 30));
-
       // ✅ Build updated options
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
@@ -3502,16 +3503,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // 🧪 Check if the question has already been answered
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       const explanationText = isAnswered ? question.explanation ?? '' : '';
-
-      // ✅ Set it in both local state and service
+  
+      // ✅ Set in local + shared state
       this.explanationToDisplay = explanationText;
+      this.questionToDisplay = question.questionText ?? 'No question text available';
+  
       this.explanationTextService.setExplanationText(explanationText);
   
-      // ✅ Assign to state
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
   
-      // ✅ Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
@@ -3533,7 +3534,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
       return false;
     }
-  }  
+  }
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
@@ -3559,6 +3560,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const explanation = typeof explanationOrObservable === 'string'
         ? explanationOrObservable
         : await firstValueFrom(explanationOrObservable);
+
+      console.log(`[fetchQuestionDetails] ✅ Built question for Q${questionIndex}:`, {
+        questionText,
+        optionsLength: options.length,
+        explanation
+      });
   
       if (!explanation) {
         console.warn('No explanation text found for question at index:', questionIndex);
