@@ -3514,9 +3514,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Sync global state
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
-      // ✅ Update explanation text service
-      this.explanationTextService.setExplanationText(question.explanation ?? '');
   
       // ✅ Refresh UI
       this.cdRef.detectChanges();
