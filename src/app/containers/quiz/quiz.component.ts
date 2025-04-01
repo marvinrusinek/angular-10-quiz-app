@@ -3472,13 +3472,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log(`[fetchAndSetQuestionData] ⚠️ CALLED for Q${questionIndex}`);
+  
     try {
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`❌ Invalid questionIndex (${questionIndex})`);
         return false;
       }
   
-      // 🔄 Reset UI and state BEFORE rendering anything new
+      // 🔄 Reset UI state BEFORE fetching
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
@@ -3487,47 +3488,45 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setExplanationText('');
       this.cdRef.detectChanges();
   
-      // 🔄 Delay for UI flush
+      // ⏳ Allow UI to flush
       await new Promise(res => setTimeout(res, 30));
   
-      // 🧠 Fetch fully formatted question object
+      // 🧠 Fetch full question details
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
   
-      // ✅ Build updated options
+      // ✅ Process options
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
-      // 🧪 Check if the question has already been answered
+      // 🧪 Explanation (only if already answered)
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       const explanationText = isAnswered ? question.explanation ?? '' : '';
   
-      // ✅ Set in local + shared state
+      // ✅ Set shared and local state
+      this.currentQuestion = { ...question, options: updatedOptions };
+      this.optionsToDisplay = [...updatedOptions];
       this.explanationToDisplay = explanationText;
       this.questionToDisplay = question.questionText ?? 'No question text available';
       this.explanationTextService.setExplanationText(explanationText);
   
-      this.currentQuestion = { ...question, options: updatedOptions };
-      this.optionsToDisplay = [...updatedOptions];
-  
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-      this.questionToDisplay = question.questionText ?? 'No question text available';
   
-      // ✅ Refresh UI
+      // 🧼 One final refresh
       this.cdRef.detectChanges();
   
-      // 🔁 Optional checks
+      // ⏱ Optional logic
       await this.quizService.checkIfAnsweredCorrectly();
       this.timerService.startTimer(this.timerService.timePerQuestion);
   
-      console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}:`, {
+      console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}`, {
         questionText: this.questionToDisplay,
-        optionsCount: this.optionsToDisplay.length,
         explanation: this.explanationToDisplay,
+        optionsCount: this.optionsToDisplay.length,
       });
   
       return true;
