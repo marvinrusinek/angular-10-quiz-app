@@ -49,9 +49,9 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  setExplanationForIndex(index: number, text: string): void {
-    this.explanationMap.set(index, text);
-    this.formattedExplanationSubject.next(text);
+  setExplanationForIndex(index: number, explanation: string): void {
+    this.explanationMap.set(index, explanation ?? '');
+    this.formattedExplanationSubject.next(explanation);
   }
 
   prepareExplanationText(question: QuizQuestion): string {
@@ -108,9 +108,9 @@ export class ExplanationTextService {
     const explanation = this.explanationMap.get(index) ?? '';
     const trimmedExplanation = explanation.trim();
   
-    console.log(`[getFormattedExplanationTextForQuestion] index=${index}, explanation="${trimmedExplanation}"`);
+    console.log(`[getFormattedExplanationTextForQuestion] Q${index} →`, trimmedExplanation || '[empty]');
   
-    this.formattedExplanationSubject.next(trimmedExplanation);
+    this.formattedExplanationSubject.next(trimmedExplanation); // force emit
     return this.formattedExplanation$;
   }
 
