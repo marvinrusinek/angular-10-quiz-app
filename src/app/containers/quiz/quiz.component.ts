@@ -3213,10 +3213,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
   
-  
-  
-  
-  
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
