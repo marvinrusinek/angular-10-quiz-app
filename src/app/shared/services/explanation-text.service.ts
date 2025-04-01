@@ -86,7 +86,7 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  /* getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     if (index in this.formattedExplanations) {
       const formattedExplanation = this.formattedExplanations[index];
   
@@ -103,26 +103,7 @@ export class ExplanationTextService {
     }
   
     return this.formattedExplanation$;
-  } */
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    if (this.explanationMap.has(index)) {
-      const explanation = this.explanationMap.get(index)?.trim();
-  
-      if (explanation) {
-        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, explanation);
-        this.formattedExplanationSubject.next(explanation);
-      } else {
-        console.warn(`[DEBUG] ⚠️ No valid explanation text found for Q${index}`);
-        this.formattedExplanationSubject.next('');
-      }
-    } else {
-      console.error(`[DEBUG] ❌ Q${index} not found in explanationMap.`);
-      this.formattedExplanationSubject.next('');
-    }
-  
-    return this.formattedExplanation$;
   }
-  
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
