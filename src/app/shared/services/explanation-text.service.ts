@@ -53,7 +53,7 @@ export class ExplanationTextService {
     const trimmed = (explanation ?? '').trim();
     this.explanationMap.set(index, trimmed);
     this.formattedExplanationSubject.next(trimmed); // ← caller guarantees this is for the current index
-    console.log(`[✅ Explanation set for Q${index}]:`, trimmed);
+    console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
   }
 
   prepareExplanationText(question: QuizQuestion): string {
