@@ -786,6 +786,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false), distinctUntilChanged()),
       this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged())
     ]).pipe(
+      tap(([index, shouldShow, explanation]) => {
+        console.log(`[👁 combinedText$] Q${index}, showExpl: ${shouldShow}, expl: ${explanation}`);
+      }),
       map(([currentIndex, quiz, nextQ, prevQ, shouldDisplayExplanation, formattedExplanation]) => {
         const questions = quiz?.questions ?? [];
         const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
