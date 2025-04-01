@@ -50,8 +50,16 @@ export class ExplanationTextService {
   }
 
   setExplanationForIndex(index: number, explanation: string): void {
-    this.explanationMap.set(index, explanation ?? '');
-    this.formattedExplanationSubject.next(explanation);
+    const trimmed = (explanation ?? '').trim();
+    this.explanationMap.set(index, trimmed);
+  
+    // ✅ Only emit when this question is the current one
+    if (this.quizService.currentQuestionIndex === index) {
+      console.log(`[🧠 setExplanationForIndex] Emitting for Q${index}:`, trimmed);
+      this.formattedExplanationSubject.next(trimmed);
+    } else {
+      console.log(`[ℹ️ setExplanationForIndex] Stored for Q${index}, not emitted yet`);
+    }
   }
 
   prepareExplanationText(question: QuizQuestion): string {
@@ -107,9 +115,9 @@ export class ExplanationTextService {
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     const explanation = this.explanationMap.get(index) ?? '';
     const trimmed = explanation.trim();
-    console.log(`[🧠 getFormattedExplanationTextForQuestion] Q${index}:`, trimmed);
-    this.formattedExplanationSubject.next(trimmed);
-    return this.formattedExplanation$;
+    console.log(`[📦 getFormattedExplanationTextForQuestion] Q${index}:`, trimmed);
+  
+    return of(trimmed); // 🟡 Just return — no need to emit again
   }
 
   initializeExplanationTexts(explanations: string[]): void {
