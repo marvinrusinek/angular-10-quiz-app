@@ -6,6 +6,7 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
+
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
   private explanationSubject = new BehaviorSubject<QuizQuestion | null>(null);
