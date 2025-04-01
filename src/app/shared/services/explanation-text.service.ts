@@ -127,13 +127,9 @@ export class ExplanationTextService {
   } */
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     const explanation = this.explanationMap.get(index) ?? '';
-    const trimmed = explanation.trim();
-    console.log(`[🧠 getFormattedExplanationTextForQuestion] Q${index}:`, trimmed);
-    console.log('[CHECK] Q1 getFormattedExplanationTextForQuestion called with:', index);
-    console.log('[CHECK] explanationMap:', this.explanationMap);
-    this.formattedExplanationSubject.next(trimmed);
+    console.log(`[getFormattedExplanationTextForQuestion] Q${index}:`, explanation);
     return this.formattedExplanation$;
-  }
+  }  
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
