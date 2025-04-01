@@ -153,6 +153,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.log('currentOptions$ emitted::>>', options);
     });
 
+    this.explanationTextService.formattedExplanation$
+      .pipe(tap(val => console.log('[👁 formattedExplanation$ EMIT]', val)))
+      .subscribe();
+
     /* this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
       map(([question, options]) => {
         const isAvailable = !!question && options.length > 0;
