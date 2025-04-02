@@ -90,6 +90,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   public isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
 
+  public questionToDisplay$ = new BehaviorSubject<string>('');  
+  public explanationToDisplay$ = new BehaviorSubject<string>('');
+
   combinedText$: Observable<string>;
   textToDisplay = '';
   private isDisplayReady$ = new BehaviorSubject<boolean>(false);
@@ -133,15 +136,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.combinedText$ = this.displayState$.pipe(
-      map(state => {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.questionToDisplay$,
+      this.explanationToDisplay$
+    ]).pipe(
+      map(([state, questionText, explanationText]) => {
         if (state.mode === 'explanation') {
-          console.log('[🟡 Explanation Display Mode]', this.explanationToDisplay);
-          return this.explanationToDisplay?.trim() || 'No explanation available';
+          console.log('[🟡 Explanation Display Mode]', explanationText);
+          return explanationText?.trim() || 'No explanation available';
         }
-  
-        console.log('[🔵 Question Display Mode]', this.questionToDisplay);
-        return this.questionToDisplay?.trim() || 'No question available';
+    
+        console.log('[🔵 Question Display Mode]', questionText);
+        return questionText?.trim() || 'No question available';
       }),
       distinctUntilChanged()
     );
