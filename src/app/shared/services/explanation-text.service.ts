@@ -90,8 +90,6 @@ export class ExplanationTextService {
   }
   
   public getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    console.log(`[📞 getFormattedExplanationTextForQuestion CALLED] Q${index}`);
-  
     const entry = this.formattedExplanations[index];
   
     if (!entry) {
@@ -103,7 +101,6 @@ export class ExplanationTextService {
     const explanation = entry.explanation?.trim() ?? '';
   
     if (explanation) {
-      console.log(`[✅ Explanation found for Q${index}]:`, explanation);
       this.formattedExplanationSubject.next(explanation);
     } else {
       console.warn(`[⚠️ No valid explanation text found for Q${index}]`);
