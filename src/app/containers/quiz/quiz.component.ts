@@ -3583,6 +3583,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn(`[navigateToQuestion] ❌ Failed to fetch question data`);
       return false;
     }
+
+    // Only now update the index
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
   
