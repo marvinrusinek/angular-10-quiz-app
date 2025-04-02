@@ -2989,15 +2989,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetOptionState();
       this.isOptionSelected = false;
 
-      const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
-      this.currentQuestionIndex = previousQuestionIndex;
-
+      // const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
+      
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const prevIndex = currentIndex - 1;
+      this.currentQuestionIndex = prevIndex;
 
       // Combine fetching data and initializing question state into a single method
       // await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      this.resetUI();
+      // this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
