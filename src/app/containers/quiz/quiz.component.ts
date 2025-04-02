@@ -3176,6 +3176,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       const nextIndex = this.currentQuestionIndex + 1;
+      console.log('[DEBUG] Calculated nextIndex:', nextIndex);
 
       if (nextIndex >= this.totalQuestions) {
         console.log('[✅] Last question – navigating to results');
@@ -3185,6 +3186,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log('[🧭 advanceToNextQuestion] Calling navigateToQuestion() with index =', nextIndex);
 
+      console.log('[DEBUG] currentQuestionIndex before increment:', this.currentQuestionIndex);
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
