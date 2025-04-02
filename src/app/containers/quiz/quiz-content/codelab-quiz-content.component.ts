@@ -147,8 +147,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ); */
     this.combinedText$ = combineLatest([
       this.displayState$,
-      this.explanationTextService.formattedExplanation$, // explanation observable
-      this.quizStateService.currentQuestionText$ // you'll create this if it doesn't exist
+      this.explanationTextService.formattedExplanation$, // reactive explanation
+      this.quizStateService.currentQuestionText$          // reactive question text
     ]).pipe(
       map(([state, explanation, questionText]) => {
         if (state.mode === 'explanation') {
@@ -161,7 +161,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     );
-    
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,

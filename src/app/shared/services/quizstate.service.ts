@@ -66,8 +66,10 @@ export class QuizStateService {
   }
 
   public setQuestionText(text: string): void {
-    this.questionTextSubject.next(text?.trim() || 'No question available');
-  }
+    const value = text?.trim() || 'No question available';
+    console.log('[🧠 setQuestionText]', value);
+    this.questionTextSubject.next(value);
+  }  
 
   getStoredState(quizId: string): Map<number, QuestionState> | null {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);
