@@ -3161,22 +3161,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    console.trace('[🧨 advanceToNextQuestion] CALLED');
-  
     if (this.isNavigating) {
       console.warn('[🛑] Already navigating – exiting early');
       return;
     }
   
     this.isNavigating = true;
-    console.log('[🚦] Proceeding with navigation');
-  
     this.quizStateService.setLoading(true);
     this.quizStateService.setNavigating(true);
   
     try {
       const nextIndex = this.currentQuestionIndex + 1;
-      console.log('[DEBUG] Calculated nextIndex:', nextIndex);
 
       if (nextIndex >= this.totalQuestions) {
         console.log('[✅] Last question – navigating to results');
@@ -3184,24 +3179,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
   
-      console.log('[🧭 advanceToNextQuestion] Calling navigateToQuestion() with index =', nextIndex);
-
-      console.log('[DEBUG] currentQuestionIndex before increment:', this.currentQuestionIndex);
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
         return;
       }
 
-      // ✅ Call prepareQuestionForDisplay after navigation + question load
-      await this.prepareQuestionForDisplay(nextIndex);
-
       this.quizQuestionComponent?.resetExplanation();
 
       const shouldEnableNextButton = this.isAnyOptionSelected();
       this.updateAndSyncNextButtonState(shouldEnableNextButton);
-    } catch (e) {
-      console.error('[advanceToNextQuestion] ❌ Error:', e);
+    } catch (error) {
+      console.error('[advanceToNextQuestion] ❌ Error:', error);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
