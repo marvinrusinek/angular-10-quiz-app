@@ -3209,6 +3209,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         explanationText: this.explanationToDisplay,
         currentQuestionIndex: this.currentQuestionIndex
       });
+
+      console.log(`[fetchAndSetQuestionData] Loaded Q${questionIndex}:`, {
+        questionText: question.questionText,
+        explanation: question.explanation
+      });      
   
       return true;
     } catch (error) {
@@ -3224,6 +3229,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Fetch the question text
       const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
       const questionText = await firstValueFrom(questionTextObservable);
+      console.log(`[fetchQuestionDetails] Q${questionIndex} text:`, questionText);
   
       if (!questionText) {
         console.error('No question text found for index:', questionIndex);
