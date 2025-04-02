@@ -3135,7 +3135,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } 
 
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log(`[Q-TRACE] fetchAndSetQuestionData CALLED with index: ${questionIndex}`);
   
     try {
@@ -3214,6 +3214,85 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         questionText: question.questionText,
         explanation: question.explanation
       });      
+  
+      return true;
+    } catch (error) {
+      console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
+      return false;
+    }
+  } */
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log(`[Q-TRACE] fetchAndSetQuestionData CALLED with index: ${questionIndex}`);
+  
+    try {
+      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`❌ Invalid questionIndex (${questionIndex})`);
+        return false;
+      }
+  
+      // 🔄 Clear current state and UI bindings
+      this.resetQuestionState();
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.explanationToDisplay = '';
+      this.questionToDisplay = '';
+      this.explanationTextService.setExplanationText('');
+      this.cdRef.detectChanges();
+  
+      await new Promise(res => setTimeout(res, 30)); // Flush UI
+  
+      // 🧠 Fetch the question details
+      const question = await this.fetchQuestionDetails(questionIndex);
+      if (!question) {
+        console.error(`❌ No question found at index ${questionIndex}`);
+        return false;
+      }
+  
+      console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
+        text: question.questionText,
+        explanation: question.explanation,
+        options: question.options.map(o => o.text)
+      });
+  
+      const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
+      question.options = updatedOptions;
+  
+      // 🧪 Only show explanation if already answered
+      const isAnswered = await this.isQuestionAnswered(questionIndex);
+      const explanationText = isAnswered ? (question.explanation ?? '') : '';
+  
+      // ✅ Display binding (single place)
+      this.setQuestionDetails(
+        question.questionText ?? 'No question text available',
+        updatedOptions,
+        explanationText
+      );
+  
+      // ✅ Internal and shared state
+      this.currentQuestion = { ...question, options: updatedOptions };
+      this.optionsToDisplay = [...updatedOptions];
+      this.currentQuestionIndex = questionIndex;
+  
+      this.quizService.setCurrentQuestion(this.currentQuestion);
+      this.quizService.setCurrentQuestionIndex(questionIndex);
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+  
+      // ✅ Explanation observables
+      this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
+      this.explanationTextService.setExplanationText(explanationText);
+  
+      console.log(`[🧠 setExplanationText] Q${questionIndex}:`, explanationText);
+  
+      this.cdRef.detectChanges();
+  
+      await this.quizService.checkIfAnsweredCorrectly();
+      this.timerService.startTimer(this.timerService.timePerQuestion);
+  
+      console.log('[Q-DEBUG] STATE AFTER SET', {
+        questionText: question.questionText,
+        explanationText,
+        currentQuestionIndex: this.currentQuestionIndex
+      });
   
       return true;
     } catch (error) {
