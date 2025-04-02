@@ -3174,6 +3174,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       // 🧠 Set question text in global state
+      console.log('[🔤 Setting question text]', question.questionText);
       this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
       console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
