@@ -59,6 +59,12 @@ export class ExplanationTextService {
     this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
   }
 
+  setFormattedExplanationText(explanation: string): void {
+    const trimmed = (explanation ?? '').trim();
+    this.formattedExplanationSubject.next(trimmed);
+    console.log('[📝 setFormattedExplanationText]', trimmed);
+  }  
+
   /* setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -98,20 +104,24 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+  public getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     console.log(`[📞 getFormattedExplanationTextForQuestion CALLED] Q${index}`);
-    if (index in this.formattedExplanations) {
-      const formattedExplanation = this.formattedExplanations[index];
   
-      if (formattedExplanation?.explanation?.trim()) {
-        console.log(`[DEBUG] ✅ Explanation found for Q${index}:`, formattedExplanation.explanation);
-        this.formattedExplanationSubject.next(formattedExplanation.explanation);
-      } else {
-        console.warn(`[DEBUG]⚠️ No valid explanation text found for Q${index}`);
-        this.formattedExplanationSubject.next('');
-      }
+    const entry = this.formattedExplanations[index];
+  
+    if (!entry) {
+      console.error(`[❌] Q${index} not found in formattedExplanations`);
+      this.formattedExplanationSubject.next('');
+      return this.formattedExplanation$;
+    }
+  
+    const explanation = entry.explanation?.trim() ?? '';
+  
+    if (explanation) {
+      console.log(`[✅ Explanation found for Q${index}]:`, explanation);
+      this.formattedExplanationSubject.next(explanation);
     } else {
-      console.error(`[DEBUG] ❌ Q${index} is out of bounds or no explanation stored.`);
+      console.warn(`[⚠️ No valid explanation text found for Q${index}]`);
       this.formattedExplanationSubject.next('');
     }
   
