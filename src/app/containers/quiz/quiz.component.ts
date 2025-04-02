@@ -3135,7 +3135,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } 
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
-    console.log(`[fetchAndSetQuestionData] ⚠️ CALLED for Q${questionIndex}`);
+    console.log(`[Q-TRACE] fetchAndSetQuestionData CALLED with index: ${questionIndex}`);
   
     try {
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3217,7 +3217,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    console.log(`[🧠 fetchQuestionDetails CALLED] with index:`, questionIndex);
+    console.log(`[Q-TRACE] fetchQuestionDetails FETCHING Q${questionIndex}`);
 
     try {
       // Fetch the question text
