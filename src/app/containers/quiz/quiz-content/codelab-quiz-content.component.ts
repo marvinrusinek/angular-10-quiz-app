@@ -144,14 +144,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       map(([state, questionText, explanationText]) => {
         if (state.mode === 'explanation') {
           console.log('[🟡 Explanation Display Mode]', explanationText);
-          return explanationText?.trim() || 'No explanation available';
+          return explanationText;
         }
     
         console.log('[🔵 Question Display Mode]', questionText);
-        return questionText?.trim() || 'No question available';
+        return questionText;
       }),
       distinctUntilChanged()
     );
+    
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
