@@ -3172,6 +3172,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
+
+      // 🧠 Set question text in global state
+      this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
       console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
         text: question.questionText,
@@ -3201,7 +3204,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-      this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
       // ✅ Explanation observables
       this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
