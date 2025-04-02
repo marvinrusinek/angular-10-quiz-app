@@ -133,6 +133,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
+    this.combinedText$ = this.displayState$.pipe(
+      map(state => {
+        if (state.mode === 'explanation') {
+          console.log('[🟡 Explanation Display Mode]', this.explanationToDisplay);
+          return this.explanationToDisplay?.trim() || 'No explanation available';
+        }
+  
+        console.log('[🔵 Question Display Mode]', this.questionToDisplay);
+        return this.questionToDisplay?.trim() || 'No question available';
+      }),
+      distinctUntilChanged()
+    );
+
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
       this.currentOptions$
@@ -781,7 +794,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       })
     );
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
       this.quizService.getCurrentQuiz().pipe(startWith(null)),
       this.nextQuestion$.pipe(startWith(null)),
@@ -851,7 +864,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.error('[combinedText$] ❌ Error:', error);
         return of('Error loading content');
       })
-    ) as Observable<string>;    
+    ) as Observable<string>; */    
   }
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
