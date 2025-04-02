@@ -45,6 +45,9 @@ export class QuizStateService {
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   public isLoading$ = this.isLoadingSubject.asObservable();
 
+  private questionTextSubject = new BehaviorSubject<string>('Loading...');
+  public currentQuestionText$ = this.questionTextSubject.asObservable();
+
   isNavigatingSubject = new BehaviorSubject<boolean>(false);
   public isNavigating$ = this.isNavigatingSubject.asObservable();
   
@@ -60,6 +63,10 @@ export class QuizStateService {
 
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestionSubject.next(question);
+  }
+
+  public setQuestionText(text: string): void {
+    this.questionTextSubject.next(text);
   }
 
   getStoredState(quizId: string): Map<number, QuestionState> | null {
