@@ -62,20 +62,8 @@ export class ExplanationTextService {
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
     this.formattedExplanationSubject.next(trimmed);
-    console.log('[📝 setFormattedExplanationText]', trimmed);
   }  
 
-  /* setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    if (index < 0) {
-      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
-      return;
-    }
-
-    if (this.explanationTexts[index] !== explanation) {
-      this.explanationTexts[index] = explanation; // set the explanation for the specific index
-      this.explanationText$.next(explanation);
-    }
-  } */
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -87,10 +75,7 @@ export class ExplanationTextService {
   
     if (previous !== trimmed) {
       this.explanationTexts[index] = trimmed;
-      this.formattedExplanationSubject.next(trimmed); // assume this index is current
-  
-      console.log(`[✅ Explanation stored for Q${index}]:`, trimmed);
-      console.log('[🗂 explanationTexts]', this.explanationTexts);
+      this.formattedExplanationSubject.next(trimmed);
     }
   }
 
