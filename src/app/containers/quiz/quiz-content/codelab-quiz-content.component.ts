@@ -133,7 +133,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.combinedText$ = this.displayState$.pipe(
+    /* this.combinedText$ = this.displayState$.pipe(
       map(state => {
         if (state.mode === 'explanation') {
           console.log('[🟡 Explanation Display Mode]', this.explanationToDisplay);
@@ -144,7 +144,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return this.questionToDisplay?.trim() || 'No question available';
       }),
       distinctUntilChanged()
-    );
+    ); */
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -864,7 +864,49 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.error('[combinedText$] ❌ Error:', error);
         return of('Error loading content');
       })
-    ) as Observable<string>; */    
+    ) as Observable<string>; */
+
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.quizStateService.currentQuestionIndex$.pipe(startWith(0)),
+      this.quizService.getCurrentQuiz().pipe(startWith(null)),
+      this.explanationTextService.formattedExplanation$.pipe(startWith(''), distinctUntilChanged())
+    ]).pipe(
+      map(([displayState, currentIndex, quiz, formattedExplanation]) => {
+        const questions = quiz?.questions ?? [];
+        const currentQuestion = questions.length > currentIndex ? questions[currentIndex] : null;
+    
+        const fallbackQuestion: QuizQuestion = {
+          questionText: 'No question text available',
+          options: [],
+          explanation: '',
+          type: QuestionType.SingleAnswer
+        };
+    
+        const safeQuestion = currentQuestion ?? fallbackQuestion;
+    
+        const combinedData: CombinedQuestionDataType = {
+          currentQuestion: safeQuestion,
+          currentOptions: safeQuestion.options,
+          options: safeQuestion.options,
+          questionText: safeQuestion.questionText,
+          explanation: formattedExplanation ?? '',
+          correctAnswersText: '', // Add if needed
+          isExplanationDisplayed: displayState.mode === 'explanation',
+          isNavigatingToPrevious: false
+        };
+    
+        const result = this.constructDisplayText(combinedData);
+        console.log('[🧪 constructDisplayText OUTPUT]:', result);
+        return result;
+      }),
+      startWith('Loading question...'),
+      distinctUntilChanged(),
+      catchError(error => {
+        console.error('[combinedText$] ❌ Error:', error);
+        return of('Error loading content');
+      })
+    ) as Observable<string>;    
   }
 
   private constructDisplayText(data: CombinedQuestionDataType): string {
