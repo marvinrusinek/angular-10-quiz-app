@@ -3171,7 +3171,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setNavigating(true);
   
     try {
+      console.log('[advanceToNextQuestion] currentQuestionIndex:', this.currentQuestionIndex);
       const nextIndex = this.currentQuestionIndex + 1;
+      console.log('[advanceToNextQuestion] Calculated nextIndex:', nextIndex);
 
       if (nextIndex >= this.totalQuestions) {
         console.log('[✅] Last question – navigating to results');
@@ -3570,6 +3572,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    console.log(`[navigateToQuestion] 🧭 Navigating to route: ${routeUrl}`);
     const navSuccess = await this.router.navigateByUrl(routeUrl);
   
     if (!navSuccess) {
