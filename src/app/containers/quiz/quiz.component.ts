@@ -2922,7 +2922,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       console.log('[advanceToNextQuestion] currentQuestionIndex:', this.currentQuestionIndex);
-      const nextIndex = this.currentQuestionIndex + 1;
+      const currentIndex = this.quizService.getCurrentQuestionIndex(); // or pull it directly from the source of truth
+      const nextIndex = currentIndex + 1;
       console.log('[advanceToNextQuestion] Calculated nextIndex:', nextIndex);
 
       if (nextIndex >= this.totalQuestions) {
