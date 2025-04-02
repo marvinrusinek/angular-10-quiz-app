@@ -31,6 +31,7 @@ import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
