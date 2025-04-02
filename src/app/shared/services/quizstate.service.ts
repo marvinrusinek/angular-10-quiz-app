@@ -66,7 +66,7 @@ export class QuizStateService {
   }
 
   public setQuestionText(text: string): void {
-    this.questionTextSubject.next(text);
+    this.questionTextSubject.next(text?.trim() || 'No question available');
   }
 
   getStoredState(quizId: string): Map<number, QuestionState> | null {
