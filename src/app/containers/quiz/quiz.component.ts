@@ -3242,9 +3242,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = previousQuestionIndex;
 
       // Combine fetching data and initializing question state into a single method
-      await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      this.resetUI();
-
+      // await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+      // this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -3322,13 +3321,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.updateQuestionStateAndExplanation(questionIndex),
         this.updateNavigationAndExplanationState()
       ];
-
-      // Conditionally preload the next question (only if there are more questions)
-      if (questionIndex < this.totalQuestions - 1) {
-        processingTasks.push(this.advanceAndProcessNextQuestion());
-      } else {
-        console.log('Last question reached, no more preloading.');
-      }
 
       // Execute all tasks
       await Promise.all(processingTasks);
@@ -3414,6 +3406,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // 🧠 Fetch the question details
       const question = await this.fetchQuestionDetails(questionIndex);
+      console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
+        text: question.questionText,
+        explanation: question.explanation,
+        options: question.options.map(o => o.text)
+      });
+      
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
@@ -3455,10 +3453,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.quizService.checkIfAnsweredCorrectly();
       this.timerService.startTimer(this.timerService.timePerQuestion);
   
-      console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}`, {
+      console.log('[Q-DEBUG] STATE AFTER SET', {
         questionText: this.questionToDisplay,
-        explanation: this.explanationToDisplay,
-        optionsCount: this.optionsToDisplay.length,
+        explanationText: this.explanationToDisplay,
+        currentQuestionIndex: this.currentQuestionIndex
       });
   
       return true;
@@ -3580,14 +3578,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   
-    this.currentQuestionIndex = questionIndex;
-    this.quizService.setCurrentQuestionIndex(questionIndex);
-  
     const success = await this.fetchAndSetQuestionData(questionIndex);
     if (!success) {
       console.warn(`[navigateToQuestion] ❌ Failed to fetch question data`);
       return false;
     }
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.setCurrentQuestionIndex(questionIndex);
   
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
