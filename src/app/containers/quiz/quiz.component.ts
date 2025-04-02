@@ -3630,6 +3630,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    console.log(`[🧠 fetchQuestionDetails CALLED] with index:`, questionIndex);
+
     try {
       // Fetch the question text
       const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
@@ -3654,10 +3656,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ? explanationOrObservable
         : await firstValueFrom(explanationOrObservable);
 
-      console.log(`[fetchQuestionDetails] ✅ Built question for Q${questionIndex}:`, {
+      console.log(`[✅ fetchQuestionDetails RESULT Q${questionIndex}]`, {
         questionText,
-        optionsLength: options.length,
-        explanation
+        explanation,
+        optionsLength: options.length
       });
   
       if (!explanation) {
