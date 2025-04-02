@@ -2922,7 +2922,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       console.log('[advanceToNextQuestion] currentQuestionIndex:', this.currentQuestionIndex);
-      const currentIndex = this.quizService.getCurrentQuestionIndex(); // or pull it directly from the source of truth
+      const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
       console.log('[advanceToNextQuestion] Calculated nextIndex:', nextIndex);
 
@@ -2992,8 +2992,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       this.currentQuestionIndex = previousQuestionIndex;
 
+      const currentIndex = this.quizService.getCurrentQuestionIndex();
+      const prevIndex = currentIndex - 1;
+
       // Combine fetching data and initializing question state into a single method
-      await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+      // await this.prepareQuestionForDisplay(this.currentQuestionIndex);
       this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
