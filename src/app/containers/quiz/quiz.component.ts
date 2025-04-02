@@ -2970,10 +2970,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    /* if (this.isNavigating) {
+    if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
-    } */
+    }
 
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
@@ -2993,8 +2993,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = previousQuestionIndex;
 
       // Combine fetching data and initializing question state into a single method
-      // await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      // this.resetUI();
+      await this.prepareQuestionForDisplay(this.currentQuestionIndex);
+      this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
