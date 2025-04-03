@@ -3189,6 +3189,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // 🧪 Only show explanation if already answered
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       const explanationText = isAnswered ? (question.explanation ?? '') : '';
+
+      this.explanationToDisplay = explanationText;
+      this.explanationTextService.setExplanationText(explanationText);
   
       // ✅ Display binding (single place)
       this.setQuestionDetails(
