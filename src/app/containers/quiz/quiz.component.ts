@@ -3155,7 +3155,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      // 🔄 Clear current state and UI bindings
+      // 🔄 Reset state
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
@@ -3166,16 +3166,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       await new Promise(res => setTimeout(res, 30)); // Flush UI
   
-      // 🧠 Fetch the question details
+      // 🧠 Fetch details
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
-
-      // 🧠 Set question text in global state
-      console.log('[🔤 Setting question text]', question.questionText);
-      this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
       console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
         text: question.questionText,
@@ -3183,24 +3179,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         options: question.options.map(o => o.text)
       });
   
+      // 🔁 Assign option states
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
-      // 🧪 Only show explanation if already answered
+      // 🔍 Determine explanation display
       const isAnswered = await this.isQuestionAnswered(questionIndex);
-      const explanationText = isAnswered ? (question.explanation ?? '') : '';
-
+      const explanationText = isAnswered ? (question.explanation?.trim() ?? '') : '';
+  
+      // 🧠 Update all explanation-related state in one block
       this.explanationToDisplay = explanationText;
+      this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
       this.explanationTextService.setExplanationText(explanationText);
+      console.log(`[🧠 setExplanationText] Q${questionIndex}:`, explanationText);
   
-      // ✅ Display binding (single place)
-      this.setQuestionDetails(
-        question.questionText ?? 'No question text available',
-        updatedOptions,
-        explanationText
-      );
+      // 🧠 Set question display
+      this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
+      this.quizStateService.setQuestionText(this.questionToDisplay);
   
-      // ✅ Internal and shared state
+      // 🧠 Set display + internal data
+      this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
       this.currentQuestionIndex = questionIndex;
@@ -3209,20 +3207,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // ✅ Explanation observables
-      this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
-      this.explanationTextService.setExplanationText(explanationText);
-  
-      console.log(`[🧠 setExplanationText] Q${questionIndex}:`, explanationText);
-  
       this.cdRef.detectChanges();
   
       await this.quizService.checkIfAnsweredCorrectly();
       this.timerService.startTimer(this.timerService.timePerQuestion);
   
       console.log('[Q-DEBUG] STATE AFTER SET', {
-        questionText: question.questionText,
-        explanationText,
+        questionText: this.questionToDisplay,
+        explanationText: this.explanationToDisplay,
         currentQuestionIndex: this.currentQuestionIndex
       });
   
@@ -3231,7 +3223,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
       return false;
     }
-  }
+  }  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     console.log(`[Q-TRACE] fetchQuestionDetails FETCHING Q${questionIndex}`);
