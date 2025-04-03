@@ -133,45 +133,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    /* this.combinedText$ = this.displayState$.pipe(
-      map(state => {
-        if (state.mode === 'explanation') {
-          console.log('[🟡 Explanation Display Mode]', this.explanationToDisplay);
-          return this.explanationToDisplay?.trim() || 'No explanation available';
-        }
-  
-        console.log('[🔵 Question Display Mode]', this.questionToDisplay);
-        return this.questionToDisplay?.trim() || 'No question available';
-      }),
-      distinctUntilChanged()
-    ); */
-    /* this.combinedText$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.formattedExplanation$, // reactive explanation
-      this.quizStateService.currentQuestionText$          // reactive question text
-    ]).pipe(
-      map(([state, explanation, questionText]) => {
-        if (state.mode === 'explanation') {
-          console.log('[🟡 Explanation Display Mode]', explanation);
-          return explanation?.trim() || 'No explanation available';
-        }
-    
-        console.log('[🔵 Question Display Mode]', questionText);
-        return questionText?.trim() || 'No question available';
-      }),
-      distinctUntilChanged()
-    ); */
-    /* this.combinedText$ = this.displayState$.pipe(
-      map(state => {
-        const text = state.mode === 'explanation'
-          ? this.explanationToDisplay?.trim() || 'No explanation available'
-          : this.questionToDisplay?.trim() || 'No question available';
-    
-        console.log('[📢 combinedText$ emits]', { mode: state.mode, text });
-        return text;
-      }),
-      distinctUntilChanged()
-    ); */
     this.combinedText$ = this.displayState$.pipe(
       map(state => {
         const text =
