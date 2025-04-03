@@ -2655,11 +2655,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
-
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
   
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
@@ -2682,6 +2677,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           take(1)
         )
       );
+
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
   
       // Now allow it to display
       this.explanationTextService.setShouldDisplayExplanation(true);
