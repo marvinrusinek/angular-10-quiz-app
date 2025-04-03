@@ -72,9 +72,7 @@ export class QuizStateService {
   }
 
   public setQuestionText(text: string): void {
-    const value = text?.trim() || 'No question available';
-    console.log('[🧠 setQuestionText]', value);
-    this.questionTextSubject.next(value);
+    this.questionTextSubject.next(text?.trim() || 'No question available');
   }
 
   setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
