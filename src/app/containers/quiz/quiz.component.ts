@@ -183,6 +183,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   currentQuestionAnswered = false;
 
+  private questionTextSubject = new BehaviorSubject<string>('');
+  public questionText$ = this.questionTextSubject.asObservable();
+
+  private explanationTextSubject = new BehaviorSubject<string>('');
+  public explanationText$ = this.explanationTextSubject.asObservable();
+
   private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
     mode: 'question',
     answered: false
@@ -3301,6 +3307,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Set the explanation text, providing a default if none is available
     this.explanationToDisplay = explanationText || 'No explanation available';
+
+    this.questionTextSubject.next(this.questionToDisplay);
+    this.explanationTextSubject.next(this.explanationToDisplay);
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
