@@ -55,8 +55,18 @@ export class ExplanationTextService {
   }
 
   setExplanationText(explanation: string): void {
-    this.explanationText$.next(explanation);
-    this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
+    const trimmed = (explanation ?? '').trim();
+  
+    // Emit trimmed explanation
+    this.explanationText$.next(trimmed);
+  
+    // Set the flag to show explanation
+    this.isExplanationDisplayedSource.next(true);
+  
+    // Helpful debug logs
+    console.log('[🧠 setExplanationText() called]');
+    console.log('Trimmed explanation emitted:', trimmed);
+    console.log('shouldDisplayExplanation set to true');
   }
 
   setFormattedExplanationText(explanation: string): void {
