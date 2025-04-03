@@ -57,17 +57,18 @@ export class ExplanationTextService {
   setExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
   
-    // Emit trimmed explanation
-    this.explanationText$.next(trimmed);
+    if (trimmed) {
+      this.explanationText$.next(trimmed);
+      this.isExplanationDisplayedSource.next(true);
   
-    // Set the flag to show explanation
-    this.isExplanationDisplayedSource.next(true);
-  
-    // Helpful debug logs
-    console.log('[🧠 setExplanationText() called]');
-    console.log('Trimmed explanation emitted:', trimmed);
-    console.log('shouldDisplayExplanation set to true');
-  }
+      console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
+      console.log('[🧠 shouldDisplayExplanation set to TRUE]');
+    } else {
+      console.warn('[⚠️ setExplanationText] No valid explanation to emit');
+      this.explanationText$.next(''); // Still emit empty string to clear stale data if needed
+      this.isExplanationDisplayedSource.next(false);
+    }
+  }  
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
