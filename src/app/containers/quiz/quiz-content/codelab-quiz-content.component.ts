@@ -145,12 +145,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     ); */
-    this.combinedText$ = this.displayState$.pipe(
-      map((state) => {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$
+    ]).pipe(
+      map(([state, explanationText]) => {
         if (state.mode === 'explanation') {
-          const explanation = this.explanationTextService.getLatestExplanation(); // fallback-safe getter
-          console.log('[🟡 Explanation Display Mode]', explanation);
-          return explanation?.trim() || 'No explanation available';
+          console.log('[🟡 Explanation Display Mode]', explanationText);
+          return explanationText?.trim() || 'No explanation available';
         }
     
         console.log('[🔵 Question Display Mode]', this.questionToDisplay);
