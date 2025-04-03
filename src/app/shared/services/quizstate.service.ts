@@ -46,7 +46,7 @@ export class QuizStateService {
   public isLoading$ = this.isLoadingSubject.asObservable();
 
   private questionTextSubject = new BehaviorSubject<string>('');
-  public currentQuestionText$ = this.questionTextSubject.asObservable();
+  public questionText$ = this.questionTextSubject.asObservable();
 
   isNavigatingSubject = new BehaviorSubject<boolean>(false);
   public isNavigating$ = this.isNavigatingSubject.asObservable();
