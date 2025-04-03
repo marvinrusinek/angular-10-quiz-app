@@ -133,7 +133,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.combinedText$ = this.displayState$.pipe(
+    /* this.combinedText$ = this.displayState$.pipe(
       map(state => {
         const text =
           state.mode === 'explanation'
@@ -150,7 +150,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         return text;
       }),
       distinctUntilChanged()
-    );    
+    ); */
+    this.combinedText$ = this.displayState$.pipe(
+      map(state => {
+        if (state.mode === 'explanation') {
+          console.log('[🟡 Explanation Display Mode]', this.explanationToDisplay);
+          return this.explanationToDisplay?.trim() || 'No explanation available';
+        }
+    
+        console.log('[🔵 Question Display Mode]', this.questionToDisplay);
+        return this.questionToDisplay?.trim() || 'No question available';
+      }),
+      distinctUntilChanged()
+    );
+     
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
