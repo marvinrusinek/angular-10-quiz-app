@@ -145,7 +145,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     ); */
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.formattedExplanation$, // reactive explanation
       this.quizStateService.currentQuestionText$          // reactive question text
@@ -158,6 +158,17 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
         console.log('[🔵 Question Display Mode]', questionText);
         return questionText?.trim() || 'No question available';
+      }),
+      distinctUntilChanged()
+    ); */
+    this.combinedText$ = this.displayState$.pipe(
+      map(state => {
+        const text = state.mode === 'explanation'
+          ? this.explanationToDisplay?.trim() || 'No explanation available'
+          : this.questionToDisplay?.trim() || 'No question available';
+    
+        console.log('[📢 combinedText$ emits]', { mode: state.mode, text });
+        return text;
       }),
       distinctUntilChanged()
     );
