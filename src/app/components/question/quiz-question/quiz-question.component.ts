@@ -2655,6 +2655,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
+
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
   
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
