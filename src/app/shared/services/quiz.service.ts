@@ -613,62 +613,43 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
-    return this.questions$.pipe(
-      filter((questions) => {
-        return questions.length > 0;
-      }),
-      take(1), // Take only the first emission
-      map((questions: QuizQuestion[]) => {
-        if (index < 0 || index >= questions.length) {
-          return null; // Return null for out-of-bounds index
-        }
-        return questions[index];
-      }),
-      catchError((error: Error) => {
-        return of(null); // Fallback to null on error
-      })
-    );
-  } */
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
-        filter((questions) => {
-            if (!questions || questions.length === 0) {
-                console.warn(`[QuizService] ⚠️ No questions available.`);
-                return false;
-            }
-            return true;
-        }),
-        take(1),
-        map((questions: QuizQuestion[]) => {
-            console.log(`[QuizService] 🔍 Processing request for Q${index}. Available questions:`, questions.length);
+      filter((questions) => {
+        if (!questions || questions.length === 0) {
+          console.warn(`[QuizService] ⚠️ No questions available.`);
+          return false;
+        }
+        return true;
+      }),
+      take(1),
+      map((questions: QuizQuestion[]) => {
+        if (index < 0 || index >= questions.length) {
+          console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
+          return null; 
+        }
 
-            if (index < 0 || index >= questions.length) {
-                console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
-                return null; 
-            }
+        const question = questions[index];
 
-            const question = questions[index];
+        if (!question || !question.options) {
+          console.warn(`[QuizService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
+          return null;
+        }
 
-            if (!question || !question.options) {
-                console.warn(`[QuizService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
-                return null;
-            }
+        // Inject feedback for options if missing
+        question.options = question.options.map((opt, i) => ({
+          ...opt,
+          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
+        }));
 
-            // ✅ Inject feedback for options if missing
-            question.options = question.options.map((opt, i) => ({
-                ...opt,
-                feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
-            }));
+        console.log(`[QuizService] ✅ Final options for Q${index}:`, question.options);
 
-            console.log(`[QuizService] ✅ Final options for Q${index}:`, question.options);
-
-            return question;
-        }),
-        catchError((error: Error) => {
-            console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
-            return of(null);
-        })
+        return question;
+      }),
+      catchError((error: Error) => {
+        console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
+        return of(null);
+      })
     );
   }
 
@@ -1062,45 +1043,9 @@ export class QuizService implements OnDestroy {
     return this.currentQuestion.asObservable();
   }
 
-  /* async setCurrentQuestionIndex(index: number): Promise<void> {
-    try {
-      if (!this.quizId) {
-        console.error('Quiz ID is not available.');
-        return;
-      }
-
-      const response: any = await firstValueFrom(
-        this.getQuestionsForQuiz(this.quizId)
-      );
-
-      if (!response || !Array.isArray(response.questions)) {
-        console.error('Invalid format of questions response:', response);
-        return;
-      }
-
-      const questions = response.questions;
-      if (!questions || !Array.isArray(questions)) {
-        console.error('Invalid format of questions array:', questions);
-        return;
-      }
-
-      if (index < 0 || index >= questions.length) {
-        console.error(`Invalid question index: ${index}. Total questions available: ${questions.length}`);
-        return;
-      }
-
-      this.currentQuestionIndex = index;
-      this.currentQuestionIndexSource.next(index);
-
-      console.warn(`[setCurrentQuestionIndex] ✅ Updated currentQuestionIndex to: ${index}`);
-    } catch (error) {
-      console.error('[setCurrentQuestionIndex] ❌ Error:', error);
-    }
-  } */
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
     this.currentQuestionIndexSource.next(index);
-    console.log('[✅ setCurrentQuestionIndex] New index:', index);
   }  
 
   getCurrentQuestionIndex(): number {
