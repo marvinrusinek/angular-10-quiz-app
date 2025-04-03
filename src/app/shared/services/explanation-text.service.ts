@@ -39,6 +39,8 @@ export class ExplanationTextService {
   private explanationTrigger = new Subject<void>();
   explanationTrigger$ = this.explanationTrigger.asObservable();
 
+  private latestExplanation = '';
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -54,7 +56,7 @@ export class ExplanationTextService {
     return question.explanation || 'No explanation available';
   }
 
-  setExplanationText(explanation: string): void {
+  /* setExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
   
     if (trimmed) {
@@ -68,7 +70,28 @@ export class ExplanationTextService {
       this.explanationText$.next(''); // Still emit empty string to clear stale data if needed
       this.isExplanationDisplayedSource.next(false);
     }
-  }  
+  }  */
+  setExplanationText(explanation: string): void {
+    const trimmed = (explanation ?? '').trim();
+    this.latestExplanation = trimmed; // ⬅️ Store the latest explanation
+  
+    if (trimmed) {
+      this.explanationText$.next(trimmed);
+      this.isExplanationDisplayedSource.next(true);
+  
+      console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
+      console.log('[🧠 shouldDisplayExplanation set to TRUE]');
+    } else {
+      console.warn('[⚠️ setExplanationText] No valid explanation to emit');
+      this.explanationText$.next(''); // Clear stale data
+      this.isExplanationDisplayedSource.next(false);
+    }
+  }
+
+  getLatestExplanation(): string {
+    console.log('[🐞 getLatestExplanation()] returning:', this.latestExplanation);
+    return this.latestExplanation;
+  }
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
