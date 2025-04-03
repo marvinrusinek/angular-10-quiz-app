@@ -77,7 +77,7 @@ export class QuizStateService {
     this.questionTextSubject.next(value);
   }
 
-  setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }) {
+  setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
     this.displayStateSubject.next(state);
   }
 
