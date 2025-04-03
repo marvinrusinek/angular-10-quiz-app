@@ -54,6 +54,12 @@ export class QuizStateService {
   answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable();
 
+  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
+    mode: 'question',
+    answered: false
+  });
+  public displayState$ = this.displayStateSubject.asObservable();
+
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
 
@@ -69,7 +75,11 @@ export class QuizStateService {
     const value = text?.trim() || 'No question available';
     console.log('[🧠 setQuestionText]', value);
     this.questionTextSubject.next(value);
-  }  
+  }
+
+  setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }) {
+    this.displayStateSubject.next(state);
+  }
 
   getStoredState(quizId: string): Map<number, QuestionState> | null {
     const stateJSON = localStorage.getItem(`quizState_${quizId}`);

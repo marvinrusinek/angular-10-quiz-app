@@ -3192,6 +3192,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
       this.explanationTextService.setExplanationText(explanationText);
       console.log(`[🧠 setExplanationText] Q${questionIndex}:`, explanationText);
+      
+      // Then trigger the UI to switch to explanation display
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // 🧠 Set question display
       this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
