@@ -2632,15 +2632,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
-    console.log('[✅ onOptionClicked] Fired with event:', event);
-    
-    console.log('[🟢 onOptionClicked] Start');
     this.selectedOptionService.setAnswered(true);
-    console.log('[🟢 AFTER setAnswered] Value =', this.selectedOptionService.isAnsweredSubject.getValue());
   
     try {
       const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      console.log(`[onOptionClicked] 🔒 Q${lockedIndex} clicked.`, event.option);
   
       if (!this.optionsToDisplay?.length) {
         await new Promise(resolve => setTimeout(resolve, 50));
