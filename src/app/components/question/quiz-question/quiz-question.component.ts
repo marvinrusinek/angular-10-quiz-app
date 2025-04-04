@@ -2658,19 +2658,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
   
-      // 🧠 Fetch & set explanation BEFORE switching display state
-      const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanation(lockedIndex)
+      // Wait briefly to stabilize state
+      await new Promise(resolve => setTimeout(resolve, 30));
+  
+      // Update explanation text
+      await this.updateExplanationText(lockedIndex);
+      console.log('[🟡 Explanation to emit before display mode switch]:', this.explanationTextService.getLatestExplanation());
+  
+      // Wait for explanation to emit before showing
+      await firstValueFrom(
+        this.explanationTextService.explanationText$.pipe(
+          filter(text => !!text?.trim()),
+          take(1)
+        )
       );
-  
-      console.log('[🟡 Emitting explanation]', explanationText);
-      this.explanationTextService.setExplanationText(explanationText); // ✅ Important
-  
-      // ✅ Now switch mode
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
+
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Now allow it to display
       this.explanationTextService.setShouldDisplayExplanation(true);
