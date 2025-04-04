@@ -71,7 +71,7 @@ export class ExplanationTextService {
       this.isExplanationDisplayedSource.next(false);
     }
   }  */
-  setExplanationText(explanation: string): void {
+  /* setExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
     this.latestExplanation = trimmed; // ⬅️ Store the latest explanation
   
@@ -86,7 +86,45 @@ export class ExplanationTextService {
       this.explanationText$.next(''); // Clear stale data
       this.isExplanationDisplayedSource.next(false);
     }
+  } */
+  /* setExplanationText(explanation: string | null): void {
+    const trimmed = (explanation ?? '').trim();
+  
+    // ✅ Set the plain string version (used by the display logic)
+    this.explanationText$.next(trimmed || 'No explanation available');
+  
+    // ✅ Also emit a mock QuizQuestion object if needed elsewhere
+    this.explanationSubject.next({
+      questionText: '', // optional if not needed
+      options: [],
+      explanation: trimmed,
+      type: QuestionType.SingleAnswer // or whatever default works for your app
+    });
+  
+    console.log('[✅ setExplanationText] Emitted:', trimmed);
+  } */
+  setExplanationText(explanation: string | null): void {
+    const trimmed = (explanation ?? '').trim();
+    this.latestExplanation = trimmed;
+  
+    // ✅ Emit trimmed explanation to display observable
+    this.explanationText$.next(trimmed || 'No explanation available');
+  
+    // ✅ Emit full QuizQuestion-like object if used elsewhere
+    this.explanationSubject.next({
+      questionText: '', // optional placeholder
+      options: [],
+      explanation: trimmed,
+      type: QuestionType.SingleAnswer // or whatever default your app expects
+    });
+  
+    // ✅ Update explanation display flag (optional, based on your design)
+    this.isExplanationDisplayedSource.next(!!trimmed);
+  
+    console.log('[✅ setExplanationText] Emitted:', trimmed);
   }
+  
+  
 
   getLatestExplanation(): string {
     console.log('[🐞 getLatestExplanation()] returning:', this.latestExplanation);
