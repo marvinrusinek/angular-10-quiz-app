@@ -2663,6 +2663,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Update explanation text
       await this.updateExplanationText(lockedIndex);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       console.log('[🟡 Explanation to emit before display mode switch]:', this.explanationTextService.getLatestExplanation());
   
       // Wait for explanation to emit before showing
@@ -2672,8 +2673,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           take(1)
         )
       );
-
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Now allow it to display
       this.explanationTextService.setShouldDisplayExplanation(true);
@@ -4201,7 +4200,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     console.log(`[updateExplanationText] ✅ FINAL Explanation Displayed for Q${questionIndex}:`, explanationText);
   } */
-  async updateExplanationText(questionIndex: number): Promise<void> {
+  /* async updateExplanationText(questionIndex: number): Promise<void> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
   
     // Reset first
@@ -4246,6 +4245,67 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ✅ Final explanation emit (must come LAST)
     this.explanationTextService.updateFormattedExplanation(explanationText);
     this.explanationTextService.setExplanationText(explanationText);
+  
+    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
+    this.explanationToDisplayChange.emit(this.explanationToDisplay);
+    this.showExplanationChange.emit(true);
+  
+    console.log(`[updateExplanationText] ✅ FINAL Explanation Displayed:`, explanationText);
+  } */
+  async updateExplanationText(questionIndex: number): Promise<void> {
+    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+  
+    // 🔄 Clear previous explanation first
+    this.explanationTextService.updateFormattedExplanation('');
+    console.log('[🔁 Cleared previous formatted explanation]');
+  
+    const question = this.quiz?.questions?.[questionIndex];
+    if (!question) {
+      console.error(`[updateExplanationText] ❌ No question at index Q${questionIndex}`);
+      return;
+    }
+  
+    console.log(`[🧪 QUESTION TEXT]:`, question.questionText);
+  
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
+    if (!explanationText) {
+      console.log('[🔍 No cached explanation found — fetching...]');
+      try {
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+        this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+        console.log('[✅ Fetched and stored explanation]:', explanationText);
+      } catch (error) {
+        console.error(`[updateExplanationText] ❌ Error fetching explanation:`, error);
+        explanationText = 'Error loading explanation.';
+      }
+    } else {
+      console.log('[📦 Loaded cached explanation]:', explanationText);
+    }
+  
+    if (questionIndex !== this.currentQuestionIndex) {
+      console.warn(`[updateExplanationText] ⏹️ Skipping emit due to stale index`);
+      return;
+    }
+  
+    // ✅ Set state and flags BEFORE emitting explanation
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    console.log('[⚙️ Explanation display flags set to TRUE]');
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState) {
+      questionState.explanationDisplayed = true;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+      console.log('[🧠 Updated question state: explanationDisplayed = true]');
+    }
+  
+    // ✅ Final emit — THIS must happen last
+    this.explanationTextService.updateFormattedExplanation(explanationText);
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    console.log(`[✅ setExplanationText] Explanation emitted:`, explanationText);
   
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
