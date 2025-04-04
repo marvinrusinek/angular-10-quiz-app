@@ -2668,7 +2668,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Wait for explanation to emit before showing
       await firstValueFrom(
-        this.explanationTextService.formattedExplanation$.pipe(
+        this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
           take(1)
         )

@@ -182,8 +182,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged()
     ); */
     this.combinedText$ = combineLatest([
-      this.displayState$,                             // observable of { mode, answered }
-      this.explanationTextService.explanationText$    // explanation text from the service
+      this.displayState$, // { mode: 'question' | 'explanation', answered: boolean }
+      this.explanationTextService.explanationText$
     ]).pipe(
       map(([state, explanationText]) => {
         const explanation = explanationText?.trim() ?? '';
@@ -201,6 +201,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       distinctUntilChanged()
     );
+    
     
     
     
