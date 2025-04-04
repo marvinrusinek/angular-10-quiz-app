@@ -3178,6 +3178,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
+      this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
       console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
         text: question.questionText,
@@ -3197,6 +3198,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = explanationText;
       this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
       this.explanationTextService.setExplanationText(explanationText);
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
+      console.log('[✅ this.explanationToDisplay]', this.explanationToDisplay);
       console.log(`[🧠 setExplanationText] Q${questionIndex}:`, explanationText);
       
       // Then trigger the UI to switch to explanation display
@@ -3299,13 +3305,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     options: Option[],
     explanationText: string
   ): void {
-    // Set the question text, providing a default if none is available
     this.questionToDisplay = questionText || 'No question text available';
-  
-    // Set the options to display, defaulting to an empty array if none are provided
     this.optionsToDisplay = Array.isArray(options) ? options : [];
-  
-    // Set the explanation text, providing a default if none is available
     this.explanationToDisplay = explanationText || 'No explanation available';
 
     this.questionTextSubject.next(this.questionToDisplay);
