@@ -103,7 +103,7 @@ export class ExplanationTextService {
   
     console.log('[✅ setExplanationText] Emitted:', trimmed);
   } */
-  setExplanationText(explanation: string | null): void {
+  /* setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
     this.latestExplanation = trimmed;
   
@@ -122,7 +122,19 @@ export class ExplanationTextService {
     this.isExplanationDisplayedSource.next(!!trimmed);
   
     console.log('[✅ setExplanationText] Emitted:', trimmed);
+  } */
+  public setExplanationText(explanation: string | null): void {
+    const trimmed = (explanation ?? '').trim();
+  
+    // Store the latest explanation
+    this.latestExplanation = trimmed;
+  
+    // Emit explanation to subscribers
+    this.explanationText$.next(trimmed);
+  
+    console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
   }
+  
   
   
 
