@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -21,14 +21,14 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy, AfterViewChecked {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
-  @Input() explanationToDisplay: string;
-  @Input() questionToDisplay: string;
+  @Input() questionToDisplay: string = '';
+  @Input() explanationToDisplay: string = '';
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion | null>;
   @Input() questions: QuizQuestion[];
@@ -145,21 +145,65 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     ); */
-    this.combinedText$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.explanationText$
-    ]).pipe(
-      map(([state, explanationText]) => {
-        if (state.mode === 'explanation') {
-          console.log('[🟡 Explanation Display Mode]', explanationText);
-          return explanationText?.trim() || 'No explanation available';
+    /* this.combinedText$ = this.displayState$.pipe(
+      map((state) => {
+        const isExplanationMode = state.mode === 'explanation';
+    
+        console.log('[🧪 combinedText$]', {
+          mode: state.mode,
+          explanation: this.explanationToDisplay,
+          question: this.questionToDisplay
+        });
+    
+        if (isExplanationMode) {
+          return this.explanationToDisplay?.trim() || 'No explanation available';
         }
     
-        console.log('[🔵 Question Display Mode]', this.questionToDisplay);
         return this.questionToDisplay?.trim() || 'No question available';
       }),
       distinctUntilChanged()
+    ); */
+    /* this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.quizStateService.questionText$  // ⬅️ you'll define this below
+    ]).pipe(
+      map(([state, explanationText, questionText]) => {
+        const isExplanationMode = state.mode === 'explanation';
+    
+        if (isExplanationMode) {
+          console.log('[🟡 Showing Explanation]', explanationText);
+          return explanationText?.trim() || 'No explanation available';
+        }
+    
+        console.log('[🔵 Showing Question]', questionText);
+        return questionText?.trim() || 'No question available';
+      }),
+      distinctUntilChanged()
+    ); */
+    this.combinedText$ = combineLatest([
+      this.displayState$,                             // observable of { mode, answered }
+      this.explanationTextService.explanationText$    // explanation text from the service
+    ]).pipe(
+      map(([state, explanationText]) => {
+        const explanation = explanationText?.trim() ?? '';
+        const question = this.questionToDisplay?.trim() ?? '';
+    
+        console.log('[🧪 combinedText$]', {
+          mode: state.mode,
+          question,
+          explanation
+        });
+    
+        return state.mode === 'explanation'
+          ? (explanation || 'No explanation available')
+          : (question || 'No question available');
+      }),
+      distinctUntilChanged()
     );
+    
+    
+    
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -246,6 +290,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.explanationToDisplay) {
+      const newVal = changes.explanationToDisplay.currentValue;
+      console.log('[📩 explanationToDisplay received]', newVal);
+    }
+  }
+  
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
