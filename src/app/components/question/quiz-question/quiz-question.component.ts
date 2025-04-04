@@ -4245,6 +4245,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // ✅ Final explanation emit (must come LAST)
     this.explanationTextService.updateFormattedExplanation(explanationText);
+    this.explanationTextService.setExplanationText(explanationText);
   
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
