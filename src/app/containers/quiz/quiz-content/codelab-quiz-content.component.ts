@@ -320,8 +320,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const newVal = changes.explanationToDisplay.currentValue;
       console.log('[📩 explanationToDisplay received]', newVal);
     }
-  }
   
+    if (changes.displayState$ || changes.explanationToDisplay || changes.questionToDisplay) {
+      this.combinedText$ = this.displayState$.pipe(
+        map(state => {
+          const explanation = this.explanationToDisplay?.trim() ?? '';
+          const question = this.questionToDisplay?.trim() ?? '';
+  
+          console.log('[🧪 combinedText$ - ngOnChanges]', {
+            mode: state.mode,
+            question,
+            explanation
+          });
+  
+          return state.mode === 'explanation'
+            ? (explanation || 'No explanation available')
+            : (question || 'No question available');
+        }),
+        distinctUntilChanged()
+      );
+    }
+  }
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
