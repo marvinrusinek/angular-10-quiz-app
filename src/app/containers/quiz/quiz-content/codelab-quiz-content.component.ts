@@ -182,7 +182,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged()
     ); */
     this.combinedText$ = combineLatest([
-      this.displayState$, // { mode: 'question' | 'explanation', answered: boolean }
+      this.displayState$, // { mode, answered }
       this.explanationTextService.explanationText$
     ]).pipe(
       map(([state, explanationText]) => {
@@ -200,7 +200,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : (question || 'No question available');
       }),
       distinctUntilChanged()
-    );
+    );    
     
     
     
