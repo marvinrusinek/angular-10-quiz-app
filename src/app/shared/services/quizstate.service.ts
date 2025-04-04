@@ -71,8 +71,20 @@ export class QuizStateService {
     this.currentQuestionSubject.next(question);
   }
 
-  public setQuestionText(text: string): void {
-    this.questionTextSubject.next(text?.trim() || 'No question available');
+  /* public setQuestionText(text: string): void {
+    const trimmed = (text ?? '').trim();
+  
+    if (!trimmed) {
+      console.warn('[⚠️ setQuestionText] Empty or invalid question text received:', text);
+      this.questionTextSubject.next('No question available');
+    } else {
+      console.log('[✅ setQuestionText] Emitting question text:', trimmed);
+      this.questionTextSubject.next(trimmed);
+    }
+  } */
+  setQuestionText(text: string): void {
+    const cleaned = text?.trim() || 'No question available';
+    this.questionTextSubject.next(cleaned);
   }
 
   setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
