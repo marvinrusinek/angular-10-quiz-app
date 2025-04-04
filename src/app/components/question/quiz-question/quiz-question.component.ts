@@ -2664,6 +2664,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Update explanation text
       await this.updateExplanationText(lockedIndex);
+      console.log('[🟡 Explanation to emit before display mode switch]:', this.explanationTextService.getLatestExplanation());
   
       // Wait for explanation to emit before showing
       await firstValueFrom(
@@ -2673,10 +2674,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
       );
 
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Now allow it to display
       this.explanationTextService.setShouldDisplayExplanation(true);
