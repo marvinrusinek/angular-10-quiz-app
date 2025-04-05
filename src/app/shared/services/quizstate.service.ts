@@ -88,6 +88,7 @@ export class QuizStateService {
   }
 
   setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
+    console.log('[✅ setDisplayState]', state);
     this.displayStateSubject.next(state);
   }
 
