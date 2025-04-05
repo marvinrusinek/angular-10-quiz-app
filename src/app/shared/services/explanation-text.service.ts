@@ -240,7 +240,7 @@ export class ExplanationTextService {
     const explanation = entry.explanation.trim();
   
     // 🛡️ Sanity check against accidentally setting the quizId as explanation
-    if (explanation === this.quizId) {
+    if (explanation) {
       console.error(`[❌] Q${questionIndex} explanation is the quizId! Fix your formatter.`);
       this.formattedExplanationSubject.next('No explanation available');
       return this.formattedExplanation$;
