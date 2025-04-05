@@ -251,6 +251,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    this.explanationTextService.explanationText$.subscribe(text => {
+      console.log('[📢 explanationText$ emitted]:', text);
+    });
+    
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     this.currentQuestionIndex = routeIndex; // ensures correct index
@@ -4316,9 +4320,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async updateExplanationText(questionIndex: number): Promise<string> {
     console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
   
-    // 🔄 Clear previous explanation first
     this.explanationTextService.updateFormattedExplanation('');
-    console.log('[🔁 Cleared previous formatted explanation]');
   
     const question = this.quiz?.questions?.[questionIndex];
     if (!question) {
@@ -4335,49 +4337,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         explanationText = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
+        console.log('[✅ fetched explanation]:', explanationText);
+  
+        // CRITICAL CHECK:
+        if (!explanationText) {
+          console.warn('[⚠️ fetched explanation is EMPTY or UNDEFINED]');
+          explanationText = 'Fetched explanation was empty.';
+        }
+  
         this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
-        console.log('[✅ Fetched and stored explanation]:', explanationText);
       } catch (error) {
-        console.error(`[updateExplanationText] ❌ Error fetching explanation:`, error);
+        console.error(`[❌ Error fetching explanation]:`, error);
         explanationText = 'Error loading explanation.';
       }
     } else {
-      console.log('[📦 Loaded cached explanation]:', explanationText);
+      console.log('[📦 cached explanation]:', explanationText);
     }
   
     if (questionIndex !== this.currentQuestionIndex) {
-      console.warn(`[updateExplanationText] ⏹️ Skipping emit due to stale index`);
+      console.warn(`[⏹️ Skipping emit due to stale index]`);
       return explanationText;
     }
   
-    // ✅ Set state and flags BEFORE emitting explanation
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    console.log('[⚙️ Explanation display flags set to TRUE]');
-  
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    if (questionState) {
-      questionState.explanationDisplayed = true;
-      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
-      console.log('[🧠 Updated question state: explanationDisplayed = true]');
-    }
-  
-    // ✅ Final emit — THIS must happen last
-    this.explanationTextService.updateFormattedExplanation(explanationText);
-    this.explanationTextService.setExplanationText(explanationText);
+    // Emit explicitly:
     this.explanationTextService.explanationText$.next(explanationText);
+    console.log(`[✅ Explanation emitted explicitly]:`, explanationText);
   
-    console.log(`[✅ setExplanationText] Explanation emitted:`, explanationText);
-  
-    this.explanationToDisplay = explanationText || 'Explanation unavailable.';
-    this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    this.showExplanationChange.emit(true);
-  
-    console.log(`[updateExplanationText] ✅ FINAL Explanation Displayed:`, explanationText);
-  
-    return explanationText; // 🚩 Explicitly returning explanationText
+    return explanationText;
   }
-  
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
