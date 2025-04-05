@@ -296,22 +296,38 @@ export class ExplanationTextService {
     console.log('Explanations updated notification sent.');
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
+  formatExplanationText(
+    question: QuizQuestion,
+    questionIndex: number
+  ): Observable<{ questionIndex: number; explanation: string }> {
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
+      console.warn(`[⏩ Skipping invalid or stale question at index ${questionIndex}]`);
       return of({ questionIndex, explanation: '' });
     }
-
+  
     const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, question.explanation);
-
+    const formattedExplanation = this.formatExplanation(
+      question,
+      correctOptionIndices,
+      question.explanation
+    );
+  
+    // ✅ Store and sync correctly
     this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.updateFormattedExplanation(formattedExplanation);
-
+  
+    // ✅ Prevent duplicate processing
     const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
-
-    return of({ questionIndex, explanation: formattedExplanation });
+  
+    console.log(`[✅ Formatted explanation for Q${questionIndex}]:`, formattedExplanation);
+  
+    // ✅ Return correct index (no +1!)
+    return of({
+      questionIndex,
+      explanation: formattedExplanation
+    });
   }
 
   updateFormattedExplanation(explanation: string): void {
