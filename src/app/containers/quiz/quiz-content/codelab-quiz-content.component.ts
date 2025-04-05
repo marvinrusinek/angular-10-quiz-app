@@ -272,6 +272,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       distinctUntilChanged()
     ); */
+    this.displayState$ = this.quizStateService.displayState$.pipe(
+      tap((state) => console.log('[displayState$ emitted]:', state))
+    );
+
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$
