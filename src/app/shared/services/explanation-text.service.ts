@@ -138,13 +138,19 @@ export class ExplanationTextService {
   } */
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
-    this.latestExplanation = trimmed;
+    console.log('[💬 setExplanationText - incoming]:', explanation);
+    console.log('[💬 setExplanationText - trimmed]:', trimmed);
+
+    if (trimmed === this.latestExplanation) {
+      console.log('[🛡️ Prevented duplicate emit]');
+      return;
+    }
   
-    // ✅ Always emit — don’t skip if identical
+    this.latestExplanation = trimmed;
     this.explanationText$.next(trimmed);
   
-    console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
-  }
+    console.log('[📢 explanationText$ emitted]:', trimmed);
+  }  
 
   getLatestExplanation(): string {
     console.log('[🐞 getLatestExplanation()] returning:', this.latestExplanation);
@@ -242,6 +248,8 @@ export class ExplanationTextService {
   getFormattedExplanationTextForQuestion(index: number): Observable<string> {
     const entry = this.formattedExplanations[index];
     const text = entry?.explanation?.trim();
+
+    console.log(`[📦 fetch explanation Q${index}]:`, this.formattedExplanations[index]);
   
     if (!text) {
       console.warn(`[⚠️ No explanation found for Q${index}]`);
@@ -329,18 +337,16 @@ export class ExplanationTextService {
       explanation: formattedExplanation
     });
   } */
-  formatExplanationText(question: QuizQuestion, index: number): Observable<{ questionIndex: number, explanation: string }> {
-    const raw = question?.explanation?.trim() || '';
+  formatExplanationText(question: QuizQuestion, index: number): Observable<{ questionIndex: number; explanation: string }> {
+    const raw = question?.explanation?.trim() || 'Explanation not provided';
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formatted = this.formatExplanation(question, correctOptionIndices, raw);
   
-    // Just store it directly — no formatting
-    this.formattedExplanations[index] = {
-      questionIndex: index,
-      explanation: raw
-    };
+    console.log(`[🧪 formatExplanationText] Called for Q${index}:`, question.questionText);
+    console.log(`[🧪 Raw explanation Q${index}]:`, raw);
+    console.log(`[✅ Formatted explanation Q${index}]:`, formatted);
   
-    console.log(`[🧪 Stored raw explanation Q${index}]:`, raw);
-  
-    return of({ questionIndex: index, explanation: raw });
+    return of({ questionIndex: index, explanation: formatted });
   }
 
   updateFormattedExplanation(explanation: string): void {
