@@ -1432,7 +1432,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
     }
   } */
-  ensureExplanationsLoaded(): Observable<boolean> {
+  /* ensureExplanationsLoaded(): Observable<boolean> {
     // 🧼 Force clear to prevent stale or mismapped explanations
     this.explanationTextService.formattedExplanations = {};
     console.log('🧼 Cleared existing explanations. Starting fresh preload...');
@@ -1469,7 +1469,49 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return of(false);
       })
     );
-  }  
+  }  */
+  ensureExplanationsLoaded(): Observable<boolean> {
+    // 🧼 Force clear to prevent stale or mismapped explanations
+    this.explanationTextService.formattedExplanations = {};
+    console.log('🧼 Cleared existing explanations. Starting fresh preload...');
+  
+    const explanationObservables = this.quiz.questions.map(
+      (question, index) =>
+        this.explanationTextService.formatExplanationText(question, index)
+    );
+  
+    return forkJoin(explanationObservables).pipe(
+      tap((explanations) => {
+        for (const explanation of explanations) {
+          const { questionIndex, explanation: text } = explanation;
+  
+          // ✅ Explicitly format and store again for safety
+          this.explanationTextService.formatExplanationText(
+            this.quiz.questions[questionIndex],
+            questionIndex
+          );
+  
+          // Store in formattedExplanations (defensive double-store)
+          this.explanationTextService.formattedExplanations[questionIndex] = {
+            questionIndex,
+            explanation: text,
+          };
+  
+          console.log(`Preloaded explanation for index ${questionIndex}:`, text);
+        }
+  
+        console.log(
+          '✅ All explanations preloaded:',
+          this.explanationTextService.formattedExplanations
+        );
+      }),
+      map(() => true), // Ensure this Observable resolves to true
+      catchError((err) => {
+        console.error('❌ Error preloading explanations:', err);
+        return of(false);
+      })
+    );
+  }
 
   // This function updates the content based on the provided index.
   // It validates the index, checks if navigation is needed, and loads the appropriate question.
