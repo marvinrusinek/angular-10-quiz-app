@@ -4034,7 +4034,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async updateExplanationText(questionIndex: number): Promise<string> {
-    console.log(`[updateExplanationText] 📌 ENTERED for Q${questionIndex}`);
+    const isLatestIndex = questionIndex === this.currentQuestionIndex;
+    console.log('[🧠 updateExplanationText] index check:', { passed: isLatestIndex, questionIndex, current: this.currentQuestionIndex });
+    if (!isLatestIndex) {
+      console.warn('[⏹️ Explanation skipped — stale index]');
+      return 'Skipped stale explanation';
+    }
   
     const question = this.quiz?.questions?.[questionIndex];
     if (!question) {
