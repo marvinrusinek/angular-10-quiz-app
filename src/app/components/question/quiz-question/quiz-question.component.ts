@@ -2654,25 +2654,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.showFeedbackForOption[event.option?.optionId || 0] = true;
   
+      // Update question state to show explanation
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       if (qState && !qState.explanationDisplayed) {
         qState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
       }
   
+      // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
   
-      // Wait briefly to stabilize state
-      await new Promise(resolve => setTimeout(resolve, 30));
-
-      // Switch to explanation mode
+      // ⚠️ CRITICAL: Set display mode BEFORE explanation is emitted
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // Update explanation text
-      await this.updateExplanationText(lockedIndex);
-      console.log('[🟡 Explanation to emit before display mode switch]:', this.explanationTextService.getLatestExplanation());
+      // Fetch and prepare explanation
+      const explanation = await this.updateExplanationText(lockedIndex);
+      console.log('[🟡 Explanation returned by updateExplanationText]:', explanation);
   
-      // Wait for explanation to emit before showing
+      // ✅ Wait until a non-empty explanation is emitted
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
@@ -2680,11 +2679,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
       );
   
-      // Now allow it to display
+      // Allow UI to render explanation
       this.explanationTextService.setShouldDisplayExplanation(true);
-      await new Promise(resolve => setTimeout(resolve, 10));
       this.explanationTextService.triggerExplanationEvaluation();
   
+      // Finalize state and mark UI
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
