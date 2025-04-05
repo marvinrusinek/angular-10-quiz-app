@@ -130,10 +130,10 @@ export class ExplanationTextService {
     this.latestExplanation = trimmed;
   
     // Emit explanation to subscribers
-    this.explanationText$.next(trimmed);
-  
     console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
-  }
+    console.trace('[📌 setExplanationText CALL STACK for]', trimmed);
+    this.explanationText$.next(trimmed);
+  }  
 
   getLatestExplanation(): string {
     console.log('[🐞 getLatestExplanation()] returning:', this.latestExplanation);
