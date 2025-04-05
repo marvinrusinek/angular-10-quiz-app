@@ -109,6 +109,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
+    this.displayState$ = this.quizStateService.displayState$;
 
     this.quizService.getIsNavigatingToPrevious().subscribe(
       isNavigating => this.isNavigatingToPrevious = isNavigating
