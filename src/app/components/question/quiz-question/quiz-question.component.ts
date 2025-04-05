@@ -4050,10 +4050,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
   
     // 🛡️ If already displayed and cached in state, reuse it
-    if (questionState?.explanationDisplayed && questionState?.explanation?.trim()) {
+    if (questionState?.explanationDisplayed && questionState?.explanationText?.trim()) {
       console.warn(`[⏹️ Reusing stored explanation for Q${questionIndex}]`);
-      this.explanationTextService.setExplanationText(questionState.explanation);
-      return questionState.explanation;
+      this.explanationTextService.setExplanationText(questionState.explanationText);
+      return questionState.explanationText;
     }
   
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
