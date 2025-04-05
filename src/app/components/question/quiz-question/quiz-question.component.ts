@@ -4063,10 +4063,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.explanationText$.next(explanationText);
     }
   
-    if (questionIndex !== this.currentQuestionIndex) {
+    /* if (questionIndex !== this.currentQuestionIndex) {
       console.warn(`[⏹️ Skipping emit due to stale index]`);
       return explanationText;
-    }
+    } */
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
