@@ -4045,7 +4045,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(questionIndex: number): Promise<string> {
+  /* async updateExplanationText(questionIndex: number): Promise<string> {
     const isLatestIndex = questionIndex === this.currentQuestionIndex;
     console.log('[🧠 updateExplanationText] index check:', { passed: isLatestIndex, questionIndex, current: this.currentQuestionIndex });
     if (!isLatestIndex) {
@@ -4112,7 +4112,57 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showExplanationChange.emit(true);
   
     return explanationText;
-  }
+  } */
+  async updateExplanationText(questionIndex: number): Promise<string> {
+    console.log(`[🧠 updateExplanationText] Q${questionIndex} ENTER`);
+  
+    const question = this.quiz?.questions?.[questionIndex];
+    if (!question) {
+      console.error(`[❌ No question at index Q${questionIndex}]`);
+      const fallback = 'No question available';
+      this.explanationTextService.setExplanationText(fallback);
+      return fallback;
+    }
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    const cachedExplanation = questionState?.explanationText?.trim();
+  
+    if (cachedExplanation) {
+      console.log(`[♻️ Re-emitting cached explanation for Q${questionIndex}]:`, cachedExplanation);
+      this.explanationTextService.setExplanationText(cachedExplanation);
+      return cachedExplanation;
+    }
+  
+    // Fetch explanation from service
+    let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
+    if (!explanationText) {
+      try {
+        explanationText = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+        console.log(`[✅ Freshly fetched explanation for Q${questionIndex}]:`, explanationText);
+      } catch (error) {
+        console.error(`[❌ Error fetching explanation]:`, error);
+        explanationText = 'Error loading explanation.';
+      }
+    } else {
+      console.log(`[📦 Using stored explanation for Q${questionIndex}]:`, explanationText);
+    }
+  
+    // Always emit the explanation
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Update both global and per-question state
+    this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+  
+    if (questionState) {
+      questionState.explanationDisplayed = true;
+      questionState.explanationText = explanationText;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+    }
+  
+    return explanationText;
+  }  
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
