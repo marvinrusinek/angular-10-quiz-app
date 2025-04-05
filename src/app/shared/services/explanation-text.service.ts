@@ -382,12 +382,17 @@ export class ExplanationTextService {
     }
 
     const sanitizedExplanation = this.sanitizeExplanation(explanation);
-    // const correctOptionIndices = this.getCorrectOptionIndices(question);
-    // const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
+
+    console.log(`[🧪 FORMATTED DEBUG Q${index}]`, {
+      stored: this.formattedExplanations[index],
+      expected: explanation,
+    });
 
     this.formattedExplanations[index] = {
       questionIndex: index,
-      explanation: sanitizedExplanation
+      explanation: formattedExplanation
     };
 
     console.log(`[📥 storeFormattedExplanation] Storing for Q${index}`, {
