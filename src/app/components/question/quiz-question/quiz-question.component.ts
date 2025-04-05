@@ -4050,10 +4050,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
   
     // 🛡️ If already displayed and cached in state, reuse it
-    if (questionState?.explanationDisplayed && questionState?.explanation) {
+    if (questionState?.explanationDisplayed && questionState?.explanationText?.trim()) {
       console.warn(`[⏹️ Skipping fetch — already shown, reusing stored explanation Q${questionIndex}]`);
-      this.explanationTextService.setExplanationText(questionState.explanation);
-      return questionState.explanation;
+      this.explanationTextService.setExplanationText(questionState.explanationText);
+      return questionState.explanationText;
     }
   
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
@@ -4097,7 +4097,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return explanationText;
   }
-  
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
