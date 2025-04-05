@@ -313,9 +313,9 @@ export class ExplanationTextService {
   
     console.log(`[✅ Formatted explanation for Q${questionIndex}]:`, formattedExplanation);
 
-    console.log(`[🧪 formatExplanationText] Q${questionIndex}`, {
-      questionText: question.questionText,
-      explanation: question.explanation
+    console.log(`[🧪 formatExplanationText] Called for Q${questionIndex}`, {
+      questionText: question?.questionText,
+      explanation: question?.explanation,
     });
   
     // ✅ Return correct index (no +1!)
@@ -365,6 +365,12 @@ export class ExplanationTextService {
       questionIndex: index,
       explanation: sanitizedExplanation
     };
+
+    console.log(`[📥 storeFormattedExplanation] Storing for Q${index}`, {
+      original: explanation,
+      sanitized: this.sanitizeExplanation(explanation),
+    });
+    
     this.explanationsUpdated.next(this.formattedExplanations);
   }
 

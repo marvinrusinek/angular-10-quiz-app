@@ -4160,6 +4160,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionState.explanationText = explanationText;
       this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
     }
+
+    console.log(`[✅ Final explanation emitted for Q${questionIndex}]:`, explanationText);
   
     return explanationText;
   }  
