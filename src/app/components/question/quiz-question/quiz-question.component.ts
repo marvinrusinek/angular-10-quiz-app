@@ -251,6 +251,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('🧪 FORMATTED EXPLANATIONS AFTER PRELOAD');
+    Object.entries(this.explanationTextService.formattedExplanations).forEach(([i, entry]) => {
+      console.log(`Q${i}:`, entry?.explanation);
+    });
+
     this.explanationTextService.explanationText$.subscribe(text => {
       console.log('[📢 explanationText$ emitted]:', text);
     });
@@ -4113,7 +4118,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return explanationText;
   } */
-  async updateExplanationText(questionIndex: number): Promise<string> {
+  /* async updateExplanationText(questionIndex: number): Promise<string> {
     console.log(`[🧠 updateExplanationText] Q${questionIndex} ENTER`);
   
     const question = this.quiz?.questions?.[questionIndex];
@@ -4140,6 +4145,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         explanationText = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
+        const entry = this.explanationTextService.formattedExplanations[questionIndex];
+        explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+        console.log(`[✅ Read explanation for Q${questionIndex} from formattedExplanations]:`, explanationText);
+
         console.log(`[✅ Freshly fetched explanation for Q${questionIndex}]:`, explanationText);
       } catch (error) {
         console.error(`[❌ Error fetching explanation]:`, error);
@@ -4164,7 +4173,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`[✅ Final explanation emitted for Q${questionIndex}]:`, explanationText);
   
     return explanationText;
-  }  
+  } */
+  async updateExplanationText(questionIndex: number): Promise<string> {
+    console.log(`[🧠 updateExplanationText] ENTERED for Q${questionIndex}`);
+  
+    const isLatestIndex = questionIndex === this.currentQuestionIndex;
+    if (!isLatestIndex) {
+      console.warn(`[⏹️ Skipping explanation — stale index Q${questionIndex}]`);
+      return 'Skipped stale explanation';
+    }
+  
+    const question = this.quiz?.questions?.[questionIndex];
+    if (!question) {
+      console.error(`[❌ No question at index Q${questionIndex}]`);
+      return 'No question available';
+    }
+  
+    // ✅ Get explanation from formattedExplanations
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() || 'No explanation available';
+  
+    console.log(`[✅ Read from formattedExplanations for Q${questionIndex}]:`, explanationText);
+  
+    // ✅ Avoid reprocessing if already shown
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    if (questionState?.explanationDisplayed && questionState?.explanationText?.trim()) {
+      console.warn(`[⏹️ Skipping — explanation already displayed for Q${questionIndex}]`);
+      this.explanationTextService.setExplanationText(questionState.explanationText);
+      return questionState.explanationText;
+    }
+  
+    // ✅ Store in state
+    if (questionState) {
+      questionState.explanationText = explanationText;
+      questionState.explanationDisplayed = true;
+      this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
+    }
+  
+    // ✅ Emit explanation to display
+    this.explanationTextService.setExplanationText(explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationToDisplay = explanationText;
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+  
+    console.log(`[✅ Final explanation emitted for Q${questionIndex}]:`, explanationText);
+    return explanationText;
+  }
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
