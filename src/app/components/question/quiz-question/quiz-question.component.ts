@@ -4084,6 +4084,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionState.explanationDisplayed = true;
       this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
     }
+
+    console.log(`[🔍 updateExplanationText explanationState]:`, {
+      quizId: this.quizId,
+      questionIndex,
+      stored: questionState?.explanationText,
+      displayed: questionState?.explanationDisplayed,
+    });
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
