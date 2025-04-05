@@ -134,9 +134,6 @@ export class ExplanationTextService {
   
     console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
   }
-  
-  
-  
 
   getLatestExplanation(): string {
     console.log('[🐞 getLatestExplanation()] returning:', this.latestExplanation);
