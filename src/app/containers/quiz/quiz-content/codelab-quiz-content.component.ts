@@ -281,10 +281,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
     
 
+    /* this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$
+    ]).pipe(
+      map(([state, explanationText]) => {
+        const explanation = explanationText?.trim();
+        const question = this.questionToDisplay?.trim();
+
+        console.log('[combinedText$]:::', { state, explanation, question });
+    
+        return state.mode === 'explanation' && explanation
+          ? explanation
+          : (question || 'No question available');
+      }),
+      distinctUntilChanged()
+    ); */
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$
     ]).pipe(
+      tap(([state, explanation]) => {
+        console.log('[🧪 combinedText$]', {
+          state,
+          explanation,
+          output:
+            state.mode === 'explanation'
+              ? (explanation || 'No explanation available')
+              : (this.questionToDisplay || 'No question available')
+        });
+      }),
       map(([state, explanationText]) => {
         const explanation = explanationText?.trim();
         const question = this.questionToDisplay?.trim();
