@@ -4174,7 +4174,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return explanationText;
   } */
-  async updateExplanationText(questionIndex: number): Promise<string> {
+  /* async updateExplanationText(questionIndex: number): Promise<string> {
     console.log(`[🧠 updateExplanationText] ENTERED for Q${questionIndex}`);
   
     const isLatestIndex = questionIndex === this.currentQuestionIndex;
@@ -4219,6 +4219,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showExplanationChange.emit(true);
   
     console.log(`[✅ Final explanation emitted for Q${questionIndex}]:`, explanationText);
+    return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log(`[🧠 updateExplanationText] ENTERED for Q${index}`);
+  
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() || 'No explanation available';
+  
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    // Prevent overwrite on second click
+    if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
+      console.warn(`[⏹️ Skipping re-display for Q${index}]`);
+      return qState.explanationText;
+    }
+  
+    // Save it
+    if (qState) {
+      qState.explanationDisplayed = true;
+      qState.explanationText = explanationText;
+      this.quizStateService.setQuestionState(this.quizId, index, qState);
+    }
+  
+    this.explanationTextService.setExplanationText(explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+  
+    console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
     return explanationText;
   }
   

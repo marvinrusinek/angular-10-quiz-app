@@ -210,7 +210,7 @@ export class ExplanationTextService {
   
     return this.formattedExplanation$;
   } */
-  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+  /* public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
     const entry = this.formattedExplanations[questionIndex];
   
     if (!entry || !entry.explanation || !entry.explanation.trim()) {
@@ -222,7 +222,7 @@ export class ExplanationTextService {
     const explanation = entry.explanation.trim();
   
     // 🛡️ Sanity check against accidentally setting the quizId as explanation
-    /* if (explanation) {
+    if (explanation) {
       console.error(`[❌] Q${questionIndex} explanation is the quizId! Fix your formatter.`);
       this.formattedExplanationSubject.next('No explanation available');
       return this.formattedExplanation$;
@@ -234,10 +234,22 @@ export class ExplanationTextService {
     } else {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
       this.formattedExplanationSubject.next('No explanation available');
-    } */
+    }
   
     // return this.formattedExplanation$;
     return of(explanation);
+  } */
+  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
+    const entry = this.formattedExplanations[index];
+    const text = entry?.explanation?.trim();
+  
+    if (!text) {
+      console.warn(`[⚠️ No explanation found for Q${index}]`);
+      return of('No explanation available');
+    }
+  
+    console.log(`[✅ Returning explanation for Q${index}]:`, text);
+    return of(text);
   }
 
   initializeExplanationTexts(explanations: string[]): void {
