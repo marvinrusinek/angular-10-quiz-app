@@ -350,6 +350,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanationText,
           result,
         });
+
+        console.log('[🧠 combinedText$ DEBUG]', {
+          currentIndex: index,
+          currentQuestionText: questionText,
+          explanationText,
+        });        
     
         return result;
       }),
