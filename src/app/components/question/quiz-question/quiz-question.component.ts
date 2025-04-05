@@ -4437,6 +4437,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return explanationText;
   } */
   async updateExplanationText(index: number): Promise<string> {
+    if (index !== this.currentQuestionIndex) {
+      console.warn(`[⛔ Skipped explanation for stale index Q${index}]`);
+      return 'Skipped stale explanation';
+    }
+
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
