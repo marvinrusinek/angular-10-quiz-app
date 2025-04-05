@@ -1346,7 +1346,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Updating question and explanation for index:', index);
 
     // Clear the explanation text to prevent flashing old content
-    this.explanationTextService.explanationText$.next('');
+    // this.explanationTextService.explanationText$.next('');
     this.explanationToDisplayChange.emit(''); // Ensure UI is cleared
 
     // Set the current question and emit its explanation text
@@ -3756,7 +3756,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOption = null;
     this.isOptionSelected = false;
     this.explanationToDisplayChange.emit('');
-    this.explanationTextService.explanationText$.next('');
+    // this.explanationTextService.explanationText$.next('');
     this.showExplanationChange.emit(false);
     this.selectedOptionService.clearOptions();
     this.selectedOptionService.clearSelectedOption();
@@ -4016,7 +4016,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // 🧼 Reset explanation
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
-    this.explanationTextService.explanationText$.next('');
+    // this.explanationTextService.explanationText$.next('');
     // this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
@@ -5282,7 +5282,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private clearExplanationState(): void {
     console.log('Clearing explanation state...');
-    this.explanationTextService.explanationText$.next('');
+    // this.explanationTextService.explanationText$.next('');
     this.explanationToDisplayChange.emit('');
     this.showExplanationChange.emit(false);
   }

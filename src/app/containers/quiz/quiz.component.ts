@@ -2435,7 +2435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Reset UI elements
     this.selectedOption$.next(null);
-    this.explanationTextService.explanationText$.next('');
+    // this.explanationTextService.explanationText$.next('');
   }
 
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
@@ -3167,7 +3167,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
-      this.explanationTextService.setExplanationText('');
+      // this.explanationTextService.setExplanationText('');
       this.cdRef.detectChanges();
   
       await new Promise(res => setTimeout(res, 30)); // Flush UI
