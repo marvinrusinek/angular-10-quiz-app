@@ -4842,6 +4842,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ✅ Mark explanation as displayed in quiz state
       const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndex);
       if (questionState) {
+        questionState.explanationText = explanationText;
         questionState.explanationDisplayed = true;
         this.quizStateService.setQuestionState(this.quizId, this.currentQuestionIndex, questionState);
         console.log(`[manageExplanationDisplay] ✅ Marked Q${this.currentQuestionIndex} explanationDisplayed = true`);
