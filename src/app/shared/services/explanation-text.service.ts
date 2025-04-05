@@ -126,14 +126,16 @@ export class ExplanationTextService {
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
   
-    // Store the latest explanation
-    this.latestExplanation = trimmed;
+    if (!trimmed) {
+      console.warn('[❌ BLOCKED empty explanation emission]');
+      return;
+    }
   
-    // Emit explanation to subscribers
-    console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
-    console.trace('[📌 setExplanationText CALL STACK for]', trimmed);
+    this.latestExplanation = trimmed;
     this.explanationText$.next(trimmed);
-  }  
+  
+    console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
+  }
 
   getLatestExplanation(): string {
     console.log('[🐞 getLatestExplanation()] returning:', this.latestExplanation);
