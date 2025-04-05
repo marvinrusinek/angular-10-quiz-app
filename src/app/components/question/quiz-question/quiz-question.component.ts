@@ -1971,6 +1971,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     console.log(`Entered loadQuestion() for Q${this.currentQuestionIndex}`);
 
+    const lockedIndex = this.currentQuestionIndex;
+
     try {
       console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
 
@@ -2020,7 +2022,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       
       // Fetch the explanation
-      await this.updateExplanationText(this.currentQuestionIndex)   
+      await this.updateExplanationText(lockedIndex);
 
       return true;
     } catch (error) {
