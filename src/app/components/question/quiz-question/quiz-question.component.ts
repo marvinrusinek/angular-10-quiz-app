@@ -4078,6 +4078,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(true);
   
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    // 🛡️ Prevent re-fetch and re-emit if already displayed
+    if (questionState?.explanationDisplayed) {
+      console.warn(`[⏹️ Skipping explanation — already shown for Q${questionIndex}]`);
+      return questionState.explanationText ?? 'Explanation already shown';
+    }
+
+    // ✅ If not yet shown, mark it and continue
     if (questionState) {
       questionState.explanationDisplayed = true;
       this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
