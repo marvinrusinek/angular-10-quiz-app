@@ -1388,7 +1388,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .subscribe();
   }
 
-  ensureExplanationsLoaded(): Observable<boolean> {
+  /* ensureExplanationsLoaded(): Observable<boolean> {
     // Check if explanations are already loaded
     if (
       Object.keys(this.explanationTextService.formattedExplanations).length > 0
@@ -1431,7 +1431,45 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         })
       );
     }
-  }
+  } */
+  ensureExplanationsLoaded(): Observable<boolean> {
+    // 🧼 Force clear to prevent stale or mismapped explanations
+    this.explanationTextService.formattedExplanations = {};
+    console.log('🧼 Cleared existing explanations. Starting fresh preload...');
+  
+    const explanationObservables = this.quiz.questions.map(
+      (question, index) =>
+        this.explanationTextService.formatExplanationText(question, index)
+    );
+  
+    return forkJoin(explanationObservables).pipe(
+      tap((explanations) => {
+        // Update the formattedExplanations with the new data
+        for (const explanation of explanations) {
+          this.explanationTextService.formattedExplanations[
+            explanation.questionIndex
+          ] = {
+            questionIndex: explanation.questionIndex,
+            explanation: explanation.explanation,
+          };
+          console.log(
+            `Preloaded explanation for index ${explanation.questionIndex}:`,
+            explanation.explanation
+          );
+        }
+  
+        console.log(
+          '✅ All explanations preloaded:',
+          this.explanationTextService.formattedExplanations
+        );
+      }),
+      map(() => true), // Ensure this Observable resolves to true
+      catchError((err) => {
+        console.error('❌ Error preloading explanations:', err);
+        return of(false);
+      })
+    );
+  }  
 
   // This function updates the content based on the provided index.
   // It validates the index, checks if navigation is needed, and loads the appropriate question.
