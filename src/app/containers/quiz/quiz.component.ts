@@ -1484,26 +1484,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       tap((explanations) => {
         for (const explanation of explanations) {
           const { questionIndex, explanation: text } = explanation;
+          const q = this.quiz?.questions?.[questionIndex];
   
-          // ✅ Explicitly format and store again for safety
-          this.explanationTextService.formatExplanationText(
-            this.quiz.questions[questionIndex],
-            questionIndex
-          );
-  
-          // Store in formattedExplanations (defensive double-store)
-          this.explanationTextService.formattedExplanations[questionIndex] = {
-            questionIndex,
-            explanation: text,
-          };
-  
-          console.log(`Preloaded explanation for index ${questionIndex}:`, text);
+          console.log(`[🔎 Q${questionIndex}]`, {
+            questionText: q?.questionText,
+            originalExplanation: q?.explanation,
+            formattedExplanation: text
+          });
         }
   
-        console.log(
-          '✅ All explanations preloaded:',
-          this.explanationTextService.formattedExplanations
-        );
+        console.log('✅ All explanations preloaded and logged.');
       }),
       map(() => true), // Ensure this Observable resolves to true
       catchError((err) => {
