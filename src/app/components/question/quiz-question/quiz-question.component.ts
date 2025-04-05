@@ -4050,10 +4050,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
   
     // 🛡️ If already displayed and cached in state, reuse it
-    if (questionState?.explanationDisplayed && questionState?.explanationText?.trim()) {
-      console.warn(`[⏹️ Skipping fetch — already shown, reusing stored explanation Q${questionIndex}]`);
-      this.explanationTextService.setExplanationText(questionState.explanationText);
-      return questionState.explanationText;
+    if (questionState?.explanationDisplayed && questionState?.explanation?.trim()) {
+      console.warn(`[⏹️ Reusing stored explanation for Q${questionIndex}]`);
+      this.explanationTextService.setExplanationText(questionState.explanation);
+      return questionState.explanation;
     }
   
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
@@ -4065,10 +4065,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
         console.log('[✅ fetched explanation]:', explanationText);
   
-        // 🚩 Emit immediately
         this.explanationTextService.explanationText$.next(explanationText);
-  
-        // Store in quiz state service
         this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
   
       } catch (error) {
@@ -4081,7 +4078,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.explanationText$.next(explanationText);
     }
   
-    // ✅ Store it in questionState for future reuse
+    // ✅ Store it in questionState using correct key
     if (questionState) {
       questionState.explanationText = explanationText;
       questionState.explanationDisplayed = true;
