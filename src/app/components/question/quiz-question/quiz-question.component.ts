@@ -4382,7 +4382,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log(`[🧠 updateExplanationText] ENTERED for Q${index}`);
   
     const isLatestIndex = index === this.currentQuestionIndex;
@@ -4429,8 +4429,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
     return explanationText;
-  }
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
+      console.warn(`[⏹️ Skipping re-display for Q${index}]`);
+      return qState.explanationText;
+    }
+  
+    if (qState) {
+      qState.explanationDisplayed = true;
+      qState.explanationText = explanationText;
+      this.quizStateService.setQuestionState(this.quizId, index, qState);
+    }
+  
+    console.log(`[✅ updateExplanationText] Calling setExplanationText:`, explanationText);
+    this.explanationTextService.setExplanationText(explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+  
+    return explanationText;
+  }
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
