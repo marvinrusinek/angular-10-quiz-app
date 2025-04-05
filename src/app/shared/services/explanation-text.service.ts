@@ -123,7 +123,7 @@ export class ExplanationTextService {
   
     console.log('[✅ setExplanationText] Emitted:', trimmed);
   } */
-  public setExplanationText(explanation: string | null): void {
+  /* public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
   
     if (!trimmed) {
@@ -135,6 +135,25 @@ export class ExplanationTextService {
     this.explanationText$.next(trimmed);
   
     console.log('[✅ setExplanationText] Explanation emitted:', trimmed);
+  } */
+  public setExplanationText(explanation: string | null): void {
+    const trimmed = (explanation ?? '').trim();
+  
+    if (!trimmed) {
+      console.warn('[❌ ETS: BLOCKED empty explanation]');
+      return;
+    }
+  
+    const state = this.quizStateService.getDisplayState?.();
+    if (state?.mode !== 'explanation') {
+      console.warn('[❌ ETS: BLOCKED explanation — not in explanation mode]', state);
+      return;
+    }
+  
+    this.latestExplanation = trimmed;
+    this.explanationText$.next(trimmed);
+  
+    console.log('[✅ ETS: Explanation emitted]:', trimmed);
   }
 
   getLatestExplanation(): string {
