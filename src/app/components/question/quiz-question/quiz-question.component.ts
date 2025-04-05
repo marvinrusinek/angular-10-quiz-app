@@ -107,6 +107,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   questionsObservableSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
   questionRenderComplete = new EventEmitter<void>();
+  questionToDisplay = ''
   private lastProcessedQuestionIndex: number | null = null;
   private _lockedCurrentIndex!: number;
   explanationsCache: { [index: number]: string } = {};
@@ -1004,7 +1005,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
     });
   } */
-  private async handleRouteChanges(): Promise<void> {
+  /* private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       let questionIndex = +params.get('questionIndex');
       console.log(
@@ -1104,6 +1105,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           '[handleRouteChanges] Error handling route change:',
           error
         );
+      }
+    });
+  } */
+  private async handleRouteChanges(): Promise<void> {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+      let questionIndex = +params.get('questionIndex');
+      console.log(`🔄 [handleRouteChanges] Route param received: ${questionIndex}`);
+  
+      // ✅ Ensure a valid number from the URL (fallback to 0)
+      if (isNaN(questionIndex) || questionIndex < 0) {
+        console.warn(`⚠️ [handleRouteChanges] Invalid index from route: ${questionIndex}. Defaulting to 0.`);
+        questionIndex = 0;
+      }
+  
+      try {
+        // ✅ Try loading the question (also populates questionsArray if needed)
+        const loaded = await this.loadQuestion(questionIndex);
+  
+        if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
+          console.error('[handleRouteChanges] Failed to load question or invalid index.');
+          return;
+        }
+  
+        // ✅ Set current index and current question
+        this.currentQuestionIndex = questionIndex;
+        this.currentQuestion = this.questionsArray[questionIndex];
+  
+        console.log(`✅ [handleRouteChanges] Loaded Q${questionIndex}:`, this.currentQuestion.questionText);
+  
+        // ✅ Set up options
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: true,
+          feedback: undefined,
+          showIcon: false,
+        }));
+  
+        console.log(`✅ [handleRouteChanges] Options for Q${questionIndex}:`, this.optionsToDisplay);
+  
+        // ✅ Check if answered and show explanation if needed
+        const isAnswered = await this.isQuestionAnswered(questionIndex);
+        if (isAnswered) {
+          console.log(`✅ [handleRouteChanges] Q${questionIndex} is answered. Loading explanation...`);
+  
+          await this.fetchAndUpdateExplanationText(questionIndex);
+  
+          if (this.shouldDisplayExplanation) {
+            this.showExplanationChange.emit(true);
+            this.updateDisplayStateToExplanation();
+          }
+  
+          this.cdRef.detectChanges();
+        }
+      } catch (error) {
+        console.error('[handleRouteChanges] ❌ Error during route handling:', error);
       }
     });
   }
@@ -1949,15 +2005,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.ngZone.run(() => {
         this.currentQuestion = { ...potentialQuestion };
-
-        // Call `setOptionsToDisplay()` to ensure new options load
+      
+        // ✅ Set the question text for display
+        this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
+        console.log('[✅ questionToDisplay set]:', this.questionToDisplay);
+      
+        // ✅ Ensure new options load
         this.setOptionsToDisplay();
-
+      
         this.feedbackText = '';
-        // this.displayState = { mode: 'question', answered: false };
         this.ensureQuestionTextDisplay();
         this.cdRef.detectChanges();
-      });
+      });      
 
       return true;
     } catch (error) {
@@ -2681,12 +2740,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
   
-      // ⚠️ CRITICAL: Set display mode BEFORE explanation is emitted
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
       // Fetch and prepare explanation
       const explanation = await this.updateExplanationText(lockedIndex);
       console.log('[🟡 Explanation returned by updateExplanationText]:', explanation);
+
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // ✅ Wait until a non-empty explanation is emitted
       await firstValueFrom(
@@ -4221,13 +4279,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`[✅ Final explanation emitted for Q${questionIndex}]:`, explanationText);
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log(`[🧠 updateExplanationText] ENTERED for Q${index}`);
+
+    const isLatestIndex = index === this.currentQuestionIndex;
+    if (!isLatestIndex) {
+      console.warn(`[⏹️ Skipping explanation — stale index Q${index}]`);
+      return 'Skipped stale explanation';
+    }
+
+    const question = this.quiz?.questions?.[index];
+    if (!question) {
+      console.error(`[❌ No question at index Q${index}]`);
+      return 'No question available';
+    }
   
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
+
+    console.log(`[🔥 FINAL DEBUG Q${index}]`, {
+      currentIndex: this.currentQuestionIndex,
+      formatted: this.explanationTextService.formattedExplanations[index],
+      state: this.quizStateService.getQuestionState(this.quizId, index)
+    });
   
     // Prevent overwrite on second click
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
@@ -4243,6 +4319,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ updateExplanationText] Just called setExplanationText():`, explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+  
+    console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
+    return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log(`[🧠 updateExplanationText] ENTERED for Q${index}`);
+  
+    const isLatestIndex = index === this.currentQuestionIndex;
+    if (!isLatestIndex) {
+      console.warn(`[⏹️ Skipping explanation — stale index Q${index}]`);
+      return 'Skipped stale explanation';
+    }
+  
+    const question = this.quiz?.questions?.[index];
+    if (!question) {
+      console.error(`[❌ No question at index Q${index}]`);
+      return 'No question available';
+    }
+  
+    const entry = this.explanationTextService.formattedExplanations[index];
+  
+    if (!entry || !entry.explanation?.trim()) {
+      console.warn(`[⚠️ No formatted explanation found for Q${index}]`, entry);
+    }
+  
+    const explanationText = entry?.explanation?.trim() || question.explanation?.trim() || 'No explanation available';
+  
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    console.log(`[🔥 FINAL DEBUG Q${index}]`, {
+      currentIndex: this.currentQuestionIndex,
+      formatted: this.explanationTextService.formattedExplanations[index],
+      state: qState
+    });
+  
+    // Prevent overwrite on second click
+    if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
+      console.warn(`[⏹️ Skipping re-display for Q${index}]`);
+      return qState.explanationText;
+    }
+  
+    // Save it
+    if (qState) {
+      qState.explanationDisplayed = true;
+      qState.explanationText = explanationText;
+      this.quizStateService.setQuestionState(this.quizId, index, qState);
+    }
+  
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ updateExplanationText] Just called setExplanationText():`, explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationToDisplayChange.emit(explanationText);
