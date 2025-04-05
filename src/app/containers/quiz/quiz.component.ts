@@ -1470,23 +1470,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       console.log(`[loadQuestionByRouteIndex] 🚀 Navigating to Q${questionIndex}`);
   
-      // Validate index
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
         return;
       }
   
-      // Reset feedback and UI state
       this.resetFeedbackState();
   
       const question = this.quiz.questions[questionIndex];
       this.questionToDisplay = question.questionText;
   
-      // Assign and normalize option structure
       const optionsWithIds = this.quizService.assignOptionIds(question.options || []);
       this.optionsToDisplay = optionsWithIds.map((option, index) => ({
         ...option,
-        feedback: 'Loading feedback...', // placeholder text
+        feedback: 'Loading feedback...',
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
@@ -1496,24 +1493,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log('[loadQuestionByRouteIndex] ✅ Options to Display:', this.optionsToDisplay);
   
-      // Warn if no correct options are marked
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       if (!correctOptions.length) {
         console.warn('[loadQuestionByRouteIndex] ⚠️ No correct answers found for this question.');
       }
   
-      // Restore selected options
+      // Restore and apply feedback
       setTimeout(() => {
         this.restoreSelectedOptions();
   
         setTimeout(() => {
-          // Safety check for empty options
           if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
             console.warn('[loadQuestionByRouteIndex] ⚠️ optionsToDisplay is empty! Attempting fallback...');
             this.quizQuestionComponent?.populateOptionsToDisplay();
           }
   
-          // Apply feedback
           const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
           if (previouslySelectedOption) {
             this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
@@ -1527,22 +1521,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }, 50);
       }, 150);
   
-      // Fetch feedback and explanation text in parallel
-      const [feedbackResult, explanationResult] = await Promise.allSettled([
-        this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''),
-        this.fetchFormattedExplanationText(questionIndex)
-      ]);
+      // ✅ Fetch explanation first (this is NOT async — it sets internal state)
+      this.fetchFormattedExplanationText(questionIndex);
   
-      if (feedbackResult.status === 'fulfilled') {
-        this.feedbackText = feedbackResult.value;
-        console.log('[loadQuestionByRouteIndex] 🧠 Feedback Text:', this.feedbackText);
-      } else {
-        console.error('[loadQuestionByRouteIndex] ❌ Feedback generation failed:', feedbackResult.reason);
+      // ✅ Now await feedback generation
+      try {
+        const feedback = await (this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''));
+        this.feedbackText = feedback;
+        console.log('[loadQuestionByRouteIndex] 🧠 Feedback Text:', feedback);
+      } catch (error) {
+        console.error('[loadQuestionByRouteIndex] ❌ Feedback generation failed:', error);
         this.feedbackText = 'Could not generate feedback. Please try again.';
-      }
-  
-      if (explanationResult.status === 'rejected') {
-        console.error('[loadQuestionByRouteIndex] ❌ Explanation fetch failed:', explanationResult.reason);
       }
   
       // Final UI update after async work
