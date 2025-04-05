@@ -226,7 +226,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       distinctUntilChanged()
     ); */
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.displayState$,                                 // Controls whether to show question or explanation
       this.explanationTextService.explanationText$        // Latest explanation emitted
     ]).pipe(
@@ -248,7 +248,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return returningText;
       }),
       distinctUntilChanged()
+    ); */
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$
+    ]).pipe(
+      map(([state, explanationText]) => {
+        const explanation = explanationText?.trim() ?? '';
+        const question = this.questionToDisplay?.trim() ?? '';
+    
+        console.log('[🧪 combinedText$]', {
+          mode: state.mode,
+          question,
+          explanation,
+          returning: state.mode === 'explanation'
+            ? (explanation || 'No explanation available')
+            : (question || 'No question available')
+        });
+    
+        return state.mode === 'explanation'
+          ? (explanation || 'No explanation available')
+          : (question || 'No question available');
+      }),
+      distinctUntilChanged()
     );
+    
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
