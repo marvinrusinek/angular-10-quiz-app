@@ -4019,7 +4019,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // this.explanationTextService.explanationText$.next('');
     // this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetExplanationText();
+    // this.explanationTextService.resetExplanationText();
     this.showExplanationChange.emit(false);
   
     // 🔁 Reset selection state and feedback
