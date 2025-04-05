@@ -312,6 +312,11 @@ export class ExplanationTextService {
     this.processedQuestions.add(questionKey);
   
     console.log(`[✅ Formatted explanation for Q${questionIndex}]:`, formattedExplanation);
+
+    console.log(`[🧪 formatExplanationText] Q${questionIndex}`, {
+      questionText: question.questionText,
+      explanation: question.explanation
+    });
   
     // ✅ Return correct index (no +1!)
     return of({
