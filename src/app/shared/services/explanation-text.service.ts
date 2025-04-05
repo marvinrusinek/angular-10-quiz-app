@@ -279,7 +279,7 @@ export class ExplanationTextService {
     console.log('Explanations updated notification sent.');
   }
 
-  formatExplanationText(
+  /* formatExplanationText(
     question: QuizQuestion,
     questionIndex: number
   ): Observable<{ questionIndex: number; explanation: string }> {
@@ -316,6 +316,19 @@ export class ExplanationTextService {
       questionIndex,
       explanation: formattedExplanation
     });
+  } */
+  formatExplanationText(question: QuizQuestion, index: number): Observable<{ questionIndex: number, explanation: string }> {
+    const raw = question?.explanation?.trim() || '';
+  
+    // Just store it directly — no formatting
+    this.formattedExplanations[index] = {
+      questionIndex: index,
+      explanation: raw
+    };
+  
+    console.log(`[🧪 Stored raw explanation Q${index}]:`, raw);
+  
+    return of({ questionIndex: index, explanation: raw });
   }
 
   updateFormattedExplanation(explanation: string): void {
