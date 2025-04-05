@@ -325,23 +325,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ); */
     this.combinedText$ = combineLatest([
       this.displayState$,
-      this.quizService.getCurrentQuestionIndexObservable().pipe(
-        switchMap(index => this.explanationTextService.getFormattedExplanationTextForQuestion(index))
-      )
+      this.quizService.getCurrentQuestionIndexObservable(),
+      this.currentQuestion.asObservable(),
     ]).pipe(
-      map(([state, explanationText]) => {
-        const explanation = explanationText?.trim() ?? '';
-        const question = this.questionToDisplay?.trim() ?? '';
-    
+      switchMap(([state, index, question]) => {
+        return this.explanationTextService.getFormattedExplanationTextForQuestion(index).pipe(
+          map((explanationText) => ({
+            state,
+            index,
+            questionText: question?.questionText?.trim() ?? 'No question available',
+            explanationText: explanationText?.trim() ?? 'No explanation available',
+          }))
+        );
+      }),
+      map(({ state, questionText, explanationText, index }) => {
         const result = state.mode === 'explanation'
-          ? (explanation || 'No explanation available')
-          : (question || 'No question available');
+          ? explanationText
+          : questionText;
     
-        console.log('[🧪 combinedText$]', {
+        console.log('[🧪 combinedText$ FINAL]', {
           mode: state.mode,
-          explanation,
-          question,
-          result
+          index,
+          questionText,
+          explanationText,
+          result,
         });
     
         return result;
