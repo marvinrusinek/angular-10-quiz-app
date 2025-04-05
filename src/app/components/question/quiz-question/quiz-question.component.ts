@@ -4047,7 +4047,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return 'No question available';
     }
   
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+  
+    // 🛡️ If already displayed and cached in state, reuse it
+    if (questionState?.explanationDisplayed && questionState?.explanation) {
+      console.warn(`[⏹️ Skipping fetch — already shown, reusing stored explanation Q${questionIndex}]`);
+      this.explanationTextService.setExplanationText(questionState.explanation);
+      return questionState.explanation;
+    }
+  
     let explanationText = this.quizStateService.getStoredExplanation(this.quizId, questionIndex);
+  
     if (!explanationText) {
       try {
         explanationText = await firstValueFrom(
@@ -4055,10 +4065,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
         console.log('[✅ fetched explanation]:', explanationText);
   
-        // 🚩 Emit explicitly right here to ensure it's not lost
+        // 🚩 Emit immediately
         this.explanationTextService.explanationText$.next(explanationText);
   
+        // Store in quiz state service
         this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
+  
       } catch (error) {
         console.error(`[❌ Error fetching explanation]:`, error);
         explanationText = 'Error loading explanation.';
@@ -4069,26 +4081,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.explanationText$.next(explanationText);
     }
   
-    /* if (questionIndex !== this.currentQuestionIndex) {
-      console.warn(`[⏹️ Skipping emit due to stale index]`);
-      return explanationText;
-    } */
-  
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-  
-    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
-    // 🛡️ Prevent re-fetch and re-emit if already displayed
-    if (questionState?.explanationDisplayed) {
-      console.warn(`[⏹️ Skipping explanation — already shown for Q${questionIndex}]`);
-      return questionState.explanationText ?? 'Explanation already shown';
-    }
-
-    // ✅ If not yet shown, mark it and continue
+    // ✅ Store it in questionState for future reuse
     if (questionState) {
+      questionState.explanationText = explanationText;
       questionState.explanationDisplayed = true;
       this.quizStateService.setQuestionState(this.quizId, questionIndex, questionState);
     }
+  
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
   
     this.explanationToDisplay = explanationText || 'Explanation unavailable.';
     this.explanationToDisplayChange.emit(this.explanationToDisplay);
@@ -4096,6 +4097,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return explanationText;
   }
+  
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
