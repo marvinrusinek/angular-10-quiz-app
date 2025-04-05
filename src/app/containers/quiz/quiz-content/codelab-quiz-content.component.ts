@@ -279,6 +279,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([state, explanationText]) => {
         const explanation = explanationText?.trim();
         const question = this.questionToDisplay?.trim();
+
+        console.log('[combinedText$]', { state, explanation, question });
     
         return state.mode === 'explanation' 
           ? (explanation || 'No explanation available') 
