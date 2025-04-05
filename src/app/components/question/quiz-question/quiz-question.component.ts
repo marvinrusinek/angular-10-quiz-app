@@ -4328,7 +4328,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log(`[🧠 updateExplanationText] ENTERED for Q${index}`);
   
     const isLatestIndex = index === this.currentQuestionIndex;
@@ -4381,7 +4381,56 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
     return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log(`[🧠 updateExplanationText] ENTERED for Q${index}`);
+  
+    const isLatestIndex = index === this.currentQuestionIndex;
+    if (!isLatestIndex) {
+      console.warn(`[⏹️ Skipping explanation — stale index Q${index}]`);
+      return 'Skipped stale explanation';
+    }
+  
+    const question = this.quiz?.questions?.[index];
+    if (!question) {
+      console.error(`[❌ No question at index Q${index}]`);
+      return 'No question available';
+    }
+  
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim();
+  
+    // 💥 DO NOT emit if it's missing yet
+    if (!explanationText) {
+      console.warn(`[❌ Explanation missing for Q${index}]`);
+      return 'Explanation not ready yet';
+    }
+  
+    // Check if already shown
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
+      console.warn(`[⏹️ Skipping re-display for Q${index}]`);
+      return qState.explanationText;
+    }
+  
+    // ✅ Save it
+    if (qState) {
+      qState.explanationDisplayed = true;
+      qState.explanationText = explanationText;
+      this.quizStateService.setQuestionState(this.quizId, index, qState);
+    }
+  
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ updateExplanationText] setExplanationText():`, explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationToDisplayChange.emit(explanationText);
+    this.showExplanationChange.emit(true);
+  
+    console.log(`[✅ Emitted explanation for Q${index}]:`, explanationText);
+    return explanationText;
   }
+  
   
   handleAudioPlayback(isCorrect: boolean): void {
     if (isCorrect) {
