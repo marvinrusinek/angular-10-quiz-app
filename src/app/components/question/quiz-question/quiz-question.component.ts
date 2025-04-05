@@ -4048,24 +4048,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
         console.log('[✅ fetched explanation]:', explanationText);
+  
+        // 🚩 Emit explicitly right here to ensure it's not lost
+        this.explanationTextService.explanationText$.next(explanationText);
+  
         this.quizStateService.setQuestionExplanation(this.quizId, questionIndex, explanationText);
       } catch (error) {
         console.error(`[❌ Error fetching explanation]:`, error);
         explanationText = 'Error loading explanation.';
+        this.explanationTextService.explanationText$.next(explanationText);
       }
     } else {
       console.log('[📦 cached explanation]:', explanationText);
+      this.explanationTextService.explanationText$.next(explanationText);
     }
   
-    // 🚨 MOVE THIS AFTER stale index check!
     if (questionIndex !== this.currentQuestionIndex) {
       console.warn(`[⏹️ Skipping emit due to stale index]`);
       return explanationText;
     }
-  
-    // ✅ Now emit only if not stale
-    this.explanationTextService.explanationText$.next(explanationText);
-    console.log('[✅ explanationText$.next fired AFTER stale check]:', explanationText);
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
