@@ -4017,7 +4017,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.explanationText$.next('');
-    this.explanationTextService.updateFormattedExplanation('');
+    // this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetExplanationText();
     this.showExplanationChange.emit(false);
@@ -4863,7 +4863,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.showExplanationChange.emit(false); // Notify components to hide explanation
 
     // Update the ExplanationTextService with cleared values
-    this.explanationTextService.updateFormattedExplanation('');
+    // this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.resetExplanationText();
     this.explanationTextService.setShouldDisplayExplanation(false);
   }
