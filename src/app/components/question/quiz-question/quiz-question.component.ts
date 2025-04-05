@@ -2656,9 +2656,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Update question state to show explanation
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
-      if (qState && !qState.explanationDisplayed) {
-        qState.explanationDisplayed = true;
-        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+
+      if (qState?.explanationText?.trim()) {
+        // ♻️ Reuse cached explanation and re-emit
+        console.log(`[♻️ Re-emitting cached explanation for Q${lockedIndex}]`);
+        this.explanationTextService.setExplanationText(qState.explanationText);
+      } else {
+        // 🆕 Fetch and store explanation if not present
+        console.log(`[🚀 Fetching new explanation for Q${lockedIndex}]`);
+        const explanation = await this.updateExplanationText(lockedIndex);
+
+        if (qState) {
+          qState.explanationDisplayed = true;
+          qState.explanationText = explanation;
+          this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+        }
       }
   
       // Ensure question index is current
