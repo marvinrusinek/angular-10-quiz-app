@@ -2016,7 +2016,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.feedbackText = '';
         this.ensureQuestionTextDisplay();
         this.cdRef.detectChanges();
-      });      
+      });
+
+      
+      // Fetch the explanation
+      await this.updateExplanationText(this.currentQuestionIndex)   
 
       return true;
     } catch (error) {
