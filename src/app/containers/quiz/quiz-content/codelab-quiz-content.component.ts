@@ -291,8 +291,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         console.log('[combinedText$]:::', { state, explanation, question });
     
-        return state.mode === 'explanation' 
-          ? (explanation || 'No explanation available') 
+        return state.mode === 'explanation' && explanation
+          ? explanation
           : (question || 'No question available');
       }),
       distinctUntilChanged()
