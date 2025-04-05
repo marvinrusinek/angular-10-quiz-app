@@ -191,7 +191,7 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+  /* public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
     console.log('[🧪 getFormattedExplanationTextForQuestion called with]:', questionIndex);
   
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
@@ -209,6 +209,42 @@ export class ExplanationTextService {
     }
   
     const explanation = entry.explanation?.trim();
+  
+    if (explanation) {
+      console.log(`[✅ Explanation for Q${questionIndex}]:`, explanation);
+      this.formattedExplanationSubject.next(explanation);
+    } else {
+      console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
+      this.formattedExplanationSubject.next('No explanation available');
+    }
+  
+    return this.formattedExplanation$;
+  } */
+  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+    console.log('[🧪 getFormattedExplanationTextForQuestion called with]:', questionIndex);
+  
+    if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
+      console.error('[❌ Invalid questionIndex — must be a number]:', questionIndex);
+      this.formattedExplanationSubject.next('No explanation available');
+      return this.formattedExplanation$;
+    }
+  
+    const entry = this.formattedExplanations[questionIndex];
+  
+    if (!entry || typeof entry.explanation !== 'string') {
+      console.error(`[❌] Q${questionIndex} not found or invalid in formattedExplanations`, entry);
+      this.formattedExplanationSubject.next('No explanation available');
+      return this.formattedExplanation$;
+    }
+  
+    const explanation = entry.explanation.trim();
+  
+    // 🛡️ Sanity check against accidentally setting the quizId as explanation
+    if (explanation === this.quizId) {
+      console.error(`[❌] Q${questionIndex} explanation is the quizId! Fix your formatter.`);
+      this.formattedExplanationSubject.next('No explanation available');
+      return this.formattedExplanation$;
+    }
   
     if (explanation) {
       console.log(`[✅ Explanation for Q${questionIndex}]:`, explanation);
