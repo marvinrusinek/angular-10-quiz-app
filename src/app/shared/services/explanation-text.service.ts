@@ -191,22 +191,31 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  public getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    const entry = this.formattedExplanations[index];
+  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+    console.log('[🧪 getFormattedExplanationTextForQuestion called with]:', questionIndex);
   
-    if (!entry) {
-      console.error(`[❌] Q${index} not found in formattedExplanations`);
-      this.formattedExplanationSubject.next('');
+    if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
+      console.error('[❌ Invalid questionIndex — must be a number]:', questionIndex);
+      this.formattedExplanationSubject.next('No explanation available');
       return this.formattedExplanation$;
     }
   
-    const explanation = entry.explanation?.trim() ?? '';
+    const entry = this.formattedExplanations[questionIndex];
+  
+    if (!entry) {
+      console.error(`[❌] Q${questionIndex} not found in formattedExplanations`);
+      this.formattedExplanationSubject.next('No explanation available');
+      return this.formattedExplanation$;
+    }
+  
+    const explanation = entry.explanation?.trim();
   
     if (explanation) {
+      console.log(`[✅ Explanation for Q${questionIndex}]:`, explanation);
       this.formattedExplanationSubject.next(explanation);
     } else {
-      console.warn(`[⚠️ No valid explanation text found for Q${index}]`);
-      this.formattedExplanationSubject.next('');
+      console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
+      this.formattedExplanationSubject.next('No explanation available');
     }
   
     return this.formattedExplanation$;
