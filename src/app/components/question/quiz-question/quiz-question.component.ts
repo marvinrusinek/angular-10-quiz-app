@@ -2664,10 +2664,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Wait briefly to stabilize state
       await new Promise(resolve => setTimeout(resolve, 30));
+
+      // Switch to explanation mode
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Update explanation text
       await this.updateExplanationText(lockedIndex);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       console.log('[🟡 Explanation to emit before display mode switch]:', this.explanationTextService.getLatestExplanation());
   
       // Wait for explanation to emit before showing
