@@ -201,8 +201,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged()
     );  */
 
-    this.explanationTextService.setExplanationText('🔥 Hardcoded test explanation');
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });    
+    // this.explanationTextService.setExplanationText('🔥 Hardcoded test explanation');
+    // this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });    
 
     /* this.combinedText$ = combineLatest([
       this.displayState$,
