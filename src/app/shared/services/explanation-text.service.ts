@@ -202,7 +202,7 @@ export class ExplanationTextService {
   
     const entry = this.formattedExplanations[questionIndex];
   
-    if (!entry) {
+    if (!entry || typeof entry.explanation !== 'string') {
       console.error(`[❌] Q${questionIndex} not found in formattedExplanations`);
       this.formattedExplanationSubject.next('No explanation available');
       return this.formattedExplanation$;
