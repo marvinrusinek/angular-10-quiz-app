@@ -2005,6 +2005,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
       this.explanationTextService.resetExplanationState();
 
+      this.explanationTextService.setExplanationText('');
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+
       this.ngZone.run(() => {
         this.currentQuestion = { ...potentialQuestion };
       
@@ -2019,7 +2022,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.ensureQuestionTextDisplay();
         this.cdRef.detectChanges();
       });
-
       
       // Fetch the explanation
       await this.updateExplanationText(lockedIndex);
