@@ -1635,12 +1635,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async generateFeedbackText(question: QuizQuestion): Promise<string> {
     try {
-      console.log('[generateFeedbackText] Question received:', question);
-      console.log(
-        '[generateFeedbackText] Current optionsToDisplay:',
-        this.optionsToDisplay
-      );
-
       // Validate the question and its options
       if (!question || !question.options || question.options.length === 0) {
         console.warn(
@@ -1688,16 +1682,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         correctOptions,
         this.optionsToDisplay
       );
-      console.log('[generateFeedbackText] Generated Feedback:', feedbackText);
 
       // Emit the feedback text
       this.feedbackText =
         feedbackText || 'No feedback generated for the current question.';
       this.feedbackTextChange.emit(this.feedbackText); // Emit to notify listeners
-      console.log(
-        '[generateFeedbackText] Emitted feedbackTextChange:',
-        this.feedbackText
-      );
 
       return this.feedbackText;
     } catch (error) {
