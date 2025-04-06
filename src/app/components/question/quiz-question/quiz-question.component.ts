@@ -996,53 +996,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   }
 
-  /* private setQuestionFirst(index: number): void {
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.error(`questionsArray is empty or undefined.`);
-       return;
-    }
-
-    const zeroBasedIndex = Math.max(0, index - 1);
-    if (zeroBasedIndex < 0 || zeroBasedIndex >= this.questionsArray.length) {
-      console.error(`Invalid question index: ${zeroBasedIndex}`);
-      return;
-    }
-
-    const question = this.questionsArray[zeroBasedIndex];
-
-    if (!question) {
-      console.error(`No question data available at index: ${zeroBasedIndex}`);
-      return;
-    }
-
-    // Prevent setting duplicate questions
-    if (this.currentQuestion?.questionText === question.questionText) {
-      return;
-    }
-
-    // Set the question in the service FIRST (before setting options)
-    this.quizService.setCurrentQuestion(question);
-
-    // Ensure `optionsToDisplay` is correctly assigned from the latest question
-    setTimeout(() => {
-      this.optionsToDisplay = [...this.quizService.currentQuestion.getValue()?.options ?? []];
-    }, 10);
-
-    // Load options only after ensuring the question and options are set
-    this.loadOptionsForQuestion(question);
-
-    if (this.lastProcessedQuestionIndex !== zeroBasedIndex || zeroBasedIndex === 0) {
-      this.applyOptionFeedbackToAllOptions();
-      this.lastProcessedQuestionIndex = zeroBasedIndex;
-    } else {
-      console.warn(`Feedback already processed. Skipping.`);
-    }
-
-    setTimeout(() => {
-      this.updateExplanationIfAnswered(zeroBasedIndex, question);
-      this.questionRenderComplete.emit();
-    }, 100);
-  } */
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.error(
@@ -1070,27 +1023,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    console.log(
-      `[setQuestionFirst] ✅ Setting question for index: ${questionIndex}`
-    );
-
-    // ✅ Update the current question
+    // Update the current question
     this.currentQuestion = question;
     this.quizService.setCurrentQuestion(question);
 
-    // ✅ Ensure options are set immediately to prevent async issues
+    // Ensure options are set immediately to prevent async issues
     this.optionsToDisplay = [...(question.options ?? [])];
     console.log(
       `[setQuestionFirst] 📝 Options set for question:`,
       this.optionsToDisplay
     );
 
-    // ✅ Ensure option feedback is updated correctly
+    // Ensure option feedback is updated correctly
     if (
       this.lastProcessedQuestionIndex !== questionIndex ||
       questionIndex === 0
     ) {
-      console.log(`[setQuestionFirst] 🟢 Applying option feedback...`);
       this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = questionIndex;
     } else {
@@ -1099,13 +1047,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     }
 
-    // ✅ **Force Explanation Update for Correct Question**
+    // Force explanation update for correct question
     setTimeout(() => {
       console.log(
         `[setQuestionFirst] 🔍 FORCING updateExplanationText for Q${questionIndex}`
       );
 
-      // 🚀 **Explicitly pass correct `questionIndex` to avoid shifting**
+      // Explicitly pass correct `questionIndex` to avoid shifting
       this.updateExplanationIfAnswered(questionIndex, question);
 
       this.questionRenderComplete.emit();
@@ -1118,12 +1066,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    console.log(
-      '[loadOptionsForQuestion] 🚀 Before setting options:',
-      this.optionsToDisplay
-    );
-
-    // ✅ Only reset if necessary
+    // Only reset if necessary
     if (this.optionsToDisplay.length !== question.options.length) {
       console.warn(
         `[DEBUG] ❌ Clearing optionsToDisplay at:`,
@@ -1133,11 +1076,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     this.optionsToDisplay = [...question.options];
-
-    console.log(
-      '[loadOptionsForQuestion] ✅ Options successfully set:',
-      this.optionsToDisplay
-    );
 
     const currentQuestion = this.quizService.currentQuestion.getValue();
     if (!currentQuestion) {
@@ -1154,7 +1092,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         showIcon: option.showIcon ?? false,
         active: option.active ?? true,
         selected: option.selected ?? false,
-        correct: option.correct ?? false,
+        correct: option.correct ?? false
       })
     );
 
