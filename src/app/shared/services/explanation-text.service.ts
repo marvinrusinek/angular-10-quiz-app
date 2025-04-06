@@ -159,14 +159,11 @@ export class ExplanationTextService {
         this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
       } else {
         this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
-        console.log("Formatted Explanation", this.formattedExplanations[questionIndex]);
       }
     }
 
     // Notify subscribers about the updated explanations
     this.explanationsUpdated.next(this.formattedExplanations);
-    console.log('Formatted explanations initialized:', this.formattedExplanations);
-    console.log('Explanations updated notification sent.');
   }
 
   formatExplanationText(
