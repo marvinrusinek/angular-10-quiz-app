@@ -186,9 +186,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     });
     
     this.emitContentAvailableState(); // start emitting the content availability state
-
-    // Initialize quizId
-    this.quizService.initializeQuizId();
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
