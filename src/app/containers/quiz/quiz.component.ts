@@ -2674,8 +2674,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
 
   setOptions(): void {
-    console.log('Answers:', this.answers);
-  
     if (!this.question) {
       console.error('Question not found.');
       return;
@@ -2689,9 +2687,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const options = (this.question.options || []).map((option) => 
       'value' in option ? option.value : 0
     );
-  
-    console.log('Modified Options Array:', options);
-  
     this.quizService.setAnswers(options);
   }
 
@@ -2821,13 +2816,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setNavigating(true);
   
     try {
-      console.log('[advanceToNextQuestion] currentQuestionIndex:', this.currentQuestionIndex);
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
-      console.log('[advanceToNextQuestion] Calculated nextIndex:', nextIndex);
-
+      
       if (nextIndex >= this.totalQuestions) {
-        console.log('[✅] Last question – navigating to results');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         return;
       }
@@ -2839,6 +2831,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       this.quizQuestionComponent?.resetExplanation();
+      this.resetUI();
 
       const shouldEnableNextButton = this.isAnyOptionSelected();
       this.updateAndSyncNextButtonState(shouldEnableNextButton);
@@ -2888,8 +2881,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       this.resetOptionState();
       this.isOptionSelected = false;
-
-      // const previousQuestionIndex = Math.max(this.currentQuestionIndex - 1, 0);
       
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const prevIndex = currentIndex - 1;
@@ -2902,10 +2893,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       this.quizQuestionComponent?.resetExplanation();
-
-      // Combine fetching data and initializing question state into a single method
-      // await this.prepareQuestionForDisplay(this.currentQuestionIndex);
-      // this.resetUI();
+      this.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -3031,13 +3019,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
-    console.log('Updating display state in QuizComponent:', { mode, answered });
-  
     // Emit the new display state
     this.displayStateSubject.next({ mode, answered });
-  
-    // Log the current state for debugging
-    console.log('Display state emitted:', this.displayStateSubject.value);
   
     // If the question is answered, evaluate the Next button state
     if (answered) {
@@ -3047,26 +3030,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } 
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
-    console.log(`[Q-TRACE] fetchAndSetQuestionData CALLED with index: ${questionIndex}`);
-  
     try {
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`❌ Invalid questionIndex (${questionIndex})`);
         return false;
       }
   
-      // 🔄 Reset state
+      // Reset state
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
-      // this.explanationTextService.setExplanationText('');
       this.cdRef.detectChanges();
   
       await new Promise(res => setTimeout(res, 30)); // Flush UI
   
-      // 🧠 Fetch details
+      // Fetch details
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
@@ -3074,21 +3054,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
       this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
-      console.log('[Q-DEBUG] FETCHED Q:', questionIndex, {
-        text: question.questionText,
-        explanation: question.explanation,
-        options: question.options.map(o => o.text)
-      });
-  
-      // 🔁 Assign option states
+      // Assign option states
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
-      // 🔍 Determine explanation display
+      // Determine explanation display
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       const explanationText = isAnswered ? (question.explanation?.trim() ?? '') : '';
   
-      // 🧠 Update all explanation-related state in one block
+      // Update all explanation-related state in one block
       this.explanationToDisplay = explanationText;
       this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
       this.explanationTextService.setExplanationText(explanationText);
@@ -3096,17 +3070,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         mode: 'explanation',
         answered: true
       });
-      console.log('[✅ this.explanationToDisplay]', this.explanationToDisplay);
-      console.log(`[🧠 setExplanationText] Q${questionIndex}:`, explanationText);
       
       // Then trigger the UI to switch to explanation display
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // 🧠 Set question display
+      // Set question display
       this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
       this.quizStateService.setQuestionText(this.questionToDisplay);
   
-      // 🧠 Set display + internal data
+      // Set display + internal data
       this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
@@ -3120,13 +3092,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       await this.quizService.checkIfAnsweredCorrectly();
       this.timerService.startTimer(this.timerService.timePerQuestion);
-  
-      console.log('[Q-DEBUG] STATE AFTER SET', {
-        questionText: this.questionToDisplay,
-        explanationText: this.explanationToDisplay,
-        currentQuestionIndex: this.currentQuestionIndex
-      });
-  
+    
       return true;
     } catch (error) {
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
@@ -3135,13 +3101,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    console.log(`[Q-TRACE] fetchQuestionDetails FETCHING Q${questionIndex}`);
-
     try {
       // Fetch the question text
       const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
       const questionText = await firstValueFrom(questionTextObservable);
-      console.log(`[fetchQuestionDetails] Q${questionIndex} text:`, questionText);
   
       if (!questionText) {
         console.error('No question text found for index:', questionIndex);
@@ -3161,12 +3124,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const explanation = typeof explanationOrObservable === 'string'
         ? explanationOrObservable
         : await firstValueFrom(explanationOrObservable);
-
-      console.log(`[✅ fetchQuestionDetails RESULT Q${questionIndex}]`, {
-        questionText,
-        explanation,
-        optionsLength: options.length
-      });
   
       if (!explanation) {
         console.warn('No explanation text found for question at index:', questionIndex);
