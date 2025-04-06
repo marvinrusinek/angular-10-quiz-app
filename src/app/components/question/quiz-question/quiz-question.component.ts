@@ -2142,6 +2142,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    if (!event?.option) return;
+
+    const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion);
+
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
+
     this.selectedOptionService.setAnswered(true);
   
     try {
