@@ -341,7 +341,7 @@ export class ExplanationTextService {
 
   resetExplanationText(): void {
     // this.explanationText$.next('');
-    this.isExplanationDisplayedSource.next(false); // Set to false when explanation is hidden
+    this.isExplanationDisplayedSource.next(false); // set to false when explanation is hidden
   }
 
   resetStateBetweenQuestions(): void {
