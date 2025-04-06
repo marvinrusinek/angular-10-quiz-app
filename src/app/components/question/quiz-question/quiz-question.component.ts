@@ -2165,12 +2165,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
 
       if (qState?.explanationText?.trim()) {
-        // ♻️ Reuse cached explanation and re-emit
-        console.log(`[♻️ Re-emitting cached explanation for Q${lockedIndex}]`);
+        // Reuse cached explanation and re-emit
         this.explanationTextService.setExplanationText(qState.explanationText);
       } else {
-        // 🆕 Fetch and store explanation if not present
-        console.log(`[🚀 Fetching new explanation for Q${lockedIndex}]`);
+        // Fetch and store explanation if not present
         const explanation = await this.updateExplanationText(lockedIndex);
 
         if (qState) {
@@ -2185,11 +2183,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Fetch and prepare explanation
       const explanation = await this.updateExplanationText(lockedIndex);
-      console.log('[🟡 Explanation returned by updateExplanationText]:', explanation);
-
+      
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // ✅ Wait until a non-empty explanation is emitted
+      // Wait until a non-empty explanation is emitted
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
@@ -2213,12 +2210,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private async fetchAndUpdateExplanationText(questionIndex: number): Promise<void> {
-    console.log(`[fetchAndUpdateExplanationText] 🚀 Called for Q${questionIndex}`);
-  
     // Lock the question index at the time of call
     const lockedQuestionIndex = this.currentQuestionIndex;
-    console.log(`[fetchAndUpdateExplanationText] 🔒 Locked question index: ${lockedQuestionIndex}`);
-  
+    
     // Early exit if question index has changed
     if (lockedQuestionIndex !== questionIndex) {
       console.warn(`[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`);
@@ -2229,7 +2223,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Check session storage
       const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
       if (storedExplanation) {
-        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in session storage for Q${questionIndex}`);
         this.applyExplanation(storedExplanation, questionIndex);
         return;
       }
@@ -2237,7 +2230,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Check service cache
       const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
       if (cachedExplanation) {
-        console.log(`[fetchAndUpdateExplanationText] ✅ Found explanation in service cache for Q${questionIndex}`);
         this.applyExplanation(cachedExplanation, questionIndex);
   
         // Store in session storage for future use
@@ -2246,12 +2238,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       // Fetch explanation from service
-      console.log(`[fetchAndUpdateExplanationText] 🔄 Fetching explanation for Q${questionIndex}...`);
       const explanationText = await firstValueFrom(
         this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
       );
-      console.log(`[fetchAndUpdateExplanationText] ✅ Explanation fetched for Q${questionIndex}:`, explanationText);
-  
+      
       // Confirm the question index hasn’t changed during async fetch
       if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(`[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`);
