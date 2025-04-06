@@ -1473,7 +1473,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isLoadingInProgress) {
-      console.log('Waiting for ongoing loading process...');
+      console.info('Waiting for ongoing loading process...');
       while (this.isLoadingInProgress) {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
