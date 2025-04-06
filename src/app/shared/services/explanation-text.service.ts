@@ -102,77 +102,32 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  /* public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
-    console.log('[🧪 getFormattedExplanationTextForQuestion called with]:', questionIndex);
-  
+  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {  
+    // Validate that the questionIndex is a valid number
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
-      console.error('[❌ Invalid questionIndex — must be a number]:', questionIndex);
+      console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
       this.formattedExplanationSubject.next('No explanation available');
-      return this.formattedExplanation$;
-    }
-  
-    const entry = this.formattedExplanations[questionIndex];
-  
-    if (!entry || typeof entry.explanation !== 'string') {
-      console.error(`[❌] Q${questionIndex} not found in formattedExplanations`);
-      this.formattedExplanationSubject.next('No explanation available');
-      return this.formattedExplanation$;
-    }
-  
-    const explanation = entry.explanation?.trim();
-  
-    if (explanation) {
-      console.log(`[✅ Explanation for Q${questionIndex}]:`, explanation);
-      this.formattedExplanationSubject.next(explanation);
-    } else {
-      console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
-      this.formattedExplanationSubject.next('No explanation available');
-    }
-  
-    return this.formattedExplanation$;
-  } */
-  /* public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
-    const entry = this.formattedExplanations[questionIndex];
-  
-    if (!entry || !entry.explanation || !entry.explanation.trim()) {
-      console.error(`[❌] Q${questionIndex} not found or invalid in formattedExplanations`, entry);
-      this.formattedExplanationSubject.next('No explanation available');
-      return this.formattedExplanation$;
-    }
-  
-    const explanation = entry.explanation.trim();
-  
-    // 🛡️ Sanity check against accidentally setting the quizId as explanation
-    if (explanation) {
-      console.error(`[❌] Q${questionIndex} explanation is the quizId! Fix your formatter.`);
-      this.formattedExplanationSubject.next('No explanation available');
-      return this.formattedExplanation$;
-    }
-  
-    if (explanation) {
-      console.log(`[✅ Explanation for Q${questionIndex}]:`, explanation);
-      this.formattedExplanationSubject.next(explanation);
-    } else {
-      console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
-      this.formattedExplanationSubject.next('No explanation available');
-    }
-  
-    // return this.formattedExplanation$;
-    return of(explanation);
-  } */
-  getFormattedExplanationTextForQuestion(index: number): Observable<string> {
-    const entry = this.formattedExplanations[index];
-    const text = entry?.explanation?.trim();
-
-    console.log(`[📦 fetch explanation Q${index}]:`, this.formattedExplanations[index]);
-  
-    if (!text) {
-      console.warn(`[⚠️ No explanation found for Q${index}]`);
       return of('No explanation available');
     }
   
-    console.log(`[✅ Returning explanation for Q${index}]:`, text);
-    return of(text);
+    // Retrieve the corresponding entry from formattedExplanations
+    const entry = this.formattedExplanations[questionIndex];
+    if (!entry) {
+      console.error(`[❌ Q${questionIndex} not found in formattedExplanations`, entry);
+      this.formattedExplanationSubject.next('No explanation available');
+      return of('No explanation available');
+    }
+  
+    // Extract and trim the explanation text
+    const explanation = entry.explanation?.trim();
+    if (!explanation) {
+      console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
+      this.formattedExplanationSubject.next('No explanation available');
+      return of('No explanation available');
+    }
+  
+    this.formattedExplanationSubject.next(explanation);
+    return of(explanation);
   }
 
   initializeExplanationTexts(explanations: string[]): void {
