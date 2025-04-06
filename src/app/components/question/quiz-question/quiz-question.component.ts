@@ -2547,15 +2547,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update all options to disable incorrect ones
     this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
       ...option,
-      active: option.correct, // Only correct options remain active
-      feedback: option.correct ? undefined : 'x', // Set 'x' for incorrect options
-      showIcon: true, // Ensure icons are displayed
+      active: option.correct, // only correct options remain active
+      feedback: option.correct ? undefined : 'x', // set 'x' for incorrect options
+      showIcon: true // ensure icons are displayed
     }));
-
-    console.log(
-      'Updated options after disabling incorrect ones:',
-      this.optionsToDisplay
-    );
   }
 
   // Handles single-answer lock logic. Returns true if we should return early.
