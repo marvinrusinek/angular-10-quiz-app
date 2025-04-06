@@ -530,41 +530,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }));
   }
 
-  private renderDisplay(): void {
-    const currentState = this.displayStateSubject.getValue();
-  
-    console.log('[🖼 renderDisplay()] currentState =', currentState);
-  
-    if (
-      this.forceQuestionDisplay ||
-      this.isExplanationLocked ||
-      !this.isExplanationReady
-    ) {
-      console.log('[ℹ️ renderDisplay()] → Showing question (flags not ready for explanation)');
-      return;
-    }
-  
-    if (
-      currentState.mode === 'explanation' &&
-      currentState.answered &&
-      this.isAnswered && // guard with local state
-      this.shouldDisplayExplanation && // additional protection
-      this.displayMode$.getValue() === 'explanation' // sync with BehaviorSubject
-    ) {
-      console.log('[ℹ️ renderDisplay()] → Showing explanation');
-      this.setExplanationText();
-    } else {
-      console.log('[ℹ️ renderDisplay()] → Fallback: Showing question');
-    }
-  }  
-
-  private updateRenderingFlags(): void {
-    this.forceQuestionDisplay = false;
-    this.readyForExplanationDisplay = true;
-    this.isExplanationReady = true;
-    this.isExplanationLocked = false;
-  }
-
   private saveQuizState(): void {
     try {
       // Save explanation text
@@ -710,10 +675,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Force feedback to be applied even if state wasn't restored properly
       setTimeout(() => {
-        console.log(
-          '[restoreQuizState] 🔄 Ensuring feedback is applied after restoring state...'
-        );
-
         // Recheck if options are available
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn(
@@ -728,18 +689,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             (opt) => opt.selected
           );
           if (previouslySelectedOption) {
-            console.log(
-              '[restoreQuizState] 🎯 Reapplying feedback (backup recheck) for:',
-              previouslySelectedOption
-            );
             this.applyOptionFeedback(previouslySelectedOption);
           } else {
             console.warn(
               '[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.'
             );
           }
-        }, 50); // Extra delay ensures selections are fully restored before applying feedback
-      }, 100); // Slight delay to ensure UI updates correctly
+        }, 50); // extra delay ensures selections are fully restored before applying feedback
+      }, 100); // slight delay to ensure UI updates correctly
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
@@ -857,7 +814,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Handle route changes after questions are loaded
           this.handleRouteChanges();
 
-          this.updateQuestionAndExplanation(0); // Set the first question and explanation
+          this.updateQuestionAndExplanation(0); // set the first question and explanation
         } else {
           console.warn(
             'Questions are not loaded yet. Skipping explanation update.....'
@@ -923,7 +880,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       try {
-        // Try loading the question (also populates questionsArray if needed)
+        // Try loading the question (also populates questionsArray)
         const loaded = await this.loadQuestion();
   
         if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
@@ -994,10 +951,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Ensure options are set immediately to prevent async issues
     this.optionsToDisplay = [...(question.options ?? [])];
-    console.log(
-      `[setQuestionFirst] 📝 Options set for question:`,
-      this.optionsToDisplay
-    );
 
     // Ensure option feedback is updated correctly
     if (
@@ -1116,7 +1069,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): void {
     if (this.isQuestionAnswered(index) && this.shouldDisplayExplanation) {
       const explanationText =
-        this.explanationTextService.prepareExplanationText(question); // Or define in component
+        this.explanationTextService.prepareExplanationText(question);
       this.explanationToDisplay = explanationText;
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
@@ -1134,19 +1087,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const question = this.questionsArray[index];
     if (!question) {
       console.warn('No question found for index:', index);
-      this.quizService.resetExplanationText(); // Reset explanation if no question found
+      this.quizService.resetExplanationText(); // reset explanation if no question found
       return;
     }
 
-    console.log('Updating question and explanation for index:', index);
-
     // Clear the explanation text to prevent flashing old content
-    this.explanationToDisplayChange.emit(''); // Ensure UI is cleared
+    this.explanationToDisplayChange.emit(''); // ensure UI is cleared
 
     // Set the current question and emit its explanation text
     if (question) {
       this.quizService.setCurrentQuestion(question);
-      this.emitExplanationText(question); // Emit explanation after setting question
+      this.emitExplanationText(question); // emit explanation after setting question
     }
   }
 
@@ -1173,7 +1124,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
-        console.log('Reset feedback triggered');
         this.resetFeedback();
       });
 
@@ -1197,11 +1147,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private handlePageVisibilityChange(isHidden: boolean): void {
     if (isHidden) {
       // Page is now hidden, so pause updates and clear/reset necessary subscriptions
-      this.isPaused = true; // Indicate that updates are paused
+      this.isPaused = true; // updates are paused
       this.clearDisplaySubscriptions();
     } else {
       // Page is now visible, so resume updates, reinitialize subscriptions, and refresh explanation text
-      this.isPaused = false; // Indicate that updates are no longer paused
+      this.isPaused = false; // updates are no longer paused
       this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
   }
@@ -1216,19 +1166,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displaySubscriptions = [];
 
     // Additional clean-up logic, if necessary
-    this.explanationToDisplay = ''; // Clear any currently displayed explanation text
-    this.explanationToDisplayChange.emit(''); // Emit empty string to reset UI elements
-    this.showExplanationChange.emit(false); // Ensure explanation display is hidden
-    console.log('Display subscriptions cleared and explanation reset.');
+    this.explanationToDisplay = ''; // clear any currently displayed explanation text
+    this.explanationToDisplayChange.emit(''); // emit empty string to reset UI elements
+    this.showExplanationChange.emit(false); // ensure explanation display is hidden
   }
 
   private async initializeComponent(): Promise<void> {
     try {
       // Ensure questions are loaded before proceeding
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        console.info(
-          '[initializeComponent] Questions array is empty. Fetching questions...'
-        );
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
           console.error(
@@ -1301,9 +1247,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
-
-      // Render display to ensure all elements are updated
-      this.renderDisplay();
     } catch (error) {
       console.error(
         '[initializeComponent] Error during initialization:',
@@ -2191,6 +2134,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
+
+      // Save immediately after interaction
+      this.saveQuizState();
   
       setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
