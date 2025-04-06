@@ -147,8 +147,6 @@ export class ExplanationTextService {
     }
 
     for (const { questionIndex, explanation } of explanations) {
-      console.log(`Processing explanation for questionIndex ${questionIndex}:`, explanation);
-    
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
         console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
         continue;
