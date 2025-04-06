@@ -278,15 +278,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       document.addEventListener(
         'visibilitychange',
         this.onVisibilityChange.bind(this)
-      );
-
-      this.displayMode$.subscribe((mode) => {
-        console.log(`[🌀 displayMode$ CHANGE] ➡️ ${mode}`);
-
-        if (mode === 'explanation') {
-          console.log('[🚨 Explanation mode triggered — something is pushing it]');
-        }
-      });      
+      );  
 
       // Initial component setups
       this.initializeComponent();
