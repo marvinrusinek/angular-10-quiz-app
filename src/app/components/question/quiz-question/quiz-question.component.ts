@@ -1805,11 +1805,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       : this.data?.options;
   }
 
-  // logging undefined...
-  private logInitialData(): void {
-    console.log('this.questionData:', this.questionData);
-  }
-
   private initializeSelectedQuiz(): void {
     if (this.quizDataService.selectedQuiz$) {
       this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
