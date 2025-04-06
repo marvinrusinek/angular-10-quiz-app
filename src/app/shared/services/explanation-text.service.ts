@@ -220,16 +220,12 @@ export class ExplanationTextService {
   }
 
   updateFormattedExplanation(explanation: string): void {
-    console.log('[💬 updateFormattedExplanation] explanation emitted:', explanation);
     const trimmed = explanation?.trim();
   
     if (!trimmed) {
       console.warn('[💬 updateFormattedExplanation] ❌ Ignoring empty or blank explanation');
       return;
     }
-  
-    console.log('[💬 updateFormattedExplanation] ✅ Emitting explanation:', trimmed);
-    console.log('[💬 Previous explanation]', this.formattedExplanationSubject.getValue());
   
     this.formattedExplanationSubject.next(trimmed);
   }
@@ -255,20 +251,10 @@ export class ExplanationTextService {
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
 
-    console.log(`[🧪 FORMATTED DEBUG Q${index}]`, {
-      stored: this.formattedExplanations[index],
-      expected: explanation,
-    });
-
     this.formattedExplanations[index] = {
       questionIndex: index,
       explanation: formattedExplanation
     };
-
-    console.log(`[📥 storeFormattedExplanation] Storing for Q${index}`, {
-      original: explanation,
-      sanitized: this.sanitizeExplanation(explanation),
-    });
     
     this.explanationsUpdated.next(this.formattedExplanations);
   }
