@@ -1818,20 +1818,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
           this.explanationTextService.formattedExplanations[index] = {
             questionIndex: index,
-            explanation: explanationText || 'No explanation provided.',
+            explanation: explanationText || 'No explanation provided.'
           };
         } catch (explanationError) {
           console.error(`❌ Failed to fetch explanation for Q${index}:`, explanationError);
   
           this.explanationTextService.formattedExplanations[index] = {
             questionIndex: index,
-            explanation: 'Unable to load explanation.',
+            explanation: 'Unable to load explanation.'
           };
         }
       }
     } catch (fatalError) {
       // Catch anything else unexpected (outside the normal flow)
-      console.error(`💥 Unexpected error during prepareQuestion for Q${index}:`, fatalError);
+      console.error(`Unexpected error during prepareQuestion for Q${index}:`, fatalError);
     }
   }
 
@@ -1861,11 +1861,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService
       .isOptionSelected$()
       .pipe(
-        debounceTime(300), // Debounce to avoid rapid state changes
+        debounceTime(300), // debounce to avoid rapid state changes
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
-      .subscribe(async (isSelected: boolean) => {
+      .subscribe(async () => {
         await this.updateSelectionMessageBasedOnState();
       });
   }
