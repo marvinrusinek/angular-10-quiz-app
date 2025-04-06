@@ -169,50 +169,36 @@ export class ExplanationTextService {
     console.log('Explanations updated notification sent.');
   }
 
-  /* formatExplanationText(
+  formatExplanationText(
     question: QuizQuestion,
     questionIndex: number
   ): Observable<{ questionIndex: number; explanation: string }> {
+    // Early exit for invalid or stale questions
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
       console.warn(`[⏩ Skipping invalid or stale question at index ${questionIndex}]`);
       return of({ questionIndex, explanation: '' });
     }
   
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formattedExplanation = this.formatExplanation(
-      question,
-      correctOptionIndices,
-      question.explanation
-    );
+    // Explanation fallback if missing or blank
+    const rawExplanation = question?.explanation?.trim() || 'Explanation not provided';
   
-    // ✅ Store and sync correctly
+    // Format explanation
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, rawExplanation);
+  
+    // Store and sync
     this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.updateFormattedExplanation(formattedExplanation);
   
-    // ✅ Prevent duplicate processing
+    // Prevent duplicate processing
     const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
   
-    console.log(`[✅ Formatted explanation for Q${questionIndex}]:`, formattedExplanation);
-
-    console.log(`[🧪 formatExplanationText] Called for Q${questionIndex}`, {
-      questionText: question?.questionText,
-      explanation: question?.explanation,
-    });
-  
-    // ✅ Return correct index (no +1!)
     return of({
       questionIndex,
       explanation: formattedExplanation
     });
-  } */
-  formatExplanationText(question: QuizQuestion, index: number): Observable<{ questionIndex: number; explanation: string }> {
-    const raw = question?.explanation?.trim() || 'Explanation not provided';
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formatted = this.formatExplanation(question, correctOptionIndices, raw);
-  
-    return of({ questionIndex: index, explanation: formatted });
   }
 
   updateFormattedExplanation(explanation: string): void {
