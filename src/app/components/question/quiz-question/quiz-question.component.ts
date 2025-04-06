@@ -1415,6 +1415,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    this.startLoading();
+    
     const lockedIndex = this.currentQuestionIndex;
   
     try {
