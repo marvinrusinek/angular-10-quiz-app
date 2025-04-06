@@ -6,7 +6,6 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
   private explanationSubject = new BehaviorSubject<QuizQuestion | null>(null);
@@ -51,8 +50,11 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
+  getLatestExplanation(): string {
+    return this.latestExplanation;
+  }
+
   prepareExplanationText(question: QuizQuestion): string {
-    // Assuming question has an 'explanation' property or similar
     return question.explanation || 'No explanation available';
   }
 
@@ -66,10 +68,6 @@ export class ExplanationTextService {
   
     this.latestExplanation = trimmed;
     this.explanationText$.next(trimmed);
-  }  
-
-  getLatestExplanation(): string {
-    return this.latestExplanation;
   }
 
   setFormattedExplanationText(explanation: string): void {
@@ -311,7 +309,6 @@ export class ExplanationTextService {
     const current = this.shouldDisplayExplanationSource.getValue();
     if (current !== shouldDisplay) {
       this.shouldDisplayExplanationSource.next(shouldDisplay);
-      console.log('[💬 shouldDisplayExplanation$ EMITTED]', shouldDisplay);
     } else {
       console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
     }
@@ -322,7 +319,6 @@ export class ExplanationTextService {
     const shouldShow = this.shouldDisplayExplanationSource.getValue();
   
     if (shouldShow && currentExplanation?.trim()) {
-      console.log('[triggerExplanationEvaluation] ✅ Triggering explanation logic');
       this.explanationTrigger.next();
     } else {
       console.warn('[triggerExplanationEvaluation] ⛔️ Skipped — missing explanation or display flag');
