@@ -125,23 +125,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.explanationTextService.explanationText$.subscribe((text) => {
       console.log('[🧪 explanationText$ EMITTED]:', text);
     });
-    
-    this.combinedText$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.explanationText$
-    ]).pipe(
-      map(([state, explanationText]) => {
-        const explanation = explanationText?.trim();
-        const question = this.questionToDisplay?.trim();
-      
-        const showExplanation = state.mode === 'explanation' && !!explanation;
-      
-        return showExplanation
-          ? explanation
-          : (question || 'No question available');
-      }),      
-      distinctUntilChanged()
-    );
+
+    this.getDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -231,6 +216,25 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
   
+  getDisplayTextStream(): void {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$
+    ]).pipe(
+      map(([state, explanationText]) => {
+        const explanation = explanationText?.trim();
+        const question = this.questionToDisplay?.trim();
+      
+        const showExplanation = state.mode === 'explanation' && !!explanation;
+      
+        return showExplanation
+          ? explanation
+          : (question || 'No question available');
+      }),      
+      distinctUntilChanged()
+    );
+  }
+
   private emitContentAvailableState(): void {
     this.isContentAvailable$
       .pipe(takeUntil(this.destroy$))
