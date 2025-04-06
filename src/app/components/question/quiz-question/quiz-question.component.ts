@@ -767,26 +767,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .subscribe();
   }
 
-  // Helper function to enforce the display mode directly -- not being called, potentially remove
-  /* private applyDisplayMode(mode: 'question' | 'explanation'): void {
-    if (mode === 'question') {
-      // Only show question text if question hasn't been answered yet
-      if (!this.isAnswered || !this.shouldDisplayExplanation) {
-        console.log('✅ Display mode set to question');
-      } else {
-        console.log('⛔ Skipping question display — explanation is intended.');
-      }
-    } else if (mode === 'explanation') {
-      // Only show explanation if question is actually answered
-      if (this.isAnswered) {
-        // this.ensureExplanationTextDisplay();
-        console.log('✅ Display mode set to explanation');
-      } else {
-        console.log('⛔ Skipping explanation display — question not yet answered.');
-      }
-    }
-  } */
-
   // Update selection message based on the current question state
   private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
     const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
