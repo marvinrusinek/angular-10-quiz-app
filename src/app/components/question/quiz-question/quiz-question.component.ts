@@ -2381,7 +2381,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    // ✅ Ensure options are available before applying feedback
+    // Ensure options are available before applying feedback
     if (
       !Array.isArray(this.optionsToDisplay) ||
       this.optionsToDisplay.length === 0
@@ -2392,11 +2392,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.populateOptionsToDisplay();
     }
 
-    // ✅ Ensure UI-related states are initialized
+    // Ensure UI-related states are initialized
     this.showFeedbackForOption = this.showFeedbackForOption || {};
     this.showFeedbackForOption[selectedOption.optionId] = true;
 
-    // ✅ Find index of the selected option safely
+    // Find index of the selected option safely
     this.selectedOptionIndex = this.optionsToDisplay.findIndex(
       (opt) => opt.optionId === selectedOption.optionId
     );
@@ -2407,7 +2407,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    // ✅ Apply feedback to **ONLY** the clicked option, keeping others unchanged
+    // Apply feedback to only the clicked option, keeping others unchanged
     this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
       ...option,
       feedback:
@@ -2420,13 +2420,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       selected: option.optionId === selectedOption.optionId, // Ensure clicked option stays selected
     }));
 
-    // ✅ Emit event to notify SharedOptionComponent
+    // Emit event to notify SharedOptionComponent
     this.feedbackApplied.emit(selectedOption.optionId);
 
-    // ✅ Add a slight delay to ensure UI refreshes properly
+    // Add a slight delay to ensure UI refreshes properly
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // ✅ Ensure UI updates **after** applying feedback
+    // Ensure UI updates **after** applying feedback
     if (this.showFeedbackForOption[selectedOption.optionId]) {
       console.log('[applyOptionFeedback] 🔄 UI updated.');
     } else {
@@ -2461,8 +2461,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         ...option,
         active: true,
         feedback: option.feedback || this.generateFeedbackForOption(option), // Restore or regenerate feedback
-        showIcon: option.correct || option.showIcon, // Ensure icons are displayed for correct options
-        selected: option.selected ?? false, // Use saved state if available
+        showIcon: option.correct || option.showIcon, // ensure icons are displayed for correct options
+        selected: option.selected ?? false // use saved state if available
       }));
     } catch (error) {
       console.error(
