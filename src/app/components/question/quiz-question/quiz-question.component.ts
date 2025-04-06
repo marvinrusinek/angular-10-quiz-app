@@ -541,7 +541,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       !this.isExplanationReady
     ) {
       console.log('[ℹ️ renderDisplay()] → Showing question (flags not ready for explanation)');
-      this.ensureQuestionTextDisplay();
       return;
     }
   
@@ -554,10 +553,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     ) {
       console.log('[ℹ️ renderDisplay()] → Showing explanation');
       this.setExplanationText();
-      this.ensureExplanationTextDisplay(this.currentExplanationText);
     } else {
       console.log('[ℹ️ renderDisplay()] → Fallback: Showing question');
-      this.ensureQuestionTextDisplay();
     }
   }  
 
@@ -775,7 +772,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (mode === 'question') {
       // Only show question text if question hasn't been answered yet
       if (!this.isAnswered || !this.shouldDisplayExplanation) {
-        this.ensureQuestionTextDisplay();
         console.log('✅ Display mode set to question');
       } else {
         console.log('⛔ Skipping question display — explanation is intended.');
@@ -783,7 +779,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else if (mode === 'explanation') {
       // Only show explanation if question is actually answered
       if (this.isAnswered) {
-        this.ensureExplanationTextDisplay();
+        // this.ensureExplanationTextDisplay();
         console.log('✅ Display mode set to explanation');
       } else {
         console.log('⛔ Skipping explanation display — question not yet answered.');
@@ -1246,48 +1242,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Display subscriptions cleared and explanation reset.');
   }
 
-  // Helper methods
-  public ensureQuestionTextDisplay(): void {
-    if (this.displayMode$.getValue() !== 'question') {
-      console.log('Blocked: Attempted to show question in incorrect mode.');
-      return;
-    }
-
-    if (!this.isAnswered || !this.shouldDisplayExplanation) {
-      // Displaying question text and clearing explanation
-      this.resetExplanation(); // Resets explanation text and updates UI
-      this.shouldDisplayExplanation = false; // Reset flag to avoid unintended switching
-    } else {
-      console.log(
-        'Skipping question text display since explanation display is intended.'
-      );
-    }
-  }
-
-  public ensureExplanationTextDisplay(explanationText?: string): void {
-    if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
-      console.log(
-        'Blocked: Attempted to show explanation in incorrect mode or when not answered.'
-      );
-      return;
-    }
-
-    try {
-      if (this.shouldDisplayExplanation) {
-        this.explanationToDisplay =
-          explanationText || 'Explanation unavailable';
-        this.explanationToDisplayChange.emit(this.explanationToDisplay);
-        this.showExplanationChange.emit(true);
-      } else {
-        this.resetExplanation(); // clears explanation text and updates UI
-        this.shouldDisplayExplanation = false; // reset flag after display decision
-      }
-    } catch (error) {
-      console.error('Error displaying explanation text:', error);
-      this.resetExplanation(); // reset explanation on error
-    }
-  }
-
   private async initializeComponent(): Promise<void> {
     try {
       // Ensure questions are loaded before proceeding
@@ -1492,7 +1446,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.isExplanationReady = false;
       this.isExplanationLocked = true;
       this.currentExplanationText = '';
-      this.ensureQuestionTextDisplay();
 
       this.isLoading = true;
       this.quizStateService.setLoading(true);
@@ -1640,7 +1593,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.isExplanationReady = false;
         this.isExplanationLocked = true;
         this.currentExplanationText = '';
-        this.ensureQuestionTextDisplay();
   
         // Notify Angular of the state changes
         this.cdRef.detectChanges();
@@ -1732,7 +1684,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.setOptionsToDisplay();
       
         this.feedbackText = '';
-        this.ensureQuestionTextDisplay();
         this.cdRef.detectChanges();
       });
       
@@ -3106,7 +3057,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.forceQuestionDisplay = false;
       this.displayState.answered = true;
       this.displayState.mode = 'explanation';
-      this.ensureExplanationTextDisplay();
       console.log(
         `[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`
       );
@@ -4717,7 +4667,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.currentQuestionIndex
         )
       );
-      this.ensureExplanationTextDisplay(this.currentExplanationText);
       console.log(
         `Explanation text set and displayed for question ${this.currentQuestionIndex}`
       );
