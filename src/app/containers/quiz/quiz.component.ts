@@ -2932,6 +2932,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.checkIfAnsweredCorrectly()
         .then(() => {
           console.log('All answers checked, navigating to results...');
+          this.handleQuizCompletion();
           this.quizService.navigateToResults();
         })
         .catch((error) => {
@@ -2954,6 +2955,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('Error advancing to the next question:', error);
     }
+  }
+
+  private handleQuizCompletion(): void {
+    this.quizService.submitQuizScore(this.answers).subscribe(() => {
+      this.router.navigate(['quiz', 'result']);
+    });
   }
   
   // Combined method for preparing question data and UI
