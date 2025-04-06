@@ -290,6 +290,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Additional subscriptions and state tracking
       this.setupSubscriptions();
+      this.subscribeToOptionSelection();
       this.subscribeToNavigationFlags();
       this.subscribeToTotalQuestions();
     } catch (error) {
