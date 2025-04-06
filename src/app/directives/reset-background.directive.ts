@@ -26,15 +26,15 @@ export class ResetBackgroundDirective implements OnDestroy {
       });
   }
 
+  ngOnDestroy(): void {
+    this.resetBackgroundSubscription?.unsubscribe();
+  }
+
   private resetBackground(): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
   }
 
   private clearFeedbackIcons(): void {
     this.selectedOptionService.clearSelectedOption();
-  }
-
-  ngOnDestroy(): void {
-    this.resetBackgroundSubscription?.unsubscribe();
   }
 }
