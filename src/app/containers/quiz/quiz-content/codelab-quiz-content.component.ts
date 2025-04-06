@@ -117,6 +117,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    this.displayState$ = this.quizStateService.displayState$.pipe(
+      tap((state) => console.log('[displayState$ emitted]:', state))
+    );
+
+    this.explanationTextService.explanationText$.subscribe((text) => {
+      console.log('[🧪 explanationText$ EMITTED]:', text);
+    });
     
     this.combinedText$ = combineLatest([
       this.displayState$,
