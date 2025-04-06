@@ -192,7 +192,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
-    this.initializeQuestionState();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
@@ -691,37 +690,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         } as CombinedQuestionDataType);
       })
     );
-  }
-
-  async initializeQuestionState(): Promise<void> {
-    this.subscribeToQuestionState();
-    await this.restoreQuestionState();
-  }
-
-  async restoreQuestionState(): Promise<void> {
-    const questionState = this.quizStateService.getQuestionState(this.quizId, this.currentQuestionIndexValue);
-    if (questionState) {
-      const isQuestionAnswered = questionState.isAnswered;
-      if (isQuestionAnswered) {
-        this.quizService.displayExplanation = true;
-        this.explanationText = await firstValueFrom(this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndexValue));
-      }
-      this.numberOfCorrectAnswers = questionState.numberOfCorrectAnswers;
-    }
-  }
-  
-  subscribeToQuestionState(): void {
-    this.quizService.getCurrentQuestionIndexObservable().subscribe(async currentIndex => {
-      const quizId = this.quizService.getCurrentQuizId();
-      const questionId = this.quizService.getQuestionIdAtIndex(currentIndex);
-      const state = this.quizStateService.getQuestionState(quizId, questionId);
-    
-      if (state && state.isAnswered) {
-        this.explanationToDisplay = this.explanationTexts[currentIndex]; // Access the stored explanation text
-      } else {
-        this.explanationToDisplay = '';
-      }
-    });
   }
 
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
