@@ -88,10 +88,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
 
   questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
+  isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
 
   combinedText$: Observable<string>;
-  public isContentAvailable$: Observable<boolean>;
+  isContentAvailable$: Observable<boolean>;
 
   private destroy$ = new Subject<void>();
 
