@@ -1633,22 +1633,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       questionText: this.question.questionText,
       explanationText: this.question.explanation || 'No explanation available',
       correctAnswersText: this.quizService.getCorrectAnswersAsString() || '',
-      options: this.options || [],
+      options: this.options || []
     };
     console.log('Data initialized:', this.data);
   }
 
   private async initializeQuiz(): Promise<void> {
-    if (this.initialized) return; // Prevent re-initialization
+    if (this.initialized) return; // prevent re-initialization
     this.initialized = true;
-
-    console.log('Quiz initialization started.');
 
     // Initialize selected quiz and questions
     this.initializeSelectedQuiz();
     await this.initializeQuizQuestionsAndAnswers();
 
-    console.log('Quiz questions and answers initialized.');
+    console.info('Quiz questions and answers initialized.');
 
     // Ensure the question is fully loaded before setting the message
     this.loadQuestionAndSetInitialMessage();
@@ -1659,7 +1657,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Set the initial message after the question is fully loaded
     setTimeout(() => {
-      console.log('Setting initial message.');
+      console.info('Setting initial message.');
       this.setInitialMessage();
     }, 100); // Adjust the delay as needed
   }
@@ -1707,14 +1705,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 quizQuestion.options = quizQuestion.options.map(
                   (option, index) => ({
                     ...option,
-                    optionId: index,
+                    optionId: index
                   })
                 );
               } else {
                 console.error(
                   `Options are not properly defined for question: ${quizQuestion.questionText}`
                 );
-                quizQuestion.options = []; // Initialize as an empty array to prevent further errors
+                quizQuestion.options = []; // initialize as an empty array to prevent further errors
               }
             }
             return questions;
@@ -1729,7 +1727,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           
               if (hasAnswered) {
                 this.selectedOptionService.setAnsweredState(true);
-                console.log('Answered state restored as true for selected options');
               } else {
                 console.log('Skipping setAnsweredState(false) to avoid overwrite');
               }
@@ -1760,65 +1757,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async fetchAndProcessQuizQuestions(
-    quizId: string
-  ): Promise<QuizQuestion[]> {
+  private async fetchAndProcessQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     if (!quizId) {
       console.error('Quiz ID is not provided or is empty.');
       return [];
     }
-
+  
     this.isLoading = true;
-
+  
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
-
-      if (questions && questions.length > 0) {
-        this.questions$ = of(questions);
-
-        // Ensure option IDs are set
-        for (const [qIndex, question] of questions.entries()) {
-          if (question.options) {
-            for (const [oIndex, option] of question.options.entries()) {
-              option.optionId = oIndex;
-            }
-          } else {
-            console.error(
-              `Options are not properly defined for question: ${question.questionText}`
-            );
-          }
-        }
-
-        // Handle explanation texts for previously answered questions
-        for (const [index, question] of questions.entries()) {
-          const state = this.quizStateService.getQuestionState(quizId, index);
-          if (state?.isAnswered) {
-            try {
-              const explanationText = await this.getExplanationText(index);
-              const formattedExplanationText: FormattedExplanation = {
-                questionIndex: index,
-                explanation: explanationText,
-              };
-              this.explanationTextService.formattedExplanations[index] =
-                formattedExplanationText;
-            } catch (error) {
-              // Set a default explanation and handle the error as needed
-              console.error(
-                `Error getting explanation for question ${index}:`,
-                error
-              );
-              this.explanationTextService.formattedExplanations[index] = {
-                questionIndex: index,
-                explanation: 'Unable to load explanation.',
-              };
-            }
-          }
-        }
-        return questions;
-      } else {
+  
+      if (!questions || questions.length === 0) {
         console.error('No questions were loaded');
         return [];
       }
+  
+      this.questions$ = of(questions);
+  
+      // ✅ Run all question preparations in parallel
+      await Promise.all(
+        questions.map((question, index) =>
+          this.prepareQuestion(quizId, question, index)
+        )
+      );
+  
+      return questions;
     } catch (error) {
       console.error('Error loading questions:', error);
       return [];
@@ -1826,6 +1790,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.isLoading = false;
     }
   }
+
+  private async prepareQuestion(
+    quizId: string,
+    question: QuizQuestion,
+    index: number
+  ): Promise<void> {
+    try {
+      // ✅ Step 1: Assign option IDs
+      if (question.options?.length) {
+        question.options.forEach((option, oIndex) => {
+          option.optionId = oIndex;
+        });
+      } else {
+        console.error(`❌ No options found for Q${index}: ${question.questionText}`);
+      }
+  
+      // ✅ Step 2: Check if explanation is needed
+      const state = this.quizStateService.getQuestionState(quizId, index);
+  
+      if (state?.isAnswered) {
+        try {
+          const explanationText = await this.getExplanationText(index);
+  
+          this.explanationTextService.formattedExplanations[index] = {
+            questionIndex: index,
+            explanation: explanationText || 'No explanation provided.',
+          };
+        } catch (explanationError) {
+          console.error(`❌ Failed to fetch explanation for Q${index}:`, explanationError);
+  
+          this.explanationTextService.formattedExplanations[index] = {
+            questionIndex: index,
+            explanation: 'Unable to load explanation.',
+          };
+        }
+      }
+    } catch (fatalError) {
+      // Catch anything else unexpected (outside the normal flow)
+      console.error(`💥 Unexpected error during prepareQuestion for Q${index}:`, fatalError);
+    }
+  }
+  
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
