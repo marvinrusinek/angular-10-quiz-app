@@ -2950,13 +2950,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOption = null;
     this.isOptionSelected = false;
     this.explanationToDisplayChange.emit('');
-    // this.explanationTextService.explanationText$.next('');
     this.showExplanationChange.emit(false);
     this.selectedOptionService.clearOptions();
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.setOptionSelected(false);
-    // this.selectedOptionService.setAnswered(false); 
-    // this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
@@ -2967,7 +2964,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
-      text: option.text,
+      text: option.text
     };
     this.selectedOptionService.toggleSelectedOption(
       this.currentQuestionIndex,
@@ -2977,7 +2974,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setAnsweredState(true);
     this.answerSelected.emit(true);
-    this.isFirstQuestion = false; // Reset after the first option click
+    this.isFirstQuestion = false; // reset after the first option click
   }
 
   private async updateSelectionMessageBasedOnCurrentState(
@@ -2996,12 +2993,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           )
         );
 
-      console.log('Updating selection message. New message:', newMessage);
-
+      // New message
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
-        console.log('Selection message updated to:', newMessage);
       } else {
         console.log(
           '[updateSelectionMessageBasedOnCurrentState] No message update required'
@@ -3017,7 +3012,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
     try {
-      this.resetStateForNewQuestion(); // Reset state before fetching new question
+      this.resetStateForNewQuestion(); // reset state before fetching new question
 
       const quizId = this.quizService.getCurrentQuizId();
       const currentQuestion = await firstValueFrom(
@@ -3026,7 +3021,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.currentQuestionIndex
         )
       );
-      console.log('Fetched current question::::::>>>>>>', currentQuestion);
 
       if (!currentQuestion) return null;
 
@@ -3038,7 +3032,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         questionText: currentQuestion.questionText,
         explanationText: currentQuestion.explanation,
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-        options: this.optionsToDisplay,
+        options: this.optionsToDisplay
       };
 
       // Determine if the current question is answered
@@ -3070,11 +3064,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): void {
-    console.log('processCurrentQuestionState started', {
-      currentQuestion,
-      option,
-      index,
-    });
     this.processCurrentQuestion(currentQuestion);
     this.handleOptionSelection(option, index, currentQuestion);
     this.quizStateService.updateQuestionStateForExplanation(
@@ -3199,7 +3188,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
-    // 🔄 Reset core state
+    // Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
     this.options = [];
@@ -3207,7 +3196,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayState = { mode: 'question', answered: false };
     this.explanationLocked = false;
   
-    // 🧼 Reset explanation
+    // Reset explanation
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     // this.explanationTextService.explanationText$.next('');
@@ -3216,13 +3205,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // this.explanationTextService.resetExplanationText();
     this.showExplanationChange.emit(false);
   
-    // 🔁 Reset selection state and feedback
+    // Reset selection state and feedback
     this.selectionMessageService.resetMessage();
     // this.selectedOptionService.setAnswered(false);
-    this.showFeedbackForOption = {};      // ✅ NEW
-    this.isFeedbackApplied = false;       // ✅ NEW
+    this.showFeedbackForOption = {};
+    this.isFeedbackApplied = false;
   
-    // ⏳ Small delay to ensure reset completes
+    // Small delay to ensure reset completes
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   
