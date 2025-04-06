@@ -31,7 +31,6 @@
           [explanationToDisplay]="explanationToDisplay"
           [displayState$]="displayState$"
           (answer)="selectedAnswer($event)"
-          (answeredChange)="onAnsweredChange($event)"
           (optionSelected)="onOptionSelected($event)"
           (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           (feedbackTextChange)="feedbackText = $event"
