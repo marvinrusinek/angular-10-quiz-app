@@ -282,13 +282,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
                 mode: state.mode,
                 answered: state.answered
               });
-              this.quizQuestionComponent.ensureExplanationTextDisplay();
             } else {
               console.log('Displaying question text.', {
                 mode: state.mode,
                 answered: state.answered
               });
-              this.quizQuestionComponent.ensureQuestionTextDisplay();
             }
           } else {
             console.error('QuizQuestionComponent is unexpectedly null during display update.');
