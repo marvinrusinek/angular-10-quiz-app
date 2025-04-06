@@ -2125,13 +2125,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }): Promise<void> {
     const option = event.option;
     if (!option) return;
-
-    const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+  
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
-
+  
     // Apply selection logic
     this.updateOptionSelection(event, option);
-
     this.selectedOptionService.setAnswered(true);
   
     try {
@@ -2142,7 +2143,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
-      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+      const foundOption = this.optionsToDisplay.find(
+        opt => opt.optionId === option.optionId
+      );
       if (!foundOption) return;
   
       if (!this.isFeedbackApplied) {
@@ -2153,14 +2156,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Update question state to show explanation
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
-
+  
+      let explanation: string | undefined;
       if (qState?.explanationText?.trim()) {
         // Reuse cached explanation and re-emit
-        this.explanationTextService.setExplanationText(qState.explanationText);
+        explanation = qState.explanationText;
+        this.explanationTextService.setExplanationText(explanation);
       } else {
         // Fetch and store explanation if not present
-        const explanation = await this.updateExplanationText(lockedIndex);
-
+        explanation = await this.updateExplanationText(lockedIndex);
         if (qState) {
           qState.explanationDisplayed = true;
           qState.explanationText = explanation;
@@ -2171,9 +2175,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
   
-      // Fetch and prepare explanation
-      const explanation = await this.updateExplanationText(lockedIndex);
-      
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Wait until a non-empty explanation is emitted
@@ -2187,15 +2188,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Allow UI to render explanation
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.triggerExplanationEvaluation();
-
+  
       // Core selection processing
       await this.processSelectedOption(option, event.index, event.checked);
-
+  
       // Finalize state and mark UI
       if (!isMultipleAnswer) {
         await this.finalizeSelection(option, event.index);
       }
-
+  
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       this.emitOptionSelected(option, event.index);
