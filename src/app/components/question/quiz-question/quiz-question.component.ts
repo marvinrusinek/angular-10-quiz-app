@@ -308,7 +308,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
 
-    const index = this.currentQuestionIndex; // trust only the initialized currentQuestionIndex from ngOnInit
+    const index = this.currentQuestionIndex;
     const question = this.questionsArray[index];
 
     if (question) {
@@ -1369,7 +1369,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // Render display to ensure all elements are updated
-      // this.renderDisplay();
+      this.renderDisplay();
     } catch (error) {
       console.error(
         '[initializeComponent] Error during initialization:',
