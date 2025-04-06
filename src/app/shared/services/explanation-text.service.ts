@@ -345,14 +345,9 @@ export class ExplanationTextService {
   }
 
   resetStateBetweenQuestions(): void {
-    // this.clearExplanationText();
     this.resetExplanationState();
     this.resetProcessedQuestionsState();
   }
-
-  /* clearExplanationText(): void {
-    this.explanationText$.next('');
-  } */
 
   resetExplanationState(): void {
     this.formattedExplanationSubject.next('');
