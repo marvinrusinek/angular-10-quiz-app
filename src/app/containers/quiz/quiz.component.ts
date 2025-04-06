@@ -446,102 +446,74 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async loadQuestionContents(questionIndex: number): Promise<void> { 
     try {
-        console.log(`[QuizComponent] 🚀 Loading content for Q${questionIndex} at ${new Date().toISOString()}`);
-        console.trace(`[QuizComponent] Stack Trace - loadQuestionContents() for Q${questionIndex}`);
+      this.isLoading = true;
+      this.isQuestionDisplayed = false;
+      this.isNextButtonEnabled = false;
 
-        this.isLoading = true;
-        this.isQuestionDisplayed = false;
-        this.isNextButtonEnabled = false;
+      // Reset state before fetching new data
+      this.optionsToDisplay = [];
+      this.questionData = null;
+      this.explanationToDisplay = '';
 
-        // ✅ Reset state before fetching new data
-        this.optionsToDisplay = [];
-        this.questionData = null;
-        this.explanationToDisplay = '';
+      this.cdRef.detectChanges();
 
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) {
+        console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
+        return;
+      }
+
+      try {
+        type FetchedData = { question: QuizQuestion | null; options: Option[] | null; explanation: string | null };
+
+        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+        const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
+
+        const data: FetchedData = await lastValueFrom(
+          forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+            catchError(error => {
+              console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
+              return of({ question: null, options: [], explanation: '' } as FetchedData);
+            })
+          )
+        );
+
+        // Validate retrieved data
+        if (!data.options || data.options.length === 0) {
+          console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}. Skipping update.`);
+          return;
+        }
+
+        // Extract correct options **for the current question
+        const correctOptions = data.options.filter(opt => opt.correct);
+
+        // Ensure `generateFeedbackForOptions` receives correct data for each question
+        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
+        
+        // Apply the same feedback message to all options
+        const updatedOptions = data.options.map((opt) => ({
+          ...opt,
+          feedback: feedbackMessage
+        }));
+
+        // Set values **ONLY AFTER ensuring correct mapping**
+        this.optionsToDisplay = [...updatedOptions];
+        
+        this.questionData = data.question ?? ({} as QuizQuestion);
+        this.isQuestionDisplayed = true;
+        this.isLoading = false;
+    
         this.cdRef.detectChanges();
-
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-            console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
-            return;
-        }
-
-        try {
-            type FetchedData = { question: QuizQuestion | null; options: Option[] | null; explanation: string | null };
-
-            const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
-            const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
-            const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
-
-            const data: FetchedData = await lastValueFrom(
-                forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
-                    tap(finalData => console.log(`[QuizComponent] ✅ forkJoin completed for Q${questionIndex}:`, finalData)),
-                    catchError(error => {
-                        console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
-                        return of({ question: null, options: [], explanation: '' } as FetchedData);
-                    })
-                )
-            );
-
-            // ✅ Validate retrieved data
-            console.log(`[QuizComponent] 🔍 Raw question data for Q${questionIndex}:`, data.question);
-            console.log(`[QuizComponent] 🔍 Raw options data for Q${questionIndex}:`, data.options);
-            console.log(`[QuizComponent] 🔍 Raw explanation data for Q${questionIndex}:`, data.explanation);
-
-            if (!data.options || data.options.length === 0) {
-                console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}. Skipping update.`);
-                return;
-            }
-
-            // ✅ Verify if the correct question index is being used
-            console.log(`[QuizComponent] 🔍 BEFORE Feedback Processing for Q${questionIndex}:`, data.options);
-
-            // ✅ Extract correct options **for the current question**
-            const correctOptions = data.options.filter(opt => opt.correct);
-            console.log(`[QuizComponent] 🔍 Correct options for Q${questionIndex}:`, correctOptions);
-
-            // ✅ Ensure `generateFeedbackForOptions` receives correct data for each question
-            console.log(`[QuizComponent] 🚀 Calling generateFeedbackForOptions for Q${questionIndex}`);
-            const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
-            console.log(`[QuizComponent] ✅ Generated feedback for Q${questionIndex}:`, feedbackMessage);
-
-            // ✅ Apply the **same feedback message** to all options
-            const updatedOptions = data.options.map((opt) => ({
-                ...opt,
-                feedback: feedbackMessage
-            }));
-            console.log(`[QuizComponent] 🔍 Checking updatedOptions before setting optionsToDisplay for Q${questionIndex}:`, updatedOptions);
-
-            // ✅ Double-check the assigned feedback before setting optionsToDisplay
-            console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, updatedOptions);
-            
-            console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, updatedOptions);
-
-            // ✅ Set values **ONLY AFTER ensuring correct mapping**
-            this.optionsToDisplay = [...updatedOptions];
-            console.log(`[QuizComponent] 🚀 Assigned optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
-            console.log(`[QuizComponent] 🔍 FINAL optionsToDisplay before passing to QQC for Q${questionIndex}:`, this.optionsToDisplay);
-
-            this.questionData = data.question ?? ({} as QuizQuestion);
-            
-            // this.explanationToDisplay = data.explanation ?? '';
-
-            this.isQuestionDisplayed = true;
-            this.isLoading = false;
-
-            console.log(`[QuizComponent] 🎯 Successfully loaded content for Q${questionIndex}`);
-            console.log(`[QuizComponent] 🚀 Final optionsToDisplay for Q${questionIndex}:`, this.optionsToDisplay);
-            
-            this.cdRef.detectChanges();
-        } catch (error) {
-            console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
-            this.isLoading = false;
-            this.cdRef.detectChanges();
-        }
-    } catch (error) {
-        console.error(`[QuizComponent] ❌ Unexpected error:`, error);
+      } catch (error) {
+        console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
         this.isLoading = false;
         this.cdRef.detectChanges();
+      }
+    } catch (error) {
+      console.error(`[QuizComponent] ❌ Unexpected error:`, error);
+      this.isLoading = false;
+      this.cdRef.detectChanges();
     }
   }
 
