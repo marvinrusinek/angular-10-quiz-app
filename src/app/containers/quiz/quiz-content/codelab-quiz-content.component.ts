@@ -477,16 +477,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private processCurrentQuestion(question: QuizQuestion): void {
-    // Update question details and display correct answers
-    this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
-
     // Determine if correct answers count should be displayed
     this.handleCorrectAnswersDisplay(question);
-  }
-
-  // Function to update question details and display correct answers
-  private updateQuestionDetailsAndDisplayCorrectAnswers(question: QuizQuestion): void {
-    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
   }
 
   // Function to handle the display of correct answers
