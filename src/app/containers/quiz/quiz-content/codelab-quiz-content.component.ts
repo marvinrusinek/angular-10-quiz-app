@@ -1011,13 +1011,4 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
   }
-
-  isCurrentQuestionMultipleAnswer(): Observable<boolean> {
-    return this.currentQuestion.pipe(
-      take(1), // Take the first value emitted and then complete
-      switchMap((question: QuizQuestion) =>
-        question ? this.quizQuestionManagerService.isMultipleAnswerQuestion(question) : of(false)
-      )
-    );
-  }
 }
