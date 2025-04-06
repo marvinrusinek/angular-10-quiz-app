@@ -909,71 +909,29 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         }
       })
     );
-  }  
-  
-  private determineTextToDisplay(
-    [nextQuestion, previousQuestion, formattedExplanation, shouldDisplayExplanation, currentIndex, currentQuestion]: [
-      QuizQuestion | null,
-      QuizQuestion | null,
-      string,
-      boolean,
-      number,
-      QuizQuestion | null
-    ]
-  ): Observable<string> {
-    const question = currentQuestion;
-    const questionText = question?.questionText?.trim();
-  
-    if (!question || !questionText) {
-      console.warn('[🧨 determineTextToDisplay] ❌ Invalid question or missing text:', question);
-      return of('No question available.');
-    }
-  
-    return this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
-      map((isMultipleAnswer: boolean) => {
-        let textToDisplay = '';
-
-        if (shouldDisplayExplanation && formattedExplanation?.trim()) {
-          textToDisplay = formattedExplanation;
-        } else if (question.questionText?.trim()) {
-          textToDisplay = question.questionText;
-        } else {
-          console.warn('[determineTextToDisplay] ⚠️ Missing both explanation and question text');
-          textToDisplay = 'No content available.';
-        }
-  
-        this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation && isMultipleAnswer;
-
-        return textToDisplay;
-      }),
-      catchError((error) => {
-        console.error('[❌ Error in determineTextToDisplay]', error);
-        return of('Error loading question text');
-      })
-    );
   }
 
   private setupCorrectAnswersTextDisplay(): void {
     // Combining the logic to determine if the correct answers text should be displayed
     this.shouldDisplayCorrectAnswers$ = combineLatest([
       this.shouldDisplayCorrectAnswers$.pipe(
-        startWith(false), // Ensuring it has an initial value
+        startWith(false), // ensuring it has an initial value
         tap(value => {
           if (value === undefined) {
             console.error('shouldDisplayCorrectAnswers$ emitted undefined!');
           }
         }),
-        map(value => value ?? false), // Fallback to false if value is undefined
+        map(value => value ?? false), // fallback to false if value is undefined
         distinctUntilChanged()
       ),
       this.isExplanationDisplayed$.pipe(
-        startWith(false), // Ensuring it has an initial value
+        startWith(false), // ensuring it has an initial value
         tap(value => {
           if (value === undefined) {
             console.error('isExplanationDisplayed$ emitted undefined!');
           }
         }),
-        map(value => value ?? false), // Fallback to false if value is undefined
+        map(value => value ?? false), // fallback to false if value is undefined
         distinctUntilChanged()
       )
     ]).pipe(
@@ -1002,7 +960,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       distinctUntilChanged(),
       catchError(error => {
         console.error('Error in displayCorrectAnswersText$ observable:', error);
-        return of(null); // Default to null in case of error
+        return of(null); // default to null in case of error
       })
     );
   }
