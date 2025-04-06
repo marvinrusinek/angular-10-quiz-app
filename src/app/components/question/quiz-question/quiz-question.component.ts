@@ -250,15 +250,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('🧪 FORMATTED EXPLANATIONS AFTER PRELOAD');
-    Object.entries(this.explanationTextService.formattedExplanations).forEach(([i, entry]) => {
-      console.log(`Q${i}:`, entry?.explanation);
-    });
-
-    this.explanationTextService.explanationText$.subscribe(text => {
-      console.log('[📢 explanationText$ emitted]:', text);
-    });
-    
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     this.currentQuestionIndex = routeIndex; // ensures correct index
@@ -291,6 +282,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Initialize questions
       this.initializeQuizQuestion();
       this.initializeFirstQuestion();
+      this.loadInitialQuestionAndMessage();
 
       // Setup for visibility and routing
       this.setupVisibilitySubscription();
@@ -345,20 +337,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           `[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`
         );
       }
-    }
-
-    if (changes.questionData) {
-      console.log(
-        `[QuizQuestionComponent] 🟢 ngOnChanges received questionData for Q${this.fixedQuestionIndex}:`,
-        changes.questionData.currentValue
-      );
-    }
-
-    if (changes.explanationToDisplay) {
-      console.log(
-        `[QuizQuestionComponent] 🔍 Explanation updated for Q${this.fixedQuestionIndex}:`,
-        this.explanationToDisplay
-      );
     }
   }
 
@@ -902,7 +880,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    // ✅ Fix: Directly use `index` and prevent negative values
+    // Directly use index and prevent negative values
     const questionIndex = Math.max(0, index);
 
     if (questionIndex >= this.questionsArray.length) {
@@ -913,7 +891,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     const question = this.questionsArray[questionIndex];
-
     if (!question) {
       console.error(
         `[setQuestionFirst] ❌ No question data available at index: ${questionIndex}`
@@ -947,7 +924,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         `[setQuestionFirst] 🔍 FORCING updateExplanationText for Q${questionIndex}`
       );
 
-      // Explicitly pass correct `questionIndex` to avoid shifting
+      // Explicitly pass questionIndex to avoid shifting
       this.updateExplanationIfAnswered(questionIndex, question);
 
       this.questionRenderComplete.emit();
@@ -960,7 +937,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    // Only reset if necessary
     if (this.optionsToDisplay.length !== question.options.length) {
       console.warn(
         `[DEBUG] ❌ Clearing optionsToDisplay at:`,
@@ -1092,7 +1068,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       if (this.shouldDisplayExplanation && this.isAnswered) {
         this.explanationToDisplayChange.emit(formattedExplanation);
-        this.showExplanationChange.emit(true); // Ensure it's shown in the UI
+        this.showExplanationChange.emit(true); // ensure it's shown in the UI
       }
     }, 50);
   }
@@ -1135,13 +1111,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private clearDisplaySubscriptions(): void {
     // Unsubscribe from any active subscriptions to avoid memory leaks and unnecessary processing
     if (this.displaySubscriptions) {
-      this.displaySubscriptions.forEach((sub) => sub.unsubscribe());
+      for (const sub of this.displaySubscriptions) {
+        sub.unsubscribe();
+      }      
     }
 
     // Reset the array to prepare for new subscriptions when the page becomes visible again
     this.displaySubscriptions = [];
 
-    // Additional clean-up logic, if necessary
+    // Additional clean-up logic
     this.explanationToDisplay = ''; // clear any currently displayed explanation text
     this.explanationToDisplayChange.emit(''); // emit empty string to reset UI elements
     this.showExplanationChange.emit(false); // ensure explanation display is hidden
@@ -1240,7 +1218,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
       }
 
-      this.dynamicAnswerContainer.clear(); // Clear previous components
+      this.dynamicAnswerContainer.clear(); // clear previous components
 
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
@@ -1253,7 +1231,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
 
       const instance = componentRef.instance as BaseQuestionComponent;
-
       if (!instance) {
         console.error('Component instance is undefined');
         return;
@@ -1267,7 +1244,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Use hasOwnProperty to assign onOptionClicked only if not already assigned
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
-        console.log('onOptionClicked bound for the first time.');
       } else {
         console.warn(
           'onOptionClicked already assigned, skipping reassignment.'
@@ -1297,7 +1273,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Only set the message if it's not already set or if it's empty
     if (!currentMessage || currentMessage === '') {
-      console.log('Setting initial message:', initialMessage);
       this.selectionMessageService.updateSelectionMessage(initialMessage);
     } else {
       console.log('Initial message already set, skipping update.');
@@ -1400,7 +1375,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           active: true,
           feedback: undefined,
           showIcon: false,
-          selected: false,
+          selected: false
         }));
   
         this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
@@ -1479,10 +1454,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Set current question and options
         this.currentQuestion = questionData;
         this.optionsToDisplay = questionData.options ?? [];
-        console.log(
-          `[loadCurrentQuestion] Options to display:`,
-          this.optionsToDisplay
-        );
+        
         return true;
       } else {
         console.error(
