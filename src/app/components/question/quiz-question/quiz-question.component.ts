@@ -3123,7 +3123,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async fetchAndProcessCurrentQuestion(questionIndex?: number): Promise<QuizQuestion | null> {
     try {
-      this.resetStateForNewQuestion(); // Reset state before fetching new question
+      this.resetStateForNewQuestion(); // reset state before fetching new question
   
       const resolvedIndex = questionIndex ?? this.currentQuestionIndex;
       const quizId = this.quizService.getCurrentQuizId();
@@ -3133,8 +3133,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const currentQuestion = await firstValueFrom(
         this.quizService.getCurrentQuestionByIndex(quizId, resolvedIndex)
       );
-      console.log('Fetched current question:', currentQuestion);
-  
       if (!currentQuestion) return null;
   
       this.currentQuestion = currentQuestion;
@@ -3183,9 +3181,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
     this.processCurrentQuestion(currentQuestion);
     this.handleOptionSelection(option, index, currentQuestion);
+
     this.quizStateService.updateQuestionStateForExplanation(
       this.quizId,
-      this.currentQuestionIndex
+      index
     );
     this.questionAnswered.emit();
   }
