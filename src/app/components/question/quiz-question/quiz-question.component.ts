@@ -3199,8 +3199,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Reset explanation
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
-    // this.explanationTextService.explanationText$.next('');
-    // this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.explanationText$.next('');
+    this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.setShouldDisplayExplanation(false);
     // this.explanationTextService.resetExplanationText();
     this.showExplanationChange.emit(false);
