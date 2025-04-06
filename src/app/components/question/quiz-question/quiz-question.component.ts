@@ -3474,11 +3474,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
 
       // Emit an event to notify the parent component that an option is selected
-      this.optionSelected.emit({
-        option: option,
-        index: optionIndex,
-        checked: option.selected,
-      });
+      this.emitOptionSelected(option, optionIndex);
 
       // Log debug information for further analysis
       this.logDebugInformation();
