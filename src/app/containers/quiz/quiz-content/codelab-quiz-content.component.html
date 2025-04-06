@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="combinedQuestionData$ | async">
   <section id="question">
     <h3 question-content>
       <ng-container *ngIf="combinedText$ | async as combinedText; else fallback">
