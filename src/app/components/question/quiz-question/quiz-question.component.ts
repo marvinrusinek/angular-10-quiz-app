@@ -367,6 +367,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
+        await this.checkAsynchronousStateChanges();
 
         // Ensure optionsToDisplay is populated before proceeding
         if (
@@ -384,8 +385,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.optionsToDisplay = this.currentQuestion.options.map(
               (option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index, // Ensure optionId is properly assigned
-                correct: option.correct ?? false, // Ensure `correct` property exists
+                optionId: option.optionId ?? index, // ensure optionId is properly assigned
+                correct: option.correct ?? false // ensure `correct` property exists
               })
             );
           } else {
@@ -399,10 +400,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (this.currentQuestion) {
           // Restore selected options safely before applying feedback
           this.restoreFeedbackState();
-          console.log(
-            '[onVisibilityChange] ✅ Feedback state restored:',
-            this.feedbackText
-          );
 
           // Apply feedback immediately after restoring selected options
           const previouslySelectedOption = this.optionsToDisplay.find(
@@ -465,8 +462,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.feedbackText = feedbackText;
             } catch (error) {
               console.error(
-                '[onVisibilityChange] ❌ Error generating feedback text after reload:',
-                error
+                '[onVisibilityChange] ❌ Error generating feedback text after reload:', error
               );
             }
           } else {
@@ -842,6 +838,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           console.error('[handleRouteChanges] Failed to load question or invalid index.');
           return;
         }
+
+        this.resetForm(); // clear stale form state
   
         // Set current index and current question
         this.currentQuestionIndex = questionIndex;
@@ -1972,7 +1970,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               correct: index === this.correctOptionIndex,
               value: option.value,
               answer: option.value,
-              selected: false,
+              selected: false
             } as Option)
         );
 
