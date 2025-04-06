@@ -1309,6 +1309,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    this.resetTexts(); // clean slate before loading new question
     const lockedIndex = this.currentQuestionIndex;
   
     try {
