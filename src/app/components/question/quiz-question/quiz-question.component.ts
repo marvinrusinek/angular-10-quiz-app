@@ -2757,11 +2757,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     try {
       const event = { option, index, checked };
-      console.log(
-        '[handleOptionProcessingAndFeedback] 🟢 Calling super.onOptionClicked with:',
-        event
-      );
-
       await super.onOptionClicked(event);
 
       this.selectedOptions = [
@@ -2791,11 +2786,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           questionData.explanation ??
           'No explanation available';
 
-        console.log(
-          `[handleOptionProcessingAndFeedback] Explanation text for question ${this.currentQuestionIndex}:`,
-          explanationText
-        );
-
         this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
@@ -2813,10 +2803,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           correctOptions,
           this.optionsToDisplay
         );
-        console.log(
-          '[handleOptionProcessingAndFeedback] ✅ Correct message set:',
-          this.correctMessage
-        );
       } else {
         console.error(
           '[handleOptionProcessingAndFeedback] ❌ Invalid question data when handling option processing.'
@@ -2828,10 +2814,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplay =
         'Error processing question. Please try again.';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    } /* finally {
-      this.showExplanationChange.emit(true);
-      this.displayExplanation = true;
-    } */
+    }
   }
 
   private async updateQuestionState(option: SelectedOption): Promise<void> {
@@ -2842,7 +2825,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         {
           explanationDisplayed: true,
           selectedOptions: [option],
-          explanationText: this.explanationToDisplay,
+          explanationText: this.explanationToDisplay
         },
         this.correctAnswers?.length ?? 0
       );
@@ -2942,20 +2925,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await this.handleCorrectnessAndTimer();
   }
 
-  private handleError(error: Error): void {
-    console.error(
-      'An error occurred while processing the option click:',
-      error
-    );
-  }
-
-  private finalizeLoadingState(): void {
-    this.quizStateService.setLoading(false); // Loading state reset in finally block of onOptionClicked()
-  }
-
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
-    this.showFeedbackForOption = {}; // Reset the feedback object
+    this.showFeedbackForOption = {}; // reset the feedback object
     this.showFeedbackForOption[option.optionId] =
       this.showFeedback && this.selectedOption === option;
   }
