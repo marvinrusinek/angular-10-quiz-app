@@ -126,7 +126,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.log('[🧪 explanationText$ EMITTED]:', text);
     });
 
-    this.getDisplayTextStream();
+    this.getCombinedDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -212,7 +212,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
   
-  getDisplayTextStream(): void {
+  private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$
