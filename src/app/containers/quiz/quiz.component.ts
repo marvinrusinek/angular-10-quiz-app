@@ -339,29 +339,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
-    this.selectedOptionService.isAnsweredSubject.subscribe(val =>
-      console.log('[🧪 isAnsweredSubject]', val)
-    );
-    this.quizStateService.isLoading$.subscribe(val =>
-      console.log('[🧪 isLoading$]', val)
-    );
-    this.quizStateService.isNavigating$.subscribe(val =>
-      console.log('[🧪 isNavigating$]', val)
-    );    
-
     this.initializeDisplayVariables();
   
-    // ✅ Centralized routing + quiz setup
+    // Centralized routing + quiz setup
     this.initializeQuizData();
   
-    // 🔍 (Optional) Log router navigation events for debugging
-    /* this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        console.log('[DEBUG] 🚀 NavigationEnd Event:', event);
-      }
-    }); */
-  
-    // ✅ Total questions and badge setup
+    // Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
         this.totalQuestions = totalQuestions;
@@ -378,13 +361,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
   
-    // ✅ Progress bar sync
+    // Progress bar sync
     this.progressBarService.progress$.subscribe((progressValue) => {
       this.progressPercentage.next(progressValue);
     });
     this.progressBarService.setProgress(0);
   
-    // ✅ Answer state and navigation setup
+    // Answer state and navigation setup
     this.subscribeToOptionSelection();
     this.handleNavigationToQuestion(this.currentQuestionIndex);
     this.initializeNextButtonState();
@@ -394,17 +377,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.resetQuestionState();
     this.subscribeToSelectionMessage();
   
-    // 🧠 Explanation text subscription
+    // Explanation text subscription
     this.quizService.nextExplanationText$.subscribe((text) => {
       this.explanationToDisplay = text;
     });
   
-    // 🧩 Initialize any quiz-specific data
+    // Initialize any quiz-specific data
     this.initializeQuestions();
     this.initializeCurrentQuestion();
     this.checkIfAnswerSelected();
   }
-  
 
   /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
       tap((options) => console.log('options$ emitted:::::', options)),
