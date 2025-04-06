@@ -3008,7 +3008,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number,
     questionState: QuestionState
   ): Promise<void> {
-    const currentQuestion = await this.fetchAndProcessCurrentQuestion();
+    const currentQuestion = await this.fetchAndProcessCurrentQuestion(index);
     if (!currentQuestion) {
       console.error('Could not retrieve the current question.');
       return;
@@ -3074,7 +3074,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
-      text: option.text,
+      text: option.text
     };
     this.selectedOptionService.toggleSelectedOption(
       this.currentQuestionIndex,
@@ -3084,7 +3084,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.setOptionSelected(true);
     this.selectedOptionService.setAnsweredState(true);
     this.answerSelected.emit(true);
-    this.isFirstQuestion = false; // Reset after the first option click
+    this.isFirstQuestion = false; // reset after the first option click
   }
 
   private async updateSelectionMessageBasedOnCurrentState(
@@ -3103,8 +3103,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           )
         );
 
-      console.log('Updating selection message. New message:', newMessage);
-
+      // New message
       if (this.selectionMessage !== newMessage) {
         this.selectionMessage = newMessage;
         this.selectionMessageService.updateSelectionMessage(newMessage);
@@ -3122,24 +3121,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
+  public async fetchAndProcessCurrentQuestion(questionIndex?: number): Promise<QuizQuestion | null> {
     try {
       this.resetStateForNewQuestion(); // Reset state before fetching new question
-
+  
+      const resolvedIndex = questionIndex ?? this.currentQuestionIndex;
       const quizId = this.quizService.getCurrentQuizId();
+  
+      console.log('[fetchAndProcessCurrentQuestion] resolvedQuestionIndex =', resolvedIndex);
+  
       const currentQuestion = await firstValueFrom(
-        this.quizService.getCurrentQuestionByIndex(
-          quizId,
-          this.currentQuestionIndex
-        )
+        this.quizService.getCurrentQuestionByIndex(quizId, resolvedIndex)
       );
-      console.log('Fetched current question::::::>>>>>>', currentQuestion);
-
+      console.log('Fetched current question:', currentQuestion);
+  
       if (!currentQuestion) return null;
-
+  
       this.currentQuestion = currentQuestion;
       this.optionsToDisplay = [...(currentQuestion.options || [])];
-
+  
       // Set this.data
       this.data = {
         questionText: currentQuestion.questionText,
@@ -3147,25 +3147,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
         options: this.optionsToDisplay,
       };
-
+  
       // Determine if the current question is answered
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
-
+      const isAnswered = await this.isQuestionAnswered(resolvedIndex);
+  
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
         await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       } else {
         console.log('No update required for the selection message.');
       }
+  
       this.updateAnswerStateAndMessage(isAnswered);
-
+  
       // Return the fetched current question
       return currentQuestion;
     } catch (error) {
       console.error(
-        '[fetchAndProcessCurrentQuestion] An error occurred while fetching the current question:',
+        '[fetchAndProcessCurrentQuestion] ❌ Error while fetching the current question:',
         error
       );
       return null;
