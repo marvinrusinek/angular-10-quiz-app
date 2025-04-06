@@ -3319,8 +3319,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Reset selection state and feedback
     this.selectionMessageService.resetMessage();
     // this.selectedOptionService.setAnswered(false);
-    this.showFeedbackForOption = {};      // ✅ NEW
-    this.isFeedbackApplied = false;       // ✅ NEW
+    this.showFeedbackForOption = {};
+    this.isFeedbackApplied = false;
   
     // Small delay to ensure reset completes
     await new Promise((resolve) => setTimeout(resolve, 50));
