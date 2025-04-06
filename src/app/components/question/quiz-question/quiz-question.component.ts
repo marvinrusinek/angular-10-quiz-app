@@ -538,10 +538,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           `explanationText_${this.currentQuestionIndex}`,
           this.currentExplanationText
         );
-        console.log(
-          '[saveQuizState] Saved explanation text:',
-          this.currentExplanationText
-        );
       }
 
       // Save display mode
@@ -563,7 +559,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           `options_${this.currentQuestionIndex}`,
           JSON.stringify(optionsToSave)
         );
-        console.log('[saveQuizState] Saved options data:', optionsToSave);
       }
 
       // Save selected options
@@ -574,7 +569,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           `selectedOptions_${this.currentQuestionIndex}`,
           JSON.stringify(selectedOptions)
         );
-        console.log('[saveQuizState] Saved selected options:', selectedOptions);
       }
 
       // Save feedback text
@@ -583,7 +577,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           `feedbackText_${this.currentQuestionIndex}`,
           this.feedbackText
         );
-        console.log('[saveQuizState] Saved feedback text:', this.feedbackText);
       }
     } catch (error) {
       console.error('[saveQuizState] Error saving quiz state:', error);
@@ -591,9 +584,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private restoreQuizState(): void {
-    console.log(
-      `[restoreQuizState] 🚀 Called for Q${this.currentQuestionIndex}`
-    );
     try {
       // Restore explanation text
       this.currentExplanationText =
@@ -623,27 +613,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
 
-      // ✅ Only reset if options are already empty or need updating
+      // Only reset if options are already empty or need updating
       if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-        console.log(
-          '[restoreQuizState] 🔄 Resetting options before restoring.'
-        );
-
         const lastKnownOptions = this.quizService.getLastKnownOptions();
         if (lastKnownOptions && lastKnownOptions.length > 0) {
           this.optionsToDisplay = [...lastKnownOptions];
         }
       }
-
-      console.log(
-        '[restoreQuizState] ✅ Options after restore:',
-        this.optionsToDisplay
-      );
-
-      console.log(
-        `[restoreQuizState] 🟢 Options after restoring:`,
-        this.optionsToDisplay
-      );
 
       // Restore selected options safely and apply feedback
       const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
