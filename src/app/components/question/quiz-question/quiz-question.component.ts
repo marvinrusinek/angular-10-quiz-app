@@ -2047,24 +2047,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.updateCorrectMessageText(message);
   }
 
-  private logFinalData(): void {
-    if (!this.data) {
-      console.warn('this.data is undefined or null');
-      return;
-    }
-
-    // Safely assign properties directly to this.data
-    this.data = {
-      questionText: this.data?.questionText || '',
-      options: this.data?.options || [],
-      correctAnswersText: this.data?.correctAnswersText || '',
-    };
-
-    // Log the relevant data
-    console.log('questionData:::', this.questionData || 'Not available');
-    console.log('MY CORR MSG', this.correctMessage || 'Not available');
-  }
-
   public async getCorrectAnswers(): Promise<number[]> {
     if (!this.currentQuestion) {
       console.info('Current question not set. Attempting to load it...');
