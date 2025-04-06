@@ -270,8 +270,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   
   private setupDisplayStateSubscription(): void {
     combineLatest([
-      this.displayState$.pipe(distinctUntilChanged()), // Ensure state changes trigger updates
-      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged()) // Check initialization status
+      this.displayState$.pipe(distinctUntilChanged()), // ensure state changes trigger updates
+      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged()) // check initialization status
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([state, isInitialized]) => {
