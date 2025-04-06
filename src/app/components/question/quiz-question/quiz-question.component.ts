@@ -2189,29 +2189,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Disable incorrect options and update feedback
           return {
             ...opt,
-            feedback: opt.correct ? undefined : 'x', // Feedback for incorrect options
-            showIcon: true, // Ensure icons are displayed
-            active: opt.correct, // Only correct options remain active
+            feedback: opt.correct ? undefined : 'x', // feedback for incorrect options
+            showIcon: true, // ensure icons are displayed
+            active: opt.correct // only correct options remain active
           };
         } else if (opt === option) {
           // Handle feedback for the selected incorrect option
           return {
             ...opt,
-            feedback: 'x', // Add 'x' feedback
-            showIcon: true, // Ensure icon is displayed
+            feedback: 'x', // add 'x' feedback
+            showIcon: true // ensure icon is displayed
           };
         }
-        return opt; // Leave other options unchanged
+        return opt; // leave other options unchanged
       });
-
-      console.log(
-        'Updated optionsToDisplay:',
-        JSON.stringify(this.optionsToDisplay, null, 2)
-      );
 
       // Stop the timer if all correct options are selected
       if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-        console.log('✅ Timer stopped: All correct answers selected.');
+        // Timer stopped, all correct answers selected
         this.timerService.stopTimer();
         this.selectedOptionService.stopTimerEmitted = true;
       } else {
@@ -2233,9 +2228,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
 
       if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-        console.log(
-          '[populateOptionsToDisplay] ✅ Repopulating options from currentQuestion.'
-        );
+        // Repopulating options from currentQuestion
 
         this.optionsToDisplay = this.currentQuestion.options.map(
           (option, index) => ({
@@ -2253,7 +2246,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error(
           '[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Returning empty array.'
         );
-        return []; // ✅ Return an empty array instead of void
+        return []; // return an empty array instead of void
       }
     }
 
@@ -2264,9 +2257,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!selectedOption) {
       console.error(
         '[applyOptionFeedback] ❌ ERROR: selectedOption is null or undefined! Aborting.'
-      );
-      console.trace(
-        '[applyOptionFeedback] 🔍 Call stack trace to find the issue:'
       );
       return;
     }
@@ -2306,8 +2296,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             ? '✅ This is a correct answer!'
             : '❌ Incorrect answer!'
           : option.feedback, // Preserve feedback for other options
-      showIcon: option.optionId === selectedOption.optionId, // Show icon for clicked option only
-      selected: option.optionId === selectedOption.optionId, // Ensure clicked option stays selected
+      showIcon: option.optionId === selectedOption.optionId, // show icon for clicked option only
+      selected: option.optionId === selectedOption.optionId // ensure clicked option stays selected
     }));
 
     // Emit event to notify SharedOptionComponent
@@ -2330,15 +2320,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private restoreFeedbackState(): void {
     try {
-      console.log(
-        '[restoreFeedbackState] Current question:',
-        this.currentQuestion
-      );
-      console.log(
-        '[restoreFeedbackState] Options to display:',
-        this.optionsToDisplay
-      );
-
       if (!this.currentQuestion || !this.optionsToDisplay.length) {
         console.warn(
           '[restoreFeedbackState] Missing current question or options to display.'
@@ -2350,7 +2331,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.optionsToDisplay = this.optionsToDisplay.map((option) => ({
         ...option,
         active: true,
-        feedback: option.feedback || this.generateFeedbackForOption(option), // Restore or regenerate feedback
+        feedback: option.feedback || this.generateFeedbackForOption(option), // restore or regenerate feedback
         showIcon: option.correct || option.showIcon, // ensure icons are displayed for correct options
         selected: option.selected ?? false // use saved state if available
       }));
@@ -2416,7 +2397,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
 
-      // Update `optionsToDisplay` to trigger Angular's change detection
+      // Update optionsToDisplay to trigger change detection
       this.optionsToDisplay = [...this.currentQuestion.options];
 
       // Ensure highlights are applied correctly
@@ -2443,7 +2424,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }));
   }
 
-  // Handles single-answer lock logic. Returns true if we should return early.
+  // Handles single-answer lock logic. When returning early, returns true.
   private handleSingleAnswerLock(isMultipleAnswer: boolean): boolean {
     // Lock input for single-answer questions
     if (!isMultipleAnswer && this.isOptionSelected) {
@@ -2467,7 +2448,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check for undefined optionId
     if (option.optionId === undefined) {
       console.error('option.optionId is undefined:', option);
-      option.optionId = event.index ?? -1; // Assign fallback optionId
+      option.optionId = event.index ?? -1; // assign fallback optionId
     }
 
     if (event.checked) {
