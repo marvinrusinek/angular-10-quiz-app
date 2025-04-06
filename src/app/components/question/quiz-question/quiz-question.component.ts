@@ -2644,8 +2644,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Updates the display to explanation mode.
   private updateDisplayStateToExplanation(): void {
-    console.log('[updateDisplayStateToExplanation] 🔄 Attempting to update display state to explanation mode');
-  
     // Get answered state from SelectedOptionService
     const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
   
@@ -2656,12 +2654,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     if (this.displayMode$.getValue() === 'explanation') {
-      console.log('[ℹ️ SKIP] Already in explanation mode.');
+      console.log('SKIP -- Already in explanation mode.');
       return;
     }
-  
-    // Proceed with updating state
-    console.log('[updateDisplayStateToExplanation] 🔄 Updating display state to explanation mode');
   
     // Update the display state
     this.displayState = { mode: 'explanation', answered: isAnswered };
@@ -2670,10 +2665,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Update the display mode
     this.displayMode = 'explanation';
-    console.log('[🟡 Setting displayMode$ to "explanation"] in updateDisplayStateToExplanation');
     this.displayMode$.next('explanation');
-    console.log('[🟡 SET displayMode$ ➡️ explanation]');
-  
+ 
     // Ensure explanation is visible
     this.shouldDisplayExplanation = true;
     this.explanationVisible = true;
@@ -2684,8 +2677,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.readyForExplanationDisplay = true;
     this.isExplanationReady = true;
     this.isExplanationLocked = false;
-  
-    console.log('[updateDisplayStateToExplanation] ✅ Display state updated to explanation mode');
   }  
 
   // Handles the outcome after checking if all correct answers are selected.
@@ -2694,9 +2685,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     if (allCorrectSelected) {
       if (this.timerService.isTimerRunning) {
-        console.log(
-          '[handleCorrectnessOutcome] ⏹️ Stopping timer immediately.'
-        );
+        // Stop timer immediately
         await this.timerService.stopTimer();
         this.timerService.isTimerRunning = false; // ensure the timer state is updated
       } else {
@@ -2706,11 +2695,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // Ensure Next button is enabled
-      console.log(
-        '[handleCorrectnessOutcome] ✅ Setting answerSelected to true.'
-      );
       this.answerSelected.emit(true);
-      // this.selectedOptionService.isAnsweredSubject.next(true);
+      this.selectedOptionService.isAnsweredSubject.next(true);
     }
 
     // Ensure explanation text is preserved if not already set
