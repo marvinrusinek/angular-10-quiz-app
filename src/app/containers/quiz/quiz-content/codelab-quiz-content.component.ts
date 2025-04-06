@@ -114,18 +114,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
 
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
-
-    this.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-      console.log('isExplanationTextDisplayed updated to:', isDisplayed);
-      this.isExplanationDisplayed = isDisplayed;
-  
-      if (isDisplayed) {
-        this.correctAnswersTextSource.next(''); // Clear correct answers text
-        console.log('Explanation is displayed, resetting correctAnswersTextSource.');
-      } else {
-        console.log('Explanation is not displayed, current correct answers text:', this.correctAnswersTextSource.getValue());
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -186,7 +174,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       startWith(false) // Start with `false` to indicate loading
     ); */
 
-
     this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
         const isAvailable = !!currentQuestion && currentOptions.length > 0;
@@ -199,7 +186,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       distinctUntilChanged(),
       catchError((error) => {
         console.error('Error in isContentAvailable$:', error);
-        return of(false); // Fallback to `false` in case of errors
+        return of(false); // fallback to `false` in case of errors
       }),
       startWith(false)
     );
@@ -215,7 +202,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }
     });
     
-    this.emitContentAvailableState(); // Start emitting the content availability state
+    this.emitContentAvailableState(); // start emitting the content availability state
 
     // Initialize quizId
     this.quizService.initializeQuizId();
@@ -226,7 +213,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     // Initialize other component states and subscriptions
     this.initializeComponent();
     this.initializeQuestionState();
-    this.initializeSubscriptions();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
@@ -408,39 +394,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     } catch (error) {
       console.error('Error fetching questions for quiz:', error);
     }
-  }
-
-  initializeSubscriptions(): void {
-    this.initializeQuestionIndexSubscription();
-    this.initializeResetQuizSubscription();
-    this.initializeExplanationDisplaySubscription();
-    this.initializeExplanationTextSubscription();
-  }
-
-  private initializeQuestionIndexSubscription(): void {
-    this.quizService.getCurrentQuestionIndexObservable()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((index: number) => {
-        this.currentQuestionIndexValue = index;
-      });
-  }
-  
-  private initializeResetQuizSubscription(): void {
-    this.quizStateService.resetQuiz$.subscribe(() => {
-      this.shouldDisplayCorrectAnswers = false;
-    });
-  }
-  
-  private initializeExplanationDisplaySubscription(): void {
-    this.explanationTextService.shouldDisplayExplanationSource.subscribe(shouldDisplay => {
-      this.quizService.shouldDisplayExplanation = shouldDisplay;
-    });
-  }
-  
-  private initializeExplanationTextSubscription(): void {
-    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
-      this.explanationText = explanationText;
-    });
   }
 
   private initializeComponent(): void {
