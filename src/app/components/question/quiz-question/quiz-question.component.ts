@@ -2720,46 +2720,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.nextButtonState.emit(shouldEnableNext);
     }, 50);
   }
-
-  /** Handles the additional UI processing inside ngZone run block. */
-  private async handleAdditionalProcessing(
-    event: { option: SelectedOption | null; index: number; checked: boolean },
-    isMultipleAnswer: boolean
-  ): Promise<void> {
-    try {
-      await this.ngZone.run(async () => {
-        await this.applyUIStabilityDelay();
-
-        const { option, index, checked } = event;
-
-        if (!this.isValidIndex(index)) {
-          console.warn('Invalid index for option selection:', { index });
-          return;
-        }
-
-        // Update the selection state
-        this.updateSelectionState(option, index, checked);
-
-        // Perform additional processing
-        this.performOptionProcessing(option, index, checked, isMultipleAnswer);
-
-        // Save quiz state
-        this.saveQuizState();
-
-        console.log('Option processing completed for:', {
-          option,
-          index,
-          checked,
-        });
-      });
-    } catch (error) {
-      console.error('Error during option click:', error);
-    } finally {
-      // Finalize cooldowns
-      this.finalizeAnswerProcessing();
-    }
-  }
-
+  
   private updateDisplayState(
     mode: 'question' | 'explanation',
     answered: boolean
@@ -2787,67 +2748,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async applyUIStabilityDelay(): Promise<void> {
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
-
-  private isValidIndex(index: number): boolean {
-    if (typeof index !== 'number' || index < 0) {
-      console.error(`Invalid index: ${index}`);
-      return false;
-    }
-    return true;
-  }
-
-  private updateSelectionState(
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  ): void {
-    this.selectedOptionService.setOptionSelected(true);
-    // this.selectedOptionService.isAnsweredSubject.next(true);
-
-    if (!this.explanationLocked) {
-      this.explanationLocked = true;
-      this.fetchAndSetExplanationText(this.currentQuestionIndex);
-    }
-
-    this.resetExplanation();
-    this.toggleOptionState(option, index);
-    this.emitOptionSelected(option, index);
-  }
-
-  private async performOptionProcessing(
-    option: SelectedOption,
-    index: number,
-    checked: boolean,
-    isMultipleAnswer: boolean
-  ): Promise<void> {
-    const event = { option, index, checked };
-    console.log(
-      '[performOptionProcessing] 🟢 Calling super.onOptionClicked with:',
-      event
-    );
-
-    await super.onOptionClicked(event);
-
-    this.startLoading();
-    this.handleMultipleAnswerQuestion(option);
-    this.markQuestionAsAnswered(this.currentQuestionIndex);
-
-    await this.processSelectedOption(option, index, checked);
-    await this.finalizeSelection(option, index);
-
-    if (isMultipleAnswer) {
-      this.isOptionSelected = false;
-    }
-  }
-
-  private finalizeAnswerProcessing(): void {
-    this.isOptionSelected = false;
-    this.finalizeLoadingState();
-  }
-
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (
       !option ||
@@ -2862,8 +2762,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Update the feedback display state for this option
     this.showFeedbackForOption[option.optionId] = option.selected;
-    console.log('Updated feedback display state:', this.showFeedbackForOption);
-    console.log(`Option state toggled:`, { option, index });
   }
 
   private emitOptionSelected(option: SelectedOption, index: number): void {
