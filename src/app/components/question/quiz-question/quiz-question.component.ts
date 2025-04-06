@@ -2223,14 +2223,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Check session storage
       const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
       if (storedExplanation) {
-        this.applyExplanation(storedExplanation, questionIndex);
+        this.applyExplanation(storedExplanation);
         return;
       }
   
       // Check service cache
       const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
       if (cachedExplanation) {
-        this.applyExplanation(cachedExplanation, questionIndex);
+        this.applyExplanation(cachedExplanation);
   
         // Store in session storage for future use
         sessionStorage.setItem(`explanationText_${questionIndex}`, cachedExplanation);
@@ -2254,7 +2254,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         explanation: explanationText
       };
       sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
-      this.applyExplanation(explanationText, questionIndex);
+      this.applyExplanation(explanationText);
     } catch (error) {
       console.error(`[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
 
@@ -2265,7 +2265,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
   
-  private applyExplanation(explanation: string, questionIndex: number): void {
+  private applyExplanation(explanation: string): void {
     this.explanationToDisplay = explanation;
 
     if (this.shouldDisplayExplanation && this.isAnswered) {
