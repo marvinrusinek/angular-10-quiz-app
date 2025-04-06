@@ -3236,19 +3236,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return explanationText;
   }
-  
-  handleAudioPlayback(isCorrect: boolean): void {
-    if (isCorrect) {
-      this.audioList = [...this.audioList, this.correctAudioSource];
-    } else {
-      this.audioList = [...this.audioList, this.incorrectAudioSource];
-    }
-
-    // Use a new array to trigger change detection
-    setTimeout(() => {
-      this.audioList = [];
-    }, 1000); // Ensure audio has time to play before clearing
-  }
 
   public async handleOptionSelection(
     option: SelectedOption,
@@ -4695,4 +4682,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('Playback failed:', error);
     });
   } */
+
+  handleAudioPlayback(isCorrect: boolean): void {
+    if (isCorrect) {
+      this.audioList = [...this.audioList, this.correctAudioSource];
+    } else {
+      this.audioList = [...this.audioList, this.incorrectAudioSource];
+    }
+
+    // Use a new array to trigger change detection
+    setTimeout(() => {
+      this.audioList = [];
+    }, 1000); // Ensure audio has time to play before clearing
+  }
 }
