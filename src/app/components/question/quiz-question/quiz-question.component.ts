@@ -1434,150 +1434,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+  public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    const lockedIndex = this.currentQuestionIndex;
+  
     try {
-      // Clear previous data
-      this.currentQuestion = null;
-      this.optionsToDisplay = [];
-      this.feedbackText = '';
-      this.displayState = { mode: 'question', answered: false }; // Default to question mode
+      this.isLoading = true;
+      this.quizStateService.setLoading(true);
+      this.selectedOptionId = null;
+  
+      // Reset all relevant UI and quiz state
+      this.resetQuestionStateBeforeNavigation();
+      this.explanationTextService.resetExplanationState();
+      this.explanationTextService.setExplanationText('');
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+  
+      this.displayState = { mode: 'question', answered: false };
       this.forceQuestionDisplay = true;
       this.readyForExplanationDisplay = false;
       this.isExplanationReady = false;
       this.isExplanationLocked = true;
       this.currentExplanationText = '';
-
-      this.isLoading = true;
-      this.quizStateService.setLoading(true);
-      this.quizStateService.setAnswered(false);
+      this.feedbackText = '';
+  
+      // Start fresh timer
       this.timerService.startTimer(this.timerService.timePerQuestion, true);
-
-      // Reset all states before loading the question
-      this.resetQuestionStateBeforeNavigation();
-      this.resetExplanation();
-      this.resetTexts();
-
-      // Ensure `questionsArray` is populated
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-          throw new Error('No active quiz ID found. Cannot fetch questions.');
-        }
-
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          throw new Error('[loadQuestion] Failed to fetch questions. Aborting operation.');
-        }
-      }
-
-      // Validate `currentQuestionIndex`
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
-        throw new Error(`[loadQuestion] Invalid question index: ${this.currentQuestionIndex}`);
-      }
-
-      // Fetch the current question
-      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-      if (!potentialQuestion) {
-        console.warn('[loadQuestion] Current question is null or undefined.');
-        throw new Error(`No question found for index ${this.currentQuestionIndex}`);
-      }
-      this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
-
-      // Assign optionIds and validate options
-      if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-        console.warn('[loadQuestion] Current question has no options.');
-        this.currentQuestion.options = [];
-      }
-      this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
-
-      // Initialize `optionsToDisplay`
-      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-        ...option,
-        active: true, // Default all options to active initially
-        feedback: undefined, // Reset feedback
-        showIcon: false, // Reset icons
-        selected: false // Initialize selected state
-      }));
-
-      // Abort handling
-      // After starting the loading process
-      if (signal?.aborted) {
-        console.log('[loadQuestion] Load question operation aborted.');
-        this.timerService.stopTimer();
-        this.isLoading = false;
-        this.quizStateService.setLoading(false);
-        this.cdRef.detectChanges();
-        return false;
-      }
-
-      // Generate feedback for the current question
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-
-      // Display explanation if the question is answered
-      await this.handleExplanationDisplay();
-
-      // Update the selection message
-      this.updateSelectionMessage(false);
-
-      // Indicate successful load
-      return true;
-    } catch (error) {
-      console.error('Error loading question:', error);
-      this.feedbackText = 'Error loading question. Please try again.';
-      this.currentQuestion = null;
-      this.optionsToDisplay = [];
-      this.isLoading = false;
-      this.quizStateService.setLoading(false);
-      this.cdRef.detectChanges();
-      return false;
-    } finally {
-      this.isLoading = false;
-      this.quizStateService.setLoading(false);
-    }
-  } */
-  /* public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
-    try {
-      // Reset state before loading the new question
-      this.resetQuestionStateBeforeNavigation();
   
       // Fetch questions if not already available
       if (!this.questionsArray || this.questionsArray.length === 0) {
         const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) {
-          throw new Error('No active quiz ID found. Cannot fetch questions.');
-        }
-  
+        if (!quizId) throw new Error('No active quiz ID found.');
         this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray || this.questionsArray.length === 0) {
-          throw new Error('Failed to fetch questions. Aborting operation.');
+        if (!this.questionsArray?.length) {
+          throw new Error('Failed to fetch questions.');
         }
       }
   
-      // Validate currentQuestionIndex
+      // Validate current index
       if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.questionsArray.length) {
         throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
       }
   
-      // Fetch the current question
       const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!potentialQuestion) {
-        console.warn('Current question is null or undefined.');
         throw new Error(`No question found for index ${this.currentQuestionIndex}`);
       }
   
-      // Update state within Angular's zone to ensure change detection
-      this.ngZone.run(() => {
-        this.currentQuestion = { ...potentialQuestion }; // Ensure immutability
+      // Abort before UI update
+      if (signal?.aborted) {
+        console.warn('[loadQuestion] Load aborted before UI update.');
+        this.timerService.stopTimer();
+        return false;
+      }
   
-        // Assign optionIds and validate options
-        if (!this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-          console.warn('Current question has no options.');
+      this.ngZone.run(() => {
+        this.currentQuestion = { ...potentialQuestion };
+  
+        if (!this.currentQuestion.options?.length) {
+          console.warn('[loadQuestion] Current question has no options.');
           this.currentQuestion.options = [];
         }
-        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
   
-        // Initialize optionsToDisplay
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+        // Assign IDs and reset options
+        this.currentQuestion.options = this.quizService.assignOptionIds(this.currentQuestion.options);
+        this.optionsToDisplay = this.currentQuestion.options.map(option => ({
           ...option,
           active: true,
           feedback: undefined,
@@ -1585,118 +1504,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           selected: false,
         }));
   
-        // Additional state updates
-        this.feedbackText = '';
-        this.displayState = { mode: 'question', answered: false };
-        this.forceQuestionDisplay = true;
-        this.readyForExplanationDisplay = false;
-        this.isExplanationReady = false;
-        this.isExplanationLocked = true;
-        this.currentExplanationText = '';
-  
-        // Notify Angular of the state changes
+        this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
         this.cdRef.detectChanges();
       });
   
-      // Abort handling
+      // Abort after UI update
       if (signal?.aborted) {
-        console.log('Load question operation aborted.');
+        console.warn('[loadQuestion] Load aborted after UI update.');
         this.timerService.stopTimer();
-        this.isLoading = false;
-        this.quizStateService.setLoading(false);
-        this.cdRef.detectChanges();
         return false;
       }
   
-      // Generate feedback for the current question
+      // Update explanation and feedback
+      await this.updateExplanationText(lockedIndex);
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-  
-      // Display explanation if the question is answered
+      this.updateSelectionMessage(false);
       await this.handleExplanationDisplay();
   
-      // Update the selection message
-      this.updateSelectionMessage(false);
-  
-      // Indicate successful load
       return true;
     } catch (error) {
-      console.error('Error loading question:', error);
+      console.error('[loadQuestion] Error:', error);
       this.feedbackText = 'Error loading question. Please try again.';
       this.currentQuestion = null;
       this.optionsToDisplay = [];
+      return false;
+    } finally {
       this.isLoading = false;
       this.quizStateService.setLoading(false);
       this.cdRef.detectChanges();
-      return false;
-    } finally {
-      this.isLoading = false;
-      this.quizStateService.setLoading(false);
-    }
-  }  */
-  public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
-    console.log(`Entered loadQuestion() for Q${this.currentQuestionIndex}`);
-
-    const lockedIndex = this.currentQuestionIndex;
-
-    try {
-      console.log(`🔹 [QQC] Loading Question ${this.currentQuestionIndex}...`);
-
-      // Reset selection and feedback states
-      this.selectedOptionId = null;
-
-      this.resetQuestionStateBeforeNavigation(); // Ensure previous states are cleared
-
-      if (!this.questionsArray || this.questionsArray.length === 0) {
-        const quizId = this.quizService.getCurrentQuizId();
-        if (!quizId) throw new Error('No active quiz ID found.');
-
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray || this.questionsArray.length === 0)
-          throw new Error('Failed to fetch questions.');
-      }
-
-      if (
-        this.currentQuestionIndex < 0 ||
-        this.currentQuestionIndex >= this.questionsArray.length
-      ) {
-        throw new Error(`Invalid question index: ${this.currentQuestionIndex}`);
-      }
-
-      const potentialQuestion = this.questionsArray[this.currentQuestionIndex];
-      if (!potentialQuestion)
-        throw new Error(
-          `No question found for index ${this.currentQuestionIndex}`
-        );
-      
-      this.explanationTextService.resetExplanationState();
-
-      this.explanationTextService.setExplanationText('');
-      this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-      this.ngZone.run(() => {
-        this.currentQuestion = { ...potentialQuestion };
-      
-        // ✅ Set the question text for display
-        this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
-        console.log('[✅ questionToDisplay set]:', this.questionToDisplay);
-      
-        // ✅ Ensure new options load
-        this.setOptionsToDisplay();
-      
-        this.feedbackText = '';
-        this.cdRef.detectChanges();
-      });
-      
-      // Fetch the explanation
-      await this.updateExplanationText(lockedIndex);
-
-      return true;
-    } catch (error) {
-      console.error('Error loading question:', error);
-      return false;
-    } finally {
-      this.isLoading = false;
-      this.quizStateService.setLoading(false);
     }
   }
 
