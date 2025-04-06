@@ -3180,17 +3180,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    console.log(`[navigateToQuestion] 🏁 Navigating to Q${questionIndex}`);
-  
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
       return false;
     }
   
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
-    console.log(`[navigateToQuestion] 🧭 Navigating to route: ${routeUrl}`);
-    const navSuccess = await this.router.navigateByUrl(routeUrl);
-  
+    const navSuccess = await this.router.navigateByUrl(routeUrl);  
     if (!navSuccess) {
       console.warn(`[navigateToQuestion] ❌ Navigation to ${routeUrl} failed`);
       return false;
