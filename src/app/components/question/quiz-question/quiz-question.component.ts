@@ -1311,12 +1311,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     this.resetTexts(); // clean slate before loading new question
-    const lockedIndex = this.currentQuestionIndex;
+    this.startLoading();
   
     try {
-      this.isLoading = true;
-      this.quizStateService.setLoading(true);
       this.selectedOptionId = null;
+      const lockedIndex = this.currentQuestionIndex;
   
       // Reset all relevant UI and quiz state
       this.resetQuestionStateBeforeNavigation();
@@ -2631,6 +2630,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private startLoading(): void {
+    this.isLoading = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setAnswerSelected(false);
 
