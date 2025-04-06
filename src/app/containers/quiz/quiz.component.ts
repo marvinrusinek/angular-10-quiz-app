@@ -1388,93 +1388,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .subscribe();
   }
 
-  /* ensureExplanationsLoaded(): Observable<boolean> {
-    // Check if explanations are already loaded
-    if (
-      Object.keys(this.explanationTextService.formattedExplanations).length > 0
-    ) {
-      console.log('Explanations are already loaded.');
-      return of(true);
-    } else {
-      console.log('Starting to preload explanations...');
-      // Map each question to its formatted explanation text Observable
-      const explanationObservables = this.quiz.questions.map(
-        (question, index) =>
-          this.explanationTextService.formatExplanationText(question, index)
-      );
-
-      // Use forkJoin to execute all Observables and wait for their completion
-      return forkJoin(explanationObservables).pipe(
-        tap((explanations) => {
-          // Update the formattedExplanations with the new data
-          for (const explanation of explanations) {
-            this.explanationTextService.formattedExplanations[
-              explanation.questionIndex
-            ] = {
-              questionIndex: explanation.questionIndex,
-              explanation: explanation.explanation,
-            };
-            console.log(
-              `Preloaded explanation for index ${explanation.questionIndex}:`,
-              explanation.explanation
-            );
-          }
-          console.log(
-            'All explanations preloaded:',
-            this.explanationTextService.formattedExplanations
-          );
-        }),
-        map(() => true), // Ensure this Observable resolves to true
-        catchError((err) => {
-          console.error('Error preloading explanations:', err);
-          return of(false);
-        })
-      );
-    }
-  } */
-  /* ensureExplanationsLoaded(): Observable<boolean> {
-    // 🧼 Force clear to prevent stale or mismapped explanations
-    this.explanationTextService.formattedExplanations = {};
-    console.log('🧼 Cleared existing explanations. Starting fresh preload...');
-  
-    const explanationObservables = this.quiz.questions.map(
-      (question, index) =>
-        this.explanationTextService.formatExplanationText(question, index)
-    );
-  
-    return forkJoin(explanationObservables).pipe(
-      tap((explanations) => {
-        // Update the formattedExplanations with the new data
-        for (const explanation of explanations) {
-          this.explanationTextService.formattedExplanations[
-            explanation.questionIndex
-          ] = {
-            questionIndex: explanation.questionIndex,
-            explanation: explanation.explanation,
-          };
-          console.log(
-            `Preloaded explanation for index ${explanation.questionIndex}:`,
-            explanation.explanation
-          );
-        }
-  
-        console.log(
-          '✅ All explanations preloaded:',
-          this.explanationTextService.formattedExplanations
-        );
-      }),
-      map(() => true), // Ensure this Observable resolves to true
-      catchError((err) => {
-        console.error('❌ Error preloading explanations:', err);
-        return of(false);
-      })
-    );
-  }  */
   ensureExplanationsLoaded(): Observable<boolean> {
-    // 🧼 Force clear to prevent stale or mismapped explanations
+    // Force clear to prevent stale or mismapped explanations
     this.explanationTextService.formattedExplanations = {};
-    console.log('🧼 Cleared existing explanations. Starting fresh preload...');
-  
+
     const explanationObservables = this.quiz.questions.map(
       (question, index) =>
         this.explanationTextService.formatExplanationText(question, index)
@@ -1485,12 +1402,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         for (const explanation of explanations) {
           const { questionIndex, explanation: text } = explanation;
           const q = this.quiz?.questions?.[questionIndex];
-  
-          console.log(`[🔎 Q${questionIndex}]`, {
-            questionText: q?.questionText,
-            originalExplanation: q?.explanation,
-            formattedExplanation: text
-          });
         }
   
         console.log('✅ All explanations preloaded and logged.');
