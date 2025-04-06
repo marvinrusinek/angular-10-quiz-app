@@ -2168,7 +2168,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.applyOptionFeedback(foundOption);
       }
   
-      this.showFeedbackForOption[event.option?.optionId || 0] = true;
+      this.showFeedbackForOption[option.optionId || 0] = true;
   
       // Update question state to show explanation
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
