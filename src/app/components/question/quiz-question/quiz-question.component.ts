@@ -2872,11 +2872,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   ): Promise<void> {
     try {
       const event = { option, index, checked };
-      console.log(
-        '[handleOptionProcessingAndFeedback] 🟢 Calling super.onOptionClicked with:',
-        event
-      );
-
       await super.onOptionClicked(event);
 
       this.selectedOptions = [
@@ -2906,11 +2901,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           questionData.explanation ??
           'No explanation available';
 
-        console.log(
-          `[handleOptionProcessingAndFeedback] Explanation text for question ${this.currentQuestionIndex}:`,
-          explanationText
-        );
-
         this.explanationToDisplay = explanationText;
         this.explanationTextService.updateFormattedExplanation(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
@@ -2928,10 +2918,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           correctOptions,
           this.optionsToDisplay
         );
-        console.log(
-          '[handleOptionProcessingAndFeedback] ✅ Correct message set:',
-          this.correctMessage
-        );
       } else {
         console.error(
           '[handleOptionProcessingAndFeedback] ❌ Invalid question data when handling option processing.'
@@ -2943,10 +2929,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplay =
         'Error processing question. Please try again.';
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
-    } /* finally {
-      this.showExplanationChange.emit(true);
-      this.displayExplanation = true;
-    } */
+    }
   }
 
   private async updateQuestionState(option: SelectedOption): Promise<void> {
