@@ -3137,12 +3137,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Set the question type in the quiz data service
       this.quizDataService.setQuestionType(question);
-
-      console.log(`[fetchAndSetQuestionData] ✅ Loaded Q${questionIndex}`, {
-        questionText: this.questionToDisplay,
-        explanation: this.explanationToDisplay,
-        optionsCount: this.optionsToDisplay.length,
-      });
   
       return question;
     } catch (error) {
