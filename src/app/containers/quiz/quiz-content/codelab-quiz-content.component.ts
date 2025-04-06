@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -332,7 +332,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           observer.next(explanation);
           observer.complete();
         });
-      }, 100); // Delay to ensure rendering order
+      }, 100); // delay to ensure rendering order
     });
   }
 
@@ -401,7 +401,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         */
         setTimeout(() => {
           this.fetchExplanationTextAfterRendering(question);
-        }, 300); // Adjust delay as necessary
+        }, 300); // adjust delay as necessary
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
