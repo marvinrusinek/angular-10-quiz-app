@@ -2504,11 +2504,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       for (const opt of this.currentQuestion.options) {
         opt.highlight = !opt.correct && allCorrectSelected;
       }
-
-      console.log(
-        '[QuizQuestionComponent] Updated highlight state for all options:',
-        this.currentQuestion.options
-      );
     } catch (error) {
       console.error('[updateOptionHighlightState] Error:', error);
     }
@@ -2523,15 +2518,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this.currentQuestion?.options?.length) {
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
-          opt.selected = false; // Deselect the incorrect option
-          opt.highlight = true; // Mark for grey-out
-          opt.active = false; // Deactivate the option (prevent further clicks)
-          console.log(
-            `Option ${opt.optionId} deactivated and highlighted:`,
-            opt
-          );
+          opt.selected = false; // deselect the incorrect option
+          opt.highlight = true; // mark for grey-out
+          opt.active = false; // deactivate the option (prevent further clicks)
         } else {
-          opt.active = true; // Ensure correct options remain active
+          opt.active = true; // ensure correct options remain active
         }
       }
 
@@ -2540,11 +2531,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Ensure highlights are applied correctly
       this.updateOptionHighlightState();
-
-      console.log(
-        'Deactivated and highlighted incorrect options:',
-        this.optionsToDisplay
-      );
     } else {
       console.warn(
         '⚠️ [deactivateIncorrectOptions] No options available to deactivate.'
