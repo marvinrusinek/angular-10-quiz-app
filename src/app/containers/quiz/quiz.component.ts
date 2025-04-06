@@ -3066,13 +3066,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = explanationText;
       this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
       this.explanationTextService.setExplanationText(explanationText);
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
       
       // Then trigger the UI to switch to explanation display
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      // Set displayState only if it's really answered
+      if (isAnswered && explanationText) {
+        this.quizStateService.setDisplayState({
+          mode: 'explanation',
+          answered: true
+        });
+      }
   
       // Set question display
       this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
@@ -3098,7 +3100,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
       return false;
     }
-  }  
+  }
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
