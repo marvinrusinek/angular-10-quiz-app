@@ -916,21 +916,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.shouldDisplayCorrectAnswers$ = combineLatest([
       this.shouldDisplayCorrectAnswers$.pipe(
         startWith(false), // ensuring it has an initial value
-        tap(value => {
-          if (value === undefined) {
-            console.error('shouldDisplayCorrectAnswers$ emitted undefined!');
-          }
-        }),
         map(value => value ?? false), // fallback to false if value is undefined
         distinctUntilChanged()
       ),
       this.isExplanationDisplayed$.pipe(
         startWith(false), // ensuring it has an initial value
-        tap(value => {
-          if (value === undefined) {
-            console.error('isExplanationDisplayed$ emitted undefined!');
-          }
-        }),
         map(value => value ?? false), // fallback to false if value is undefined
         distinctUntilChanged()
       )
@@ -947,7 +937,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       distinctUntilChanged(),
       catchError(error => {
         console.error('Error in shouldDisplayCorrectAnswers$ observable:', error);
-        return of(false); // Default to not displaying correct answers in case of error
+        return of(false); // default to not displaying correct answers in case of error
       })
     );
 
