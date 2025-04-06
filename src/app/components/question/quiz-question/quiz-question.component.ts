@@ -1258,12 +1258,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private loadInitialQuestionAndMessage(): void {
+  private async loadInitialQuestionAndMessage(): Promise<void> {
     // Load the initial question
     this.loadQuestion();
 
     // Set the initial message after the question is loaded
     this.setInitialMessage();
+
+    await this.handleQuestionState();
   }
 
   private setInitialMessage(): void {
@@ -1775,7 +1777,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.questions$ = of(questions);
   
-      // ✅ Run all question preparations in parallel
+      // Run all question preparations in parallel
       await Promise.all(
         questions.map((question, index) =>
           this.prepareQuestion(quizId, question, index)
@@ -1797,7 +1799,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number
   ): Promise<void> {
     try {
-      // ✅ Step 1: Assign option IDs
+      // Assign option IDs
       if (question.options?.length) {
         question.options.forEach((option, oIndex) => {
           option.optionId = oIndex;
@@ -1806,7 +1808,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.error(`❌ No options found for Q${index}: ${question.questionText}`);
       }
   
-      // ✅ Step 2: Check if explanation is needed
+      // Check if explanation is needed
       const state = this.quizStateService.getQuestionState(quizId, index);
   
       if (state?.isAnswered) {
@@ -1831,7 +1833,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error(`💥 Unexpected error during prepareQuestion for Q${index}:`, fatalError);
     }
   }
-  
 
   private async handleQuestionState(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
