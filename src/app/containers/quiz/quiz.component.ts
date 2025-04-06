@@ -455,8 +455,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionData = null;
       this.explanationToDisplay = '';
 
-      this.cdRef.detectChanges();
-
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
         console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
@@ -503,12 +501,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionData = data.question ?? ({} as QuizQuestion);
         this.isQuestionDisplayed = true;
         this.isLoading = false;
-    
-        this.cdRef.detectChanges();
       } catch (error) {
         console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
         this.isLoading = false;
-        this.cdRef.detectChanges();
       }
     } catch (error) {
       console.error(`[QuizComponent] ❌ Unexpected error:`, error);
