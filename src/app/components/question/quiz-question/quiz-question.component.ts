@@ -3286,20 +3286,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.explanationToDisplay =
             explanationText ?? 'No explanation available';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          this.cdRef.markForCheck(); // Ensure UI reflects changes
+          this.cdRef.markForCheck(); // ensure UI reflects changes
         } catch (error) {
           console.error('Error fetching explanation:', error);
           this.explanationToDisplay = 'Error loading explanation.';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
         }
-      }, 50); // Slight delay to avoid flicker
+      }, 50); // slight delay to avoid flicker
     } else {
       this.resetQuestionStateBeforeNavigation(); // Clear explanation when not displaying
     }
   }
 
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
-    // 🔄 Reset core state
+    // Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
     this.options = [];
@@ -3307,7 +3307,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayState = { mode: 'question', answered: false };
     this.explanationLocked = false;
   
-    // 🧼 Reset explanation
+    // Reset explanation
     this.explanationToDisplay = '';
     this.explanationToDisplayChange.emit('');
     // this.explanationTextService.explanationText$.next('');
@@ -3316,13 +3316,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // this.explanationTextService.resetExplanationText();
     this.showExplanationChange.emit(false);
   
-    // 🔁 Reset selection state and feedback
+    // Reset selection state and feedback
     this.selectionMessageService.resetMessage();
     // this.selectedOptionService.setAnswered(false);
     this.showFeedbackForOption = {};      // ✅ NEW
     this.isFeedbackApplied = false;       // ✅ NEW
   
-    // ⏳ Small delay to ensure reset completes
+    // Small delay to ensure reset completes
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   
