@@ -2712,22 +2712,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayStateSubject.next({ mode, answered });
   }
 
-  private handleInitialSelection(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): void {
-    if (this.forceQuestionDisplay) {
-      this.isAnswered = true;
-      this.forceQuestionDisplay = false;
-      this.displayState.answered = true;
-      this.displayState.mode = 'explanation';
-      console.log(
-        `[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`
-      );
-    }
-  }
-
   private toggleOptionState(option: SelectedOption, index: number): void {
     if (
       !option ||
