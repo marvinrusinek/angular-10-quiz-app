@@ -3174,11 +3174,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): void {
-    console.log('processCurrentQuestionState started', {
-      currentQuestion,
-      option,
-      index,
-    });
     this.processCurrentQuestion(currentQuestion);
     this.handleOptionSelection(option, index, currentQuestion);
 
