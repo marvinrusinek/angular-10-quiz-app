@@ -2277,19 +2277,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // ====================== Helper Functions ======================
-
-  // Validates the option and returns false if early return is needed.
-  private validateOption(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): boolean {
-    const option = event.option;
-    // Exit early if option or optionId is invalid
-    if (!option || option.optionId == null) return false;
-    return true;
-  }
-
   private async handleMultipleAnswerTimerLogic(option: Option): Promise<void> {
     this.showFeedback = true; // Enable feedback display
 
