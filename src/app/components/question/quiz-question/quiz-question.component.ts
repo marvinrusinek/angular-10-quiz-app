@@ -1416,12 +1416,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     this.startLoading();
-    
+    this.isLoading = true;
+
     const lockedIndex = this.currentQuestionIndex;
   
     try {
-      this.isLoading = true;
-      this.quizStateService.setLoading(true);
       this.selectedOptionId = null;
   
       // Reset all relevant UI and quiz state
