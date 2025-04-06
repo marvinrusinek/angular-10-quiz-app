@@ -429,13 +429,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure questions are loaded
       if (!Array.isArray(this.questions) || this.questions.length === 0) {
         console.warn('Questions not loaded, calling loadQuizData...');
-        await this.loadQuizData(); // Ensure loading before proceeding
+        await this.loadQuizData(); // ensure loading before proceeding
       }
 
       const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
 
       if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
-        this.updateQuestionDisplay(currentIndex); // Ensure question state is restored
+        this.updateQuestionDisplay(currentIndex); // ensure question state is restored
       } else {
         console.warn('Invalid or out-of-range question index on visibility change.');
       }
@@ -495,7 +495,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           feedback: feedbackMessage
         }));
 
-        // Set values **ONLY AFTER ensuring correct mapping**
+        // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
         
         this.questionData = data.question ?? ({} as QuizQuestion);
