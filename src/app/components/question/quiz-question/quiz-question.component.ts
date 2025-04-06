@@ -1851,15 +1851,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         .subscribe({
           next: (questions: QuizQuestion[]) => {
             if (questions && questions.length > 0) {
-              // ✅ Only set answered state if selectedOptions is not null or empty
+              // Only set answered state if selectedOptions is not null or empty
               const selectedOptions = this.selectedOptionService.getSelectedOptions();
               const hasAnswered = Array.isArray(selectedOptions) && selectedOptions.length > 0;
           
               if (hasAnswered) {
                 this.selectedOptionService.setAnsweredState(true);
-                console.log('[✅ QQC] Answered state restored as TRUE for selected options');
+                console.log('Answered state restored as true for selected options');
               } else {
-                console.log('[⚠️ QQC] Skipping setAnsweredState(false) to avoid overwrite');
+                console.log('Skipping setAnsweredState(false) to avoid overwrite');
               }
             }
           },          
