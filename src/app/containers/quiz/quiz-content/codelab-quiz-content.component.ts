@@ -606,23 +606,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       error: err => console.error('Error combining current quiz and options:', err)
     });
 
-    currentQuizAndOptions$.subscribe(v =>
-      console.log('[🔍 currentQuizAndOptions$]', v)
-    );
-    
-    this.numberOfCorrectAnswers$.subscribe(v =>
-      console.log('[🔍 numberOfCorrectAnswers$]', v)
-    );
-    
-    this.isExplanationTextDisplayed$.subscribe(v =>
-      console.log('[🔍 isExplanationTextDisplayed$]', v)
-    );
-    
-    this.formattedExplanation$.subscribe(v =>
-      console.log('[🔍 formattedExplanation$]', v)
-    );
-    
-
     this.explanationTextService
       .getFormattedExplanation(questionIndex)
       .pipe(
