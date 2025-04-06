@@ -3175,15 +3175,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.explanationToDisplay =
             explanationText ?? 'No explanation available';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          this.cdRef.markForCheck(); // Ensure UI reflects changes
+          this.cdRef.markForCheck(); // ensure UI reflects changes
         } catch (error) {
           console.error('Error fetching explanation:', error);
           this.explanationToDisplay = 'Error loading explanation.';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
         }
-      }, 50); // Slight delay to avoid flicker
+      }, 50); // slight delay to avoid flicker
     } else {
-      this.resetQuestionStateBeforeNavigation(); // Clear explanation when not displaying
+      this.resetQuestionStateBeforeNavigation(); // clear explanation when not displaying
     }
   }
 
