@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, delay, distinctUntilChanged, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -21,7 +21,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy, AfterViewChecked {
+export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
@@ -446,33 +446,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.initializeSubscriptions();
     this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.explanationToDisplay) {
-      const newVal = changes.explanationToDisplay.currentValue;
-      console.log('[📩 explanationToDisplay received]', newVal);
-    }
-  
-    if (changes.displayState$ || changes.explanationToDisplay || changes.questionToDisplay) {
-      this.combinedText$ = this.displayState$.pipe(
-        map(state => {
-          const explanation = this.explanationToDisplay?.trim() ?? '';
-          const question = this.questionToDisplay?.trim() ?? '';
-  
-          console.log('[🧪 combinedText$ - ngOnChanges]', {
-            mode: state.mode,
-            question,
-            explanation
-          });
-  
-          return state.mode === 'explanation'
-            ? (explanation || 'No explanation available')
-            : (question || 'No question available');
-        }),
-        distinctUntilChanged()
-      );
-    }
   }
 
   ngAfterViewChecked(): void {
