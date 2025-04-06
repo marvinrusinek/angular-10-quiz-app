@@ -259,14 +259,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         error: (error) => console.error('Error in isContentAvailable$:', error),
       });
   }
-
-  /* private async waitForContentAvailable(): Promise<void> {
-    while (!this.isContentAvailable || !this.quizComponentData) {
-      console.warn('Content not available yet. Waiting...');
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    console.log('Content is now available.');
-  } */
   
   private setupDisplayStateSubscription(): void {
     combineLatest([
