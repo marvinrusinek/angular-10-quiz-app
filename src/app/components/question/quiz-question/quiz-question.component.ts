@@ -2644,21 +2644,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .isMultipleAnswerQuestion(this.currentQuestion)
       .subscribe({
         next: (isMultipleAnswer) => {
-          console.log('Multiple answer question detected:', isMultipleAnswer);
-
           // Set the selected option in the service
           this.selectedOptionService.setSelectedOption(option);
 
           // Ensure fallback values for option properties if necessary
           const optionId = option.optionId ?? -1;
           const optionText = option.text || 'none';
-
-          console.log('Selecting option:', {
-            optionId,
-            questionIndex: this.currentQuestionIndex,
-            text: optionText,
-            isMultiSelect: isMultipleAnswer,
-          });
 
           // Safely select the option with validated data
           this.selectedOptionService.selectOption(
