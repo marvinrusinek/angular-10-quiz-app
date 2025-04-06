@@ -3420,7 +3420,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     this.resetQuizState();
   
-    // ✅ ACTUALLY stop the timer (you were referencing the method)
+    // Stop the timer
     this.timerService.stopTimer();
   
     // Reset internal index
@@ -3432,7 +3432,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Wait for navigation + component render
       setTimeout(async () => {
         try {
-          // ✅ Reset child component state
+          // Reset child component state
           if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
   
@@ -3443,24 +3443,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
           }
   
-          // ✅ Reset UI
+          // Reset UI
           this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
   
-          // ✅ Update badge
+          // Update badge
           this.quizService.updateBadgeText(1, this.totalQuestions);
   
-          // ✅ Reset explanation state
+          // Reset explanation state
           this.explanationTextService.resetExplanationText();
           this.explanationTextService.setShouldDisplayExplanation(false);
   
-          // ⏳ WAIT FOR view + child render
+          // Wait for view and child render
           setTimeout(async () => {
-            // ✅ Fetch explanation after view is ready
+            // Fetch explanation after view is ready
             await this.quizQuestionComponent?.updateExplanationText(0);
   
-            // ✅ Wait until explanation actually emits
+            // Wait until explanation actually emits
             await firstValueFrom(
               this.explanationTextService.formattedExplanation$.pipe(
                 filter((text) => !!text?.trim()),
@@ -3468,16 +3468,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               )
             );
   
-            // ✅ Now allow it to display
+            // Now allow it to display
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.triggerExplanationEvaluation();
   
-            // ✅ START timer (after everything's displayed)
+            // Start timer after everything's displayed
             this.timerService.startTimer(this.timerService.timePerQuestion);
             console.log('[QuizComponent] ✅ Timer restarted after quiz reset.');
   
-          }, 100); // 👈 this delay ensures explanation DOM + logic settle
-  
+          }, 100); // this delay ensures explanation DOM + logic settle
         } catch (error) {
           console.error('❌ Error restarting quiz:', error);
         }
@@ -3486,13 +3485,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private resetQuizState(): void {
-    console.log('[resetQuizState] 🔄 Resetting quiz state...');
-
     // Stop the timer when resetting quiz state
     if (this.timerService.isTimerRunning) {
-        console.log('[resetQuizState] ⏹ Stopping timer...');
-        this.timerService.stopTimer();
-        this.timerService.isTimerRunning = false;
+      console.log('[resetQuizState] ⏹ Stopping timer...');
+      this.timerService.stopTimer();
+      this.timerService.isTimerRunning = false;
     }
 
     // Reset all quiz-related services
@@ -3501,8 +3498,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.clearSelectedOptions();
     this.selectionMessageService.resetMessage();
     
-    // ❌ FULL reset of explanation stream and state
-    // this.explanationTextService.updateFormattedExplanation('');
+    // Full reset of explanation stream and state
     this.explanationTextService.resetExplanationText();
     this.explanationTextService.setIsExplanationTextDisplayed(false);
     this.explanationTextService.setShouldDisplayExplanation(false);
