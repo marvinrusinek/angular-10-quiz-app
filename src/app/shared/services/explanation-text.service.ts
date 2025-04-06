@@ -212,10 +212,6 @@ export class ExplanationTextService {
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formatted = this.formatExplanation(question, correctOptionIndices, raw);
   
-    console.log(`[🧪 formatExplanationText] Called for Q${index}:`, question.questionText);
-    console.log(`[🧪 Raw explanation Q${index}]:`, raw);
-    console.log(`[✅ Formatted explanation Q${index}]:`, formatted);
-  
     return of({ questionIndex: index, explanation: formatted });
   }
 
