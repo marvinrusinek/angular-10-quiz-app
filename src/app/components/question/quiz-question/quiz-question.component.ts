@@ -3035,17 +3035,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await this.handleCorrectnessAndTimer();
   }
 
-  private handleError(error: Error): void {
-    console.error(
-      'An error occurred while processing the option click:',
-      error
-    );
-  }
-
-  private finalizeLoadingState(): void {
-    this.quizStateService.setLoading(false); // Loading state reset in finally block of onOptionClicked()
-  }
-
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
     this.showFeedbackForOption = {}; // Reset the feedback object
@@ -3071,13 +3060,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOption = null;
     this.isOptionSelected = false;
     this.explanationToDisplayChange.emit('');
-    // this.explanationTextService.explanationText$.next('');
     this.showExplanationChange.emit(false);
     this.selectedOptionService.clearOptions();
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.setOptionSelected(false);
-    // this.selectedOptionService.setAnswered(false); 
-    // this.selectedOptionService.resetAnsweredState();
     this.selectionMessage = 'Please select an option to continue...';
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageService.resetMessage();
