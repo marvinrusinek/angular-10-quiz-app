@@ -2187,10 +2187,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Allow UI to render explanation
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.triggerExplanationEvaluation();
-  
+
+      // Core selection processing
+      await this.processSelectedOption(option, event.index, event.checked);
+
       // Finalize state and mark UI
+      if (!isMultipleAnswer) {
+        await this.finalizeSelection(option, event.index);
+      }
+
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
+      this.emitOptionSelected(option, event.index);
       await this.handleCorrectnessOutcome(true);
   
       setTimeout(() => this.cdRef.markForCheck());
@@ -2742,6 +2750,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  // ⚠️ Currently unused — keep for potential edge case handling in future
   private handleMultipleAnswerQuestion(option: SelectedOption): void {
     this.quizQuestionManagerService
       .isMultipleAnswerQuestion(this.currentQuestion)
@@ -2755,13 +2764,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Ensure fallback values for option properties if necessary
           const optionId = option.optionId ?? -1;
           const optionText = option.text || 'none';
-
-          console.log('Selecting option:', {
-            optionId,
-            questionIndex: this.currentQuestionIndex,
-            text: optionText,
-            isMultiSelect: isMultipleAnswer,
-          });
 
           // Safely select the option with validated data
           this.selectedOptionService.selectOption(
