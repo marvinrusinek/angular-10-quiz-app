@@ -2350,15 +2350,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.optionsToDisplay = this.currentQuestion.options.map(
           (option, index) => ({
             ...option,
-            optionId: option.optionId ?? index, // Ensure optionId is properly assigned
-            correct: option.correct ?? false, // Ensure `correct` property exists
+            optionId: option.optionId ?? index, // ensure optionId is properly assigned
+            correct: option.correct ?? false // ensure `correct` property exists
           })
         );
 
         // Reset feedback state when repopulating options
         this.isFeedbackApplied = false;
 
-        return this.optionsToDisplay; // ✅ Return the updated options
+        return this.optionsToDisplay; // return the updated options
       } else {
         console.error(
           '[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Returning empty array.'
@@ -2367,7 +2367,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     }
 
-    return this.optionsToDisplay; // ✅ Return existing options if already populated
+    return this.optionsToDisplay; // return existing options if already populated
   }
 
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
