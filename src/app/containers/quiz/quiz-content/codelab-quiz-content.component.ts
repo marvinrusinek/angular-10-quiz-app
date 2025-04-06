@@ -426,7 +426,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       );
   
       this.initializeCurrentQuestionIndex();
-      this.subscribeToCurrentQuestion();
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
@@ -464,31 +463,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
   }
 
-  private subscribeToCurrentQuestion(): void {
-    this.currentQuestionSubscription = this.quizStateService.currentQuestion$
-      .pipe(
-        mergeMap(async (question: QuizQuestion) => {
-          if (question) {
-            await this.processCurrentQuestion(question);
-          }
-        })
-      )
-      .subscribe();
-  }
-
-  private processCurrentQuestion(question: QuizQuestion): void {
-    // Determine if correct answers count should be displayed
-    this.handleCorrectAnswersDisplay(question);
-  }
-
   // Function to handle the display of correct answers
   private handleCorrectAnswersDisplay(question: QuizQuestion): void {
     const isMultipleAnswer$ = this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        map(value => value ?? false), // default to `false` if value is `undefined`
         distinctUntilChanged()
     );
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        map(value => value ?? false), // default to `false` if value is `undefined`
         distinctUntilChanged()
     );
 
