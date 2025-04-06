@@ -4439,8 +4439,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return explanationText;
   } */
   async updateExplanationText(index: number): Promise<string> {
-    console.log(`[⚙️ updateExplanationText] index: ${index}, currentIndex: ${this.currentQuestionIndex}`);
-
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
@@ -4457,7 +4455,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizStateService.setQuestionState(this.quizId, index, qState);
     }
   
-    console.log(`[✅ updateExplanationText] Calling setExplanationText:`, explanationText);
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
