@@ -2977,13 +2977,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateFeedback(option: SelectedOption): void {
     this.updateFeedbackForOption(option);
 
-    console.log(
-      'onOptionClicked - showFeedbackForOption:',
-      this.showFeedbackForOption
-    );
-
     if (!option.correct) {
-      console.log('Incorrect option selected.');
+      // Incorrect option selected
       for (const opt of this.optionsToDisplay) {
         if (opt.correct) {
           this.showFeedbackForOption[opt.optionId] = true;
