@@ -2144,7 +2144,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }): Promise<void> {
     if (!event?.option) return;
 
-    const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion);
+    const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
 
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
 
