@@ -950,44 +950,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       let questionIndex = +params.get('questionIndex');
-      console.log(`🔄 [handleRouteChanges] Route param received: ${questionIndex}`);
   
-      // ✅ Ensure a valid number from the URL (fallback to 0)
+      // Ensure a valid number from the URL (fallback to 0)
       if (isNaN(questionIndex) || questionIndex < 0) {
         console.warn(`⚠️ [handleRouteChanges] Invalid index from route: ${questionIndex}. Defaulting to 0.`);
         questionIndex = 0;
       }
   
       try {
-        // ✅ Try loading the question (also populates questionsArray if needed)
-        const loaded = await this.loadQuestion(questionIndex);
+        // Try loading the question (also populates questionsArray if needed)
+        const loaded = await this.loadQuestion();
   
         if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
           console.error('[handleRouteChanges] Failed to load question or invalid index.');
           return;
         }
   
-        // ✅ Set current index and current question
+        // Set current index and current question
         this.currentQuestionIndex = questionIndex;
         this.currentQuestion = this.questionsArray[questionIndex];
   
-        console.log(`✅ [handleRouteChanges] Loaded Q${questionIndex}:`, this.currentQuestion.questionText);
-  
-        // ✅ Set up options
+        // Set up options
         this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
           ...option,
           active: true,
           feedback: undefined,
-          showIcon: false,
+          showIcon: false
         }));
   
-        console.log(`✅ [handleRouteChanges] Options for Q${questionIndex}:`, this.optionsToDisplay);
-  
-        // ✅ Check if answered and show explanation if needed
+        // Check if answered and show explanation if needed
         const isAnswered = await this.isQuestionAnswered(questionIndex);
         if (isAnswered) {
-          console.log(`✅ [handleRouteChanges] Q${questionIndex} is answered. Loading explanation...`);
-  
           await this.fetchAndUpdateExplanationText(questionIndex);
   
           if (this.shouldDisplayExplanation) {
