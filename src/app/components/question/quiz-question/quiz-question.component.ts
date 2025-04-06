@@ -271,9 +271,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       (window as any).applyFeedback = () =>
         this.applyOptionFeedbackToAllOptions();
 
-      // Initialize necessary subscriptions and data to manage display mode
-      this.initializeDisplaySubscriptions();
-
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
 
@@ -1118,7 +1115,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const localCorrectOptions = localOptionsToDisplay.filter(
       (option) => option.correct
     );
-
     if (localCorrectOptions.length === 0) {
       console.warn(
         `[applyOptionFeedbackToAllOptions] ❌ No correct options available.`
@@ -1141,7 +1137,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ...option,
       feedback: feedbackMessage,
       showIcon: option.correct || option.selected,
-      highlight: option.selected,
+      highlight: option.selected
     }));
   }
 
@@ -1177,7 +1173,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('Updating question and explanation for index:', index);
 
     // Clear the explanation text to prevent flashing old content
-    // this.explanationTextService.explanationText$.next('');
     this.explanationToDisplayChange.emit(''); // Ensure UI is cleared
 
     // Set the current question and emit its explanation text
@@ -1195,8 +1190,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       correctOptionIndices,
       this.quizId
     );
-
-    console.log('Emitting explanation text:', formattedExplanation);
 
     // Use a short delay to ensure the question renders first
     setTimeout(() => {
@@ -1218,7 +1211,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.resetStateSubscription = this.resetStateService.resetState$.subscribe(
       () => {
-        console.log('Reset state triggered');
         this.resetState();
       }
     );
@@ -1281,13 +1273,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public ensureExplanationTextDisplay(explanationText?: string): void {
-    console.log('[💡 Explanation Render Triggered]', {
-      displayMode: this.displayMode$.getValue(),
-      shouldDisplayExplanation: this.shouldDisplayExplanation,
-      isAnswered: this.isAnswered,
-      explanationToDisplay: this.explanationToDisplay
-    });
-    
     if (this.displayMode$.value !== 'explanation' || !this.isAnswered) {
       console.log(
         'Blocked: Attempted to show explanation in incorrect mode or when not answered.'
@@ -1301,48 +1286,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           explanationText || 'Explanation unavailable';
         this.explanationToDisplayChange.emit(this.explanationToDisplay);
         this.showExplanationChange.emit(true);
-        console.log(
-          'Explanation successfully displayed:',
-          this.explanationToDisplay
-        );
       } else {
-        this.resetExplanation(); // Clears explanation text and updates UI
-        this.shouldDisplayExplanation = false; // Reset flag after display decision
+        this.resetExplanation(); // clears explanation text and updates UI
+        this.shouldDisplayExplanation = false; // reset flag after display decision
       }
     } catch (error) {
       console.error('Error displaying explanation text:', error);
-      this.resetExplanation(); // Reset explanation on error
+      this.resetExplanation(); // reset explanation on error
     }
-  }
-
-  private initializeDisplaySubscriptions(): void {
-    // Ensures displayMode$ correctly sets mode based on `isAnswered`
-    const displayModeObservable = this.quizService
-      .isAnswered(this.currentQuestionIndex)
-      .pipe(
-        map((isAnswered) => (isAnswered ? 'explanation' : 'question')),
-        distinctUntilChanged(),
-        tap((mode) => console.log(`Setting display mode to: ${mode}`)),
-        catchError((error) => {
-          console.error('Error fetching display mode:', error);
-          return of('question'); // Default to "question" if an error occurs
-        })
-      );
-
-    this.displayModeSubscription = displayModeObservable.subscribe(
-      (mode: 'question' | 'explanation') => {
-        // Using the `next` method of BehaviorSubject to emit new display mode
-        // this.displayMode$.next(mode);
-
-        // Update display based on current mode
-        /* if (mode === 'question') {
-          this.ensureQuestionTextDisplay();
-        } else if (mode === 'explanation') {
-          this.ensureExplanationTextDisplay();
-        } */
-        console.log('[initializeDisplaySubscriptions] Skipped early display mode update:', mode);
-      }
-    );
   }
 
   private async initializeComponent(): Promise<void> {
