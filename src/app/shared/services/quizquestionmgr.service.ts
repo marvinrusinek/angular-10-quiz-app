@@ -12,7 +12,6 @@ export class QuizQuestionManagerService {
   explanationText: string;
   shouldDisplayNumberOfCorrectAnswers = false;
   shouldDisplayExplanation = false;
-  correctAnswersCount = 0; // not currently being used
   selectedOption: Option | null = null;
 
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
@@ -46,8 +45,8 @@ export class QuizQuestionManagerService {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     // this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
-    // this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleAnswerQuestion(question);
 
+    // this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleAnswerQuestion(question);
     this.shouldDisplayNumberOfCorrectAnswers$ = combineLatest([
       this.shouldDisplayExplanation$, // Observable<boolean>
       this.currentQuestion$            // Observable<Question>
