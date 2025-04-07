@@ -2373,6 +2373,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation();
       this.showExplanation = true;
     } else if (shouldDisableExplanation) {
       this.explanationToDisplay = '';
