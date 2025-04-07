@@ -2051,6 +2051,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Allow UI to render explanation
       this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation();
       this.explanationTextService.triggerExplanationEvaluation();
   
       // Finalize state and mark UI
