@@ -5,10 +5,10 @@ import { BehaviorSubject } from 'rxjs';
 export class ProgressBarService {
   // Use BehaviorSubject to store progress value
   private progressPercentageSubject = new BehaviorSubject<number>(0);
-  progress$ = this.progressPercentageSubject.asObservable(); // Expose it as an Observable
+  progress$ = this.progressPercentageSubject.asObservable();
 
   // Method to update the progress
   setProgress(progress: number): void {
-    this.progressPercentageSubject.next(progress); // Emit the new progress value
+    this.progressPercentageSubject.next(progress); // emit the new progress value
   }
 }
