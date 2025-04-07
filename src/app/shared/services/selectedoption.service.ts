@@ -47,9 +47,8 @@ export class SelectedOptionService {
 
   constructor(
     private ngZone: NgZone
-  ) {
-    
-  }
+  ) {}
+  
   setQuestionText(text: string): void {
     const trimmed = (text ?? '').trim();
   
