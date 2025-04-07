@@ -2072,9 +2072,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
   
-      // Fetch and prepare explanation
-      const explanation = await this.updateExplanationText(lockedIndex);
-      
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Wait until a non-empty explanation is emitted
@@ -3219,10 +3216,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   async updateExplanationText(index: number): Promise<string> {
+    console.log('[updateExplanationText] CALLED for index:', index);
+
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    console.log('Current question state:', qState);
   
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
       console.warn(`[⏹️ Skipping re-display for Q${index}]`);
