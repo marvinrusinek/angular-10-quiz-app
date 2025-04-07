@@ -3175,6 +3175,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.explanationText$.next('');
     this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.unlockExplanation();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.showExplanationChange.emit(false);
   
@@ -3210,6 +3211,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.lockExplanation();
   
     return explanationText;
   }
@@ -3320,7 +3322,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
 
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
-    this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
+    }
   }
 
   private async waitForQuestionData(): Promise<void> {
@@ -3472,6 +3476,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const explanationText = await this.getExplanationText(questionIndex);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationTextService.lockExplanation();
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
       } catch (error) {
@@ -3481,7 +3486,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     } else {
       // If not answered, clear the explanation text and set the display flag to false
-      this.explanationTextService.setShouldDisplayExplanation(false);
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setShouldDisplayExplanation(false);
+      }
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
     }
@@ -3817,6 +3824,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplay = explanationText;
       this.explanationTextService.updateFormattedExplanation(explanationText);
       this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation();
       this.explanationToDisplayChange.emit(explanationText);
       this.showExplanationChange.emit(true);
       this.displayExplanation = true;
@@ -3838,10 +3846,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange.emit(true);
     } finally {
       // Ensure these flags are always set, even if an error occurs
-      this.explanationTextService.setShouldDisplayExplanation(true);
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationTextService.lockExplanation();
+      }      
       this.displayExplanation = true;
     }
-  }  
+  }
 
   // Helper method to clear explanation
   resetExplanation(): void {
