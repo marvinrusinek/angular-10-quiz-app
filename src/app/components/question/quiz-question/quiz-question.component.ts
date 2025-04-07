@@ -3125,24 +3125,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private async updateExplanationDisplay(
-    shouldDisplay: boolean
-  ): Promise<void> {
-    this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+  private async updateExplanationDisplay(shouldDisplay: boolean): Promise<void> {
+    if (shouldDisplay) {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation(); // prevent later overrides
+    } else {
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setShouldDisplayExplanation(false);
+      } else {
+        console.warn('[🛡️ Blocked display reset — explanation is locked]');
+      }
+    }
+  
     this.showExplanationChange.emit(shouldDisplay);
     this.displayExplanation = shouldDisplay;
-
+  
     if (shouldDisplay) {
       // Introduce a delay to avoid flickering
       setTimeout(async () => {
         try {
           const explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(
-              this.currentQuestionIndex
-            )
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
           );
-          this.explanationToDisplay =
-            explanationText ?? 'No explanation available';
+          this.explanationToDisplay = explanationText ?? 'No explanation available';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
           this.cdRef.markForCheck(); // ensure UI reflects changes
         } catch (error) {
