@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { combineLatest, map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -18,6 +19,8 @@ export class QuizQuestionManagerService {
     new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
+
+  shouldDisplayNumberOfCorrectAnswers$: Observable<boolean>;
 
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
@@ -43,7 +46,16 @@ export class QuizQuestionManagerService {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     // this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
-    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleAnswerQuestion(question);
+    // this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleAnswerQuestion(question);
+
+    this.shouldDisplayNumberOfCorrectAnswers$ = combineLatest([
+      this.shouldDisplayExplanation$, // Observable<boolean>
+      this.currentQuestion$            // Observable<Question>
+    ]).pipe(
+      map(([shouldExplain, question]) => {
+        return !shouldExplain && this.isMultipleAnswerQuestion(question);
+      })
+    );
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
