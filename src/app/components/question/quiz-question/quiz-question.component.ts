@@ -836,14 +836,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       try {
-        // Try loading the question (also populates questionsArray)
+        // ✅ Set the correct current question index BEFORE loading
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+        // ✅ This now loads the right question and explanation
         const loaded = await this.loadQuestion();
   
         if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
           console.error('[handleRouteChanges] Failed to load question or invalid index.');
           return;
         }
-
+  
         this.resetForm(); // clear stale form state
   
         // Set current index and current question
@@ -1321,6 +1324,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       this.selectedOptionId = null;
       const lockedIndex = this.currentQuestionIndex;
+
+      console.log('[loadQuestion] currentQuestionIndex:', this.currentQuestionIndex);
+      console.log('[loadQuestion] calling updateExplanationText with lockedIndex =', lockedIndex);
   
       // Reset all relevant UI and quiz state
       this.resetQuestionStateBeforeNavigation();
@@ -2024,6 +2030,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log('[onOptionClicked] event.option:', event.option);
+    console.log('[onOptionClicked] currentQuestionIndex:', this.currentQuestionIndex);
+    console.log('[onOptionClicked] lockedIndex:', this.fixedQuestionIndex ?? this.currentQuestionIndex);
+
     const option = event.option;
     if (!option) return;
 
@@ -3217,7 +3227,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   async updateExplanationText(index: number): Promise<string> {
-    console.log('[updateExplanationText] CALLED for index:', index);
+    console.log('[updateExplanationText] CALLED with index:', index);
 
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
