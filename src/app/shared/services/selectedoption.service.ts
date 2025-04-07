@@ -24,6 +24,9 @@ export class SelectedOptionService {
   isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
 
+  private questionTextSubject = new BehaviorSubject<string>('');
+  questionText$ = this.questionTextSubject.asObservable();
+
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
 
@@ -33,9 +36,6 @@ export class SelectedOptionService {
   stopTimerEmitted = false;
 
   currentQuestionType: QuestionType | null = null;
-
-  private questionTextSubject = new BehaviorSubject<string>('');
-  questionText$ = this.questionTextSubject.asObservable();
 
   set isNextButtonEnabled(value: boolean) {
     this.isNextButtonEnabledSubject.next(value);
@@ -48,7 +48,7 @@ export class SelectedOptionService {
   constructor(
     private ngZone: NgZone
   ) {}
-  
+
   setQuestionText(text: string): void {
     const trimmed = (text ?? '').trim();
   
