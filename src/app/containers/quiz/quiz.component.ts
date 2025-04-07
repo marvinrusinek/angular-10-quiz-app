@@ -2377,7 +2377,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.showExplanation = true;
     } else if (shouldDisableExplanation) {
       this.explanationToDisplay = '';
-      this.explanationTextService.setShouldDisplayExplanation(false);
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setShouldDisplayExplanation(false);
+      }
       this.showExplanation = false;
     }
   
@@ -3289,6 +3291,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           // Reset explanation state
           this.explanationTextService.resetExplanationText();
+          this.explanationTextService.unlockExplanation();
           this.explanationTextService.setShouldDisplayExplanation(false);
   
           // Delay to ensure view + component fully initialize before updating explanation
@@ -3305,6 +3308,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             // Now allow explanation to display
             this.explanationTextService.setShouldDisplayExplanation(true);
+            this.explanationTextService.lockExplanation();
             this.explanationTextService.triggerExplanationEvaluation();
   
             // Start timer only after UI + logic settle
@@ -3321,48 +3325,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  private resetQuizState(): void {
-    // Stop the timer when resetting quiz state
-    if (this.timerService.isTimerRunning) {
-      console.log('[resetQuizState] ⏹ Stopping timer...');
-      this.timerService.stopTimer();
-      this.timerService.isTimerRunning = false;
-    }
-
-    // Reset all quiz-related services
-    this.quizService.resetAll();
-    this.quizStateService.createDefaultQuestionState();
-    this.quizStateService.clearSelectedOptions();
-    this.selectionMessageService.resetMessage();
-    
-    // Full reset of explanation stream and state
-    this.explanationTextService.resetExplanationText();
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.triggerExplanationEvaluation();
-
-    // Trigger resets in state management services
-    this.resetStateService.triggerResetFeedback();
-    this.resetStateService.triggerResetState();
-
-    // Reset UI-related states
-    this.currentQuestionIndex = 0;
-    this.progressPercentage.next(0);
-    this.score = 0;
-
-    // Ensure timer resets when quiz state resets
-    console.log('[resetQuizState] 🔄 Resetting timer to 30 seconds...');
-    this.timerService.resetTimer();
-
-    // Clear any lingering UI state
-    this.questionToDisplay = '';
-    this.optionsToDisplay = [];
-    this.explanationToDisplay = '';
-
-    // Force UI update
-    this.cdRef.detectChanges();
-  }
-
+  
+  
   async setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     try {
       const explanationObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
@@ -3372,6 +3336,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (explanation) {
         this.explanationTextService.setExplanationText(explanation);
         this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationTextService.lockExplanation();
       } else {
         console.warn('No explanation available for the first question');
         throw new Error('No explanation available');

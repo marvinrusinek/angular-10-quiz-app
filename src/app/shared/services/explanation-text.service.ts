@@ -68,6 +68,10 @@ export class ExplanationTextService {
     this.explanationLocked = false;
   }
 
+  public isExplanationLocked(): boolean {
+    return this.explanationLocked;
+  }  
+
   /* public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
     console.warn('[setExplanationText] Incoming =', explanation, '| Trimmed =', trimmed);
