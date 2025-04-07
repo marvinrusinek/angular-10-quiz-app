@@ -9,20 +9,17 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizQuestionManagerService {
   currentQuestion$: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
-  explanationText: string;
-  shouldDisplayNumberOfCorrectAnswers = false;
-  // shouldDisplayExplanation = false;
 
   private shouldDisplayExplanationSubject = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSubject.asObservable();
 
-  selectedOption: Option | null = null;
-
-  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
 
+  selectedOption: Option | null = null;
+  explanationText: string;
+  shouldDisplayNumberOfCorrectAnswers = false;
   shouldDisplayNumberOfCorrectAnswers$: Observable<boolean>;
 
   setExplanationText(explanation: string): void {
