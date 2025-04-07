@@ -58,15 +58,43 @@ export class ExplanationTextService {
     return question.explanation || 'No explanation available';
   }
 
-  public setExplanationText(explanation: string | null): void {
-    const trimmed = (explanation ?? '').trim();
+  private explanationLocked = false;
 
+  public lockExplanation(): void {
+    this.explanationLocked = true;
+  }
+
+  public unlockExplanation(): void {
+    this.explanationLocked = false;
+  }
+
+  /* public setExplanationText(explanation: string | null): void {
+    const trimmed = (explanation ?? '').trim();
+    console.warn('[setExplanationText] Incoming =', explanation, '| Trimmed =', trimmed);
+  
     if (trimmed === this.latestExplanation) {
       console.log('[🛡️ Prevented duplicate emit]');
       return;
     }
   
     this.latestExplanation = trimmed;
+    console.warn('[setExplanationText] Emitting new explanation:', trimmed);
+    this.explanationText$.next(trimmed);
+  } */
+  public setExplanationText(explanation: string | null): void {
+    const trimmed = (explanation ?? '').trim();
+    if (this.explanationLocked && trimmed === '') {
+      console.warn('[🛡️ Blocked reset: explanation is locked]');
+      return;
+    }
+  
+    if (trimmed === this.latestExplanation) {
+      console.log('[🛡️ Prevented duplicate emit]');
+      return;
+    }
+  
+    this.latestExplanation = trimmed;
+    console.warn('[setExplanationText] Emitting new explanation:', trimmed);
     this.explanationText$.next(trimmed);
   }
 
@@ -302,7 +330,7 @@ export class ExplanationTextService {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
-  setShouldDisplayExplanation(shouldDisplay: boolean): void {
+  /* setShouldDisplayExplanation(shouldDisplay: boolean): void {
     console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
     console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
   
@@ -312,7 +340,23 @@ export class ExplanationTextService {
     } else {
       console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
     }
+  } */
+  setShouldDisplayExplanation(shouldDisplay: boolean): void {
+    console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
+  
+    if (!shouldDisplay) {
+      console.trace('[🛑 Explanation HIDE triggered]');
+    }
+  
+    const current = this.shouldDisplayExplanationSource.getValue();
+    if (current !== shouldDisplay) {
+      console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
+      this.shouldDisplayExplanationSource.next(shouldDisplay);
+    } else {
+      console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
+    }
   }
+  
   
   triggerExplanationEvaluation(): void {
     const currentExplanation = this.formattedExplanationSubject.getValue();
