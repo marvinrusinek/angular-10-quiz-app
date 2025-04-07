@@ -137,7 +137,7 @@ export class QuizStateService {
     }
   
     let state = this.quizStates[quizId].get(questionId) ?? this.createDefaultQuestionState();
-    this.quizStates[quizId].set(questionId, state); // Store the default state in the quiz's state map
+    this.quizStates[quizId].set(questionId, state); // store the default state in the quiz's state map
   
     return state;
   }
@@ -341,7 +341,7 @@ export class QuizStateService {
   }
 
   resetDisplayLock(): void {
-    this.displayExplanationLocked = false; // Reset for new questions
+    this.displayExplanationLocked = false; // reset for new questions
   }
 
   startLoading(): void {
