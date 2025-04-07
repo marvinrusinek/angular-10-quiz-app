@@ -341,7 +341,7 @@ export class ExplanationTextService {
       console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
     }
   } */
-  setShouldDisplayExplanation(shouldDisplay: boolean): void {
+  /* setShouldDisplayExplanation(shouldDisplay: boolean): void {
     console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
   
     if (!shouldDisplay) {
@@ -355,8 +355,21 @@ export class ExplanationTextService {
     } else {
       console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
     }
-  }
+  } */
+  setShouldDisplayExplanation(shouldDisplay: boolean): void {
+    const current = this.shouldDisplayExplanationSource.getValue();
   
+    if (current === shouldDisplay) {
+      console.log('[⏸️ No change in shouldDisplayExplanation]');
+      return;
+    }
+  
+    const label = shouldDisplay ? '🟢 SHOW' : '🔴 HIDE';
+    console.warn(`[${label}] setShouldDisplayExplanation called with:`, shouldDisplay);
+    console.trace(`[${label}] Stack trace`);
+  
+    this.shouldDisplayExplanationSource.next(shouldDisplay);
+  }
   
   triggerExplanationEvaluation(): void {
     const currentExplanation = this.formattedExplanationSubject.getValue();
