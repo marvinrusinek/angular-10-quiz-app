@@ -836,10 +836,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       try {
-        // ✅ Set the correct current question index BEFORE loading
+        // Set the correct current question index BEFORE loading
         this.quizService.setCurrentQuestionIndex(questionIndex);
   
-        // ✅ This now loads the right question and explanation
+        // This now loads the right question and explanation
         const loaded = await this.loadQuestion();
   
         if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
@@ -861,7 +861,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           showIcon: false
         }));
   
-        // Check if answered and show explanation if needed
+        // Check if answered and show explanation
         const isAnswered = await this.isQuestionAnswered(questionIndex);
         if (isAnswered) {
           await this.fetchAndUpdateExplanationText(questionIndex);
