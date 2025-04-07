@@ -839,6 +839,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Set the correct current question index BEFORE loading
         this.quizService.setCurrentQuestionIndex(questionIndex);
   
+        // This now loads the right question and explanation
+        const loaded = await this.loadQuestion();
+  
+        if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
+          console.error('[handleRouteChanges] Failed to load question or invalid index.');
+          return;
+        }
+  
         this.resetForm(); // clear stale form state
   
         // Set current index and current question
@@ -1257,6 +1265,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  // rename
   private async loadInitialQuestionAndMessage(): Promise<void> {
     // Set the initial message after the question is loaded
     this.setInitialMessage();
@@ -1649,10 +1658,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.info('Quiz questions and answers initialized.');
 
     // Ensure the question is fully loaded before setting the message
-    this.loadQuestionAndSetInitialMessage();
+    // this.loadQuestionAndSetInitialMessage(); rename
   }
 
-  // rename to setInitialMessage...
+  // rename
   private loadQuestionAndSetInitialMessage(): void {
     // Set the initial message after the question is fully loaded
     setTimeout(() => {
