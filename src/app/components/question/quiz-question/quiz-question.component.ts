@@ -2027,7 +2027,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const option = event.option;
     if (!option) return;
 
-    const isMultipleAnswer = await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
 
     // Apply selection logic
