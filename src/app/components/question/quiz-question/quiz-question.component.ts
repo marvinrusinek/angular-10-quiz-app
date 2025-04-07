@@ -3867,7 +3867,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the ExplanationTextService with cleared values
     // this.explanationTextService.updateFormattedExplanation('');
     this.explanationTextService.resetExplanationText();
-    this.explanationTextService.setShouldDisplayExplanation(false);
+    
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    } else {
+      console.warn('[🛡️ resetExplanation] Blocked explanation reset — lock is active.');
+    }
   }
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
