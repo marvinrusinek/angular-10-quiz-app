@@ -836,10 +836,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       try {
-        // Set the correct current question index BEFORE loading
+        // Set the correct current question index before loading
         this.quizService.setCurrentQuestionIndex(questionIndex);
   
-        // This now loads the right question and explanation
+        // Now load the correct question
         const loaded = await this.loadQuestion();
   
         if (!loaded || !this.questionsArray || !this.questionsArray[questionIndex]) {
