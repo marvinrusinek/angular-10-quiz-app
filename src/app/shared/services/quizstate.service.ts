@@ -78,11 +78,13 @@ export class QuizStateService {
       console.warn('[⚠️ setQuestionText] Empty or invalid question text received:', text);
       this.questionTextSubject.next('No question available');
     } else {
+      console.log('[✅ setQuestionText] Emitting question text:', trimmed);
       this.questionTextSubject.next(trimmed);
     }
   }
 
   setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
+    console.log('[✅ setDisplayState]', state);
     this.displayStateSubject.next(state);
   }
 
