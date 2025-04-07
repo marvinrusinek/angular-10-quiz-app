@@ -45,12 +45,10 @@ export class QuizQuestionManagerService {
   updateCurrentQuestionDetail(question: QuizQuestion): void {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
-    // this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
 
-    // this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayExplanation && this.isMultipleAnswerQuestion(question);
     this.shouldDisplayNumberOfCorrectAnswers$ = combineLatest([
       this.shouldDisplayExplanation$, // Observable<boolean>
-      this.currentQuestion$            // Observable<Question>
+      this.currentQuestion$ // Observable<Question>
     ]).pipe(
       map(([shouldExplain, question]) => {
         return !shouldExplain && this.isMultipleAnswerQuestion(question);
