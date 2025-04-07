@@ -3248,129 +3248,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.optionsToDisplay = [];
   }
 
-  /* restartQuiz(): void {
-    // Reset quiz-related services and states
+  restartQuiz(): void {
+    // Fully reset internal and service state
     this.resetQuizState();
-  
-    // Stop the timer before restarting
-    this.timerService.stopTimer;
-  
-    // Set the current question index to the first question
-    this.quizService.setCurrentQuestionIndex(0);
-  
-    // Navigate to the first question route
-    this.router.navigate(['/question', this.quizId, 1])
-      .then(() => {
-        // Use setTimeout to allow time for the component to initialize
-        setTimeout(async () => {
-          try {
-            // Ensure the quizQuestionComponent is available
-            if (this.quizQuestionComponent) {
-              // Reset the state in QuizQuestionComponent
-              await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
-  
-              // Load the first question and its options
-              const firstQuestion = this.questions[0];
-              if (firstQuestion) {
-                this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
-              } else {
-                console.error('First question not found during quiz restart.');
-              }
-  
-              // Load dynamic component if necessary
-              this.quizQuestionComponent.loadDynamicComponent();
-            } else {
-              console.error('QuizQuestionComponent not available.');
-            }
-  
-            // Ensure UI reflects the first question properly
-            this.resetUI();
-            this.resetOptionState();
-            this.initializeFirstQuestion();
-  
-            // Update badge text after reset
-            this.quizService.updateBadgeText(1, this.totalQuestions);
-  
-            // Start the timer for the first question
-            this.timerService.startTimer(this.timerService.timePerQuestion);
-            console.log('[QuizComponent] Timer started for new quiz.');
-          } catch (error) {
-            console.error('Error fetching and displaying the first question:', error);
-          }
-        }, 50); // Adjust the timeout duration if necessary
-      })
-      .catch((error) => {
-        console.error('Error during quiz restart:', error);
-      });
-  } */
-  /* restartQuiz(): void {
-    this.resetQuizState();
-  
-    // Always stop timer cleanly
     this.timerService.stopTimer?.();
   
-    // Force sync to first question
+    // Reset current question index
+    this.currentQuestionIndex = 0;
     this.quizService.setCurrentQuestionIndex(0);
   
-    // Navigate to question 1
+    // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
+      // Wait for routing and DOM to settle
       setTimeout(async () => {
         try {
-          // 🔒 Sync state before reloading content
-          this.currentQuestionIndex = 0;
-  
+          // Reset child component state
           if (this.quizQuestionComponent) {
             await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
-  
-            const firstQuestion = this.questions[0];
-            if (firstQuestion) {
-              this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
-              this.quizQuestionComponent.loadDynamicComponent();
-            } else {
-              console.error('First question not found during quiz restart.');
-            }
-          } else {
-            console.warn('QuizQuestionComponent not available yet.');
-          }
-  
-          // 🧼 Reset visual/UI state
-          this.resetUI();
-          this.resetOptionState();
-          this.initializeFirstQuestion();
-  
-          // 🎯 Force index sync after view init
-          this.quizService.setCurrentQuestionIndex(0);
-  
-          // Update badge for Q1
-          this.quizService.updateBadgeText(1, this.totalQuestions);
-  
-          // ⏱️ Start timer again
-          this.timerService.startTimer(this.timerService.timePerQuestion);
-          console.log('[QuizComponent] Timer started for new quiz.');
-        } catch (error) {
-          console.error('Error fetching and displaying the first question:', error);
-        }
-      }, 50);
-    }).catch((error) => {
-      console.error('Error during quiz restart:', error);
-    });
-  } */
-  /* restartQuiz(): void {
-    this.resetQuizState(); // ✅ clears explanation, feedback, UI, timer, state
-  
-    // ⏹ Stop timer
-    this.timerService.stopTimer?.();
-  
-    // Force current index to 0
-    this.quizService.setCurrentQuestionIndex(0);
-    this.currentQuestionIndex = 0;
-  
-    this.router.navigate(['/question', this.quizId, 1]).then(() => {
-      setTimeout(async () => {
-        try {
-          // ✅ Wait until QuizQuestionComponent is ready
-          if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.resetQuestionStateBeforeNavigation(); // 🧼 clears feedback/icons/messages
   
             const firstQuestion = this.questions[0];
             if (firstQuestion) {
@@ -3383,108 +3277,46 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('⚠️ QuizQuestionComponent not yet available.');
           }
   
-          // 🧼 Reset visual/UI state
+          // Reset UI and options
           this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
   
-          // Ensure synced index
+          // Sync index post-render
           this.quizService.setCurrentQuestionIndex(0);
-  
-          // 🔁 Clear and then fetch explanation
-          this.explanationTextService.resetExplanationText();
-          await this.quizQuestionComponent?.updateExplanationText(0);
-  
-          // ✅ Wait until explanation is actually available
-          await firstValueFrom(
-            this.explanationTextService.formattedExplanation$.pipe(
-              filter(text => !!text?.trim()),
-              take(1)
-            )
-          );
-  
-          // ✅ Now allow it to show
-          this.explanationTextService.setShouldDisplayExplanation(true);
-          this.explanationTextService.triggerExplanationEvaluation();
-  
-          // 🎯 Update badge
-          this.quizService.updateBadgeText(1, this.totalQuestions);
-  
-          // ⏱ Start timer again
-          this.timerService.startTimer(this.timerService.timePerQuestion);
-          console.log('[QuizComponent] ✅ Timer started for restarted quiz');
-        } catch (error) {
-          console.error('❌ Error restarting quiz:', error);
-        }
-      }, 50);
-    }).catch((error) => {
-      console.error('❌ Navigation error on restart:', error);
-    });
-  } */
-  restartQuiz(): void {
-    this.resetQuizState();
-  
-    // Stop the timer
-    this.timerService.stopTimer();
-  
-    // Reset internal index
-    this.currentQuestionIndex = 0;
-    this.quizService.setCurrentQuestionIndex(0);
-  
-    // Navigate to Q1
-    this.router.navigate(['/question', this.quizId, 1]).then(() => {
-      // Wait for navigation + component render
-      setTimeout(async () => {
-        try {
-          // Reset child component state
-          if (this.quizQuestionComponent) {
-            await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
-  
-            const firstQuestion = this.questions[0];
-            if (firstQuestion) {
-              this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
-              this.quizQuestionComponent.loadDynamicComponent();
-            }
-          }
-  
-          // Reset UI
-          this.resetUI();
-          this.resetOptionState();
-          this.initializeFirstQuestion();
-  
-          // Update badge
           this.quizService.updateBadgeText(1, this.totalQuestions);
   
           // Reset explanation state
           this.explanationTextService.resetExplanationText();
           this.explanationTextService.setShouldDisplayExplanation(false);
   
-          // Wait for view and child render
+          // Delay to ensure view + component fully initialize before updating explanation
           setTimeout(async () => {
-            // Fetch explanation after view is ready
             await this.quizQuestionComponent?.updateExplanationText(0);
   
-            // Wait until explanation actually emits
+            // Wait until explanation content is actually available
             await firstValueFrom(
               this.explanationTextService.formattedExplanation$.pipe(
-                filter((text) => !!text?.trim()),
+                filter(text => !!text?.trim()),
                 take(1)
               )
             );
   
-            // Now allow it to display
+            // Now allow explanation to display
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.triggerExplanationEvaluation();
   
-            // Start timer after everything's displayed
+            // Start timer only after UI + logic settle
             this.timerService.startTimer(this.timerService.timePerQuestion);
             console.log('[QuizComponent] ✅ Timer restarted after quiz reset.');
   
-          }, 100); // this delay ensures explanation DOM + logic settle
+          }, 100); // delay for explanation logic/DOM to stabilize
         } catch (error) {
           console.error('❌ Error restarting quiz:', error);
         }
-      }, 50); // 👈 slight delay for navigation to settle
+      }, 50); // small delay after navigation
+    }).catch((error) => {
+      console.error('❌ Navigation error on restart:', error);
     });
   }
   
