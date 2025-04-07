@@ -11,7 +11,11 @@ export class QuizQuestionManagerService {
     new BehaviorSubject<QuizQuestion | null>(null);
   explanationText: string;
   shouldDisplayNumberOfCorrectAnswers = false;
-  shouldDisplayExplanation = false;
+  // shouldDisplayExplanation = false;
+
+  private shouldDisplayExplanationSubject = new BehaviorSubject<boolean>(false);
+  shouldDisplayExplanation$ = this.shouldDisplayExplanationSubject.asObservable();
+
   selectedOption: Option | null = null;
 
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
@@ -23,7 +27,7 @@ export class QuizQuestionManagerService {
 
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
-    this.shouldDisplayExplanation = !!explanation;
+    this.shouldDisplayExplanationSubject.next(!!explanation);
   }
 
   getNumberOfCorrectAnswersText(
