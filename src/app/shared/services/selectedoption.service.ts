@@ -34,6 +34,9 @@ export class SelectedOptionService {
 
   currentQuestionType: QuestionType | null = null;
 
+  private questionTextSubject = new BehaviorSubject<string>('');
+  questionText$ = this.questionTextSubject.asObservable();
+
   set isNextButtonEnabled(value: boolean) {
     this.isNextButtonEnabledSubject.next(value);
   }
@@ -45,16 +48,20 @@ export class SelectedOptionService {
   constructor(
     private ngZone: NgZone
   ) {
-    console.log('[🧩 SelectedOptionService] Constructed!');
     
-    this.isAnsweredSubject.subscribe(val => {
-      console.log('[🧩 isAnsweredSubject CHANGE] value =', val);
-      if (val === false) {
-        console.trace('[🧨 isAnsweredSubject was set to FALSE here]');
-      }
-    });
   }
-
+  setQuestionText(text: string): void {
+    const trimmed = (text ?? '').trim();
+  
+    if (!trimmed) {
+      console.warn('[⚠️ setQuestionText] Empty or invalid question text received:', text);
+      this.questionTextSubject.next('No question available');
+    } else {
+      console.log('[✅ setQuestionText] Emitting question text:', trimmed);
+      this.questionTextSubject.next(trimmed);
+    }
+  }
+  
   // potentially remove...
   /* get currentSelectedState(): boolean {
     return this.isOptionSelectedSubject.getValue();
