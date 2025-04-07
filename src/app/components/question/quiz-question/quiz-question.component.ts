@@ -767,10 +767,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .pipe(take(1), debounceTime(100))
       .subscribe((loaded) => {
         if (loaded) {
-          // Handle route changes after questions are loaded
-          this.handleRouteChanges();
-
-          this.updateQuestionAndExplanation(0); // set the first question and explanation
+          this.handleRouteChanges(); // handle route changes after questions are loaded
         } else {
           console.warn(
             'Questions are not loaded yet. Skipping explanation update.....'
