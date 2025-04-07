@@ -8,30 +8,24 @@ export class FeedbackService {
   lastKnownOptions: Option[] = [];
 
   public generateFeedbackForOptions(correctOptions: Option[], optionsToDisplay: Option[]): string {
-    if (!correctOptions || correctOptions.length === 0) {
-      console.warn('[generateFeedbackForOptions] ❌ No correct options provided.');
+    const validCorrectOptions = (correctOptions || []).filter(isValidOption);
+    const validOptionsToDisplay = (optionsToDisplay || []).filter(isValidOption);
+  
+    if (validCorrectOptions.length === 0) {
+      console.warn('[generateFeedbackForOptions] ❌ No valid correct options provided.');
       return 'No correct answers available for this question.';
     }
-
-    if (!optionsToDisplay || optionsToDisplay.length === 0) {
-      console.warn('[generateFeedbackForOptions] ❌ No options to display. STOPPING BEFORE CALLING setCorrectMessage.');
+    if (validOptionsToDisplay.length === 0) {
+      console.warn('[generateFeedbackForOptions] ❌ No valid options to display. STOPPING BEFORE CALLING setCorrectMessage.');
       return 'Feedback unavailable.';
     }
-
-    // Prevent sending empty arrays to setCorrectMessage
-    if (optionsToDisplay.length === 0) {
-      console.error('[generateFeedbackForOptions] ❌ BLOCKING CALL: optionsToDisplay is EMPTY!');
-      return 'Feedback unavailable.';
-    }
-
-    const correctFeedback = this.setCorrectMessage(correctOptions, optionsToDisplay);
-    console.log('[generateFeedbackForOptions] ✅ setCorrectMessage Returned:', correctFeedback);
-
-    if (!correctFeedback || correctFeedback.trim() === '') {
+  
+    const correctFeedback = this.setCorrectMessage(validCorrectOptions, validOptionsToDisplay);  
+    if (!correctFeedback?.trim()) {
       console.warn('[generateFeedbackForOptions] ❌ setCorrectMessage returned empty or invalid feedback. Falling back...');
       return 'Feedback unavailable.';
     }
-
+  
     return correctFeedback;
   }
 
