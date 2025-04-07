@@ -1039,44 +1039,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private updateQuestionAndExplanation(index: number): void {
-    const question = this.questionsArray[index];
-    if (!question) {
-      console.warn('No question found for index:', index);
-      this.quizService.resetExplanationText(); // reset explanation if no question found
-      return;
-    }
-
-    // Clear the explanation text to prevent flashing old content
-    this.explanationToDisplayChange.emit(''); // ensure UI is cleared
-
-    // Set the current question and emit its explanation text
-    if (question) {
-      this.quizService.setCurrentQuestion(question);
-      this.emitExplanationText(question); // emit explanation after setting question
-    }
-  }
-
-  private emitExplanationText(question: QuizQuestion): void {
-    const correctOptionIndices =
-      this.explanationTextService.getCorrectOptionIndices(question);
-    const formattedExplanation = this.explanationTextService.formatExplanation(
-      question,
-      correctOptionIndices,
-      this.quizId
-    );
-
-    // Use a short delay to ensure the question renders first
-    setTimeout(() => {
-      this.quizService.setNextExplanationText(formattedExplanation);
-
-      if (this.shouldDisplayExplanation && this.isAnswered) {
-        this.explanationToDisplayChange.emit(formattedExplanation);
-        this.showExplanationChange.emit(true); // ensure it's shown in the UI
-      }
-    }, 50);
-  }
-
   private setupSubscriptions(): void {
     this.resetFeedbackSubscription =
       this.resetStateService.resetFeedback$.subscribe(() => {
