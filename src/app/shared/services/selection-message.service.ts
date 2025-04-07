@@ -16,7 +16,7 @@ export class SelectionMessageService {
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
-    return this.selectionMessageSubject.getValue(); // Get the current message value
+    return this.selectionMessageSubject.getValue(); // get the current message value
   }
 
   // Message Determination Function
@@ -50,7 +50,7 @@ export class SelectionMessageService {
     // Ensure the message is defined and not empty
     if (typeof newMessage === 'undefined' || newMessage === null) {
       console.warn('[updateSelectionMessage] Provided message is undefined or null, ignoring update.');
-      return; // Do not proceed if the message is not valid
+      return; // do not proceed if the message is not valid
     }
   
     // Check if the new message is different from the current value
