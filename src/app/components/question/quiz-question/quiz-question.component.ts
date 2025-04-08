@@ -3972,20 +3972,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return this.explanationToDisplay;
   }
 
-  private async setExplanationText(): Promise<void> {
-    if (!this.isExplanationLocked) {
-      this.currentExplanationText = this.explanationTextService.explanationsInitialized
-        ? await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-          )
-        : 'No explanation available';
-    } else {
-      console.log(
-        'Explanation display is locked; skipping setting explanation text.'
-      );
-    }
-  }
-
   public async fetchAndSetExplanationText(
     questionIndex: number
   ): Promise<void> {
@@ -4122,29 +4108,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn(`[getExplanationText] ⏳ Explanations not initialized — returning fallback for Q${questionIndex}`);
         return 'No explanation available for this question.';
       }
-      
-      const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        )
-      );
-
-      if (!explanationText || explanationText.trim() === '') {
-        console.warn(
-          `[getExplanationText] ⚠️ Empty or undefined explanation for Q${questionIndex}. Using fallback.`
-        );
+  
+      const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      const explanationText = await firstValueFrom(explanation$);
+  
+      const trimmed = explanationText?.trim();
+      if (!trimmed) {
+        console.warn(`[getExplanationText] ⚠️ Empty or undefined explanation for Q${questionIndex}. Using fallback.`);
         return 'No explanation available for this question.';
       }
-
-      return explanationText;
+  
+      return trimmed;
     } catch (error) {
-      console.error(
-        `[getExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
-        error
-      );
+      console.error(`[getExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
       return 'Error loading explanation.';
     }
-  }
+  }  
 
   private async processExplanationText(
     questionData: QuizQuestion,
