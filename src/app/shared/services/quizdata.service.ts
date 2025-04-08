@@ -103,13 +103,11 @@ export class QuizDataService implements OnDestroy {
         if (!Array.isArray(quizzes)) {
           return false; // wait until we get a real array
         }
-        
+      
         if (quizzes.length === 0) {
-          // Only warn if this is after loading phase
-          console.warn(`[QuizDataService] ⚠️ Quizzes loaded but list is empty.`);
           return false;
         }
-        
+      
         return true;
       }),
       map(quizzes => {
