@@ -616,11 +616,7 @@ export class QuizService implements OnDestroy {
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
       filter((questions) => {
-        if (!questions || questions.length === 0) {
-          console.warn(`[QuizService] ⚠️ No questions available.`);
-          return false;
-        }
-        return true;
+        return Array.isArray(questions) && questions.length > 0;
       }),
       take(1),
       map((questions: QuizQuestion[]) => {
