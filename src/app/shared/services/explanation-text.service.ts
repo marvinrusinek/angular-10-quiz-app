@@ -370,7 +370,7 @@ export class ExplanationTextService {
     const current = this.shouldDisplayExplanationSource.getValue();
   
     if (current === shouldDisplay) {
-      console.log('[⏸️ No change in shouldDisplayExplanation]');
+      console.log('[No change in shouldDisplayExplanation]');
       return;
     }
   
