@@ -200,7 +200,7 @@ export class ExplanationTextService {
     questionIndex: number
   ): Observable<{ questionIndex: number; explanation: string }> {
     // Early exit for invalid or stale questions
-    if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
+    if (!this.isQuestionValid(question)) {
       console.warn(`[⏩ Skipping invalid or stale question at index ${questionIndex}]`);
       return of({ questionIndex, explanation: '' });
     }
@@ -400,10 +400,6 @@ export class ExplanationTextService {
 
   setCurrentQuestionExplanation(explanation: string): void {
     this.currentQuestionExplanation = explanation;
-  }
-
-  private isCurrentQuestion(question: QuizQuestion): boolean {
-    return this.currentQuestionExplanation === question.explanation;
   }
 
   resetExplanationText(): void {
