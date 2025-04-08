@@ -2373,7 +2373,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       ) {
         const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
         this.explanationToDisplay = await firstValueFrom(explanation$);
-        this.explanationTextService.setExplanationText(this.explanationToDisplay, questionIndex); // optional: pass index for better logging
+        this.explanationTextService.setExplanationText(this.explanationToDisplay);
       } else {
         console.warn(`[⚠️ Skipping explanation fetch — invalid index or explanations not ready] index: ${questionIndex}`);
         this.explanationToDisplay = 'No explanation available';
