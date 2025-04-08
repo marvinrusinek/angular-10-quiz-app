@@ -1459,13 +1459,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private restoreSelectedOptions(): void {
-    console.log('[restoreSelectedOptions] 🔄 Restoring selected options...');
-  
     const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
-    if (!selectedOptionsData) {
-      console.warn('[restoreSelectedOptions] ❌ No selected options data found.');
-      return;
-    }
+    if (!selectedOptionsData) return;
   
     try {
       const selectedOptions = JSON.parse(selectedOptionsData);
