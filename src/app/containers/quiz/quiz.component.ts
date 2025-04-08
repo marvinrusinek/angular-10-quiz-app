@@ -1729,10 +1729,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[prepareFeedback] Triggered.');
   
     // Validate that options are available for feedback preparation
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[prepareFeedback] No options available to prepare feedback.');
-      return;
-    }
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) return;
   
     try {
       // Apply feedback to options through QuizQuestionComponent
