@@ -103,7 +103,7 @@ export class ExplanationTextService {
     console.warn('[setExplanationText] Emitting new explanation:', trimmed);
     this.explanationText$.next(trimmed);
   } */
-  public setExplanationText(explanation: string | null, index?: number): void {
+  public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
   
     if (this.explanationLocked && trimmed === '') {
@@ -111,20 +111,17 @@ export class ExplanationTextService {
       return;
     }
   
+    // Avoid duplicate emission
     if (trimmed === this.latestExplanation) {
       console.log('[🛡️ Prevented duplicate emit]');
       return;
     }
   
+    // Save and emit
     this.latestExplanation = trimmed;
-    if (index !== undefined) {
-      this.latestQuestionIndex = index; // ⬅️ add this
-    }
-  
-    console.warn(`[setExplanationText] Emitting new explanation for index ${this.latestQuestionIndex}:`, trimmed);
+    console.log('[setExplanationText] Emitting new explanation:', trimmed);
     this.explanationText$.next(trimmed);
   }
-  
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
