@@ -266,10 +266,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizService.currentQuestion.subscribe({
       next: (newQuestion) => {
-        if (!newQuestion) {
-          console.warn('No new question received. Skipping UI update.');
-          return;
-        }
+        if (!newQuestion) return;
   
         this.ngZone.run(() => {
           this.currentQuestion = null;  // force reset to clear stale UI
