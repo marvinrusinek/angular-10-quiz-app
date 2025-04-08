@@ -87,7 +87,7 @@ export class ExplanationTextService {
     console.warn('[setExplanationText] Emitting new explanation:', trimmed);
     this.explanationText$.next(trimmed);
   } */
-  public setExplanationText(explanation: string | null): void {
+  /* public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
     if (this.explanationLocked && trimmed === '') {
       console.warn('[🛡️ Blocked reset: explanation is locked]');
@@ -102,7 +102,29 @@ export class ExplanationTextService {
     this.latestExplanation = trimmed;
     console.warn('[setExplanationText] Emitting new explanation:', trimmed);
     this.explanationText$.next(trimmed);
+  } */
+  public setExplanationText(explanation: string | null, index?: number): void {
+    const trimmed = (explanation ?? '').trim();
+  
+    if (this.explanationLocked && trimmed === '') {
+      console.warn('[🛡️ Blocked reset: explanation is locked]');
+      return;
+    }
+  
+    if (trimmed === this.latestExplanation) {
+      console.log('[🛡️ Prevented duplicate emit]');
+      return;
+    }
+  
+    this.latestExplanation = trimmed;
+    if (index !== undefined) {
+      this.latestQuestionIndex = index; // ⬅️ add this
+    }
+  
+    console.warn(`[setExplanationText] Emitting new explanation for index ${this.latestQuestionIndex}:`, trimmed);
+    this.explanationText$.next(trimmed);
   }
+  
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
