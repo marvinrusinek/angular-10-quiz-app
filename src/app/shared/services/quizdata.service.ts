@@ -156,6 +156,11 @@ export class QuizDataService implements OnDestroy {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
+    if (questionIndex === undefined || questionIndex === null || isNaN(questionIndex)) {
+      console.error(`Invalid questionIndex: ${questionIndex}`);
+      return of(null);
+    }
+    
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         if (!quiz || questionIndex < 0 || questionIndex >= quiz.questions.length) {
