@@ -3162,8 +3162,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.setShouldDisplayExplanation(false);
-      } else {
-        console.warn('[🛡️ Blocked display reset — explanation is locked]');
       }
     }
   
