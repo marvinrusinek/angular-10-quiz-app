@@ -151,7 +151,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   isNavigating = false;
   private isNavigatedByUrl = false;
-  private debounceNavigation = false;
   private navigatingToResults = false;
 
   private nextButtonTooltipSubject = new BehaviorSubject<string>('Please select an option to continue...');
