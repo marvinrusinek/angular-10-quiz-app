@@ -1441,13 +1441,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }, 50);
       }, 150);
   
-      // Fetch explanation first (this is NOT async — it sets internal state)
-      setTimeout(() => {
-        console.log('[📥 call fetchFormattedExplanationText] index:', questionIndex);
-        console.log('[📊 formattedExplanations at fetch time]:', this.explanationTextService.formattedExplanations[questionIndex]);
-        this.fetchFormattedExplanationText(questionIndex);
-      }, 100);
-  
       // Now await feedback generation
       try {
         const feedback = await (this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''));
@@ -1512,26 +1505,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       option.selected = false; // Reset selection before reapplying
     });
     this.cdRef.detectChanges();
-  }
-
-  fetchFormattedExplanationText(index: number): void {
-    this.resetExplanationText(); // Reset explanation text before fetching
-
-    const explanationExists =
-      this.explanationTextService.explanationsInitialized &&
-      !!this.explanationTextService.formattedExplanations[index]?.explanation?.trim();
-
-    if (explanationExists) {
-      const explanationObj =
-        this.explanationTextService.formattedExplanations[index];
-      this.explanationToDisplay = explanationObj?.explanation ?? 'No explanation available for this question.';
-
-      // Confirm feedback application here
-      // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-    } else {
-      this.explanationToDisplay = 'No explanation available for this question.';
-      console.error('Missing formatted explanation for index:', index);
-    }
   }
   /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
