@@ -3138,8 +3138,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const explanation = this.explanationTextService.explanationsInitialized
         ? await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex))
         : 'No explanation available';
-      if (!explanation) {
-        console.warn('No explanation text found for question at index:', questionIndex);
+      if (!explanation || explanation.trim() === '') {
+        console.warn('No explanation text found or it was blank for question at index:', questionIndex);
       }
   
       // Determine the question type
@@ -3332,26 +3332,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('❌ Navigation error on restart:', error);
     });
   }
-  
+
   async setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     try {
-      const explanation$ = this.explanationTextService.explanationsInitialized
-        ? this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-        : of('');
-
-      const explanation = await firstValueFrom(explanation$);
+      const explanation = this.explanationTextService.explanationsInitialized
+        ? await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+          )
+        : 'No explanation available';
   
-      if (explanation) {
+      if (explanation && explanation.trim()) {
         this.explanationTextService.setExplanationText(explanation);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationTextService.lockExplanation();
       } else {
-        console.warn('No explanation available for the first question');
-        throw new Error('No explanation available');
+        console.warn('[setDisplayStateForExplanationsAfterRestart] ❌ No valid explanation after restart.');
       }
     } catch (error) {
-      console.error('Error fetching explanation:', error);
-      throw new Error('Error fetching explanation');
+      console.error('[setDisplayStateForExplanationsAfterRestart] ❌ Error fetching explanation:', error);
     }
   }
 }
