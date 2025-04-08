@@ -2557,23 +2557,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // Ensure explanation text is preserved if not already set
-    if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
-      this.explanationToDisplay = this.explanationTextService.explanationsInitialized
+    if (!this.explanationToDisplay || !this.explanationToDisplay.trim()) {
+      const explanationText = this.explanationTextService.explanationsInitialized
         ? await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
           )
         : 'No explanation available';
-    } else {
-      console.log(
-        '[handleCorrectnessOutcome] 🔄 Explanation text already exists. Not overriding.'
-      );
-    }
-    /* if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
-      console.log('[handleCorrectnessOutcome] 🔁 Fetching and locking explanation via updateExplanationText...');
-      this.explanationToDisplay = await this.updateExplanationText(this.currentQuestionIndex);
+    
+      this.explanationToDisplay = explanationText || 'No explanation available';
     } else {
       console.log('[handleCorrectnessOutcome] 🔄 Explanation text already exists. Not overriding.');
-    } */
+    }
 
     // Ensure Next button state is correctly updated, preventing premature disabling
     setTimeout(() => {
@@ -3174,12 +3168,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Introduce a delay to avoid flickering
       setTimeout(async () => {
         try {
-          const explanationText = this.explanationTextService.explanationsInitialized
-            ? await firstValueFrom(
-                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-              )
-            : 'No explanation available';
-          this.explanationToDisplay = explanationText ?? 'No explanation available';
+          let explanationText = 'No explanation available';
+  
+          if (this.explanationTextService.explanationsInitialized) {
+            const fetched = await firstValueFrom(
+              this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+            );
+            explanationText = fetched?.trim() || explanationText;
+          }
+  
+          this.explanationToDisplay = explanationText;
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
           this.cdRef.markForCheck(); // ensure UI reflects changes
         } catch (error) {
