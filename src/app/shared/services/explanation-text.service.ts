@@ -243,9 +243,6 @@ export class ExplanationTextService {
   }
 
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
-    console.log(`📦 storeFormattedExplanation CALLED for Q${index}`);
-    console.log(`📄 Raw explanation:`, explanation);
-
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
