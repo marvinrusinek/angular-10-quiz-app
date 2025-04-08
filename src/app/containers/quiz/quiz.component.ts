@@ -1228,8 +1228,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionIndex >= 0
     ) {
       this.fetchQuestionAndOptions();
-    } else {
-      console.warn('[⏳] Skipping fetchQuestionAndOptions — questionIndex not ready yet:', this.questionIndex);
     }
   }
 
