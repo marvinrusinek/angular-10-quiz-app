@@ -319,6 +319,11 @@ export class ExplanationTextService {
   }
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
+    if (!this.explanationsInitialized) {
+      console.warn(`⚠️ getFormattedExplanation called before explanations initialized for Q${questionIndex}`);
+      return of(''); // or 'Explanation loading...'
+    }
+  
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
       switchMap((explanationText: string) =>
         of(explanationText ? explanationText : 'No explanation available')
