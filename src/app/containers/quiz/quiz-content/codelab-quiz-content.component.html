@@ -1,23 +1,30 @@
 <ng-container *ngIf="combinedQuestionData$ | async">
-  <section id="question">
-    <h3 question-content>
-      <ng-container *ngIf="combinedText$ | async as combinedText; else fallback">
-        {{ combinedText }}
-      </ng-container>
-      <ng-template #fallback>
-        <span *ngIf="!question; else noExplanation">
-          No question available.
+<section id="question">
+  <h3 question-content>
+    <!--<ng-container *ngIf="combinedText$ | async as combinedText; else fallback">
+      {{ combinedText }}
+    </ng-container>-->
+    <ng-container *ngIf="combinedText$ | async as combinedText; else fallback">
+    <span [innerHTML]="combinedText"></span>
+  </ng-container>
+  
+    <ng-template #fallback>
+      <span *ngIf="!question; else noExplanation">
+        No question available.
+      </span>
+      <ng-template #noExplanation>
+        <span *ngIf="!explanationText">
+          No explanation available.
         </span>
-        <ng-template #noExplanation>
-          <span *ngIf="!explanationText">
-            No explanation available.
-          </span>
-        </ng-template>
       </ng-template>
-      
+    </ng-template>
+    
+    <!-- Only show correct answer count when not displaying explanation -->
+    <!--<ng-container *ngIf="!(shouldDisplayExplanation$ | async)">
       <ng-container *ngIf="correctAnswersText$ | async as correctText">
         <span class="number-correct">{{ correctText }}</span>
       </ng-container>
-    </h3>
-  </section>
+    </ng-container>-->
+  </h3>
+</section>
 </ng-container>
