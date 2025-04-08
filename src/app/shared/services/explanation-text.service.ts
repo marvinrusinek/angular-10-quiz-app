@@ -168,6 +168,32 @@ export class ExplanationTextService {
     }    
   }
 
+  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
+    this.formattedExplanations = {}; // Clear existing data
+
+    if (!Array.isArray(explanations) || explanations.length === 0) {
+      console.warn('No explanations provided for initialization.');
+      return;
+    }
+
+    for (const { questionIndex, explanation } of explanations) {
+      if (typeof questionIndex !== 'number' || questionIndex < 0) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
+        continue;
+      }
+    
+      if (typeof explanation !== 'string' || !explanation.trim()) {
+        console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
+      } else {
+        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
+      }
+    }
+
+    // Notify subscribers about the updated explanations
+    this.explanationsUpdated.next(this.formattedExplanations);
+  }
+
   formatExplanationText(
     question: QuizQuestion,
     questionIndex: number
@@ -211,33 +237,32 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(trimmed);
   }
 
+  // Method to sanitize explanation text
+  private sanitizeExplanation(explanation: string): string {
+    // Trim and remove unwanted characters
+    return explanation.trim().replace(/<[^>]*>/g, '');
+  }
+
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
-    if (typeof index !== 'number' || index < 0) {
-      console.error(`❌ Invalid index: ${index}. Must be a non-negative number.`);
+    if (index < 0) {
+      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
-  
-    if (typeof explanation !== 'string' || !explanation.trim()) {
-      console.warn(`⚠️ Empty or invalid explanation at index ${index}:`, explanation);
+
+    if (!explanation || explanation.trim() === "") {
+      console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
-  
-    if (!question) {
-      console.error(`❌ Missing question data for index ${index}`);
-      return;
-    }
-  
-    const trimmedExplanation = explanation.trim();
+
+    const sanitizedExplanation = this.sanitizeExplanation(explanation);
     const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, trimmedExplanation);
-  
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
+
     this.formattedExplanations[index] = {
       questionIndex: index,
       explanation: formattedExplanation
     };
-  
-    console.log(`✅ Stored formatted explanation for Q${index}:`, formattedExplanation);
-  
+    
     this.explanationsUpdated.next(this.formattedExplanations);
   }
 
@@ -270,34 +295,26 @@ export class ExplanationTextService {
   }
 
   private syncFormattedExplanationState(
-    questionIndex: number, 
-    formattedExplanation: string
-  ): void {
-    if (typeof questionIndex !== 'number' || questionIndex < 0) {
-      console.error(`❌ Invalid questionIndex: ${questionIndex}`);
-      return;
-    }
-  
-    if (typeof formattedExplanation !== 'string' || !formattedExplanation.trim()) {
-      console.warn(`⚠️ Empty or invalid formatted explanation for Q${questionIndex}`);
-      return;
-    }
-  
-    // Lazily initialize BehaviorSubject if it doesn't exist
+    questionIndex: number, formattedExplanation: string): void {
     if (!this.formattedExplanations$[questionIndex]) {
-      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
+      // Initialize the BehaviorSubject if it doesn't exist at the specified index
+      this.formattedExplanations$[questionIndex] = 
+        new BehaviorSubject<string | null>(null);
     }
   
+    // Access the BehaviorSubject at the specified questionIndex
     const subjectAtIndex = this.formattedExplanations$[questionIndex];
   
-    subjectAtIndex.next(formattedExplanation);
-  
-    this.formattedExplanations[questionIndex] = {
-      questionIndex,
-      explanation: formattedExplanation.trim()
-    };
-  
-    console.log(`✅ Synced explanation state for Q${questionIndex}:`, formattedExplanation);
+    if (subjectAtIndex) {
+      subjectAtIndex.next(formattedExplanation);
+      
+      // Update the formattedExplanations array
+      const formattedExplanationObj: FormattedExplanation = 
+        { questionIndex, explanation: formattedExplanation };
+      this.formattedExplanations[questionIndex] = formattedExplanationObj;
+    } else {
+      console.error(`No element at index ${questionIndex} in formattedExplanations$`);
+    }
   }
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
