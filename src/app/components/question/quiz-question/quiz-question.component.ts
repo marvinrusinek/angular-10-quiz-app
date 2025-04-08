@@ -2508,7 +2508,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.readyForExplanationDisplay = true;
     this.isExplanationReady = true;
     this.isExplanationLocked = false;
-  }  
+  }
 
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(
