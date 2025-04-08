@@ -1225,7 +1225,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private initializeQuizDependencies(): void {
     this.initializeSelectedQuiz();
     this.initializeObservables();
-    this.fetchQuestionAndOptions();
+
+    if (
+      typeof this.questionIndex === 'number' &&
+      !isNaN(this.questionIndex) &&
+      this.questionIndex >= 0
+    ) {
+      this.fetchQuestionAndOptions();
+    } else {
+      console.warn('[⏳] Skipping fetchQuestionAndOptions — questionIndex not ready yet:', this.questionIndex);
+    }
   }
 
   private initializeSelectedQuiz(): void {
@@ -1432,10 +1441,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }, 50);
       }, 150);
   
-      // ✅ Fetch explanation first (this is NOT async — it sets internal state)
-      this.fetchFormattedExplanationText(questionIndex);
+      // Fetch explanation first (this is NOT async — it sets internal state)
+      setTimeout(() => {
+        console.log('[📥 call fetchFormattedExplanationText] index:', questionIndex);
+        console.log('[📊 formattedExplanations at fetch time]:', this.explanationTextService.formattedExplanations[questionIndex]);
+        this.fetchFormattedExplanationText(questionIndex);
+      }, 100);
   
-      // ✅ Now await feedback generation
+      // Now await feedback generation
       try {
         const feedback = await (this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''));
         this.feedbackText = feedback;
@@ -1504,7 +1517,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   fetchFormattedExplanationText(index: number): void {
     this.resetExplanationText(); // Reset explanation text before fetching
 
-    if (index in this.explanationTextService.formattedExplanations) {
+    const explanationExists =
+      this.explanationTextService.explanationsInitialized &&
+      !!this.explanationTextService.formattedExplanations[index]?.explanation?.trim();
+
+    if (explanationExists) {
       const explanationObj =
         this.explanationTextService.formattedExplanations[index];
       this.explanationToDisplay = explanationObj?.explanation ?? 'No explanation available for this question.';
