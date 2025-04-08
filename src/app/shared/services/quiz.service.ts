@@ -615,9 +615,7 @@ export class QuizService implements OnDestroy {
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     return this.questions$.pipe(
-      filter((questions) => {
-        return Array.isArray(questions) && questions.length > 0;
-      }),
+      filter((questions) => Array.isArray(questions) && questions.length > 0),
       take(1),
       map((questions: QuizQuestion[]) => {
         if (index < 0 || index >= questions.length) {
