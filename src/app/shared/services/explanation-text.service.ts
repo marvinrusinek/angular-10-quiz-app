@@ -364,15 +364,7 @@ export class ExplanationTextService {
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
     const current = this.shouldDisplayExplanationSource.getValue();
   
-    if (current === shouldDisplay) {
-      console.log('[No change in shouldDisplayExplanation]');
-      return;
-    }
-  
-    const label = shouldDisplay ? '🟢 SHOW' : '🔴 HIDE';
-    console.warn(`[${label}] setShouldDisplayExplanation called with:`, shouldDisplay);
-    console.trace(`[${label}] Stack trace`);
-  
+    if (current === shouldDisplay) return;
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
   
