@@ -569,9 +569,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           return of('No explanation available');
         }
   
-        const explanation = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-        // Convert the result to an Observable<string> regardless of its type
-        return isObservable(explanation) ? explanation : of(explanation ?? 'No explanation available');
+        if (!this.explanationTextService.explanationsInitialized) {
+          console.warn(`[fetchExplanationText] ⏳ Explanations not initialized — returning fallback for Q${questionIndex}`);
+          return of('No explanation available');
+        }
+        
+        return this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       })
     );
   }
