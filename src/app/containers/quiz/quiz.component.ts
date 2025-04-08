@@ -462,6 +462,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+        const explanation$ = this.explanationTextService.explanationsInitialized
+          ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
+          : of('');
 
         const data: FetchedData = await lastValueFrom(
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
@@ -2363,11 +2366,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const shouldDisableExplanation = !isAnswered && !explanationAlreadyDisplayed;
   
     if (isAnswered || explanationAlreadyDisplayed) {
-      const explanation$ = this.explanationTextService.explanationsInitialized
-        ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-        : of('');
-      this.explanationToDisplay = await firstValueFrom(explanation$);
-      this.explanationTextService.setExplanationText(this.explanationToDisplay);
+      if (
+        typeof questionIndex === 'number' &&
+        !isNaN(questionIndex) &&
+        this.explanationTextService.explanationsInitialized
+      ) {
+        const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+        this.explanationToDisplay = await firstValueFrom(explanation$);
+        this.explanationTextService.setExplanationText(this.explanationToDisplay, questionIndex); // optional: pass index for better logging
+      } else {
+        console.warn(`[⚠️ Skipping explanation fetch — invalid index or explanations not ready] index: ${questionIndex}`);
+        this.explanationToDisplay = 'No explanation available';
+        this.explanationTextService.setExplanationText(this.explanationToDisplay);
+      }
+    
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
       this.showExplanation = true;
@@ -2377,7 +2389,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.explanationTextService.setShouldDisplayExplanation(false);
       }
       this.showExplanation = false;
-    }
+    }   
   
     console.log(`[🛠️ updateQuestionStateAndExplanation] Q${questionIndex}:`, {
       isAnswered,
