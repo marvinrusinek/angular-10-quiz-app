@@ -2096,10 +2096,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
       }
   
-      // Fetch explanation from service
-      const explanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-      );
+      // Fetch explanation from service, only if initialized
+      const explanationText = this.explanationTextService.explanationsInitialized
+        ? await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex))
+        : 'No explanation available';
       
       // Confirm the question index hasn’t changed during async fetch
       if (lockedQuestionIndex !== this.currentQuestionIndex) {
@@ -2532,11 +2532,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Ensure explanation text is preserved if not already set
     if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
-      this.explanationToDisplay = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          this.currentQuestionIndex
-        )
-      );
+      this.explanationToDisplay = this.explanationTextService.explanationsInitialized
+        ? await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+          )
+        : 'No explanation available';
     } else {
       console.log(
         '[handleCorrectnessOutcome] 🔄 Explanation text already exists. Not overriding.'
@@ -3144,9 +3144,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Introduce a delay to avoid flickering
       setTimeout(async () => {
         try {
-          const explanationText = await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-          );
+          const explanationText = this.explanationTextService.explanationsInitialized
+            ? await firstValueFrom(
+                this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+              )
+            : 'No explanation available';
           this.explanationToDisplay = explanationText ?? 'No explanation available';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
           this.cdRef.markForCheck(); // ensure UI reflects changes
@@ -3941,12 +3943,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async setExplanationText(): Promise<void> {
     if (!this.isExplanationLocked) {
-      // Ensure explanation is unlocked
-      this.currentExplanationText = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          this.currentQuestionIndex
-        )
-      );
+      this.currentExplanationText = this.explanationTextService.explanationsInitialized
+        ? await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+          )
+        : 'No explanation available';
     } else {
       console.log(
         'Explanation display is locked; skipping setting explanation text.'
@@ -4086,6 +4087,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async getExplanationText(questionIndex: number): Promise<string> {
     try {
+      if (!this.explanationTextService.explanationsInitialized) {
+        console.warn(`[getExplanationText] ⏳ Explanations not initialized — returning fallback for Q${questionIndex}`);
+        return 'No explanation available for this question.';
+      }
+      
       const explanationText = await firstValueFrom(
         this.explanationTextService.getFormattedExplanationTextForQuestion(
           questionIndex
