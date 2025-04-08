@@ -40,6 +40,8 @@ export class ExplanationTextService {
 
   private latestExplanation = '';
 
+  explanationsInitialized = false;
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {

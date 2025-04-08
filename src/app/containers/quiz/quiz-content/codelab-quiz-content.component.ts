@@ -430,6 +430,12 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           this.explanationTextService.storeFormattedExplanation(index, explanation, question);
         })
       );
+
+      // Force a test fetch after all explanations are stored
+      const result = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(0)
+      );
+      console.log('✅ Q0 explanation after store:', result);
   
       this.initializeCurrentQuestionIndex();
     } catch (error) {
