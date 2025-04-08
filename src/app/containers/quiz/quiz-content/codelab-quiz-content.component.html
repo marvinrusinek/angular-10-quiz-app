@@ -1,20 +1,20 @@
 <ng-container *ngIf="combinedQuestionData$ | async">
-<section id="question">
-  <h3 question-content>
-    <ng-container *ngIf="combinedText$ | async as combinedText; else fallback">
-      <span [innerHTML]="combinedText"></span>
-    </ng-container>
-  
-    <ng-template #fallback>
-      <span *ngIf="!question; else noExplanation">
-        No question available.
-      </span>
-      <ng-template #noExplanation>
-        <span *ngIf="!explanationText">
-          No explanation available.
+  <section id="question">
+    <h3 question-content>
+      <ng-container *ngIf="combinedText$ | async as combinedText; else fallback">
+        <span [innerHTML]="combinedText"></span>
+      </ng-container>
+    
+      <ng-template #fallback>
+        <span *ngIf="!question; else noExplanation">
+          No question available.
         </span>
+        <ng-template #noExplanation>
+          <span *ngIf="!explanationText">
+            No explanation available.
+          </span>
+        </ng-template>
       </ng-template>
-    </ng-template>
-  </h3>
-</section>
+    </h3>
+  </section>
 </ng-container>
