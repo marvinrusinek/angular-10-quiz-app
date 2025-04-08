@@ -417,7 +417,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   initializeDisplayVariables(): void {
     this.displayVariables = {
       question: this.questionToDisplay || 'No question available',
-      explanation: this.explanationToDisplay || 'Explanation unavailable',
+      explanation: this.explanationToDisplay || 'Explanation unavailable'
     };
 
     console.log('Display Variables:', this.displayVariables);
