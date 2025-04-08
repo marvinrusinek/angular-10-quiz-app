@@ -213,7 +213,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
   
   private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$
     ]).pipe(
@@ -228,7 +228,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           : (question || 'No question available');
       }),      
       distinctUntilChanged()
-    );
+    ); */
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.correctAnswersText$
+    ]).pipe(
+      map(([state, explanationText, correctText]) => {
+        const explanation = explanationText?.trim();
+        const question = this.questionToDisplay?.trim();
+        const showExplanation = state.mode === 'explanation' && !!explanation;
+    
+        if (showExplanation) {
+          return explanation;
+        }
+    
+        // Only append the correct answers text during the question view
+        /* return correctText?.trim()
+          ? `${question} ${correctText}`
+          : (question || 'No question available'); */
+        return correctText?.trim()
+          ? `${question} <span class="correct-count"><i>${correctText}</i></span>`
+          : (question || 'No question available');
+      }),
+      distinctUntilChanged()
+    );    
   }
 
   private emitContentAvailableState(): void {
