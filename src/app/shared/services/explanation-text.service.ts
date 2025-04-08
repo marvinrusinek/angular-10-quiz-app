@@ -168,32 +168,6 @@ export class ExplanationTextService {
     }    
   }
 
-  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
-    this.formattedExplanations = {}; // Clear existing data
-
-    if (!Array.isArray(explanations) || explanations.length === 0) {
-      console.warn('No explanations provided for initialization.');
-      return;
-    }
-
-    for (const { questionIndex, explanation } of explanations) {
-      if (typeof questionIndex !== 'number' || questionIndex < 0) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
-        continue;
-      }
-    
-      if (typeof explanation !== 'string' || !explanation.trim()) {
-        console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
-      } else {
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
-      }
-    }
-
-    // Notify subscribers about the updated explanations
-    this.explanationsUpdated.next(this.formattedExplanations);
-  }
-
   formatExplanationText(
     question: QuizQuestion,
     questionIndex: number
