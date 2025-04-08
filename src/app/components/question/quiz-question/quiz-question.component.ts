@@ -2118,8 +2118,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Fetch explanation from service, only if initialized
       const explanationText = this.explanationTextService.explanationsInitialized
-        ? await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex))
+        ? await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+          )
         : 'No explanation available';
+
+      if (!explanationText?.trim()) {
+        console.warn(`[fetchAndUpdateExplanationText] ⚠️ No explanation text found for Q${questionIndex}`);
+      }
       
       // Confirm the question index hasn’t changed during async fetch
       if (lockedQuestionIndex !== this.currentQuestionIndex) {
