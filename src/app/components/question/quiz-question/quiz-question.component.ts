@@ -327,8 +327,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Wait until questions are available
     if (!this.questionsArray || this.questionsArray.length <= index) {
-      // Retry after a short delay (or wait for observable to emit)
-      setTimeout(() => this.ngAfterViewInit(), 50);
+      setTimeout(() => this.ngAfterViewInit(), 50); // retry after a short delay
       return;
     }
   
