@@ -413,9 +413,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       );
       
       const [questions, explanationTexts] = data;
-
-      console.log('📥 [initializeQuestionData] Questions:', questions);
-      console.log('📥 [initializeQuestionData] Explanations:', explanationTexts);
+  
+      console.log('[initializeQuestionData] Questions:', questions);
+      console.log('[initializeQuestionData] Explanations:', explanationTexts);
   
       if (!questions || questions.length === 0) {
         console.warn('No questions found');
@@ -430,19 +430,20 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           this.explanationTextService.storeFormattedExplanation(index, explanation, question);
         })
       );
-
-      // Force a test fetch after all explanations are stored
+  
+      // Set before test fetch
+      this.explanationTextService.explanationsInitialized = true;
+  
+      // ✅ Now it's safe to fetch
       const result = await firstValueFrom(
         this.explanationTextService.getFormattedExplanationTextForQuestion(0)
       );
-      console.log('✅ Q0 explanation after store:', result);
+      console.log('Q0 explanation after store:', result);
   
       this.initializeCurrentQuestionIndex();
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
-
-    this.explanationTextService.explanationsInitialized = true;
   }
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
