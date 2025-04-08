@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -466,7 +466,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
-        const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1));
+        const explanation$ = this.explanationTextService.explanationsInitialized
+          ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
+          : of('');
 
         const data: FetchedData = await lastValueFrom(
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
@@ -1622,10 +1624,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
 
       // Get the explanation as an Observable
-      const explanationObservable =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        );
+      const explanationObservable = this.explanationTextService.explanationsInitialized
+        ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        : of('');
 
       // Convert the Observable to a Promise and await its value
       const explanation = await firstValueFrom(explanationObservable);
@@ -2390,10 +2391,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const shouldDisableExplanation = !isAnswered && !explanationAlreadyDisplayed;
   
     if (isAnswered || explanationAlreadyDisplayed) {
-      this.explanationToDisplay = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-      );
-  
+      const explanation$ = this.explanationTextService.explanationsInitialized
+        ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        : of('');
+      this.explanationToDisplay = await firstValueFrom(explanation$);
       this.explanationTextService.setExplanationText(this.explanationToDisplay);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
@@ -3150,11 +3151,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       // Fetch the explanation
-      const explanationOrObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      const explanation = typeof explanationOrObservable === 'string'
-        ? explanationOrObservable
-        : await firstValueFrom(explanationOrObservable);
-  
+      const explanation = this.explanationTextService.explanationsInitialized
+        ? await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex))
+        : 'No explanation available';
       if (!explanation) {
         console.warn('No explanation text found for question at index:', questionIndex);
       }
@@ -3348,13 +3347,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  
-  
   async setDisplayStateForExplanationsAfterRestart(): Promise<void> {
     try {
-      const explanationObservable = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex);
-  
-      const explanation = await firstValueFrom(explanationObservable);
+      const explanation$ = this.explanationTextService.explanationsInitialized
+        ? this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+        : of('');
+
+      const explanation = await firstValueFrom(explanation$);
   
       if (explanation) {
         this.explanationTextService.setExplanationText(explanation);
