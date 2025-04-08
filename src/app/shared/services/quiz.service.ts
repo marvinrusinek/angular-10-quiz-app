@@ -929,10 +929,7 @@ export class QuizService implements OnDestroy {
 
     // Avoid unnecessary updates if the question is the same
     // Perform a deep comparison to check for differences
-    if (this.areQuestionsEqual(previousQuestion, question)) {
-      console.warn('Skipping update - Question is identical to the previous one.');
-      return;
-    }
+    if (this.areQuestionsEqual(previousQuestion, question)) return;
 
     // Ensure options have correct properties
     const updatedQuestion: QuizQuestion = {
