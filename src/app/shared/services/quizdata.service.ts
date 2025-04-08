@@ -100,10 +100,16 @@ export class QuizDataService implements OnDestroy {
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       filter(quizzes => {
-        if (!quizzes || quizzes.length === 0) {
-          console.warn(`[QuizDataService] ⚠️ No quizzes available.`);
+        if (!Array.isArray(quizzes)) {
+          return false; // wait until we get a real array
+        }
+        
+        if (quizzes.length === 0) {
+          // Only warn if this is after loading phase
+          console.warn(`[QuizDataService] ⚠️ Quizzes loaded but list is empty.`);
           return false;
         }
+        
         return true;
       }),
       map(quizzes => {
