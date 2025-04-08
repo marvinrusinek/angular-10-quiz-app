@@ -441,6 +441,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
     }
+
+    this.explanationTextService.explanationsInitialized = true;
   }
 
   private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
