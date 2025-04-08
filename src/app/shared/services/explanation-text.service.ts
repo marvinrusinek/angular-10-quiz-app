@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -316,15 +316,16 @@ export class ExplanationTextService {
 
   getFormattedExplanation(questionIndex: number): Observable<string> {
     if (!this.explanationsInitialized) {
-      return of('');
+      console.warn(`[ETS] ⚠️ getFormattedExplanation called before explanations initialized for Q${questionIndex}`);
+      return of('No explanation available');
     }
   
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-      switchMap((explanationText: string) =>
-        of(explanationText ? explanationText : 'No explanation available')
+      map((explanationText: string) =>
+        explanationText?.trim() || 'No explanation available'
       )
     );
-  }
+  }  
 
   getFormattedExplanations(): Observable<FormattedExplanation[]> {
     const explanations = Object.values(this.formattedExplanations);
