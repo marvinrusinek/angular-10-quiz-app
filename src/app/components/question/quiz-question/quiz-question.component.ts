@@ -942,10 +942,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     ) {
       this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = questionIndex;
-    } else {
-      console.warn(
-        `[setQuestionFirst] ⚠️ Feedback already processed. Skipping.`
-      );
     }
 
     // Force explanation update for correct question
