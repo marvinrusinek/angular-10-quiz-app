@@ -279,7 +279,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           });
         }
       });
-  }  
+  }
 
   private initializeExplanationTextObservable(): void {
     combineLatest([
