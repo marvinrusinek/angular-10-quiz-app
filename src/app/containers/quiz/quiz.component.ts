@@ -462,9 +462,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
-        const explanation$ = this.explanationTextService.explanationsInitialized
-          ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
-          : of('');
 
         const data: FetchedData = await lastValueFrom(
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
