@@ -229,7 +229,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
         // Only append the correct answers text during the question view
         return correctText?.trim()
-          ? `${question} <span class="correct-count"><i>${correctText}</i></span>`
+          ? `${question} <span class="correct-count">${correctText}</span>`
           : (question || 'No question available');
       }),
       distinctUntilChanged()
