@@ -1273,6 +1273,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
+    if (
+      typeof this.questionIndex !== 'number' || 
+      isNaN(this.questionIndex) || 
+      this.questionIndex < 0
+    ) {
+      console.error(`❌ Invalid question index: ${this.questionIndex}`);
+      return;
+    }
+
     this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
@@ -1517,6 +1526,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): void {
+    if (!quizId || quizId.trim() === '') {
+      console.error('❌ quizId is missing or empty');
+      return;
+    }
+  
+    if (
+      typeof questionIndex !== 'number' ||
+      isNaN(questionIndex) ||
+      questionIndex < 0
+    ) {
+      console.error(`❌ Invalid questionIndex: ${questionIndex}`);
+      return;
+    }
+    
     // Fetch the question and options using the QuizDataService
     this.questionAndOptionsSubscription = this.quizDataService
       .getQuestionAndOptions(quizId, questionIndex)
