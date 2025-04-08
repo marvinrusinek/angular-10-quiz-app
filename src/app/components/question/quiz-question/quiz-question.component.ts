@@ -298,7 +298,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  async ngAfterViewInit(): Promise<void> {
+  /* async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
 
     const index = this.currentQuestionIndex;
@@ -319,6 +319,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
       this.setInitialMessage();
     }, 50);
+  } */
+  async ngAfterViewInit(): Promise<void> {
+    super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+  
+    const index = this.currentQuestionIndex;
+  
+    // Wait until questions are available
+    if (!this.questionsArray || this.questionsArray.length <= index) {
+      console.warn(`[ngAfterViewInit] ⚠️ Questions not ready yet. Waiting...`);
+  
+      // Retry after a short delay (or wait for observable to emit)
+      setTimeout(() => this.ngAfterViewInit(), 50);
+      return;
+    }
+  
+    const question = this.questionsArray[index];
+  
+    if (question) {
+      this.quizService.setCurrentQuestion(question);
+      this.loadOptionsForQuestion(question);
+  
+      setTimeout(() => {
+        const explanationText = question.explanation || 'No explanation available';
+        this.updateExplanationUI(index, explanationText);
+        this.setInitialMessage();
+      }, 50);
+    } else {
+      console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -1348,7 +1377,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }));
   
         this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
-        this.cdRef.detectChanges();
       });
   
       // Abort after UI update
@@ -1374,7 +1402,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       this.isLoading = false;
       this.quizStateService.setLoading(false);
-      this.cdRef.detectChanges();
     }
   }
 
