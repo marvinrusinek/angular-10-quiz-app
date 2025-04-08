@@ -229,12 +229,8 @@ export class ExplanationTextService {
 
   updateFormattedExplanation(explanation: string): void {
     const trimmed = explanation?.trim();
-  
-    if (!trimmed) {
-      console.warn('[💬 updateFormattedExplanation] ❌ Ignoring empty or blank explanation');
-      return;
-    }
-  
+    if (!trimmed) return;
+
     this.formattedExplanationSubject.next(trimmed);
   }
 
