@@ -2531,7 +2531,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // Ensure explanation text is preserved if not already set
-    if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
+    /* if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
       this.explanationToDisplay = this.explanationTextService.explanationsInitialized
         ? await firstValueFrom(
             this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
@@ -2541,6 +2541,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(
         '[handleCorrectnessOutcome] 🔄 Explanation text already exists. Not overriding.'
       );
+    } */
+    if (!this.explanationToDisplay || this.explanationToDisplay.trim() === '') {
+      console.log('[handleCorrectnessOutcome] 🔁 Fetching and locking explanation via updateExplanationText...');
+      this.explanationToDisplay = await this.updateExplanationText(this.currentQuestionIndex);
+    } else {
+      console.log('[handleCorrectnessOutcome] 🔄 Explanation text already exists. Not overriding.');
     }
 
     // Ensure Next button state is correctly updated, preventing premature disabling
