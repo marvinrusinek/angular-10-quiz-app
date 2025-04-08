@@ -176,3 +176,9 @@ mat-card {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+.correct-count {
+  color: $dark-green;
+  font-style: italic;
+  font-weight: 500;
+}
