@@ -107,6 +107,12 @@ mat-card {
   cursor: not-allowed !important; // change cursor to indicate unclickable state
 }
 
+.correct-count {
+  color: $dark-green;
+  font-style: italic;
+  font-weight: 700;
+}
+
 .preload {
   position: absolute;
   top: 50%;
@@ -175,10 +181,4 @@ mat-card {
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
-}
-
-.correct-count {
-  color: $dark-green;
-  font-style: italic;
-  font-weight: 500;
 }
