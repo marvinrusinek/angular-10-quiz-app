@@ -3557,6 +3557,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Ensure the UI reflects the changes
       this.cdRef.markForCheck();
+
+      // Trigger explanation + next button logic
+      await this.handleCorrectnessOutcome(allCorrectSelected);
     } catch (error) {
       console.error('[handleOptionClicked] Unhandled error:', error);
     }
