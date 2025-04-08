@@ -1418,7 +1418,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         setTimeout(() => {
           if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-            console.warn('[loadQuestionByRouteIndex] ⚠️ optionsToDisplay is empty! Attempting fallback...');
             this.quizQuestionComponent?.populateOptionsToDisplay();
           }
   
