@@ -413,6 +413,9 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       );
       
       const [questions, explanationTexts] = data;
+
+      console.log('📥 [initializeQuestionData] Questions:', questions);
+      console.log('📥 [initializeQuestionData] Explanations:', explanationTexts);
   
       if (!questions || questions.length === 0) {
         console.warn('No questions found');

@@ -256,7 +256,7 @@ export class ExplanationTextService {
       return;
     }
 
-    const sanitizedExplanation = this.sanitizeExplanation(explanation);
+    const sanitizedExplanation = explanation.trim();
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
 
