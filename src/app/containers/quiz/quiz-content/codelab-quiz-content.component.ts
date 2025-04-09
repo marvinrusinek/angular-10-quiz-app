@@ -59,6 +59,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   isExplanationDisplayed = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
+  private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
   nextExplanationText = '';
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -120,6 +121,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.displayState$ = this.quizStateService.displayState$.pipe(
       tap((state) => console.log('[displayState$ emitted]:', state))
     );
+
+    this.explanationTextService.explanationText$.subscribe((text) => {
+      console.log('[🧪 explanationText$ EMITTED]:', text);
+    });
 
     this.getCombinedTextStream();
 
@@ -295,7 +300,82 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   }
 
   private initializeComponent(): void {
+    this.initializeQuestionData();
     this.initializeCombinedQuestionData();
+  }
+
+  private async initializeQuestionData(): Promise<void> {
+    try {
+      const params: ParamMap = await firstValueFrom(this.activatedRoute.paramMap.pipe(take(1)));
+  
+      const data: [QuizQuestion[], string[]] = await firstValueFrom(
+        this.fetchQuestionsAndExplanationTexts(params).pipe(takeUntil(this.destroy$))
+      );
+      
+      const [questions, explanationTexts] = data;
+  
+      console.log('[initializeQuestionData] Questions:', questions);
+      console.log('[initializeQuestionData] Explanations:', explanationTexts);
+  
+      if (!questions || questions.length === 0) {
+        console.warn('No questions found');
+        return;
+      }
+  
+      this.explanationTexts = explanationTexts;
+  
+      await Promise.all(
+        questions.map(async (question, index) => {
+          const explanation = this.explanationTexts[index] ?? 'No explanation available';
+          this.explanationTextService.storeFormattedExplanation(index, explanation, question);
+        })
+      );
+  
+      // Set before test fetch
+      this.explanationTextService.explanationsInitialized = true;
+  
+      // ✅ Now it's safe to fetch
+      const result = await firstValueFrom(
+        this.explanationTextService.getFormattedExplanationTextForQuestion(0)
+      );
+      console.log('Q0 explanation after store:', result);
+  
+      this.initializeCurrentQuestionIndex();
+    } catch (error) {
+      console.error('Error in initializeQuestionData:', error);
+    }
+  }
+
+  private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
+    this.quizId = params.get('quizId');
+    if (!this.quizId) {
+      console.warn('No quizId provided in the parameters.');
+      return of([[], []] as [QuizQuestion[], string[]]);
+    }
+  
+    return forkJoin([
+      this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+        catchError(error => {
+          console.error('Error fetching questions:', error);
+          return of([] as QuizQuestion[]);
+        })
+      ),
+      this.quizDataService.getAllExplanationTextsForQuiz(this.quizId).pipe(
+        catchError(error => {
+          console.error('Error fetching explanation texts:', error);
+          return of([] as string[]);
+        })
+      )
+    ]).pipe(
+      map(([questions, explanationTexts]) => {  
+        return [questions, explanationTexts] as [QuizQuestion[], string[]];
+      })
+    );
+  }    
+
+  private initializeCurrentQuestionIndex(): void {
+    this.quizService.currentQuestionIndex = 0;
+    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
   }
 
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
