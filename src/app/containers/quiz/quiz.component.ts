@@ -3317,7 +3317,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             // Now allow explanation to display
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.lockExplanation();
-            this.explanationTextService.triggerExplanationEvaluation();
+            setTimeout(() => {
+              this.explanationTextService.triggerExplanationEvaluation();
+            }, 10);
   
             // Start timer only after UI + logic settle
             this.timerService.startTimer(this.timerService.timePerQuestion);
