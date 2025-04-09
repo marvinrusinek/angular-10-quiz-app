@@ -1380,13 +1380,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       // Update explanation and feedback
-      const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
-      if (qState?.isAnswered) {
-        await this.updateExplanationText(lockedIndex);
-      } else {
-        console.log(`[loadQuestion] ❌ Skipping updateExplanationText — Q${lockedIndex} not answered yet.`);
-      }
-
+      await this.updateExplanationText(lockedIndex);
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
       this.updateSelectionMessage(false);
       await this.handleExplanationDisplay();
@@ -2051,15 +2045,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (qState?.explanationText?.trim()) {
         // Reuse cached explanation and re-emit
         this.explanationTextService.setExplanationText(qState.explanationText);
-      } else if (qState?.isAnswered) {
-        // Defensive check: only fetch if question is answered
-        const explanation = await this.updateExplanationText(lockedIndex);
-      
-        qState.explanationDisplayed = true;
-        qState.explanationText = explanation;
-        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
       } else {
-        console.log(`[🔕 Skipping explanation fetch for Q${lockedIndex}] Question not answered yet.`);
+        // Fetch and store explanation if not present
+        const explanation = await this.updateExplanationText(lockedIndex);
+
+        if (qState) {
+          qState.explanationDisplayed = true;
+          qState.explanationText = explanation;
+          this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+        }
       }
   
       // Ensure question index is current
