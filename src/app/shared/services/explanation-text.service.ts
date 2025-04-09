@@ -74,35 +74,6 @@ export class ExplanationTextService {
     return this.explanationLocked;
   }  
 
-  /* public setExplanationText(explanation: string | null): void {
-    const trimmed = (explanation ?? '').trim();
-    console.warn('[setExplanationText] Incoming =', explanation, '| Trimmed =', trimmed);
-  
-    if (trimmed === this.latestExplanation) {
-      console.log('[🛡️ Prevented duplicate emit]');
-      return;
-    }
-  
-    this.latestExplanation = trimmed;
-    console.warn('[setExplanationText] Emitting new explanation:', trimmed);
-    this.explanationText$.next(trimmed);
-  } */
-  /* public setExplanationText(explanation: string | null): void {
-    const trimmed = (explanation ?? '').trim();
-    if (this.explanationLocked && trimmed === '') {
-      console.warn('[🛡️ Blocked reset: explanation is locked]');
-      return;
-    }
-  
-    if (trimmed === this.latestExplanation) {
-      console.log('[🛡️ Prevented duplicate emit]');
-      return;
-    }
-  
-    this.latestExplanation = trimmed;
-    console.warn('[setExplanationText] Emitting new explanation:', trimmed);
-    this.explanationText$.next(trimmed);
-  } */
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
   
