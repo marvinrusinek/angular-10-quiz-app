@@ -179,7 +179,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ).subscribe((isAvailable) => {
       if (isAvailable) {
         console.log('Content is available. Setting up state subscription.');
-        this.setupDisplayStateSubscription();
       } else {
         console.log('Content is not yet available.');
       }
@@ -244,38 +243,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           this.quizDataService.updateContentAvailableState(isAvailable);
         },
         error: (error) => console.error('Error in isContentAvailable$:', error),
-      });
-  }
-  
-  private setupDisplayStateSubscription(): void {
-    combineLatest([
-      this.displayState$.pipe(distinctUntilChanged()), // ensure state changes trigger updates
-      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged()) // check initialization status
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([state, isInitialized]) => {
-        if (isInitialized) {
-          if (this.quizQuestionComponent) {
-            if (state.mode === 'explanation' && state.answered) {
-              console.log('Displaying explanation text.', {
-                mode: state.mode,
-                answered: state.answered
-              });
-            } else {
-              console.log('Displaying question text.', {
-                mode: state.mode,
-                answered: state.answered
-              });
-            }
-          } else {
-            console.error('QuizQuestionComponent is unexpectedly null during display update.');
-          }
-        } else {
-          console.info('QuizQuestionComponent not ready. Skipping display update.', {
-            state,
-            isInitialized
-          });
-        }
       });
   }
 
