@@ -86,10 +86,12 @@ export class ExplanationTextService {
       return;
     }
   
-    // Save and emit
     this.latestExplanation = trimmed;
+  
+    // Emit to both explanationText$ and formattedExplanation$
     console.log('[setExplanationText] Emitting new explanation:', trimmed);
     this.explanationText$.next(trimmed);
+    this.formattedExplanationSubject.next(trimmed);
   }
 
   setFormattedExplanationText(explanation: string): void {
