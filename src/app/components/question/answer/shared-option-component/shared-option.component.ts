@@ -127,38 +127,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  /* ngAfterViewInit(): void {
-    setTimeout(() => {
-      console.log('[SharedOptionComponent] 🔎 quizQuestionComponent is:', this.quizQuestionComponent);
-  
-      this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-        if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
-          this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-        } else {
-          console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
-        }
-      };
-    });
-  } */
   ngAfterViewInit(): void {
     setTimeout(() => {
+      const hasComponent = this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function';
+  
       if (!this.quizQuestionComponent) {
         console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
       }
   
-      if (typeof this.quizQuestionComponent?.onOptionClicked !== 'function') {
+      if (!hasComponent) {
         console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
       }
   
-      this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-        console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
-  
-        if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+      // ✅ Only set callback if component and function are both valid
+      if (hasComponent) {
+        this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+          console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
           this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-        } else {
-          console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
-        }
-      };
+        };
+      } else {
+        // Prevent assigning broken function
+        this.quizQuestionComponentOnOptionClicked = () => {
+          console.warn('[SharedOptionComponent] ⚠️ Skipped calling onOptionClicked due to missing component or method.');
+        };
+      }
     }, 0);
   }
   
