@@ -765,30 +765,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private resetQuestionState(): void {
+    // Clear local UI state
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-
-    // Clear selected, highlight, and activation states for options
-    if (this.currentQuestion?.options) {
+  
+    // Defensive: only reset options if current question exists
+    if (this.currentQuestion?.options?.length) {
       for (const option of this.currentQuestion.options) {
-        if (option.selected) {
-          console.log(`Clearing selected state for option: ${option.optionId}`);
-          option.selected = false;     // Clear selected state
-          option.highlight = false;    // Clear highlight state
-          option.active = true;        // Reactivate the option
+        if (option.selected || option.highlight || !option.active) {
+          console.log(`[resetQuestionState] Clearing state for optionId: ${option.optionId}`);
         }
+  
+        // Reset all option UI-related flags
+        option.selected = false;
+        option.highlight = false;
+        option.active = true;
+        option.showIcon = false;
+        option.feedback = undefined;
       }
+    } else {
+      console.warn('[resetQuestionState] ⚠️ No current question options found to reset.');
     }
-
-    // Reset timer and selected options logic
+  
+    // 🧹 Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
-
-    // this.quizStateService.setAnswered(false);
-    // this.quizStateService.setLoading(false);
+ 
     this.cdRef.detectChanges();
   }
 
