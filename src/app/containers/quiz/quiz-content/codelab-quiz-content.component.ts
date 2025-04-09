@@ -298,38 +298,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.initializeCombinedQuestionData();
   }
 
-  private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[], string[]]> {
-    this.quizId = params.get('quizId');
-    if (!this.quizId) {
-      console.warn('No quizId provided in the parameters.');
-      return of([[], []] as [QuizQuestion[], string[]]);
-    }
-  
-    return forkJoin([
-      this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-        catchError(error => {
-          console.error('Error fetching questions:', error);
-          return of([] as QuizQuestion[]);
-        })
-      ),
-      this.quizDataService.getAllExplanationTextsForQuiz(this.quizId).pipe(
-        catchError(error => {
-          console.error('Error fetching explanation texts:', error);
-          return of([] as string[]);
-        })
-      )
-    ]).pipe(
-      map(([questions, explanationTexts]) => {  
-        return [questions, explanationTexts] as [QuizQuestion[], string[]];
-      })
-    );
-  }    
-
-  private initializeCurrentQuestionIndex(): void {
-    this.quizService.currentQuestionIndex = 0;
-    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-  }
-
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
