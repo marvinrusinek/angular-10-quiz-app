@@ -42,7 +42,7 @@ export class TimerService {
   // Starts the timer
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
     if (this.isTimerStoppedForCurrentQuestion) {
-      console.warn(`[TimerService] ⚠️ Timer restart prevented.`);
+      console.log(`[TimerService] ⚠️ Timer restart prevented.`);
       return;
     }
 
