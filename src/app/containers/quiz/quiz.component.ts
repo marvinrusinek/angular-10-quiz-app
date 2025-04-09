@@ -3074,9 +3074,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = '';
       this.cdRef.detectChanges();
   
-      await new Promise(res => setTimeout(res, 30)); // Flush UI
+      await new Promise(res => setTimeout(res, 30)); // Let UI catch up
   
-      // Fetch details
+      // Fetch question
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
@@ -3088,29 +3088,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
-      // Determine explanation display
+      // Explanation display logic
       const isAnswered = await this.isQuestionAnswered(questionIndex);
-      const explanationText = isAnswered ? (question.explanation?.trim() ?? '') : '';
+      let explanationText = isAnswered ? (question.explanation?.trim() ?? '') : '';
   
-      // Update all explanation-related state in one block
+      if (isAnswered && !explanationText) {
+        console.warn(`[⚠️ fetchAndSetQuestionData] Missing explanation text for Q${questionIndex}. Using fallback.`);
+        explanationText = 'No explanation available';
+      }
+  
+      console.log(`[fetchAndSetQuestionData] ✅ Explanation for Q${questionIndex}:`, explanationText);
+  
+      // Set internal explanation state
       this.explanationToDisplay = explanationText;
       this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
-      this.explanationTextService.setExplanationText(explanationText);
-      
-      // Then trigger the UI to switch to explanation display
-      // Set displayState only if it's really answered
+  
       if (isAnswered && explanationText) {
+        this.explanationTextService.setExplanationText(explanationText);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationTextService.lockExplanation();
+  
         this.quizStateService.setDisplayState({
           mode: 'explanation',
           answered: true
         });
       }
   
-      // Set question display
+      // Question display setup
       this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
       this.quizStateService.setQuestionText(this.questionToDisplay);
   
-      // Set display + internal data
       this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
@@ -3124,7 +3131,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       await this.quizService.checkIfAnsweredCorrectly();
       this.timerService.startTimer(this.timerService.timePerQuestion);
-    
+  
       return true;
     } catch (error) {
       console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
