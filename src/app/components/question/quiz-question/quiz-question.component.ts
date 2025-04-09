@@ -3162,7 +3162,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Lock to prevent accidental resets from other places
       this.explanationTextService.lockExplanation();
     } else {
-      // 🚫 Only reset if explanation is not locked (to avoid override)
+      // Only reset if explanation is not locked (to avoid override)
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.setExplanationText(''); // clear stored explanation
         this.explanationTextService.setShouldDisplayExplanation(false); // signal no explanation should show
@@ -3371,14 +3371,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     option: SelectedOption,
     index: number
   ): void {
+    // Trigger selection logic (adds/removes selected option)
     this.handleOptionClicked(currentQuestion, index);
-
-    // Check if the clicked option is selected
+  
+    // Check if this specific option is now selected
     const isOptionSelected = this.selectedOptionService.isSelectedOption(option);
-
-    // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
+  
+    // Only update explanation display flag if not locked
     if (!this.explanationTextService.isExplanationLocked()) {
+      // Only trigger explanation if selected, otherwise ensure it's hidden
       this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
+    } else {
+      console.warn('[processOptionSelection] 🛡️ Explanation is locked. Skipping display update.');
     }
   }
 
