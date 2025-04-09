@@ -3925,18 +3925,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Helper method to clear explanation
   resetExplanation(): void {
-    // Reset all explanation-related states and emit necessary events
-    this.displayExplanation = false; // hide explanation display
-    this.explanationToDisplay = ''; // clear explanation text
-
-    // Emit updates to parent components or services
-    this.explanationToDisplayChange.emit(''); // notify components about cleared text
-    this.showExplanationChange.emit(false); // notify components to hide explanation
-
-    // Update the ExplanationTextService with cleared values
-    // this.explanationTextService.updateFormattedExplanation('');
+    // Reset local component state
+    this.displayExplanation = false;              // hide explanation display
+    this.explanationToDisplay = '';               // clear local explanation text
+  
+    // Emit cleared states to parent components
+    this.explanationToDisplayChange.emit('');     // inform parent: explanation cleared
+    this.showExplanationChange.emit(false);       // inform parent: hide explanation
+  
+    // Always reset the internal explanation text state
     this.explanationTextService.resetExplanationText();
-    
+  
+    // Only disable explanation display flag if it's not locked
     if (!this.explanationTextService.isExplanationLocked()) {
       this.explanationTextService.setShouldDisplayExplanation(false);
     } else {
