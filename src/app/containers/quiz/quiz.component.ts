@@ -273,7 +273,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           setTimeout(() => {
             this.currentQuestion = { ...newQuestion };
-          }, 10); // Small delay to ensure UI resets properly
+          }, 10); // small delay to ensure UI resets properly
         });
       },
       error: (err) => console.error('Error in currentQuestion subscription:', err),
