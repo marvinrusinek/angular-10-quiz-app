@@ -3192,6 +3192,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
+    if (this.explanationTextService.isExplanationLocked()) {
+      console.warn('[🛡️ Skipped UI reset — explanation is locked]');
+      return;
+    }
+
     // Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
