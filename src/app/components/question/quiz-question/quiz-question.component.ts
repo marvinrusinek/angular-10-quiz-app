@@ -3240,19 +3240,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] CALLED with index:', index);
   
+    // Validate the explanation entry exists and is not blank
     const entry = this.explanationTextService.formattedExplanations[index];
-    const explanationText = entry?.explanation?.trim() || 'No explanation available';
+    if (!entry || !entry.explanation?.trim()) {
+      console.warn(`[❌] No valid explanation entry found for Q${index}. Skipping update.`);
+      return 'No explanation available';
+    }
   
+    const explanationText = entry.explanation.trim();
+  
+    // Retrieve current quiz state for this question
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
     console.log('[updateExplanationText] Current question state:', qState);
   
-    // ✅ Skip if already handled
+    // If already marked as displayed with non-empty explanation, skip re-emission
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
       console.log(`[⏹️ Skipping re-display for Q${index}]`);
       return qState.explanationText;
     }
   
-    // ✅ Immediately mark explanation as displayed BEFORE triggering UI
+    // Cache the explanation in question state and mark as displayed
     if (qState) {
       qState.explanationDisplayed = true;
       qState.explanationText = explanationText;
@@ -3260,13 +3267,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`[📝 Marked Q${index} as explanationDisplayed ✅]`);
     }
   
-    // ✅ Set internal explanation service state and lock it to prevent overrides
+    // Emit through ExplanationTextService
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.lockExplanation();
   
-    console.log('[🧠 Explanation update complete for Q' + index + ']:', explanationText);
+    console.log(`[🧠 Explanation update complete for Q${index}]:`, explanationText);
   
     return explanationText;
   }
