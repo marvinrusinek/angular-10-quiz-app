@@ -3062,12 +3062,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
+      // ✅ Guard: Valid index
       if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(`❌ Invalid questionIndex (${questionIndex})`);
         return false;
       }
   
-      // Reset state
+      // ✅ Reset UI state before loading
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
@@ -3075,49 +3076,56 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = '';
       this.cdRef.detectChanges();
   
-      await new Promise(res => setTimeout(res, 30)); // Let UI catch up
+      await new Promise(res => setTimeout(res, 30)); // Let UI flush
   
-      // Fetch question
+      // ✅ Fetch question details
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question) {
         console.error(`❌ No question found at index ${questionIndex}`);
         return false;
       }
+  
       this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
   
-      // Assign option states
+      // ✅ Assign option active states
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
       question.options = updatedOptions;
   
-      // Explanation display logic
+      // ✅ Determine explanation state
       const isAnswered = await this.isQuestionAnswered(questionIndex);
-      let explanationText = isAnswered ? (question.explanation?.trim() ?? '') : '';
+      let explanationText = '';
   
-      if (isAnswered && !explanationText) {
-        console.warn(`[⚠️ fetchAndSetQuestionData] Missing explanation text for Q${questionIndex}. Using fallback.`);
-        explanationText = 'No explanation available';
-      }
+      if (isAnswered) {
+        explanationText = question.explanation?.trim() ?? '';
   
-      console.log(`[fetchAndSetQuestionData] ✅ Explanation for Q${questionIndex}:`, explanationText);
+        if (!explanationText) {
+          console.warn(`[⚠️] Missing explanation text for Q${questionIndex}, using fallback.`);
+          explanationText = 'No explanation available';
+        }
   
-      // Set internal explanation state
-      this.explanationToDisplay = explanationText;
-      this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
-  
-      if (isAnswered && explanationText) {
+        // ✅ Sync explanation state
+        this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationTextService.lockExplanation();
   
-        this.quizStateService.setDisplayState({
-          mode: 'explanation',
-          answered: true
-        });
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      } else {
+        // Even for unanswered questions, store the fallback
+        this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, '');
       }
   
-      // Question display setup
+      // ✅ Log full diagnostic
+      console.log(`[Q${questionIndex}] →`, {
+        questionText: question.questionText,
+        explanationText,
+        isAnswered,
+        optionCount: updatedOptions.length
+      });
+  
+      // ✅ Set all local state + sync services
       this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
-      this.quizStateService.setQuestionText(this.questionToDisplay);
+      this.explanationToDisplay = explanationText;
   
       this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
@@ -3131,7 +3139,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
   
       await this.quizService.checkIfAnsweredCorrectly();
-      this.timerService.startTimer(this.timerService.timePerQuestion);
+  
+      // ✅ Only start timer if question was not already answered
+      if (!isAnswered) {
+        this.timerService.startTimer(this.timerService.timePerQuestion);
+      } else {
+        this.timerService.isTimerRunning = false;
+      }
   
       return true;
     } catch (error) {
@@ -3188,12 +3202,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     options: Option[],
     explanationText: string
   ): void {
-    this.questionToDisplay = questionText || 'No question text available';
+    // ✅ Use fallback if question text is empty
+    this.questionToDisplay = questionText?.trim() || 'No question text available';
+  
+    // ✅ Ensure options are a valid array
     this.optionsToDisplay = Array.isArray(options) ? options : [];
-    this.explanationToDisplay = explanationText || 'No explanation available';
-
+  
+    // ✅ Set explanation fallback
+    this.explanationToDisplay = explanationText?.trim() || 'No explanation available';
+  
+    // ✅ Emit latest values to any subscribers (template/UI)
     this.questionTextSubject.next(this.questionToDisplay);
     this.explanationTextSubject.next(this.explanationToDisplay);
+
+    if (!this.explanationToDisplay || this.explanationToDisplay === 'No explanation available') {
+      console.warn('[setQuestionDetails] ⚠️ Explanation fallback triggered');
+    }
+  
+    // 🔍 Log for traceability
+    console.log('[setQuestionDetails]', {
+      question: this.questionToDisplay,
+      options: this.optionsToDisplay.length,
+      explanation: this.explanationToDisplay
+    });
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
