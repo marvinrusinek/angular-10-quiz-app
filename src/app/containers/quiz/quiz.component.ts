@@ -3234,26 +3234,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-      // Validate badge and route consistency
+      // Validate badge and question index consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
-        console.log(
+        console.warn(
           `Badge number (${currentBadgeNumber}) does not match question index (${questionIndex}). Correcting...`
         );
       }
   
-      // Reset UI and explanation text before navigating
+      // Reset general UI state
       this.resetUI();
-      this.explanationTextService.resetStateBetweenQuestions();
   
-      // Fully clear previous question’s options
+      // Only reset explanation-related state if not locked
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.resetStateBetweenQuestions();
+      } else {
+        console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
+      }
+  
+      // Clear options and current question display
       this.optionsToDisplay = [];
       this.currentQuestion = null;
-      this.cdRef.detectChanges();
+      this.cdRef.detectChanges(); // ensure view updates after reset
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
     }
-  }  
+  }
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
