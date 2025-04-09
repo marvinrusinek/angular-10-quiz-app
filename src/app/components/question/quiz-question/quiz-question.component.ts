@@ -2043,7 +2043,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
 
       // Only update explanation text if question is answered and not already displayed
-      if (qState?.explanationText?.trim()) {
+      /* if (qState?.explanationText?.trim()) {
         // Reuse cached explanation and re-emit
         this.explanationTextService.setExplanationText(qState.explanationText);
       } else {
@@ -2055,6 +2055,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           qState.explanationText = explanation;
           this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
         }
+      } */
+      if (!qState.explanationDisplayed && !this.explanationTextService.isExplanationLocked()) {
+        const explanation = await this.updateExplanationText(lockedIndex);
+        qState.explanationDisplayed = true;
+        qState.explanationText = explanation;
+        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
       }
   
       // Ensure question index is current
