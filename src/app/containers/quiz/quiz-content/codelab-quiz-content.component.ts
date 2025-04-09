@@ -297,13 +297,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         map(value => value ?? false), // Default to `false` if value is `undefined`
         distinctUntilChanged()
       )),
-      /* switchMap(([[question, isDisplayed], rendered]) => {
-        if (question && isDisplayed && rendered) {
-          return this.fetchExplanationTextAfterRendering(question);
-        } else {
-          return of('');
-        }
-      }), */  
       catchError(error => {
         console.error('Error fetching explanation text:', error);
         return of(''); // Emit an empty string in case of an error
@@ -311,17 +304,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
       this.isExplanationDisplayed = !!explanation;
-    });
-  }
-
-  private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
-    return new Observable<string>((observer) => {
-      setTimeout(() => {
-        this.fetchExplanationText(question).subscribe((explanation: string) => {
-          observer.next(explanation);
-          observer.complete();
-        });
-      }, 100); // delay to ensure rendering order
     });
   }
 
@@ -381,16 +363,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.explanationTextService.resetExplanationText();
 
         this.quizStateService.setCurrentQuestion(question);
-
-        /* setTimeout(() => {
-          this.questionRendered.next(true); // Use BehaviorSubject
-          this.initializeExplanationTextObservable();
-          // this.fetchExplanationTextAfterRendering(question);
-        }, 300); // Ensure this runs after the current rendering cycle
-        */
-        /* setTimeout(() => {
-          this.fetchExplanationTextAfterRendering(question);
-        }, 300); // adjust delay as necessary */
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
