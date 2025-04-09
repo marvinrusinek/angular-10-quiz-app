@@ -107,7 +107,7 @@ export class ExplanationTextService {
     const trimmed = (explanation ?? '').trim();
   
     if (this.explanationLocked && trimmed === '') {
-      console.warn('[🛡️ Blocked reset: explanation is locked]');
+      console.log('[🛡️ Blocked reset: explanation is locked]');
       return;
     }
   
