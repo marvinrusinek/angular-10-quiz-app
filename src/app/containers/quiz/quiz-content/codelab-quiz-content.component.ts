@@ -192,7 +192,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
-    this.setupCorrectAnswersTextDisplay();
   }
 
   ngAfterViewChecked(): void {
@@ -730,50 +729,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       isNavigatingToPrevious: false
     };
     return of(combinedQuestionData);
-  }
-
-  private setupCorrectAnswersTextDisplay(): void {
-    // Combining the logic to determine if the correct answers text should be displayed
-    this.shouldDisplayCorrectAnswers$ = combineLatest([
-      this.shouldDisplayCorrectAnswers$.pipe(
-        startWith(false), // ensuring it has an initial value
-        map(value => value ?? false), // fallback to false if value is undefined
-        distinctUntilChanged()
-      ),
-      this.isExplanationDisplayed$.pipe(
-        startWith(false), // ensuring it has an initial value
-        map(value => value ?? false), // fallback to false if value is undefined
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      tap(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) => {
-        console.log('Combined shouldDisplayCorrectAnswers and isExplanationDisplayed:', {
-          shouldDisplayCorrectAnswers,
-          isExplanationDisplayed
-        });
-      }),
-      map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
-        shouldDisplayCorrectAnswers && !isExplanationDisplayed
-      ),
-      distinctUntilChanged(),
-      catchError(error => {
-        console.error('Error in shouldDisplayCorrectAnswers$ observable:', error);
-        return of(false); // default to not displaying correct answers in case of error
-      })
-    );
-
-    // Display correctAnswersText only if the above conditions are met
-    this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
-      switchMap(shouldDisplay => {
-        console.log('switchMap - shouldDisplay:', shouldDisplay);
-        return shouldDisplay ? this.correctAnswersText$ : of(null);
-      }),
-      distinctUntilChanged(),
-      catchError(error => {
-        console.error('Error in displayCorrectAnswersText$ observable:', error);
-        return of(null); // default to null in case of error
-      })
-    );
   }
 
   // Helper function to check if it's a single-answer question with an explanation
