@@ -324,20 +324,10 @@ export class ExplanationTextService {
   }
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
-    console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
-  
-    if (!shouldDisplay) {
-      console.trace('[🛑 Explanation HIDE triggered]');
-    }
-  
     const current = this.shouldDisplayExplanationSource.getValue();
   
-    if (current !== shouldDisplay) {
-      console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
-      this.shouldDisplayExplanationSource.next(shouldDisplay);
-    } else {
-      console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
-    }
+    if (current === shouldDisplay) return;
+    this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
   
   triggerExplanationEvaluation(): void {
