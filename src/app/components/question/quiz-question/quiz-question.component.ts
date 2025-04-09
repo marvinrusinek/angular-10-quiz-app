@@ -433,21 +433,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.restoreFeedbackState();
 
           // Apply feedback immediately after restoring selected options
-          const previouslySelectedOption = this.optionsToDisplay.find(
-            (opt) => opt.selected
-          );
-          if (previouslySelectedOption) {
-            console.log(
-              '[onVisibilityChange] 🎯 Reapplying feedback for previously selected option:',
-              previouslySelectedOption
-            );
-            this.applyOptionFeedback(previouslySelectedOption);
-          } else {
-            console.warn(
-              '[onVisibilityChange] ⚠️ No previously selected option found. Applying feedback to all options.'
-            );
-            this.applyOptionFeedbackToAllOptions();
-          }
+          setTimeout(() => {
+            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
+            if (previouslySelectedOption) {
+              this.applyOptionFeedback(previouslySelectedOption);
+            } else {
+              console.log('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
+            }
+          }, 50);
 
           // Regenerate feedback text for the current question
           try {
@@ -673,7 +666,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           if (previouslySelectedOption) {
             this.applyOptionFeedback(previouslySelectedOption);
           } else {
-            console.warn(
+            console.log(
               '[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.'
             );
           }
@@ -996,7 +989,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } else {
-      console.warn(
+      console.debug(
         '[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.'
       );
     }
@@ -2009,17 +2002,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('[onOptionClicked] event.option:', event.option);
     console.log('[onOptionClicked] currentQuestionIndex:', this.currentQuestionIndex);
     console.log('[onOptionClicked] lockedIndex:', this.fixedQuestionIndex ?? this.currentQuestionIndex);
-
+  
     const option = event.option;
     if (!option) return;
-
+  
     const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion));
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
-
+  
     // Apply selection logic
     this.updateOptionSelection(event, option);
-
     this.selectedOptionService.setAnswered(true);
   
     try {
@@ -2030,7 +2023,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
-      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === event.option?.optionId);
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
       if (!foundOption) return;
   
       if (!this.isFeedbackApplied) {
@@ -2039,55 +2032,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // Update question state to show explanation
+      // === Explanation Setup ===
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
-
-      // Only update explanation text if question is answered and not already displayed
-      /* if (qState?.explanationText?.trim()) {
-        // Reuse cached explanation and re-emit
-        this.explanationTextService.setExplanationText(qState.explanationText);
-      } else {
-        // Fetch and store explanation if not present
-        const explanation = await this.updateExplanationText(lockedIndex);
-
-        if (qState) {
-          qState.explanationDisplayed = true;
-          qState.explanationText = explanation;
-          this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
-        }
-      } */
-      /* if (!qState.explanationDisplayed && !this.explanationTextService.isExplanationLocked()) {
-        const explanation = await this.updateExplanationText(lockedIndex);
-        qState.explanationDisplayed = true;
-        qState.explanationText = explanation;
-        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
-      } */
-      const explanationAlreadyDisplayed = !!qState?.explanationDisplayed;
       const cachedExplanation = qState?.explanationText?.trim();
-
+  
       if (!cachedExplanation) {
         console.log(`[🧠 updateExplanationText] Fetching explanation for Q${lockedIndex}`);
-
         const explanation = await this.updateExplanationText(lockedIndex);
-
+  
         const updatedState = {
           ...qState,
           explanationDisplayed: true,
           explanationText: explanation
         };
-
         this.quizStateService.setQuestionState(this.quizId, lockedIndex, updatedState);
       } else {
         console.log(`[💾 Cached explanation found for Q${lockedIndex}]`, cachedExplanation);
         this.explanationTextService.setExplanationText(cachedExplanation);
       }
   
-      // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
-  
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // Wait until a non-empty explanation is emitted
+      // Wait until explanation is emitted
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
@@ -2095,22 +2062,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         )
       );
   
-      // Allow UI to render explanation
+      // Set display flags
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
-      this.explanationTextService.triggerExplanationEvaluation();
   
-      // Finalize state and mark UI
+      // Only trigger explanation if both values are set properly
+      setTimeout(() => {
+        const explanationReady = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+        const shouldDisplay = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+  
+        if (explanationReady && shouldDisplay) {
+          this.explanationTextService.triggerExplanationEvaluation();
+        } else {
+          console.log('[onOptionClicked] ⏭️ Skipped triggerExplanationEvaluation — preconditions not met');
+        }
+      }, 20);
+  
+      // Final steps
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
-
-      // Save immediately after interaction
       this.saveQuizState();
   
       setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
-      console.error(`[onOptionClicked] ❌ Error:`, error);
+      console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
 
@@ -2328,13 +2304,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Ensure UI updates **after** applying feedback
-    if (this.showFeedbackForOption[selectedOption.optionId]) {
-      console.log('[applyOptionFeedback] 🔄 UI updated.');
-    } else {
-      console.warn(
-        `[applyOptionFeedback] ❌ UI update skipped. No feedback detected for optionId ${selectedOption.optionId}`
-      );
+    // Ensure the flag is initialized if missing
+    if (!this.showFeedbackForOption[selectedOption.optionId]) {
+      this.showFeedbackForOption[selectedOption.optionId] = true;
+      console.log(`[applyOptionFeedback] ✅ Feedback flag set for optionId ${selectedOption.optionId}`);
     }
+
+    // Now apply UI update logic
+    console.log('[applyOptionFeedback] 🔄 UI updated.');
 
     this.cdRef.markForCheck();
   }
@@ -2572,7 +2549,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         await this.timerService.stopTimer();
         this.timerService.isTimerRunning = false; // ensure the timer state is updated
       } else {
-        console.warn(
+        console.log(
           '[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.'
         );
       }
@@ -3255,7 +3232,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // ✅ Skip if already handled
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
-      console.warn(`[⏹️ Skipping re-display for Q${index}]`);
+      console.log(`[⏹️ Skipping re-display for Q${index}]`);
       return qState.explanationText;
     }
   
@@ -3936,7 +3913,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!this.explanationTextService.isExplanationLocked()) {
       this.explanationTextService.setShouldDisplayExplanation(false);
     } else {
-      console.warn('[🛡️ resetExplanation] Blocked explanation reset — lock is active.');
+      console.log('[🛡️ resetExplanation] Blocked explanation reset — lock is active.');
     }
   }
 
