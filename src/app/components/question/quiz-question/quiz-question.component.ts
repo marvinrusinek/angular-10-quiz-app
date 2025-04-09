@@ -2097,138 +2097,107 @@ export class QuizQuestionComponent
     checked: boolean;
   }): Promise<void> {
     console.log('[onOptionClicked] event.option:', event.option);
-    console.log(
-      '[onOptionClicked] currentQuestionIndex:',
-      this.currentQuestionIndex
-    );
-    console.log(
-      '[onOptionClicked] lockedIndex:',
-      this.fixedQuestionIndex ?? this.currentQuestionIndex
-    );
-
+  
     const option = event.option;
     if (!option) return;
-
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    console.log('[onOptionClicked] Q Index:', lockedIndex);
+  
     const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(
-        this.currentQuestion
-      )
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
-
-    // Apply selection logic
+  
+    // 🔄 Apply selection logic
     this.updateOptionSelection(event, option);
     this.selectedOptionService.setAnswered(true);
-
+  
     try {
-      const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-
+      // 🔄 Populate options if missing
       if (!this.optionsToDisplay?.length) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(res => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
-
-      const foundOption = this.optionsToDisplay.find(
-        (opt) => opt.optionId === option.optionId
-      );
+  
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
       if (!foundOption) return;
-
+  
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
       }
-
+  
       this.showFeedbackForOption[option.optionId || 0] = true;
-
-      // === Explanation Setup ===
-      const qState = this.quizStateService.getQuestionState(
-        this.quizId,
-        lockedIndex
-      );
+  
+      // ============================
+      // 🧠 Explanation Setup
+      // ============================
+      const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
       const cachedExplanation = qState?.explanationText?.trim();
-
+  
       if (!cachedExplanation) {
-        console.log(
-          `[🧠 updateExplanationText] Fetching explanation for Q${lockedIndex}`
-        );
+        console.log(`[🧠 Fetching explanation for Q${lockedIndex}]`);
         const explanation = await this.updateExplanationText(lockedIndex);
-        console.log(
-          `[🧪 DEBUG] Calling updateExplanationText for Q${lockedIndex}`
-        );
-
-        const updatedState = {
+  
+        // 💾 Store in state
+        this.quizStateService.setQuestionState(this.quizId, lockedIndex, {
           ...qState,
           explanationDisplayed: true,
-          explanationText: explanation,
-        };
-        this.quizStateService.setQuestionState(
-          this.quizId,
-          lockedIndex,
-          updatedState
-        );
+          explanationText: explanation
+        });
       } else {
-        console.log(
-          `[💾 Cached explanation found for Q${lockedIndex}]`,
-          cachedExplanation
-        );
+        console.log(`[💾 Using cached explanation for Q${lockedIndex}]`);
         this.explanationTextService.setExplanationText(cachedExplanation);
       }
-
+  
+      // ✅ Set quiz display state
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({
         mode: 'explanation',
-        answered: true,
+        answered: true
       });
-
-      // Wait until a non-empty explanation is emitted
+  
+      // 🛑 Defensive delay to allow explanation to emit
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
-          filter((text) => !!text?.trim()),
+          filter(text => !!text?.trim()),
           take(1)
         )
       );
-
-      // Set display flags
-      // Defensive check to ensure explanation is visible
-      if (
-        !this.explanationTextService.shouldDisplayExplanationSource.getValue()
-      ) {
-        this.explanationTextService.setShouldDisplayExplanation(true); // ensures UI shows it
+  
+      // ✅ Force display if somehow missed
+      if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
+        this.explanationTextService.setShouldDisplayExplanation(true);
       }
-
-      // Lock to prevent override during rapid state transitions
+  
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.lockExplanation();
       }
-
-      // Only trigger explanation if both values are set properly
+  
+      // 🧪 Only trigger evaluation if both values present
       setTimeout(() => {
-        const explanationReady =
-          !!this.explanationTextService.formattedExplanationSubject
-            .getValue()
-            ?.trim();
-        const shouldDisplay =
-          this.explanationTextService.shouldDisplayExplanationSource.getValue();
-
+        const explanationReady = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+        const shouldDisplay = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+  
         if (explanationReady && shouldDisplay) {
           this.explanationTextService.triggerExplanationEvaluation();
         } else {
-          console.log(
-            '[onOptionClicked] ⏭️ Skipped triggerExplanationEvaluation — preconditions not met'
-          );
+          console.log('[onOptionClicked] ⏭️ Skipped triggerExplanationEvaluation — explanation not ready');
         }
       }, 20);
-
-      // Final steps
+  
+      // ✅ Finalize state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
       this.saveQuizState();
-
+  
       setTimeout(() => this.cdRef.markForCheck());
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
+  
 
   private async fetchAndUpdateExplanationText(
     questionIndex: number
