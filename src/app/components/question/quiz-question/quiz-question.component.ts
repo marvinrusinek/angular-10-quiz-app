@@ -2056,12 +2056,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
         }
       } */
-      if (!qState.explanationDisplayed && !this.explanationTextService.isExplanationLocked()) {
+      /* if (!qState.explanationDisplayed && !this.explanationTextService.isExplanationLocked()) {
         const explanation = await this.updateExplanationText(lockedIndex);
         qState.explanationDisplayed = true;
         qState.explanationText = explanation;
         this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+      } */
+      if (!qState?.explanationDisplayed) {
+        const explanation = await this.updateExplanationText(lockedIndex);
+      
+        if (qState) {
+          qState.explanationDisplayed = true;
+          qState.explanationText = explanation;
+          this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+        }
+      } else if (qState?.explanationText?.trim()) {
+        // Re-emit cached explanation just in case view missed it
+        this.explanationTextService.setExplanationText(qState.explanationText);
       }
+      
   
       // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
