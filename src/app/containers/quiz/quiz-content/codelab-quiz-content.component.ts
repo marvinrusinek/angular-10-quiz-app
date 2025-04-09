@@ -196,7 +196,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
       this.questionRendered.next(false);
-      this.initializeExplanationTextObservable();
     }
   }
 
@@ -244,32 +243,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         },
         error: (error) => console.error('Error in isContentAvailable$:', error),
       });
-  }
-
-  private initializeExplanationTextObservable(): void {
-    combineLatest([
-      this.quizStateService.currentQuestion$.pipe(
-        map(value => value ?? null), // Default to `null` if value is `undefined`
-        distinctUntilChanged()
-      ),
-      this.explanationTextService.isExplanationTextDisplayed$.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      takeUntil(this.destroy$),
-      withLatestFrom(this.questionRendered.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
-        distinctUntilChanged()
-      )),
-      catchError(error => {
-        console.error('Error fetching explanation text:', error);
-        return of(''); // Emit an empty string in case of an error
-      })
-    ).subscribe((explanation: string) => {
-      this.explanationToDisplay = explanation;
-      this.isExplanationDisplayed = !!explanation;
-    });
   }
 
   private loadQuizDataFromRoute(): void {
