@@ -3220,28 +3220,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] CALLED with index:', index);
-
+  
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
-    console.log('Current question state:', qState);
+    console.log('[updateExplanationText] Current question state:', qState);
   
+    // ✅ Skip if already handled
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
       console.warn(`[⏹️ Skipping re-display for Q${index}]`);
       return qState.explanationText;
     }
   
+    // ✅ Immediately mark explanation as displayed BEFORE triggering UI
     if (qState) {
       qState.explanationDisplayed = true;
       qState.explanationText = explanationText;
       this.quizStateService.setQuestionState(this.quizId, index, qState);
+      console.log(`[📝 Marked Q${index} as explanationDisplayed ✅]`);
     }
   
+    // ✅ Set internal explanation service state and lock it to prevent overrides
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.lockExplanation();
+  
+    console.log('[🧠 Explanation update complete for Q' + index + ']:', explanationText);
   
     return explanationText;
   }
