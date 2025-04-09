@@ -323,18 +323,7 @@ export class ExplanationTextService {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
-  /* setShouldDisplayExplanation(shouldDisplay: boolean): void {
-    console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
-    console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
-  
-    const current = this.shouldDisplayExplanationSource.getValue();
-    if (current !== shouldDisplay) {
-      this.shouldDisplayExplanationSource.next(shouldDisplay);
-    } else {
-      console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
-    }
-  } */
-  /* setShouldDisplayExplanation(shouldDisplay: boolean): void {
+  setShouldDisplayExplanation(shouldDisplay: boolean): void {
     console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
   
     if (!shouldDisplay) {
@@ -342,18 +331,13 @@ export class ExplanationTextService {
     }
   
     const current = this.shouldDisplayExplanationSource.getValue();
+  
     if (current !== shouldDisplay) {
       console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
       this.shouldDisplayExplanationSource.next(shouldDisplay);
     } else {
       console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
     }
-  } */
-  setShouldDisplayExplanation(shouldDisplay: boolean): void {
-    const current = this.shouldDisplayExplanationSource.getValue();
-  
-    if (current === shouldDisplay) return;
-    this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
   
   triggerExplanationEvaluation(): void {
