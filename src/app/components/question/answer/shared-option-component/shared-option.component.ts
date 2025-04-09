@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -23,7 +23,7 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
   styleUrls: ['../../quiz-question/quiz-question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SharedOptionComponent implements OnInit, OnChanges {
+export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChild(QuizQuestionComponent, { static: false })
@@ -94,18 +94,6 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     }
     this.ensureOptionIds();
 
-    this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-      console.log('[SharedOptionComponent] 🟢 `quizQuestionComponentOnOptionClicked` triggered with:', { option, index });
-  
-      // 🚀 Ensure `quizQuestionComponent` exists before calling `onOptionClicked()`
-      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
-          console.log('[SharedOptionComponent] 🔍 Calling `quizQuestionComponent.onOptionClicked()`...');
-          this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-      } else {
-          console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
-      }
-    };
-
     console.log('Received config:', this.config);
     if (
       this.config &&
@@ -137,6 +125,22 @@ export class SharedOptionComponent implements OnInit, OnChanges {
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Delay to allow Angular to resolve inputs
+    setTimeout(() => {
+      this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+        console.log('[SharedOptionComponent] 🟢 `quizQuestionComponentOnOptionClicked` triggered with:', { option, index });
+
+        if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+          console.log('[SharedOptionComponent] 🔍 Calling `quizQuestionComponent.onOptionClicked()`...');
+          this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
+        } else {
+          console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
+        }
+      };
+    });
   }
 
   // Handle visibility changes to restore state
