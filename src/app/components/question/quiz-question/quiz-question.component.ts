@@ -3239,6 +3239,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] CALLED with index:', index);
+
+    if (!this.questionsArray || !this.questionsArray[index]) {
+      console.error(`[🚨] Q${index} missing in questionsArray`);
+    }
   
     // Validate the explanation entry exists and is not blank
     const entry = this.explanationTextService.formattedExplanations[index];
@@ -3274,6 +3278,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.lockExplanation();
   
     console.log(`[🧠 Explanation update complete for Q${index}]:`, explanationText);
+
+    console.log(`[📌 Final Q${index} explanation state]`, {
+      qState,
+      explanationText,
+      isDisplayed: this.explanationTextService.shouldDisplayExplanationSource.getValue()
+    });    
   
     return explanationText;
   }
