@@ -141,27 +141,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     });
   } */
   ngAfterViewInit(): void {
-    console.log('[SharedOptionComponent] 🔎 quizQuestionComponent:', this.quizQuestionComponent);
-  
-    if (!this.quizQuestionComponent) {
-      console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
-    }
-  
-    if (typeof this.quizQuestionComponent?.onOptionClicked !== 'function') {
-      console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
-    }
-  
-    // ✅ Set the function **after** ViewChild is ready
-    this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-      console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
-  
-      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
-        console.log('[SharedOptionComponent] 🔍 Calling quizQuestionComponent.onOptionClicked()...');
-        this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-      } else {
-        console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
+    setTimeout(() => {
+      if (!this.quizQuestionComponent) {
+        console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
       }
-    };
+  
+      if (typeof this.quizQuestionComponent?.onOptionClicked !== 'function') {
+        console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
+      }
+  
+      this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+        console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
+  
+        if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+          this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
+        } else {
+          console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
+        }
+      };
+    }, 0);
   }
   
   // Handle visibility changes to restore state
