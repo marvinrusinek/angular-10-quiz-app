@@ -2039,6 +2039,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (!cachedExplanation) {
         console.log(`[🧠 updateExplanationText] Fetching explanation for Q${lockedIndex}`);
         const explanation = await this.updateExplanationText(lockedIndex);
+        console.log(`[🧪 DEBUG] Calling updateExplanationText for Q${lockedIndex}`);
   
         const updatedState = {
           ...qState,
@@ -3284,7 +3285,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.lockExplanation(); // Lock again after setting
-  
+
+    console.log(`[💬 updateExplanationText] Final emitted:`, explanationText);
     console.log(`[🧠 Explanation update complete for Q${index}]:`, explanationText);
   
     console.log(`[📌 Final Q${index} explanation state]`, {
