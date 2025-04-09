@@ -3239,12 +3239,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] CALLED with index:', index);
-
+  
+    // 🔎 Check if the question exists at this index
     if (!this.questionsArray || !this.questionsArray[index]) {
       console.error(`[🚨] Q${index} missing in questionsArray`);
+      return 'No explanation available';
     }
   
-    // Validate the explanation entry exists and is not blank
+    // 🔍 Validate explanation entry
     const entry = this.explanationTextService.formattedExplanations[index];
     if (!entry || !entry.explanation?.trim()) {
       console.warn(`[❌] No valid explanation entry found for Q${index}. Skipping update.`);
@@ -3253,17 +3255,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     const explanationText = entry.explanation.trim();
   
-    // Retrieve current quiz state for this question
+    // 🔄 Get current state for the question
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
     console.log('[updateExplanationText] Current question state:', qState);
   
-    // If already marked as displayed with non-empty explanation, skip re-emission
+    // ⏹️ Avoid re-emitting if already marked and explanation exists
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
       console.log(`[⏹️ Skipping re-display for Q${index}]`);
       return qState.explanationText;
     }
   
-    // Cache the explanation in question state and mark as displayed
+    // ✅ Update question state
     if (qState) {
       qState.explanationDisplayed = true;
       qState.explanationText = explanationText;
@@ -3271,19 +3273,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log(`[📝 Marked Q${index} as explanationDisplayed ✅]`);
     }
   
-    // Emit through ExplanationTextService
+    // 🔓 Unlock explanation if needed before setting new one
+    if (this.explanationTextService.isExplanationLocked()) {
+      console.log(`[🔓 Unlocking explanation for Q${index}]`);
+      this.explanationTextService.unlockExplanation?.(); // Only call if the method exists
+    }
+  
+    // ✅ Update ExplanationTextService state
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setShouldDisplayExplanation(true);
-    this.explanationTextService.lockExplanation();
+    this.explanationTextService.lockExplanation(); // Lock again after setting
   
     console.log(`[🧠 Explanation update complete for Q${index}]:`, explanationText);
-
+  
     console.log(`[📌 Final Q${index} explanation state]`, {
       qState,
       explanationText,
       isDisplayed: this.explanationTextService.shouldDisplayExplanationSource.getValue()
-    });    
+    });
   
     return explanationText;
   }
