@@ -192,7 +192,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
-    this.configureDisplayLogic();
     this.setupCorrectAnswersTextDisplay();
   }
 
@@ -304,16 +303,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
       this.isExplanationDisplayed = !!explanation;
-    });
-  }
-
-  configureDisplayLogic(): void {
-    this.handleQuestionDisplayLogic().subscribe(({ combinedData, isMultipleAnswer }) => {
-      if (this.currentQuestionType === QuestionType.SingleAnswer) {
-        this.shouldDisplayCorrectAnswers = false;
-      } else {
-        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-      }
     });
   }
 
@@ -741,26 +730,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       isNavigatingToPrevious: false
     };
     return of(combinedQuestionData);
-  }
-  
-  handleQuestionDisplayLogic(): Observable<{ combinedData: CombinedQuestionDataType; isMultipleAnswer: boolean }> {
-    return this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$),
-      switchMap(combinedData => {
-        if (combinedData && combinedData.currentQuestion) {
-          this.currentQuestionType = combinedData.currentQuestion.type;
-          return this.quizQuestionManagerService.isMultipleAnswerQuestion(combinedData.currentQuestion).pipe(
-            map(isMultipleAnswer => ({
-              combinedData,
-              isMultipleAnswer
-            }))
-          );
-        } else {
-          this.currentQuestionType = undefined;
-          return of({ combinedData, isMultipleAnswer: false });
-        }
-      })
-    );
   }
 
   private setupCorrectAnswersTextDisplay(): void {
