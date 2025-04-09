@@ -3171,44 +3171,60 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
+      console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
+  
       // Fetch the question text
       const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
       const questionText = await firstValueFrom(questionTextObservable);
   
-      if (!questionText) {
-        console.error('No question text found for index:', questionIndex);
-        throw new Error('Question text not found');
+      if (!questionText || typeof questionText !== 'string' || !questionText.trim()) {
+        console.error(`[❌ fetchQuestionDetails] No valid question text for index ${questionIndex}`);
+        throw new Error(`Question text not found at index ${questionIndex}`);
       }
   
-      // Fetch the options
+      // Fetch options
       const options = await this.quizService.getNextOptions(questionIndex);
-  
       if (!Array.isArray(options) || options.length === 0) {
-        console.error('Invalid or empty options for question at index:', questionIndex);
-        throw new Error('Options not found or invalid');
+        console.error(`[❌ fetchQuestionDetails] No valid options for Q${questionIndex}`);
+        throw new Error(`Options missing for Q${questionIndex}`);
       }
   
-      // Fetch the explanation
-      const explanation = this.explanationTextService.explanationsInitialized
-        ? await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex))
-        : 'No explanation available';
-      if (!explanation || explanation.trim() === '') {
-        console.warn('No explanation text found or it was blank for question at index:', questionIndex);
+      // Fetch explanation
+      let explanation = 'No explanation available';
+      if (this.explanationTextService.explanationsInitialized) {
+        const fetchedExplanation = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+        if (fetchedExplanation?.trim()) {
+          explanation = fetchedExplanation.trim();
+        } else {
+          console.warn(`[⚠️ fetchQuestionDetails] Blank explanation fetched for Q${questionIndex}`);
+        }
+      } else {
+        console.warn(`[⚠️ fetchQuestionDetails] Explanations not initialized for Q${questionIndex}`);
       }
   
-      // Determine the question type
-      const type = options.length > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+      // Determine question type
+      const type = options.filter(opt => opt.correct).length > 1
+        ? QuestionType.MultipleAnswer
+        : QuestionType.SingleAnswer;
   
-      // Create the QuizQuestion object
       const question: QuizQuestion = { questionText, options, explanation, type };
   
-      // Set the question type in the quiz data service
+      // Sync type to service
       this.quizDataService.setQuestionType(question);
+  
+      console.log(`[✅ fetchQuestionDetails] Loaded Q${questionIndex}:`, {
+        text: questionText,
+        options: options.length,
+        explanation,
+        type
+      });
   
       return question;
     } catch (error) {
-      console.error('Error fetching question details:', error);
-      throw error; // Re-throw the error to handle it upstream if necessary
+      console.error(`[❌ fetchQuestionDetails] Failed to load Q${questionIndex}:`, error);
+      throw error;
     }
   }
 
