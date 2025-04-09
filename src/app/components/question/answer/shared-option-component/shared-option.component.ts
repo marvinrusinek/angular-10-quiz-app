@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -23,7 +23,7 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
   styleUrls: ['../../quiz-question/quiz-question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
+export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChild(QuizQuestionComponent, { static: false })
@@ -62,14 +62,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
-  iconVisibility: boolean[] = []; // Array to store visibility state of icons
+  iconVisibility: boolean[] = []; // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
-  private optionsRestored = false; // Tracks if options are restored
+  private optionsRestored = false; // tracks if options are restored
+  private hasBoundQuizComponent = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -127,31 +128,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const hasComponent = this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function';
+  ngAfterViewChecked(): void {
+    if (this.hasBoundQuizComponent) return;
   
-      if (!this.quizQuestionComponent) {
-        console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
-      }
+    const isValid =
+      this.quizQuestionComponent &&
+      typeof this.quizQuestionComponent.onOptionClicked === 'function';
   
-      if (!hasComponent) {
-        console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
-      }
+    if (!this.quizQuestionComponent) {
+      console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
+      return;
+    }
   
-      // ✅ Only set callback if component and function are both valid
-      if (hasComponent) {
-        this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-          console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
-          this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-        };
-      } else {
-        // Prevent assigning broken function
-        this.quizQuestionComponentOnOptionClicked = () => {
-          console.warn('[SharedOptionComponent] ⚠️ Skipped calling onOptionClicked due to missing component or method.');
-        };
-      }
-    }, 0);
+    if (!isValid) {
+      console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
+      return;
+    }
+  
+    // ✅ Safe to assign the handler now
+    this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+      console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
+      this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
+    };
+  
+    this.hasBoundQuizComponent = true;
   }
   
   // Handle visibility changes to restore state
