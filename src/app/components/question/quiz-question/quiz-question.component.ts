@@ -186,7 +186,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     answered: boolean;
   }>({
     mode: 'question',
-    answered: false,
+    answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
 
