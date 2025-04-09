@@ -3080,13 +3080,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     try {
-      // ✅ Guard: Valid index
-      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`❌ Invalid questionIndex (${questionIndex})`);
+      // Validate index
+      if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[fetchAndSetQuestionData] ❌ Invalid index: Q${questionIndex}`);
         return false;
       }
   
-      // ✅ Reset UI state before loading
+      // Reset state
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
@@ -3094,34 +3094,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = '';
       this.cdRef.detectChanges();
   
-      await new Promise(res => setTimeout(res, 30)); // Let UI flush
+      await new Promise(res => setTimeout(res, 30)); // allow UI to flush
   
-      // ✅ Fetch question details
+      // Fetch and validate question
       const question = await this.fetchQuestionDetails(questionIndex);
-      if (!question) {
-        console.error(`❌ No question found at index ${questionIndex}`);
+      if (!question || !question.questionText) {
+        console.error(`[fetchAndSetQuestionData] ❌ Question not found or missing text at Q${questionIndex}`);
         return false;
       }
   
-      this.quizStateService.setQuestionText(question.questionText ?? 'No question available');
-  
-      // ✅ Assign option active states
-      const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
+      // Activate option states
+      const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
       question.options = updatedOptions;
   
-      // ✅ Determine explanation state
+      // Explanation logic
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
   
       if (isAnswered) {
-        explanationText = question.explanation?.trim() ?? '';
+        explanationText = question.explanation?.trim() || '';
   
         if (!explanationText) {
-          console.warn(`[⚠️] Missing explanation text for Q${questionIndex}, using fallback.`);
+          console.warn(`[fetchAndSetQuestionData] ⚠️ Explanation missing for Q${questionIndex}, using fallback.`);
           explanationText = 'No explanation available';
         }
   
-        // ✅ Sync explanation state
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
@@ -3129,20 +3126,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       } else {
-        // Even for unanswered questions, store the fallback
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, '');
       }
   
-      // ✅ Log full diagnostic
-      console.log(`[Q${questionIndex}] →`, {
-        questionText: question.questionText,
-        explanationText,
-        isAnswered,
-        optionCount: updatedOptions.length
-      });
-  
-      // ✅ Set all local state + sync services
-      this.questionToDisplay = question.questionText?.trim() ?? 'No question text available';
+      // Set display state
+      this.questionToDisplay = question.questionText?.trim() || 'No question text available';
       this.explanationToDisplay = explanationText;
   
       this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
@@ -3152,22 +3140,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
+      this.quizStateService.setQuestionText(this.questionToDisplay);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
       this.cdRef.detectChanges();
   
       await this.quizService.checkIfAnsweredCorrectly();
   
-      // ✅ Only start timer if question was not already answered
+      // Start timer only if unanswered
       if (!isAnswered) {
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
         this.timerService.isTimerRunning = false;
       }
   
+      // Final debug log
+      console.log(`[✅ Q${questionIndex} Ready]`, {
+        isAnswered,
+        explanation: explanationText,
+        question: this.questionToDisplay,
+        options: updatedOptions.length
+      });
+  
       return true;
     } catch (error) {
-      console.error(`[fetchAndSetQuestionData] ❌ Error loading Q${questionIndex}:`, error);
+      console.error(`[fetchAndSetQuestionData] ❌ Unexpected error at Q${questionIndex}:`, error);
       return false;
     }
   }
@@ -3275,34 +3272,42 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+    console.log(`[🧭 navigateToQuestion] Requested index: Q${questionIndex}`);
+  
+    // ✅ Step 1: Bounds check
+    if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
       return false;
     }
   
+    // ✅ Step 2: Prepare route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
-    console.log(`[➡️ Navigating to: ${routeUrl}]`);
+    console.log(`[➡️ Routing to: ${routeUrl}]`);
   
+    // ✅ Step 3: Perform navigation
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
-      console.error(`[navigateToQuestion] ❌ Router failed to navigate`);
+      console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
       return false;
     }
   
+    // ✅ Step 4: Fetch and set question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) {
       console.error(`[navigateToQuestion] ❌ Data load failed for Q${questionIndex}`);
       return false;
     }
   
+    // ✅ Step 5: Update internal state
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
+    // ✅ Step 6: Trigger view update
     this.cdRef.detectChanges();
   
-    console.log(`[✅ navigateToQuestion] Now showing Q${questionIndex}`);
+    console.log(`[✅ navigateToQuestion] Successfully displaying Q${questionIndex}`);
     return true;
   }
 
