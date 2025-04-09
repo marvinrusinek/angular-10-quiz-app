@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, isObservable, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -126,7 +126,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.log('[🧪 explanationText$ EMITTED]:', text);
     });
 
-    this.getCombinedTextStream();
+    this.getCombinedDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -179,6 +179,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ).subscribe((isAvailable) => {
       if (isAvailable) {
         console.log('Content is available. Setting up state subscription.');
+        this.setupDisplayStateSubscription();
       } else {
         console.log('Content is not yet available.');
       }
@@ -191,11 +192,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
     // Initialize other component states and subscriptions
     this.initializeComponent();
+    this.configureDisplayLogic();
+    this.setupCorrectAnswersTextDisplay();
   }
 
   ngAfterViewChecked(): void {
     if (this.currentQuestion && !this.questionRendered.getValue()) {
       this.questionRendered.next(false);
+      this.initializeExplanationTextObservable();
     }
   }
 
@@ -208,7 +212,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
   
-  private getCombinedTextStream(): void {
+  private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -223,7 +227,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           return explanation;
         }
     
-        // Append the correct answers text during the question view
+        // Only append the correct answers text during the question view
         return correctText?.trim()
           ? `${question} <span class="correct-count">${correctText}</span>`
           : (question || 'No question available');
@@ -243,6 +247,92 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         },
         error: (error) => console.error('Error in isContentAvailable$:', error),
       });
+  }
+  
+  private setupDisplayStateSubscription(): void {
+    combineLatest([
+      this.displayState$.pipe(distinctUntilChanged()), // ensure state changes trigger updates
+      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged()) // check initialization status
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([state, isInitialized]) => {
+        if (isInitialized) {
+          if (this.quizQuestionComponent) {
+            if (state.mode === 'explanation' && state.answered) {
+              console.log('Displaying explanation text.', {
+                mode: state.mode,
+                answered: state.answered
+              });
+            } else {
+              console.log('Displaying question text.', {
+                mode: state.mode,
+                answered: state.answered
+              });
+            }
+          } else {
+            console.error('QuizQuestionComponent is unexpectedly null during display update.');
+          }
+        } else {
+          console.info('QuizQuestionComponent not ready. Skipping display update.', {
+            state,
+            isInitialized
+          });
+        }
+      });
+  }
+
+  private initializeExplanationTextObservable(): void {
+    combineLatest([
+      this.quizStateService.currentQuestion$.pipe(
+        map(value => value ?? null), // Default to `null` if value is `undefined`
+        distinctUntilChanged()
+      ),
+      this.explanationTextService.isExplanationTextDisplayed$.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      )
+    ]).pipe(
+      takeUntil(this.destroy$),
+      withLatestFrom(this.questionRendered.pipe(
+        map(value => value ?? false), // Default to `false` if value is `undefined`
+        distinctUntilChanged()
+      )),
+      switchMap(([[question, isDisplayed], rendered]) => {
+        if (question && isDisplayed && rendered) {
+          return this.fetchExplanationTextAfterRendering(question);
+        } else {
+          return of('');
+        }
+      }),
+      catchError(error => {
+        console.error('Error fetching explanation text:', error);
+        return of(''); // Emit an empty string in case of an error
+      })
+    ).subscribe((explanation: string) => {
+      this.explanationToDisplay = explanation;
+      this.isExplanationDisplayed = !!explanation;
+    });
+  }
+
+  private fetchExplanationTextAfterRendering(question: QuizQuestion): Observable<string> {
+    return new Observable<string>((observer) => {
+      setTimeout(() => {
+        this.fetchExplanationText(question).subscribe((explanation: string) => {
+          observer.next(explanation);
+          observer.complete();
+        });
+      }, 100); // delay to ensure rendering order
+    });
+  }
+
+  configureDisplayLogic(): void {
+    this.handleQuestionDisplayLogic().subscribe(({ combinedData, isMultipleAnswer }) => {
+      if (this.currentQuestionType === QuestionType.SingleAnswer) {
+        this.shouldDisplayCorrectAnswers = false;
+      } else {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      }
+    });
   }
 
   private loadQuizDataFromRoute(): void {
@@ -291,6 +381,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.explanationTextService.resetExplanationText();
 
         this.quizStateService.setCurrentQuestion(question);
+
+        /* setTimeout(() => {
+          this.questionRendered.next(true); // Use BehaviorSubject
+          this.initializeExplanationTextObservable();
+          // this.fetchExplanationTextAfterRendering(question);
+        }, 300); // Ensure this runs after the current rendering cycle
+        */
+        setTimeout(() => {
+          this.fetchExplanationTextAfterRendering(question);
+        }, 300); // adjust delay as necessary
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
@@ -378,6 +478,39 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
   }
 
+  // Function to handle the display of correct answers
+  private handleCorrectAnswersDisplay(question: QuizQuestion): void {
+    const isMultipleAnswer$ = this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
+        map(value => value ?? false), // default to `false` if value is `undefined`
+        distinctUntilChanged()
+    );
+    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$.pipe(
+        map(value => value ?? false), // default to `false` if value is `undefined`
+        distinctUntilChanged()
+    );
+
+    combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
+      .pipe(
+        take(1),
+        switchMap(([isMultipleAnswer, isExplanationDisplayed]) => {
+          if (this.isSingleAnswerWithExplanation(isMultipleAnswer, isExplanationDisplayed)) {
+            // For single-answer questions with an explanation, do not display correct answers
+            return of(false);
+          } else {
+            // For all other cases, display correct answers
+            return of(isMultipleAnswer && !isExplanationDisplayed);
+          }
+        }),
+        catchError(error => {
+          console.error('Error in handleCorrectAnswersDisplay:', error);
+          return of(false); // Default to not displaying correct answers in case of error
+        })
+      )
+      .subscribe((shouldDisplayCorrectAnswers: boolean) => {
+        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+      });
+  }
+
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
@@ -413,6 +546,37 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         console.log("Should Display Correct Answers:", shouldDisplayCorrectAnswers);
       }),
       map(() => void 0)
+    );
+  }
+
+  private fetchExplanationText(question: QuizQuestion): Observable<string> {
+    if (!question || !question.questionText) {
+      console.error('Question is undefined or missing questionText');
+      return of('No explanation available');
+    }
+  
+    return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      switchMap((questions: QuizQuestion[]) => {
+        if (questions.length === 0) {
+          console.error('No questions received from service.');
+          return of('No explanation available');
+        }
+  
+        const questionIndex = questions.findIndex(q =>
+          q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+        );
+        if (questionIndex < 0) {
+          console.error('Current question not found in the questions array.');
+          return of('No explanation available');
+        }
+  
+        if (!this.explanationTextService.explanationsInitialized) {
+          console.warn(`[fetchExplanationText] ⏳ Explanations not initialized — returning fallback for Q${questionIndex}`);
+          return of('No explanation available');
+        }
+        
+        return this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
+      })
     );
   }
 
@@ -605,5 +769,74 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       isNavigatingToPrevious: false
     };
     return of(combinedQuestionData);
+  }
+  
+  handleQuestionDisplayLogic(): Observable<{ combinedData: CombinedQuestionDataType; isMultipleAnswer: boolean }> {
+    return this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$),
+      switchMap(combinedData => {
+        if (combinedData && combinedData.currentQuestion) {
+          this.currentQuestionType = combinedData.currentQuestion.type;
+          return this.quizQuestionManagerService.isMultipleAnswerQuestion(combinedData.currentQuestion).pipe(
+            map(isMultipleAnswer => ({
+              combinedData,
+              isMultipleAnswer
+            }))
+          );
+        } else {
+          this.currentQuestionType = undefined;
+          return of({ combinedData, isMultipleAnswer: false });
+        }
+      })
+    );
+  }
+
+  private setupCorrectAnswersTextDisplay(): void {
+    // Combining the logic to determine if the correct answers text should be displayed
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.shouldDisplayCorrectAnswers$.pipe(
+        startWith(false), // ensuring it has an initial value
+        map(value => value ?? false), // fallback to false if value is undefined
+        distinctUntilChanged()
+      ),
+      this.isExplanationDisplayed$.pipe(
+        startWith(false), // ensuring it has an initial value
+        map(value => value ?? false), // fallback to false if value is undefined
+        distinctUntilChanged()
+      )
+    ]).pipe(
+      tap(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) => {
+        console.log('Combined shouldDisplayCorrectAnswers and isExplanationDisplayed:', {
+          shouldDisplayCorrectAnswers,
+          isExplanationDisplayed
+        });
+      }),
+      map(([shouldDisplayCorrectAnswers, isExplanationDisplayed]) =>
+        shouldDisplayCorrectAnswers && !isExplanationDisplayed
+      ),
+      distinctUntilChanged(),
+      catchError(error => {
+        console.error('Error in shouldDisplayCorrectAnswers$ observable:', error);
+        return of(false); // default to not displaying correct answers in case of error
+      })
+    );
+
+    // Display correctAnswersText only if the above conditions are met
+    this.displayCorrectAnswersText$ = this.shouldDisplayCorrectAnswers$.pipe(
+      switchMap(shouldDisplay => {
+        console.log('switchMap - shouldDisplay:', shouldDisplay);
+        return shouldDisplay ? this.correctAnswersText$ : of(null);
+      }),
+      distinctUntilChanged(),
+      catchError(error => {
+        console.error('Error in displayCorrectAnswersText$ observable:', error);
+        return of(null); // default to null in case of error
+      })
+    );
+  }
+
+  // Helper function to check if it's a single-answer question with an explanation
+  private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
+    return !isMultipleAnswer && isExplanationDisplayed;
   }
 }
