@@ -3424,7 +3424,7 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] CALLED with index:', index);
 
     // 🔎 Check if the question exists at this index
@@ -3494,6 +3494,63 @@ export class QuizQuestionComponent
         this.explanationTextService.shouldDisplayExplanationSource.getValue(),
     });
 
+    return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log('[updateExplanationText] CALLED with index:', index);
+  
+    if (!this.questionsArray || !this.questionsArray[index]) {
+      console.error(`[🚨] Q${index} missing in questionsArray`);
+      return 'No explanation available';
+    }
+  
+    const entry = this.explanationTextService.formattedExplanations[index];
+    if (!entry || !entry.explanation?.trim()) {
+      console.warn(`[❌] No valid explanation entry found for Q${index}. Skipping update.`);
+      return 'No explanation available';
+    }
+  
+    const explanationText = entry.explanation.trim();
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    // Prevent duplicate emit if already emitted and matched
+    if (
+      qState?.explanationDisplayed &&
+      qState.explanationText?.trim() === explanationText &&
+      this.explanationTextService.latestExplanation?.trim() === explanationText
+    ) {
+      console.log(`[⏹️ Skipping re-display for Q${index}]`);
+      return explanationText;
+    }
+  
+    // ✅ Set state before emit
+    if (qState) {
+      qState.explanationDisplayed = true;
+      qState.explanationText = explanationText;
+      this.quizStateService.setQuestionState(this.quizId, index, qState);
+      console.log(`[📝 Marked Q${index} as explanationDisplayed ✅]`);
+    }
+  
+    // ✅ Emit explanation and wait for UI to be ready
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    await firstValueFrom(
+      this.explanationTextService.explanationText$.pipe(
+        filter((txt) => txt?.trim().length > 0),
+        take(1)
+      )
+    );
+  
+    if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    }
+  
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.lockExplanation();
+    }
+  
+    console.log(`[🧠 Explanation update complete for Q${index}]:`, explanationText);
+  
     return explanationText;
   }
 
