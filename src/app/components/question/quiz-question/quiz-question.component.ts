@@ -2042,18 +2042,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update question state to show explanation
       const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
 
-      if (qState?.explanationText?.trim()) {
-        // Reuse cached explanation and re-emit
-        this.explanationTextService.setExplanationText(qState.explanationText);
-      } else {
-        // Fetch and store explanation if not present
+      // Only update explanation text if question is answered and not already displayed
+      if (qState?.isAnswered && !qState.explanationDisplayed) {
         const explanation = await this.updateExplanationText(lockedIndex);
-
-        if (qState) {
-          qState.explanationDisplayed = true;
-          qState.explanationText = explanation;
-          this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
-        }
+        qState.explanationDisplayed = true;
+        qState.explanationText = explanation;
+        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+      } else if (qState?.explanationText?.trim()) {
+        // Re-emit cached explanation
+        this.explanationTextService.setExplanationText(qState.explanationText);
       }
   
       // Ensure question index is current
