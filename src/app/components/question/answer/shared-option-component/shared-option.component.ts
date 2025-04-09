@@ -71,6 +71,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionIconClass: string;
   private optionsRestored = false; // tracks if options are restored
   private hasBoundQuizComponent = false;
+  private hasLoggedMissingComponent = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -131,21 +132,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
   
-    const isValid =
-      this.quizQuestionComponent &&
-      typeof this.quizQuestionComponent.onOptionClicked === 'function';
-  
     if (!this.quizQuestionComponent) {
-      console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
+      if (!this.hasLoggedMissingComponent) {
+        console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
+        this.hasLoggedMissingComponent = true;
+      }
       return;
     }
   
-    if (!isValid) {
-      console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
+    if (typeof this.quizQuestionComponent.onOptionClicked !== 'function') {
+      if (!this.hasLoggedMissingComponent) {
+        console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
+        this.hasLoggedMissingComponent = true;
+      }
       return;
     }
   
-    // ✅ Safe to assign the handler now
+    // ✅ Safe to assign handler now
     this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
       console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
       this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
