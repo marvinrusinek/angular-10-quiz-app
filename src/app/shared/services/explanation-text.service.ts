@@ -17,6 +17,8 @@ export class ExplanationTextService {
 
   processedQuestions: Set<string> = new Set<string>();
   currentQuestionExplanation: string | null = null;
+  latestExplanation = '';
+  explanationsInitialized = false;
   
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
@@ -37,10 +39,6 @@ export class ExplanationTextService {
 
   private explanationTrigger = new Subject<void>();
   explanationTrigger$ = this.explanationTrigger.asObservable();
-
-  private latestExplanation = '';
-
-  explanationsInitialized = false;
 
   constructor() {}
 
