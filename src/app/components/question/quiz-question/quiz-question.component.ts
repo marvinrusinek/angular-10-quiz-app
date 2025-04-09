@@ -2065,7 +2065,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const explanationAlreadyDisplayed = !!qState?.explanationDisplayed;
       const cachedExplanation = qState?.explanationText?.trim();
 
-      if (!explanationAlreadyDisplayed || !cachedExplanation) {
+      if (!cachedExplanation) {
         console.log(`[🧠 updateExplanationText] Fetching explanation for Q${lockedIndex}`);
 
         const explanation = await this.updateExplanationText(lockedIndex);
@@ -2081,7 +2081,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log(`[💾 Cached explanation found for Q${lockedIndex}]`, cachedExplanation);
         this.explanationTextService.setExplanationText(cachedExplanation);
       }
-            
   
       // Ensure question index is current
       this.quizService.setCurrentQuestionIndex(lockedIndex);
