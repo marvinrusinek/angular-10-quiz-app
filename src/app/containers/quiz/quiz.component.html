@@ -96,15 +96,15 @@
             #nextButton="matTooltip"
             mat-icon-button
             routerLinkActive="active"
-            (click)="advanceToNextQuestion()"              
+            (click)="advanceToNextQuestion()"
+            (window:keydown.ArrowRight)="advanceToNextQuestion()"
+            (window:keydown.Enter)="advanceToNextQuestion()"
             matTooltipPosition="above"
             [matTooltip]="nextButtonTooltip$ | async"
             [disabled]="!(isButtonEnabled$ | async)"
             [ngStyle]="nextButtonStyle"
             aria-label="Next Question"
           >
-          <!-- (window:keydown.ArrowRight)="advanceToNextQuestion()"
-            (window:keydown.Enter)="advanceToNextQuestion()"-->
             <i class="material-icons">navigate_next</i>
           </button>
         </div>
