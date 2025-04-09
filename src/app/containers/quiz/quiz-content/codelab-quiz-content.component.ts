@@ -476,37 +476,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }
 
-  private fetchExplanationText(question: QuizQuestion): Observable<string> {
-    if (!question || !question.questionText) {
-      console.error('Question is undefined or missing questionText');
-      return of('No explanation available');
-    }
-  
-    return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      switchMap((questions: QuizQuestion[]) => {
-        if (questions.length === 0) {
-          console.error('No questions received from service.');
-          return of('No explanation available');
-        }
-  
-        const questionIndex = questions.findIndex(q =>
-          q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
-        );
-        if (questionIndex < 0) {
-          console.error('Current question not found in the questions array.');
-          return of('No explanation available');
-        }
-  
-        if (!this.explanationTextService.explanationsInitialized) {
-          console.warn(`[fetchExplanationText] ⏳ Explanations not initialized — returning fallback for Q${questionIndex}`);
-          return of('No explanation available');
-        }
-        
-        return this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
-      })
-    );
-  }
-
   updateExplanationForQuestion(question: QuizQuestion): void {
     // Combine explanationTextService's observable with selectedOptionExplanation$
     const explanationText$ = combineLatest([
