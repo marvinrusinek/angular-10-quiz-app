@@ -2847,21 +2847,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
   
+      console.log(`[➡️ advanceToNextQuestion] Current: Q${currentIndex}, Target: Q${nextIndex}`);
+  
+      // ✅ Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         return;
       }
   
+      // ✅ Optional: Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
+      if (isNaN(nextIndex) || nextIndex < 0) {
+        console.error(`[❌ advanceToNextQuestion] Invalid next index: ${nextIndex}`);
+        return;
+      }
+  
+      // 🔄 Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
         console.warn(`[❌ advanceToNextQuestion] Navigation to Q${nextIndex} failed.`);
         return;
       }
   
-      this.quizQuestionComponent?.resetExplanation?.();
+      // 🧹 Reset question-specific state
+      this.quizQuestionComponent?.resetExplanation?.(); // safely call if exists
       this.resetUI();
   
+      // 🔄 Next button logic (re-evaluate state)
       const shouldEnableNext = this.isAnyOptionSelected();
       this.updateAndSyncNextButtonState(shouldEnableNext);
     } catch (error) {
@@ -2871,6 +2883,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
   
+      // Small delay to allow async visual updates
       setTimeout(() => {
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
