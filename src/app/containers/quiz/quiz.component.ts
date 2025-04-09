@@ -2366,6 +2366,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const shouldDisableExplanation = !isAnswered && !explanationAlreadyDisplayed;
   
     if (isAnswered || explanationAlreadyDisplayed) {
+      // Validate inputs and ensure explanation system is initialized
       if (
         typeof questionIndex === 'number' &&
         !isNaN(questionIndex) &&
@@ -2373,23 +2374,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       ) {
         const explanation$ = this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
         this.explanationToDisplay = await firstValueFrom(explanation$);
-        this.explanationTextService.setExplanationText(this.explanationToDisplay);
+  
+        // Defensive fallback for empty explanation
+        if (this.explanationToDisplay?.trim()) {
+          this.explanationTextService.setExplanationText(this.explanationToDisplay);
+        } else {
+          console.warn(`[⚠️ Explanation is empty for Q${questionIndex}]`);
+          this.explanationToDisplay = 'No explanation available';
+          this.explanationTextService.setExplanationText(this.explanationToDisplay);
+        }
       } else {
         console.warn(`[⚠️ Skipping explanation fetch — invalid index or explanations not ready] index: ${questionIndex}`);
         this.explanationToDisplay = 'No explanation available';
         this.explanationTextService.setExplanationText(this.explanationToDisplay);
       }
-    
+  
+      // Always lock and enable explanation AFTER setting the text
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
       this.showExplanation = true;
+  
     } else if (shouldDisableExplanation) {
       this.explanationToDisplay = '';
+  
+      // Only allow disabling if explanation is not locked
       if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
+      } else {
+        console.warn('[🛡️ Explanation reset blocked due to active lock]');
       }
+  
       this.showExplanation = false;
-    }   
+    }
   
     console.log(`[🛠️ updateQuestionStateAndExplanation] Q${questionIndex}:`, {
       isAnswered,
@@ -2397,7 +2414,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       shouldDisableExplanation,
       explanation: this.explanationToDisplay
     });
-  }  
+  }
 
   async initializeFirstQuestion(): Promise<void> {
     this.resetQuestionDisplayState();
