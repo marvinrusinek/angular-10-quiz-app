@@ -1034,7 +1034,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   // Determines if feedback should be shown for the option
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionsToDisplay[index]?.optionId ?? -1;
-    const shouldShow = optionId !== -1 && this.showFeedbackForOption[optionId] === true && this.selectedOptionIndex === index;
+    const shouldShow = optionId !== -1 && 
+                       this.showFeedbackForOption[optionId] === true && 
+                       this.selectedOptionIndex === index;
     return shouldShow;
   }
   
