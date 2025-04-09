@@ -3465,7 +3465,7 @@ export class QuizQuestionComponent
 
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] CALLED with index:', index);
   
     if (!this.questionsArray || !this.questionsArray[index]) {
@@ -3520,6 +3520,49 @@ export class QuizQuestionComponent
   
     console.log(`[🧠 Explanation update complete for Q${index}]:`, explanationText);
   
+    return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log('[updateExplanationText] Called for Q', index);
+  
+    // Defensive: ensure explanation exists
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim();
+  
+    if (!explanationText) {
+      console.warn(`[updateExplanationText] ❌ Missing explanation for Q${index}`);
+      return 'No explanation available';
+    }
+  
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+  
+    // Skip if already stored
+    if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
+      console.log(`[updateExplanationText] ⏭️ Already displayed for Q${index}`);
+      return qState.explanationText;
+    }
+  
+    // Store and mark as displayed
+    const updatedState = {
+      ...qState,
+      explanationDisplayed: true,
+      explanationText
+    };
+    this.quizStateService.setQuestionState(this.quizId, index, updatedState);
+  
+    // Emit to ETS
+    this.explanationTextService.setExplanationText(explanationText);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+  
+    if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    }
+  
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.lockExplanation();
+    }
+  
+    console.log(`[✅ updateExplanationText] Final explanation for Q${index}:`, explanationText);
     return explanationText;
   }
 
