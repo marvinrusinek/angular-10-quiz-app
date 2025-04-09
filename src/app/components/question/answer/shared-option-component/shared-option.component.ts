@@ -127,7 +127,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     setTimeout(() => {
       console.log('[SharedOptionComponent] 🔎 quizQuestionComponent is:', this.quizQuestionComponent);
   
@@ -139,6 +139,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         }
       };
     });
+  } */
+  ngAfterViewInit() {
+    this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+      console.log('[SharedOptionComponent] 🟢 quizQuestionComponentOnOptionClicked triggered with:', { option, index });
+    
+      if (this.quizQuestionComponent && typeof this.quizQuestionComponent.onOptionClicked === 'function') {
+        console.log('[SharedOptionComponent] 🔍 Calling quizQuestionComponent.onOptionClicked()...');
+        this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
+      } else {
+        console.warn('[SharedOptionComponent] ⚠️ quizQuestionComponent is missing or `onOptionClicked()` is not a function.');
+      }
+    };
   }
   
   // Handle visibility changes to restore state
