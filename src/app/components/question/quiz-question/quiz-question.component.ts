@@ -1380,7 +1380,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       // Update explanation and feedback
-      await this.updateExplanationText(lockedIndex);
+      const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
+      if (qState?.isAnswered) {
+        await this.updateExplanationText(lockedIndex);
+      } else {
+        console.log(`[loadQuestion] ❌ Skipping updateExplanationText — Q${lockedIndex} not answered yet.`);
+      }
+
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
       this.updateSelectionMessage(false);
       await this.handleExplanationDisplay();
@@ -2045,15 +2051,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (qState?.explanationText?.trim()) {
         // Reuse cached explanation and re-emit
         this.explanationTextService.setExplanationText(qState.explanationText);
-      } else {
-        // Fetch and store explanation if not present
+      } else if (qState?.isAnswered) {
+        // Defensive check: only fetch if question is answered
         const explanation = await this.updateExplanationText(lockedIndex);
-
-        if (qState) {
-          qState.explanationDisplayed = true;
-          qState.explanationText = explanation;
-          this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
-        }
+      
+        qState.explanationDisplayed = true;
+        qState.explanationText = explanation;
+        this.quizStateService.setQuestionState(this.quizId, lockedIndex, qState);
+      } else {
+        console.log(`[🔕 Skipping explanation fetch for Q${lockedIndex}] Question not answered yet.`);
       }
   
       // Ensure question index is current
@@ -3192,11 +3198,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async resetQuestionStateBeforeNavigation(): Promise<void> {
-    if (this.explanationTextService.isExplanationLocked()) {
-      console.warn('[🛡️ Skipped UI reset — explanation is locked]');
-      return;
-    }
-
     // Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
