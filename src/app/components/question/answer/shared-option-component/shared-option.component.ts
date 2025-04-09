@@ -133,10 +133,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (this.hasBoundQuizComponent) return;
   
     if (!this.quizQuestionComponent) {
-      if (!this.hasLoggedMissingComponent) {
-        console.warn('[SharedOptionComponent] ❌ quizQuestionComponent is undefined');
-        this.hasLoggedMissingComponent = true;
-      }
+      setTimeout(() => this.ngAfterViewChecked(), 50); // try again shortly
       return;
     }
   
