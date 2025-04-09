@@ -3289,31 +3289,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // Reset UI immediately before navigating
   private resetUI(): void {
-    // Reset the current question and options
+    // Clear current question reference and options
     this.question = null;
     this.optionsToDisplay = [];
   
-    // Reset the quiz question component if it exists
+    // Reset question component state only if method exists
     if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.resetFeedback();
-      this.quizQuestionComponent.resetState();
+      if (typeof this.quizQuestionComponent.resetFeedback === 'function') {
+        this.quizQuestionComponent.resetFeedback();
+      }
+      if (typeof this.quizQuestionComponent.resetState === 'function') {
+        this.quizQuestionComponent.resetState();
+      }
+    } else {
+      console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
     }
   
-    // Reset the quiz service state
-    this.quizService.resetAll();
+    // this.quizService.resetAll(); // ← Optional, comment out unless needed for full restart
   
-    // Trigger background reset
+    // Background reset
     this.resetBackgroundService.setShouldResetBackground(true);
   
-    // Trigger state and feedback resets
+    // Trigger app-wide state and feedback resets
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
   
-    // Clear selected options
+    // Clear selected options tracking
     this.selectedOptionService.clearOptions();
   
-    // Reset explanation state
-    this.explanationTextService.resetExplanationState();
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.resetExplanationState();
+    } else {
+      console.log('[resetUI] 🛡️ Skipping explanation reset — lock is active.');
+    }
   }
 
   private resetQuestionDisplayState(): void {
