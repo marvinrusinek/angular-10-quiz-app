@@ -438,39 +438,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
   }
 
-  // Function to handle the display of correct answers
-  private handleCorrectAnswersDisplay(question: QuizQuestion): void {
-    const isMultipleAnswer$ = this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
-        map(value => value ?? false), // default to `false` if value is `undefined`
-        distinctUntilChanged()
-    );
-    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$.pipe(
-        map(value => value ?? false), // default to `false` if value is `undefined`
-        distinctUntilChanged()
-    );
-
-    combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
-      .pipe(
-        take(1),
-        switchMap(([isMultipleAnswer, isExplanationDisplayed]) => {
-          if (this.isSingleAnswerWithExplanation(isMultipleAnswer, isExplanationDisplayed)) {
-            // For single-answer questions with an explanation, do not display correct answers
-            return of(false);
-          } else {
-            // For all other cases, display correct answers
-            return of(isMultipleAnswer && !isExplanationDisplayed);
-          }
-        }),
-        catchError(error => {
-          console.error('Error in handleCorrectAnswersDisplay:', error);
-          return of(false); // Default to not displaying correct answers in case of error
-        })
-      )
-      .subscribe((shouldDisplayCorrectAnswers: boolean) => {
-        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-      });
-  }
-
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
     if (!question) {
       return of(void 0);
@@ -729,10 +696,5 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       isNavigatingToPrevious: false
     };
     return of(combinedQuestionData);
-  }
-
-  // Helper function to check if it's a single-answer question with an explanation
-  private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
-    return !isMultipleAnswer && isExplanationDisplayed;
   }
 }
