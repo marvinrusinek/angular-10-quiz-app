@@ -3511,43 +3511,50 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     questionIndex: number
   ): Promise<void> {
     this.questionsArray = data;
-
+  
+    // Early exit if no questions are available
     if (!this.questionsArray || this.questionsArray.length === 0) {
-      console.warn('Questions array is not initialized or empty.');
+      console.warn('[handleQuestionData] ⚠️ Questions array is not initialized or empty.');
       return;
     }
-
+  
+    // Guard against invalid indices
     if (questionIndex < 0 || questionIndex >= this.questionsArray.length) {
-      console.error(`Invalid questionIndex: ${questionIndex}`);
+      console.error(`[handleQuestionData] ❌ Invalid questionIndex: ${questionIndex}`);
       return;
     }
-
-    const questionState = this.quizStateService.getQuestionState(
-      this.quizId,
-      questionIndex
-    );
-
-    // Check if the question has been answered
-    if (questionState && questionState.isAnswered && this.shouldDisplayExplanation) {
-      // If answered, fetch and set the formatted explanation text for the question
+  
+    const questionState = this.quizStateService.getQuestionState(this.quizId, questionIndex);
+    const isAnswered = questionState?.isAnswered;
+    const shouldShowExplanation = isAnswered && this.shouldDisplayExplanation;
+  
+    if (shouldShowExplanation) {
       try {
-        // Fetch explanation text specific to the current question index
+        // Fetch explanation for answered question
         const explanationText = await this.getExplanationText(questionIndex);
+  
+        // Set and lock explanation to prevent accidental overrides
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationTextService.lockExplanation();
+  
         this.explanationToDisplayChange.emit(explanationText);
         this.showExplanationChange.emit(true);
       } catch (error) {
-        console.error('Error fetching explanation text:', error);
+        console.error('[handleQuestionData] ❌ Error fetching explanation text:', error);
+  
         this.explanationToDisplayChange.emit('Error loading explanation.');
         this.showExplanationChange.emit(true);
       }
     } else {
-      // If not answered, clear the explanation text and set the display flag to false
+      // Clear explanation if question is unanswered and explanation isn't locked
       if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setExplanationText(''); // also clear stored explanation
         this.explanationTextService.setShouldDisplayExplanation(false);
+      } else {
+        console.warn('[handleQuestionData] 🛡️ Explanation locked — skipping clear.');
       }
+  
       this.explanationToDisplayChange.emit('');
       this.showExplanationChange.emit(false);
     }
