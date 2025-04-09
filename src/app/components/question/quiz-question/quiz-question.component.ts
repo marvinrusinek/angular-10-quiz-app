@@ -2055,7 +2055,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // Wait until explanation is emitted
+      // Wait until a non-empty explanation is emitted
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
@@ -2064,8 +2064,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
   
       // Set display flags
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationTextService.lockExplanation();
+      // Defensive check to ensure explanation is visible
+      if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
+        this.explanationTextService.setShouldDisplayExplanation(true); // ensures UI shows it
+      }
+
+      // Lock to prevent override during rapid state transitions
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.lockExplanation();
+      }
   
       // Only trigger explanation if both values are set properly
       setTimeout(() => {
