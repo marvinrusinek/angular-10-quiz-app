@@ -3268,9 +3268,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log('[updateExplanationText] Current question state:', qState);
   
     // ⏹️ Avoid re-emitting if already marked and explanation exists
-    if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
+    const alreadyDisplayed = qState?.explanationDisplayed;
+    const cachedText = qState?.explanationText?.trim();
+
+    if (alreadyDisplayed && cachedText && this.explanationTextService.latestExplanation?.trim() === cachedText) {
       console.log(`[⏹️ Skipping re-display for Q${index}]`);
-      return qState.explanationText;
+      return cachedText;
     }
   
     // ✅ Update question state
