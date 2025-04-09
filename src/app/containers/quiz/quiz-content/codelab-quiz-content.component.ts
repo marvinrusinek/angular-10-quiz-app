@@ -59,7 +59,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   isExplanationDisplayed = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
-  private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
   nextExplanationText = '';
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
