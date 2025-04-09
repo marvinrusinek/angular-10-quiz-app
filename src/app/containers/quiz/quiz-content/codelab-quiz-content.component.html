@@ -2,7 +2,7 @@
   <section id="question">
     <h3 question-content>
       <ng-container *ngIf="combinedText$ | async as combinedText">
-        <span [innerHTML]="combinedText"></span>
+        <div [innerHTML]="combinedText"></div>
       </ng-container>
     </h3>
   </section>
