@@ -2830,7 +2830,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
-      console.warn('[🛑] Already navigating – exiting early');
+      console.warn('[🛑 advanceToNextQuestion] Already navigating – exiting early');
       return;
     }
   
@@ -2841,25 +2841,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
-      
+  
+      console.log(`[➡️ Advancing from Q${currentIndex} to Q${nextIndex}]`);
+  
       if (nextIndex >= this.totalQuestions) {
+        console.log('[🏁 End of quiz reached – redirecting to results]');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         return;
       }
   
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
-        console.warn('[❌] Navigation failed to Q' + nextIndex);
+        console.error(`[❌ advanceToNextQuestion] Navigation to Q${nextIndex} failed`);
         return;
       }
-
+  
       this.quizQuestionComponent?.resetExplanation();
       this.resetUI();
-
+  
       const shouldEnableNextButton = this.isAnyOptionSelected();
       this.updateAndSyncNextButtonState(shouldEnableNextButton);
     } catch (error) {
-      console.error('[advanceToNextQuestion] ❌ Error:', error);
+      console.error('[advanceToNextQuestion] ❌ Uncaught error:', error);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
@@ -3220,29 +3223,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      console.warn(`[navigateToQuestion] ❌ Invalid questionIndex: ${questionIndex}`);
       return false;
     }
   
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
-    const navSuccess = await this.router.navigateByUrl(routeUrl);  
+    console.log(`[🧭 Navigating to: ${routeUrl}]`);
+  
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
-      console.warn(`[navigateToQuestion] ❌ Navigation to ${routeUrl} failed`);
+      console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
       return false;
     }
   
-    const success = await this.fetchAndSetQuestionData(questionIndex);
-    if (!success) {
-      console.warn(`[navigateToQuestion] ❌ Failed to fetch question data`);
+    const fetched = await this.fetchAndSetQuestionData(questionIndex);
+    if (!fetched) {
+      console.error(`[navigateToQuestion] ❌ fetchAndSetQuestionData failed for Q${questionIndex}`);
       return false;
     }
-
-    // Only now update the index
+  
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
-  
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+  
+    console.log(`[✅ Navigation complete] Now on Q${questionIndex}`);
     this.cdRef.detectChanges();
   
     return true;
