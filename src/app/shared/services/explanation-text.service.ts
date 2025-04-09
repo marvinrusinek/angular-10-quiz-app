@@ -329,6 +329,22 @@ export class ExplanationTextService {
     if (current === shouldDisplay) return;
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
+  /* setShouldDisplayExplanation(shouldDisplay: boolean): void {
+    console.log('[📢 setShouldDisplayExplanation] called with:', shouldDisplay);
+  
+    if (!shouldDisplay) {
+      console.trace('[🛑 Explanation HIDE triggered]');
+    }
+  
+    const current = this.shouldDisplayExplanationSource.getValue();
+  
+    if (current !== shouldDisplay) {
+      console.log('[🧩 setShouldDisplayExplanation] value emitted:', shouldDisplay);
+      this.shouldDisplayExplanationSource.next(shouldDisplay);
+    } else {
+      console.log('[⏸️ shouldDisplayExplanation$ NOT emitted - value unchanged]');
+    }
+  } */
   
   triggerExplanationEvaluation(): void {
     const currentExplanation = this.formattedExplanationSubject.getValue();
