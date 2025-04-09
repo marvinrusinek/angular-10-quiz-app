@@ -76,23 +76,21 @@ export class ExplanationTextService {
     const trimmed = (explanation ?? '').trim();
   
     if (this.explanationLocked && trimmed === '') {
-      console.log('[🛡️ Blocked reset: explanation is locked]');
+      console.warn('[🛡️ setExplanationText] Blocked reset: explanation is locked');
       return;
     }
   
-    // Avoid duplicate emission
     if (trimmed === this.latestExplanation) {
-      console.log('[🛡️ Prevented duplicate emit]');
+      console.log('[🛡️ setExplanationText] Prevented duplicate emit');
       return;
     }
   
     this.latestExplanation = trimmed;
   
-    // Emit to both explanationText$ and formattedExplanation$
-    console.log('[setExplanationText] Emitting new explanation:', trimmed);
+    console.log('[✅ setExplanationText] Emitting to BOTH subjects:', trimmed);
     this.explanationText$.next(trimmed);
     this.formattedExplanationSubject.next(trimmed);
-  }
+  }  
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
