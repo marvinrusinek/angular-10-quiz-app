@@ -3176,7 +3176,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Validate badge and route consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
-        console.warn(
+        console.log(
           `Badge number (${currentBadgeNumber}) does not match question index (${questionIndex}). Correcting...`
         );
       }
