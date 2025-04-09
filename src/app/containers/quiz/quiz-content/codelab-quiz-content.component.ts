@@ -336,37 +336,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     );
   }
 
-  updateExplanationForQuestion(question: QuizQuestion): void {
-    // Combine explanationTextService's observable with selectedOptionExplanation$
-    const explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$().pipe(
-        map(value => value ?? 'No explanation available'), // Default to 'No explanation available' if value is `undefined`
-        distinctUntilChanged()
-      ),
-      this.selectedOptionService.selectedOptionExplanation$.pipe(
-        map(value => value ?? null), // Default to `null` if value is `undefined`
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      map(([explanationText, selectedOptionExplanation]) =>
-        selectedOptionExplanation ?? explanationText ?? 'No explanation available'
-      ),
-      catchError(error => {
-        console.error('Error in updateExplanationForQuestion:', error);
-        return of('No explanation available'); // Emit default message in case of error
-      })
-    );
-
-    // Subscribe to explanationText$ and update the explanation text accordingly
-    explanationText$.subscribe((explanationText) => {
-      if (this.quizService.areQuestionsEqual(question, this.question)) {
-        this.explanationText = explanationText as string ?? null;
-      } else {
-        this.explanationText = null;
-      }
-    });
-  }
-
   private initializeCombinedQuestionData(): void {
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     const currentQuizAndOptions$ = this.combineCurrentQuestionAndOptions();
