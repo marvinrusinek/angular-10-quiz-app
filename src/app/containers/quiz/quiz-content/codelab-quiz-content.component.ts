@@ -121,10 +121,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       tap((state) => console.log('[displayState$ emitted]:', state))
     );
 
-    this.explanationTextService.explanationText$.subscribe((text) => {
-      console.log('[🧪 explanationText$ EMITTED]:', text);
-    });
-
     this.getCombinedTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
