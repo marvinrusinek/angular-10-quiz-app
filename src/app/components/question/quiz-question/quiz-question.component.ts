@@ -3156,19 +3156,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private async updateExplanationDisplay(shouldDisplay: boolean): Promise<void> {
     if (shouldDisplay) {
+      // Set the display flag first so UI binds update properly
       this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationTextService.lockExplanation(); // prevent later overrides
+  
+      // Lock to prevent accidental resets from other places
+      this.explanationTextService.lockExplanation();
     } else {
+      // 🚫 Only reset if explanation is not locked (to avoid override)
       if (!this.explanationTextService.isExplanationLocked()) {
-        this.explanationTextService.setShouldDisplayExplanation(false);
+        this.explanationTextService.setExplanationText(''); // clear stored explanation
+        this.explanationTextService.setShouldDisplayExplanation(false); // signal no explanation should show
+        this.explanationToDisplay = ''; // clear internal reference
+        this.explanationToDisplayChange.emit(''); // emit cleared state
+      } else {
+        console.warn('[🛡️ updateExplanationDisplay] Blocked reset — explanation is locked');
       }
     }
   
+    // Notify UI about change
     this.showExplanationChange.emit(shouldDisplay);
     this.displayExplanation = shouldDisplay;
   
     if (shouldDisplay) {
-      // Introduce a delay to avoid flickering
+      // Delay to avoid UI race conditions and flickering
       setTimeout(async () => {
         try {
           let explanationText = 'No explanation available';
@@ -3177,20 +3187,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const fetched = await firstValueFrom(
               this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
             );
+  
             explanationText = fetched?.trim() || explanationText;
+          } else {
+            console.warn(`[updateExplanationDisplay] ⚠️ Explanations not initialized for Q${this.currentQuestionIndex}`);
           }
   
+          // Update and emit valid explanation
           this.explanationToDisplay = explanationText;
-          this.explanationToDisplayChange.emit(this.explanationToDisplay);
-          this.cdRef.markForCheck(); // ensure UI reflects changes
+          this.explanationTextService.setExplanationText(explanationText); // ensure central state is synced
+          this.explanationToDisplayChange.emit(explanationText);
+          this.cdRef.markForCheck(); // trigger change detection
         } catch (error) {
-          console.error('Error fetching explanation:', error);
+          console.error('❌ [updateExplanationDisplay] Error fetching explanation:', error);
           this.explanationToDisplay = 'Error loading explanation.';
           this.explanationToDisplayChange.emit(this.explanationToDisplay);
         }
-      }, 50); // slight delay to avoid flicker
+      }, 50);
     } else {
-      this.resetQuestionStateBeforeNavigation(); // clear explanation when not displaying
+      // Clear any leftover state if explanation is hidden
+      this.resetQuestionStateBeforeNavigation();
     }
   }
 
