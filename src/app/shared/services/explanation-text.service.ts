@@ -74,24 +74,21 @@ export class ExplanationTextService {
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
   
+    // Don't emit if blank
     if (!trimmed) {
-      console.log('[⛔️ Blocked: empty explanation]');
+      console.log('[⛔️ Blocked empty explanation emit]');
       return;
     }
   
-    if (this.explanationLocked && trimmed === '') {
-      console.log('[🛡️ Blocked reset: explanation is locked]');
-      return;
-    }
-  
+    // Don't emit if it's identical to the latest
     if (trimmed === this.latestExplanation) {
       console.log('[🛡️ Prevented duplicate emit]');
       return;
     }
   
+    // Log and emit
     this.latestExplanation = trimmed;
     console.log('[📤 Emitting explanation]', trimmed, performance.now());
-  
     this.explanationText$.next(trimmed);
     this.formattedExplanationSubject.next(trimmed);
   }
