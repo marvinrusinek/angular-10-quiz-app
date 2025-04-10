@@ -2113,6 +2113,7 @@ export class QuizQuestionComponent
   
     try {
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
+      this.cdRef.detectChanges(); // flush early to show question
   
       if (!this.optionsToDisplay?.length) {
         await new Promise((res) => setTimeout(res, 50));
@@ -2131,28 +2132,29 @@ export class QuizQuestionComponent
       // ==========================
       // 🧠 Explanation Setup
       // ==========================
-  
       const explanationToUse = await this.updateExplanationText(lockedIndex);
   
+      // Emit explanation if different
       if (
         explanationToUse?.trim() &&
         explanationToUse.trim() !== this.explanationTextService.latestExplanation
       ) {
+        console.log('[📤 Emitting explanation]', explanationToUse, performance.now());
         this.explanationTextService.setExplanationText(explanationToUse.trim());
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // 🟩 Ensure template updates quickly
       }
   
-      // Set display state
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
+      // ✅ Trigger UI display of explanation after brief delay
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
         const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
-    
+  
         if (ready && show) {
           this.explanationTextService.triggerExplanationEvaluation();
         } else {
@@ -2160,13 +2162,11 @@ export class QuizQuestionComponent
         }
       }, 60);
   
-      // Finalize state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
       this.saveQuizState();
   
-      this.cdRef.detectChanges(); // 🔄 Ensure UI flush
       this.cdRef.markForCheck();
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
