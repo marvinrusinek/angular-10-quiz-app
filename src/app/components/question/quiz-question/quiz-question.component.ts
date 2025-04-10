@@ -2149,19 +2149,15 @@ export class QuizQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
-      // ✅ Final trigger after short debounce
-      setTimeout(() => {
-        const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-        const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+      const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+      const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+      if (ready && show) {
+        this.explanationTextService.triggerExplanationEvaluation();
+      } else {
+        console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – values not ready');
+      }
   
-        if (ready && show) {
-          this.explanationTextService.triggerExplanationEvaluation();
-        } else {
-          console.log('[onOptionClicked] ⏭️ Skipped triggerExplanationEvaluation – values not ready');
-        }
-      }, 20);
-  
-      // ✅ Finalize
+      // Finalize
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
