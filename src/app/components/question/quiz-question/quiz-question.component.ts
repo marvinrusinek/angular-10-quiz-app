@@ -2112,9 +2112,8 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay?.length) {
-        await new Promise((res) => setTimeout(res, 50));
+        await new Promise(res => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
@@ -2127,37 +2126,29 @@ export class QuizQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // =============================
-      // 🧠 Explanation Setup (Step 2)
-      // =============================
-  
-      // Fetch explanation (handles caching, state, emits explanationText$)
-      // Step 1 — Fetch explanation from quizState or formattedExplanations
+      // 🧠 Explanation setup
       const explanationToUse = await this.updateExplanationText(lockedIndex);
-
-      // Step 2 — Emit explanation text to ExplanationTextService
+  
+      // ✅ Only emit once here
       if (explanationToUse && explanationToUse.trim()) {
         this.explanationTextService.setExplanationText(explanationToUse.trim());
       }
-
-      // Step 3 — Wait for explanation to be emitted to explanationText$
+  
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
           take(1)
         )
       );
-      
+  
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+      this.selectedOptionService.setAnswered(true);
+  
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
   
-      // Step 2 (continued) — Only after emission, update state
-      this.quizService.setCurrentQuestionIndex(lockedIndex);
-      this.selectedOptionService.setAnswered(true);
-  
-      // Step 4 — UI display flags and trigger
       if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
         this.explanationTextService.setShouldDisplayExplanation(true);
       }
@@ -2165,7 +2156,6 @@ export class QuizQuestionComponent
         this.explanationTextService.lockExplanation();
       }
   
-      // Set fallback question text for combinedText$ mapping
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
   
       setTimeout(() => {
@@ -2179,7 +2169,6 @@ export class QuizQuestionComponent
         }
       }, 30);
   
-      // ✅ Finalize state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
@@ -2190,7 +2179,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
-  
 
   private async fetchAndUpdateExplanationText(
     questionIndex: number
