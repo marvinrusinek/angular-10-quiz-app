@@ -2139,6 +2139,12 @@ export class QuizQuestionComponent
       if (explanationToUse && explanationToUse.trim()) {
         this.explanationTextService.setExplanationText(explanationToUse.trim());
       }
+
+      // Set display state BEFORE waiting for explanationText$
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
   
       // Step 3 — Wait for explanation to be emitted to explanationText$
       await firstValueFrom(
