@@ -2135,17 +2135,23 @@ export class QuizQuestionComponent
       // 🧠 Explanation Setup
       // ================================
   
-      // 🔁 Emit explanation immediately (if needed)
-      const explanationText = await this.updateExplanationText(lockedIndex);
-  
-      // ✅ Set display state early
+      // Emit explanation immediately (if needed)
+      const explanationToUse = await this.updateExplanationText(lockedIndex);
+
+      // Emit explanation explicitly
+      if (explanationToUse?.trim()) {
+        this.explanationTextService.setExplanationText(explanationToUse.trim());
+        this.cdRef.detectChanges(); // 🔥 Force immediate DOM update
+      }
+
+      // Set display state early
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
   
-      // ✅ Ensure UI flags are set
+      // Ensure UI flags are set
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
