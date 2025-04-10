@@ -2107,16 +2107,13 @@ export class QuizQuestionComponent
     );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
-    // 🔄 Selection logic
+    // 🟢 Apply selection logic
     this.updateOptionSelection(event, option);
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // 🧱 Ensure question text is set immediately
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
-      this.cdRef.detectChanges();
   
-      // 🧪 Ensure options are populated
       if (!this.optionsToDisplay?.length) {
         await new Promise((res) => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2131,47 +2128,42 @@ export class QuizQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // ================================
+      // ==========================
       // 🧠 Explanation Setup
-      // ================================
+      // ==========================
   
-      // Emit explanation immediately (if needed)
       const explanationToUse = await this.updateExplanationText(lockedIndex);
-
-      // Emit explanation explicitly
+  
       if (
         explanationToUse?.trim() &&
         explanationToUse.trim() !== this.explanationTextService.latestExplanation
       ) {
         this.explanationTextService.setExplanationText(explanationToUse.trim());
-        this.cdRef.detectChanges();
-      }      
-
-      // Set display state early
-      this.quizService.setCurrentQuestionIndex(lockedIndex);
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
+      }
   
-      // Ensure UI flags are set
+      // ✅ Set display state
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
       const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
       const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+  
       if (ready && show) {
         this.explanationTextService.triggerExplanationEvaluation();
       } else {
         console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – values not ready');
       }
   
-      // Finalize
+      // ✅ Finalize state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
       this.saveQuizState();
   
+      this.cdRef.detectChanges(); // 🔄 Ensure UI flush
       this.cdRef.markForCheck();
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
