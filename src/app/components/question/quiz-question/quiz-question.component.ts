@@ -2140,12 +2140,6 @@ export class QuizQuestionComponent
         this.explanationTextService.setExplanationText(explanationToUse.trim());
       }
 
-      // Set display state BEFORE waiting for explanationText$
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
-  
       // Step 3 — Wait for explanation to be emitted to explanationText$
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
@@ -2153,14 +2147,15 @@ export class QuizQuestionComponent
           take(1)
         )
       );
-  
-      // Step 2 (continued) — Only after emission, update state
-      this.quizService.setCurrentQuestionIndex(lockedIndex);
-      this.selectedOptionService.setAnswered(true);
+      
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
+  
+      // Step 2 (continued) — Only after emission, update state
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+      this.selectedOptionService.setAnswered(true);
   
       // Step 4 — UI display flags and trigger
       if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
