@@ -90,7 +90,7 @@ export class ExplanationTextService {
   
     console.log('[setExplanationText] ✅ Emitting to explanationText$ and formattedExplanationSubject:', trimmed);
   
-    // 🔥 These two are required for explanation text to show up
+    console.log('[📤 Emitting explanation]', explanation, performance.now());
     this.explanationText$.next(trimmed);               // For internal logic
     this.formattedExplanationSubject.next(trimmed);    // For template combinedText$
   }
