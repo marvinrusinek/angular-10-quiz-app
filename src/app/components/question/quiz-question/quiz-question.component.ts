@@ -2112,6 +2112,8 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
+      this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
+      
       if (!this.optionsToDisplay?.length) {
         await new Promise(res => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2144,9 +2146,6 @@ export class QuizQuestionComponent
       );
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
-
-      // Ensure question text is set BEFORE explanation display logic
-      this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
 
       this.selectedOptionService.setAnswered(true);
   
