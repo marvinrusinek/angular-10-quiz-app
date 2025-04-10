@@ -2113,7 +2113,8 @@ export class QuizQuestionComponent
   
     try {
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
-      
+      this.cdRef.detectChanges();
+
       if (!this.optionsToDisplay?.length) {
         await new Promise(res => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
