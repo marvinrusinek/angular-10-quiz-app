@@ -2112,13 +2112,13 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // 🧱 Ensure question text is visible in template first
+      // 🧱 Ensure question text is set immediately
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
       this.cdRef.detectChanges();
   
-      // 🧪 Ensure options are available
+      // 🧪 Ensure options are populated
       if (!this.optionsToDisplay?.length) {
-        await new Promise(res => setTimeout(res, 50));
+        await new Promise((res) => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
@@ -2131,39 +2131,25 @@ export class QuizQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // =============================
+      // ================================
       // 🧠 Explanation Setup
-      // =============================
+      // ================================
   
-      const start = performance.now();
-      await this.updateExplanationText(lockedIndex);
-      const end = performance.now();
-      console.log(`[⏱️ updateExplanationText duration] ${(end - start).toFixed(2)} ms`);
+      // 🔁 Emit explanation immediately (if needed)
+      const explanationText = await this.updateExplanationText(lockedIndex);
   
-      /* // ✅ Wait for explanationText$ to emit
-      await firstValueFrom(
-        this.explanationTextService.explanationText$.pipe(
-          filter(text => !!text?.trim()),
-          take(1)
-        )
-      ); */
-  
-      // ✅ Update state only after explanation is ready
+      // ✅ Set display state early
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
-      this.cdRef.detectChanges();
   
-      if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      }
+      // ✅ Ensure UI flags are set
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation();
   
-      if (!this.explanationTextService.isExplanationLocked()) {
-        this.explanationTextService.lockExplanation();
-      }
-  
+      // ✅ Final trigger after short debounce
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
         const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
@@ -2171,17 +2157,17 @@ export class QuizQuestionComponent
         if (ready && show) {
           this.explanationTextService.triggerExplanationEvaluation();
         } else {
-          console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – values not ready');
+          console.log('[onOptionClicked] ⏭️ Skipped triggerExplanationEvaluation – values not ready');
         }
-      }, 30);
+      }, 20);
   
-      // Finalize
+      // ✅ Finalize
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
       this.saveQuizState();
   
-      setTimeout(() => this.cdRef.markForCheck());
+      this.cdRef.markForCheck();
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
