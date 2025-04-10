@@ -3600,7 +3600,7 @@ export class QuizQuestionComponent
     console.log(`[✅ updateExplanationText] Final emitted explanation for Q${index}:`, explanationText);
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* sync updateExplanationText(index: number): Promise<string> {
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() ?? '';
   
@@ -3621,7 +3621,26 @@ export class QuizQuestionComponent
   
     // ❌ DO NOT EMIT HERE — defer to onOptionClicked()
     return explanationText;
-  }  
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() || 'No explanation available';
+  
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+      this.quizStateService.setQuestionState(this.quizId, index, {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText
+      });
+    }
+  
+    // ✅ Always emit right here
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    return explanationText;
+  }
+    
 
   public async handleOptionSelection(
     option: SelectedOption,
