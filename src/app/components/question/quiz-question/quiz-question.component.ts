@@ -2131,7 +2131,9 @@ export class QuizQuestionComponent
   
       // ✅ Only emit once here
       if (explanationToUse && explanationToUse.trim()) {
-        this.explanationTextService.setExplanationText(explanationToUse.trim());
+        setTimeout(() => {
+          this.explanationTextService.setExplanationText(explanationToUse.trim());
+        }, 0);
       }
   
       await firstValueFrom(
