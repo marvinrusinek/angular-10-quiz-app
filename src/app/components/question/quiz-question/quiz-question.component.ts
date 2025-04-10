@@ -2096,8 +2096,6 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
-    console.log('[onOptionClicked] event.option:', event.option);
-  
     const option = event.option;
     if (!option) return;
   
@@ -2114,9 +2112,9 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // 🔄 Populate options if missing
+      // Ensure optionsToDisplay is populated
       if (!this.optionsToDisplay?.length) {
-        await new Promise(res => setTimeout(res, 50));
+        await new Promise((res) => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
   
@@ -2129,35 +2127,20 @@ export class QuizQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // ============================
-      // 🧠 Explanation Setup
-      // ============================
-      const qState = this.quizStateService.getQuestionState(this.quizId, lockedIndex);
-      const cachedExplanation = qState?.explanationText?.trim();
+      // =============================
+      // 🧠 Explanation Setup (Step 2)
+      // =============================
   
-      if (!cachedExplanation) {
-        console.log(`[🧠 Fetching explanation for Q${lockedIndex}]`);
-        const explanation = await this.updateExplanationText(lockedIndex);
-  
-        // 💾 Store in state
-        this.quizStateService.setQuestionState(this.quizId, lockedIndex, {
-          ...qState,
-          explanationDisplayed: true,
-          explanationText: explanation
-        });
-      } else {
-        console.log(`[💾 Using cached explanation for Q${lockedIndex}]`);
-        this.explanationTextService.setExplanationText(cachedExplanation);
+      // Fetch explanation (handles caching, state, emits explanationText$)
+      // Step 1 — Fetch explanation from quizState or formattedExplanations
+      const explanationToUse = await this.updateExplanationText(lockedIndex);
+
+      // Step 2 — Emit explanation text to ExplanationTextService
+      if (explanationToUse && explanationToUse.trim()) {
+        this.explanationTextService.setExplanationText(explanationToUse.trim());
       }
   
-      // ✅ Set quiz display state
-      this.quizService.setCurrentQuestionIndex(lockedIndex);
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
-  
-      // 🛑 Defensive delay to allow explanation to emit
+      // Step 3 — Wait for explanation to be emitted to explanationText$
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
@@ -2165,26 +2148,35 @@ export class QuizQuestionComponent
         )
       );
   
-      // ✅ Force display if somehow missed
+      // Step 2 (continued) — Only after emission, update state
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+      this.selectedOptionService.setAnswered(true);
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
+  
+      // Step 4 — UI display flags and trigger
       if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
         this.explanationTextService.setShouldDisplayExplanation(true);
       }
-  
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.lockExplanation();
       }
   
-      // 🧪 Only trigger evaluation if both values present
-      setTimeout(() => {
-        const explanationReady = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-        const shouldDisplay = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+      // Set fallback question text for combinedText$ mapping
+      this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
   
-        if (explanationReady && shouldDisplay) {
+      setTimeout(() => {
+        const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+        const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+  
+        if (ready && show) {
           this.explanationTextService.triggerExplanationEvaluation();
         } else {
-          console.log('[onOptionClicked] ⏭️ Skipped triggerExplanationEvaluation — explanation not ready');
+          console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – values not ready');
         }
-      }, 20);
+      }, 30);
   
       // ✅ Finalize state
       this.markQuestionAsAnswered(lockedIndex);
@@ -3522,10 +3514,10 @@ export class QuizQuestionComponent
   
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log('[updateExplanationText] Called for Q', index);
   
-    // Defensive: ensure explanation exists
+    // 🛡️ Defensive: Ensure explanation entry is valid
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim();
   
@@ -3536,35 +3528,94 @@ export class QuizQuestionComponent
   
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
   
-    // Skip if already stored
     if (qState?.explanationDisplayed && qState?.explanationText?.trim()) {
       console.log(`[updateExplanationText] ⏭️ Already displayed for Q${index}`);
       return qState.explanationText;
     }
   
-    // Store and mark as displayed
+    // ✅ Update state immediately to avoid race condition
     const updatedState = {
       ...qState,
       explanationDisplayed: true,
-      explanationText
+      explanationText,
     };
     this.quizStateService.setQuestionState(this.quizId, index, updatedState);
   
-    // Emit to ETS
+    // ✅ Force explanation emission (critical)
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
+    // ✅ Set display flag and lock
     if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
       this.explanationTextService.setShouldDisplayExplanation(true);
     }
-  
     if (!this.explanationTextService.isExplanationLocked()) {
       this.explanationTextService.lockExplanation();
     }
   
-    console.log(`[✅ updateExplanationText] Final explanation for Q${index}:`, explanationText);
+    console.log(`[✅ updateExplanationText] Emitted for Q${index}:`, explanationText);
     return explanationText;
-  }
+  } */
+  /* async updateExplanationText(index: number): Promise<string> {
+    console.log('[updateExplanationText] Called for Q', index);
+  
+    // 🔒 Defensive: Ensure explanation exists
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim();
+  
+    if (!explanationText) {
+      console.warn(`[updateExplanationText] ❌ Missing explanation for Q${index}`);
+      return 'No explanation available';
+    }
+  
+    // 🔄 Get and update question state
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+      const updatedState = {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText,
+      };
+      this.quizStateService.setQuestionState(this.quizId, index, updatedState);
+    }
+  
+    // ✅ Only emit if it's new or valid
+    this.explanationTextService.setExplanationText(explanationText); // sets both explanationText$ + formattedExplanationSubject
+  
+    // 🔐 Lock and flag
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+    }
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.lockExplanation();
+    }
+  
+    console.log(`[✅ updateExplanationText] Final emitted explanation for Q${index}:`, explanationText);
+    return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() ?? '';
+  
+    if (!explanationText) {
+      console.warn(`[updateExplanationText] ❌ No explanation for Q${index}`);
+      return 'No explanation available';
+    }
+  
+    // ✅ Store to quizState only — do not emit
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+      this.quizStateService.setQuestionState(this.quizId, index, {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText,
+      });
+    }
+  
+    // ❌ DO NOT EMIT HERE — defer to onOptionClicked()
+    return explanationText;
+  }  
 
   public async handleOptionSelection(
     option: SelectedOption,
