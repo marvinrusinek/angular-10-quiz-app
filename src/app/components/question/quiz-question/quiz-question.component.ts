@@ -2107,14 +2107,16 @@ export class QuizQuestionComponent
     );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
-    // 🔄 Apply selection logic
+    // 🔄 Selection logic
     this.updateOptionSelection(event, option);
     this.selectedOptionService.setAnswered(true);
   
     try {
+      // 🧱 Ensure question text is visible in template first
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
       this.cdRef.detectChanges();
-
+  
+      // 🧪 Ensure options are available
       if (!this.optionsToDisplay?.length) {
         await new Promise(res => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2129,35 +2131,35 @@ export class QuizQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // 🧠 Explanation setup
-      const explanationToUse = await this.updateExplanationText(lockedIndex);
+      // =============================
+      // 🧠 Explanation Setup
+      // =============================
   
-      // ✅ Only emit once here
-      if (explanationToUse && explanationToUse.trim()) {
-        setTimeout(() => {
-          this.explanationTextService.setExplanationText(explanationToUse.trim());
-        }, 0);
-      }
+      const start = performance.now();
+      await this.updateExplanationText(lockedIndex);
+      const end = performance.now();
+      console.log(`[⏱️ updateExplanationText duration] ${(end - start).toFixed(2)} ms`);
   
+      /* // ✅ Wait for explanationText$ to emit
       await firstValueFrom(
         this.explanationTextService.explanationText$.pipe(
           filter(text => !!text?.trim()),
           take(1)
         )
-      );
+      ); */
   
+      // ✅ Update state only after explanation is ready
       this.quizService.setCurrentQuestionIndex(lockedIndex);
-
-      this.selectedOptionService.setAnswered(true);
-  
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
+      this.cdRef.detectChanges();
   
       if (!this.explanationTextService.shouldDisplayExplanationSource.getValue()) {
         this.explanationTextService.setShouldDisplayExplanation(true);
       }
+  
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.lockExplanation();
       }
@@ -2173,6 +2175,7 @@ export class QuizQuestionComponent
         }
       }, 30);
   
+      // Finalize
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
@@ -3627,7 +3630,7 @@ export class QuizQuestionComponent
   
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     const entry = this.explanationTextService.formattedExplanations?.[index];
     if (!entry || !entry.explanation?.trim()) {
       console.warn(`[updateExplanationText] ❌ Missing explanation for Q${index}`);
@@ -3646,8 +3649,34 @@ export class QuizQuestionComponent
     }
   
     return explanationText;
-  }  
-    
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim();
+  
+    if (!explanationText) {
+      console.warn(`[updateExplanationText] ❌ Missing explanation for Q${index}`);
+      return 'No explanation available';
+    }
+  
+    // ✅ Cache to quiz state if not already stored
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+      this.quizStateService.setQuestionState(this.quizId, index, {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText
+      });
+    }
+  
+    // ✅ Only emit once if different or blank
+    const currentFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+    const alreadySet = this.explanationTextService.latestExplanation === explanationText;
+  
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    return explanationText;
+  }
 
   public async handleOptionSelection(
     option: SelectedOption,
