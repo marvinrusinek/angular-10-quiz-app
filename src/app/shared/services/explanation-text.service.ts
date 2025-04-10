@@ -14,11 +14,6 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
-
-  processedQuestions: Set<string> = new Set<string>();
-  currentQuestionExplanation: string | null = null;
-  latestExplanation = '';
-  explanationsInitialized = false;
   
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
@@ -40,6 +35,12 @@ export class ExplanationTextService {
   private explanationTrigger = new Subject<void>();
   explanationTrigger$ = this.explanationTrigger.asObservable();
 
+  processedQuestions: Set<string> = new Set<string>();
+  currentQuestionExplanation: string | null = null;
+  latestExplanation = '';
+  explanationsInitialized = false;
+  private explanationLocked = false;
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -57,8 +58,6 @@ export class ExplanationTextService {
   prepareExplanationText(question: QuizQuestion): string {
     return question.explanation || 'No explanation available';
   }
-
-  private explanationLocked = false;
 
   public lockExplanation(): void {
     this.explanationLocked = true;
