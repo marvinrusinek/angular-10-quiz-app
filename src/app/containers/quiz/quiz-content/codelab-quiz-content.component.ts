@@ -217,24 +217,24 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
       this.correctAnswersText$
     ]).pipe(
-      map(([state, explanationText, correctText]) => {
+      map(([state, explanationText, questionText, correctText]) => {
         const explanation = explanationText?.trim();
-        const question = this.questionToDisplay?.trim();
+        const question = questionText?.trim();
         const showExplanation = state.mode === 'explanation' && !!explanation;
     
         if (showExplanation) {
           return explanation;
         }
     
-        // Only append the correct answers text during the question view
         return correctText?.trim()
           ? `${question} <span class="correct-count">${correctText}</span>`
           : (question || 'No question available');
       }),
       distinctUntilChanged()
-    );
+    );    
   }
 
   private emitContentAvailableState(): void {
