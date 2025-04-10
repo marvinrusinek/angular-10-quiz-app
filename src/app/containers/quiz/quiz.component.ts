@@ -3112,22 +3112,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       let explanationText = '';
   
       if (isAnswered) {
-        explanationText = question.explanation?.trim() || '';
-  
-        if (!explanationText) {
-          console.warn(`[fetchAndSetQuestionData] ⚠️ Explanation missing for Q${questionIndex}, using fallback.`);
-          explanationText = 'No explanation available';
-        }
-  
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
-        this.explanationTextService.setExplanationText(explanationText);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        this.explanationTextService.lockExplanation();
-  
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      } else {
-        this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, '');
       }
+      
   
       // Set display state
       this.questionToDisplay = question.questionText?.trim() || 'No question text available';
