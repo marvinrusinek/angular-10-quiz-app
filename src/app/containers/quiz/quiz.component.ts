@@ -133,6 +133,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   explanationToDisplay = '';
   displayVariables: { question: string; explanation: string };
 
+  questionToDisplay$ = new BehaviorSubject<string>('');
+
   private isLoading = false;
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
@@ -3120,6 +3122,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Set display state
       this.questionToDisplay = question.questionText?.trim() || 'No question text available';
+      this.questionToDisplay$.next(question.questionText?.trim() || 'No question available');
       this.explanationToDisplay = explanationText;
   
       this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
