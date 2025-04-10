@@ -3628,7 +3628,12 @@ export class QuizQuestionComponent
     return explanationText;
   } */
   async updateExplanationText(index: number): Promise<string> {
-    const entry = this.explanationTextService.formattedExplanations[index];
+    const entry = this.explanationTextService.formattedExplanations?.[index];
+    if (!entry || !entry.explanation?.trim()) {
+      console.warn(`[updateExplanationText] ❌ Missing explanation for Q${index}`);
+      return 'No explanation available';
+    }
+
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
