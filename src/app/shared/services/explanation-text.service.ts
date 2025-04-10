@@ -75,22 +75,27 @@ export class ExplanationTextService {
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
   
+    // If explanation is locked and value is blank, don't overwrite
     if (this.explanationLocked && trimmed === '') {
-      console.warn('[🛡️ setExplanationText] Blocked reset: explanation is locked');
+      console.warn('[🛡️ Blocked reset: explanation is locked]');
       return;
     }
   
+    // Prevent emitting if same as last one
     if (trimmed === this.latestExplanation) {
-      console.log('[🛡️ setExplanationText] Prevented duplicate emit');
+      console.log('[🛡️ Prevented duplicate emit]');
       return;
     }
   
     this.latestExplanation = trimmed;
   
-    console.log('[✅ setExplanationText] Emitting to BOTH subjects:', trimmed);
-    this.explanationText$.next(trimmed);
-    this.formattedExplanationSubject.next(trimmed);
-  }  
+    console.log('[setExplanationText] ✅ Emitting to explanationText$ and formattedExplanationSubject:', trimmed);
+  
+    // 🔥 These two are required for explanation text to show up
+    this.explanationText$.next(trimmed);               // For internal logic
+    this.formattedExplanationSubject.next(trimmed);    // For template combinedText$
+  }
+  
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
