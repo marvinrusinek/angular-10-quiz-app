@@ -2139,10 +2139,13 @@ export class QuizQuestionComponent
       const explanationToUse = await this.updateExplanationText(lockedIndex);
 
       // Emit explanation explicitly
-      if (explanationToUse?.trim()) {
+      if (
+        explanationToUse?.trim() &&
+        explanationToUse.trim() !== this.explanationTextService.latestExplanation
+      ) {
         this.explanationTextService.setExplanationText(explanationToUse.trim());
-        this.cdRef.detectChanges(); // 🔥 Force immediate DOM update
-      }
+        this.cdRef.detectChanges();
+      }      
 
       // Set display state early
       this.quizService.setCurrentQuestionIndex(lockedIndex);
