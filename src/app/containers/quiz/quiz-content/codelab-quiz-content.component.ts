@@ -28,6 +28,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() questionToDisplay = '';
+  @Input() questionToDisplay$!: Observable<string>;
   @Input() explanationToDisplay = '';
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion | null>;
