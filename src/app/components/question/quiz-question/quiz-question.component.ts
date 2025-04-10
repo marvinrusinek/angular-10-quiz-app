@@ -2139,25 +2139,28 @@ export class QuizQuestionComponent
         explanationToUse.trim() !== this.explanationTextService.latestExplanation
       ) {
         this.explanationTextService.setExplanationText(explanationToUse.trim());
+        this.cdRef.detectChanges();
       }
   
-      // ✅ Set display state
+      // Set display state
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
-      const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-      const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+      setTimeout(() => {
+        const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+        const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+    
+        if (ready && show) {
+          this.explanationTextService.triggerExplanationEvaluation();
+        } else {
+          console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – values not ready');
+        }
+      }, 60);
   
-      if (ready && show) {
-        this.explanationTextService.triggerExplanationEvaluation();
-      } else {
-        console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – values not ready');
-      }
-  
-      // ✅ Finalize state
+      // Finalize state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
