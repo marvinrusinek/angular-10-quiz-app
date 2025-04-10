@@ -3617,7 +3617,7 @@ export class QuizQuestionComponent
     // ❌ DO NOT EMIT HERE — defer to onOptionClicked()
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() || 'No explanation available';
   
@@ -3634,7 +3634,22 @@ export class QuizQuestionComponent
     this.explanationTextService.setExplanationText(explanationText);
   
     return explanationText;
-  }
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() || 'No explanation available';
+  
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+      this.quizStateService.setQuestionState(this.quizId, index, {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText
+      });
+    }
+  
+    return explanationText;
+  }  
     
 
   public async handleOptionSelection(
