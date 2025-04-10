@@ -2144,6 +2144,10 @@ export class QuizQuestionComponent
       );
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
+
+      // Ensure question text is set BEFORE explanation display logic
+      this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
+
       this.selectedOptionService.setAnswered(true);
   
       this.quizStateService.setDisplayState({
@@ -2157,8 +2161,6 @@ export class QuizQuestionComponent
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.lockExplanation();
       }
-  
-      this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
   
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
