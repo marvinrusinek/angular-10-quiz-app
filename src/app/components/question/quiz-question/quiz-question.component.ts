@@ -3659,7 +3659,7 @@ export class QuizQuestionComponent
       return 'No explanation available';
     }
   
-    // ✅ Cache to quiz state if not already stored
+    // Cache to quiz state if not already stored
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
     if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
       this.quizStateService.setQuestionState(this.quizId, index, {
@@ -3669,11 +3669,15 @@ export class QuizQuestionComponent
       });
     }
   
-    // ✅ Only emit once if different or blank
-    const currentFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-    const alreadySet = this.explanationTextService.latestExplanation === explanationText;
-  
-    this.explanationTextService.setExplanationText(explanationText);
+    // Only emit once if different or blank
+    const trimmed = explanationText?.trim() || '';
+    const alreadySet = this.explanationTextService.latestExplanation === trimmed;
+
+    if (!alreadySet) {
+      this.explanationTextService.setExplanationText(trimmed);
+    } else {
+      console.log(`[🛡️ Skipped duplicate explanation emit for Q${index}]`);
+    }
   
     return explanationText;
   }
