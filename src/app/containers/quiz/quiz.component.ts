@@ -3118,7 +3118,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       if (!Array.isArray(updatedOptions) || updatedOptions.length === 0) {
         console.warn(`[⚠️ Q${questionIndex}] Original options missing or empty. Attempting fallback fetch...`);
-        const fallback = await this.quizService.getCurrentOptions(questionIndex).pipe(take(1)).toPromise();
+        const fallback = await firstValueFrom(
+          this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
+        ) as Option[];
         if (fallback && fallback.length) {
           updatedOptions = fallback;
           console.log(`[✅ Fallback success for Q${questionIndex}] Loaded ${fallback.length} options`);
@@ -3131,9 +3133,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       updatedOptions = this.quizService.assignOptionActiveStates(updatedOptions, false);
       question.options = updatedOptions;
       this.optionsToDisplay = [...updatedOptions];
-  
-      question.options = updatedOptions;
-  
+    
       // ✅ Check answered status
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
