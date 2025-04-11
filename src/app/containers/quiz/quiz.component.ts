@@ -3105,6 +3105,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[fetchAndSetQuestionData] ❌ Question not found or missing text at Q${questionIndex}`);
         return false;
       }
+      // Emit question text to observable
       this.questionToDisplay$.next(
         question.questionText?.trim() || 'No question available'
       );      
