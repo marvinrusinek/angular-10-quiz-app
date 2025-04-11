@@ -2100,7 +2100,6 @@ export class QuizQuestionComponent
     if (!option) return;
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    console.log('[onOptionClicked] Q Index:', lockedIndex);
   
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
@@ -2112,15 +2111,15 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // ✅ Always display question text immediately
+      // Always display question text immediately
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
       this.cdRef.detectChanges();
   
-      // ✅ Fetch explanation early
+      // Fetch explanation early
       const explanationToUse = await this.updateExplanationText(lockedIndex);
       const trimmed = explanationToUse?.trim() || 'No explanation available';
   
-      // ✅ Emit explanation before feedback logic
+      // Emit explanation before feedback logic
       const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
       const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
   
@@ -2130,13 +2129,13 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges(); // 🧽 flush to DOM early
       }
   
-      // ✅ Update quiz state and mode BEFORE feedback
+      // Update quiz state and mode BEFORE feedback
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
-      // ✅ Then apply feedback logic
+      // Then apply feedback logic
       if (!this.optionsToDisplay?.length) {
         await new Promise((res) => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2151,7 +2150,7 @@ export class QuizQuestionComponent
   
       this.showFeedbackForOption[option.optionId || 0] = true;
   
-      // ✅ Trigger evaluation after small delay
+      // Trigger evaluation after small delay
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
         const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
@@ -2163,7 +2162,7 @@ export class QuizQuestionComponent
         }
       }, 30);
   
-      // ✅ Finalize state
+      // Finalize state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
