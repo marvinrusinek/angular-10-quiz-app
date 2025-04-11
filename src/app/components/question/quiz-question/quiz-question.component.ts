@@ -95,6 +95,7 @@ export class QuizQuestionComponent
     new EventEmitter<boolean>();
   @Output() feedbackTextChange: EventEmitter<string> =
     new EventEmitter<string>();
+  @Output() navigateToQuestionIndex = new EventEmitter<number>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
@@ -911,6 +912,9 @@ export class QuizQuestionComponent
         );
         questionIndex = 0;
       }
+
+      // Emit to parent to trigger full navigation and state setup
+      this.navigateToQuestionIndex.emit(questionIndex);
 
       try {
         // Set the correct current question index before loading
