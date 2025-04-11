@@ -2091,7 +2091,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2180,7 +2180,90 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
-  }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) return;
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    console.log('[onOptionClicked] Q Index:', lockedIndex);
+  
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
+  
+    // ✅ Apply selection logic right away
+    this.updateOptionSelection(event, option);
+    this.selectedOptionService.setAnswered(true);
+  
+    try {
+      // ✅ Always display question text immediately
+      this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
+      this.cdRef.detectChanges();
+  
+      // ✅ Fetch explanation early
+      const explanationToUse = await this.updateExplanationText(lockedIndex);
+      const trimmed = explanationToUse?.trim() || 'No explanation available';
+  
+      // ✅ Emit explanation before feedback logic
+      const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
+      const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+  
+      if (!alreadySet || !alreadyFormatted) {
+        console.log('[📤 Early emit explanation]', trimmed, performance.now());
+        this.explanationTextService.setExplanationText(trimmed);
+        this.cdRef.detectChanges(); // 🧽 flush to DOM early
+      }
+  
+      // ✅ Update quiz state and mode BEFORE feedback
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation();
+  
+      // ✅ Then apply feedback logic
+      if (!this.optionsToDisplay?.length) {
+        await new Promise((res) => setTimeout(res, 50));
+        this.optionsToDisplay = this.populateOptionsToDisplay();
+      }
+  
+      const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
+      if (!foundOption) return;
+  
+      if (!this.isFeedbackApplied) {
+        await this.applyOptionFeedback(foundOption);
+      }
+  
+      this.showFeedbackForOption[option.optionId || 0] = true;
+  
+      // ✅ Trigger evaluation after small delay
+      setTimeout(() => {
+        const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+        const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+  
+        if (ready && show) {
+          this.explanationTextService.triggerExplanationEvaluation();
+        } else {
+          console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – not ready');
+        }
+      }, 30);
+  
+      // ✅ Finalize state
+      this.markQuestionAsAnswered(lockedIndex);
+      this.answerSelected.emit(true);
+      await this.handleCorrectnessOutcome(true);
+      this.saveQuizState();
+  
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  }  
 
   private async fetchAndUpdateExplanationText(
     questionIndex: number
