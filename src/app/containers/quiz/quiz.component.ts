@@ -3071,18 +3071,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log('[📍 fetchAndSetQuestionData] Called with index:', questionIndex);
+  
     try {
-      // Validate index
-      if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`[fetchAndSetQuestionData] ❌ Invalid index: Q${questionIndex}`);
+      // Validate bounds
+      if (
+        typeof questionIndex !== 'number' ||
+        isNaN(questionIndex) ||
+        questionIndex < 0 ||
+        questionIndex >= this.totalQuestions
+      ) {
+        console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-
-      if (questionIndex === this.totalQuestions - 1) {
-        console.log('[🔍 LAST QUESTION] Fetched data:', question);
-      }      
   
-      // Reset state
+      // Reset all local UI and service state
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
       this.currentQuestion = null;
@@ -3091,73 +3093,82 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = '';
       this.cdRef.detectChanges();
   
-      await new Promise(res => setTimeout(res, 30)); // allow UI to flush
+      // Give DOM a moment to flush
+      await new Promise(res => setTimeout(res, 30));
   
-      // Fetch and validate question
+      // Fetch full question data
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question || !question.questionText) {
-        console.error(`[fetchAndSetQuestionData] ❌ Question not found or missing text at Q${questionIndex}`);
+        console.error(`[❌ Q${questionIndex}] Question is missing or invalid`);
         return false;
       }
-      // Emit question text to observable
+  
+      if (questionIndex === this.totalQuestions - 1) {
+        console.log('[🔍 LAST QUESTION DETECTED]');
+      }
+  
+      // Emit question text
       const trimmed = question.questionText?.trim() || 'No question text available';
-      console.log('[📤 Emitting questionToDisplay$]', trimmed);  
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
+      console.log('[📤 Emitting questionToDisplay$]', trimmed);
   
-      // Activate option states
+      // Activate options and validate
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
-      if (!updatedOptions.length) {
-        console.warn(`[⚠️ Q${questionIndex}] No options returned from assignOptionActiveStates`);
-      }      
       question.options = updatedOptions;
   
-      // Explanation logic
+      if (!updatedOptions.length) {
+        console.warn(`[⚠️ Q${questionIndex}] No options returned from assignOptionActiveStates`);
+      }
+  
+      // Determine explanation status
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
   
       if (isAnswered) {
+        explanationText = question.explanation?.trim() || 'No explanation available';
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      }   
+      }
   
-      // Set display state
-      this.questionToDisplay = question.questionText?.trim() || 'No question text available';
-      this.questionToDisplay$.next(question.questionText?.trim() || 'No question available');
-      this.explanationToDisplay = explanationText;
-  
-      this.setQuestionDetails(this.questionToDisplay, updatedOptions, explanationText);
+      // Sync component display state
+      this.setQuestionDetails(trimmed, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
       this.optionsToDisplay = [...updatedOptions];
       this.currentQuestionIndex = questionIndex;
+      this.explanationToDisplay = explanationText;
   
+      // Sync with services
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
-      this.quizStateService.setQuestionText(this.questionToDisplay);
+      this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+      this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
-      console.log(`[Q${questionIndex}] optionsToDisplay`, this.optionsToDisplay);
-      console.log(`[Q${questionIndex}] question.options`, question.options);
   
+      // Log snapshot state
+      console.log(`[✅ Q${questionIndex}] Loaded with ${updatedOptions.length} options`);
+      console.log(`[🧾 Q${questionIndex}] Question text:`, trimmed);
+      console.log(`[🧾 Q${questionIndex}] Explanation:`, explanationText);
+      console.log(`[🧾 Q${questionIndex}] Options:`, updatedOptions);
+  
+      // Detect changes for render
       this.cdRef.detectChanges();
   
+      // Evaluate correctness + timer
       await this.quizService.checkIfAnsweredCorrectly();
   
-      // Start timer only if unanswered
       if (!isAnswered) {
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
         this.timerService.isTimerRunning = false;
       }
-
-      console.log(`[✅ Q${questionIndex}] Ready with ${this.optionsToDisplay.length} options`);
   
       return true;
     } catch (error) {
-      console.error(`[fetchAndSetQuestionData] ❌ Unexpected error at Q${questionIndex}:`, error);
+      console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
       return false;
     }
-  }
+  }  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
