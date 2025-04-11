@@ -2853,6 +2853,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ advanceToNextQuestion] Invalid next index: ${nextIndex}`);
         return;
       }
+
+      // Clear current question state *before* navigating
+      this.resetUI();
   
       // 🔄 Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
@@ -2863,7 +2866,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // 🧹 Reset question-specific state
       this.quizQuestionComponent?.resetExplanation?.(); // safely call if exists
-      this.resetUI();
   
       // 🔄 Next button logic (re-evaluate state)
       const shouldEnableNext = this.isAnyOptionSelected();
