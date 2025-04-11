@@ -102,12 +102,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   private initializeDynamicComponentIfNeeded(): void {
     if (!this.containerInitialized && this.dynamicAnswerContainer) {
+      console.log('Dynamic container initializing...');
       this.dynamicAnswerContainer.clear();
       this.loadDynamicComponent();
       this.containerInitialized = true;
-      this.cdRef.detectChanges();
+      this.cdRef.markForCheck();
     } else {
-      console.log('Condition not met, skipping dynamic component load');
+      console.log('Condition not met, skipping dynamic component load', {
+        containerInitialized: this.containerInitialized,
+        dynamicAnswerContainer: !!this.dynamicAnswerContainer,
+      });
     }
   }
 
