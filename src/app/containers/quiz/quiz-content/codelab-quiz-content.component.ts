@@ -53,6 +53,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
+  private latestQuestionText = '';
 
   displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
@@ -127,13 +128,19 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.log('[🧪 explanationText$ EMITTED]:', text);
     });
 
-    this.questionToDisplay$.pipe(
+    /* this.questionToDisplay$.pipe(
       filter(text => !!text?.trim()),
       take(1)
     ).subscribe(firstQuestion => {
       console.log('[✅ Init] First question received:', firstQuestion);
       this.getCombinedDisplayTextStream();
+    }); */
+    this.questionToDisplay$.subscribe(question => {
+      this.latestQuestionText = question?.trim() || '';
+      this.cdRef.markForCheck(); // force template refresh
     });
+  
+    this.getCombinedDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
       this.currentQuestion$,
@@ -219,7 +226,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
   
-  private getCombinedDisplayTextStream(): void {
+  /* private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -250,7 +257,31 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     );        
+  } */
+  private getCombinedDisplayTextStream(): void {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.correctAnswersText$
+    ]).pipe(
+      map(([state, explanationText, correctText]) => {
+        const explanation = explanationText?.trim();
+        const question = this.latestQuestionText;
+  
+        const showExplanation = state.mode === 'explanation' && !!explanation;
+  
+        if (showExplanation) {
+          return explanation;
+        }
+  
+        return correctText?.trim()
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : (question || 'No question available');
+      }),
+      distinctUntilChanged()
+    );
   }
+  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
