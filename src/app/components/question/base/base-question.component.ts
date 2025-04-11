@@ -87,10 +87,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngAfterViewInit(): void {
+    console.log('[🔁 ngAfterViewInit called]');
     this.initializeDynamicComponentIfNeeded();
   }
 
   ngOnDestroy(): void {
+    console.log('[🛑 ngOnDestroy called]');
     this.currentQuestionSubscription?.unsubscribe();
   }
 
