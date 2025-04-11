@@ -3188,64 +3188,62 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
+  
     try {
-      console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
-  
-      // Fetch the question text
-      const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
-      const questionText = await firstValueFrom(questionTextObservable);
-  
+      // Fetch and validate question text
+      const questionText = await firstValueFrom(this.quizService.getQuestionTextForIndex(questionIndex));
       if (!questionText || typeof questionText !== 'string' || !questionText.trim()) {
-        console.error(`[❌ fetchQuestionDetails] No valid question text for index ${questionIndex}`);
-        throw new Error(`Question text not found at index ${questionIndex}`);
+        console.error(`[❌ Q${questionIndex}] Missing or invalid question text`);
+        throw new Error(`Invalid question text for index ${questionIndex}`);
       }
   
-      // Fetch options
+      const trimmedText = questionText.trim();
+      console.log(`[📥 Q${questionIndex}] Question text:`, trimmedText);
+  
+      // Fetch and validate options
       const options = await this.quizService.getNextOptions(questionIndex);
       if (!Array.isArray(options) || options.length === 0) {
-        console.error(`[❌ fetchQuestionDetails] No valid options for Q${questionIndex}`);
-        throw new Error(`Options missing for Q${questionIndex}`);
+        console.error(`[❌ Q${questionIndex}] No valid options`);
+        throw new Error(`No options found for Q${questionIndex}`);
       }
   
-      console.log(`[📥 fetchQuestionDetails] Index: ${questionIndex}`);
-      console.log(`[📥 Question text for Q${questionIndex}]: ${questionText}`);
-      console.log(`[📥 Options count for Q${questionIndex}]: ${options.length}`);
+      console.log(`[📥 Q${questionIndex}] Options count:`, options.length);
   
-      // Fetch explanation
+      // Fetch explanation text
       let explanation = 'No explanation available';
       if (this.explanationTextService.explanationsInitialized) {
         const fetchedExplanation = await firstValueFrom(
           this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
-        if (fetchedExplanation?.trim()) {
-          explanation = fetchedExplanation.trim();
-        } else {
-          console.warn(`[⚠️ fetchQuestionDetails] Blank explanation fetched for Q${questionIndex}`);
-        }
+        explanation = fetchedExplanation?.trim() || 'No explanation available';
       } else {
-        console.warn(`[⚠️ fetchQuestionDetails] Explanations not initialized for Q${questionIndex}`);
+        console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
       }
   
       // Determine question type
-      const type = options.filter(opt => opt.correct).length > 1
-        ? QuestionType.MultipleAnswer
-        : QuestionType.SingleAnswer;
+      const correctCount = options.filter(opt => opt.correct).length;
+      const type = correctCount > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
   
-      const question: QuizQuestion = { questionText, options, explanation, type };
+      const question: QuizQuestion = {
+        questionText: trimmedText,
+        options,
+        explanation,
+        type
+      };
   
-      // Sync type to service
+      // Sync type with service
       this.quizDataService.setQuestionType(question);
   
-      console.log(`[✅ fetchQuestionDetails] Loaded Q${questionIndex}:`, {
-        text: questionText,
-        options: options.length,
+      console.log(`[✅ Q${questionIndex}] Fully loaded:`, {
+        text: trimmedText,
         explanation,
+        options: options.map(o => o.text),
         type
       });
   
       return question;
     } catch (error) {
-      console.error(`[❌ fetchQuestionDetails] Failed to load Q${questionIndex}:`, error);
+      console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
       throw error;
     }
   }
