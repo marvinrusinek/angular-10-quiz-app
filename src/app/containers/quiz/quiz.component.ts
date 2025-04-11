@@ -2841,14 +2841,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       console.log(`[🔄 advanceToNextQuestion] current: ${currentIndex}, next: ${nextIndex}`);
   
-      // ✅ Prevent going out of bounds
+      // Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
         await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         return;
       }
   
-      // ✅ Optional: Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
+      // Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
       if (isNaN(nextIndex) || nextIndex < 0) {
         console.error(`[❌ advanceToNextQuestion] Invalid next index: ${nextIndex}`);
         return;
@@ -2857,7 +2857,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Clear current question state *before* navigating
       this.resetUI();
   
-      // 🔄 Attempt to navigate to next question
+      // Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
       if (!success) {
         console.warn(`[❌ advanceToNextQuestion] Navigation to Q${nextIndex} failed.`);
@@ -3119,8 +3119,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (isAnswered) {
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      }
-      
+      }   
   
       // Set display state
       this.questionToDisplay = question.questionText?.trim() || 'No question text available';
