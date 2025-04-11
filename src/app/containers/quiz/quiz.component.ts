@@ -2864,7 +2864,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
   
-      // 🔄 Next button logic (re-evaluate state)
+      // Re-evaluate Next button state
       const shouldEnableNext = this.isAnyOptionSelected();
       this.updateAndSyncNextButtonState(shouldEnableNext);
     } catch (error) {
