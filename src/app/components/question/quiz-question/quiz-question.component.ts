@@ -902,6 +902,7 @@ export class QuizQuestionComponent
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       let questionIndex = +params.get('questionIndex');
+      console.log('[📦 Route param received]', params.get('questionIndex'));
 
       // Ensure a valid number from the URL (fallback to 0)
       if (isNaN(questionIndex) || questionIndex < 0) {
