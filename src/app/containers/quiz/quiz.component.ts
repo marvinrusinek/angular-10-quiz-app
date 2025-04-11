@@ -3148,14 +3148,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       }
   
-      // Final debug log
-      console.log(`[✅ Q${questionIndex} Ready]`, {
-        isAnswered,
-        explanation: explanationText,
-        question: this.questionToDisplay,
-        options: updatedOptions.length
-      });
-  
       return true;
     } catch (error) {
       console.error(`[fetchAndSetQuestionData] ❌ Unexpected error at Q${questionIndex}:`, error);
