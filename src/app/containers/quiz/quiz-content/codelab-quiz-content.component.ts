@@ -223,6 +223,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       map(([state, explanationText, question, correctText]) => {
         const explanation = explanationText?.trim();
         const trimmedQuestion = question?.trim();
+    
         const showExplanation = state.mode === 'explanation' && !!explanation;
     
         if (showExplanation) {
@@ -234,7 +235,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           : (trimmedQuestion || 'No question available');
       }),
       distinctUntilChanged()
-    );    
+    );        
   }
 
   private emitContentAvailableState(): void {
