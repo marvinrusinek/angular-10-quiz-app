@@ -3084,63 +3084,58 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-
+  
       if (questionIndex === this.totalQuestions - 1) {
         console.log(`[🔚 LAST QUESTION Q${questionIndex}] Confirmed final question`);
       }
   
-      // Reset all local UI and state
+      // Reset UI and state
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
-      this.cdRef.detectChanges(); // flush early
+      this.cdRef.detectChanges(); // flush before fetch
       await new Promise(res => setTimeout(res, 30));
   
-      // Fetch question details
+      // Fetch question
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question || !question.questionText?.trim()) {
         console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
         return false;
       }
   
-      // Emit question text to observable
+      // Emit question text
       const trimmed = question.questionText.trim();
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
   
-      // Defensive option activation
-      if (!Array.isArray(question.options) || question.options.length === 0) {
-        console.error(`[❌ Q${questionIndex}] No options received from question data`);
-        return false;
-      }
+      // Ensure options exist — fallback if necessary
+      let updatedOptions: Option[] = [];
   
-      let updatedOptions = question.options ?? [];
-
-      if (!Array.isArray(updatedOptions) || updatedOptions.length === 0) {
-        console.warn(`[⚠️ Q${questionIndex}] Original options missing or empty. Attempting fallback fetch...`);
-
+      if (Array.isArray(question.options) && question.options.length > 0) {
+        updatedOptions = question.options;
+      } else {
+        console.warn(`[⚠️ Q${questionIndex}] Options missing. Attempting fallback fetch...`);
         const fallback = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
         ) as Option[];
-        
-        if (fallback && fallback.length) {
+  
+        if (fallback?.length) {
           updatedOptions = fallback;
           console.log(`[✅ Fallback success for Q${questionIndex}] Loaded ${fallback.length} options`);
         } else {
           console.error(`[❌ Fallback failed for Q${questionIndex}] No options to display.`);
-          updatedOptions = [];
+          return false;
         }
       }
-
+  
+      // Activate option states
       updatedOptions = this.quizService.assignOptionActiveStates(updatedOptions, false);
-      question.options = updatedOptions;
-      this.optionsToDisplay = [...updatedOptions];
-    
-      // Check answered status
+  
+      // Check answered state
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
   
@@ -3150,35 +3145,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       }
   
-      // Sync local display state
+      // Sync display and component state
       this.setQuestionDetails(trimmed, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
-      this.optionsToDisplay = [...updatedOptions];
+      this.optionsToDisplay = updatedOptions;
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
   
-      // Sync shared services
+      // Sync services
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // Log state
+      // Log
       console.log(`[✅ Q${questionIndex}] Fetched and assigned`, {
         question: trimmed,
-        options: this.optionsToDisplay.map(opt => opt.text),
-        explanation: explanationText,
+        options: updatedOptions.map(opt => opt.text),
+        explanation: explanationText
       });
   
-      this.cdRef.detectChanges(); // Trigger template render
-
-      // Load UI-ready question content for display
-      await this.loadQuestionContents(questionIndex);
+      this.cdRef.detectChanges(); // trigger render
   
-      // Evaluate correctness and timer
+      // Final content prep
+      await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
   
+      // Timer logic
       if (!isAnswered) {
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
