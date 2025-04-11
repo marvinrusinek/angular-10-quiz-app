@@ -3163,10 +3163,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
       console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
-
-      console.log(`[📥 fetchQuestionDetails] Index: ${index}`);
-      console.log(`[📥 Question text: ${questionText}]`);
-      console.log(`[📥 Options count: ${options?.length}]`);
   
       // Fetch the question text
       const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
@@ -3183,6 +3179,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ fetchQuestionDetails] No valid options for Q${questionIndex}`);
         throw new Error(`Options missing for Q${questionIndex}`);
       }
+  
+      console.log(`[📥 Question text for Q${questionIndex}]: ${questionText}`);
+      console.log(`[📥 Options count for Q${questionIndex}]: ${options.length}`);
   
       // Fetch explanation
       let explanation = 'No explanation available';
