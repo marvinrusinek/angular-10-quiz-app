@@ -990,21 +990,24 @@ export class QuizService implements OnDestroy {
       console.error(`Invalid questionIndex: ${questionIndex}. Returning empty options.`);
       return of([]);
     }
-
+  
     return this.getQuestionByIndex(questionIndex).pipe(
       map((question) => {
         if (!question || !Array.isArray(question.options) || question.options.length === 0) {
           console.warn(`No options found for Q${questionIndex}. Returning empty array.`);
           return [];
         }
-    
-        // Ensure each option has feedback
-        return question.options.map((option, index) => ({
-          ...option,
-          optionId: option.optionId ?? index, 
-          correct: option.correct ?? false, 
-          feedback: option.feedback ?? `Generated feedback for Q${questionIndex} Option ${index}`
+  
+        // Clone and assign each option defensively
+        const sanitized = question.options.map((opt, index) => ({
+          ...structuredClone(opt),
+          optionId: typeof opt.optionId === 'number' ? opt.optionId : index,
+          correct: opt.correct ?? false,
+          feedback: opt.feedback ?? `Generated feedback for Q${questionIndex} Option ${index}`
         }));
+  
+        console.log(`[✅ getCurrentOptions] Q${questionIndex} returning ${sanitized.length} options`);
+        return sanitized;
       }),
       catchError((error) => {
         console.error(`Error fetching options for Q${questionIndex}:`, error);
