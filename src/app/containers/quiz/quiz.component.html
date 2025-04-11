@@ -34,7 +34,6 @@
           (answer)="selectedAnswer($event)"
           (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           (feedbackTextChange)="feedbackText = $event"
-          (navigateToQuestionIndex)="navigateToQuestion($event)"
           (nextButtonState)="updateAndSyncNextButtonState($event)"
           (optionSelected)="onOptionSelected($event)"
         ></codelab-quiz-question>
