@@ -138,8 +138,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     }); */
     this.questionToDisplay$
       .pipe(distinctUntilChanged())
-      .subscribe((text) => {
-        this.latestQuestionText = text?.trim() || 'No question available';
+      .subscribe((text: string) => {
+        this.latestQuestionText = text?.trim() || 'No question available...';
       });
   
     this.getCombinedDisplayTextStream();
