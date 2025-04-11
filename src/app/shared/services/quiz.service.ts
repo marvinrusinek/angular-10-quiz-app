@@ -2152,13 +2152,14 @@ export class QuizService implements OnDestroy {
       return [];
     }
 
-    return options.map((opt) => ({
+    return options.map((opt, index) => ({
       ...opt,
-      active: correctOptionSelected ? opt.correct : true, // Keep only correct options active
-      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // Add feedback for incorrect options
+      optionId: index, 
+      active: correctOptionSelected ? opt.correct : true, // keep only correct options active
+      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // add feedback for incorrect options
       showIcon: correctOptionSelected
         ? opt.correct || opt.showIcon
-        : opt.showIcon // Preserve icons for correct or previously shown
+        : opt.showIcon // preserve icons for correct or previously shown
     }));
   }
 
