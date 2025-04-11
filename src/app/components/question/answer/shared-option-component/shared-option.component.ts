@@ -293,6 +293,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.currentQuestion = this.config.currentQuestion;
 
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.error('[Q6 Error] No optionsToDisplay in SharedOptionComponent!');
+    }    
+
     if (!Array.isArray(this.config.optionsToDisplay) || this.config.optionsToDisplay.length === 0) {
       console.warn('[⚠️ SharedOptionComponent] No options in config.optionsToDisplay');
     } else {
@@ -962,6 +966,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[initializeOptionBindings] Correct options:', correctOptions);
   
         // Ensure optionsToDisplay is defined and populated
+        console.log('[optionBindings]', this.optionBindings);
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
           return;
