@@ -3136,6 +3136,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.setQuestionText(this.questionToDisplay);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+
+      console.log(`[Q${questionIndex}] optionsToDisplay`, this.optionsToDisplay);
+      console.log(`[Q${questionIndex}] question.options`, question.options);
   
       this.cdRef.detectChanges();
   
