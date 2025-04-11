@@ -904,8 +904,6 @@ export class QuizQuestionComponent
       let questionIndex = +params.get('questionIndex');
       console.log('[📦 Route param received]', params.get('questionIndex'));
 
-      questionIndex = questionIndex - 1; // convert to 0-based index
-
       // Ensure a valid number from the URL (fallback to 0)
       if (isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
         console.warn(
