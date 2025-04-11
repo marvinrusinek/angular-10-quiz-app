@@ -50,6 +50,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionsInitialized = false;
   private containerInitialized = false;
+  private initializedOnce = false;
 
   constructor(
     protected fb: FormBuilder,
@@ -88,7 +89,10 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   ngAfterViewInit(): void {
     console.log('[🔁 ngAfterViewInit called]');
-    this.initializeDynamicComponentIfNeeded();
+    if (!this.initializedOnce) {
+      this.initializeDynamicComponentIfNeeded();
+      this.initializedOnce = true;
+    }
   }
 
   ngOnDestroy(): void {
