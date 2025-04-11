@@ -3645,7 +3645,7 @@ export class QuizQuestionComponent
   
     return explanationText;
   } */
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim();
   
@@ -3676,6 +3676,42 @@ export class QuizQuestionComponent
       this.explanationTextService.setExplanationText(trimmed);
     } else {
       console.log(`[🛡️ Skipped duplicate emit for Q${index}]`);
+    }
+  
+    return explanationText;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log(`[🧠 updateExplanationText] Called for Q${index}`);
+  
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim();
+  
+    if (!explanationText) {
+      console.warn(`[❌ updateExplanationText] No explanation found for Q${index}`);
+      return 'No explanation available';
+    }
+  
+    // ✅ Cache to quiz state if not already stored
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+      console.log(`[📦 Caching explanation to quiz state for Q${index}]`);
+      this.quizStateService.setQuestionState(this.quizId, index, {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText
+      });
+    }
+  
+    // ✅ Defensive emit check
+    const latest = this.explanationTextService.latestExplanation?.trim();
+    const currentFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+    const shouldEmit = explanationText !== latest || !currentFormatted;
+  
+    if (shouldEmit) {
+      console.log(`[📤 Emitting explanation for Q${index}]`, explanationText, performance.now());
+      this.explanationTextService.setExplanationText(explanationText);
+    } else {
+      console.log(`[🛡️ Skipped explanation emit for Q${index}] Already current`);
     }
   
     return explanationText;
