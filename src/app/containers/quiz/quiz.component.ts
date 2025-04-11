@@ -497,6 +497,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
+        console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
         
         this.questionData = data.question ?? ({} as QuizQuestion);
         this.isQuestionDisplayed = true;
@@ -3153,6 +3154,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   
       this.cdRef.detectChanges(); // Trigger template render
+
+      // Load UI-ready question content for display
+      await this.loadQuestionContents(questionIndex);
   
       // ✅ Evaluate correctness and timer
       await this.quizService.checkIfAnsweredCorrectly();
