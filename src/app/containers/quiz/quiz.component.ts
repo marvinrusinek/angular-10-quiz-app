@@ -2838,8 +2838,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
-  
-      console.log(`[➡️ advanceToNextQuestion] Current: Q${currentIndex}, Target: Q${nextIndex}`);
+
+      console.log(`[🔄 advanceToNextQuestion] current: ${currentIndex}, next: ${nextIndex}`);
   
       // ✅ Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
@@ -3163,6 +3163,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     try {
       console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
+
+      console.log(`[📥 fetchQuestionDetails] Index: ${index}`);
+      console.log(`[📥 Question text: ${questionText}]`);
+      console.log(`[📥 Options count: ${options?.length}]`);
   
       // Fetch the question text
       const questionTextObservable = this.quizService.getQuestionTextForIndex(questionIndex);
@@ -3290,6 +3294,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // ✅ Step 2: Prepare route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
     console.log(`[➡️ Routing to: ${routeUrl}]`);
+
+    console.log(`[➡️ Attempting to navigate to Q${questionIndex}]`);
   
     // ✅ Step 3: Perform navigation
     const navSuccess = await this.router.navigateByUrl(routeUrl);
@@ -3297,6 +3303,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
       return false;
     }
+    console.log(`[✅ Router navigation succeeded to Q${questionIndex + 1}]`);
   
     // ✅ Step 4: Fetch and set question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
