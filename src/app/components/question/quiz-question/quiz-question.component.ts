@@ -2142,6 +2142,7 @@ export class QuizQuestionComponent
         console.log('[📤 Emitting explanation]', explanationToUse, performance.now());
         this.explanationTextService.setExplanationText(explanationToUse.trim());
         this.cdRef.detectChanges(); // 🟩 Ensure template updates quickly
+        this.cdRef.markForCheck();
       }
   
       this.quizService.setCurrentQuestionIndex(lockedIndex);
