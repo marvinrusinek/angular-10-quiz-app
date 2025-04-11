@@ -3329,6 +3329,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private resetUI(): void {
     // Clear current question reference and options
     this.question = null;
+    this.currentQuestion = null;
     this.optionsToDisplay = [];
   
     // Reset question component state only if method exists
@@ -3342,13 +3343,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
     }
-  
-    // this.quizService.resetAll(); // ← Optional, comment out unless needed for full restart
+
+    // Reset visual selection state
+    this.showFeedbackForOption = {};
   
     // Background reset
     this.resetBackgroundService.setShouldResetBackground(true);
   
-    // Trigger app-wide state and feedback resets
+    // Trigger global reset events
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
   
