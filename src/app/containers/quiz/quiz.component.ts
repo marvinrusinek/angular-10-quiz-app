@@ -3107,6 +3107,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
       // Emit question text to observable
       const trimmed = question.questionText?.trim() || 'No question text available';
+      console.log('[📤 Emitting questionToDisplay$]', trimmed);  
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
   
