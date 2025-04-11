@@ -269,7 +269,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ]).pipe(
       map(([state, explanationText, questionText, correctText]) => {
         const explanation = explanationText?.trim();
-        const question = questionText?.trim() || 'No question available';
+        const question = this.questionToDisplay;
         const showExplanation = state.mode === 'explanation' && !!explanation;
   
         if (showExplanation) {
