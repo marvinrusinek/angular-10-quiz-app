@@ -2112,11 +2112,11 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // ✅ Always display question text first for clean transition
+      // ✅ Always set question text first
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
       this.cdRef.detectChanges();
   
-      // ✅ Ensure optionsToDisplay is populated before continuing
+      // ✅ Ensure options are ready
       if (!this.optionsToDisplay?.length) {
         await new Promise(res => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2132,33 +2132,33 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId || 0] = true;
   
       // ================================
-      // 🧠 Explanation Setup
+      // 🧠 Explanation Setup (emit early)
       // ================================
       const explanationToUse = await this.updateExplanationText(lockedIndex);
   
       if (explanationToUse?.trim()) {
         const trimmed = explanationToUse.trim();
         const isNew = trimmed !== this.explanationTextService.latestExplanation;
+        const formattedCurrent = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
   
-        if (isNew || !this.explanationTextService.formattedExplanationSubject.getValue()?.trim()) {
+        if (isNew || !formattedCurrent) {
           console.log('[📤 Emitting explanation]', trimmed, performance.now());
           this.explanationTextService.setExplanationText(trimmed);
-          this.cdRef.detectChanges();
+          this.cdRef.detectChanges(); // ✅ Flush early
         }
       }
   
-      // ✅ Update question state and display mode
+      // ✅ Now update display state AFTER explanation emit
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
   
-      // ✅ Defensive re-locking
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
   
-      // ✅ Trigger evaluation (delayed for stability)
+      // ✅ Trigger evaluation (after short delay)
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
         const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
@@ -2170,7 +2170,7 @@ export class QuizQuestionComponent
         }
       }, 40);
   
-      // ✅ Finalization
+      // ✅ Final steps
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
