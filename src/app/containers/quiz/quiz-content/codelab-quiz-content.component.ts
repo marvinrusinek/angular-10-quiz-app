@@ -220,6 +220,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.questionToDisplay$,
       this.correctAnswersText$
     ]).pipe(
+      tap(([state, explanationText, question, correctText]) => {
+        console.log('💬 combinedText$', {
+          mode: state.mode,
+          explanationText,
+          question,
+          correctText
+        });
+      }),
       map(([state, explanationText, question, correctText]) => {
         const explanation = explanationText?.trim();
         const trimmedQuestion = question?.trim();
