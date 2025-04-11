@@ -3071,7 +3071,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } 
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
-    console.log('[📍 fetchAndSetQuestionData] Called with index:', questionIndex);
+    console.log(`[🔥 DEBUG] fetchAndSetQuestionData CALLED for Q${questionIndex}`);
   
     try {
       // Validate bounds
