@@ -3114,11 +3114,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      const updatedOptions = this.quizService.assignOptionActiveStates(question.options, false);
-      if (!updatedOptions.length) {
-        console.error(`[❌ Q${questionIndex}] assignOptionActiveStates returned empty array`);
-        return false;
+      let updatedOptions = question.options ?? [];
+
+      if (!Array.isArray(updatedOptions) || updatedOptions.length === 0) {
+        console.warn(`[⚠️ Q${questionIndex}] Original options missing or empty. Attempting fallback fetch...`);
+        const fallback = await this.quizService.getCurrentOptions(questionIndex).pipe(take(1)).toPromise();
+        if (fallback && fallback.length) {
+          updatedOptions = fallback;
+          console.log(`[✅ Fallback success for Q${questionIndex}] Loaded ${fallback.length} options`);
+        } else {
+          console.error(`[❌ Fallback failed for Q${questionIndex}] No options to display.`);
+          updatedOptions = [];
+        }
       }
+
+      updatedOptions = this.quizService.assignOptionActiveStates(updatedOptions, false);
+      question.options = updatedOptions;
+      this.optionsToDisplay = [...updatedOptions];
   
       question.options = updatedOptions;
   
