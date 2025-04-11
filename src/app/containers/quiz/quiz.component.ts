@@ -1447,13 +1447,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('[loadQuestionByRouteIndex] ❌ Feedback generation failed:', error);
         this.feedbackText = 'Could not generate feedback. Please try again.';
       }
-  
-      // Final UI update after async work
-      setTimeout(() => {
-        this.cdRef.detectChanges();
-        this.cdRef.markForCheck();
-      }, 200);
-  
     } catch (error) {
       console.error('[loadQuestionByRouteIndex] ❌ Unexpected error:', error);
       this.feedbackText = 'Error loading question details.';
