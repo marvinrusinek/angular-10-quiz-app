@@ -3105,6 +3105,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[fetchAndSetQuestionData] ❌ Question not found or missing text at Q${questionIndex}`);
         return false;
       }
+      this.questionToDisplay$.next(
+        question.questionText?.trim() || 'No question available'
+      );      
   
       // Activate option states
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
