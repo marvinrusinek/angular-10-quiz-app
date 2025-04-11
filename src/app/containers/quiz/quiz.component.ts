@@ -3084,6 +3084,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
+
+      if (questionIndex === this.totalQuestions - 1) {
+        console.log(`[🔚 LAST QUESTION Q${questionIndex}] Confirmed final question`);
+      }
   
       // Reset all local UI and state
       this.explanationTextService.resetExplanationState();
@@ -3118,9 +3122,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       if (!Array.isArray(updatedOptions) || updatedOptions.length === 0) {
         console.warn(`[⚠️ Q${questionIndex}] Original options missing or empty. Attempting fallback fetch...`);
+
         const fallback = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
         ) as Option[];
+        
         if (fallback && fallback.length) {
           updatedOptions = fallback;
           console.log(`[✅ Fallback success for Q${questionIndex}] Loaded ${fallback.length} options`);
