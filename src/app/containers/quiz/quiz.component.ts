@@ -3084,6 +3084,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[fetchAndSetQuestionData] ❌ Invalid index: Q${questionIndex}`);
         return false;
       }
+
+      if (questionIndex === this.totalQuestions - 1) {
+        console.log('[🔍 LAST QUESTION] Fetched data:', question);
+      }      
   
       // Reset state
       this.explanationTextService.resetExplanationState();
@@ -3110,6 +3114,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Activate option states
       const updatedOptions = this.quizService.assignOptionActiveStates(question.options ?? [], false);
+      if (!updatedOptions.length) {
+        console.warn(`[⚠️ Q${questionIndex}] No options returned from assignOptionActiveStates`);
+      }      
       question.options = updatedOptions;
   
       // Explanation logic
@@ -3150,6 +3157,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
+
+      console.log(`[✅ Q${questionIndex}] Ready with ${this.optionsToDisplay.length} options`);
   
       return true;
     } catch (error) {
