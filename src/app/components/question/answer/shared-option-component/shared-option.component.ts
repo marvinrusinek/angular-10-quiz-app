@@ -292,7 +292,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.currentQuestion = this.config.currentQuestion;
-    this.optionsToDisplay = this.config.optionsToDisplay || [];
+
+    if (!Array.isArray(this.config.optionsToDisplay) || this.config.optionsToDisplay.length === 0) {
+      console.warn('[⚠️ SharedOptionComponent] No options in config.optionsToDisplay');
+    } else {
+      this.optionsToDisplay = [...this.config.optionsToDisplay];
+      console.log('[✅ SharedOptionComponent] optionsToDisplay set:', this.optionsToDisplay);
+    }
   
     // Generate feedback once before bindings
     const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
