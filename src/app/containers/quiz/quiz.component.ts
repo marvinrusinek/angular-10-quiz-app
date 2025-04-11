@@ -3285,19 +3285,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[🧭 navigateToQuestion] Requested index: Q${questionIndex}`);
   
-    // ✅ Step 1: Bounds check
+    // Bounds check
     if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
       console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
       return false;
     }
   
-    // ✅ Step 2: Prepare route
+    // Prepare route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
     console.log(`[➡️ Routing to: ${routeUrl}]`);
 
     console.log(`[➡️ Attempting to navigate to Q${questionIndex}]`);
   
-    // ✅ Step 3: Perform navigation
+    // Perform navigation
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
@@ -3305,20 +3305,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     console.log(`[✅ Router navigation succeeded to Q${questionIndex + 1}]`);
   
-    // ✅ Step 4: Fetch and set question data
+    // Fetch and set question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) {
       console.error(`[navigateToQuestion] ❌ Data load failed for Q${questionIndex}`);
       return false;
     }
   
-    // ✅ Step 5: Update internal state
+    // Update internal state
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
-    // ✅ Step 6: Trigger view update
+    // Trigger view update
     this.cdRef.detectChanges();
   
     console.log(`[✅ navigateToQuestion] Successfully displaying Q${questionIndex}`);
