@@ -3,7 +3,6 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
@@ -25,7 +24,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @Output() explanationToDisplayChange = new EventEmitter<string>();
   @Output() optionClicked = new EventEmitter<{
     option: SelectedOption,
-    index: number;
+    index: number
   }>();
   @Output() questionChange = new EventEmitter<QuizQuestion>();
   @Output() correctMessageChange = new EventEmitter<string>();
