@@ -3071,6 +3071,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } 
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log('[📍 fetchAndSetQuestionData] Called with index:', questionIndex);
     try {
       // Validate index
       if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
@@ -3161,6 +3162,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
     try {
       console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
   
@@ -3180,6 +3182,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         throw new Error(`Options missing for Q${questionIndex}`);
       }
   
+      console.log(`[📥 fetchQuestionDetails] Index: ${questionIndex}`);
       console.log(`[📥 Question text for Q${questionIndex}]: ${questionText}`);
       console.log(`[📥 Options count for Q${questionIndex}]: ${options.length}`);
   
