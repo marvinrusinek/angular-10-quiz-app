@@ -3387,7 +3387,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   restartQuiz(): void {
     // Fully reset internal and service state
-    this.resetQuizState();
     this.timerService.stopTimer?.();
   
     // Reset current question index
