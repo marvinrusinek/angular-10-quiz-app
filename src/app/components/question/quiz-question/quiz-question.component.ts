@@ -1230,61 +1230,42 @@ export class QuizQuestionComponent
   async loadDynamicComponent(): Promise<void> {
     try {
       if (!this.dynamicAnswerContainer) {
-        console.error('❌ dynamicAnswerContainer is still undefined in QuizQuestionComponent');
+        console.error('[loadDynamicComponent] ❌ dynamicAnswerContainer is undefined');
         return;
       }
   
-      this.dynamicAnswerContainer.clear(); // clear previous components
+      this.dynamicAnswerContainer.clear();
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
       );
   
       const componentRef: ComponentRef<BaseQuestionComponent> =
-        await this.dynamicComponentService.loadComponent(
-          this.dynamicAnswerContainer,
-          isMultipleAnswer
-        );
+        await this.dynamicComponentService.loadComponent(this.dynamicAnswerContainer, isMultipleAnswer);
   
-      const instance = componentRef.instance as BaseQuestionComponent;
+      const instance = componentRef.instance;
   
       if (!instance) {
-        console.error('❌ Component instance is undefined');
+        console.error('[loadDynamicComponent] ❌ Component instance is undefined');
         return;
       }
   
-      // Assign required properties
+      // Reassign latest data
       instance.questionForm = this.questionForm;
       instance.question = this.question;
       instance.optionsToDisplay = [...this.optionsToDisplay];
-
+  
       // Force re-initialization AFTER assignment
       await instance.initializeSharedOptionConfig?.();
-
+  
       componentRef.changeDetectorRef.detectChanges();
   
-      console.log('[📥 loadDynamicComponent] Assigned question:', this.question?.questionText);
-      console.log('[📥 loadDynamicComponent] Assigned options:', this.optionsToDisplay);
-  
-      // Assign option click handler defensively
-      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
-        instance.onOptionClicked = this.onOptionClicked.bind(this);
-      } else {
-        console.warn('⚠️ onOptionClicked already assigned, skipping reassignment.');
-      }
-
-      console.log('[🧪 Final Preload Check]', {
-        question: this.question,
-        optionsToDisplay: this.optionsToDisplay
+      console.log('[✅ loadDynamicComponent] Component initialized with:', {
+        question: instance.question?.questionText,
+        options: instance.optionsToDisplay,
       });
-  
-      // Ensure change detection runs
-      componentRef.changeDetectorRef.detectChanges();
-      componentRef.changeDetectorRef.markForCheck();
-  
-      console.log('[✅ loadDynamicComponent] Dynamic component initialized.');
     } catch (error) {
-      console.error('[❌ loadDynamicComponent] Error loading dynamic component:', error);
+      console.error('[❌ loadDynamicComponent] Error:', error);
     }
   }
 
