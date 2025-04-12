@@ -177,45 +177,35 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   public async initializeSharedOptionConfig(): Promise<void> {
-    console.log('[🚀 ISOC] Initializing config for:', this.question?.questionText);
-
-    console.log('[🧪 ISOC Start] question:', this.question);
-    console.log('[🧪 ISOC Start] question.options:', this.question?.options);
-
     if (!this.question || !this.question.options?.length) {
-      console.warn('[❌ ISOC] Missing question or options — delaying init...');
+      console.warn('[❌ ISOC] No valid question or options — skipping init');
       return;
     }
-
-    const clonedOptions = this.question.options?.map((opt, idx) => ({
+  
+    console.log('[✅ ISOC] Initializing config for:', this.question.questionText);
+  
+    const clonedOptions = this.question.options.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? `Feedback for Option ${idx + 1}`
-    })) || [];
-    console.log('[🧪 ISOC] clonedOptions:', clonedOptions);
+      feedback: opt.feedback ?? `Feedback for Option ${idx + 1}`,
+    }));
   
     this.sharedOptionConfig = {
       ...this.getDefaultSharedOptionConfig(),
-      type: 'single', // overridden if needed
+      type: this.convertQuestionType(this.question?.type),
       optionsToDisplay: clonedOptions,
       currentQuestion: { ...this.question },
-      shouldResetBackground: this.shouldResetBackground || false,
-      selectedOption: this.selectedOption || null,
-      showFeedbackForOption: { ...this.showFeedbackForOption },
-      showFeedback: this.showFeedback || false,
-      correctMessage: this.correctMessage || '',
-      isOptionSelected: false,
-      selectedOptionIndex: -1,
-      isAnswerCorrect: false,
-      feedback: this.feedback || '',
-      highlightCorrectAfterIncorrect: false,
-      quizQuestionComponentOnOptionClicked: this.quizQuestionComponentOnOptionClicked || (() => {}),
+      showFeedbackForOption: {},
+      selectedOption: null,
+      showFeedback: false,
       onOptionClicked: this.onOptionClicked.bind(this),
-      onQuestionAnswered: this.onQuestionAnswered.bind(this)
+      onQuestionAnswered: this.onQuestionAnswered.bind(this),
     };
+  
+    this.cdRef.detectChanges();
   }
-
+  
   private getDefaultSharedOptionConfig(): SharedOptionConfig {
     return {
       optionsToDisplay: [],
