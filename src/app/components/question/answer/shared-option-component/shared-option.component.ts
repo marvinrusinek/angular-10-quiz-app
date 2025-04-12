@@ -111,19 +111,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.config) {
-      this.initializeFromConfig();
+    if (changes.config && this.config?.currentQuestion) {
+      const incomingText = this.config.currentQuestion.questionText?.trim();
+      const existingText = this.currentQuestion?.questionText?.trim();
+  
+      const questionChanged = incomingText !== existingText;
+  
+      if (questionChanged || !this.optionsToDisplay?.length) {
+        console.log(`[🧠 ngOnChanges] Reinitializing for question: ${incomingText}`);
+        this.initializeFromConfig();
+      } else {
+        console.log(`[⏸️ ngOnChanges] Skipped reinit — question unchanged: ${incomingText}`);
+      }
     }
-
+  
     if (changes.currentQuestion) {
       this.handleQuestionChange(changes.currentQuestion);
     }
-
+  
     if (changes.optionsToDisplay) {
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
     }
-
+  
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
