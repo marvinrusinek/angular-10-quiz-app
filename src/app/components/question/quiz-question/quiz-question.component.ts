@@ -1294,6 +1294,11 @@ export class QuizQuestionComponent
       instance.questionForm = this.questionForm;
       instance.question = this.question;
       instance.optionsToDisplay = [...this.optionsToDisplay];
+
+      // Force re-initialization AFTER assignment
+      await instance.initializeSharedOptionConfig?.();
+
+      componentRef.changeDetectorRef.detectChanges();
   
       console.log('[📥 loadDynamicComponent] Assigned question:', this.question?.questionText);
       console.log('[📥 loadDynamicComponent] Assigned options:', this.optionsToDisplay);
