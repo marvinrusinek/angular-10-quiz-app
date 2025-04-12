@@ -174,14 +174,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   public async initializeSharedOptionConfig(): Promise<void> {
-    console.log("ISOC");
-    if (!this.question) {
-      this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
+    if (!this.question || !this.question.options?.length) {
+      console.warn('[❌ ISOC] Missing question or options — delaying init...');
       return;
     }
-
-    console.log('[🧩 Q Init Check] Q:', this.question?.questionText);
-    console.log('[🧩 Q Init Check] optionsToDisplay:', this.question?.options);
+  
+    console.log('[✅ ISOC] Initializing for:', this.question.questionText);
 
     const clonedOptions = this.question.options?.map((opt, idx) => ({
       ...opt,
