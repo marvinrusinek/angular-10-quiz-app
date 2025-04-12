@@ -3338,7 +3338,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     // Force dynamic component re-load
-    await this.quizQuestionComponent.loadDynamicComponent();
+    // Wait until the quizQuestionComponent has updated its inputs (question + options)
+    setTimeout(async () => {
+      if (this.quizQuestionComponent?.loadDynamicComponent) {
+        console.log(`[🧪 Calling loadDynamicComponent AFTER fetchAndSetQuestionData for Q${questionIndex}]`);
+        await this.quizQuestionComponent.loadDynamicComponent();
+      } else {
+        console.warn('[❌ quizQuestionComponent not ready]');
+      }
+    }, 50); // small delay ensures inputs are updated
   
     // Update internal state
     this.currentQuestionIndex = questionIndex;
