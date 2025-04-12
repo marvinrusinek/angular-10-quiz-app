@@ -185,7 +185,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? '' // Optional fallback
+      feedback: opt.feedback ?? `Feedback for Option ${idx + 1}`
     })) || [];
   
     this.sharedOptionConfig = {
