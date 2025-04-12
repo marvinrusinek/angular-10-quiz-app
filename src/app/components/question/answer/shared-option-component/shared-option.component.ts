@@ -944,6 +944,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }  
 
   initializeOptionBindings(): void {
+    console.log(`[🧪 Binding Init] currentQuestion:`, this.currentQuestion?.questionText);
+    console.log(`[🧪 Binding Init] optionsToDisplay:`, this.optionsToDisplay);
+
     // Fetch the current question by index
     this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
       next: (question) => {
