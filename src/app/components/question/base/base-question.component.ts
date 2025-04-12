@@ -71,22 +71,25 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.question) {
-      if (changes.question.currentValue) {
-        // Proceed with initialization if `question` is now defined
-        this.handleQuestionChange(changes.question);
-        this.initializeQuestionIfAvailable();
-        await this.initializeSharedOptionConfig();
-      } else if (!changes.question.isFirstChange()) {
-        // Only log the warning if `question` is undefined AFTER the first change attempt
-        console.warn('Question input is undefined, waiting for valid data.');
+      const newQuestion = changes.question.currentValue;
+  
+      if (!newQuestion || !Array.isArray(newQuestion.options) || newQuestion.options.length === 0) {
+        console.warn('[⏳ ngOnChanges] Question or options not ready. Will retry...');
+        setTimeout(() => this.ngOnChanges(changes), 50); // retry once after delay
+        return;
       }
+  
+      console.log('[✅ ngOnChanges] Q ready:', newQuestion.questionText);
+      this.handleQuestionChange(changes.question);
+      this.initializeQuestionIfAvailable();
+      await this.initializeSharedOptionConfig();
     }
   
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
     }
   }
-
+  
   ngAfterViewInit(): void {
     if (!this.initializedOnce) {
       this.initializeDynamicComponentIfNeeded();
@@ -174,12 +177,15 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   public async initializeSharedOptionConfig(): Promise<void> {
+    console.log('[🚀 ISOC] Initializing config for:', this.question?.questionText);
+
+    console.log('[🧪 ISOC Start] question:', this.question);
+    console.log('[🧪 ISOC Start] question.options:', this.question?.options);
+
     if (!this.question || !this.question.options?.length) {
       console.warn('[❌ ISOC] Missing question or options — delaying init...');
       return;
     }
-  
-    console.log('[✅ ISOC] Initializing for:', this.question.questionText);
 
     const clonedOptions = this.question.options?.map((opt, idx) => ({
       ...opt,
@@ -187,6 +193,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       correct: opt.correct ?? false,
       feedback: opt.feedback ?? `Feedback for Option ${idx + 1}`
     })) || [];
+    console.log('[🧪 ISOC] clonedOptions:', clonedOptions);
   
     this.sharedOptionConfig = {
       ...this.getDefaultSharedOptionConfig(),
