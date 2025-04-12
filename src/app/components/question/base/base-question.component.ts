@@ -95,7 +95,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnDestroy(): void {
-    console.log('[🛑 ngOnDestroy called]');
     this.currentQuestionSubscription?.unsubscribe();
   }
 
