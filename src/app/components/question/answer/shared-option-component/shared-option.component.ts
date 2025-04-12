@@ -1052,7 +1052,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       question: this.currentQuestion ?? defaultQuestion,
       idx: idx
     };
-  }  
+  }
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOptionId === option.optionId;
