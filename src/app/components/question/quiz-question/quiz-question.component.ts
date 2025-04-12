@@ -1,45 +1,8 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ComponentRef,
-  ComponentFactoryResolver,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  NgZone,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChange,
-  SimpleChanges,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  firstValueFrom,
-  from,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-  Subscription,
-} from 'rxjs';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -101,11 +64,11 @@ export class QuizQuestionComponent
   @Output() optionSelected = new EventEmitter<{
     option: SelectedOption;
     index: number;
-    checked: boolean;
+    checked: boolean
   }>();
   @Output() displayStateChange = new EventEmitter<{
     mode: 'question' | 'explanation';
-    answered: boolean;
+    answered: boolean
   }>();
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
@@ -1458,7 +1421,7 @@ export class QuizQuestionComponent
           active: true,
           feedback: undefined,
           showIcon: false,
-          selected: false,
+          selected: false
         }));
 
         this.questionToDisplay =
