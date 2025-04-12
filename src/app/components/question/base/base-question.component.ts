@@ -178,15 +178,22 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
+
+    const clonedOptions = this.question.options?.map((opt, idx) => ({
+      ...opt,
+      optionId: opt.optionId ?? idx,
+      correct: opt.correct ?? false,
+      feedback: opt.feedback ?? '' // Optional fallback
+    })) || [];
   
     this.sharedOptionConfig = {
       ...this.getDefaultSharedOptionConfig(),
-      type: 'single', // overridden in child component
-      optionsToDisplay: this.question.options || [],
-      currentQuestion: this.question,
+      type: 'single', // overridden if needed
+      optionsToDisplay: clonedOptions,
+      currentQuestion: { ...this.question },
       shouldResetBackground: this.shouldResetBackground || false,
       selectedOption: this.selectedOption || null,
-      showFeedbackForOption: this.showFeedbackForOption || {},
+      showFeedbackForOption: { ...this.showFeedbackForOption },
       showFeedback: this.showFeedback || false,
       correctMessage: this.correctMessage || '',
       isOptionSelected: false,

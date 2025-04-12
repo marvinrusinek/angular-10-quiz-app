@@ -111,6 +111,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('[📦 ngOnChanges] Changes received:', changes);
     if (changes.config && this.config?.currentQuestion) {
       const incomingText = this.config.currentQuestion.questionText?.trim();
       const existingText = this.currentQuestion?.questionText?.trim();
