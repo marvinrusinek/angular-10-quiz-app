@@ -64,18 +64,18 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   async ngOnInit(): Promise<void> {
     this.initializeQuestionIfAvailable();
-    this.initializeSharedOptionConfig();
+    await this.initializeSharedOptionConfig();
     this.subscribeToQuestionChanges();
     console.log('Initial options:', this.optionsToDisplay);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.question) {
       if (changes.question.currentValue) {
         // Proceed with initialization if `question` is now defined
         this.handleQuestionChange(changes.question);
         this.initializeQuestionIfAvailable();
-        this.initializeSharedOptionConfig();
+        await this.initializeSharedOptionConfig();
       } else if (!changes.question.isFirstChange()) {
         // Only log the warning if `question` is undefined AFTER the first change attempt
         console.warn('Question input is undefined, waiting for valid data.');
@@ -174,10 +174,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   public async initializeSharedOptionConfig(): Promise<void> {
+    console.log("ISOC");
     if (!this.question) {
       this.sharedOptionConfig = this.getDefaultSharedOptionConfig();
       return;
     }
+
+    console.log('[🧩 Q Init Check] Q:', this.question?.questionText);
+    console.log('[🧩 Q Init Check] optionsToDisplay:', this.question?.options);
 
     const clonedOptions = this.question.options?.map((opt, idx) => ({
       ...opt,
@@ -285,7 +289,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
     if (!this.sharedOptionConfig) {
       console.error('sharedOptionConfig is not initialized');
-      this.initializeSharedOptionConfig();
+      await this.initializeSharedOptionConfig();
     }
   
     if (!this.sharedOptionConfig) {
@@ -311,7 +315,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       this.sharedOptionConfig.selectedOption = option;
   
-      // Ensure showFeedbackForOption is initialized
+      // Ensure showFeedbackForOption is 
+      ized
       if (!this.showFeedbackForOption) {
         this.showFeedbackForOption = {};
       }
