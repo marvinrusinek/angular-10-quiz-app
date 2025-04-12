@@ -3336,6 +3336,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[navigateToQuestion] ❌ Data load failed for Q${questionIndex}`);
       return false;
     }
+
+    // Force dynamic component re-load
+    await this.quizQuestionComponent.loadDynamicComponent();
   
     // Update internal state
     this.currentQuestionIndex = questionIndex;

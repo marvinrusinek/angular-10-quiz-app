@@ -1304,6 +1304,11 @@ export class QuizQuestionComponent
       } else {
         console.warn('⚠️ onOptionClicked already assigned, skipping reassignment.');
       }
+
+      console.log('[🧪 Final Preload Check]', {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay
+      });
   
       // Ensure change detection runs
       componentRef.changeDetectorRef.detectChanges();
