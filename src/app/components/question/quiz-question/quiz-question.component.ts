@@ -972,40 +972,51 @@ export class QuizQuestionComponent
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const rawParam = params.get('questionIndex');
-      let questionIndex = Number(rawParam);
+      const parsedParam = Number(rawParam);
   
-      console.log('[📦 Route param received]', { rawParam, parsed: questionIndex });
+      console.log('[📦 Route param received]', { rawParam, parsedParam });
   
-      // Convert from 1-based to 0-based index
-      if (!Number.isInteger(questionIndex) || questionIndex < 1 || questionIndex > this.totalQuestions) {
-        console.warn(`[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to 0.]`);
+      // Step 1: Validate route param and convert to 0-based index
+      let questionIndex = isNaN(parsedParam) ? 0 : parsedParam;
+      if (questionIndex < 1 || questionIndex > this.totalQuestions) {
+        console.warn(`[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to Q1 (index 0)]`);
         questionIndex = 1;
       }
-  
       const zeroBasedIndex = questionIndex - 1;
+      console.log('[🔁 Converted to 0-based index]:', zeroBasedIndex);
   
       try {
+        // Step 2: Update quiz state service
         this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
   
-        const loaded = await this.loadQuestion(); // or fetchAndSetQuestionData(zeroBasedIndex)
+        // Step 3: Load question data
+        const loaded = await this.loadQuestion(); // assumes loadQuestion uses current index
         if (!loaded) {
-          console.error('[handleRouteChanges] ❌ Failed to load question');
+          console.error(`[handleRouteChanges] ❌ Failed to load data for Q${zeroBasedIndex + 1}`);
           return;
         }
   
+        // Step 4: Reset form and update local question reference
         this.resetForm();
         this.currentQuestionIndex = zeroBasedIndex;
         this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
   
-        // Set up options
-        this.optionsToDisplay = this.currentQuestion?.options?.map((option) => ({
+        if (!this.currentQuestion) {
+          console.warn(`[handleRouteChanges] ⚠️ Question not found in questionsArray for index ${zeroBasedIndex}`);
+          return;
+        }
+  
+        // Step 5: Prepare options
+        this.optionsToDisplay = this.currentQuestion.options?.map(option => ({
           ...option,
           active: true,
           feedback: undefined,
           showIcon: false
         })) ?? [];
   
-        // Show explanation if already answered
+        console.log(`[✅ Q${zeroBasedIndex + 1}] Loaded options:`, this.optionsToDisplay);
+  
+        // Step 6: Handle explanation display if answered
         const isAnswered = await this.isQuestionAnswered(zeroBasedIndex);
         if (isAnswered) {
           await this.fetchAndUpdateExplanationText(zeroBasedIndex);
@@ -1017,7 +1028,7 @@ export class QuizQuestionComponent
   
         this.cdRef.detectChanges();
       } catch (error) {
-        console.error('[handleRouteChanges] ❌ Error during route handling:', error);
+        console.error('[handleRouteChanges] ❌ Unexpected error:', error);
       }
     });
   }
