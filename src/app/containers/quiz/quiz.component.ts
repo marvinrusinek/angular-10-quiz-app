@@ -1873,7 +1873,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       });
   }
-  
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe((data) => {
@@ -3292,7 +3291,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    console.log(`[🔍 fetchQuestionDetails] Fetching Q${questionIndex}...`);
+    console.log(`[📥 fetchQuestionDetails] Index received: ${questionIndex}`);
   
     try {
       // Fetch and validate question text
