@@ -2860,7 +2860,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
-      if (success) {
+      if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
         await this.quizQuestionComponent?.loadDynamicComponent();
       } else {
@@ -2923,7 +2923,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = prevIndex;
 
       const success = await this.navigateToQuestion(prevIndex);
-      if (success) {
+      if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
         await this.quizQuestionComponent?.loadDynamicComponent();
       } else {
