@@ -3168,6 +3168,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+
+      // 🧼 Clear previous config to force update in component
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
   
       // ✅ Load dynamic component AFTER all inputs are ready
       await this.quizQuestionComponent?.loadDynamicComponent();
