@@ -2928,6 +2928,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const success = await this.navigateToQuestion(nextIndex);
       if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
+        this.quizQuestionComponent.sharedOptionConfig = undefined;
+        console.log('[✅ QX] sharedOptionConfig reset before dynamic load1');
         await this.quizQuestionComponent.loadDynamicComponent();
       } else {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
@@ -2991,6 +2993,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const success = await this.navigateToQuestion(prevIndex);
       if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
+        this.quizQuestionComponent.sharedOptionConfig = undefined;
+        console.log('[✅ QX] sharedOptionConfig reset before dynamic load2');
         await this.quizQuestionComponent.loadDynamicComponent();
       } else {
         console.warn('[❌] Navigation failed to Q' + prevIndex);
@@ -3061,6 +3065,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       setTimeout(async () => {
         if (this.quizQuestionComponent?.loadDynamicComponent) {
           console.log('[🧠 advanceAndProcessNextQuestion] Calling loadDynamicComponent after input update');
+          this.quizQuestionComponent.sharedOptionConfig = undefined;
+          console.log('[✅ QX] sharedOptionConfig reset before dynamic load3');
           await this.quizQuestionComponent.loadDynamicComponent();
         } else {
           console.warn('[⚠️ advanceAndProcessNextQuestion] quizQuestionComponent is undefined or not ready');
@@ -3445,6 +3451,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.containerInitialized = false;
       console.log('[🚀 Dynamic Load Triggered] Forcing re-initialization');
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
+      console.log('[✅ QX] sharedOptionConfig reset before dynamic load4');
       await this.quizQuestionComponent.loadDynamicComponent();
     } else {
       console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
