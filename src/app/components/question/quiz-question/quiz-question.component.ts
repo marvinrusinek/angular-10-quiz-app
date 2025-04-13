@@ -1,8 +1,45 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ComponentRef,
+  ComponentFactoryResolver,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  firstValueFrom,
+  from,
+  Observable,
+  of,
+  ReplaySubject,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -58,17 +95,16 @@ export class QuizQuestionComponent
     new EventEmitter<boolean>();
   @Output() feedbackTextChange: EventEmitter<string> =
     new EventEmitter<string>();
-  @Output() navigateToQuestionIndex = new EventEmitter<number>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
     option: SelectedOption;
     index: number;
-    checked: boolean
+    checked: boolean;
   }>();
   @Output() displayStateChange = new EventEmitter<{
     mode: 'question' | 'explanation';
-    answered: boolean
+    answered: boolean;
   }>();
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
@@ -876,9 +912,6 @@ export class QuizQuestionComponent
         questionIndex = 0;
       }
 
-      // Emit to parent to trigger full navigation and state setup
-      this.navigateToQuestionIndex.emit(questionIndex);
-
       try {
         // Set the correct current question index before loading
         this.quizService.setCurrentQuestionIndex(questionIndex);
@@ -1230,42 +1263,49 @@ export class QuizQuestionComponent
   async loadDynamicComponent(): Promise<void> {
     try {
       if (!this.dynamicAnswerContainer) {
-        console.error('[loadDynamicComponent] ❌ dynamicAnswerContainer is undefined');
+        console.error(
+          'dynamicAnswerContainer is still undefined in QuizQuestionComponent'
+        );
         return;
       }
-  
-      this.dynamicAnswerContainer.clear();
-  
+
+      this.dynamicAnswerContainer.clear(); // clear previous components
+
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
       );
-  
+
       const componentRef: ComponentRef<BaseQuestionComponent> =
-        await this.dynamicComponentService.loadComponent(this.dynamicAnswerContainer, isMultipleAnswer);
-  
-      const instance = componentRef.instance;
-  
+        await this.dynamicComponentService.loadComponent(
+          this.dynamicAnswerContainer,
+          isMultipleAnswer
+        );
+
+      const instance = componentRef.instance as BaseQuestionComponent;
       if (!instance) {
-        console.error('[loadDynamicComponent] ❌ Component instance is undefined');
+        console.error('Component instance is undefined');
         return;
       }
-  
-      // Reassign latest data
+
+      // Assign properties to the component instance
       instance.questionForm = this.questionForm;
       instance.question = this.question;
       instance.optionsToDisplay = [...this.optionsToDisplay];
-  
-      // Force re-initialization AFTER assignment
-      await instance.initializeSharedOptionConfig?.();
-  
-      componentRef.changeDetectorRef.detectChanges();
-  
-      console.log('[✅ loadDynamicComponent] Component initialized with:', {
-        question: instance.question?.questionText,
-        options: instance.optionsToDisplay,
-      });
+
+      // Use hasOwnProperty to assign onOptionClicked only if not already assigned
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+      } else {
+        console.warn(
+          'onOptionClicked already assigned, skipping reassignment.'
+        );
+      }
+
+      // Trigger change detection to ensure updates
+      componentRef.changeDetectorRef.markForCheck();
+      console.log('Change detection triggered for dynamic component.');
     } catch (error) {
-      console.error('[❌ loadDynamicComponent] Error:', error);
+      console.error('Error loading dynamic component:', error);
     }
   }
 
@@ -1402,7 +1442,7 @@ export class QuizQuestionComponent
           active: true,
           feedback: undefined,
           showIcon: false,
-          selected: false
+          selected: false,
         }));
 
         this.questionToDisplay =
