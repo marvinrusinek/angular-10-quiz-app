@@ -969,7 +969,7 @@ export class QuizQuestionComponent
       }
     });
   } */
-  private async handleRouteChanges(): Promise<void> {
+  /* private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
@@ -1031,7 +1031,80 @@ export class QuizQuestionComponent
         console.error('[handleRouteChanges] ❌ Unexpected error:', error);
       }
     });
+  } */
+  private async handleRouteChanges(): Promise<void> {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+      const rawParam = params.get('questionIndex');
+      const parsedParam = Number(rawParam);
+  
+      console.log('[📦 Route param received]', { rawParam, parsedParam });
+  
+      // ✅ Convert from 1-based to 0-based index
+      let questionIndex = isNaN(parsedParam) ? 0 : parsedParam;
+      if (questionIndex < 1 || questionIndex > this.totalQuestions) {
+        console.warn(`[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to Q1 (index 0)]`);
+        questionIndex = 1;
+      }
+  
+      const zeroBasedIndex = questionIndex - 1;
+      console.log('[🔁 Converted to 0-based index]:', zeroBasedIndex);
+  
+      try {
+        // ✅ Step 1: Update state
+        this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
+  
+        // ✅ Step 2: Load question
+        const loaded = await this.loadQuestion(); // should internally call fetchAndSetQuestionData
+        if (!loaded) {
+          console.error(`[handleRouteChanges] ❌ Failed to load question data for Q${questionIndex}`);
+          return;
+        }
+  
+        this.resetForm(); // clear stale values
+        this.currentQuestionIndex = zeroBasedIndex;
+        this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
+  
+        if (!this.currentQuestion) {
+          console.warn(`[handleRouteChanges] ⚠️ No currentQuestion for Q${zeroBasedIndex + 1}`);
+          return;
+        }
+  
+        // ✅ Log for debug
+        console.log(`[✅ Q${questionIndex}] Question loaded:`, this.currentQuestion.questionText);
+        console.log(`[🧪 Options array for Q${questionIndex}]:`, this.currentQuestion.options);
+  
+        // ✅ Step 3: Prepare options (fallback to [])
+        const opts = this.currentQuestion.options ?? [];
+        this.optionsToDisplay = opts.map((opt) => ({
+          ...opt,
+          active: true,
+          feedback: undefined,
+          showIcon: false
+        }));
+  
+        if (!this.optionsToDisplay.length) {
+          console.warn(`[⚠️ handleRouteChanges] No options to display for Q${questionIndex}`);
+        } else {
+          console.log(`[✅ Q${questionIndex}] optionsToDisplay:`, this.optionsToDisplay);
+        }
+  
+        // ✅ Step 4: Check if answered
+        const isAnswered = await this.isQuestionAnswered(zeroBasedIndex);
+        if (isAnswered) {
+          await this.fetchAndUpdateExplanationText(zeroBasedIndex);
+          if (this.shouldDisplayExplanation) {
+            this.showExplanationChange.emit(true);
+            this.updateDisplayStateToExplanation();
+          }
+        }
+  
+        this.cdRef.detectChanges();
+      } catch (error) {
+        console.error('[handleRouteChanges] ❌ Unexpected error:', error);
+      }
+    });
   }
+  
 
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
