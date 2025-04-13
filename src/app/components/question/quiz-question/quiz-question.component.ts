@@ -935,14 +935,17 @@ export class QuizQuestionComponent
         // Set current index and current question
         this.currentQuestionIndex = questionIndex;
         this.currentQuestion = this.questionsArray[questionIndex];
+        console.log('[🧪 handleRouteChanges] currentQuestion:', this.currentQuestion);
+        console.log('[🧪 handleRouteChanges] options:', this.currentQuestion.options);
 
         // Set up options
         this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
           ...option,
           active: true,
           feedback: undefined,
-          showIcon: false,
+          showIcon: false
         }));
+        console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
 
         // Check if answered and show explanation
         const isAnswered = await this.isQuestionAnswered(questionIndex);
