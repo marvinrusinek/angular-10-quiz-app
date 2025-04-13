@@ -238,6 +238,8 @@ export class QuizQuestionComponent
   selectionMessage$ = this.selectionMessageSubject.asObservable();
   selectionMessageSubscription: Subscription;
 
+  private containerInitialized = false;
+
   // Define audio list array
   audioList: AudioItem[] = [];
 

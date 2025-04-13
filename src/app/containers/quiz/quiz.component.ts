@@ -171,7 +171,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   badgeText$: Observable<string>;
   private hasInitializedBadge = false; // prevents duplicate updates
-  private containerInitialized = false;
 
   shouldDisplayCorrectAnswers = false;
 
