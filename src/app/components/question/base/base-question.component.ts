@@ -72,6 +72,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.question) {
       const newQuestion = changes.question.currentValue;
+      console.log('[🧩 BQC ngOnChanges] New question:', newQuestion?.questionText);
   
       if (!newQuestion || !Array.isArray(newQuestion.options) || newQuestion.options.length === 0) {
         console.warn('[⏳ ngOnChanges] Question or options not ready. Will retry...');
@@ -86,6 +87,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      console.log('[🧩 BQC ngOnChanges] optionsToDisplay:', changes.optionsToDisplay.currentValue);
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
     }
   }
