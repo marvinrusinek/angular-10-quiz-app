@@ -2194,67 +2194,69 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // Always display question text immediately
+      // ✅ Display question text immediately to prevent flicker
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
       this.cdRef.detectChanges();
-  
-      // Fetch explanation early
+    
+      // ✅ Fetch explanation text early
       const explanationToUse = await this.updateExplanationText(lockedIndex);
       const trimmed = explanationToUse?.trim() || 'No explanation available';
-  
-      // Emit explanation before feedback logic
+    
+      // ✅ Only emit if different or not yet formatted
       const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
       const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-  
+    
       if (!alreadySet || !alreadyFormatted) {
-        console.log('[📤 Early emit explanation]', trimmed, performance.now());
+        console.log('[📤 Emitting explanation AFTER first click]', trimmed, performance.now());
         this.explanationTextService.setExplanationText(trimmed);
-        this.cdRef.detectChanges(); // 🧽 flush to DOM early
+        this.cdRef.detectChanges(); // 💡 DOM flush right after explanation set
       }
-  
-      // Update quiz state and mode BEFORE feedback
+    
+      // ✅ THEN update state and allow explanation to be shown
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    
+      // ✅ Ensure it's not triggered prematurely elsewhere
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
-  
-      // Then apply feedback logic
+    
+      // ✅ Apply feedback
       if (!this.optionsToDisplay?.length) {
         await new Promise((res) => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
       }
-  
+    
       const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
       if (!foundOption) return;
-  
+    
       if (!this.isFeedbackApplied) {
         await this.applyOptionFeedback(foundOption);
       }
-  
+    
       this.showFeedbackForOption[option.optionId || 0] = true;
-  
-      // Trigger evaluation after small delay
+    
+      // ✅ Trigger explanation evaluation
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
         const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
-  
+    
         if (ready && show) {
           this.explanationTextService.triggerExplanationEvaluation();
         } else {
           console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – not ready');
         }
       }, 30);
-  
-      // Finalize state
+    
+      // ✅ Finalize selection + timer state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
       this.saveQuizState();
-  
+    
       this.cdRef.markForCheck();
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
-    }
+    }    
   }  
 
   private async fetchAndUpdateExplanationText(
