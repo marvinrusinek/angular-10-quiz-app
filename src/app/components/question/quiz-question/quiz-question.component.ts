@@ -1346,6 +1346,10 @@ export class QuizQuestionComponent
       instance.questionForm = this.questionForm;
       instance.question = this.question;
       instance.optionsToDisplay = [...this.optionsToDisplay];
+      console.log('[🚀 Dynamic Load] Injecting question + options:', {
+        question: this.question?.questionText,
+        options: this.optionsToDisplay
+      });      
 
       // Use hasOwnProperty to assign onOptionClicked only if not already assigned
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
