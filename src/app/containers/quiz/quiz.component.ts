@@ -3347,7 +3347,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!fetched) return false;
 
     this.quizQuestionComponent.containerInitialized = false;
-    await this.quizQuestionComponent.loadDynamicComponent(); // only call after fetch
+    await this.quizQuestionComponent?.loadDynamicComponent(); // only call after fetch
 
     console.log('[🚀 Dynamic Load] Injecting question + options:', {
       question: this.question?.questionText,
