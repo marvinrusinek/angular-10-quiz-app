@@ -899,9 +899,9 @@ export class QuizQuestionComponent
     }
   }
 
-  private async handleRouteChanges(): Promise<void> {
+  /* private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-      let questionIndex = (+params.get('questionIndex') ?? 1) - 1;
+      let questionIndex = (+params.get('questionIndex') || 1) - 1;
       console.log('[📦 Route param received]', params.get('questionIndex'));
 
       // Ensure a valid number from the URL (fallback to 0)
@@ -964,6 +964,63 @@ export class QuizQuestionComponent
           '[handleRouteChanges] ❌ Error during route handling:',
           error
         );
+      }
+    });
+  } */
+  private async handleRouteChanges(): Promise<void> {
+  this.router.events
+    .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+    .subscribe(async () => {
+      const questionIndexParam = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
+      const questionIndex = isNaN(questionIndexParam) ? 0 : questionIndexParam - 1;
+
+      console.log('[📦 Route param received]', {
+        param: questionIndexParam,
+        adjustedIndex: questionIndex
+      });
+
+      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
+        console.warn(`[⚠️ Invalid index: ${questionIndex}] Defaulting to 0`);
+        return;
+      }
+
+      try {
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+        const loaded = await this.loadQuestion(); // Or fetchAndSetQuestionData(questionIndex)
+
+        if (!loaded) {
+          console.error('[handleRouteChanges] ❌ Failed to load question');
+          return;
+        }
+
+        this.resetForm();
+        this.currentQuestionIndex = questionIndex;
+        this.currentQuestion = this.questionsArray?.[questionIndex];
+
+        if (this.currentQuestion?.options?.length) {
+          this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+            ...option,
+            active: true,
+            feedback: undefined,
+            showIcon: false,
+          }));
+        } else {
+          console.warn(`[handleRouteChanges] ⚠️ No options found for Q${questionIndex}`);
+        }
+
+        const isAnswered = await this.isQuestionAnswered(questionIndex);
+        if (isAnswered) {
+          await this.fetchAndUpdateExplanationText(questionIndex);
+
+          if (this.shouldDisplayExplanation) {
+            this.showExplanationChange.emit(true);
+            this.updateDisplayStateToExplanation();
+          }
+        }
+
+        this.cdRef.detectChanges();
+      } catch (error) {
+        console.error('[handleRouteChanges] ❌ Error during route handling:', error);
       }
     });
   }
