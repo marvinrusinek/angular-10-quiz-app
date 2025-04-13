@@ -968,56 +968,51 @@ export class QuizQuestionComponent
     });
   } */
   private async handleRouteChanges(): Promise<void> {
-  this.router.events
-    .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-    .subscribe(async () => {
-      const questionIndexParam = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-      const questionIndex = isNaN(questionIndexParam) ? 0 : questionIndexParam - 1;
-
-      console.log('[📦 Route param received]', {
-        param: questionIndexParam,
-        adjustedIndex: questionIndex
-      });
-
-      if (questionIndex < 0 || questionIndex >= this.totalQuestions) {
-        console.warn(`[⚠️ Invalid index: ${questionIndex}] Defaulting to 0`);
-        return;
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+      const rawParam = params.get('questionIndex');
+      let questionIndex = Number(rawParam);
+  
+      console.log('[📦 Route param received]', { rawParam, parsed: questionIndex });
+  
+      // Convert from 1-based to 0-based index
+      if (!Number.isInteger(questionIndex) || questionIndex < 1 || questionIndex > this.totalQuestions) {
+        console.warn(`[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to 0.]`);
+        questionIndex = 1;
       }
-
+  
+      const zeroBasedIndex = questionIndex - 1;
+  
       try {
-        this.quizService.setCurrentQuestionIndex(questionIndex);
-        const loaded = await this.loadQuestion(); // Or fetchAndSetQuestionData(questionIndex)
-
+        this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
+  
+        const loaded = await this.loadQuestion(); // or fetchAndSetQuestionData(zeroBasedIndex)
         if (!loaded) {
           console.error('[handleRouteChanges] ❌ Failed to load question');
           return;
         }
-
+  
         this.resetForm();
-        this.currentQuestionIndex = questionIndex;
-        this.currentQuestion = this.questionsArray?.[questionIndex];
-
-        if (this.currentQuestion?.options?.length) {
-          this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-            ...option,
-            active: true,
-            feedback: undefined,
-            showIcon: false,
-          }));
-        } else {
-          console.warn(`[handleRouteChanges] ⚠️ No options found for Q${questionIndex}`);
-        }
-
-        const isAnswered = await this.isQuestionAnswered(questionIndex);
+        this.currentQuestionIndex = zeroBasedIndex;
+        this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
+  
+        // Set up options
+        this.optionsToDisplay = this.currentQuestion?.options?.map((option) => ({
+          ...option,
+          active: true,
+          feedback: undefined,
+          showIcon: false
+        })) ?? [];
+  
+        // Show explanation if already answered
+        const isAnswered = await this.isQuestionAnswered(zeroBasedIndex);
         if (isAnswered) {
-          await this.fetchAndUpdateExplanationText(questionIndex);
-
+          await this.fetchAndUpdateExplanationText(zeroBasedIndex);
           if (this.shouldDisplayExplanation) {
             this.showExplanationChange.emit(true);
             this.updateDisplayStateToExplanation();
           }
         }
-
+  
         this.cdRef.detectChanges();
       } catch (error) {
         console.error('[handleRouteChanges] ❌ Error during route handling:', error);
