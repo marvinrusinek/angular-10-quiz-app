@@ -2290,14 +2290,14 @@ export class QuizQuestionComponent
         // Set explanation text into the Subject/Service
         this.explanationTextService.setExplanationText(trimmed);
 
-        // Force Angular to flush the change to the DOM before continuing
-        this.cdRef.detectChanges();
-
         // Emit that the explanation "should be displayed"
         this.explanationTextService.setShouldDisplayExplanation(true);
 
         // Lock the explanation to prevent overrides from re-renders or navigations
         this.explanationTextService.lockExplanation();
+
+        // Force Angular to flush the change to the DOM before continuing
+        this.cdRef.detectChanges();
       }
     
       // ✅ THEN update state and allow explanation to be shown
