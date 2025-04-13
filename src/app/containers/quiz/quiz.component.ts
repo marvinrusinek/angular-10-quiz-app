@@ -3126,21 +3126,40 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay$.next(trimmed);
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
   
-      // ✅ Defensive fallback for options
-      let updatedOptions = question.options ?? [];
-      if (!Array.isArray(updatedOptions) || updatedOptions.length === 0) {
-        console.warn(`[⚠️ Q${questionIndex}] Options missing. Attempting fallback fetch...`);
-        const fallback = await firstValueFrom(
-          this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
-        ) as Option[];
+      // ✅ Validate or fallback to options
+      let updatedOptions: Option[] = [];
   
-        if (fallback?.length) {
-          updatedOptions = fallback;
-          console.log(`[✅ Fallback success for Q${questionIndex}] Loaded ${fallback.length} options`);
-        } else {
-          console.error(`[❌ Fallback failed for Q${questionIndex}] No options to display.`);
+      if (!Array.isArray(question.options) || question.options.length === 0) {
+        console.warn(`[⚠️ Q${questionIndex}] Question.options missing or empty. Attempting fallback...`);
+  
+        try {
+          const fallback = await firstValueFrom(
+            this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
+          ) as Option[];
+  
+          if (Array.isArray(fallback) && fallback.length > 0) {
+            updatedOptions = fallback.map((opt, idx) => ({
+              ...opt,
+              optionId: opt.optionId ?? idx,
+              correct: opt.correct ?? false,
+              feedback: opt.feedback ?? `Fallback feedback for option ${idx + 1}`
+            }));
+            console.log(`[✅ Fallback success for Q${questionIndex}] Loaded ${updatedOptions.length} options`);
+          } else {
+            console.error(`[❌ Fallback failed for Q${questionIndex}] No options to display.`);
+            return false;
+          }
+        } catch (fallbackError) {
+          console.error(`[❌ Fallback error for Q${questionIndex}]`, fallbackError);
           return false;
         }
+      } else {
+        updatedOptions = question.options.map((opt, idx) => ({
+          ...opt,
+          optionId: opt.optionId ?? idx,
+          correct: opt.correct ?? false,
+          feedback: opt.feedback ?? `Generated feedback for option ${idx + 1}`
+        }));
       }
   
       // ✅ Apply option state
@@ -3168,7 +3187,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
+  
       // 🧼 Clear previous config to force update in component
       this.quizQuestionComponent.sharedOptionConfig = undefined;
   
