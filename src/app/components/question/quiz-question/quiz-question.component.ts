@@ -1319,11 +1319,6 @@ export class QuizQuestionComponent
 
   async loadDynamicComponent(): Promise<void> {
     try {
-      if (!this.question || !this.optionsToDisplay?.length) {
-        console.error('[loadDynamicComponent] ❌ Missing question or options — skipping load');
-        return;
-      }
-      
       if (!this.dynamicAnswerContainer) {
         console.error(
           'dynamicAnswerContainer is still undefined in QuizQuestionComponent'

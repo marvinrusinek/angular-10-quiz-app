@@ -3088,7 +3088,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[🔥 DEBUG] fetchAndSetQuestionData CALLED for Q${questionIndex}`);
   
     try {
-      // Validate bounds
+      // ✅ Bounds check
       if (
         typeof questionIndex !== 'number' ||
         isNaN(questionIndex) ||
@@ -3103,39 +3103,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log(`[🔚 LAST QUESTION Q${questionIndex}] Confirmed final question`);
       }
   
-      // Reset UI and state
+      // ✅ Reset local UI
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
-      this.cdRef.detectChanges(); // flush before fetch
+      this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
   
-      // Fetch question
+      // ✅ Fetch question
       const question = await this.fetchQuestionDetails(questionIndex);
       if (!question || !question.questionText?.trim()) {
         console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
         return false;
       }
-      this.question = { ...question }; // ensure spread to change reference
-      console.log(`[✅ Q${questionIndex}] Set this.question:`, this.question);
-      await this.quizQuestionComponent?.loadDynamicComponent(); // ✅ load after state is ready
   
-      // Emit question text
       const trimmed = question.questionText.trim();
+      this.question = { ...question };
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
-      
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
   
-      // Ensure options exist — fallback if necessary
-      let updatedOptions: Option[] = [];
-  
-      if (Array.isArray(question.options) && question.options.length > 0) {
-        updatedOptions = question.options;
-      } else {
+      // ✅ Defensive fallback for options
+      let updatedOptions = question.options ?? [];
+      if (!Array.isArray(updatedOptions) || updatedOptions.length === 0) {
         console.warn(`[⚠️ Q${questionIndex}] Options missing. Attempting fallback fetch...`);
         const fallback = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
@@ -3150,10 +3143,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       }
   
-      // Activate option states
+      // ✅ Apply option state
       updatedOptions = this.quizService.assignOptionActiveStates(updatedOptions, false);
   
-      // Check answered state
+      // ✅ Check answered
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
   
@@ -3163,34 +3156,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       }
   
-      // Sync display and component state
+      // ✅ Assign to component and services — MUST HAPPEN BEFORE LOADING COMPONENT
       this.setQuestionDetails(trimmed, updatedOptions, explanationText);
       this.currentQuestion = { ...question, options: updatedOptions };
-      this.optionsToDisplay = updatedOptions;
+      this.optionsToDisplay = [...updatedOptions];
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
   
-      // Sync services
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // Log
+      // ✅ Load dynamic component AFTER all inputs are ready
+      await this.quizQuestionComponent?.loadDynamicComponent();
+  
+      // ✅ Logging
       console.log(`[✅ Q${questionIndex}] Fetched and assigned`, {
         question: trimmed,
         options: updatedOptions.map(opt => opt.text),
         explanation: explanationText
       });
   
-      this.cdRef.detectChanges(); // trigger render
+      this.cdRef.detectChanges();
   
-      // Final content prep
+      // ✅ Final load + timer
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
   
-      // Timer logic
       if (!isAnswered) {
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
