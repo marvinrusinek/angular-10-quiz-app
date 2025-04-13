@@ -3344,19 +3344,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[🧭 navigateToQuestion] Requested index: Q${questionIndex}`);
   
-    // Bounds check
-    if (typeof questionIndex !== 'number' || isNaN(questionIndex) || questionIndex < 0 || questionIndex >= this.totalQuestions) {
+    // ✅ Bounds check
+    if (
+      typeof questionIndex !== 'number' ||
+      isNaN(questionIndex) ||
+      questionIndex < 0 ||
+      questionIndex >= this.totalQuestions
+    ) {
       console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
       return false;
     }
   
-    // Prepare route
+    // ✅ Prepare route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
     console.log(`[➡️ Routing to: ${routeUrl}]`);
-
-    console.log(`[➡️ Attempting to navigate to Q${questionIndex}]`);
   
-    // Perform navigation
+    // ✅ Perform navigation
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
@@ -3364,30 +3367,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     console.log(`[✅ Router navigation succeeded to Q${questionIndex + 1}]`);
   
-    // Fetch and set question data
+    // ✅ Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) return false;
-
-    this.quizQuestionComponent.containerInitialized = false;
-    await this.quizQuestionComponent?.loadDynamicComponent(); // only call after fetch
-
-    console.log('[🚀 Dynamic Load] Injecting question + options:', {
+  
+    // ✅ Force dynamic component reload
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.containerInitialized = false;
+      console.log('[🚀 Dynamic Load Triggered] Forcing re-initialization');
+      await this.quizQuestionComponent.loadDynamicComponent();
+    } else {
+      console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
+    }
+  
+    // ✅ Log current assignment
+    console.log('[📦 Dynamic Injection Data]', {
       question: this.question?.questionText,
-      options: this.optionsToDisplay
+      options: this.optionsToDisplay?.length,
     });
   
-    // Update internal state
+    // ✅ Update internal state
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
-    // Trigger view update
+    // ✅ Trigger change detection
     this.cdRef.detectChanges();
   
     console.log(`[✅ navigateToQuestion] Successfully displaying Q${questionIndex}`);
     return true;
-  }
+  }  
 
   // Reset UI immediately before navigating
   private resetUI(): void {
