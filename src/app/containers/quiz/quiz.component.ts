@@ -3120,8 +3120,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
       this.question = { ...question }; // ensure spread to change reference
-      this.quizQuestionComponent.question = this.question; // ✅ manually inject updated question
-      this.quizQuestionComponent.optionsToDisplay = [...this.optionsToDisplay]; // ✅ inject options too
       console.log(`[✅ Q${questionIndex}] Set this.question:`, this.question);
   
       // Emit question text
