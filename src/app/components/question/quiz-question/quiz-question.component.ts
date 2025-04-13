@@ -1329,57 +1329,62 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(): Promise<void> {
-    try {      
+    try {
       if (!this.dynamicAnswerContainer) {
-        console.error(
-          'dynamicAnswerContainer is still undefined in QuizQuestionComponent'
-        );
+        console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
         return;
       }
-
-      this.dynamicAnswerContainer.clear(); // clear previous components
-
+  
+      this.dynamicAnswerContainer.clear(); // Clear any existing components
+  
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
       );
-
+  
       const componentRef: ComponentRef<BaseQuestionComponent> =
         await this.dynamicComponentService.loadComponent(
           this.dynamicAnswerContainer,
           isMultipleAnswer
         );
-
+  
       const instance = componentRef.instance as BaseQuestionComponent;
+  
       if (!instance) {
-        console.error('Component instance is undefined');
+        console.error('[❌ Dynamic Load] Component instance is undefined');
         return;
       }
-
-      // Assign properties to the component instance
+  
+      // ✅ Inject required inputs
+      instance.questionForm = this.questionForm;
       instance.question = { ...this.question };
       instance.optionsToDisplay = [...this.optionsToDisplay];
-      instance.questionForm = this.questionForm;
+  
       console.log('[🚀 Dynamic Load] Injecting question + options:', {
         question: this.question?.questionText,
         options: this.optionsToDisplay
-      });      
-
-      // Use hasOwnProperty to assign onOptionClicked only if not already assigned
+      });
+  
+      // ✅ Initialize config immediately after data is set
+      await instance.initializeSharedOptionConfig();
+  
+      // ✅ Run change detection right after state injection
+      componentRef.changeDetectorRef.detectChanges();
+  
+      // 🔄 Optional: assign handler if not already set
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
       } else {
-        console.warn(
-          'onOptionClicked already assigned, skipping reassignment.'
-        );
+        console.warn('[⚠️ Dynamic Load] onOptionClicked already set — skipped reassignment');
       }
-
-      // Trigger change detection to ensure updates
+  
+      // ✅ Mark for view update
       componentRef.changeDetectorRef.markForCheck();
-      console.log('Change detection triggered for dynamic component.');
+      console.log('[✅ Dynamic Load] Component initialized and marked for check');
     } catch (error) {
-      console.error('Error loading dynamic component:', error);
+      console.error('[❌ Dynamic Load] Error during component load:', error);
     }
   }
+  
 
   // rename
   private async loadInitialQuestionAndMessage(): Promise<void> {
