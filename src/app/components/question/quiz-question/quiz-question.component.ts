@@ -1402,6 +1402,9 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(): Promise<void> {
+    console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
+    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay);
+
     try {
       if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
         console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
