@@ -171,6 +171,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   badgeText$: Observable<string>;
   private hasInitializedBadge = false; // prevents duplicate updates
+  private containerInitialized = false;
 
   shouldDisplayCorrectAnswers = false;
 
@@ -2860,11 +2861,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
-      if (!success) {
-        console.warn(`[❌ advanceToNextQuestion] Navigation to Q${nextIndex} failed.`);
-        return;
+      if (success) {
+        this.quizQuestionComponent.containerInitialized = false;
+        await this.quizQuestionComponent?.loadDynamicComponent();
+      } else {
+        console.warn('[❌] Navigation failed to Q' + nextIndex);
       }
-      await this.quizQuestionComponent?.loadDynamicComponent();
   
       // Re-evaluate Next button state
       const shouldEnableNext = this.isAnyOptionSelected();
@@ -2922,11 +2924,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = prevIndex;
 
       const success = await this.navigateToQuestion(prevIndex);
-      if (!success) {
+      if (success) {
+        this.quizQuestionComponent.containerInitialized = false;
+        await this.quizQuestionComponent?.loadDynamicComponent();
+      } else {
         console.warn('[❌] Navigation failed to Q' + prevIndex);
-        return;
       }
-      await this.quizQuestionComponent?.loadDynamicComponent();
 
       this.quizQuestionComponent?.resetExplanation();
       this.resetUI();
