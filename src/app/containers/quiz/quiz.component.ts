@@ -2864,6 +2864,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[❌ advanceToNextQuestion] Navigation to Q${nextIndex} failed.`);
         return;
       }
+      await this.quizQuestionComponent?.loadDynamicComponent();
   
       // Re-evaluate Next button state
       const shouldEnableNext = this.isAnyOptionSelected();
@@ -2925,6 +2926,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('[❌] Navigation failed to Q' + prevIndex);
         return;
       }
+      await this.quizQuestionComponent?.loadDynamicComponent();
 
       this.quizQuestionComponent?.resetExplanation();
       this.resetUI();
