@@ -3121,6 +3121,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
       this.question = { ...question }; // ensure spread to change reference
       console.log(`[✅ Q${questionIndex}] Set this.question:`, this.question);
+      await this.quizQuestionComponent?.loadDynamicComponent(); // ✅ load after state is ready
   
       // Emit question text
       const trimmed = question.questionText.trim();
