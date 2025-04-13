@@ -3120,6 +3120,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const trimmed = question.questionText.trim();
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
+      
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
   
       // Ensure options exist — fallback if necessary
@@ -3173,7 +3174,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log(`[✅ Q${questionIndex}] Fetched and assigned`, {
         question: trimmed,
         options: updatedOptions.map(opt => opt.text),
-        explanation: explanationText,
+        explanation: explanationText
       });
   
       this.cdRef.detectChanges(); // trigger render
