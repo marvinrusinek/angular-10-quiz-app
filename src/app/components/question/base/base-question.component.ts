@@ -108,7 +108,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     this.showFeedback = true;
   }
 
-  private initializeDynamicComponentIfNeeded(): void {
+  /* private initializeDynamicComponentIfNeeded(): void {
     if (!this.containerInitialized && this.dynamicAnswerContainer) {
       console.log('Dynamic container initializing...');
       this.dynamicAnswerContainer.clear();
@@ -121,6 +121,39 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         dynamicAnswerContainer: !!this.dynamicAnswerContainer,
       });
     }
+  } */
+  private initializeDynamicComponentIfNeeded(): void {
+    if (this.containerInitialized) {
+      console.log('Dynamic component already initialized. Skipping load.');
+      return;
+    }
+  
+    if (!this.dynamicAnswerContainer) {
+      console.warn('[❌ Dynamic Init] Container not available.');
+      return;
+    }
+  
+    // ✅ Defer load if inputs are not yet ready
+    if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+      console.warn('[🕒 Waiting to initialize dynamic component – data not ready]', {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay
+      });
+  
+      setTimeout(() => this.initializeDynamicComponentIfNeeded(), 50); // ⏳ Retry once after delay
+      return;
+    }
+  
+    console.log('[🚀 Dynamic container initializing with]:', {
+      question: this.question?.questionText,
+      options: this.optionsToDisplay
+    });
+  
+    this.dynamicAnswerContainer.clear();
+    this.loadDynamicComponent();
+  
+    this.containerInitialized = true;
+    this.cdRef.markForCheck();
   }
 
   private updateQuizStateService(): void {

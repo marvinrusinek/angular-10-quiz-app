@@ -1329,7 +1329,7 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(): Promise<void> {
-    try {
+    try {      
       if (!this.dynamicAnswerContainer) {
         console.error(
           'dynamicAnswerContainer is still undefined in QuizQuestionComponent'
