@@ -1345,9 +1345,9 @@ export class QuizQuestionComponent
       }
 
       // Assign properties to the component instance
-      instance.questionForm = this.questionForm;
-      instance.question = this.question;
+      instance.question = { ...this.question };
       instance.optionsToDisplay = [...this.optionsToDisplay];
+      instance.questionForm = this.questionForm;
       console.log('[🚀 Dynamic Load] Injecting question + options:', {
         question: this.question?.questionText,
         options: this.optionsToDisplay
