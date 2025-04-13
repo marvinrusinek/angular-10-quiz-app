@@ -2281,17 +2281,23 @@ export class QuizQuestionComponent
     
       if (!alreadySet || !alreadyFormatted) {
         console.log('[📤 Emitting explanation AFTER first click]', trimmed, performance.now());
+
+        // Set explanation text into the Subject/Service
         this.explanationTextService.setExplanationText(trimmed);
-        this.cdRef.detectChanges(); // 💡 DOM flush right after explanation set
+
+        // Force Angular to flush the change to the DOM before continuing
+        this.cdRef.detectChanges();
+
+        // Emit that the explanation "should be displayed"
+        this.explanationTextService.setShouldDisplayExplanation(true);
+
+        // Lock the explanation to prevent overrides from re-renders or navigations
+        this.explanationTextService.lockExplanation();
       }
     
       // ✅ THEN update state and allow explanation to be shown
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    
-      // ✅ Ensure it's not triggered prematurely elsewhere
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationTextService.lockExplanation();
     
       // ✅ Apply feedback
       if (!this.optionsToDisplay?.length) {
