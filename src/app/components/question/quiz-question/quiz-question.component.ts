@@ -1426,11 +1426,16 @@ export class QuizQuestionComponent
         );
   
       const instance = componentRef.instance as BaseQuestionComponent;
-  
       if (!instance) {
         console.error('[❌ Dynamic Load] Component instance is undefined');
         return;
       }
+
+      console.log('[🚀 Dynamic Load Triggered]', {
+        questionText: this.question?.questionText || '❌ No question',
+        optionsCount: this.optionsToDisplay?.length || 0,
+        optionsPreview: this.optionsToDisplay?.map((opt) => opt.text)
+      });
   
       // ✅ Inject required inputs
       instance.questionForm = this.questionForm;
