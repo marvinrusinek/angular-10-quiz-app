@@ -3359,6 +3359,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       console.warn('[⚠️ quizQuestionComponent or loadDynamicComponent not ready]');
     }
+
+    console.log('[🚀 Dynamic Load] Injecting question + options:', {
+      question: this.question?.questionText,
+      options: this.optionsToDisplay
+    });
   
     // Update internal state
     this.currentQuestionIndex = questionIndex;
