@@ -3352,17 +3352,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
 
-    // ✅ Wait a short delay to allow UI flush
-    await new Promise((res) => setTimeout(res, 50));
-
-    // Force dynamic component re-load
-    // Dynamically load the component again
-    if (this.quizQuestionComponent?.loadDynamicComponent) {
-      await this.quizQuestionComponent.loadDynamicComponent();
-      console.log('[✅ Dynamic component loaded after fetch]');
-    } else {
-      console.warn('[⚠️ quizQuestionComponent or loadDynamicComponent not ready]');
-    }
+    // Re-init dynamic component with delay to let state settle
+    setTimeout(async () => {
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.containerInitialized = false;
+        await this.quizQuestionComponent.loadDynamicComponent();
+        console.log('[🧩 Dynamic Reload] Done for Q' + questionIndex);
+      }
+    }, 10); // slight async buffer
 
     console.log('[🚀 Dynamic Load] Injecting question + options:', {
       question: this.question?.questionText,
