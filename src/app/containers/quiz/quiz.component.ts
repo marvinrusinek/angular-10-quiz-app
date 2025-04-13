@@ -3350,19 +3350,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Fetch and set question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
-    if (!fetched) {
-      console.error(`[navigateToQuestion] ❌ Data load failed for Q${questionIndex}`);
-      return false;
-    }
+    if (!fetched) return false;
 
-    // Re-init dynamic component with delay to let state settle
-    setTimeout(async () => {
-      if (this.quizQuestionComponent) {
-        this.quizQuestionComponent.containerInitialized = false;
-        await this.quizQuestionComponent.loadDynamicComponent();
-        console.log('[🧩 Dynamic Reload] Done for Q' + questionIndex);
-      }
-    }, 10); // slight async buffer
+    this.quizQuestionComponent.containerInitialized = false;
+    await this.quizQuestionComponent?.loadDynamicComponent(); // only call after fetch
 
     console.log('[🚀 Dynamic Load] Injecting question + options:', {
       question: this.question?.questionText,
