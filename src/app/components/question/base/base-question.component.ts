@@ -217,17 +217,20 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('[🧪 ISOC Start] question:', this.question);
     console.log('[🧪 ISOC Start] question.options:', this.question?.options);
 
-    if (!this.question || !this.question.options?.length) {
-      console.warn('[❌ ISOC] Missing question or options — delaying init...');
+    if (!this.question || !Array.isArray(this.question.options) || this.question.options.length === 0) {
+      console.warn('[❌ ISOC] Cannot initialize config — missing question or options', {
+        question: this.question,
+        options: this.question?.options
+      });
       return;
     }
 
-    const clonedOptions = this.question.options?.map((opt, idx) => ({
+    const clonedOptions = this.question.options.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? `Feedback for Option ${idx + 1}`
-    })) || [];
+      feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
+    }));
     console.log('[🧪 ISOC] clonedOptions:', clonedOptions);
   
     this.sharedOptionConfig = {
