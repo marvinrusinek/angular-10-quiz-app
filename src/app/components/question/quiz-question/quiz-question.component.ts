@@ -362,6 +362,8 @@ export class QuizQuestionComponent
   } */
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+
+    this.waitForContainerAndLoad();
   
     const index = this.currentQuestionIndex;
   
@@ -397,6 +399,21 @@ export class QuizQuestionComponent
     this.containerInitialized = false; // 🔁 force re-init
     await this.loadDynamicComponent(); // 🔥 inject Single/MultipleAnswerComponent
   }
+
+  private waitForContainerAndLoad(): void {
+    if (!this.dynamicAnswerContainer || !this.question || !this.optionsToDisplay?.length) {
+      console.log('[⏳ waitForContainerAndLoad] Waiting for container or data...');
+      setTimeout(() => this.waitForContainerAndLoad(), 30);
+      return;
+    }
+  
+    this.containerInitialized = false;
+    this.sharedOptionConfig = undefined;
+  
+    console.log('[✅ waitForContainerAndLoad] Ready. Loading dynamic component.');
+    this.loadDynamicComponent();
+  }
+  
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.options) {
