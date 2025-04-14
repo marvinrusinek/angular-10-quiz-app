@@ -3952,7 +3952,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             const firstQuestion = this.questions[0];
             if (firstQuestion) {
               this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
-              this.quizQuestionComponent.loadDynamicComponent();
+              this.quizQuestionComponent.loadDynamicComponent(firstQuestion, firstQuestion.options);
             } else {
               console.error('❌ First question not found.');
             }
