@@ -3443,7 +3443,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   } */
-  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+  /* private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log(`[🔥 DEBUG] fetchAndSetQuestionData CALLED for Q${questionIndex}`);
   
     try {
@@ -3570,6 +3570,118 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.quizQuestionComponent?.loadDynamicComponent();
   
       this.cdRef.detectChanges();
+  
+      await this.loadQuestionContents(questionIndex);
+      await this.quizService.checkIfAnsweredCorrectly();
+  
+      if (!isAnswered) {
+        this.timerService.startTimer(this.timerService.timePerQuestion);
+      } else {
+        this.timerService.isTimerRunning = false;
+      }
+  
+      return true;
+    } catch (error) {
+      console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
+      return false;
+    }
+  } */
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log(`[🔥 fetchAndSetQuestionData] Q${questionIndex} init`);
+  
+    try {
+      if (
+        typeof questionIndex !== 'number' ||
+        isNaN(questionIndex) ||
+        questionIndex < 0 ||
+        questionIndex >= this.totalQuestions
+      ) {
+        console.warn(`[❌ Invalid index: Q${questionIndex}]`);
+        return false;
+      }
+  
+      if (questionIndex === this.totalQuestions - 1) {
+        console.log(`[🔚 Last Question] Q${questionIndex}`);
+      }
+  
+      // ✅ Reset all state
+      this.explanationTextService.resetExplanationState();
+      this.resetQuestionState();
+  
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.explanationToDisplay = '';
+      this.questionToDisplay = '';
+      this.cdRef.detectChanges();
+      await new Promise(res => setTimeout(res, 30));
+  
+      // ✅ Fetch the question
+      const fetched = await this.fetchQuestionDetails(questionIndex);
+      if (!fetched || !fetched.questionText?.trim()) {
+        console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
+        return false;
+      }
+  
+      const question = { ...fetched };
+      const trimmedText = question.questionText.trim();
+      this.questionToDisplay = trimmedText;
+      this.questionToDisplay$.next(trimmedText);
+  
+      // ✅ Handle options
+      let rawOptions = question.options;
+  
+      if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
+        console.warn(`[⚠️ Q${questionIndex}] Options missing, attempting fallback`);
+        try {
+          const fallback = await firstValueFrom(
+            this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
+          );
+          rawOptions = fallback ?? [];
+        } catch (err) {
+          console.error(`[❌ Fallback options failed for Q${questionIndex}]`, err);
+          return false;
+        }
+      }
+  
+      const hydratedOptions = rawOptions.map((opt, idx) => ({
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? `Auto-generated feedback for option ${idx + 1}`
+      }));
+  
+      const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
+      const clonedOptions = structuredClone?.(finalOptions) ?? JSON.parse(JSON.stringify(finalOptions));
+  
+      this.question = { ...question, options: clonedOptions };
+      this.optionsToDisplay = [...clonedOptions];
+  
+      console.log(`[✅ Q${questionIndex}]`, {
+        text: this.question.questionText,
+        options: this.optionsToDisplay.map(o => o.text)
+      });
+  
+      // ✅ Explanation logic
+      const isAnswered = await this.isQuestionAnswered(questionIndex);
+      let explanationText = '';
+  
+      if (isAnswered) {
+        explanationText = question.explanation?.trim() || 'No explanation available';
+        this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      }
+  
+      // ✅ Final assignments
+      this.setQuestionDetails(trimmedText, finalOptions, explanationText);
+      this.currentQuestion = { ...this.question };
+      this.currentQuestionIndex = questionIndex;
+      this.explanationToDisplay = explanationText;
+  
+      this.quizService.setCurrentQuestion(this.currentQuestion);
+      this.quizService.setCurrentQuestionIndex(questionIndex);
+      this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
+      this.quizStateService.setQuestionText(trimmedText);
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
