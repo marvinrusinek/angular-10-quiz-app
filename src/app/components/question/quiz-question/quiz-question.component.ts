@@ -361,45 +361,36 @@ export class QuizQuestionComponent
     }, 50);
   } */
   async ngAfterViewInit(): Promise<void> {
-    super.ngAfterViewInit?.(); // call super if defined
+    super.ngAfterViewInit ? super.ngAfterViewInit() : null;
   
     const index = this.currentQuestionIndex;
   
-    // Ensure data is ready
     if (!this.questionsArray || this.questionsArray.length <= index) {
-      console.warn('[ngAfterViewInit] Questions not ready. Retrying...');
+      console.warn('[ngAfterViewInit] Waiting for questions to load...');
       setTimeout(() => this.ngAfterViewInit(), 50);
       return;
     }
   
     const question = this.questionsArray[index];
     if (!question) {
-      console.error(`[ngAfterViewInit] ❌ No question at index ${index}`);
+      console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
       return;
     }
   
     this.quizService.setCurrentQuestion(question);
     this.loadOptionsForQuestion(question);
   
-    // Setup explanation text and message after options load
     setTimeout(() => {
       const explanationText = question.explanation || 'No explanation available';
       this.updateExplanationUI(index, explanationText);
       this.setInitialMessage();
     }, 50);
   
-    // ✅ DEFER component load until everything is ready
-    if (!this.dynamicAnswerContainer) {
-      console.warn('[ngAfterViewInit] ⏳ dynamicAnswerContainer not ready. Retrying...');
-      setTimeout(() => this.ngAfterViewInit(), 50);
-      return;
-    }
-  
-    // ✅ Just one call to load component — clean and safe
-    this.containerInitialized = false;
-    this.sharedOptionConfig = undefined;
-    console.log('[✅ ngAfterViewInit] Triggering loadDynamicComponent()');
-    await this.loadDynamicComponent();
+    // ❌ DO NOT load component here — handled elsewhere
+    // if (this.dynamicAnswerContainer) {
+    //   this.containerInitialized = false;
+    //   await this.loadDynamicComponent();
+    // }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
