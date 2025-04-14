@@ -1730,7 +1730,7 @@ export class QuizQuestionComponent
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
   } */
-  async loadDynamicComponent(): Promise<void> {
+  /* async loadDynamicComponent(): Promise<void> {
     console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
     console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
   
@@ -1840,6 +1840,82 @@ export class QuizQuestionComponent
   
     } catch (error) {
       console.error('[❌ Dynamic Load] Error during component load:', error);
+    }
+  } */
+  async loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void> {
+    try {
+      console.log('[🚀 loadDynamicComponent] Received question:', question?.questionText);
+      console.log('[🚀 loadDynamicComponent] Received options:', options?.map(o => o.text));
+  
+      if (!question || !Array.isArray(options) || options.length === 0) {
+        console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
+        return;
+      }
+  
+      if (!this.dynamicAnswerContainer) {
+        console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
+        return;
+      }
+  
+      // 🔄 Reset container
+      this.dynamicAnswerContainer.clear();
+      await Promise.resolve(); // flush microtask queue
+  
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
+      );
+  
+      const componentRef = await this.dynamicComponentService.loadComponent(
+        this.dynamicAnswerContainer,
+        isMultipleAnswer
+      );
+  
+      const instance = componentRef.instance;
+      if (!instance) {
+        console.error('[❌ Dynamic Load] Component instance is undefined');
+        return;
+      }
+  
+      // 💡 Deep clone options for safety
+      const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
+  
+      // 🧩 Set inputs
+      instance.question = { ...question };
+      instance.optionsToDisplay = clonedOptions;
+  
+      instance.sharedOptionConfig = {
+        ...this.getDefaultSharedOptionConfig?.(),
+        type: isMultipleAnswer ? 'multiple' : 'single',
+        currentQuestion: { ...question },
+        optionsToDisplay: clonedOptions,
+        selectedOption: null,
+        selectedOptionIndex: -1,
+        showFeedback: false,
+        isAnswerCorrect: false,
+        showCorrectMessage: false,
+        showExplanation: false,
+        explanationText: '',
+        quizQuestionComponentOnOptionClicked: () => {},
+        onOptionClicked: () => Promise.resolve(),
+        onQuestionAnswered: () => {},
+        shouldResetBackground: false,
+        showFeedbackForOption: {},
+        isOptionSelected: false,
+        correctMessage: '',
+        feedback: '',
+        idx: this.currentQuestionIndex,
+      };
+  
+      console.log('[✅ Dynamic Component Initialized]', {
+        question: instance.question?.questionText,
+        options: instance.optionsToDisplay?.map(o => o.text)
+      });
+  
+      // 🔄 Trigger change detection
+      componentRef.changeDetectorRef.detectChanges();
+      componentRef.changeDetectorRef.markForCheck();
+    } catch (error) {
+      console.error('[❌ loadDynamicComponent] Failed to load component:', error);
     }
   }
 
