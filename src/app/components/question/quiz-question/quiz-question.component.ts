@@ -1528,8 +1528,8 @@ export class QuizQuestionComponent
       this.sharedOptionConfig = undefined;
 
       instance.sharedOptionConfig = {
-        ...this.getDefaultSharedOptionConfig?.(), // if this is defined
-        type: 'single', // or dynamic if needed
+        ...this.getDefaultSharedOptionConfig?.(),
+        type: 'single',
         optionsToDisplay: clonedOptions,
         currentQuestion: { ...this.question },
         shouldResetBackground: false,
