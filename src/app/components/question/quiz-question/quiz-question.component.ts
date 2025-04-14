@@ -1606,7 +1606,7 @@ export class QuizQuestionComponent
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
   } */
-  async loadDynamicComponent(): Promise<void> {
+  /* async loadDynamicComponent(): Promise<void> {
     console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
     console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
   
@@ -1714,6 +1714,98 @@ export class QuizQuestionComponent
       }
   
       componentRef.changeDetectorRef.markForCheck();
+      console.log('[✅ Dynamic Load] Component initialized and marked for check');
+    } catch (error) {
+      console.error('[❌ Dynamic Load] Error during component load:', error);
+    }
+  } */
+  async loadDynamicComponent(): Promise<void> {
+    console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
+    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
+  
+    try {
+      if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+        console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
+        return;
+      }
+  
+      if (!this.dynamicAnswerContainer) {
+        console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
+        return;
+      }
+  
+      this.dynamicAnswerContainer.clear();
+  
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
+      );
+  
+      const componentRef = await this.dynamicComponentService.loadComponent(
+        this.dynamicAnswerContainer,
+        isMultipleAnswer
+      );
+  
+      const instance = componentRef.instance as BaseQuestionComponent;
+      if (!instance) {
+        console.error('[❌ Dynamic Load] Component instance is undefined');
+        return;
+      }
+  
+      // ✅ First: Trigger change detection to attach component to view
+      componentRef.changeDetectorRef.detectChanges();
+  
+      // 🔥 Only NOW: Assign all inputs (AFTER Angular attaches component)
+      instance.question = { ...this.question };
+      instance.optionsToDisplay = [...this.optionsToDisplay];
+      instance.questionForm = this.questionForm;
+  
+      const newConfig: SharedOptionConfig = {
+        ...this.getDefaultSharedOptionConfig?.(),
+        type: isMultipleAnswer ? 'multiple' : 'single',
+        optionsToDisplay: this.optionsToDisplay.map((opt, idx) => ({
+          ...opt,
+          optionId: opt.optionId ?? idx,
+          correct: opt.correct ?? false,
+          feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
+        })),
+        currentQuestion: { ...this.question },
+        shouldResetBackground: false,
+        selectedOption: null,
+        showFeedbackForOption: {},
+        showFeedback: false,
+        correctMessage: '',
+        isOptionSelected: false,
+        selectedOptionIndex: -1,
+        isAnswerCorrect: false,
+        feedback: '',
+        highlightCorrectAfterIncorrect: false,
+        showCorrectMessage: false,
+        explanationText: '',
+        showExplanation: false,
+        quizQuestionComponentOnOptionClicked: () => {},
+        onOptionClicked: () => Promise.resolve(),
+        onQuestionAnswered: () => {},
+        idx: this.currentQuestionIndex
+      };
+  
+      // ✅ Force refresh detection for config assignment
+      this.sharedOptionConfig = undefined;
+      await Promise.resolve();
+      this.sharedOptionConfig = newConfig;
+      instance.sharedOptionConfig = undefined;
+      await Promise.resolve();
+      instance.sharedOptionConfig = newConfig;
+  
+      await instance.initializeSharedOptionConfig?.();
+  
+      console.log('[🚀 Dynamic Load] Injected config for:', this.question?.questionText);
+      componentRef.changeDetectorRef.detectChanges();
+      componentRef.changeDetectorRef.markForCheck();
+  
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+      }
+  
       console.log('[✅ Dynamic Load] Component initialized and marked for check');
     } catch (error) {
       console.error('[❌ Dynamic Load] Error during component load:', error);
