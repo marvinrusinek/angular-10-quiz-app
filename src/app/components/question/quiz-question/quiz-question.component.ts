@@ -1406,7 +1406,7 @@ export class QuizQuestionComponent
           );
           return;
         }
-  
+
         this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.error(
@@ -1414,13 +1414,12 @@ export class QuizQuestionComponent
           );
           return;
         }
-  
         console.info(
           '[initializeComponent] Questions array successfully fetched:',
           this.questionsArray
         );
       }
-  
+
       // Ensure the current question index is valid
       if (
         this.currentQuestionIndex < 0 ||
@@ -1432,7 +1431,7 @@ export class QuizQuestionComponent
         );
         return;
       }
-  
+
       // Set the current question
       this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!this.currentQuestion) {
@@ -1445,31 +1444,17 @@ export class QuizQuestionComponent
         );
         return;
       }
-  
+
       console.info(
         '[initializeComponent] Current question set:',
         this.currentQuestion
       );
-  
-      // ✅ NEW: Set optionsToDisplay here so dynamic component can render properly
-      const options = this.currentQuestion.options ?? [];
-      this.optionsToDisplay = options.map((opt, idx) => ({
-        ...opt,
-        optionId: opt.optionId ?? idx,
-        correct: opt.correct ?? false,
-        feedback: opt.feedback ?? `Option ${idx + 1} feedback`,
-        active: true,
-        showIcon: false,
-      }));
-  
-      console.log(
-        `[✅ initializeComponent] optionsToDisplay for Q${this.currentQuestionIndex + 1}:`,
-        this.optionsToDisplay.map((o) => o.text)
-      );
-  
+
       // Generate feedback for the current question
       try {
-        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+        this.feedbackText = await this.generateFeedbackText(
+          this.currentQuestion
+        );
         console.info(
           '[initializeComponent] Feedback text generated for the first question:',
           this.feedbackText
@@ -1481,13 +1466,16 @@ export class QuizQuestionComponent
         );
         this.feedbackText = 'Unable to generate feedback.';
       }
-  
+
       // Set the initial message for the first question
       if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
     } catch (error) {
-      console.error('[initializeComponent] Error during initialization:', error);
+      console.error(
+        '[initializeComponent] Error during initialization:',
+        error
+      );
     }
   }
 
