@@ -1690,11 +1690,13 @@ export class QuizQuestionComponent
       };
   
       this.sharedOptionConfig = undefined;
-      await Promise.resolve(); // 💡 flush Angular binding
+      await new Promise(resolve => setTimeout(resolve, 10));
       this.sharedOptionConfig = newConfig;
+
       instance.sharedOptionConfig = undefined;
-      await Promise.resolve(); // another microtask flush
+      await Promise.resolve();
       instance.sharedOptionConfig = newConfig;
+
       await instance.initializeSharedOptionConfig?.();
       componentRef.changeDetectorRef.detectChanges(); // force update
       componentRef.changeDetectorRef.markForCheck();
