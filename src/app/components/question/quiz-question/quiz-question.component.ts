@@ -1606,7 +1606,7 @@ export class QuizQuestionComponent
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
   } */
-  async loadDynamicComponent(): Promise<void> {
+  /* async loadDynamicComponent(): Promise<void> {
     console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
     console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
   
@@ -1726,6 +1726,119 @@ export class QuizQuestionComponent
   
       componentRef.changeDetectorRef.markForCheck();
       console.log('[✅ Dynamic Load] Component initialized and marked for check');
+    } catch (error) {
+      console.error('[❌ Dynamic Load] Error during component load:', error);
+    }
+  } */
+  async loadDynamicComponent(): Promise<void> {
+    console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
+    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
+  
+    try {
+      if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+        console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
+        return;
+      }
+  
+      if (!this.dynamicAnswerContainer) {
+        console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
+        return;
+      }
+  
+      // 🔄 Clear container and flush
+      this.dynamicAnswerContainer.clear();
+      await Promise.resolve(); // microtask flush
+  
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
+      );
+  
+      // 🚀 Create component dynamically
+      const componentRef: ComponentRef<BaseQuestionComponent> =
+        await this.dynamicComponentService.loadComponent(
+          this.dynamicAnswerContainer,
+          isMultipleAnswer
+        );
+  
+      const instance = componentRef.instance;
+      if (!instance) {
+        console.error('[❌ Dynamic Load] Component instance is undefined');
+        return;
+      }
+  
+      console.log('[🚀 Dynamic Load Triggered]', {
+        questionText: this.question.questionText,
+        optionsPreview: this.optionsToDisplay.map(opt => opt.text),
+      });
+  
+      // ✅ Apply base inputs
+      instance.question = { ...this.question };
+      instance.optionsToDisplay = [...this.optionsToDisplay];
+      instance.questionForm = this.questionForm;
+  
+      // 🔁 Fully reset shared config to force rebind
+      const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
+      }));
+  
+      const newConfig: SharedOptionConfig = {
+        ...this.getDefaultSharedOptionConfig?.(),
+        type: isMultipleAnswer ? 'multiple' : 'single',
+        optionsToDisplay: clonedOptions,
+        currentQuestion: { ...this.question },
+        selectedOption: null,
+        selectedOptionIndex: -1,
+        showFeedback: false,
+        showFeedbackForOption: {},
+        correctMessage: '',
+        feedback: '',
+        isOptionSelected: false,
+        isAnswerCorrect: false,
+        highlightCorrectAfterIncorrect: false,
+        showCorrectMessage: false,
+        showExplanation: false,
+        explanationText: '',
+        quizQuestionComponentOnOptionClicked: () => {},
+        onOptionClicked: () => Promise.resolve(),
+        onQuestionAnswered: () => {},
+        idx: this.currentQuestionIndex,
+        shouldResetBackground: false,
+      };
+  
+      // ⛔ CLEAR PREVIOUS CONFIG
+      this.sharedOptionConfig = undefined;
+      instance.sharedOptionConfig = undefined;
+      await new Promise(resolve => setTimeout(resolve));
+
+      // ✅ Apply fresh config (deep clone to guarantee reference change)
+      const forcedConfig = JSON.parse(JSON.stringify(newConfig)); // deep clone
+
+      this.sharedOptionConfig = forcedConfig;
+      instance.sharedOptionConfig = forcedConfig;
+  
+      console.log('[🚨 SHARED CONFIG RECEIVED]', {
+        question: forcedConfig.currentQuestion.questionText,
+        options: forcedConfig.optionsToDisplay.map(opt => opt.text)
+      });
+  
+      await instance.initializeSharedOptionConfig?.();
+  
+      // ✅ Final change detection
+      componentRef.changeDetectorRef.detectChanges();
+      componentRef.changeDetectorRef.markForCheck();
+  
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+      }
+  
+      console.log('[✅ Dynamic Load] Component initialized with:', {
+        question: instance.question?.questionText,
+        options: instance.optionsToDisplay?.map(opt => opt.text)
+      });
+  
     } catch (error) {
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
