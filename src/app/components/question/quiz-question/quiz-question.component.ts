@@ -1525,6 +1525,8 @@ export class QuizQuestionComponent
         feedback: opt.feedback ?? ''
       }));
       
+      this.sharedOptionConfig = undefined;
+
       instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(), // if this is defined
         type: 'single', // or dynamic if needed
@@ -1548,8 +1550,6 @@ export class QuizQuestionComponent
         onQuestionAnswered: () => {},
         idx: this.currentQuestionIndex
       };
-
-      this.sharedOptionConfig = undefined;
 
       // ✅ Initialize config immediately after data is set
       await instance.initializeSharedOptionConfig?.();
