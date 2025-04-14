@@ -142,43 +142,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
   
-    const configChange = changes.config;
-    const currentQuestionText = this.currentQuestion?.questionText?.trim() ?? '[❌ Missing current text]';
+    const incomingConfig = changes.config?.currentValue as SharedOptionConfig;
+    const incomingQ = incomingConfig?.currentQuestion;
+    const currentQ = this.currentQuestion;
   
-    // 🔍 Handle config changes
-    if (configChange && configChange.currentValue) {
-      const incomingText = configChange.currentValue.currentQuestion?.questionText?.trim() ?? '[❌ Missing incoming text]';
-      const questionChanged = incomingText !== currentQuestionText;
-      const optionsMissing = !this.optionsToDisplay || this.optionsToDisplay.length === 0;
+    const incomingText = incomingQ?.questionText?.trim() ?? '[❌ Incoming text missing]';
+    const currentText = currentQ?.questionText?.trim() ?? '[❌ Current text missing]';
+    const optionsMissing = !this.optionsToDisplay?.length;
   
-      console.log('[🧠 ngOnChanges] Comparing questions...');
-      console.log('   ├─ Incoming Q:', incomingText);
-      console.log('   ├─ Current Q:', currentQuestionText);
-      console.log('   ├─ Question changed?', questionChanged);
-      console.log('   └─ Options missing?', optionsMissing);
+    const questionChanged = incomingText !== currentText;
   
-      if (questionChanged || optionsMissing) {
-        console.log(`[🔁 [ngOnChanges] ✅ Reinitializing from config for question: ${incomingText}`);      
-        this.initializeFromConfig();
-      } else {
-        console.log(`[⏸️ [ngOnChanges] No change detected — skipping reinit for: ${incomingText}`);      
-      }
+    console.log('[🧠 ngOnChanges] Incoming Q:', incomingText);
+    console.log('[🧠 ngOnChanges] Current Q:', currentText);
+    console.log('[🧠 ngOnChanges] Question changed?', questionChanged);
+    console.log('[🧠 ngOnChanges] Options missing?', optionsMissing);
+    console.log('[🧪 ngOnChanges] Config optionsToDisplay:', incomingConfig?.optionsToDisplay?.map(o => o.text));
+  
+    if (questionChanged || optionsMissing) {
+      console.log(`[🔁 ngOnChanges] ✅ Reinitializing from config for question: ${incomingText}`);
+      this.initializeFromConfig();
+    } else {
+      console.log(`[⏸️ ngOnChanges] No change detected — skipping reinit for question: ${incomingText}`);
     }
   
-    // 🟡 Optional legacy inputs still handled for safety
-    if (changes.currentQuestion?.currentValue) {
-      console.log('[🟡 ngOnChanges] Detected change in [currentQuestion] input');
+    if (changes.currentQuestion && changes.currentQuestion.currentValue) {
+      console.log('[🟡 ngOnChanges] currentQuestion changed');
       this.handleQuestionChange(changes.currentQuestion);
     }
   
-    if (changes.optionsToDisplay?.currentValue) {
-      console.log('[🟡 ngOnChanges] Detected change in [optionsToDisplay] — reinitializing bindings');
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
     }
   
-    if (changes.shouldResetBackground?.currentValue && this.shouldResetBackground) {
-      console.log('[🔁 ngOnChanges] shouldResetBackground is true — resetting option state visuals');
+    if (changes.shouldResetBackground && this.shouldResetBackground) {
+      console.log('[🔁 ngOnChanges] shouldResetBackground is true — resetting state');
       this.resetState();
     }
   }
