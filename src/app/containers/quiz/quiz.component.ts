@@ -3413,7 +3413,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         isContainerReady: !!this.quizQuestionComponent?.dynamicAnswerContainer
       });      
 
+      console.log('[🧪 Container Check BEFORE load]', {
+        container: !!this.quizQuestionComponent?.dynamicAnswerContainer,
+        containerViewLength: this.quizQuestionComponent?.dynamicAnswerContainer?.length
+      });
+
       await this.quizQuestionComponent.loadDynamicComponent();
+
   
       console.log(`[🧪 VERIFY Q${questionIndex}] Question text: ${question?.questionText}`);
       console.log(`[🧪 VERIFY Q${questionIndex}] Options:`, question?.options);
