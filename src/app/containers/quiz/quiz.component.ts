@@ -3535,8 +3535,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const clonedOptions = deepClone(updatedOptions);
 
       // Assign cloned values BEFORE setting this.question and this.optionsToDisplay
-      this.optionsToDisplay = clonedOptions;
       this.question = { ...question, options: clonedOptions };
+      this.optionsToDisplay = clonedOptions;
+      console.log('[📦 FASQD] Assigned question text:', this.question?.questionText);
+      console.log('[📦 FASQD] Assigned options:', this.optionsToDisplay?.map(o => o.text));
 
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
