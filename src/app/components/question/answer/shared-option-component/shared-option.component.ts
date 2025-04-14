@@ -395,7 +395,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('✅ SharedOptionComponent initialized with config:', this.config);
   } */
-  initializeFromConfig(): void {
+  /* initializeFromConfig(): void {
     // 🔁 Forcefully reset bindings and selection states
     this.optionBindings = [];
     this.selectedOption = null;
@@ -454,6 +454,72 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       currentQuestion: this.currentQuestion?.questionText,
       options: this.optionsToDisplay?.map(opt => opt.text),
       optionBindings: this.optionBindings
+    });
+  } */
+  initializeFromConfig(): void {
+    // 🔁 Force clear of internal state before applying new config
+    this.optionBindings = [];
+    this.optionsToDisplay = [];
+    this.currentQuestion = null;
+    this.optionsRestored = false;
+  
+    if (!this.config || !this.config.optionsToDisplay?.length) {
+      console.warn('[🧩 initializeFromConfig] Config missing or empty.');
+      return;
+    }
+  
+    const incomingOptions = [...this.config.optionsToDisplay];
+    const incomingQuestion = this.config.currentQuestion;
+  
+    if (!incomingQuestion || !incomingOptions.length) {
+      console.error('[🧩 initializeFromConfig] Invalid incoming config.');
+      return;
+    }
+  
+    this.currentQuestion = incomingQuestion;
+  
+    // 🔁 Reset selected/highlight state from incoming options
+    this.optionsToDisplay = incomingOptions.map((opt, idx) => ({
+      ...opt,
+      optionId: opt.optionId ?? idx,
+      selected: false,
+      highlight: false,
+      showIcon: false,
+      active: true,
+      feedback: opt.feedback ?? 'No feedback available.',
+      correct: opt.correct ?? false
+    }));
+  
+    console.log('[✅ SharedOptionComponent] optionsToDisplay reset and assigned:', this.optionsToDisplay);
+  
+    // ✅ Generate feedback message once
+    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+  
+    // 🔁 Ensure feedback is attached to each option
+    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
+      ...opt,
+      feedback: opt.feedback ?? feedbackMessage
+    }));
+  
+    // 🔁 Rebuild option bindings
+    this.synchronizeOptionBindings();
+  
+    const questionType = this.currentQuestion?.type || QuestionType.SingleAnswer;
+    this.type = this.convertQuestionType(questionType);
+  
+    // ✅ Apply config values
+    this.showFeedback = this.config.showFeedback || false;
+    this.showFeedbackForOption = this.config.showFeedbackForOption || {};
+    this.correctMessage = this.config.correctMessage || '';
+    this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
+    this.shouldResetBackground = this.config.shouldResetBackground || false;
+  
+    this.initializeFeedbackBindings();
+  
+    console.log('[✅ SharedOptionComponent Final Init]', {
+      question: this.currentQuestion?.questionText,
+      options: this.optionsToDisplay.map(o => o.text)
     });
   }
 
