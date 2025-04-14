@@ -211,8 +211,4 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     // Trigger change detection to update the UI
     this.cdRef.detectChanges();
   }  
-
-  loadDynamicComponent(): void {
-    console.log('loadDynamicComponent is not used in AnswerComponent');
-  }
 }

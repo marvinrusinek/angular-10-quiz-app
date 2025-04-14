@@ -1903,7 +1903,7 @@ export class QuizQuestionComponent
         isOptionSelected: false,
         correctMessage: '',
         feedback: '',
-        idx: this.currentQuestionIndex,
+        idx: this.currentQuestionIndex
       };
   
       console.log('[✅ Dynamic Component Initialized]', {
