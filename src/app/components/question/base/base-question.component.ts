@@ -252,7 +252,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     };
   }
 
-  private getDefaultSharedOptionConfig(): SharedOptionConfig {
+  getDefaultSharedOptionConfig(): SharedOptionConfig {
     return {
       optionsToDisplay: [],
       type: 'single',
