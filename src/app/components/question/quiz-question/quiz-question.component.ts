@@ -1623,6 +1623,8 @@ export class QuizQuestionComponent
   
       this.dynamicAnswerContainer.clear();
 
+      console.log('[🧪 Component Instantiated]', this.dynamicAnswerContainer);
+
       // Wait 1 tick to ensure previous component is fully destroyed
       await new Promise(resolve => setTimeout(resolve));
   
