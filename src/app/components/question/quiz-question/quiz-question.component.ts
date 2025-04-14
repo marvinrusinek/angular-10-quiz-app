@@ -1811,11 +1811,10 @@ export class QuizQuestionComponent
       // ⛔ CLEAR PREVIOUS CONFIG
       this.sharedOptionConfig = undefined;
       instance.sharedOptionConfig = undefined;
-      await new Promise(resolve => setTimeout(resolve));
+      await Promise.resolve(); // flush microtask queue
 
       // ✅ Apply fresh config (deep clone to guarantee reference change)
       const forcedConfig = JSON.parse(JSON.stringify(newConfig)); // deep clone
-
       this.sharedOptionConfig = forcedConfig;
       instance.sharedOptionConfig = forcedConfig;
   
