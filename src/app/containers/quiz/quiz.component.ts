@@ -2928,12 +2928,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const success = await this.navigateToQuestion(nextIndex);
       if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
-        this.quizQuestionComponent.sharedOptionConfig = undefined;
-        console.log('[✅ QX] sharedOptionConfig reset before dynamic load1');
-        console.log('[🔎 QX] Question just before dynamic load1:', this.question?.questionText);
-        console.log('[🔎 QX] Options just before dynamic load1:', this.optionsToDisplay);
 
-        await this.quizQuestionComponent.loadDynamicComponent();
       } else {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
       }
@@ -2996,9 +2991,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const success = await this.navigateToQuestion(prevIndex);
       if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
-        this.quizQuestionComponent.sharedOptionConfig = undefined;
-        console.log('[✅ QX] sharedOptionConfig reset before dynamic load2');
-        await this.quizQuestionComponent.loadDynamicComponent();
+  
       } else {
         console.warn('[❌] Navigation failed to Q' + prevIndex);
       }
@@ -3068,9 +3061,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       setTimeout(async () => {
         if (this.quizQuestionComponent?.loadDynamicComponent) {
           console.log('[🧠 advanceAndProcessNextQuestion] Calling loadDynamicComponent after input update');
-          this.quizQuestionComponent.sharedOptionConfig = undefined;
-          console.log('[✅ QX] sharedOptionConfig reset before dynamic load3');
-          await this.quizQuestionComponent.loadDynamicComponent();
         } else {
           console.warn('[⚠️ advanceAndProcessNextQuestion] quizQuestionComponent is undefined or not ready');
         }
@@ -3262,16 +3252,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-  
-      // 🧼 Clear previous config to force update in component
-      this.quizQuestionComponent.sharedOptionConfig = undefined;
 
       console.log(`[🧪 VERIFY Q${questionIndex}] Question text: ${question?.questionText}`);
       console.log(`[🧪 VERIFY Q${questionIndex}] Options:`, question?.options);
       console.log(`[🧪 VERIFY Q${questionIndex}] Current route:`, this.router.url);
-  
-      // ✅ Load dynamic component AFTER all inputs are ready
-      await this.quizQuestionComponent?.loadDynamicComponent();
   
       // ✅ Logging
       console.log(`[✅ Q${questionIndex}] Fetched and assigned`, {
@@ -3291,7 +3275,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
-  
+
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
+      await this.quizQuestionComponent?.loadDynamicComponent();
+
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
