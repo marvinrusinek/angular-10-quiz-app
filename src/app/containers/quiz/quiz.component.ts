@@ -3246,6 +3246,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay = [...updatedOptions];
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
+
+      console.log(`[✅ FASQD] Assigned this.question (Q${questionIndex}):`, this.question?.questionText);
+      console.log(`[✅ FASQD] Assigned optionsToDisplay:`, this.optionsToDisplay.map(o => o.text));
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
@@ -3340,6 +3343,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         options: options.map(o => o.text),
         type
       });
+
+      console.log(`[✅ fetchQuestionDetails] Returning Q${questionIndex}:`, {
+        questionText: question.questionText,
+        options: options.map(o => o.text)
+      });      
   
       return question;
     } catch (error) {
