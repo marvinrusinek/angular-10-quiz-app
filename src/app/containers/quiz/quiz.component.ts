@@ -3864,7 +3864,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[🔎 QX] Question just before dynamic load4:', this.question?.questionText);
       console.log('[🔎 QX] Options just before dynamic load4:', this.optionsToDisplay);
 
-      await this.quizQuestionComponent.loadDynamicComponent();
+      await this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
     } else {
       console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
     }
