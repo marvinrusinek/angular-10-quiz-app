@@ -356,8 +356,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       this.sharedOptionConfig.selectedOption = option;
   
-      // Ensure showFeedbackForOption is 
-      ized
+      // Ensure showFeedbackForOption is initialized
       if (!this.showFeedbackForOption) {
         this.showFeedbackForOption = {};
       }
