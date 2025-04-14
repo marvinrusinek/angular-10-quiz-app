@@ -3403,8 +3403,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         options: this.optionsToDisplay?.map(o => o.text)
       });
   
+      this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-      await this.quizQuestionComponent?.loadDynamicComponent();
+      await new Promise((resolve) => setTimeout(resolve, 10)); // allow time for teardown
+      await this.quizQuestionComponent.loadDynamicComponent();
   
       console.log(`[🧪 VERIFY Q${questionIndex}] Question text: ${question?.questionText}`);
       console.log(`[🧪 VERIFY Q${questionIndex}] Options:`, question?.options);
