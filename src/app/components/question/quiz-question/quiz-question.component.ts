@@ -1691,11 +1691,11 @@ export class QuizQuestionComponent
   
       this.sharedOptionConfig = newConfig;
       instance.sharedOptionConfig = newConfig;
+  
+      await instance.initializeSharedOptionConfig?.();
 
       // Flush values to Angular before ngOnChanges
       componentRef.changeDetectorRef.detectChanges();
-  
-      await instance.initializeSharedOptionConfig?.();
   
       console.log('[🚀 Dynamic Load] Injected config with:', {
         question: this.question?.questionText,
