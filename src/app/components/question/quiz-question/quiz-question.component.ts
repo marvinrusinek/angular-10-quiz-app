@@ -1656,7 +1656,7 @@ export class QuizQuestionComponent
   
       // Force sharedOptionConfig refresh
       this.sharedOptionConfig = undefined;
-      await new Promise(res => setTimeout(res, 0)); // let Angular clear binding
+      await new Promise(requestAnimationFrame); // wait until next frame
   
       const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
         ...opt,
