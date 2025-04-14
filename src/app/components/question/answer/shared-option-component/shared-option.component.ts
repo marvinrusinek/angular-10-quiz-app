@@ -140,43 +140,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('[📦 ngOnChanges] Changes received:', changes);
+    console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
   
-    // ✅ Always re-init on config change (we force new reference in dynamic loader)
+    // ✅ Always re-init on config change (we force a new reference in dynamic loader)
     if (changes.config && changes.config.currentValue) {
-      const incomingText = this.config.currentQuestion?.questionText?.trim();
-      const currentText = this.currentQuestion?.questionText?.trim();
+      const incomingText = this.config?.currentQuestion?.questionText?.trim() ?? '[❌ Missing incoming text]';
+      const currentText = this.currentQuestion?.questionText?.trim() ?? '[❌ Missing current text]';
   
       const questionChanged = incomingText !== currentText;
+      const optionsMissing = !this.optionsToDisplay?.length;
   
       console.log('[🧠 ngOnChanges] Incoming Q:', incomingText);
       console.log('[🧠 ngOnChanges] Current Q:', currentText);
       console.log('[🧠 ngOnChanges] Question changed?', questionChanged);
+      console.log('[🧠 ngOnChanges] Options missing?', optionsMissing);
   
-      if (questionChanged || !this.optionsToDisplay?.length) {
-        console.log(`[🧠 ngOnChanges] Initializing from config for question: ${incomingText}`);
+      if (questionChanged || optionsMissing) {
+        console.log(`[🔁 [ngOnChanges] ✅ Reinitializing from config for question: ${incomingText}`);
         this.initializeFromConfig();
       } else {
-        console.log(`[⏸️ ngOnChanges] Skipping reinit — question unchanged.`);
+        console.log(`[⏸️ [ngOnChanges] No change detected — skipping reinit for question: ${incomingText}`);
       }
     }
   
-    // 🟡 These are probably unnecessary if you're fully driving state via `config`,
-    // but they can stay if they're still wired into the component
+    // 🟡 Optional: legacy support or direct input use
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
+      console.log('[🟡 ngOnChanges] currentQuestion changed');
       this.handleQuestionChange(changes.currentQuestion);
     }
   
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
     }
   
     if (changes.shouldResetBackground && this.shouldResetBackground) {
+      console.log('[🔁 ngOnChanges] shouldResetBackground is true — resetting state');
       this.resetState();
     }
   }
-  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
