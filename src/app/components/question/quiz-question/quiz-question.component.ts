@@ -1648,6 +1648,11 @@ export class QuizQuestionComponent
       instance.question = { ...this.question };
       instance.optionsToDisplay = [...this.optionsToDisplay];
       instance.questionForm = this.questionForm;
+
+      console.log('[🧠 Final Q Injection]', {
+        question: this.question?.questionText,
+        options: this.optionsToDisplay?.map(opt => opt.text),
+      });
   
       // Force sharedOptionConfig refresh
       this.sharedOptionConfig = undefined;
