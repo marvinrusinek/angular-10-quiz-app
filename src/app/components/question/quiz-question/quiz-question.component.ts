@@ -1649,9 +1649,9 @@ export class QuizQuestionComponent
       instance.optionsToDisplay = [...this.optionsToDisplay];
       instance.questionForm = this.questionForm;
   
-      // 🔁 Force sharedOptionConfig refresh
+      // Force sharedOptionConfig refresh
       this.sharedOptionConfig = undefined;
-      await Promise.resolve(); // microtask delay
+      await new Promise(resolve => setTimeout(resolve));
   
       const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
         ...opt,
