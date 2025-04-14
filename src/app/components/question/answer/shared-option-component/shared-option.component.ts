@@ -150,7 +150,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const currentText = currentQ?.questionText?.trim() ?? '[❌ Current text missing]';
     const optionsMissing = !this.optionsToDisplay?.length;
   
-    const questionChanged = incomingText !== currentText;
+    const questionChanged =
+      this.config?.currentQuestion !== this.currentQuestion ||
+      incomingText !== currentText;
   
     console.log('[🧠 ngOnChanges] Incoming Q:', incomingText);
     console.log('[🧠 ngOnChanges] Current Q:', currentText);
