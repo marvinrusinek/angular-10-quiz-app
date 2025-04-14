@@ -1701,16 +1701,11 @@ export class QuizQuestionComponent
       instance.sharedOptionConfig = newConfig;
   
       await instance.initializeSharedOptionConfig?.();
-
-      // Flush values to Angular before ngOnChanges
-      componentRef.changeDetectorRef.detectChanges();
   
       console.log('[🚀 Dynamic Load] Injected config with:', {
         question: this.question?.questionText,
         options: this.optionsToDisplay
       });
-  
-      componentRef.changeDetectorRef.detectChanges();
   
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
@@ -1718,6 +1713,8 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Dynamic Load] onOptionClicked already set — skipped reassignment');
       }
   
+      // Flush values to Angular before ngOnChanges
+      componentRef.changeDetectorRef.detectChanges();
       componentRef.changeDetectorRef.markForCheck();
       console.log('[✅ Dynamic Load] Component initialized and marked for check');
     } catch (error) {
