@@ -1606,7 +1606,7 @@ export class QuizQuestionComponent
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
   } */
-  /* async loadDynamicComponent(): Promise<void> {
+  async loadDynamicComponent(): Promise<void> {
     console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
     console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
   
@@ -1720,75 +1720,6 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
-  } */
-  async loadDynamicComponent(): Promise<void> {
-    console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
-    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
-  
-    if (!this.dynamicAnswerContainer) {
-      console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
-      return;
-    }
-  
-    // 🧨 FORCE destroy any existing component
-    this.dynamicAnswerContainer.clear();
-  
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
-    );
-  
-    const componentRef = await this.dynamicComponentService.loadComponent(
-      this.dynamicAnswerContainer,
-      isMultipleAnswer
-    );
-  
-    const instance = componentRef.instance as BaseQuestionComponent;
-  
-    const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
-      ...opt,
-      optionId: opt.optionId ?? idx,
-      correct: opt.correct ?? false,
-      feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
-    }));
-  
-    const newConfig: SharedOptionConfig = {
-      ...this.getDefaultSharedOptionConfig?.(),
-      type: isMultipleAnswer ? 'multiple' : 'single',
-      optionsToDisplay: clonedOptions,
-      currentQuestion: { ...this.question },
-      shouldResetBackground: false,
-      selectedOption: null,
-      showFeedbackForOption: {},
-      showFeedback: false,
-      correctMessage: '',
-      isOptionSelected: false,
-      selectedOptionIndex: -1,
-      isAnswerCorrect: false,
-      feedback: '',
-      highlightCorrectAfterIncorrect: false,
-      showCorrectMessage: false,
-      explanationText: '',
-      showExplanation: false,
-      quizQuestionComponentOnOptionClicked: () => {},
-      onOptionClicked: () => Promise.resolve(),
-      onQuestionAnswered: () => {},
-      idx: this.currentQuestionIndex
-    };
-  
-    // 🔥 KEY: assign config AFTER instance is initialized, not before
-    await Promise.resolve();
-    instance.question = { ...this.question };
-    instance.optionsToDisplay = [...clonedOptions];
-    instance.questionForm = this.questionForm;
-    instance.sharedOptionConfig = newConfig;
-  
-    // 🔁 Run setup AFTER inputs assigned
-    await instance.initializeSharedOptionConfig?.();
-  
-    componentRef.changeDetectorRef.detectChanges();
-    componentRef.changeDetectorRef.markForCheck();
-  
-    console.log('[✅ Dynamic Load] Component initialized with question:', newConfig.currentQuestion.questionText);
   }
 
   // rename
