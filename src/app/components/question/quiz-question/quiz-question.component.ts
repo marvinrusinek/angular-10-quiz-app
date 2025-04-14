@@ -1689,20 +1689,34 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
   
-      this.sharedOptionConfig = undefined;
-      await new Promise(resolve => setTimeout(resolve, 10));
-      this.sharedOptionConfig = newConfig;
+      // Force config null to ensure Angular detects change
+      this.sharedOptionConfig = null;
+      instance.sharedOptionConfig = null;
 
-      instance.sharedOptionConfig = undefined;
-      await Promise.resolve();
-      instance.sharedOptionConfig = newConfig;
+      await Promise.resolve(); // flush microtask
+
+      // Force a new object ref to break any stale bindings
+      const forcedFreshConfig = {
+        ...newConfig,
+        optionsToDisplay: [...newConfig.optionsToDisplay], // shallow copy is enough for change detection
+        currentQuestion: { ...newConfig.currentQuestion }
+      };
+
+      // ✅ Assign AFTER DOM flush
+      this.sharedOptionConfig = forcedFreshConfig;
+      instance.sharedOptionConfig = forcedFreshConfig;
+
+      console.log('[🚨 SHARED CONFIG RECEIVED]', {
+        question: forcedFreshConfig.currentQuestion?.questionText,
+        options: forcedFreshConfig.optionsToDisplay?.map(opt => opt.text)
+      });
 
       await instance.initializeSharedOptionConfig?.();
-      componentRef.changeDetectorRef.detectChanges(); // force update
+
+      // Trigger detection once after everything is set
+      componentRef.changeDetectorRef.detectChanges();
       componentRef.changeDetectorRef.markForCheck();
 
-      // Flush values to Angular before ngOnChanges
-      componentRef.changeDetectorRef.detectChanges();
   
       console.log('[🚀 Dynamic Load] Injected config with:', {
         question: this.question?.questionText,
