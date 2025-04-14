@@ -1518,16 +1518,18 @@ export class QuizQuestionComponent
       instance.question = { ...this.question };
       instance.optionsToDisplay = [...this.optionsToDisplay];
 
+      // 🚨 Force the config to null out first so Angular detects a change
+      this.sharedOptionConfig = undefined;
+      await new Promise(resolve => setTimeout(resolve)); // microtask pause
+
       const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
-        feedback: opt.feedback ?? ''
+        feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
       }));
-      
-      this.sharedOptionConfig = undefined;
 
-      instance.sharedOptionConfig = {
+      /* instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
         type: 'single',
         optionsToDisplay: clonedOptions,
@@ -1549,7 +1551,35 @@ export class QuizQuestionComponent
         onOptionClicked: () => Promise.resolve(),
         onQuestionAnswered: () => {},
         idx: this.currentQuestionIndex
+      }; */
+
+      const newConfig: SharedOptionConfig = {
+        ...this.getDefaultSharedOptionConfig?.(),
+        type: 'single', // override if needed
+        optionsToDisplay: clonedOptions,
+        currentQuestion: { ...this.question },
+        shouldResetBackground: false,
+        selectedOption: null,
+        showFeedbackForOption: {},
+        showFeedback: false,
+        correctMessage: '',
+        isOptionSelected: false,
+        selectedOptionIndex: -1,
+        isAnswerCorrect: false,
+        feedback: '',
+        highlightCorrectAfterIncorrect: false,
+        showCorrectMessage: false,
+        explanationText: '',
+        showExplanation: false,
+        quizQuestionComponentOnOptionClicked: () => {},
+        onOptionClicked: () => Promise.resolve(),
+        onQuestionAnswered: () => {},
+        idx: this.currentQuestionIndex
       };
+      
+      this.sharedOptionConfig = newConfig; // this is what the template sees
+      instance.sharedOptionConfig = newConfig; // assign to component directly
+
 
       // ✅ Initialize config immediately after data is set
       await instance.initializeSharedOptionConfig?.();
