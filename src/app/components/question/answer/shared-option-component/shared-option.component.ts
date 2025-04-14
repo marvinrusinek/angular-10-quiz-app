@@ -163,12 +163,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes.config && changes.config.currentValue) {
       this.currentQuestion = { ...this.config.currentQuestion };
     }
-  
-    if (questionChanged || optionsMissing) {
-      console.log(`[🔁 ngOnChanges] ✅ Reinitializing from config for question: ${incomingText}`);
+
+    const configChanged = changes.config && changes.config.previousValue !== changes.config.currentValue;
+
+    if (configChanged || questionChanged || optionsMissing) {
+      console.log(`[🔁 Reinit] ✅ Forcing reinit due to config or content change`);
       this.initializeFromConfig();
-    } else {
-      console.log(`[⏸️ ngOnChanges] No change detected — skipping reinit for question: ${incomingText}`);
     }
   
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
@@ -344,13 +344,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }  
   }
   
-  initializeFromConfig(): void {
-    console.log('[🧩 SharedOptionComponent] config.currentQuestion:', this.config?.currentQuestion?.questionText);
-    console.log('[🧩 SharedOptionComponent] config.optionsToDisplay:', this.config?.optionsToDisplay?.map(o => o.text));
+  /* initializeFromConfig(): void {
+    this.optionBindings = [];
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
 
-
-    if (!this.config) {
-      console.error('SharedOptionComponent: config is not provided');
+    if (!this.config || !this.config.optionsToDisplay?.length) {
+      console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
   
@@ -394,6 +394,67 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.initializeFeedbackBindings();
   
     console.log('✅ SharedOptionComponent initialized with config:', this.config);
+  } */
+  initializeFromConfig(): void {
+    // 🔁 Forcefully reset bindings and selection states
+    this.optionBindings = [];
+    this.selectedOption = null;
+    this.selectedOptionIndex = -1;
+    this.showFeedbackForOption = {};
+    this.correctMessage = '';
+    this.showFeedback = false;
+    this.shouldResetBackground = false;
+  
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+  
+    if (!this.config || !this.config.optionsToDisplay?.length) {
+      console.warn('[🧩 initializeFromConfig] Config missing or empty.');
+      return;
+    }
+  
+    this.currentQuestion = this.config.currentQuestion;
+  
+    if (!Array.isArray(this.config.optionsToDisplay) || this.config.optionsToDisplay.length === 0) {
+      console.warn('[⚠️ SharedOptionComponent] No options in config.optionsToDisplay');
+    } else {
+      this.optionsToDisplay = [...this.config.optionsToDisplay];
+      console.log('[✅ SharedOptionComponent] optionsToDisplay set:', this.optionsToDisplay);
+    }
+  
+    // 🧠 Generate feedback message once based on correct options
+    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay)
+      ?? 'No feedback available.';
+  
+    // 🧪 Reassign fallback IDs and feedback if missing
+    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
+      ...opt,
+      optionId: opt.optionId ?? idx,
+      correct: opt.correct ?? false,
+      feedback: opt.feedback ?? feedbackMessage
+    }));
+  
+    // 🔁 Rebuild option bindings
+    this.initializeOptionBindings();
+  
+    const questionType = this.currentQuestion?.type || QuestionType.SingleAnswer;
+    this.type = this.convertQuestionType(questionType);
+  
+    this.showFeedback = this.config.showFeedback || false;
+    this.showFeedbackForOption = this.config.showFeedbackForOption || {};
+    this.correctMessage = this.config.correctMessage || '';
+    this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
+    this.shouldResetBackground = this.config.shouldResetBackground || false;
+  
+    // 🔄 Bind feedback state
+    this.initializeFeedbackBindings();
+  
+    console.log('[✅ SharedOptionComponent Final Init]', {
+      currentQuestion: this.currentQuestion?.questionText,
+      options: this.optionsToDisplay?.map(opt => opt.text),
+      optionBindings: this.optionBindings
+    });
   }
 
   private handleQuestionChange(change: SimpleChange): void {
