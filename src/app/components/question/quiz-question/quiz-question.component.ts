@@ -1474,7 +1474,7 @@ export class QuizQuestionComponent
     }
   }
 
-  async loadDynamicComponent(): Promise<void> {
+  /* async loadDynamicComponent(): Promise<void> {
     console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
     console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
 
@@ -1529,7 +1529,7 @@ export class QuizQuestionComponent
         feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
       }));
 
-      /* instance.sharedOptionConfig = {
+      //instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
         type: 'single',
         optionsToDisplay: clonedOptions,
@@ -1551,7 +1551,7 @@ export class QuizQuestionComponent
         onOptionClicked: () => Promise.resolve(),
         onQuestionAnswered: () => {},
         idx: this.currentQuestionIndex
-      }; */
+      //};
 
       const newConfig: SharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
@@ -1600,6 +1600,108 @@ export class QuizQuestionComponent
       }
   
       // ✅ Mark for view update
+      componentRef.changeDetectorRef.markForCheck();
+      console.log('[✅ Dynamic Load] Component initialized and marked for check');
+    } catch (error) {
+      console.error('[❌ Dynamic Load] Error during component load:', error);
+    }
+  } */
+  async loadDynamicComponent(): Promise<void> {
+    console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
+    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
+  
+    try {
+      if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+        console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
+        return;
+      }
+  
+      if (!this.dynamicAnswerContainer) {
+        console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
+        return;
+      }
+  
+      this.dynamicAnswerContainer.clear();
+  
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
+      );
+  
+      const componentRef = await this.dynamicComponentService.loadComponent(
+        this.dynamicAnswerContainer,
+        isMultipleAnswer
+      );
+  
+      const instance = componentRef.instance as BaseQuestionComponent;
+      if (!instance) {
+        console.error('[❌ Dynamic Load] Component instance is undefined');
+        return;
+      }
+  
+      console.log('[🚀 Dynamic Load Triggered]', {
+        questionText: this.question?.questionText || '❌ No question',
+        optionsCount: this.optionsToDisplay?.length || 0,
+        optionsPreview: this.optionsToDisplay.map((opt) => opt.text)
+      });
+  
+      // ✅ Set question & options early
+      instance.question = { ...this.question };
+      instance.optionsToDisplay = [...this.optionsToDisplay];
+      instance.questionForm = this.questionForm;
+  
+      // 🔁 Force sharedOptionConfig refresh
+      this.sharedOptionConfig = undefined;
+      await Promise.resolve(); // microtask delay
+  
+      const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
+      }));
+  
+      const newConfig: SharedOptionConfig = {
+        ...this.getDefaultSharedOptionConfig?.(),
+        type: isMultipleAnswer ? 'multiple' : 'single',
+        optionsToDisplay: clonedOptions,
+        currentQuestion: { ...this.question },
+        shouldResetBackground: false,
+        selectedOption: null,
+        showFeedbackForOption: {},
+        showFeedback: false,
+        correctMessage: '',
+        isOptionSelected: false,
+        selectedOptionIndex: -1,
+        isAnswerCorrect: false,
+        feedback: '',
+        highlightCorrectAfterIncorrect: false,
+        showCorrectMessage: false,
+        explanationText: '',
+        showExplanation: false,
+        quizQuestionComponentOnOptionClicked: () => {},
+        onOptionClicked: () => Promise.resolve(),
+        onQuestionAnswered: () => {},
+        idx: this.currentQuestionIndex
+      };
+  
+      this.sharedOptionConfig = newConfig;
+      instance.sharedOptionConfig = newConfig;
+  
+      await instance.initializeSharedOptionConfig?.();
+  
+      console.log('[🚀 Dynamic Load] Injected config with:', {
+        question: this.question?.questionText,
+        options: this.optionsToDisplay
+      });
+  
+      componentRef.changeDetectorRef.detectChanges();
+  
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+      } else {
+        console.warn('[⚠️ Dynamic Load] onOptionClicked already set — skipped reassignment');
+      }
+  
       componentRef.changeDetectorRef.markForCheck();
       console.log('[✅ Dynamic Load] Component initialized and marked for check');
     } catch (error) {
