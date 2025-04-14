@@ -1622,11 +1622,6 @@ export class QuizQuestionComponent
       }
   
       this.dynamicAnswerContainer.clear();
-
-      console.log('[🧪 Component Instantiated]', this.dynamicAnswerContainer);
-
-      // Wait 1 tick to ensure previous component is fully destroyed
-      await new Promise(resolve => setTimeout(resolve));
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
@@ -1642,9 +1637,6 @@ export class QuizQuestionComponent
         console.error('[❌ Dynamic Load] Component instance is undefined');
         return;
       }
-
-      // Wait an extra tick before setting config to let component initialize first
-      await new Promise(resolve => setTimeout(resolve));
   
       console.log('[🚀 Dynamic Load Triggered]', {
         questionText: this.question?.questionText || '❌ No question',
@@ -1664,7 +1656,7 @@ export class QuizQuestionComponent
   
       // Force sharedOptionConfig refresh
       this.sharedOptionConfig = undefined;
-      await new Promise(requestAnimationFrame); // wait until next frame
+      await new Promise(resolve => setTimeout(resolve));
   
       const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
         ...opt,
@@ -1697,17 +1689,20 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
   
-      this.sharedOptionConfig = null;
-      await Promise.resolve(); // microtask
       this.sharedOptionConfig = newConfig;
       instance.sharedOptionConfig = newConfig;
   
       await instance.initializeSharedOptionConfig?.();
+
+      // Flush values to Angular before ngOnChanges
+      componentRef.changeDetectorRef.detectChanges();
   
       console.log('[🚀 Dynamic Load] Injected config with:', {
         question: this.question?.questionText,
         options: this.optionsToDisplay
       });
+  
+      componentRef.changeDetectorRef.detectChanges();
   
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
@@ -1715,8 +1710,6 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Dynamic Load] onOptionClicked already set — skipped reassignment');
       }
   
-      // Flush values to Angular before ngOnChanges
-      componentRef.changeDetectorRef.detectChanges();
       componentRef.changeDetectorRef.markForCheck();
       console.log('[✅ Dynamic Load] Component initialized and marked for check');
     } catch (error) {
