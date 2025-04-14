@@ -1689,7 +1689,12 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
   
+      this.sharedOptionConfig = undefined;
+      await Promise.resolve(); // flush microtask
       this.sharedOptionConfig = newConfig;
+
+      instance.sharedOptionConfig = undefined;
+      await Promise.resolve();
       instance.sharedOptionConfig = newConfig;
   
       await instance.initializeSharedOptionConfig?.();
