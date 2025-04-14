@@ -997,10 +997,14 @@ export class QuizService implements OnDestroy {
           console.warn(`No options found for Q${questionIndex}. Returning empty array.`);
           return [];
         }
+
+        const deepClone = typeof structuredClone === 'function'
+          ? structuredClone
+          : (obj: any) => JSON.parse(JSON.stringify(obj)); 
   
         // Clone and assign each option defensively
         const sanitized = question.options.map((opt, index) => ({
-          ...structuredClone(opt),
+          ...deepClone(opt),
           optionId: typeof opt.optionId === 'number' ? opt.optionId : index,
           correct: opt.correct ?? false,
           feedback: opt.feedback ?? `Generated feedback for Q${questionIndex} Option ${index}`
