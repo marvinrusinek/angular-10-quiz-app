@@ -1000,7 +1000,14 @@ export class QuizService implements OnDestroy {
 
         const deepClone = typeof structuredClone === 'function'
           ? structuredClone
-          : (obj: any) => JSON.parse(JSON.stringify(obj)); 
+          : (obj: any) => {
+              try {
+                return JSON.parse(JSON.stringify(obj));
+              } catch (err) {
+                console.error('[deepClone] ❌ JSON clone failed:', err);
+                return obj; // fallback to shallow return if clone fails
+              }
+            };
   
         // Clone and assign each option defensively
         const sanitized = question.options.map((opt, index) => ({
