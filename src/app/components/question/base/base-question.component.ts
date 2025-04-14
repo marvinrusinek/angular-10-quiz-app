@@ -95,7 +95,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
   ngAfterViewInit(): void {
     if (!this.initializedOnce) {
-      // this.initializeDynamicComponentIfNeeded();
+      this.initializeDynamicComponentIfNeeded();
       this.initializedOnce = true;
     }
   }
@@ -151,7 +151,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     });
   
     this.dynamicAnswerContainer.clear();
-    this.loadDynamicComponent();
+    this.loadDynamicComponent(this.question, this.optionsToDisplay);
   
     this.containerInitialized = true;
     this.cdRef.markForCheck();
