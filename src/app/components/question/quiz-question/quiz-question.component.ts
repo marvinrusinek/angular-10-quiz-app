@@ -1403,7 +1403,7 @@ export class QuizQuestionComponent
 
   async loadDynamicComponent(): Promise<void> {
     console.log('[🚀 loadDynamicComponent] this.question:', this.question?.questionText);
-    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay);
+    console.log('[🚀 loadDynamicComponent] optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
 
     try {
       if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {

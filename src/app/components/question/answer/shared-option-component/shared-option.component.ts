@@ -298,7 +298,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
   initializeFromConfig(): void {
     console.log('[🧩 SharedOptionComponent] config.currentQuestion:', this.config?.currentQuestion?.questionText);
-    console.log('[🧩 SharedOptionComponent] config.optionsToDisplay:', this.config?.optionsToDisplay);
+    console.log('[🧩 SharedOptionComponent] config.optionsToDisplay:', this.config?.optionsToDisplay?.map(o => o.text));
+
 
     if (!this.config) {
       console.error('SharedOptionComponent: config is not provided');
