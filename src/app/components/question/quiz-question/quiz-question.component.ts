@@ -1690,33 +1690,26 @@ export class QuizQuestionComponent
       };
   
       // Force config null to ensure Angular detects change
-      this.sharedOptionConfig = null;
-      instance.sharedOptionConfig = null;
+      // Step 1: Clear existing config to force binding refresh
+      this.sharedOptionConfig = undefined;
+      instance.sharedOptionConfig = undefined;
 
-      await Promise.resolve(); // flush microtask
+      // Step 2: Flush Angular’s change detection before applying new config
+      await new Promise(resolve => setTimeout(resolve)); // Allow microtask queue to flush
 
-      // Force a new object ref to break any stale bindings
-      const forcedFreshConfig = {
-        ...newConfig,
-        optionsToDisplay: [...newConfig.optionsToDisplay], // shallow copy is enough for change detection
-        currentQuestion: { ...newConfig.currentQuestion }
-      };
+      // Step 3: Deep clone config to guarantee reference difference
+      const forcedConfig = JSON.parse(JSON.stringify(newConfig));
 
-      // ✅ Assign AFTER DOM flush
-      this.sharedOptionConfig = forcedFreshConfig;
-      instance.sharedOptionConfig = forcedFreshConfig;
+      // Step 4: Apply to both component instance and input-bound property
+      this.sharedOptionConfig = forcedConfig;
+      instance.sharedOptionConfig = forcedConfig;
 
-      console.log('[🚨 SHARED CONFIG RECEIVED]', {
-        question: forcedFreshConfig.currentQuestion?.questionText,
-        options: forcedFreshConfig.optionsToDisplay?.map(opt => opt.text)
-      });
-
+      // Step 5: Initialize config
       await instance.initializeSharedOptionConfig?.();
 
-      // Trigger detection once after everything is set
+      // Step 6: Trigger Angular view update
       componentRef.changeDetectorRef.detectChanges();
       componentRef.changeDetectorRef.markForCheck();
-
   
       console.log('[🚀 Dynamic Load] Injected config with:', {
         question: this.question?.questionText,
