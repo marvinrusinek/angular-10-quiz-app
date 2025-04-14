@@ -2930,6 +2930,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizQuestionComponent.containerInitialized = false;
         this.quizQuestionComponent.sharedOptionConfig = undefined;
         console.log('[✅ QX] sharedOptionConfig reset before dynamic load1');
+        console.log('[🔎 QX] Question just before dynamic load1:', this.question?.questionText);
+        console.log('[🔎 QX] Options just before dynamic load1:', this.optionsToDisplay);
+
         await this.quizQuestionComponent.loadDynamicComponent();
       } else {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
@@ -3453,6 +3456,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[🚀 Dynamic Load Triggered] Forcing re-initialization');
       this.quizQuestionComponent.sharedOptionConfig = undefined;
       console.log('[✅ QX] sharedOptionConfig reset before dynamic load4');
+      console.log('[🔎 QX] Question just before dynamic load4:', this.question?.questionText);
+      console.log('[🔎 QX] Options just before dynamic load4:', this.optionsToDisplay);
+
       await this.quizQuestionComponent.loadDynamicComponent();
     } else {
       console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
