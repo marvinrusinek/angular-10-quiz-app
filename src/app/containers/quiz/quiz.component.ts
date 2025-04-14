@@ -3524,7 +3524,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.question.options = updatedOptions;
   
       updatedOptions = this.quizService.assignOptionActiveStates(updatedOptions, false);
-  
+
+      // 🔁 Deep clone to guarantee change detection picks up the update
+      const deepClone = typeof structuredClone === 'function'
+      ? structuredClone
+      : (obj: any) => JSON.parse(JSON.stringify(obj));
+
+      const clonedOptions = deepClone(updatedOptions);
+
+      // Assign cloned values BEFORE setting this.question and this.optionsToDisplay
+      this.optionsToDisplay = clonedOptions;
+      this.question = { ...question, options: clonedOptions };
+
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
   
@@ -3534,10 +3545,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       }
   
-      // ✅ Inject fully hydrated values BEFORE loading component
+      // Inject fully hydrated values BEFORE loading component
       this.setQuestionDetails(trimmed, updatedOptions, explanationText);
       this.currentQuestion = { ...this.question };
-      this.optionsToDisplay = [...updatedOptions];
+      // this.optionsToDisplay = [...updatedOptions];
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
   
