@@ -3478,6 +3478,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.question = { ...question };
   
       const trimmed = this.question.questionText.trim();
+      if (!trimmed) {
+        console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
+        return false;
+      }
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
