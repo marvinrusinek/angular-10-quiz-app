@@ -1817,7 +1817,6 @@ export class QuizQuestionComponent
       const forcedConfig = JSON.parse(JSON.stringify(newConfig)); // deep clone
       this.sharedOptionConfig = forcedConfig;
       instance.sharedOptionConfig = forcedConfig;
-      instance.config = forcedConfig;
   
       console.log('[🚨 SHARED CONFIG RECEIVED]', {
         question: forcedConfig.currentQuestion.questionText,
