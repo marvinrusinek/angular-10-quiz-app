@@ -139,7 +139,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.resetState();
     }
   } */
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
   
     const incomingConfig = changes.config?.currentValue as SharedOptionConfig;
@@ -179,6 +179,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       console.log('[🔁 ngOnChanges] shouldResetBackground is true — resetting state');
       this.resetState();
+    }
+  } */
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
+  
+    const incomingText = this.config?.currentQuestion?.questionText?.trim();
+    const currentText = this.currentQuestion?.questionText?.trim();
+    const questionChanged = incomingText !== currentText;
+    const optionsChanged = !!changes.config?.currentValue?.optionsToDisplay?.length;
+  
+    if (questionChanged || optionsChanged || !this.optionsToDisplay?.length) {
+      console.log('[🔁 ngOnChanges] ✅ Reinitializing for:', incomingText);
+      this.initializeFromConfig();
+    } else {
+      console.log('[⏸️ ngOnChanges] Skipping reinit — no real changes');
     }
   }
 
