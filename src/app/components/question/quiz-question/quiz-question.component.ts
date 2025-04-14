@@ -1622,6 +1622,9 @@ export class QuizQuestionComponent
       }
   
       this.dynamicAnswerContainer.clear();
+
+      // Wait 1 tick to ensure previous component is fully destroyed
+      await new Promise(resolve => setTimeout(resolve));
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(this.question)
@@ -1637,6 +1640,9 @@ export class QuizQuestionComponent
         console.error('[❌ Dynamic Load] Component instance is undefined');
         return;
       }
+
+      // Wait an extra tick before setting config to let component initialize first
+      await new Promise(resolve => setTimeout(resolve));
   
       console.log('[🚀 Dynamic Load Triggered]', {
         questionText: this.question?.questionText || '❌ No question',
@@ -1689,6 +1695,8 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
   
+      this.sharedOptionConfig = null;
+      await Promise.resolve(); // microtask
       this.sharedOptionConfig = newConfig;
       instance.sharedOptionConfig = newConfig;
   
