@@ -3476,10 +3476,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
   
-      // ✅ Assign early so that .options is not undefined later
-      this.question = { ...question };
-  
-      const trimmed = this.question.questionText.trim();
+      const trimmed = question.questionText.trim();
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
@@ -3558,7 +3555,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      // ✅ Trigger dynamic load
+      // Trigger dynamic load
       console.log('[🧪 Pre-Injection] Final question:', this.question?.questionText);
       console.log('[🧪 Pre-Injection] Question options:', this.question?.options?.map(opt => opt.text));
   
