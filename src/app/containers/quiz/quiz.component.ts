@@ -3256,6 +3256,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setQuestionText(trimmed);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
 
+      console.log(`[🔄 Dynamic Trigger] Right before loadComponent for Q${questionIndex}`, {
+        question: this.question?.questionText,
+        options: this.optionsToDisplay?.map(o => o.text)
+      });
+
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
+      await this.quizQuestionComponent?.loadDynamicComponent();
+
       console.log(`[🧪 VERIFY Q${questionIndex}] Question text: ${question?.questionText}`);
       console.log(`[🧪 VERIFY Q${questionIndex}] Options:`, question?.options);
       console.log(`[🧪 VERIFY Q${questionIndex}] Current route:`, this.router.url);
@@ -3278,9 +3286,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
-
-      this.quizQuestionComponent.sharedOptionConfig = undefined;
-      await this.quizQuestionComponent?.loadDynamicComponent();
 
       return true;
     } catch (error) {
