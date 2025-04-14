@@ -39,6 +39,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() type: 'single' | 'multiple' = 'single';
+  @Input() config: SharedOptionConfig;
   sharedOptionConfig: SharedOptionConfig;
   currentQuestionSubscription: Subscription;
   explanationToDisplay: string;
