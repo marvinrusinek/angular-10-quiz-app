@@ -1526,7 +1526,7 @@ export class QuizQuestionComponent
       }));
       
       instance.sharedOptionConfig = {
-        ...this.quizQuestionComponent.getDefaultSharedOptionConfig?.(), // if this is defined
+        ...this.getDefaultSharedOptionConfig?.(), // if this is defined
         type: 'single', // or dynamic if needed
         optionsToDisplay: clonedOptions,
         currentQuestion: { ...this.question },
@@ -1576,7 +1576,6 @@ export class QuizQuestionComponent
       console.error('[❌ Dynamic Load] Error during component load:', error);
     }
   }
-  
 
   // rename
   private async loadInitialQuestionAndMessage(): Promise<void> {
