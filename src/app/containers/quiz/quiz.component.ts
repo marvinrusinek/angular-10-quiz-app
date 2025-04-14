@@ -3330,7 +3330,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       const trimmed = question.questionText.trim();
-      this.question = { ...question };
       this.questionToDisplay = trimmed;
       this.questionToDisplay$.next(trimmed);
       console.log('[📤 Emitting questionToDisplay$]', trimmed);
@@ -3373,6 +3372,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Apply option state
       updatedOptions = this.quizService.assignOptionActiveStates(updatedOptions, false);
+
+      this.question = { ...question, options: updatedOptions };
+      console.log('[🧪 Pre-Injection] Final question:', this.question?.questionText);
+      console.log('[🧪 Pre-Injection] Question options:', this.question?.options?.map(opt => opt.text));
   
       // ✅ Check answered
       const isAnswered = await this.isQuestionAnswered(questionIndex);
