@@ -1690,12 +1690,14 @@ export class QuizQuestionComponent
       };
   
       this.sharedOptionConfig = undefined;
-      await Promise.resolve(); // microtask flush
+      await Promise.resolve(); // 💡 flush Angular binding
       this.sharedOptionConfig = newConfig;
       instance.sharedOptionConfig = undefined;
-      await Promise.resolve();
+      await Promise.resolve(); // another microtask flush
       instance.sharedOptionConfig = newConfig;
       await instance.initializeSharedOptionConfig?.();
+      componentRef.changeDetectorRef.detectChanges(); // force update
+      componentRef.changeDetectorRef.markForCheck();
 
       // Flush values to Angular before ngOnChanges
       componentRef.changeDetectorRef.detectChanges();
