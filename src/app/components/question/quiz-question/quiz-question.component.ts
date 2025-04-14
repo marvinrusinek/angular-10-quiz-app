@@ -1517,15 +1517,46 @@ export class QuizQuestionComponent
       instance.questionForm = this.questionForm;
       instance.question = { ...this.question };
       instance.optionsToDisplay = [...this.optionsToDisplay];
+
+      const clonedOptions = this.optionsToDisplay.map((opt, idx) => ({
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? ''
+      }));
+      
+      instance.sharedOptionConfig = {
+        ...this.quizQuestionComponent.getDefaultSharedOptionConfig?.(), // if this is defined
+        type: 'single', // or dynamic if needed
+        optionsToDisplay: clonedOptions,
+        currentQuestion: { ...this.question },
+        shouldResetBackground: false,
+        selectedOption: null,
+        showFeedbackForOption: {},
+        showFeedback: false,
+        correctMessage: '',
+        isOptionSelected: false,
+        selectedOptionIndex: -1,
+        isAnswerCorrect: false,
+        feedback: '',
+        highlightCorrectAfterIncorrect: false,
+        showCorrectMessage: false,
+        explanationText: '',
+        showExplanation: false,
+        quizQuestionComponentOnOptionClicked: () => {},
+        onOptionClicked: () => Promise.resolve(),
+        onQuestionAnswered: () => {},
+        idx: this.currentQuestionIndex
+      };
+
+      // ✅ Initialize config immediately after data is set
+      await instance.initializeSharedOptionConfig?.();
   
       console.log('[🚀 Dynamic Load] Injecting question + options:', {
         question: this.question?.questionText,
         options: this.optionsToDisplay
       });
-  
-      // ✅ Initialize config immediately after data is set
-      await instance.initializeSharedOptionConfig();
-  
+ 
       // ✅ Run change detection right after state injection
       componentRef.changeDetectorRef.detectChanges();
   
