@@ -3402,6 +3402,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         question: this.question?.questionText,
         options: this.optionsToDisplay?.map(o => o.text)
       });
+
+      console.log('[🧪 QQC → BQC Inject] About to load dynamic component with:', {
+        question: this.question,
+        options: this.optionsToDisplay
+      });      
   
       this.quizQuestionComponent.sharedOptionConfig = undefined;
       await this.quizQuestionComponent?.loadDynamicComponent();
