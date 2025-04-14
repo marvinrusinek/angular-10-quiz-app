@@ -110,7 +110,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 ngOnChanges] Changes received:', changes);
     if (changes.config && this.config?.currentQuestion) {
       const incomingText = this.config.currentQuestion.questionText?.trim();
@@ -138,7 +138,45 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  } */
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('[📦 ngOnChanges] Changes received:', changes);
+  
+    // ✅ Always re-init on config change (we force new reference in dynamic loader)
+    if (changes.config && changes.config.currentValue) {
+      const incomingText = this.config.currentQuestion?.questionText?.trim();
+      const currentText = this.currentQuestion?.questionText?.trim();
+  
+      const questionChanged = incomingText !== currentText;
+  
+      console.log('[🧠 ngOnChanges] Incoming Q:', incomingText);
+      console.log('[🧠 ngOnChanges] Current Q:', currentText);
+      console.log('[🧠 ngOnChanges] Question changed?', questionChanged);
+  
+      if (questionChanged || !this.optionsToDisplay?.length) {
+        console.log(`[🧠 ngOnChanges] Initializing from config for question: ${incomingText}`);
+        this.initializeFromConfig();
+      } else {
+        console.log(`[⏸️ ngOnChanges] Skipping reinit — question unchanged.`);
+      }
+    }
+  
+    // 🟡 These are probably unnecessary if you're fully driving state via `config`,
+    // but they can stay if they're still wired into the component
+    if (changes.currentQuestion && changes.currentQuestion.currentValue) {
+      this.handleQuestionChange(changes.currentQuestion);
+    }
+  
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+      this.initializeOptionBindings();
+      this.initializeFeedbackBindings();
+    }
+  
+    if (changes.shouldResetBackground && this.shouldResetBackground) {
+      this.resetState();
+    }
   }
+  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
