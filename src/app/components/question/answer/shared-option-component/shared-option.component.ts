@@ -159,6 +159,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[🧠 ngOnChanges] Question changed?', questionChanged);
     console.log('[🧠 ngOnChanges] Options missing?', optionsMissing);
     console.log('[🧪 ngOnChanges] Config optionsToDisplay:', incomingConfig?.optionsToDisplay?.map(o => o.text));
+
+    if (changes.config && changes.config.currentValue) {
+      this.currentQuestion = { ...this.config.currentQuestion };
+    }
   
     if (questionChanged || optionsMissing) {
       console.log(`[🔁 ngOnChanges] ✅ Reinitializing from config for question: ${incomingText}`);
