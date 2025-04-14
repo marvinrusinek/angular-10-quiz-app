@@ -1549,6 +1549,8 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
 
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
+
       // ✅ Initialize config immediately after data is set
       await instance.initializeSharedOptionConfig?.();
   
