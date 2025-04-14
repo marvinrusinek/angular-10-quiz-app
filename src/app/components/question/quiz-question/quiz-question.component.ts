@@ -1865,7 +1865,7 @@ export class QuizQuestionComponent
         this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
       );
   
-      const componentRef = await this.dynamicComponentService.loadComponent(
+      const componentRef: ComponentRef<BaseQuestionComponent> = await this.dynamicComponentService.loadComponent(
         this.dynamicAnswerContainer,
         isMultipleAnswer
       );
