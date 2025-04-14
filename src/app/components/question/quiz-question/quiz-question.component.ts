@@ -1032,7 +1032,7 @@ export class QuizQuestionComponent
       }
     });
   } */
-  private async handleRouteChanges(): Promise<void> {
+  /* private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
@@ -1103,8 +1103,81 @@ export class QuizQuestionComponent
         console.error('[handleRouteChanges] ❌ Unexpected error:', error);
       }
     });
-  }
+  } */
+  private async handleRouteChanges(): Promise<void> {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+      const rawParam = params.get('questionIndex');
+      const parsedParam = Number(rawParam);
   
+      console.log('[📦 Route param received]', { rawParam, parsed: parsedParam });
+  
+      // ✅ Ensure valid integer and convert to 0-based index
+      let questionIndex = isNaN(parsedParam) ? 1 : parsedParam;
+  
+      if (questionIndex < 1 || questionIndex > this.totalQuestions) {
+        console.warn(`[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to Q1]`);
+        questionIndex = 1;
+      }
+  
+      const zeroBasedIndex = questionIndex - 1;
+      console.log('[🔁 Converted to 0-based index]:', zeroBasedIndex);
+  
+      try {
+        // ✅ Sync state
+        this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
+  
+        // ✅ Load the question using correct index
+        const loaded = await this.loadQuestion(); // this should internally use zeroBasedIndex
+        if (!loaded) {
+          console.error(`[handleRouteChanges] ❌ Failed to load data for Q${questionIndex}`);
+          return;
+        }
+  
+        // ✅ Reset form and assign question
+        this.resetForm();
+        this.currentQuestionIndex = zeroBasedIndex;
+        this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
+  
+        if (!this.currentQuestion) {
+          console.warn(`[handleRouteChanges] ⚠️ No currentQuestion for Q${questionIndex}`);
+          return;
+        }
+  
+        // ✅ Log correct question
+        console.log(`[✅ Q${questionIndex}] currentQuestion:`, this.currentQuestion.questionText);
+  
+        // ✅ Prepare options
+        const originalOptions = this.currentQuestion.options ?? [];
+        this.optionsToDisplay = originalOptions.map((opt) => ({
+          ...opt,
+          active: true,
+          feedback: undefined,
+          showIcon: false
+        }));
+  
+        if (!this.optionsToDisplay.length) {
+          console.warn(`[⚠️ Q${questionIndex}] No options to display.`);
+        } else {
+          console.log(`[✅ Q${questionIndex}] optionsToDisplay:`, this.optionsToDisplay);
+        }
+  
+        // ✅ Handle explanation if previously answered
+        const isAnswered = await this.isQuestionAnswered(zeroBasedIndex);
+        if (isAnswered) {
+          await this.fetchAndUpdateExplanationText(zeroBasedIndex);
+  
+          if (this.shouldDisplayExplanation) {
+            this.showExplanationChange.emit(true);
+            this.updateDisplayStateToExplanation();
+          }
+        }
+  
+        this.cdRef.detectChanges();
+      } catch (error) {
+        console.error('[handleRouteChanges] ❌ Unexpected error:', error);
+      }
+    });
+  }
 
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
