@@ -1686,6 +1686,9 @@ export class QuizQuestionComponent
   
       this.sharedOptionConfig = newConfig;
       instance.sharedOptionConfig = newConfig;
+
+      // Flush values to Angular before ngOnChanges
+      componentRef.changeDetectorRef.detectChanges();
   
       await instance.initializeSharedOptionConfig?.();
   
