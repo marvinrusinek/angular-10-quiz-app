@@ -404,6 +404,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.correctMessage = '';
     this.showFeedback = false;
     this.shouldResetBackground = false;
+    this.optionsRestored = false;
   
     this.currentQuestion = null;
     this.optionsToDisplay = [];
@@ -414,27 +415,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.currentQuestion = this.config.currentQuestion;
-  
-    if (!Array.isArray(this.config.optionsToDisplay) || this.config.optionsToDisplay.length === 0) {
-      console.warn('[⚠️ SharedOptionComponent] No options in config.optionsToDisplay');
-    } else {
-      this.optionsToDisplay = [...this.config.optionsToDisplay];
-      console.log('[✅ SharedOptionComponent] optionsToDisplay set:', this.optionsToDisplay);
-    }
-  
+    this.optionsToDisplay = [...this.config.optionsToDisplay];
+
     // 🧠 Generate feedback message once based on correct options
     const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay)
+    const fallbackFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay)
       ?? 'No feedback available.';
-  
+
     // 🧪 Reassign fallback IDs and feedback if missing
     this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? feedbackMessage
+      feedback: opt.feedback ?? fallbackFeedback,
+      selected: false,
+      active: true,
+      showIcon: false
     }));
-  
+    
     // 🔁 Rebuild option bindings
     this.initializeOptionBindings();
   
@@ -449,10 +447,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // 🔄 Bind feedback state
     this.initializeFeedbackBindings();
-  
+
     console.log('[✅ SharedOptionComponent Final Init]', {
       currentQuestion: this.currentQuestion?.questionText,
-      options: this.optionsToDisplay?.map(opt => opt.text),
+      options: this.optionsToDisplay.map(o => o.text),
       optionBindings: this.optionBindings
     });
   }
