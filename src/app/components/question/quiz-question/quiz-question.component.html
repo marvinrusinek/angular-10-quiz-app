@@ -12,6 +12,7 @@
     <div *ngIf="shouldDisplayOptions" class="options-container">
       <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
         <app-shared-option
+          *ngIf="sharedOptionConfig"
           [disabled]="!optionBinding.active"
           [config]="sharedOptionConfig"
           [option]="optionBinding"
