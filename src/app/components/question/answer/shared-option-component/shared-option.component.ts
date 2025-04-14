@@ -387,11 +387,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.initializeFeedbackBindings();
   
     console.log('✅ SharedOptionComponent initialized with config:', this.config);
-
-    console.log('[✅ SharedOptionComponent Final Init]', {
-      question: this.currentQuestion?.questionText,
-      options: this.optionsToDisplay?.map(opt => opt.text),
-    });    
   }
 
   private handleQuestionChange(change: SimpleChange): void {
