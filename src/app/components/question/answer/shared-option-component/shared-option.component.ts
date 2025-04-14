@@ -142,7 +142,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
 
-    console.log('[🚨 SHARED CONFIG RECEIVED]', this.config?.currentQuestion?.questionText, this.config?.optionsToDisplay?.map(o => o.text));
+    // console.log('[🚨 SHARED CONFIG RECEIVED]', this.config?.currentQuestion?.questionText, this.config?.optionsToDisplay?.map(o => o.text));
+
+    if (changes.sharedOptionConfig) {
+      console.log('[🚨 SHARED CONFIG RECEIVED]', changes.sharedOptionConfig.currentValue);
+    }
   
     const incomingConfig = changes.config?.currentValue as SharedOptionConfig;
     const incomingQ = incomingConfig?.currentQuestion;
