@@ -362,35 +362,30 @@ export class QuizQuestionComponent
   } */
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-  
+
     const index = this.currentQuestionIndex;
-  
+
+    // Wait until questions are available
     if (!this.questionsArray || this.questionsArray.length <= index) {
-      console.warn('[ngAfterViewInit] Waiting for questions to load...');
-      setTimeout(() => this.ngAfterViewInit(), 50);
+      setTimeout(() => this.ngAfterViewInit(), 50); // retry after a short delay
       return;
     }
-  
+
     const question = this.questionsArray[index];
-    if (!question) {
+
+    if (question) {
+      this.quizService.setCurrentQuestion(question);
+      this.loadOptionsForQuestion(question);
+
+      setTimeout(() => {
+        const explanationText =
+          question.explanation || 'No explanation available';
+        this.updateExplanationUI(index, explanationText);
+        this.setInitialMessage();
+      }, 50);
+    } else {
       console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
-      return;
     }
-  
-    this.quizService.setCurrentQuestion(question);
-    this.loadOptionsForQuestion(question);
-  
-    setTimeout(() => {
-      const explanationText = question.explanation || 'No explanation available';
-      this.updateExplanationUI(index, explanationText);
-      this.setInitialMessage();
-    }, 50);
-  
-    // ❌ DO NOT load component here — handled elsewhere
-    // if (this.dynamicAnswerContainer) {
-    //   this.containerInitialized = false;
-    //   await this.loadDynamicComponent();
-    // }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -1397,59 +1392,85 @@ export class QuizQuestionComponent
 
   private async initializeComponent(): Promise<void> {
     try {
-      const quizId = this.quizService.getCurrentQuizId();
-      if (!quizId) {
-        console.error('[initializeComponent] ❌ No quiz ID found.');
-        return;
-      }
-  
-      // Step 1: Ensure questions are loaded
+      // Ensure questions are loaded before proceeding
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
-        if (!this.questionsArray?.length) {
-          console.error('[initializeComponent] ❌ Failed to fetch questions.');
+        const quizId = this.quizService.getCurrentQuizId();
+        if (!quizId) {
+          console.error(
+            '[initializeComponent] No active quiz ID found. Aborting initialization.'
+          );
           return;
         }
-        console.log('[✅ initializeComponent] Questions loaded:', this.questionsArray.length);
-      }
-  
-      // Step 2: Bounds check for currentQuestionIndex
-      const index = this.currentQuestionIndex;
-      if (index < 0 || index >= this.questionsArray.length) {
-        console.warn('[initializeComponent] ⚠️ Invalid question index:', index);
-        return;
-      }
-  
-      // Step 3: Assign the current question
-      const question = this.questionsArray[index];
-      if (!question) {
-        console.error('[initializeComponent] ❌ Question not found at index:', index);
-        return;
-      }
-  
-      this.currentQuestion = question;
-      this.quizService.setCurrentQuestion(question);
-      console.log('[✅ initializeComponent] Current question set:', question.questionText);
-  
-      // Step 4: Prepare feedback (optional, only once per session)
-      if (!this.feedbackText) {
-        try {
-          this.feedbackText = await this.generateFeedbackText(question);
-          console.log('[✅ initializeComponent] Feedback text prepared.');
-        } catch (err) {
-          console.warn('[initializeComponent] ⚠️ Failed to generate feedback:', err);
-          this.feedbackText = 'Feedback unavailable.';
+
+        this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
+        if (!this.questionsArray || this.questionsArray.length === 0) {
+          console.error(
+            '[initializeComponent] Failed to fetch questions. Aborting initialization.'
+          );
+          return;
         }
+        console.info(
+          '[initializeComponent] Questions array successfully fetched:',
+          this.questionsArray
+        );
       }
-  
-      // Step 5: Set initial message if on first question
-      if (index === 0) {
+
+      // Ensure the current question index is valid
+      if (
+        this.currentQuestionIndex < 0 ||
+        this.currentQuestionIndex >= this.questionsArray.length
+      ) {
+        console.error(
+          '[initializeComponent] Invalid currentQuestionIndex:',
+          this.currentQuestionIndex
+        );
+        return;
+      }
+
+      // Set the current question
+      this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
+      if (!this.currentQuestion) {
+        console.warn(
+          '[initializeComponent] Current question is missing after loading.',
+          {
+            currentQuestionIndex: this.currentQuestionIndex,
+            questionsArray: this.questionsArray,
+          }
+        );
+        return;
+      }
+
+      console.info(
+        '[initializeComponent] Current question set:',
+        this.currentQuestion
+      );
+
+      // Generate feedback for the current question
+      try {
+        this.feedbackText = await this.generateFeedbackText(
+          this.currentQuestion
+        );
+        console.info(
+          '[initializeComponent] Feedback text generated for the first question:',
+          this.feedbackText
+        );
+      } catch (feedbackError) {
+        console.error(
+          '[initializeComponent] Error generating feedback:',
+          feedbackError
+        );
+        this.feedbackText = 'Unable to generate feedback.';
+      }
+
+      // Set the initial message for the first question
+      if (this.currentQuestionIndex === 0) {
         this.setInitialMessage();
       }
-  
-      // ✅ Do not call loadDynamicComponent here anymore if you're handling that elsewhere
     } catch (error) {
-      console.error('[initializeComponent] ❌ Unexpected error:', error);
+      console.error(
+        '[initializeComponent] Error during initialization:',
+        error
+      );
     }
   }
 
@@ -1594,7 +1615,7 @@ export class QuizQuestionComponent
         console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
         return;
       }
-
+  
       if (!this.dynamicAnswerContainer) {
         console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
         return;
