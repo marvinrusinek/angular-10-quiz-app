@@ -141,42 +141,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
-
-    // console.log('[🚨 SHARED CONFIG RECEIVED]', this.config?.currentQuestion?.questionText, this.config?.optionsToDisplay?.map(o => o.text));
-
-    if (changes.sharedOptionConfig) {
-      console.log('[🚨 SHARED CONFIG RECEIVED]', changes.sharedOptionConfig.currentValue);
+  
+    const incomingConfig: SharedOptionConfig = changes.config?.currentValue;
+    const configChanged = !!changes.config;
+    const hasNewConfig = !!incomingConfig;
+  
+    // ✅ Log config arrival for debug
+    if (hasNewConfig) {
+      const qText = incomingConfig.currentQuestion?.questionText || '[❌ No question text]';
+      const optPreview = incomingConfig.optionsToDisplay?.map(o => o.text) || [];
+      console.log('[🚨 SHARED CONFIG RECEIVED]', { questionText: qText, optionTexts: optPreview });
     }
   
-    const incomingConfig = changes.config?.currentValue as SharedOptionConfig;
-    const incomingQ = incomingConfig?.currentQuestion;
-    const currentQ = this.currentQuestion;
+    const incomingQText = incomingConfig?.currentQuestion?.questionText?.trim() ?? '[❌ Incoming Q missing]';
+    const currentQText = this.currentQuestion?.questionText?.trim() ?? '[❌ Current Q missing]';
   
-    const incomingText = incomingQ?.questionText?.trim() ?? '[❌ Incoming text missing]';
-    const currentText = currentQ?.questionText?.trim() ?? '[❌ Current text missing]';
+    const questionChanged = incomingQText !== currentQText;
     const optionsMissing = !this.optionsToDisplay?.length;
   
-    const questionChanged =
-      this.config?.currentQuestion !== this.currentQuestion ||
-      incomingText !== currentText;
-  
-    console.log('[🧠 ngOnChanges] Incoming Q:', incomingText);
-    console.log('[🧠 ngOnChanges] Current Q:', currentText);
+    console.log('[🧠 ngOnChanges] Incoming Q:', incomingQText);
+    console.log('[🧠 ngOnChanges] Current Q:', currentQText);
     console.log('[🧠 ngOnChanges] Question changed?', questionChanged);
     console.log('[🧠 ngOnChanges] Options missing?', optionsMissing);
-    console.log('[🧪 ngOnChanges] Config optionsToDisplay:', incomingConfig?.optionsToDisplay?.map(o => o.text));
-
-    if (changes.config && changes.config.currentValue) {
-      this.currentQuestion = { ...this.config.currentQuestion };
-    }
-
-    const configChanged = changes.config && changes.config.previousValue !== changes.config.currentValue;
-
-    if (configChanged || questionChanged || optionsMissing) {
+  
+    // ✅ Trigger reinit ONLY if:
+    // 1. config changed
+    // 2. question text changed
+    // 3. options missing
+    if (hasNewConfig && (configChanged || questionChanged || optionsMissing)) {
       console.log(`[🔁 Reinit] ✅ Forcing reinit due to config or content change`);
+      this.currentQuestion = { ...incomingConfig.currentQuestion }; // Always update reference
       this.initializeFromConfig();
+    } else {
+      console.log('[⏸️ ngOnChanges] Skipped reinit — config unchanged and options intact.');
     }
   
+    // 🟡 Optional legacy bindings
     if (changes.currentQuestion && changes.currentQuestion.currentValue) {
       console.log('[🟡 ngOnChanges] currentQuestion changed');
       this.handleQuestionChange(changes.currentQuestion);
