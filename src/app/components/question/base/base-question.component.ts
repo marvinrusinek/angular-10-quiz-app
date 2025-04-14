@@ -211,7 +211,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  public async initializeSharedOptionConfig(): Promise<void> {
+  /* public async initializeSharedOptionConfig(): Promise<void> {
     console.log('[🚀 ISOC] Initializing config for:', this.question?.questionText);
 
     console.log('[🧪 ISOC Start] question:', this.question);
@@ -250,6 +250,43 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       onOptionClicked: this.onOptionClicked.bind(this),
       onQuestionAnswered: this.onQuestionAnswered.bind(this)
     };
+  } */
+  public async initializeSharedOptionConfig(): Promise<void> {
+    console.log('[🚀 ISOC] Initializing config using sharedOptionConfig');
+  
+    const config = this.sharedOptionConfig;
+    if (!config || !config.currentQuestion || !Array.isArray(config.optionsToDisplay)) {
+      console.warn('[❌ ISOC] Missing or invalid sharedOptionConfig:', config);
+      return;
+    }
+  
+    const incomingQuestion = config.currentQuestion;
+    const incomingOptions = config.optionsToDisplay;
+  
+    console.log('[✅ ISOC] Question from config:', incomingQuestion.questionText);
+    console.log('[✅ ISOC] Options from config:', incomingOptions.map(o => o.text));
+  
+    // Assign fallback IDs and feedback
+    const clonedOptions = incomingOptions.map((opt, idx) => ({
+      ...opt,
+      optionId: opt.optionId ?? idx,
+      correct: opt.correct ?? false,
+      feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
+    }));
+  
+    this.question = { ...incomingQuestion };
+    this.optionsToDisplay = [...clonedOptions];
+  
+    this.sharedOptionConfig = {
+      ...config,
+      optionsToDisplay: clonedOptions,
+      currentQuestion: { ...incomingQuestion }
+    };
+  
+    console.log('[✅ ISOC] Shared config initialized with:', {
+      question: this.question.questionText,
+      options: this.optionsToDisplay.map(o => o.text)
+    });
   }
 
   getDefaultSharedOptionConfig(): SharedOptionConfig {
