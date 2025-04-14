@@ -3635,7 +3635,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         try {
           const fallback = await firstValueFrom(
             this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
-          );
+          ) as Option[];
           rawOptions = fallback ?? [];
         } catch (err) {
           console.error(`[❌ Fallback options failed for Q${questionIndex}]`, err);
