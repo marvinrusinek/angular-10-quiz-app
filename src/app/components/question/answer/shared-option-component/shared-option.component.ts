@@ -98,6 +98,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     this.ensureOptionIds();
 
+    this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
+
     console.log('Received config:', this.config);
     if (
       this.config &&
@@ -217,6 +219,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
+    console.log('[🟨 SOC ngOnChanges] optionsToDisplay received:', this.optionsToDisplay);
   
     // Check if config changed or question changed
     const incomingConfig: SharedOptionConfig = changes.config?.currentValue;
@@ -242,9 +245,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     // Fallback: if optionsToDisplay changed and are present, regenerate bindings
-    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue && this.optionsToDisplay?.length > 0) {
+    /* if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue && this.optionsToDisplay?.length > 0) {
       console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.generateOptionBindings();
+    } */
+    if (changes.optionsToDisplay && this.optionsToDisplay?.length > 0) {
+      const feedbackCheck = this.optionsToDisplay.map((o, i) => ({
+        idx: i,
+        text: o.text,
+        feedback: o.feedback
+      }));
+      console.log('[🧪 optionsToDisplay hydration check]', feedbackCheck);
     }
   
     console.log('[📥 SOC ngOnChanges]', {
@@ -848,7 +859,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+  /* async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
     if (!option || typeof option !== 'object') {
       console.error(`Invalid or undefined option at index ${index}., option`);
@@ -889,7 +900,64 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Safely call option click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-  }
+  } */
+  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+    // ✅ Validate the option object immediately
+    if (!option || typeof option !== 'object') {
+      console.error(`Invalid or undefined option at index ${index}. Option:`, option);
+      return;
+    }
+  
+    // ✅ Clone the option to prevent mutations
+    const clonedOption = { ...option };
+  
+    // ✅ Safely access optionId, or fallback to index
+    const optionId = this.quizService.getSafeOptionId(clonedOption, index);
+    if (optionId === undefined) {
+      console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
+      return;
+    }
+    console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+  
+    // ✅ Check if the click should be ignored
+    if (this.shouldIgnoreClick(optionId)) {
+      console.warn(`Ignoring click for optionId: ${optionId}`);
+      return;
+    }
+  
+    // ✅ Handle navigation reversal scenario
+    if (this.isNavigatingBackwards) {
+      console.log('Handling backward navigation for:', clonedOption);
+      this.handleBackwardNavigationOptionClick(clonedOption, index);
+      return;
+    }
+  
+    // ✅ Update option state, handle selection, and display feedback
+    this.updateOptionState(clonedOption, index, optionId ?? index);
+    this.handleSelection(clonedOption, index, optionId);
+    this.displayFeedbackForOption(clonedOption, index, optionId);
+  
+    // ✅ 💬 Generate feedbackConfig using hydrated data from optionsToDisplay
+    const hydratedOption = this.optionsToDisplay?.[index];
+    if (!hydratedOption) {
+      console.warn(`[⚠️ Feedback] No hydrated option found at index ${index}`);
+    } else {
+      const selectedHydratedOption: SelectedOption = {
+        ...hydratedOption,
+        selected: true,
+        questionIndex: this.quizService.currentQuestionIndex ?? 0
+      };
+  
+      this.feedbackConfig = this.generateFeedbackConfig(selectedHydratedOption, index);
+      console.log('[✅ Feedback Config SET]', this.feedbackConfig);
+    }
+  
+    // ✅ Trigger change detection
+    this.triggerChangeDetection();
+  
+    // ✅ Call external click handlers
+    await this.safeCallOptionClickHandlers(clonedOption, index, checked);
+  } 
 
   private async safeCallOptionClickHandlers(
     option: SelectedOption,
