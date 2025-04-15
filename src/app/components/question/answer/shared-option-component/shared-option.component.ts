@@ -1154,8 +1154,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       feedback: option.feedback || `⚠️ Missing feedback for ${option.text}`,
       showFeedback: true,
       idx: index,
-  
-      // ✅ Add the missing required fields
       options: this.optionsToDisplay ?? [],
       question: this.currentQuestion ?? null
     };
