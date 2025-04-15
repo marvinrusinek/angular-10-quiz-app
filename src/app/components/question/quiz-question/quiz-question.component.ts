@@ -1964,6 +1964,11 @@ export class QuizQuestionComponent
         console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
         return;
       }
+
+      console.log('[Q6 DYNAMIC INJECTION]', {
+        injectedQuestion: question?.questionText,
+        injectedOptions: options?.map?.((o: Option) => o.text)
+      });      
   
       // 🔄 Reset container
       this.dynamicAnswerContainer.clear();
@@ -1990,6 +1995,11 @@ export class QuizQuestionComponent
       // 🧩 Set inputs
       instance.question = { ...question };
       instance.optionsToDisplay = clonedOptions;
+
+      console.log('[Q6 INSTANCE STATE]', {
+        question: instance.question?.questionText,
+        optionsToDisplay: instance.optionsToDisplay?.map(o => o.text)
+      });
   
       // ✅ FIX: generate optionBindings manually
       instance.optionBindings = clonedOptions.map((opt, idx) => ({
