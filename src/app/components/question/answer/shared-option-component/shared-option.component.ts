@@ -59,6 +59,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     idx: -1
   };
   currentFeedbackConfig: FeedbackProps;
+  feedbackConfigs: FeedbackProps[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
@@ -901,7 +902,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Safely call option click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
   } */
-  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+  /* async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // ✅ Validate the option object immediately
     if (!option || typeof option !== 'object') {
       console.error(`Invalid or undefined option at index ${index}. Option:`, option);
@@ -957,7 +958,72 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // ✅ Call external click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-  } 
+  } */
+  async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
+    // ✅ Validate the option object immediately
+    if (!option || typeof option !== 'object') {
+      console.error(`Invalid or undefined option at index ${index}. Option:`, option);
+      return;
+    }
+  
+    // ✅ Clone the option to prevent mutations
+    const clonedOption = { ...option };
+  
+    // ✅ Safely access optionId, or fallback to index
+    const optionId = this.quizService.getSafeOptionId(clonedOption, index);
+    if (optionId === undefined) {
+      console.error(`Failed to access optionId. Option data: ${JSON.stringify(clonedOption, null, 2)}`);
+      return;
+    }
+    console.log(`Using optionId: ${optionId}, Index: ${index}, Checked: ${checked}`);
+  
+    // ✅ Check if the click should be ignored
+    if (this.shouldIgnoreClick(optionId)) {
+      console.warn(`Ignoring click for optionId: ${optionId}`);
+      return;
+    }
+  
+    // ✅ Handle navigation reversal scenario
+    if (this.isNavigatingBackwards) {
+      console.log('Handling backward navigation for:', clonedOption);
+      this.handleBackwardNavigationOptionClick(clonedOption, index);
+      return;
+    }
+  
+    // ✅ Update option state, handle selection, and display feedback
+    this.updateOptionState(clonedOption, index, optionId ?? index);
+    this.handleSelection(clonedOption, index, optionId);
+    this.displayFeedbackForOption(clonedOption, index, optionId);
+  
+    // ✅ 💬 Generate feedbackConfig per option using hydrated data
+    const hydratedOption = this.optionsToDisplay?.[index];
+    if (!hydratedOption) {
+      console.warn(`[⚠️ Feedback] No hydrated option found at index ${index}`);
+    } else {
+      const selectedHydratedOption: SelectedOption = {
+        ...hydratedOption,
+        selected: true,
+        questionIndex: this.quizService.currentQuestionIndex ?? 0
+      };
+  
+      // ✅ Ensure feedbackConfigs[] exists
+      if (!this.feedbackConfigs) {
+        this.feedbackConfigs = [];
+      }
+  
+      // ✅ Assign config for the clicked index
+      this.feedbackConfigs[index] = this.generateFeedbackConfig(selectedHydratedOption, index);
+  
+      console.log(`[✅ FeedbackConfig for option ${index}]`, this.feedbackConfigs[index]);
+    }
+  
+    // ✅ Trigger change detection
+    this.triggerChangeDetection();
+  
+    // ✅ Call external click handlers
+    await this.safeCallOptionClickHandlers(clonedOption, index, checked);
+  }
+  
 
   private async safeCallOptionClickHandlers(
     option: SelectedOption,
