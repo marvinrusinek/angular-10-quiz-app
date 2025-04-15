@@ -96,6 +96,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     this.ensureOptionIds();
 
+    this.generateOptionBindings();
+
     console.log('Received config:', this.config);
     if (
       this.config &&
@@ -1045,6 +1047,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ariaLabel: 'Option ' + (idx + 1),
       checked: this.isSelectedOption(option)
     };
+  }
+
+  private generateOptionBindings(): void {
+    if (!this.optionsToDisplay?.length) return;
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) =>
+      this.getOptionBindings(option, idx)
+    );
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
