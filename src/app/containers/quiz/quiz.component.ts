@@ -3654,7 +3654,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const clonedOptions = structuredClone?.(finalOptions) ?? JSON.parse(JSON.stringify(finalOptions));
   
       // ✅ Use fetchedQuestion here — NOT an undefined 'question'
-      this.question = { ...fetchedQuestion, options: clonedOptions };
+      // this.question = { ...fetchedQuestion, options: clonedOptions };
+      this.question = {
+        questionText: fetchedQuestion.questionText,
+        explanation: fetchedQuestion.explanation ?? '',
+        options: clonedOptions,
+        type: fetchedQuestion.type ?? QuestionType.SingleAnswer
+      };      
       this.currentQuestion = { ...fetchedQuestion };
       this.optionsToDisplay = [...clonedOptions];
   
@@ -3876,6 +3882,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[✅ QX] sharedOptionConfig reset before dynamic load4');
       console.log('[🔎 QX] Question just before dynamic load4:', this.question?.questionText);
       console.log('[🔎 QX] Options just before dynamic load4:', this.optionsToDisplay);
+
+      console.log('[Q6 LOAD TRIGGER]', {
+        question: this.question?.questionText,
+        optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
+      });
   
       await this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
     } else {
