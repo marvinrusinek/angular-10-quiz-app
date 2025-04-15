@@ -206,6 +206,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[🔁 ngOnChanges] shouldResetBackground is true — resetting state');
       this.resetState();
     }
+
+    console.log('[📥 SOC ngOnChanges]', {
+      optionsToDisplay: this.optionsToDisplay?.map(o => o.text),
+      hasChanged: !!changes.optionsToDisplay,
+      hasLength: this.optionsToDisplay?.length
+    });    
   }
 
   ngAfterViewInit(): void {
