@@ -556,35 +556,55 @@ export class QuizQuestionComponent
   }
 
   setOptionsToDisplay(): void {
-    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
-      console.warn(
-        '[setOptionsToDisplay] No valid options in current question.'
-      );
-
-      // Only reset if optionsToDisplay is not already empty
-      if (this.optionsToDisplay.length > 0) {
-        console.log(
-          '[setOptionsToDisplay] 🚨 Clearing options due to invalid data.'
-        );
-        console.warn(
-          `[DEBUG] ❌ Clearing optionsToDisplay at:`,
-          new Error().stack
-        );
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
-      }
+    const context = `[setOptionsToDisplay]`;
+  
+    // Validate question and options
+    if (!this.currentQuestion) {
+      console.warn(`${context} ❌ No currentQuestion set.`);
+      this.resetOptionsDueToInvalidData(`${context} currentQuestion is null or undefined.`);
       return;
     }
-
-    // Ensure options are properly reassigned and not left over from the previous question
-    this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+  
+    const rawOptions = this.currentQuestion.options;
+  
+    if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
+      console.warn(`${context} ❌ Invalid or empty options array in currentQuestion.`);
+      this.resetOptionsDueToInvalidData(`${context} currentQuestion.options is invalid.`);
+      return;
+    }
+  
+    // Defensive: filter out null/undefined options
+    const validOptions = rawOptions.filter(opt => opt && typeof opt === 'object');
+  
+    if (validOptions.length === 0) {
+      console.warn(`${context} ❌ All options in currentQuestion.options were invalid.`);
+      this.resetOptionsDueToInvalidData(`${context} No valid option objects to assign.`);
+      return;
+    }
+  
+    // Assign new array (forces change detection)
+    this.optionsToDisplay = validOptions.map((option, index) => ({
       ...option,
+      optionId: option.optionId ?? index,
       active: option.active ?? true,
-      feedback: option.feedback ?? undefined,
+      feedback: option.feedback ?? '',
       showIcon: option.showIcon ?? false,
-      selected: false, // reset selection
-      highlighted: false, // reset highlighting
+      selected: false,
+      highlighted: false
     }));
+  
+    console.log(`${context} ✅ Assigned ${this.optionsToDisplay.length} options.`);
+  }
+
+  private resetOptionsDueToInvalidData(reason: string): void {
+    if (this.optionsToDisplay.length > 0) {
+      console.warn(`[setOptionsToDisplay] 🚨 Resetting options due to issue: ${reason}`);
+      console.warn(`[Stack trace]`, new Error().stack);
+      this.optionsToDisplay = [];
+      this.optionBindings = [];
+    } else {
+      console.log(`[setOptionsToDisplay] No reset needed — options already empty.`);
+    }
   }
 
   private saveQuizState(): void {
