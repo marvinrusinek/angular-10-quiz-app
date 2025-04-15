@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -23,7 +23,7 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
   styleUrls: ['../../quiz-question/quiz-question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked {
+export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChild(QuizQuestionComponent, { static: false })
@@ -88,6 +88,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngOnInit(): void {
     this.initializeOptionBindings();
     this.initializeFromConfig();
+
+    console.log('[✅ optionBindings]', this.optionBindings?.map(b => b.option.text));
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
@@ -197,6 +199,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
+      this.generateOptionBindings();
     }
   
     if (changes.shouldResetBackground && this.shouldResetBackground) {
@@ -204,6 +207,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.resetState();
     }
   }
+
+  ngAfterViewInit(): void {
+    if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
+      console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
+      this.generateOptionBindings();
+      this.cdRef.detectChanges(); // if you're using OnPush
+    }
+  }  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
