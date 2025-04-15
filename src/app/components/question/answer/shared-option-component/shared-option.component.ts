@@ -141,7 +141,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.resetState();
     }
   } */
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
   
     const incomingConfig: SharedOptionConfig = changes.config?.currentValue;
@@ -193,7 +193,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.handleQuestionChange(changes.currentQuestion);
     }
   
-    if (changes.optionsToDisplay) {
+    // if (changes.optionsToDisplay) {
       console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
@@ -202,7 +202,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         receivedOptions: this.optionsToDisplay.map(o => o.text)
       });
       this.generateOptionBindings();
-    }
+    //}
   
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       console.log('[🔁 ngOnChanges] shouldResetBackground is true — resetting state');
@@ -214,6 +214,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       hasChanged: !!changes.optionsToDisplay,
       hasLength: this.optionsToDisplay?.length
     });    
+  } */
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('[📦 SharedOptionComponent ngOnChanges] Changes received:', changes);
+  
+    // Check if config changed or question changed
+    const incomingConfig: SharedOptionConfig = changes.config?.currentValue;
+    const incomingQText = incomingConfig?.currentQuestion?.questionText?.trim() ?? '[❌ Incoming Q missing]';
+    const currentQText = this.currentQuestion?.questionText?.trim() ?? '[❌ Current Q missing]';
+    const questionChanged = incomingQText !== currentQText;
+  
+    // Log incoming config for debug
+    if (incomingConfig) {
+      console.log('[🚨 SHARED CONFIG RECEIVED]', {
+        questionText: incomingConfig.currentQuestion?.questionText || '[❌ No question text]',
+        optionTexts: incomingConfig.optionsToDisplay?.map(o => o.text) || []
+      });
+    }
+  
+    // Trigger reinit on config change or question change
+    if ((changes.config && changes.config.currentValue) || questionChanged) {
+      console.log(`[🔁 Reinit] Forcing reinit due to config or question change`);
+      this.currentQuestion = { ...incomingConfig.currentQuestion };
+      this.generateOptionBindings(); // Force regeneration of optionBindings
+    } else {
+      console.log('[⏸️ ngOnChanges] Skipped reinit — config unchanged and options intact.');
+    }
+  
+    // Fallback: if optionsToDisplay changed and are present, regenerate bindings
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue && this.optionsToDisplay?.length > 0) {
+      console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
+      this.generateOptionBindings();
+    }
+  
+    console.log('[📥 SOC ngOnChanges]', {
+      optionsToDisplay: this.optionsToDisplay?.map(o => o.text),
+      hasChanged: !!changes.optionsToDisplay,
+      hasLength: this.optionsToDisplay?.length
+    });
   }
 
   ngAfterViewInit(): void {
