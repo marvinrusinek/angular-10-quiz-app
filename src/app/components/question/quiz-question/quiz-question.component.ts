@@ -390,7 +390,7 @@ export class QuizQuestionComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.options) {
       const receivedOptions = JSON.stringify(changes.options.currentValue);
 
