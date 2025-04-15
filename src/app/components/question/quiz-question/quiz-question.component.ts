@@ -555,7 +555,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private setOptionsToDisplay(): void {
+  setOptionsToDisplay(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
       console.warn(
         '[setOptionsToDisplay] No valid options in current question.'
