@@ -40,6 +40,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatRadioButton } from '@angular/material/radio';
 
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
@@ -1983,11 +1985,27 @@ export class QuizQuestionComponent
   
       // ✅ FIX: generate optionBindings manually
       instance.optionBindings = clonedOptions.map((opt, idx) => ({
-        ...opt,
-        optionId: opt.optionId ?? idx,
-        type: isMultipleAnswer ? 'multiple' : 'single'
+        appHighlightOption: false,
+        option: opt,
+        isCorrect: opt.correct ?? false,
+        feedback: opt.feedback ?? '',
+        showFeedback: false,
+        showFeedbackForOption: {},
+        highlightCorrectAfterIncorrect: false,
+        allOptions: clonedOptions,
+        type: isMultipleAnswer ? 'multiple' : 'single',
+        appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
+        appHighlightReset: false,
+        appResetBackground: false,
+        optionsToDisplay: clonedOptions,
+        isSelected: opt.selected ?? false,
+        active: opt.active ?? true,
+        checked: false,
+        change: (_: MatCheckbox | MatRadioButton) => {},
+        disabled: false,
+        ariaLabel: opt.text ?? `Option ${idx + 1}`
       }));
-  
+
       instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
         type: isMultipleAnswer ? 'multiple' : 'single',
