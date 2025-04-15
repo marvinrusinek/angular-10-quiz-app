@@ -959,7 +959,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   
-    this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
+    const hydratedOption = this.optionsToDisplay?.[index] as SelectedOption;
+    this.feedbackConfig = this.generateFeedbackConfig(hydratedOption, index);
+    // this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
   
     console.log('Feedback configuration after update:', {
@@ -976,6 +978,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }  
   
   private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
+    console.log('[generateFeedbackConfig] Raw option received:', {
+      text: option?.text,
+      correct: option?.correct,
+      feedback: option?.feedback
+    });
+    
     const config = {
       ...this.feedbackConfig, // merge existing feedbackConfig properties
       selectedOption: option ?? null,
