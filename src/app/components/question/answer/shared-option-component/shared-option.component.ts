@@ -1066,12 +1066,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
 
-  private generateOptionBindings(): void {
+  private generateOptionBindings(): void {    
     if (!this.optionsToDisplay?.length) return;
   
     this.optionBindings = this.optionsToDisplay.map((option, idx) =>
       this.getOptionBindings(option, idx)
     );
+
+    console.log('[🔁 SOC generateOptionBindings]', {
+      mapped: this.optionBindings?.map(b => b.option.text),
+      source: this.optionsToDisplay?.map(o => o.text)
+    });
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
