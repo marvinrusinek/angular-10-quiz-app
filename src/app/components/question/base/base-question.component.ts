@@ -214,7 +214,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  public async initializeSharedOptionConfig(): Promise<void> {
+  public async initializeSharedOptionConfig(options?: Option[]): Promise<void> {
     console.log('[🚀 ISOC] Initializing config for:', this.question?.questionText);
 
     console.log('[🧪 ISOC Start] question:', this.question);
@@ -230,7 +230,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? `Feedback for option ${idx + 1}`
+      feedback: opt.feedback ?? `Feedback for option ${idx + 1}....`
     }));
     console.log('[🧪 ISOC] clonedOptions:', clonedOptions);
   
