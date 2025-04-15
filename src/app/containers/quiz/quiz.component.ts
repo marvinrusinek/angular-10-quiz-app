@@ -3892,7 +3892,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
     
       this.quizQuestionComponent.loadDynamicComponent(
-        this.question,
+        this.currentQuestion,
         this.optionsToDisplay
       );
     }, 0); // microtask flush

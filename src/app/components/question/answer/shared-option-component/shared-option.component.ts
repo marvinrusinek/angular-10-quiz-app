@@ -98,8 +98,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     this.ensureOptionIds();
 
-    this.generateOptionBindings();
-
     console.log('Received config:', this.config);
     if (
       this.config &&
@@ -195,10 +193,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.handleQuestionChange(changes.currentQuestion);
     }
   
-    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
+    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue && this.optionsToDisplay?.length > 0) {
       console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
+
+      console.log('[SOC ngOnChanges Q6]', {
+        receivedOptions: this.optionsToDisplay.map(o => o.text)
+      });
       this.generateOptionBindings();
     }
   
