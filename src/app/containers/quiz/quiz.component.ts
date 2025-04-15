@@ -3662,8 +3662,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         text: this.question.questionText,
         options: this.optionsToDisplay.map(o => o.text)
       });
-
-      this.quizQuestionComponent.setOptionsToDisplay();
   
       // ✅ Explanation logic
       const isAnswered = await this.isQuestionAnswered(questionIndex);
