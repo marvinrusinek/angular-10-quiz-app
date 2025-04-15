@@ -3870,14 +3870,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizQuestionComponent.setOptionsToDisplay();
     console.log('[Q6 DEBUG] Final this.optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
 
-    // ✅ Defensive guard before injecting
-    if (!this.question || !this.optionsToDisplay?.length) {
-      console.error('[❌ Q6 FATAL] Cannot load component — missing question or options', {
-        question: this.question,
-        optionsToDisplay: this.optionsToDisplay
-      });
-      return false;
-    }
+    await new Promise(res => setTimeout(res, 0)); // microtask flush
   
     // ✅ Force dynamic component reload
     if (this.quizQuestionComponent) {
