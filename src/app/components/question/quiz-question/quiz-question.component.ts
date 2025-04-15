@@ -555,7 +555,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private setOptionsToDisplay(): void {
+  setOptionsToDisplay(): void {
     const context = '[setOptionsToDisplay]';
   
     const sourceQuestion = this.currentQuestion || this.question;
