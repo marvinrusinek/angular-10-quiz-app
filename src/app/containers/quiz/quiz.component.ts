@@ -3655,6 +3655,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Use fetchedQuestion here — NOT an undefined 'question'
       this.question = { ...fetchedQuestion, options: clonedOptions };
+      this.currentQuestion = { ...fetchedQuestion };
       this.optionsToDisplay = [...clonedOptions];
   
       console.log(`[✅ Q${questionIndex}]`, {
