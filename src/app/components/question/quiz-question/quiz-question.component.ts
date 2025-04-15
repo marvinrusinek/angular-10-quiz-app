@@ -1910,8 +1910,24 @@ export class QuizQuestionComponent
         question: instance.question?.questionText,
         options: instance.optionsToDisplay?.map(o => o.text)
       });
+
+       // ⛔ CLEAR PREVIOUS CONFIG
+       this.sharedOptionConfig = undefined;
+       instance.sharedOptionConfig = undefined;
+       await Promise.resolve(); // flush microtask queue
+ 
+       // ✅ Apply fresh config (deep clone to guarantee reference change)
+       const forcedConfig = JSON.parse(JSON.stringify(newConfig)); // deep clone
+       this.sharedOptionConfig = forcedConfig;
+       instance.sharedOptionConfig = forcedConfig;
+
+      await instance.initializeSharedOptionConfig?.();
+
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+      }
   
-      // 🔄 Trigger change detection
+      // Trigger change detection
       componentRef.changeDetectorRef.detectChanges();
       componentRef.changeDetectorRef.markForCheck();
     } catch (error) {
