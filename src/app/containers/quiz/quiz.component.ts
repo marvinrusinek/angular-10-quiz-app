@@ -3691,6 +3691,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
+
+      if (questionIndex === 5) {
+        console.log('[Q6 DEBUG] Assigned this.question:', this.question?.questionText);
+        console.log('[Q6 DEBUG] Assigned this.optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
+      }
   
       return true;
     } catch (error) {
