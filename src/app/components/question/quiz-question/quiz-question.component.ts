@@ -2056,46 +2056,7 @@ export class QuizQuestionComponent
       console.error('[❌ loadDynamicComponent] Failed to load component:', error);
     }
   }  
-
-  private setupComponentInputs(
-    instance: BaseQuestionComponent,
-    question: QuizQuestion,
-    options: Option[],
-    isMultipleAnswer: boolean
-  ): void {
-    const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
-    const type = isMultipleAnswer ? 'multiple' : 'single';
   
-    instance.question = { ...question };
-    instance.optionsToDisplay = clonedOptions;
-  
-    // Optionally generate optionBindings here — or delegate to a service
-    instance.optionBindings = this.optionBindingService.generateOptionBindings(clonedOptions, type);
-  
-    instance.sharedOptionConfig = {
-      ...this.getDefaultSharedOptionConfig?.(),
-      type,
-      currentQuestion: { ...question },
-      optionsToDisplay: clonedOptions,
-      selectedOption: null,
-      selectedOptionIndex: -1,
-      showFeedback: false,
-      isAnswerCorrect: false,
-      showCorrectMessage: false,
-      showExplanation: false,
-      explanationText: '',
-      quizQuestionComponentOnOptionClicked: () => {},
-      onOptionClicked: () => Promise.resolve(),
-      onQuestionAnswered: () => {},
-      shouldResetBackground: false,
-      showFeedbackForOption: {},
-      isOptionSelected: false,
-      correctMessage: '',
-      feedback: '',
-      idx: this.currentQuestionIndex
-    };
-  }
-
   // rename
   private async loadInitialQuestionAndMessage(): Promise<void> {
     // Set the initial message after the question is loaded
