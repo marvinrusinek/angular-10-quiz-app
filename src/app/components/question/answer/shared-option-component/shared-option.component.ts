@@ -1124,7 +1124,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }  
   
-  private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
+  /* private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
     console.log('[generateFeedbackConfig] Raw option received:', {
       text: option?.text,
       correct: option?.correct,
@@ -1143,6 +1143,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
 
     console.log('[generateFeedbackConfig] Generated Feedback Config:', config);
+    return config;
+  } */
+  generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
+    const config: FeedbackProps = {
+      selectedOption: option,
+      correctMessage: option.correct
+        ? `The correct options are: ${option.text}`
+        : '',
+      feedback: option.feedback || `⚠️ Missing feedback for ${option.text}`,
+      showFeedback: true,
+      idx: index,
+  
+      // ✅ Add the missing required fields
+      options: this.optionsToDisplay ?? [],
+      question: this.currentQuestion ?? null
+    };
+  
+    console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
     return config;
   }
 
@@ -1422,12 +1440,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   // Determines if feedback should be shown for the option
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const optionId = this.optionsToDisplay[index]?.optionId ?? -1;
     const shouldShow = optionId !== -1 && 
                        this.showFeedbackForOption[optionId] === true && 
                        this.selectedOptionIndex === index;
     return shouldShow;
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const config = this.feedbackConfigs?.[index];
+    const result = !!(config && config.showFeedback && config.feedback);
+  
+    console.log(`[🟡 shouldShowFeedback] index: ${index}`, {
+      config,
+      result
+    });
+  
+    return result;
   }
   
   isAnswerCorrect(): boolean {
