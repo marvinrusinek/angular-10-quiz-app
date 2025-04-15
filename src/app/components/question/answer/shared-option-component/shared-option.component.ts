@@ -1145,7 +1145,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[generateFeedbackConfig] Generated Feedback Config:', config);
     return config;
   } */
-  generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
+  /* generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
     const config: FeedbackProps = {
       selectedOption: option,
       correctMessage: option.correct
@@ -1160,7 +1160,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
     return config;
+  } */
+  generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
+    const isCorrect = !!option.correct;
+    const optionLabel = `Option ${index + 1}`;
+  
+    const config: FeedbackProps = {
+      selectedOption: option,
+      correctMessage: '', // no longer used
+      feedback: `The correct option is ${optionLabel}.`, // ✅ consistent and clean
+      showFeedback: true,
+      idx: index,
+      options: this.optionsToDisplay ?? [],
+      question: this.currentQuestion ?? null
+    };
+  
+    console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
+    return config;
   }
+  
 
   private triggerChangeDetection(): void {
     this.config.showFeedback = true;
