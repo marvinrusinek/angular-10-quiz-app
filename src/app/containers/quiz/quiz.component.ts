@@ -3875,6 +3875,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           question: this.question?.questionText,
           options: this.optionsToDisplay?.map(o => o.text)
         });
+
+        this.quizQuestionComponent.setOptionsToDisplay();
       
         this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
       }, 0); // ← Flush the microtask queue      
