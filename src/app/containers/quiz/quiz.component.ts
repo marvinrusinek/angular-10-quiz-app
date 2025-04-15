@@ -3647,7 +3647,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
-        feedback: opt.feedback ?? `Auto-generated feedback for option ${idx + 1}`
+        feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
   
       const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
