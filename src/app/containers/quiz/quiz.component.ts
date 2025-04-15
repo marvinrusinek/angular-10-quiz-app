@@ -3615,9 +3615,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
   
-      // Fetch the question
+      // ✅ Fetch the question
       const fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
-  
       if (!fetchedQuestion || !fetchedQuestion.questionText?.trim()) {
         console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
         return false;
@@ -3627,7 +3626,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
   
-      // Handle options
+      // ✅ Handle options
       let rawOptions = fetchedQuestion.options;
   
       if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
@@ -3653,35 +3652,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
       const clonedOptions = structuredClone?.(finalOptions) ?? JSON.parse(JSON.stringify(finalOptions));
   
-      // ✅ Use fetchedQuestion here — NOT an undefined 'question'
-      this.question = { ...fetchedQuestion, options: clonedOptions };
-      this.currentQuestion = { ...fetchedQuestion };
-      this.optionsToDisplay = [...clonedOptions];
-
-      if (
-        Array.isArray(fetchedQuestion.options) &&
-        fetchedQuestion.options.length > 0
-      ) {
-        const safeOptions = fetchedQuestion.options.map((opt, index) => ({
-          ...opt,
-          optionId: opt.optionId ?? index,
-          active: opt.active ?? true,
-          feedback: opt.feedback ?? '',
-          showIcon: opt.showIcon ?? false,
-          selected: false,
-          highlighted: false,
-        }));
-      
-        // ✅ Only assign if valid
-        this.optionsToDisplay = safeOptions;
-      
-        console.log('[Q6 INLINE ASSIGN ✅] optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
-      } else {
-        console.warn('[Q6 INLINE ASSIGN ❌] Invalid or empty options array for Q', questionIndex);
-      }
+      // ✅ Assign question and options ONCE, properly
+      this.question = {
+        ...fetchedQuestion,
+        options: clonedOptions
+      };
+      this.optionsToDisplay = clonedOptions;
+      this.currentQuestion = { ...this.question };
   
-      console.log(`[✅ Q${questionIndex}]`, {
-        text: this.question.questionText,
+      console.log('[✅ FASQD Q6 Assigned]', {
+        question: this.question.questionText,
         options: this.optionsToDisplay.map(o => o.text)
       });
   
@@ -3697,7 +3677,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Final assignments
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
-      this.currentQuestion = { ...this.question };
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
   
@@ -3726,7 +3705,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
       return false;
     }
-  }
+  }  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     console.log(`[📥 fetchQuestionDetails] Index received: ${questionIndex}`);
