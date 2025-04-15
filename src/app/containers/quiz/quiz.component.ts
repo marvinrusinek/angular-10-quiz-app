@@ -3867,12 +3867,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) return false;
   
-    // ✅ Set options immediately after fetching
-    this.quizQuestionComponent.setOptionsToDisplay();
-    console.log('[Q6 DEBUG] Final this.optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
-
-    await new Promise(res => setTimeout(res, 0)); // microtask flush
-  
     // ✅ Force dynamic component reload
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.containerInitialized = false;

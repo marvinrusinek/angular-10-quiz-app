@@ -555,45 +555,33 @@ export class QuizQuestionComponent
     }
   }
 
-  setOptionsToDisplay(): void {
-    const context = `[setOptionsToDisplay]`;
+  private setOptionsToDisplay(): void {
+    const context = '[setOptionsToDisplay]';
   
-    // Validate question and options
-    if (!this.currentQuestion) {
-      console.warn(`${context} ❌ No currentQuestion set.`);
-      this.resetOptionsDueToInvalidData(`${context} currentQuestion is null or undefined.`);
+    const sourceQuestion = this.currentQuestion || this.question;
+  
+    if (!sourceQuestion || !Array.isArray(sourceQuestion.options)) {
+      console.warn(`${context} ❌ No valid currentQuestion or options. Skipping option assignment.`);
+      return; // ❗ Do not clear existing options
+    }
+  
+    const validOptions = sourceQuestion.options.filter(o => !!o && typeof o === 'object');
+    if (!validOptions.length) {
+      console.warn(`${context} ❌ All options were invalid.`);
       return;
     }
   
-    const rawOptions = this.currentQuestion.options;
-  
-    if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
-      console.warn(`${context} ❌ Invalid or empty options array in currentQuestion.`);
-      this.resetOptionsDueToInvalidData(`${context} currentQuestion.options is invalid.`);
-      return;
-    }
-  
-    // Defensive: filter out null/undefined options
-    const validOptions = rawOptions.filter(opt => opt && typeof opt === 'object');
-  
-    if (validOptions.length === 0) {
-      console.warn(`${context} ❌ All options in currentQuestion.options were invalid.`);
-      this.resetOptionsDueToInvalidData(`${context} No valid option objects to assign.`);
-      return;
-    }
-  
-    // Assign new array (forces change detection)
-    this.optionsToDisplay = validOptions.map((option, index) => ({
-      ...option,
-      optionId: option.optionId ?? index,
-      active: option.active ?? true,
-      feedback: option.feedback ?? '',
-      showIcon: option.showIcon ?? false,
+    this.optionsToDisplay = validOptions.map((opt, index) => ({
+      ...opt,
+      optionId: opt.optionId ?? index,
+      active: opt.active ?? true,
+      feedback: opt.feedback ?? '',
+      showIcon: opt.showIcon ?? false,
       selected: false,
       highlighted: false
     }));
   
-    console.log(`${context} ✅ Assigned ${this.optionsToDisplay.length} options.`);
+    console.log(`${context} ✅ Set optionsToDisplay:`, this.optionsToDisplay.map(o => o.text));
   }
 
   private resetOptionsDueToInvalidData(reason: string): void {
