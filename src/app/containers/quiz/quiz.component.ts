@@ -3859,11 +3859,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // ✅ Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
-    if (fetched) {
-      this.quizQuestionComponent.setOptionsToDisplay();
-    } else {
-      return false;
-    }
+    if (!fetched) return false;
+  
+    // ✅ Set options immediately after fetching
+    this.quizQuestionComponent.setOptionsToDisplay();
+    console.log('[Q6 DEBUG] Final this.optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
   
     // ✅ Force dynamic component reload
     if (this.quizQuestionComponent) {
@@ -3873,17 +3873,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[✅ QX] sharedOptionConfig reset before dynamic load4');
       console.log('[🔎 QX] Question just before dynamic load4:', this.question?.questionText);
       console.log('[🔎 QX] Options just before dynamic load4:', this.optionsToDisplay);
-
-      setTimeout(() => {
-        console.log('[Q6 LOAD START]', {
-          question: this.question?.questionText,
-          options: this.optionsToDisplay?.map(o => o.text)
-        });
-
-        this.quizQuestionComponent.setOptionsToDisplay();
-      
-        this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
-      }, 0); // ← Flush the microtask queue      
+  
+      await this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
     } else {
       console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
     }
@@ -3905,7 +3896,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.log(`[✅ navigateToQuestion] Successfully displaying Q${questionIndex}`);
     return true;
-  }  
+  }
 
   // Reset UI immediately before navigating
   private resetUI(): void {
