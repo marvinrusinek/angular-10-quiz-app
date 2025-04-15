@@ -51,8 +51,8 @@ export class FeedbackComponent implements OnChanges {
   private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
       const prefix = this.determineFeedbackPrefix();
-      const commonMessage = `${this.feedbackConfig.correctMessage || ''} ${this.feedbackConfig.feedback || ''}`;
-      this.displayMessage = `${prefix}${commonMessage}`;
+      const feedbackBody = this.feedbackConfig.feedback?.trim() ?? '';
+      this.displayMessage = `${prefix}${feedbackBody}`;
     } else {
       this.displayMessage = '';
     }

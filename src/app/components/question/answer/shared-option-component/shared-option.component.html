@@ -24,7 +24,7 @@
       <!-- Feedback display -->
       <codelab-quiz-feedback
         *ngIf="shouldShowFeedback(optionIndex)"
-        [feedbackConfig]="currentFeedbackConfig">
+        [feedbackConfig]="feedbackConfigs[optionIndex]">
       </codelab-quiz-feedback>
     </label>
   </div>
