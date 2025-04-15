@@ -959,8 +959,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   
-    const hydratedOption = this.optionsToDisplay?.[index] as SelectedOption;
-    this.feedbackConfig = this.generateFeedbackConfig(hydratedOption, index);
+    // const hydratedOption = this.optionsToDisplay?.[index] as SelectedOption;
+    const hydratedOption = this.optionsToDisplay?.[index];
+    if (!hydratedOption) {
+      console.warn('[⚠️ FeedbackGen] No option found at index', index);
+      return;
+    }
+
+    const selectedOption: SelectedOption = {
+      ...hydratedOption,
+      selected: true,
+      questionIndex: this.quizService.currentQuestionIndex
+    };
+
+    this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+    console.log('[✅ Feedback Config SET]', this.feedbackConfig);
     // this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
   
