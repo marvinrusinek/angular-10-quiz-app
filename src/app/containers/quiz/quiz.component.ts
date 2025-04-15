@@ -3873,25 +3873,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // ✅ Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) return false;
+
+    console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
     // ✅ Force dynamic component reload
-    if (this.quizQuestionComponent) {
+    setTimeout(() => {
+      if (!this.quizQuestionComponent) {
+        console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
+        return;
+      }
+    
       this.quizQuestionComponent.containerInitialized = false;
-      console.log('[🚀 Dynamic Load Triggered] Forcing re-initialization');
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-      console.log('[✅ QX] sharedOptionConfig reset before dynamic load4');
-      console.log('[🔎 QX] Question just before dynamic load4:', this.question?.questionText);
-      console.log('[🔎 QX] Options just before dynamic load4:', this.optionsToDisplay);
-
+    
       console.log('[Q6 LOAD TRIGGER]', {
         question: this.question?.questionText,
         optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
       });
-  
-      await this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
-    } else {
-      console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
-    }
+    
+      this.quizQuestionComponent.loadDynamicComponent(
+        this.question,
+        this.optionsToDisplay
+      );
+    }, 0); // microtask flush
   
     // ✅ Log current assignment
     console.log('[📦 Dynamic Injection Data]', {
