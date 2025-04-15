@@ -3859,7 +3859,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // ✅ Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
-    if (!fetched) return false;
+    if (fetched) {
+      this.quizQuestionComponent.setOptionsToDisplay();
+    } else {
+      return false;
+    }
   
     // ✅ Force dynamic component reload
     if (this.quizQuestionComponent) {
