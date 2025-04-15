@@ -1161,24 +1161,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
     return config;
   } */
-  generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
+  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     const isCorrect = !!option.correct;
-    const optionLabel = `Option ${index + 1}`;
+  
+    // Find the index of the correct option
+    const correctIndex = this.optionsToDisplay?.findIndex(o => o.correct) ?? -1;
+    const correctOptionLabel = correctIndex >= 0 ? `Option ${correctIndex + 1}` : '[unknown]';
   
     const config: FeedbackProps = {
       selectedOption: option,
-      correctMessage: '', // no longer used
-      feedback: `The correct option is ${optionLabel}.`, // ✅ consistent and clean
+      correctMessage: '',
+      feedback: isCorrect
+        ? `The correct answer is ${correctOptionLabel}.`
+        : `The correct answer is ${correctOptionLabel}.`, // same message regardless
       showFeedback: true,
-      idx: index,
+      idx: selectedIndex,
       options: this.optionsToDisplay ?? [],
       question: this.currentQuestion ?? null
     };
   
-    console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
+    console.log(`[⚙️ generateFeedbackConfig] index: ${selectedIndex}`, config);
     return config;
-  }
-  
+  }  
 
   private triggerChangeDetection(): void {
     this.config.showFeedback = true;
