@@ -2057,7 +2057,7 @@ export class QuizQuestionComponent
       instance.sharedOptionConfig = undefined;
       await Promise.resolve(); // flush microtask queue
   
-      await instance.initializeSharedOptionConfig?.();
+      await instance.initializeSharedOptionConfig?.(clonedOptions);
   
       // ✅ Final change detection
       componentRef.changeDetectorRef.detectChanges();
