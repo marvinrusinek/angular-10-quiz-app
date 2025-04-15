@@ -226,12 +226,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
     console.log('[✅ ISOC] Initializing for question:', this.question.questionText);
 
-    const clonedOptions = this.question.options.map((opt, idx) => ({
+    const clonedOptions = (options ?? this.question.options ?? []).map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? `Feedback for option ${idx + 1}....`
-    }));
+      feedback: opt.feedback
+    }));    
     console.log('[🧪 ISOC] clonedOptions:', clonedOptions);
   
     this.sharedOptionConfig = {
