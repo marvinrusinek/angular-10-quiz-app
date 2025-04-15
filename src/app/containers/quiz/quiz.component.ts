@@ -3616,19 +3616,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await new Promise(res => setTimeout(res, 30));
   
       // ✅ Fetch the question
-      const fetched = await this.fetchQuestionDetails(questionIndex);
-      if (!fetched || !fetched.questionText?.trim()) {
+      const fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
+
+      if (!fetchedQuestion || !fetchedQuestion.questionText?.trim()) {
         console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
         return false;
       }
-  
-      const question = { ...fetched };
-      const trimmedText = question.questionText.trim();
+
+      // ✅ Correct assignment
+      this.question = { ...fetchedQuestion };
+
+      const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
   
       // ✅ Handle options
-      let rawOptions = question.options;
+      let rawOptions = fetchedQuestion.options;
   
       if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
         console.warn(`[⚠️ Q${questionIndex}] Options missing, attempting fallback`);
