@@ -1911,18 +1911,17 @@ export class QuizQuestionComponent
         options: instance.optionsToDisplay?.map(o => o.text)
       });
 
-       // ⛔ CLEAR PREVIOUS CONFIG
-       this.sharedOptionConfig = undefined;
-       instance.sharedOptionConfig = undefined;
-       await Promise.resolve(); // flush microtask queue
- 
-       // ✅ Apply fresh config (deep clone to guarantee reference change)
-       const forcedConfig = JSON.parse(JSON.stringify(newConfig)); // deep clone
-       this.sharedOptionConfig = forcedConfig;
-       instance.sharedOptionConfig = forcedConfig;
+      // ⛔ CLEAR PREVIOUS CONFIG
+      this.sharedOptionConfig = undefined;
+      instance.sharedOptionConfig = undefined;
+      await Promise.resolve(); // flush microtask queue
 
       await instance.initializeSharedOptionConfig?.();
-
+  
+      // ✅ Final change detection
+      componentRef.changeDetectorRef.detectChanges();
+      componentRef.changeDetectorRef.markForCheck();
+   
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
       }
