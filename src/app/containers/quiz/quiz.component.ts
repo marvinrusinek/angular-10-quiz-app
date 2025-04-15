@@ -3832,6 +3832,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log('[🔥 Q6 PRELOAD]', {
+      question: this.question?.questionText,
+      optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
+    });
+    
     console.log(`[🧭 navigateToQuestion] Requested index: Q${questionIndex}`);
   
     // ✅ Bounds check
