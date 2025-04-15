@@ -193,7 +193,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.handleQuestionChange(changes.currentQuestion);
     }
   
-    if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue && this.optionsToDisplay?.length > 0) {
+    if (changes.optionsToDisplay) {
       console.log('[🟡 ngOnChanges] optionsToDisplay changed — reinitializing bindings');
       this.initializeOptionBindings();
       this.initializeFeedbackBindings();
