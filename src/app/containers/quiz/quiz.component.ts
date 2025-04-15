@@ -3660,9 +3660,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         explanation: fetchedQuestion.explanation ?? '',
         options: clonedOptions,
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
-      };      
-      this.currentQuestion = { ...fetchedQuestion };
-      this.optionsToDisplay = [...clonedOptions];
+      };  
+      this.optionsToDisplay = [...clonedOptions];    
+      this.currentQuestion = { ...this.question };
   
       console.log(`[✅ Q${questionIndex}]`, {
         text: this.question.questionText,
