@@ -3615,22 +3615,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
   
-      // ✅ Fetch the question
+      // Fetch the question
       const fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
-
+  
       if (!fetchedQuestion || !fetchedQuestion.questionText?.trim()) {
         console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
         return false;
       }
-
-      // ✅ Correct assignment
-      this.question = { ...fetchedQuestion };
-
+  
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
   
-      // ✅ Handle options
+      // Handle options
       let rawOptions = fetchedQuestion.options;
   
       if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
@@ -3656,7 +3653,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
       const clonedOptions = structuredClone?.(finalOptions) ?? JSON.parse(JSON.stringify(finalOptions));
   
-      this.question = { ...question, options: clonedOptions };
+      // ✅ Use fetchedQuestion here — NOT an undefined 'question'
+      this.question = { ...fetchedQuestion, options: clonedOptions };
       this.optionsToDisplay = [...clonedOptions];
   
       console.log(`[✅ Q${questionIndex}]`, {
@@ -3669,7 +3667,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       let explanationText = '';
   
       if (isAnswered) {
-        explanationText = question.explanation?.trim() || 'No explanation available';
+        explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       }
@@ -3694,10 +3692,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
-
+  
       if (questionIndex === 5) {
-        console.log('[Q6 DEBUG] Assigned this.question:', this.question?.questionText);
-        console.log('[Q6 DEBUG] Assigned this.optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
+        console.log('[Q6 FINAL CHECK] this.question:', this.question?.questionText);
+        console.log('[Q6 FINAL CHECK] this.optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
       }
   
       return true;
@@ -3872,7 +3870,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[🔎 QX] Question just before dynamic load4:', this.question?.questionText);
       console.log('[🔎 QX] Options just before dynamic load4:', this.optionsToDisplay);
 
-      await this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
+      setTimeout(() => {
+        console.log('[Q6 LOAD START]', {
+          question: this.question?.questionText,
+          options: this.optionsToDisplay?.map(o => o.text)
+        });
+      
+        this.quizQuestionComponent.loadDynamicComponent(this.question, this.optionsToDisplay);
+      }, 0); // ← Flush the microtask queue      
     } else {
       console.warn('[⚠️ Dynamic Load] quizQuestionComponent not available');
     }
