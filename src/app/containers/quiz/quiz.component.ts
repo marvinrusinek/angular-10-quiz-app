@@ -3657,6 +3657,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.question = { ...fetchedQuestion, options: clonedOptions };
       this.currentQuestion = { ...fetchedQuestion };
       this.optionsToDisplay = [...clonedOptions];
+
+      if (
+        Array.isArray(fetchedQuestion.options) &&
+        fetchedQuestion.options.length > 0
+      ) {
+        const safeOptions = fetchedQuestion.options.map((opt, index) => ({
+          ...opt,
+          optionId: opt.optionId ?? index,
+          active: opt.active ?? true,
+          feedback: opt.feedback ?? '',
+          showIcon: opt.showIcon ?? false,
+          selected: false,
+          highlighted: false,
+        }));
+      
+        // ✅ Only assign if valid
+        this.optionsToDisplay = safeOptions;
+      
+        console.log('[Q6 INLINE ASSIGN ✅] optionsToDisplay:', this.optionsToDisplay.map(o => o.text));
+      } else {
+        console.warn('[Q6 INLINE ASSIGN ❌] Invalid or empty options array for Q', questionIndex);
+      }
   
       console.log(`[✅ Q${questionIndex}]`, {
         text: this.question.questionText,
