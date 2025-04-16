@@ -3891,10 +3891,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         optionsToDisplay: this.optionsToDisplay.map(o => o.text)
       });
   
-      this.quizQuestionComponent.loadDynamicComponent(
+      /* this.quizQuestionComponent.loadDynamicComponent(
         this.currentQuestion,
         this.optionsToDisplay
-      );
+      ); */
+      // Check if the previous question was a multiple-answer
+      const prevQuestion = await this.quizService.getPreviousQuestion(questionIndex);
+      const isPreviousMultiple = prevQuestion
+        ? await this.quizQuestionManagerService.isMultipleAnswerQuestion(prevQuestion)
+        : false;
+
+      if (isPreviousMultiple) {
+        console.log('[⏳ Delaying injection after multiple-answer question]');
+        queueMicrotask(() => {
+          this.quizQuestionComponent?.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+        });
+      } else {
+        this.quizQuestionComponent?.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+      }
     } else {
       console.warn('[🚫 Dynamic Injection Skipped] Component or data not ready.', {
         component: !!this.quizQuestionComponent,
