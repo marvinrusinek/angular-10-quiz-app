@@ -1968,22 +1968,16 @@ export class QuizQuestionComponent
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
 
+  public get shouldDisplayOptions(): boolean {
+    return Array.isArray(this.questionData?.options) &&
+           this.questionData.options.length > 0 &&
+           !!this.sharedOptionConfig;
+  }
+
   public get canRenderFinalOptions(): boolean {
     return this.renderReady &&
            this.shouldRenderFinalOptions &&
            this.optionBindings?.length > 0 &&
-           !!this.sharedOptionConfig;
-  }
-
-  /* public get shouldDisplayOptions(): boolean {
-    return this.data?.options && this.data.options.length > 0;
-  } */
-  /* public get shouldDisplayOptions(): boolean {
-    return this.questionData?.options && this.questionData.options.length > 0;
-  } */
-  public get shouldDisplayOptions(): boolean {
-    return Array.isArray(this.questionData?.options) &&
-           this.questionData.options.length > 0 &&
            !!this.sharedOptionConfig;
   }
 
