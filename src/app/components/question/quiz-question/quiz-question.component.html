@@ -3,7 +3,7 @@
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
 
     <!-- Dynamic component container -->
-    <ng-container #dynamicAnswerContainer></ng-container>
+    <div #dynamicAnswerContainer></div>
 
     <!-- Loading spinner -->
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
