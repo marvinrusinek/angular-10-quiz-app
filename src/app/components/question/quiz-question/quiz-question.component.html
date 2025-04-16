@@ -1,6 +1,5 @@
 <ng-container *ngIf="shouldRenderComponent">
-  <div style="min-height: 400px">
-    <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
 
     <!-- Dynamic component container -->
     <div #dynamicAnswerContainer></div>
@@ -26,6 +25,5 @@
         ></app-shared-option>
       </div>
     </div>-->
-    </form>
-  </div>
+  </form>
 </ng-container>

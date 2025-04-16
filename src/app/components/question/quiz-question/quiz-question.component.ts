@@ -1568,11 +1568,15 @@ export class QuizQuestionComponent
   
       const componentRef: ComponentRef<BaseQuestionComponent> =
         await this.dynamicComponentService.loadComponent(this.dynamicAnswerContainer, isMultipleAnswer);
-  
       if (!componentRef) {
         console.warn('[⚠️ Early return E] loadComponent returned undefined');
         return;
       }
+
+      setTimeout(() => {
+        const el = (componentRef.location.nativeElement as HTMLElement);
+        console.log('[👁‍🗨 DOM check]', el, el.getBoundingClientRect());
+      }, 0);
   
       console.log('[🔍 ComponentRef info]', {
         componentRefType: componentRef?.instance?.constructor?.name,
