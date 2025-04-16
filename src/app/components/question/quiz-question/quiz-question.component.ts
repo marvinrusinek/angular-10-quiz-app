@@ -1507,7 +1507,9 @@ export class QuizQuestionComponent
       console.log('[Q6 DYNAMIC INJECTION]', {
         injectedQuestion: question?.questionText,
         injectedOptions: options?.map?.((o: Option) => o.text)
-      });      
+      });
+      
+      this.shouldRenderFinalOptions = false; // always reset
   
       // Reset container
       this.dynamicAnswerContainer.clear();
@@ -1586,21 +1588,41 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
   
+      await instance.initializeSharedOptionConfig?.(clonedOptions);
+
+      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
+        instance.onOptionClicked = this.onOptionClicked.bind(this);
+      }
+
       console.log('[✅ Dynamic Component Initialized]', {
         question: instance.question?.questionText,
         options: instance.optionsToDisplay?.map(o => o.text)
       });
+
+      // Enable render only after all bindings are valid
+      const canRender =
+        Array.isArray(instance.optionBindings) &&
+        instance.optionBindings.length > 0 &&
+        Array.isArray(instance.optionsToDisplay) &&
+        instance.optionsToDisplay.length > 0 &&
+        !!instance.sharedOptionConfig;
+
+      if (canRender) {
+        this.shouldRenderFinalOptions = true;
+        componentRef.changeDetectorRef.detectChanges();
+        componentRef.changeDetectorRef.markForCheck();
+      } else {
+        console.warn('[⚠️ Skipped rendering — incomplete bindings]', {
+          optionBindings: instance.optionBindings?.length,
+          optionsToDisplay: instance.optionsToDisplay?.length,
+          sharedOptionConfig: !!instance.sharedOptionConfig
+        });
+      }
   
       // Clear previous config
       this.sharedOptionConfig = undefined;
       instance.sharedOptionConfig = undefined;
       await Promise.resolve(); // flush microtask queue
-  
-      await instance.initializeSharedOptionConfig?.(clonedOptions);
-  
-      if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
-        instance.onOptionClicked = this.onOptionClicked.bind(this);
-      }
 
       // Check readiness after setting all bindings/configs
       /* this.areOptionsReadyToRender =
