@@ -3718,13 +3718,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
-  
+
+      setTimeout(() => this.shouldRenderOptions = true, 0);
+
       if (questionIndex === 5) {
         console.log('[Q6 FINAL CHECK] this.question:', this.question?.questionText);
         console.log('[Q6 FINAL CHECK] this.optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
       }
-
-      setTimeout(() => this.shouldRenderOptions = true, 0);
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
