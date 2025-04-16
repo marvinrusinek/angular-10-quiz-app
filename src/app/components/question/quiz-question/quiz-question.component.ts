@@ -201,6 +201,7 @@ export class QuizQuestionComponent
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
   shouldRenderOptions = false;
+  shouldRenderFinalOptions = false;
   areOptionsReadyToRender = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
@@ -1602,7 +1603,7 @@ export class QuizQuestionComponent
       }
 
       // Check readiness after setting all bindings/configs
-      this.areOptionsReadyToRender =
+      /* this.areOptionsReadyToRender =
         Array.isArray(instance.optionBindings) &&
         instance.optionBindings.length > 0 &&
         Array.isArray(instance.optionsToDisplay) &&
@@ -1612,6 +1613,29 @@ export class QuizQuestionComponent
       // Only then set render flag
       if (this.areOptionsReadyToRender) {
         this.shouldRenderOptions = true;
+      } */
+      // ✅ Only trigger render if everything is fully prepared
+      const bindingsReady =
+        Array.isArray(instance.optionBindings) &&
+        instance.optionBindings.length > 0;
+
+      const optionsReady =
+        Array.isArray(instance.optionsToDisplay) &&
+        instance.optionsToDisplay.length > 0;
+
+      const configReady = !!instance.sharedOptionConfig;
+
+      if (bindingsReady && optionsReady && configReady) {
+        this.shouldRenderFinalOptions = true;
+
+        componentRef.changeDetectorRef.detectChanges();
+        componentRef.changeDetectorRef.markForCheck();
+      } else {
+        console.warn('[⚠️ Incomplete render state]', {
+          bindingsReady,
+          optionsReady,
+          configReady
+        });
       }
         
       // Extra trigger (safe duplicate for stability)
