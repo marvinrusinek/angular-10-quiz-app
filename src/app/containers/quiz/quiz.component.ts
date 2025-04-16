@@ -3883,24 +3883,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
         return;
       }
-
+    
       this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-
+    
       console.log('[Q6 LOAD TRIGGER]', {
         question: this.question?.questionText,
         optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
       });
-
+    
       this.quizQuestionComponent.loadDynamicComponent(
         this.currentQuestion,
         this.optionsToDisplay
       );
-
-      // Run detectChanges inside Angular again
-      this.ngZone.run(() => {
-        this.cdRef.detectChanges();
-      });
+    
+      // Check fallback after load
+      setTimeout(() => {
+        const options = this.quizQuestionComponent?.optionsToDisplay;
+        if (!options || options.length === 0) {
+          console.warn('[🔁 Fallback] Re-invoking loadDynamicComponent due to empty options.');
+          this.quizQuestionComponent.containerInitialized = false;
+          this.quizQuestionComponent.loadDynamicComponent(
+            this.currentQuestion,
+            this.optionsToDisplay
+          );
+        }
+    
+        this.ngZone.run(() => {
+          this.cdRef.detectChanges();
+        });
+      }, 25); // slight buffer to allow previous load to complete
     });
   
     // Log current assignment
