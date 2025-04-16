@@ -1970,7 +1970,7 @@ export class QuizQuestionComponent
         injectedOptions: options?.map?.((o: Option) => o.text)
       });      
   
-      // 🔄 Reset container
+      // Reset container
       this.dynamicAnswerContainer.clear();
       await Promise.resolve(); // flush microtask queue
   
@@ -1989,10 +1989,10 @@ export class QuizQuestionComponent
         return;
       }
   
-      // 💡 Deep clone options for safety
+      // Deep clone options for safety
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
   
-      // 🧩 Set inputs
+      // Set inputs
       instance.question = { ...question };
       instance.optionsToDisplay = clonedOptions;
 
@@ -2001,7 +2001,7 @@ export class QuizQuestionComponent
         optionsToDisplay: instance.optionsToDisplay?.map(o => o.text)
       });
   
-      // ✅ FIX: generate optionBindings manually
+      // Generate optionBindings manually
       instance.optionBindings = clonedOptions.map((opt, idx) => ({
         appHighlightOption: false,
         option: opt,
@@ -2052,16 +2052,12 @@ export class QuizQuestionComponent
         options: instance.optionsToDisplay?.map(o => o.text)
       });
   
-      // ⛔ CLEAR PREVIOUS CONFIG
+      // Clear previous config
       this.sharedOptionConfig = undefined;
       instance.sharedOptionConfig = undefined;
       await Promise.resolve(); // flush microtask queue
   
       await instance.initializeSharedOptionConfig?.(clonedOptions);
-  
-      // ✅ Final change detection
-      componentRef.changeDetectorRef.detectChanges();
-      componentRef.changeDetectorRef.markForCheck();
   
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
