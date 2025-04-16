@@ -3602,12 +3602,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Reset loading state for options
     this.hasOptionsLoaded = false;
     this.isLoading = true;
-
-    // Clear stale data
-    this.optionsToDisplay = [];
-    this.sharedOptionComponent.optionBindings = [];
-    this.explanationToDisplay = '';
-    this.questionToDisplay = '';
   
     try {
       if (
