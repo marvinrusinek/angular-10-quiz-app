@@ -3860,6 +3860,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log('[Q6 CHECKPOINT]', {
+      questionIndex,
+      questionText: this.question?.questionText,
+      optionsToDisplay: this.optionsToDisplay?.map(o => o.text),
+      currentQuestion: this.currentQuestion?.questionText
+    });
+    
     // Bounds check
     if (
       typeof questionIndex !== 'number' ||
@@ -3885,7 +3892,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
-    if (!fetched) return false;
+    if (!fetched) {
+      console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
+      return false;
+    }
+
+    if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay
+      });
+      return false;
+    }
   
     console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
