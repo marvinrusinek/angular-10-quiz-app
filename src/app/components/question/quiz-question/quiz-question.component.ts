@@ -1660,6 +1660,10 @@ export class QuizQuestionComponent
         feedback: '',
         idx: this.currentQuestionIndex
       };
+
+      this.questionData = { ...this.currentQuestion };
+      this.sharedOptionConfig = instance.sharedOptionConfig;
+      this.cdRef.markForCheck();
   
       await instance.initializeSharedOptionConfig?.(clonedOptions);
   
@@ -3056,23 +3060,6 @@ export class QuizQuestionComponent
     this.readyForExplanationDisplay = true;
     this.isExplanationReady = true;
     this.isExplanationLocked = false;
-  }
-
-  private updateDisplayStateAfterLoad(): void {
-    if (
-      this.optionsToDisplay?.length > 0 &&
-      this.sharedOptionConfig &&
-      this.question?.questionText?.trim()
-    ) {
-      this.shouldDisplayOptions = true;
-    } else {
-      this.shouldDisplayOptions = false;
-      console.warn('[❌ Display Guard] Options not ready yet.', {
-        question: this.question,
-        optionsToDisplay: this.optionsToDisplay,
-        sharedOptionConfig: this.sharedOptionConfig,
-      });
-    }
   }
 
   // Handles the outcome after checking if all correct answers are selected.

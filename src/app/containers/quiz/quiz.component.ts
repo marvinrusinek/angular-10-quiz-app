@@ -4012,6 +4012,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
  * Never called twice for the same question.
  */
   private async injectDynamicComponent(): Promise<void> {
+    console.log('[🚀 injecting]', this.currentQuestion?.questionText);
+
     if (!this.quizQuestionComponent) {
       console.warn('[injectDynamicComponent] child component not yet created');  // should never happen
       return;
