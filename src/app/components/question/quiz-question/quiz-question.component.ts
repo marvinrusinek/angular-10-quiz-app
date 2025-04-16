@@ -1501,22 +1501,14 @@ export class QuizQuestionComponent
       });  
         
       if (!question || !Array.isArray(options) || options.length === 0) {
-        console.warn('[⚠️ Early exit triggered — reason below]', {
-          isQuestionValid: !!question,
-          questionText: question?.questionText,
-          areOptionsValid: Array.isArray(options),
-          optionsLength: options?.length,
-          optionsPreview: options?.map?.(o => o.text)
-        });
-      
-        console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
+        console.warn('[⚠️ Early return A] Missing question or options', { question, optionsLength: options?.length });
         return;
       }
 
       console.log('[✅ Dynamic Load: Data Valid]');
   
       if (!this.dynamicAnswerContainer) {
-        console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
+        console.warn('[⚠️ Early return B] dynamicAnswerContainer not available');
         return;
       }
   
@@ -1528,7 +1520,7 @@ export class QuizQuestionComponent
 
       try {
         if (!question || !('questionText' in question)) {
-          console.warn('[⚠️ isMultipleAnswer] Invalid question payload:', question);
+          console.warn('[⚠️ Early return C] Invalid question object before isMultipleAnswer', question);
           return;
         }        
 
@@ -1541,6 +1533,7 @@ export class QuizQuestionComponent
         console.log('[✅ isMultipleAnswer]', isMultipleAnswer);
       } catch (err) {
         console.error('[❌ isMultipleAnswerQuestion failed]', err);
+        console.warn('[⚠️ Early return D] Failed to get isMultipleAnswer');
         return;
       }
   
@@ -1555,6 +1548,10 @@ export class QuizQuestionComponent
         this.dynamicAnswerContainer,
         isMultipleAnswer
       );
+      if (!componentRef) {
+        console.warn('[⚠️ Early return E] loadComponent returned undefined');
+        return;
+      }
 
       console.log('[🔍 ComponentRef info]', {
         componentRefType: componentRef?.instance?.constructor?.name,
@@ -1563,11 +1560,19 @@ export class QuizQuestionComponent
   
       const instance = componentRef.instance;
       if (!instance) {
-        console.error('[❌ Dynamic Load] Component instance is undefined');
+        console.warn('[⚠️ Early return F] ComponentRef has no instance');
         return;
       }
   
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
+
+      console.log('[🛑 Assignment block reached]', {
+        question: question?.questionText,
+        optionsLength: clonedOptions?.length,
+        instanceExists: !!instance
+      });      
+
+      console.log('[🧭 Reached assignment block entry point]');
   
       try {
         console.log('[⚠️ Before assignment]', {
