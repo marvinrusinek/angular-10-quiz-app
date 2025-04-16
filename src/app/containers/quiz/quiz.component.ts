@@ -3876,35 +3876,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
-    // Use runOutsideAngular only for component load and detectChanges
-    this.ngZone.runOutsideAngular(() => {
-      if (!this.quizQuestionComponent) {
-        console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
-        return;
-      }
-
+    // Inject dynamic component if inputs are ready
+    if (
+      this.quizQuestionComponent &&
+      this.currentQuestion?.questionText &&
+      Array.isArray(this.optionsToDisplay) &&
+      this.optionsToDisplay.length > 0
+    ) {
       this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-
+  
       console.log('[Q6 LOAD TRIGGER]', {
-        question: this.question?.questionText,
-        optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
+        question: this.currentQuestion.questionText,
+        optionsToDisplay: this.optionsToDisplay.map(o => o.text)
       });
-
+  
       this.quizQuestionComponent.loadDynamicComponent(
         this.currentQuestion,
         this.optionsToDisplay
       );
-
-      // Run detectChanges inside Angular again
-      this.ngZone.run(() => {
-        this.cdRef.detectChanges();
+    } else {
+      console.warn('[🚫 Dynamic Injection Skipped] Component or data not ready.', {
+        component: !!this.quizQuestionComponent,
+        questionText: this.currentQuestion?.questionText,
+        optionsLength: this.optionsToDisplay?.length
       });
-    });
+    }
   
     // Log current assignment
     console.log('[📦 Dynamic Injection Data]', {
-      question: this.question?.questionText,
+      question: this.currentQuestion?.questionText,
       options: this.optionsToDisplay?.length,
     });
   
