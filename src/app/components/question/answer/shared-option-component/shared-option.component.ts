@@ -1161,7 +1161,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
     return config;
   } */
-  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+  /* generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     const isCorrect = !!option.correct;
   
     // Find the index of the correct option
@@ -1174,6 +1174,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       feedback: isCorrect
         ? `The correct answer is ${correctOptionLabel}.`
         : `The correct answer is ${correctOptionLabel}.`, // same message regardless
+      showFeedback: true,
+      idx: selectedIndex,
+      options: this.optionsToDisplay ?? [],
+      question: this.currentQuestion ?? null
+    };
+  
+    console.log(`[⚙️ generateFeedbackConfig] index: ${selectedIndex}`, config);
+    return config;
+  } */
+  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+    const isCorrect = !!option.correct;
+  
+    const correctMessage = this.feedbackService.setCorrectMessage(
+      this.optionsToDisplay?.filter(o => o.correct),
+      this.optionsToDisplay
+    );
+  
+    const config: FeedbackProps = {
+      selectedOption: option,
+      correctMessage,
+      feedback: correctMessage,
       showFeedback: true,
       idx: selectedIndex,
       options: this.optionsToDisplay ?? [],
