@@ -1965,8 +1965,13 @@ export class QuizQuestionComponent
   /* public get shouldDisplayOptions(): boolean {
     return this.data?.options && this.data.options.length > 0;
   } */
-  public get shouldDisplayOptions(): boolean {
+  /* public get shouldDisplayOptions(): boolean {
     return this.questionData?.options && this.questionData.options.length > 0;
+  } */
+  public get shouldDisplayOptions(): boolean {
+    return Array.isArray(this.questionData?.options) &&
+           this.questionData.options.length > 0 &&
+           !!this.sharedOptionConfig;
   }
 
   public shouldHideOptions(): boolean {
@@ -2961,6 +2966,24 @@ export class QuizQuestionComponent
     this.isExplanationReady = true;
     this.isExplanationLocked = false;
   }
+
+  private updateDisplayStateAfterLoad(): void {
+    if (
+      this.optionsToDisplay?.length > 0 &&
+      this.sharedOptionConfig &&
+      this.question?.questionText?.trim()
+    ) {
+      this.shouldDisplayOptions = true;
+    } else {
+      this.shouldDisplayOptions = false;
+      console.warn('[❌ Display Guard] Options not ready yet.', {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay,
+        sharedOptionConfig: this.sharedOptionConfig,
+      });
+    }
+  }
+  
 
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(
