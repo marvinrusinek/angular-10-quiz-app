@@ -3905,6 +3905,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
 
+    
+    // Wait until Angular has created quizQuestionComponent
+    await firstValueFrom(this.ngZone.onStable.pipe(take(1)));
+
     await this.injectDynamicComponent();
   
     if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {

@@ -1664,6 +1664,12 @@ export class QuizQuestionComponent
       this.questionData = { ...this.currentQuestion };
       this.sharedOptionConfig = instance.sharedOptionConfig;
       this.cdRef.markForCheck();
+
+      console.log('[✅ DISPLAY CHECK]', {
+        shouldDisplay: this.shouldDisplayOptions,
+        opts: this.questionData?.options?.length,
+        hasConfig: !!this.sharedOptionConfig
+      });
   
       await instance.initializeSharedOptionConfig?.(clonedOptions);
   
