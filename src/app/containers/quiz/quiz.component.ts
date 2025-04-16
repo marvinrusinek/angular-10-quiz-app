@@ -3873,29 +3873,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // ✅ Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) return false;
-
+  
     console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
-    // ✅ Force dynamic component reload
-    setTimeout(() => {
-      if (!this.quizQuestionComponent) {
-        console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
-        return;
-      }
-    
+    // ✅ Force dynamic component reload immediately
+    if (this.quizQuestionComponent) {
       this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-    
+  
       console.log('[Q6 LOAD TRIGGER]', {
         question: this.question?.questionText,
         optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
       });
-    
-      this.quizQuestionComponent.loadDynamicComponent(
+  
+      await this.quizQuestionComponent.loadDynamicComponent(
         this.currentQuestion,
         this.optionsToDisplay
       );
-    }, 0); // microtask flush
+    } else {
+      console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
+    }
   
     // ✅ Log current assignment
     console.log('[📦 Dynamic Injection Data]', {
