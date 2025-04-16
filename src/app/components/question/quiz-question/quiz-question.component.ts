@@ -203,6 +203,7 @@ export class QuizQuestionComponent
   shouldRenderOptions = false;
   shouldRenderFinalOptions = false;
   areOptionsReadyToRender = false;
+  renderReady = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
@@ -1504,7 +1505,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      this.shouldRenderFinalOptions = false; // 🧼 Reset early
+      this.shouldRenderFinalOptions = false; // reset early
   
       const isMultipleAnswer = await firstValueFrom(
         this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
@@ -1595,7 +1596,13 @@ export class QuizQuestionComponent
           configReady
         });
       }
-  
+
+      this.renderReady = true;
+
+      setTimeout(() => {
+        componentRef.changeDetectorRef.detectChanges();
+        componentRef.changeDetectorRef.markForCheck();
+      }, 0); // Delay ensures DOM is not painted mid-binding
       // ⛔ REMOVE duplicate detection
       // componentRef.changeDetectorRef.detectChanges();
       // componentRef.changeDetectorRef.markForCheck();
