@@ -1488,13 +1488,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
                        this.selectedOptionIndex === index;
     return shouldShow;
   } */
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const config = this.feedbackConfigs?.[index];
     const result = !!(config && config.showFeedback && config.feedback);
-    console.log(`[🟡 shouldShowFeedback] index: ${index}`, { config, result });
     return result;
-  }
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const config = this.feedbackConfigs?.[index];
+    const isLastSelected = index === this.lastSelectedOptionIndex;
   
+    return !!(isLastSelected && config?.showFeedback && config?.feedback);
+  }
   
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
