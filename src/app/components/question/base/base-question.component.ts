@@ -136,21 +136,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       return;
     }
   
-    // ✅ Defer load if inputs are not yet ready
+    // Defer load if inputs are not yet ready
     if (!this.question || !Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
       console.warn('[🕒 Waiting to initialize dynamic component – data not ready]', {
         question: this.question,
         optionsToDisplay: this.optionsToDisplay
       });
   
-      setTimeout(() => this.initializeDynamicComponentIfNeeded(), 50); // ⏳ Retry once after delay
+      setTimeout(() => this.initializeDynamicComponentIfNeeded(), 50); // retry once after delay
       return;
     }
-  
-    console.log('[🚀 Dynamic container initializing with]:', {
-      question: this.question?.questionText,
-      options: this.optionsToDisplay
-    });
   
     this.dynamicAnswerContainer.clear();
     this.loadDynamicComponent(this.question, this.optionsToDisplay);
@@ -178,7 +173,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (this.question) {
       this.initializeOptions();
       this.optionsInitialized = true;
-      this.questionChange.emit(this.question); // Emit the question change
+      this.questionChange.emit(this.question); // emit the question change
     } else {
       console.error(
         'Initial question input is undefined in initializeQuestion'
@@ -215,24 +210,17 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   public async initializeSharedOptionConfig(options?: Option[]): Promise<void> {
-    console.log('[🚀 ISOC] Initializing config for:', this.question?.questionText);
-
-    console.log('[🧪 ISOC Start] question:', this.question);
-    console.log('[🧪 ISOC Start] question.options:', this.question?.options);
-
     if (!this.question || !Array.isArray(this.question.options) || this.question.options.length === 0) {
       console.warn('[❌ ISOC] Invalid or missing question/options:', this.question);
       return;
     }
-    console.log('[✅ ISOC] Initializing for question:', this.question.questionText);
-
+    
     const clonedOptions = (options ?? this.question.options ?? []).map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
       feedback: opt.feedback
-    }));    
-    console.log('[🧪 ISOC] clonedOptions:', clonedOptions);
+    }));
   
     this.sharedOptionConfig = {
       ...this.getDefaultSharedOptionConfig(),
