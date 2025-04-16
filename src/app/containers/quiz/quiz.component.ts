@@ -3897,7 +3897,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay.length > 0
     ) {
       this.quizQuestionComponent.containerInitialized = false;
-      this.quizQuestionComponent.sharedOptionConfig = undefined;
+      this.quizQuestionComponent.sharedOptionConfig = false;
   
       console.log('[Q6 LOAD TRIGGER]', {
         question: this.currentQuestion.questionText,
