@@ -1493,12 +1493,14 @@ export class QuizQuestionComponent
       console.log('[🛠️ loadDynamicComponent CALLED]', {
         question: question?.questionText,
         options: options?.map(o => o.text)
-      });      
-  
+      });  
+        
       if (!question || !Array.isArray(options) || options.length === 0) {
         console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
         return;
       }
+
+      console.log('[✅ Dynamic Load: Data Valid]');
   
       if (!this.dynamicAnswerContainer) {
         console.error('[❌ Dynamic Load] dynamicAnswerContainer is undefined');
@@ -1507,17 +1509,44 @@ export class QuizQuestionComponent
   
       this.shouldRenderFinalOptions = false; // reset early
   
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
-      );
+      console.log('[🔍 Calling isMultipleAnswerQuestion]');
+
+      let isMultipleAnswer = false;
+
+      try {
+        if (!question || typeof question !== 'object') {
+          console.warn('[⚠️ isMultipleAnswer] Invalid question object:', question);
+          return;
+        }
+
+        console.log('[🔍 Calling isMultipleAnswerQuestion with question]', question);
+
+        isMultipleAnswer = await firstValueFrom(
+          this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
+        );
+
+        console.log('[✅ isMultipleAnswer]', isMultipleAnswer);
+      } catch (err) {
+        console.error('[❌ isMultipleAnswerQuestion failed]', err);
+        return;
+      }
   
       this.dynamicAnswerContainer.clear();
       await Promise.resolve(); // flush microtask queue
+
+      console.log('[📌 Calling dynamicComponentService.loadComponent]', {
+        isMultipleAnswer
+      });      
   
       const componentRef: ComponentRef<BaseQuestionComponent> = await this.dynamicComponentService.loadComponent(
         this.dynamicAnswerContainer,
         isMultipleAnswer
       );
+
+      console.log('[🔍 ComponentRef info]', {
+        componentRefType: componentRef?.instance?.constructor?.name,
+        isMultipleAnswer
+      });     
   
       const instance = componentRef.instance;
       if (!instance) {
