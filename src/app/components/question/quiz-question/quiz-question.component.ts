@@ -1685,9 +1685,11 @@ export class QuizQuestionComponent
         !!instance.sharedOptionConfig;
   
       if (isReady) {
-        this.shouldRenderOptions = true;        
-        componentRef.changeDetectorRef.detectChanges();
-        componentRef.changeDetectorRef.markForCheck();
+        this.shouldRenderOptions = true; 
+        this._canRenderFinalOptions = true;
+        this.cdRef.detectChanges();       
+        //componentRef.changeDetectorRef.detectChanges();
+        //componentRef.changeDetectorRef.markForCheck();
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
           optionBindings: instance.optionBindings?.length,
