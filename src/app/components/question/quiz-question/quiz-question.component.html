@@ -11,7 +11,7 @@
     </div>
 
     <!-- Options content -->
-    <div *ngIf="shouldDisplayOptions && shouldRenderOptions" class="options-container">
+    <div *ngIf="areOptionsReadyToRender" class="options-container">
       <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
         <app-shared-option
           *ngIf="sharedOptionConfig"

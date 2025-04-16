@@ -2397,6 +2397,7 @@ export class QuizQuestionComponent
     this.options = [];
     this.resetFeedback();
     this.selectedOptionService.clearOptions();
+    this.areOptionsReadyToRender = false;
   }
 
   public resetFeedback(): void {
