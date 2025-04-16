@@ -142,6 +142,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questionTextLoaded = false;
   hasLoadingError = false;
   public hasOptionsLoaded = false;
+  public shouldRenderOptions = false;
 
   isOptionSelected = false;
   private isCurrentQuestionAnswered = false;
@@ -447,6 +448,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       // Prevent stale rendering
       this.hasOptionsLoaded = false;
+      this.shouldRenderOptions = false;
       this.isLoading = true;
       this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
@@ -3603,6 +3605,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Reset loading state for options
     this.hasOptionsLoaded = false;
+    this.shouldRenderOptions = false;
     this.isLoading = true;
   
     try {
@@ -3720,7 +3723,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[Q6 FINAL CHECK] this.question:', this.question?.questionText);
         console.log('[Q6 FINAL CHECK] this.optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
       }
-  
+
+      setTimeout(() => this.shouldRenderOptions = true, 0);
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
