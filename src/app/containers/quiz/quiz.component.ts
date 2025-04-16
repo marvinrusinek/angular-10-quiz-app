@@ -447,13 +447,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       this.isLoading = true;
       this.isQuestionDisplayed = false;
+      this.hasOptionsLoaded = false;
       this.isNextButtonEnabled = false;
 
       // Reset state before fetching new data
       this.optionsToDisplay = [];
       this.questionData = null;
       this.explanationToDisplay = '';
-
+  
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
         console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
