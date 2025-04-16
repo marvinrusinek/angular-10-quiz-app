@@ -465,8 +465,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         type QuizComponentData = { 
           question: QuizQuestion | null;
           options: Option[] | null;
-          explanation: string | null
-        };
+          explanation: string | null };
 
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
@@ -474,7 +473,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
           : of('');
 
-        data = await lastValueFrom(
+        const data: QuizComponentData = await lastValueFrom(
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
             catchError(error => {
               console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
@@ -3883,40 +3882,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
         return;
       }
-    
+
       this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-    
+
       console.log('[Q6 LOAD TRIGGER]', {
         question: this.question?.questionText,
         optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
       });
-    
+
       this.quizQuestionComponent.loadDynamicComponent(
         this.currentQuestion,
         this.optionsToDisplay
       );
-    
-      // ✅ Fallback retry logic — only once and only if options are empty
-      let retryTimeout = setTimeout(() => {
-        const instance = this.quizQuestionComponent;
-        const hasValidOptions =
-          instance?.optionsToDisplay && instance.optionsToDisplay.length > 0;
-    
-        if (!hasValidOptions && !instance?.containerInitialized) {
-          console.warn('[🔁 Fallback] Retrying loadDynamicComponent due to empty options');
-    
-          instance.containerInitialized = false;
-          instance.sharedOptionConfig = undefined;
-          instance.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
-        }
-    
-        clearTimeout(retryTimeout);
-    
-        this.ngZone.run(() => {
-          this.cdRef.detectChanges();
-        });
-      }, 30); // buffer slightly longer than microtask
+
+      // Run detectChanges inside Angular again
+      this.ngZone.run(() => {
+        this.cdRef.detectChanges();
+      });
     });
   
     // Log current assignment
