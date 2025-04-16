@@ -204,7 +204,6 @@ export class QuizQuestionComponent
   shouldRenderFinalOptions = false;
   areOptionsReadyToRender = false;
   renderReady = false;
-  canRenderFinalOptions: boolean;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
@@ -294,12 +293,6 @@ export class QuizQuestionComponent
       selectedOptionService,
       cdRef
     );
-
-    this.canRenderFinalOptions = 
-      this.renderReady &&
-      this.shouldRenderFinalOptions &&
-      this.optionBindings?.length > 0 &&
-      !!this.sharedOptionConfig;
   }
 
   async ngOnInit(): Promise<void> {
@@ -1973,6 +1966,13 @@ export class QuizQuestionComponent
 
   public get shouldDisplayTextContent(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
+  }
+
+  public get canRenderFinalOptions(): boolean {
+    return this.renderReady &&
+           this.shouldRenderFinalOptions &&
+           this.optionBindings?.length > 0 &&
+           !!this.sharedOptionConfig;
   }
 
   /* public get shouldDisplayOptions(): boolean {
