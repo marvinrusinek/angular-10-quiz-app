@@ -3840,14 +3840,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
-    console.log('[🔥 Q6 PRELOAD]', {
-      question: this.question?.questionText,
-      optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
-    });
-    
-    console.log(`[🧭 navigateToQuestion] Requested index: Q${questionIndex}`);
-  
-    // ✅ Bounds check
+    // Bounds check
     if (
       typeof questionIndex !== 'number' ||
       isNaN(questionIndex) ||
@@ -3858,11 +3851,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   
-    // ✅ Prepare route
+    // Prepare route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
     console.log(`[➡️ Routing to: ${routeUrl}]`);
   
-    // ✅ Perform navigation
+    // Perform navigation
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
@@ -3870,43 +3863,51 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     console.log(`[✅ Router navigation succeeded to Q${questionIndex + 1}]`);
   
-    // ✅ Fetch and assign question data
+    // Fetch and assign question data
     const fetched = await this.fetchAndSetQuestionData(questionIndex);
     if (!fetched) return false;
   
     console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
-    // ✅ Force dynamic component reload immediately
-    if (this.quizQuestionComponent) {
+    // Use runOutsideAngular only for component load and detectChanges
+    this.ngZone.runOutsideAngular(() => {
+      if (!this.quizQuestionComponent) {
+        console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
+        return;
+      }
+
       this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
-  
+
       console.log('[Q6 LOAD TRIGGER]', {
         question: this.question?.questionText,
         optionsToDisplay: this.optionsToDisplay?.map(o => o.text)
       });
-  
-      await this.quizQuestionComponent.loadDynamicComponent(
+
+      this.quizQuestionComponent.loadDynamicComponent(
         this.currentQuestion,
         this.optionsToDisplay
       );
-    } else {
-      console.warn('[Q6 SKIPPED] quizQuestionComponent not available yet.');
-    }
+
+      // Run detectChanges inside Angular again
+      this.ngZone.run(() => {
+        this.cdRef.detectChanges();
+      });
+    });
   
-    // ✅ Log current assignment
+    // Log current assignment
     console.log('[📦 Dynamic Injection Data]', {
       question: this.question?.questionText,
       options: this.optionsToDisplay?.length,
     });
   
-    // ✅ Update internal state
+    // Update internal state
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
     this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
-    // ✅ Trigger change detection
+    // Trigger change detection
     this.cdRef.detectChanges();
   
     console.log(`[✅ navigateToQuestion] Successfully displaying Q${questionIndex}`);
