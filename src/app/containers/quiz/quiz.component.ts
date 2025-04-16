@@ -141,6 +141,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private quizAlreadyInitialized = false;
   questionTextLoaded = false;
   hasLoadingError = false;
+  public hasOptionsLoaded = false;
 
   isOptionSelected = false;
   private isCurrentQuestionAnswered = false;
@@ -502,6 +503,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
+        this.hasOptionsLoaded = true;
+
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
         
         this.questionData = data.question ?? ({} as QuizQuestion);
@@ -3595,6 +3598,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log(`[🔥 fetchAndSetQuestionData] Q${questionIndex} init`);
+
+    // Reset loading state for options
+    this.hasOptionsLoaded = false;
+    this.isLoading = true;
   
     try {
       if (
