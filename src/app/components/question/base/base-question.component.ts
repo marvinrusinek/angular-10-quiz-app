@@ -111,20 +111,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     this.showFeedback = true;
   }
 
-  /* private initializeDynamicComponentIfNeeded(): void {
-    if (!this.containerInitialized && this.dynamicAnswerContainer) {
-      console.log('Dynamic container initializing...');
-      this.dynamicAnswerContainer.clear();
-      this.loadDynamicComponent();
-      this.containerInitialized = true;
-      this.cdRef.markForCheck();
-    } else {
-      console.log('Condition not met, skipping dynamic component load', {
-        containerInitialized: this.containerInitialized,
-        dynamicAnswerContainer: !!this.dynamicAnswerContainer,
-      });
-    }
-  } */
   private initializeDynamicComponentIfNeeded(): void {
     if (this.containerInitialized) {
       console.log('Dynamic component already initialized. Skipping load.');
@@ -143,15 +129,26 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         optionsToDisplay: this.optionsToDisplay
       });
   
-      setTimeout(() => this.initializeDynamicComponentIfNeeded(), 50); // retry once after delay
+      setTimeout(() => {
+        if (!this.containerInitialized) {
+          this.initializeDynamicComponentIfNeeded();
+        }
+      }, 50);
       return;
     }
   
-    this.dynamicAnswerContainer.clear();
-    this.loadDynamicComponent(this.question, this.optionsToDisplay);
-  
-    this.containerInitialized = true;
-    this.cdRef.markForCheck();
+    try {
+      this.dynamicAnswerContainer.clear();
+      this.loadDynamicComponent(this.question, this.optionsToDisplay);
+      this.containerInitialized = true;
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.log('Condition not met, skipping dynamic component load', {
+        containerInitialized: this.containerInitialized,
+        dynamicAnswerContainer: !!this.dynamicAnswerContainer,
+      });
+      console.error('[❌ initializeDynamicComponentIfNeeded] Exception caught:', error);
+    }
   }
 
   private updateQuizStateService(): void {
