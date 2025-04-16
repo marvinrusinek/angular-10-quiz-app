@@ -2060,11 +2060,15 @@ export class QuizQuestionComponent
            !!this.sharedOptionConfig;
   }
 
-  public get canRenderFinalOptions(): boolean {
+  /* public get canRenderFinalOptions(): boolean {
     return this.renderReady &&
            this.shouldRenderFinalOptions &&
            this.optionBindings?.length > 0 &&
            !!this.sharedOptionConfig;
+  } */
+  private _canRenderFinalOptions = false;
+  get canRenderFinalOptions(): boolean {
+    return this._canRenderFinalOptions;
   }
 
   public shouldHideOptions(): boolean {
