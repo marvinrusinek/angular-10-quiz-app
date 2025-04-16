@@ -1514,10 +1514,10 @@ export class QuizQuestionComponent
       let isMultipleAnswer = false;
 
       try {
-        if (!question || typeof question !== 'object') {
-          console.warn('[⚠️ isMultipleAnswer] Invalid question object:', question);
+        if (!question || !('questionText' in question)) {
+          console.warn('[⚠️ isMultipleAnswer] Invalid question payload:', question);
           return;
-        }
+        }        
 
         console.log('[🔍 Calling isMultipleAnswerQuestion with question]', question);
 
