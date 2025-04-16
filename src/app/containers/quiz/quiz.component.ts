@@ -3722,8 +3722,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       setTimeout(() => this.shouldRenderOptions = true, 0);
 
       if (questionIndex === 5) {
-        console.log('[Q6 FINAL CHECK] this.question:', this.question?.questionText);
-        console.log('[Q6 FINAL CHECK] this.optionsToDisplay:', this.optionsToDisplay?.map(o => o.text));
+        console.log('[✅ Q6 RENDER-READY]', {
+          question: this.question,
+          options: this.optionsToDisplay
+        });
       }
       return true;
     } catch (error) {
