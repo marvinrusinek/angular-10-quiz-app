@@ -1685,12 +1685,9 @@ export class QuizQuestionComponent
         !!instance.sharedOptionConfig;
   
       if (isReady) {
-        this.shouldRenderOptions = true;
-  
-        setTimeout(() => {
-          componentRef.changeDetectorRef.detectChanges();
-          componentRef.changeDetectorRef.markForCheck();
-        }, 0);
+        this.shouldRenderOptions = true;        
+        componentRef.changeDetectorRef.detectChanges();
+        componentRef.changeDetectorRef.markForCheck();
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
           optionBindings: instance.optionBindings?.length,
