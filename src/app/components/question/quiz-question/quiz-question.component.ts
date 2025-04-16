@@ -1601,14 +1601,18 @@ export class QuizQuestionComponent
         instance.onOptionClicked = this.onOptionClicked.bind(this);
       }
 
-      this.shouldRenderOptions = true;
-
+      // Check readiness after setting all bindings/configs
       this.areOptionsReadyToRender =
         Array.isArray(instance.optionBindings) &&
         instance.optionBindings.length > 0 &&
         Array.isArray(instance.optionsToDisplay) &&
         instance.optionsToDisplay.length > 0 &&
         !!instance.sharedOptionConfig;
+
+      // Only then set render flag
+      if (this.areOptionsReadyToRender) {
+        this.shouldRenderOptions = true;
+      }
         
       // Extra trigger (safe duplicate for stability)
       componentRef.changeDetectorRef.detectChanges();
