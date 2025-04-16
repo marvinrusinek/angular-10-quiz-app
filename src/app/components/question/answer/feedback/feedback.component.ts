@@ -52,7 +52,7 @@ export class FeedbackComponent implements OnChanges {
     if (this.feedbackConfig) {
       const prefix = this.determineFeedbackPrefix();
       const feedbackBody = this.feedbackConfig.feedback?.trim() ?? '';
-      this.displayMessage = `${prefix}${feedbackBody}`;
+      this.displayMessage = `${this.determineFeedbackPrefix()}${this.feedbackConfig.feedback ?? ''}`;
     } else {
       this.displayMessage = '';
     }
