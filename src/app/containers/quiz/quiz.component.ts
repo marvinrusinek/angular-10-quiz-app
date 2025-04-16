@@ -442,7 +442,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  async loadQuestionContents(questionIndex: number): Promise<void> { 
+  async loadQuestionContents(questionIndex: number): Promise<QuizComponentData> { 
     try {
       this.isLoading = true;
       this.isQuestionDisplayed = false;
@@ -459,8 +459,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
 
+      let data: QuizComponentData;
+
       try {
-        type FetchedData = { question: QuizQuestion | null; options: Option[] | null; explanation: string | null };
+        type QuizComponentData = { 
+          question: QuizQuestion | null;
+          options: Option[] | null;
+          explanation: string | null
+        };
 
         const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
         const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
@@ -468,11 +474,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
           : of('');
 
-        const data: FetchedData = await lastValueFrom(
+        data = await lastValueFrom(
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
             catchError(error => {
               console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
-              return of({ question: null, options: [], explanation: '' } as FetchedData);
+              return of({ question: null, options: [], explanation: '' } as QuizComponentData);
             })
           )
         );
@@ -506,6 +512,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
         this.isLoading = false;
       }
+
+      return data;
     } catch (error) {
       console.error(`[QuizComponent] ❌ Unexpected error:`, error);
       this.isLoading = false;
