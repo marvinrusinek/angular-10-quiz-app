@@ -445,15 +445,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async loadQuestionContents(questionIndex: number): Promise<QuizComponentData> { 
     try {
+      // Prevent stale rendering
+      this.hasOptionsLoaded = false;
       this.isLoading = true;
       this.isQuestionDisplayed = false;
-      this.hasOptionsLoaded = false;
       this.isNextButtonEnabled = false;
 
       // Reset state before fetching new data
       this.optionsToDisplay = [];
-      this.questionData = null;
       this.explanationToDisplay = '';
+      this.questionData = null;
   
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
