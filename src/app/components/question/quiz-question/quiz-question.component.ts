@@ -16,6 +16,8 @@ import {
   Output,
   SimpleChange,
   SimpleChanges,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -77,6 +79,10 @@ export class QuizQuestionComponent
   extends BaseQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
+  //@ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
+  //dynamicAnswerContainer!: ViewContainerRef;
+  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
+  private vcRef!: ViewContainerRef;
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() answeredChange = new EventEmitter<boolean>();
@@ -245,6 +251,10 @@ export class QuizQuestionComponent
   selectionMessageSubscription: Subscription;
 
   containerInitialized = false;
+  private containerReady = new Subject<void>();
+
+  private _ready = new ReplaySubject<ViewContainerRef>(1);
+  get containerReady$(): Observable<ViewContainerRef> { return this._ready.asObservable(); }
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -368,6 +378,12 @@ export class QuizQuestionComponent
   } */
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+
+    this.containerReady.next();
+    this.containerReady.complete();
+
+    this._ready.next(this.vcRef);
+    this._ready.complete();
 
     const index = this.currentQuestionIndex;
 
@@ -1493,43 +1509,49 @@ export class QuizQuestionComponent
       question: question?.questionText,
       options: options?.map(o => o.text),
     });
-    
+  
     try {
       console.log('[🛠️ loadDynamicComponent CALLED]', {
         question: question?.questionText,
         options: options?.map(o => o.text)
-      });  
-        
+      });
+  
+      // ✅ Step 1: Guard – Missing question or options
       if (!question || !Array.isArray(options) || options.length === 0) {
-        console.warn('[⚠️ Early return A] Missing question or options', { question, optionsLength: options?.length });
+        console.warn('[⚠️ Early return A] Missing question or options', {
+          question: question ?? '[undefined]',
+          options,
+          optionsLength: options?.length
+        });
         return;
       }
-
+  
       console.log('[✅ Dynamic Load: Data Valid]');
   
+      // ✅ Step 1: Guard – Missing container
       if (!this.dynamicAnswerContainer) {
         console.warn('[⚠️ Early return B] dynamicAnswerContainer not available');
         return;
       }
   
-      this.shouldRenderFinalOptions = false; // reset early
+      this.shouldRenderFinalOptions = false;
   
       console.log('[🔍 Calling isMultipleAnswerQuestion]');
-
+  
       let isMultipleAnswer = false;
-
+  
       try {
         if (!question || !('questionText' in question)) {
           console.warn('[⚠️ Early return C] Invalid question object before isMultipleAnswer', question);
           return;
-        }        
-
+        }
+  
         console.log('[🔍 Calling isMultipleAnswerQuestion with question]', question);
-
+  
         isMultipleAnswer = await firstValueFrom(
           this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
         );
-
+  
         console.log('[✅ isMultipleAnswer]', isMultipleAnswer);
       } catch (err) {
         console.error('[❌ isMultipleAnswerQuestion failed]', err);
@@ -1538,25 +1560,24 @@ export class QuizQuestionComponent
       }
   
       this.dynamicAnswerContainer.clear();
-      await Promise.resolve(); // flush microtask queue
-
+      await Promise.resolve();
+  
       console.log('[📌 Calling dynamicComponentService.loadComponent]', {
         isMultipleAnswer
-      });      
+      });
   
-      const componentRef: ComponentRef<BaseQuestionComponent> = await this.dynamicComponentService.loadComponent(
-        this.dynamicAnswerContainer,
-        isMultipleAnswer
-      );
+      const componentRef: ComponentRef<BaseQuestionComponent> =
+        await this.dynamicComponentService.loadComponent(this.dynamicAnswerContainer, isMultipleAnswer);
+  
       if (!componentRef) {
         console.warn('[⚠️ Early return E] loadComponent returned undefined');
         return;
       }
-
+  
       console.log('[🔍 ComponentRef info]', {
         componentRefType: componentRef?.instance?.constructor?.name,
         isMultipleAnswer
-      });     
+      });
   
       const instance = componentRef.instance;
       if (!instance) {
@@ -1565,13 +1586,13 @@ export class QuizQuestionComponent
       }
   
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
-
+  
       console.log('[🛑 Assignment block reached]', {
         question: question?.questionText,
         optionsLength: clonedOptions?.length,
         instanceExists: !!instance
-      });      
-
+      });
+  
       console.log('[🧭 Reached assignment block entry point]');
   
       try {
@@ -1580,10 +1601,10 @@ export class QuizQuestionComponent
           questionValid: !!question,
           optionsLength: clonedOptions?.length
         });
-        
+  
         instance.question = { ...question };
         instance.optionsToDisplay = clonedOptions;
-      
+  
         console.log('[🧩 loadDynamicComponent ASSIGNED]', {
           instanceQuestion: instance.question?.questionText,
           instanceOptions: instance.optionsToDisplay?.map(o => o.text)
@@ -1652,14 +1673,14 @@ export class QuizQuestionComponent
         Array.isArray(instance.optionsToDisplay) &&
         instance.optionsToDisplay.length > 0 &&
         !!instance.sharedOptionConfig;
-
+  
       if (isReady) {
         this.shouldRenderOptions = true;
-
+  
         setTimeout(() => {
           componentRef.changeDetectorRef.detectChanges();
           componentRef.changeDetectorRef.markForCheck();
-        }, 0); // force Angular to wait a tick
+        }, 0);
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
           optionBindings: instance.optionBindings?.length,
@@ -1667,13 +1688,10 @@ export class QuizQuestionComponent
           config: !!instance.sharedOptionConfig
         });
       }
-
-      // ⛔ REMOVE duplicate detection
-      // componentRef.changeDetectorRef.detectChanges();
-      // componentRef.changeDetectorRef.markForCheck();
   
       this.sharedOptionConfig = undefined;
       instance.sharedOptionConfig = undefined;
+  
     } catch (error) {
       console.error('[❌ loadDynamicComponent] Failed to load component:', error);
     }
@@ -3056,7 +3074,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
 
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(
