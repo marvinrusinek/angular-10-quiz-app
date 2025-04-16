@@ -2986,12 +2986,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const prevIndex = currentIndex - 1;
-      this.currentQuestionIndex = prevIndex;
+      // this.currentQuestionIndex = prevIndex;
 
       const success = await this.navigateToQuestion(prevIndex);
       if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
-  
+        this.currentQuestionIndex = prevIndex;
       } else {
         console.warn('[❌] Navigation failed to Q' + prevIndex);
       }
