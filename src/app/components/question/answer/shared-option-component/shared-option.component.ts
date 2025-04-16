@@ -1081,8 +1081,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return config;
   } */
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
-    const isCorrect = !!option.correct;
-  
     const correctMessage = this.feedbackService.setCorrectMessage(
       this.optionsToDisplay?.filter(o => o.correct),
       this.optionsToDisplay
