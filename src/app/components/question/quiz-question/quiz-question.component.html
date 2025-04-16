@@ -6,12 +6,12 @@
     <div #dynamicAnswerContainer></div>
 
     <!-- Loading spinner -->
-    <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
-      <!-- Enable spinner -->
-    </div>
+    <!--<div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
+      Enable spinner
+    </div>-->
 
     <!-- Options content -->
-    <div *ngIf="canRenderFinalOptions" class="options-container">
+    <!--<div *ngIf="canRenderFinalOptions" class="options-container">
       <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
         <app-shared-option
           *ngIf="sharedOptionConfig"
@@ -25,7 +25,7 @@
           (feedbackApplied)="updateFeedbackState($event)"
         ></app-shared-option>
       </div>
-    </div>
+    </div>-->
     </form>
   </div>
 </ng-container>
