@@ -295,10 +295,11 @@ export class QuizQuestionComponent
       cdRef
     );
 
-    this.canRenderFinalOptions = this.renderReady &&
-                              this.shouldRenderFinalOptions &&
-                              this.optionBindings?.length > 0 &&
-                              !!this.sharedOptionConfig;
+    this.canRenderFinalOptions = 
+      this.renderReady &&
+      this.shouldRenderFinalOptions &&
+      this.optionBindings?.length > 0 &&
+      !!this.sharedOptionConfig;
   }
 
   async ngOnInit(): Promise<void> {
