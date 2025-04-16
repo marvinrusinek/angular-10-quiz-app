@@ -3601,10 +3601,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
-    console.log('[✅ FETCH COMPLETE]', {
-      question: this.question?.questionText,
-      options: this.optionsToDisplay?.map(o => o.text),
-    });
     console.log(`[🔥 fetchAndSetQuestionData] Q${questionIndex} init`);
 
     // Reset loading state for options
@@ -3684,8 +3680,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         options: clonedOptions,
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };  
-      this.optionsToDisplay = [...clonedOptions];    
       this.currentQuestion = { ...this.question };
+      this.optionsToDisplay = [...clonedOptions];    
+
+      console.log('[✅ FETCH COMPLETE]', {
+        question: this.question?.questionText,
+        options: this.optionsToDisplay?.map(o => o.text),
+      });      
   
       console.log(`[✅ Q${questionIndex}]`, {
         text: this.question.questionText,

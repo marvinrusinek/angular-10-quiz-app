@@ -1562,6 +1562,12 @@ export class QuizQuestionComponent
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
   
       try {
+        console.log('[⚠️ Before assignment]', {
+          instanceExists: !!instance,
+          questionValid: !!question,
+          optionsLength: clonedOptions?.length
+        });
+        
         instance.question = { ...question };
         instance.optionsToDisplay = clonedOptions;
       
