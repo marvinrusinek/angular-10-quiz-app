@@ -1534,7 +1534,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      this.shouldRenderFinalOptions = false;
+      // this.shouldRenderFinalOptions = false;
   
       console.log('[🔍 Calling isMultipleAnswerQuestion]');
   
@@ -1661,7 +1661,7 @@ export class QuizQuestionComponent
         idx: this.currentQuestionIndex
       };
 
-      this.questionData = { ...this.currentQuestion };
+      this.questionData = { ...instance.question, options: clonedOptions };
       this.sharedOptionConfig = instance.sharedOptionConfig;
       this.cdRef.markForCheck();
 
@@ -1695,10 +1695,6 @@ export class QuizQuestionComponent
           config: !!instance.sharedOptionConfig
         });
       }
-  
-      this.sharedOptionConfig = undefined;
-      instance.sharedOptionConfig = undefined;
-  
     } catch (error) {
       console.error('[❌ loadDynamicComponent] Failed to load component:', error);
     }
