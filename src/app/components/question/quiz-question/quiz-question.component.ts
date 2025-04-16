@@ -204,6 +204,7 @@ export class QuizQuestionComponent
   shouldRenderFinalOptions = false;
   areOptionsReadyToRender = false;
   renderReady = false;
+  canRenderFinalOptions: boolean;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
@@ -293,6 +294,11 @@ export class QuizQuestionComponent
       selectedOptionService,
       cdRef
     );
+
+    this.canRenderFinalOptions = this.renderReady &&
+                              this.shouldRenderFinalOptions &&
+                              this.optionBindings?.length > 0 &&
+                              !!this.sharedOptionConfig;
   }
 
   async ngOnInit(): Promise<void> {
