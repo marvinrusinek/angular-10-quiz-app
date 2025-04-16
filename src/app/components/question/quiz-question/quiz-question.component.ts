@@ -1490,10 +1490,10 @@ export class QuizQuestionComponent
 
   async loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void> {
     try {
-      console.log('[loadDynamicComponent]', {
+      console.log('[🛠️ loadDynamicComponent CALLED]', {
         question: question?.questionText,
         options: options?.map(o => o.text)
-      });
+      });      
   
       if (!question || !Array.isArray(options) || options.length === 0) {
         console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
@@ -1529,6 +1529,11 @@ export class QuizQuestionComponent
   
       instance.question = { ...question };
       instance.optionsToDisplay = clonedOptions;
+
+      console.log('[🧩 loadDynamicComponent ASSIGNED]', {
+        instanceQuestion: instance.question?.questionText,
+        instanceOptions: instance.optionsToDisplay?.map(o => o.text)
+      });      
   
       instance.optionBindings = clonedOptions.map((opt, idx) => ({
         appHighlightOption: false,
