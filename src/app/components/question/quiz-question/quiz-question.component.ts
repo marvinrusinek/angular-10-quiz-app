@@ -1604,11 +1604,11 @@ export class QuizQuestionComponent
       this.shouldRenderOptions = true;
 
       this.areOptionsReadyToRender =
-        Array.isArray(this.optionBindings) &&
-        this.optionBindings.length > 0 &&
-        Array.isArray(this.optionsToDisplay) &&
-        this.optionsToDisplay.length > 0 &&
-        !!this.sharedOptionConfig;
+        Array.isArray(instance.optionBindings) &&
+        instance.optionBindings.length > 0 &&
+        Array.isArray(instance.optionsToDisplay) &&
+        instance.optionsToDisplay.length > 0 &&
+        !!instance.sharedOptionConfig;
         
       // Extra trigger (safe duplicate for stability)
       componentRef.changeDetectorRef.detectChanges();
