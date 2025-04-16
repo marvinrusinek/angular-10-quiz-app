@@ -1527,13 +1527,20 @@ export class QuizQuestionComponent
   
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
   
-      instance.question = { ...question };
-      instance.optionsToDisplay = clonedOptions;
-
-      console.log('[🧩 loadDynamicComponent ASSIGNED]', {
-        instanceQuestion: instance.question?.questionText,
-        instanceOptions: instance.optionsToDisplay?.map(o => o.text)
-      });      
+      try {
+        instance.question = { ...question };
+        instance.optionsToDisplay = clonedOptions;
+      
+        console.log('[🧩 loadDynamicComponent ASSIGNED]', {
+          instanceQuestion: instance.question?.questionText,
+          instanceOptions: instance.optionsToDisplay?.map(o => o.text)
+        });
+      } catch (error) {
+        console.error('[❌ Assignment failed in loadDynamicComponent]', error, {
+          question,
+          options: clonedOptions
+        });
+      }
   
       instance.optionBindings = clonedOptions.map((opt, idx) => ({
         appHighlightOption: false,
