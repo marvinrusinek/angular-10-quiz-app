@@ -137,7 +137,6 @@ export class QuizQuestionComponent
   @Input() selectionMessage: string;
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
-  @Input() shouldRenderOptions = false;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -201,6 +200,7 @@ export class QuizQuestionComponent
   displayExplanation = false;
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
+  shouldRenderOptions = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
@@ -1599,6 +1599,8 @@ export class QuizQuestionComponent
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
       }
+
+      this.shouldRenderOptions = true;
   
       // Extra trigger (safe duplicate for stability)
       componentRef.changeDetectorRef.detectChanges();

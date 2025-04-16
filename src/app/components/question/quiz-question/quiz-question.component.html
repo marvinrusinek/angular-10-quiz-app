@@ -11,7 +11,7 @@
     </div>
 
     <!-- Options content -->
-    <div *ngIf="shouldDisplayOptions" class="options-container">
+    <div *ngIf="shouldDisplayOptions && optionsToDisplay?.length > 0 && optionBindings?.length > 0" class="options-container">
       <div *ngFor="let optionBinding of optionBindings; trackBy: trackByOption">
         <app-shared-option
           *ngIf="sharedOptionConfig"
@@ -26,7 +26,6 @@
         ></app-shared-option>
       </div>
     </div>
-
   </form>
 </div>
 </ng-container>
