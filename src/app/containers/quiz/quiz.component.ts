@@ -3904,6 +3904,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
       return false;
     }
+
+    await this.injectDynamicComponent();
   
     if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
@@ -3916,7 +3918,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
     // Inject dynamic component with retry fallback
-    const tryInjectComponent = () => {
+    /* const tryInjectComponent = () => {
       if (
         this.quizQuestionComponent &&
         this.currentQuestion?.questionText &&
@@ -3984,7 +3986,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       queueMicrotask(tryInjectComponent);
     } else {
       tryInjectComponent();
-    }
+    } */
   
     // Log current assignment
     console.log('[📦 Dynamic Injection Data]', {
@@ -4004,6 +4006,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log(`[✅ navigateToQuestion] Successfully displaying Q${questionIndex}`);
     return true;
   }
+
+  /**
+ * Inject the answer component after the child’s ViewContainerRef exists.
+ * Never called twice for the same question.
+ */
+  private async injectDynamicComponent(): Promise<void> {
+    if (!this.quizQuestionComponent) {
+      console.warn('[injectDynamicComponent] child component not yet created');  // should never happen
+      return;
+    }
+
+    // Wait until the VCRef is ready
+    const vc = await firstValueFrom(this.quizQuestionComponent.containerReady$);
+
+    // Clear any previous instance
+    vc.clear();
+
+    // Do the injection
+    this.quizQuestionComponent.loadDynamicComponent(
+      this.currentQuestion!,          // guaranteed by fetch step
+      this.optionsToDisplay!
+    );
+  }
+
 
   // Reset UI immediately before navigating
   private resetUI(): void {
