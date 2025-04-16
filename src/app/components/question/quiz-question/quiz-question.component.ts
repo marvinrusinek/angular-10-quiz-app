@@ -201,6 +201,7 @@ export class QuizQuestionComponent
   sharedOptionConfig: SharedOptionConfig;
   shouldRenderComponent = false;
   shouldRenderOptions = false;
+  areOptionsReadyToRender = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
@@ -1601,7 +1602,14 @@ export class QuizQuestionComponent
       }
 
       this.shouldRenderOptions = true;
-  
+
+      this.areOptionsReadyToRender =
+        Array.isArray(this.optionBindings) &&
+        this.optionBindings.length > 0 &&
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0 &&
+        !!this.sharedOptionConfig;
+        
       // Extra trigger (safe duplicate for stability)
       componentRef.changeDetectorRef.detectChanges();
       componentRef.changeDetectorRef.markForCheck();
