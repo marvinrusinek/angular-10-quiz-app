@@ -31,6 +31,7 @@
           [currentQuestionIndex]="currentQuestionIndex"
           [explanationToDisplay]="explanationToDisplay"
           [displayState$]="displayState$"
+          [shouldRenderOptions]="shouldRenderOptions"
           (answer)="selectedAnswer($event)"
           (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           (feedbackTextChange)="feedbackText = $event"

@@ -137,6 +137,7 @@ export class QuizQuestionComponent
   @Input() selectionMessage: string;
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
+  @Input() shouldRenderOptions = false;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
