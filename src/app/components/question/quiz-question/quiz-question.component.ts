@@ -1489,6 +1489,11 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void> {
+    console.log('[🛠️ loadDynamicComponent START]', {
+      question: question?.questionText,
+      options: options?.map(o => o.text),
+    });
+    
     try {
       console.log('[🛠️ loadDynamicComponent CALLED]', {
         question: question?.questionText,

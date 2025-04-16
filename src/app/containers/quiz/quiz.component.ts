@@ -3601,6 +3601,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log('[✅ FETCH COMPLETE]', {
+      question: this.question?.questionText,
+      options: this.optionsToDisplay?.map(o => o.text),
+    });
     console.log(`[🔥 fetchAndSetQuestionData] Q${questionIndex} init`);
 
     // Reset loading state for options
@@ -3862,6 +3866,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log('[🔄 NAVIGATING]', { questionIndex });
     console.log('[Q6 CHECKPOINT]', {
       questionIndex,
       questionText: this.question?.questionText,
