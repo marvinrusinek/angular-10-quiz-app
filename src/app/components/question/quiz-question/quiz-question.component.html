@@ -1,11 +1,13 @@
 <ng-container *ngIf="shouldRenderComponent">
+<div style="min-height: 400px;"> <!-- Adjust this height as needed -->
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+
     <!-- Dynamic component container -->
     <ng-container #dynamicAnswerContainer></ng-container>
 
     <!-- Loading spinner -->
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
-      <!--<mat-progress-spinner mode="indeterminate"></mat-progress-spinner>-->
+      <!-- You can re-enable spinner -->
     </div>
 
     <!-- Options content -->
@@ -24,5 +26,7 @@
         ></app-shared-option>
       </div>
     </div>
+
   </form>
+</div>
 </ng-container>
