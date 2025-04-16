@@ -3874,7 +3874,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       optionsToDisplay: this.optionsToDisplay?.map(o => o.text),
       currentQuestion: this.currentQuestion?.questionText
     });
-    
+  
     // Bounds check
     if (
       typeof questionIndex !== 'number' ||
@@ -3904,7 +3904,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
       return false;
     }
-
+  
     if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
         question: this.question,
@@ -3915,46 +3915,75 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.log('[Q6 DEBUG] this.quizQuestionComponent exists:', !!this.quizQuestionComponent);
   
-    // Inject dynamic component if inputs are ready
-    if (
-      this.quizQuestionComponent &&
-      this.currentQuestion?.questionText &&
-      Array.isArray(this.optionsToDisplay) &&
-      this.optionsToDisplay.length > 0
-    ) {
-      this.quizQuestionComponent.containerInitialized = false;
-      this.quizQuestionComponent.sharedOptionConfig = undefined;
-      this.quizQuestionComponent.shouldRenderFinalOptions = false;
+    // Inject dynamic component with retry fallback
+    const tryInjectComponent = () => {
+      if (
+        this.quizQuestionComponent &&
+        this.currentQuestion?.questionText &&
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0
+      ) {
+        this.quizQuestionComponent.containerInitialized = false;
+        this.quizQuestionComponent.sharedOptionConfig = undefined;
+        this.quizQuestionComponent.shouldRenderFinalOptions = false;
   
-      console.log('[Q6 LOAD TRIGGER]', {
-        question: this.currentQuestion.questionText,
-        optionsToDisplay: this.optionsToDisplay.map(o => o.text)
-      });
-  
-      /* this.quizQuestionComponent.loadDynamicComponent(
-        this.currentQuestion,
-        this.optionsToDisplay
-      ); */
-      // Check if the previous question was a multiple-answer
-      const prevQuestion = await this.quizService.getPreviousQuestion(questionIndex);
-      const isPreviousMultiple = prevQuestion
-        ? await this.quizQuestionManagerService.isMultipleAnswerQuestion(prevQuestion)
-        : false;
-
-      if (isPreviousMultiple) {
-        console.log('[⏳ Delaying injection after multiple-answer question]');
-        queueMicrotask(() => {
-          this.quizQuestionComponent?.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+        console.log('[Q6 LOAD TRIGGER]', {
+          question: this.currentQuestion.questionText,
+          optionsToDisplay: this.optionsToDisplay.map(o => o.text)
         });
+  
+        this.quizQuestionComponent.loadDynamicComponent(
+          this.currentQuestion,
+          this.optionsToDisplay
+        );
+  
+        this.cdRef.detectChanges();
       } else {
-        this.quizQuestionComponent?.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+        console.warn('[🚫 Dynamic Injection Skipped] Component or data not ready. Retrying in 50ms...', {
+          component: !!this.quizQuestionComponent,
+          questionText: this.currentQuestion?.questionText,
+          optionsLength: this.optionsToDisplay?.length
+        });
+  
+        setTimeout(() => {
+          if (
+            this.quizQuestionComponent &&
+            this.currentQuestion?.questionText &&
+            this.optionsToDisplay?.length > 0
+          ) {
+            console.log('[🔁 Retry: Injecting after delay]');
+            this.quizQuestionComponent.containerInitialized = false;
+            this.quizQuestionComponent.sharedOptionConfig = undefined;
+            this.quizQuestionComponent.shouldRenderFinalOptions = false;
+  
+            this.quizQuestionComponent.loadDynamicComponent(
+              this.currentQuestion,
+              this.optionsToDisplay
+            );
+  
+            this.cdRef.detectChanges();
+          } else {
+            console.error('[❌ Retry failed: QuizQuestionComponent still not ready]', {
+              component: !!this.quizQuestionComponent,
+              questionText: this.currentQuestion?.questionText,
+              optionsLength: this.optionsToDisplay?.length
+            });
+          }
+        }, 50);
       }
+    };
+  
+    // Determine if previous question was multiple-answer and delay if needed
+    const prevQuestion = await this.quizService.getPreviousQuestion(questionIndex);
+    const isPreviousMultiple = prevQuestion
+      ? await this.quizQuestionManagerService.isMultipleAnswerQuestion(prevQuestion)
+      : false;
+  
+    if (isPreviousMultiple) {
+      console.log('[⏳ Delaying injection after multiple-answer question]');
+      queueMicrotask(tryInjectComponent);
     } else {
-      console.warn('[🚫 Dynamic Injection Skipped] Component or data not ready.', {
-        component: !!this.quizQuestionComponent,
-        questionText: this.currentQuestion?.questionText,
-        optionsLength: this.optionsToDisplay?.length
-      });
+      tryInjectComponent();
     }
   
     // Log current assignment
