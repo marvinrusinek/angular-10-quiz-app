@@ -1501,6 +1501,14 @@ export class QuizQuestionComponent
       });  
         
       if (!question || !Array.isArray(options) || options.length === 0) {
+        console.warn('[⚠️ Early exit triggered — reason below]', {
+          isQuestionValid: !!question,
+          questionText: question?.questionText,
+          areOptionsValid: Array.isArray(options),
+          optionsLength: options?.length,
+          optionsPreview: options?.map?.(o => o.text)
+        });
+      
         console.warn('[🚫 Dynamic Load] Missing question or options — skipping component injection.');
         return;
       }
