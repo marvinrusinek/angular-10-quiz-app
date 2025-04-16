@@ -1581,28 +1581,28 @@ export class QuizQuestionComponent
         instance.onOptionClicked = this.onOptionClicked.bind(this);
       }
   
-      const bindingsReady = Array.isArray(instance.optionBindings) && instance.optionBindings.length > 0;
-      const optionsReady = Array.isArray(instance.optionsToDisplay) && instance.optionsToDisplay.length > 0;
-      const configReady = !!instance.sharedOptionConfig;
-  
-      if (bindingsReady && optionsReady && configReady) {
-        console.log('[✅ Ready for Render]');
-        this.shouldRenderFinalOptions = true;
-        this.cdRef.detectChanges(); // ✅ Only ONE detectChanges here
+      const isReady =
+        Array.isArray(instance.optionBindings) &&
+        instance.optionBindings.length > 0 &&
+        Array.isArray(instance.optionsToDisplay) &&
+        instance.optionsToDisplay.length > 0 &&
+        !!instance.sharedOptionConfig;
+
+      if (isReady) {
+        this.shouldRenderOptions = true;
+
+        setTimeout(() => {
+          componentRef.changeDetectorRef.detectChanges();
+          componentRef.changeDetectorRef.markForCheck();
+        }, 0); // force Angular to wait a tick
       } else {
-        console.warn('[⚠️ Skipped render: Incomplete state]', {
-          bindingsReady,
-          optionsReady,
-          configReady
+        console.warn('[⚠️ Skipping render — not fully ready]', {
+          optionBindings: instance.optionBindings?.length,
+          options: instance.optionsToDisplay?.length,
+          config: !!instance.sharedOptionConfig
         });
       }
 
-      this.renderReady = true;
-
-      setTimeout(() => {
-        componentRef.changeDetectorRef.detectChanges();
-        componentRef.changeDetectorRef.markForCheck();
-      }, 0); // Delay ensures DOM is not painted mid-binding
       // ⛔ REMOVE duplicate detection
       // componentRef.changeDetectorRef.detectChanges();
       // componentRef.changeDetectorRef.markForCheck();
