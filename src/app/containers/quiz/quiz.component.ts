@@ -3897,22 +3897,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.optionsToDisplay
       );
     
-      // Check fallback after load
-      setTimeout(() => {
-        const options = this.quizQuestionComponent?.optionsToDisplay;
-        if (!options || options.length === 0) {
-          console.warn('[🔁 Fallback] Re-invoking loadDynamicComponent due to empty options.');
-          this.quizQuestionComponent.containerInitialized = false;
-          this.quizQuestionComponent.loadDynamicComponent(
-            this.currentQuestion,
-            this.optionsToDisplay
-          );
+      // ✅ Fallback retry logic — only once and only if options are empty
+      let retryTimeout = setTimeout(() => {
+        const instance = this.quizQuestionComponent;
+        const hasValidOptions =
+          instance?.optionsToDisplay && instance.optionsToDisplay.length > 0;
+    
+        if (!hasValidOptions && !instance?.containerInitialized) {
+          console.warn('[🔁 Fallback] Retrying loadDynamicComponent due to empty options');
+    
+          instance.containerInitialized = false;
+          instance.sharedOptionConfig = undefined;
+          instance.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
         }
+    
+        clearTimeout(retryTimeout);
     
         this.ngZone.run(() => {
           this.cdRef.detectChanges();
         });
-      }, 25); // slight buffer to allow previous load to complete
+      }, 30); // buffer slightly longer than microtask
     });
   
     // Log current assignment
