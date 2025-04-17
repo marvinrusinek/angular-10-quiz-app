@@ -52,7 +52,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionBindings: OptionBindings[];
   optionsInitialized = false;
-  private containerInitialized = false;
+  protected containerInitialized = false;
   private initializedOnce = false;
 
   constructor(
@@ -75,22 +75,18 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.question) {
       const newQuestion = changes.question.currentValue;
-      console.log('[🧩 BQC ngOnChanges] New question:', newQuestion?.questionText);
-  
       if (!newQuestion || !Array.isArray(newQuestion.options) || newQuestion.options.length === 0) {
         console.warn('[⏳ ngOnChanges] Question or options not ready. Will retry...');
         setTimeout(() => this.ngOnChanges(changes), 50); // retry once after delay
         return;
       }
   
-      console.log('[✅ ngOnChanges] Q ready:', newQuestion.questionText);
       this.handleQuestionChange(changes.question);
       this.initializeQuestionIfAvailable();
       await this.initializeSharedOptionConfig();
     }
   
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
-      console.log('[🧩 BQC ngOnChanges] optionsToDisplay:', changes.optionsToDisplay.currentValue);
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
     }
   }
