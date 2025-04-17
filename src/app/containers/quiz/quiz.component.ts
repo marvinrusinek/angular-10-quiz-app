@@ -1841,7 +1841,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizId = quizId;
           this.currentQuestionIndex = internalIndex;
   
-          // 👇 MUST return { quizData, questionIndex }
+          // MUST return { quizData, questionIndex }
           return this.handleRouteParams(params).pipe(
             catchError((error: Error) => {
               console.error('[Route Init] ❌ Error in handleRouteParams:', error);
