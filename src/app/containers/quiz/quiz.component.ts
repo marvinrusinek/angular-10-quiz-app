@@ -3175,6 +3175,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isLoading = true;
   
     try {
+      /* ──────────────────────────  Safety Checks  ────────────────────────── */
       if (
         typeof questionIndex !== 'number' ||
         isNaN(questionIndex) ||
@@ -3184,12 +3185,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-  
       if (questionIndex === this.totalQuestions - 1) {
         console.log(`[🔚 Last Question] Q${questionIndex}`);
       }
   
-      // Reset all state
+      /* ─────────────────────────  Reset Local State  ────────────────────── */
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
   
@@ -3200,67 +3200,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
   
-      // Fetch the question
-      const fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
+      /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
+      const quizId = this.quizService.getCurrentQuizId();
+      const [fetchedQuestion, fetchedOptions] = await Promise.all([
+        this.fetchQuestionDetails(questionIndex),
+        firstValueFrom(this.quizService.getCurrentOptions(questionIndex)) 
+      ]);
   
-      if (!fetchedQuestion || !fetchedQuestion.questionText?.trim()) {
-        console.error(`[❌ Q${questionIndex}] Invalid or missing question text`);
+      if (!fetchedQuestion || !fetchedQuestion.questionText?.trim() || !fetchedOptions?.length) {
+        console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
-  
-      const trimmedText = fetchedQuestion.questionText.trim();
+      
+      /* ───────────────────  Post-fetch processing (unchanged)  ──────────── */
+      const trimmedText   = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
   
-      // Handle options
-      let rawOptions = fetchedQuestion.options;
-  
-      if (!Array.isArray(rawOptions) || rawOptions.length === 0) {
-        console.warn(`[⚠️ Q${questionIndex}] Options missing, attempting fallback`);
-        try {
-          const fallback = await firstValueFrom(
-            this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
-          ) as Option[];
-          rawOptions = fallback ?? [];
-        } catch (err) {
-          console.error(`[❌ Fallback options failed for Q${questionIndex}]`, err);
-          return false;
-        }
-      }
-  
-      const hydratedOptions = rawOptions.map((opt, idx) => ({
+      const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
         feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
   
-      const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
-      const clonedOptions = structuredClone?.(finalOptions) ?? JSON.parse(JSON.stringify(finalOptions));
+      const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions,false);
+      const clonedOptions = structuredClone?.(finalOptions) 
+                          ?? JSON.parse(JSON.stringify(finalOptions));
   
-      // Use fetchedQuestion here — NOT an undefined 'question'
       this.question = {
         questionText: fetchedQuestion.questionText,
         explanation: fetchedQuestion.explanation ?? '',
         options: clonedOptions,
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
-      };  
+      };
       this.currentQuestion = { ...this.question };
-      this.optionsToDisplay = [...clonedOptions];    
-
-      // Explanation logic
+      this.optionsToDisplay = [...clonedOptions];
+  
+      /* ───────────  Explanation / Timer / Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
   
       if (isAnswered) {
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
-        this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
+        this.explanationTextService.setExplanationTextForQuestionIndex(
+          questionIndex,
+          explanationText
+        );
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       }
   
-      // Final assignments
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
-      this.currentQuestion = { ...this.question };
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
   
@@ -3278,8 +3268,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
-
-      setTimeout(() => this.shouldRenderOptions = true, 0);
+  
+      // Allow template to render options
+      queueMicrotask(() => (this.shouldRenderOptions = true));
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
