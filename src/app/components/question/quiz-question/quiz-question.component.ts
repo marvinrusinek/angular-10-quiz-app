@@ -2,10 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy,
   ChangeDetectorRef, Component, ComponentRef,
   ComponentFactoryResolver, ElementRef,
   EventEmitter, HostListener, Input,
-  NgZone, OnChanges,
-  OnDestroy, OnInit, Output,
-  SimpleChange, SimpleChanges,
-  ViewChild, ViewContainerRef
+  NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -23,6 +20,7 @@ import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { Option } from '../../../shared/models/Option.model';
+import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuestionState } from '../../../shared/models/QuestionState.model';
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -47,7 +45,7 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent
   extends BaseQuestionComponent
@@ -89,17 +87,15 @@ export class QuizQuestionComponent
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
   @Input() data: {
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    options: Option[];
+    questionText: string,
+    explanationText?: string,
+    correctAnswersText?: string,
+    options: Option[]
   };
   @Input() questionData!: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
-  @Input() questions$: Observable<QuizQuestion[]> = new Observable<
-    QuizQuestion[]
-  >();
+  @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   @Input() options!: Option[];
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
@@ -125,16 +121,15 @@ export class QuizQuestionComponent
   questionRenderComplete = new EventEmitter<void>();
   questionToDisplay = '';
   private lastProcessedQuestionIndex: number | null = null;
-  private _lockedCurrentIndex!: number;
   explanationsCache: { [index: number]: string } = {};
   explanationsMap: { [index: number]: string } = {};
   fixedQuestionIndex = 0;
 
   combinedQuestionData$: Subject<{
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    currentOptions: Option[];
+    questionText: string,
+    explanationText?: string,
+    correctAnswersText?: string,
+    currentOptions: Option[]
   }> = new Subject();
 
   selectedOption: SelectedOption | null = null;
@@ -151,7 +146,7 @@ export class QuizQuestionComponent
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  optionBindings: Option[] = [];
+  optionBindings: OptionBindings[] = [];
   feedbackIcon: string;
   feedbackVisible: { [optionId: number]: boolean } = {};
   showFeedbackForOption: { [optionId: number]: boolean } = {};
