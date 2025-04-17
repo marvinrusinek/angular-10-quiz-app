@@ -316,7 +316,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   initializeFromConfig(): void {
-    /* ---- FULL RESET ─ clear bindings / selection / flags ---- */
+    // Full reset ─- clear bindings, selection, flags
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -328,7 +328,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.currentQuestion = null;
     this.optionsToDisplay = [];
 
-    /* ---- GUARD ─ config or options missing ---- */
+    // GUARD ─ config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
@@ -336,12 +336,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.currentQuestion = this.config.currentQuestion;
     this.optionsToDisplay = [...this.config.optionsToDisplay];
 
-    // GENERATE/PATCH FEEDBACK FOR EVERY OPTION
+    // Generate/patch feedback for every option
     const correctOpts = this.optionsToDisplay.filter(o => o.correct);
     const fallbackFeedback =
       this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
 
-    // Ensure IDs / flags / feedback are present on every option
+    // Ensure IDs/flags/feedback are present on every option
     this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
@@ -515,7 +515,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         // Add a small timeout to let the browser finish rendering before detecting changes
         requestAnimationFrame(() => {
           setTimeout(() => {
-            this.cdRef.detectChanges(); // Ensure UI reflects the changes
+            this.cdRef.detectChanges(); // ensure UI reflects the changes
           }, 0);
         });
       } catch (error) {
@@ -578,10 +578,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       for (const opt of this.currentQuestion.options) {
         if (!opt.correct) {
-          opt.active = false; // Deactivate incorrect options
-          opt.highlight = true; // Highlight as greyed-out
+          opt.active = false; // deactivate incorrect options
+          opt.highlight = true; // highlight as greyed-out
         } else {
-          opt.active = true; // Ensure correct options remain active
+          opt.active = true; // ensure correct options remain active
         }
       }
     } else {
@@ -599,7 +599,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   private updateFeedbackState(optionId: number): void {
     if (!this.showFeedbackForOption) {
-      this.showFeedbackForOption = {}; // Ensure initialization
+      this.showFeedbackForOption = {}; // ensure initialization
     }
   
     this.showFeedback = true;
@@ -612,27 +612,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     element._elementRef.nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
   }
 
-  /* private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
-    const questionIndex = this.quizService.getCurrentQuestionIndex(); // ✅ Always retrieve from QuizService
-
-    if (!optionBinding || !optionBinding.option) {
-      console.error(`[SharedOptionComponent] ❌ Attempted to emit optionSelected event but optionBinding or option is undefined.`);
-      return;
-    }
-
-    console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected event for Q${questionIndex}...`);
-    console.log(`[SharedOptionComponent] 🟢 Emitting option ID: ${optionBinding.option.optionId}`);
-    console.log(`[SharedOptionComponent] 🟢 Option Data:`, optionBinding.option);
-    console.log(`[SharedOptionComponent] 🟢 Event Data: { index: ${index}, checked: ${checked} }`);
-
-    const eventData = {
-      option: optionBinding.option,
-      index: index,
-      checked: checked
-    };
-
-    this.optionSelected.emit(eventData);
-  } */
   private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
     const questionIndex = this.quizService.getCurrentQuestionIndex();
   
@@ -650,7 +629,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected:`, eventData);
     this.optionSelected.emit(eventData);
-  }  
+  }
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
     this.updateHighlighting();
