@@ -177,6 +177,7 @@ export class QuizQuestionComponent
   shouldRenderFinalOptions = false;
   areOptionsReadyToRender = false;
   renderReady = false;
+  private _canRenderFinalOptions = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
@@ -198,11 +199,11 @@ export class QuizQuestionComponent
   private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
 
   private displayStateSubject = new BehaviorSubject<{
-    mode: 'question' | 'explanation';
-    answered: boolean;
+    mode: 'question' | 'explanation',
+    answered: boolean
   }>({
     mode: 'question',
-    answered: false,
+    answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
 
@@ -219,7 +220,6 @@ export class QuizQuestionComponent
   private containerReady = new Subject<void>();
 
   private _ready = new ReplaySubject<ViewContainerRef>(1);
-  get containerReady$(): Observable<ViewContainerRef> { return this._ready.asObservable(); }
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -1959,6 +1959,14 @@ export class QuizQuestionComponent
     return option.optionId || index;
   }
 
+  public get canRenderFinalOptions(): boolean {
+    return this._canRenderFinalOptions;
+  }
+
+  public get containerReady$(): Observable<ViewContainerRef> {
+    return this._ready.asObservable();
+  }
+
   public get shouldDisplayTextContent(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
   }
@@ -1967,17 +1975,6 @@ export class QuizQuestionComponent
     return Array.isArray(this.questionData?.options) &&
            this.questionData.options.length > 0 &&
            !!this.sharedOptionConfig;
-  }
-
-  /* public get canRenderFinalOptions(): boolean {
-    return this.renderReady &&
-           this.shouldRenderFinalOptions &&
-           this.optionBindings?.length > 0 &&
-           !!this.sharedOptionConfig;
-  } */
-  private _canRenderFinalOptions = false;
-  get canRenderFinalOptions(): boolean {
-    return this._canRenderFinalOptions;
   }
 
   public shouldHideOptions(): boolean {
