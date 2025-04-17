@@ -3211,7 +3211,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
-      
+
       /* ───────────────────  Post-fetch processing (unchanged)  ──────────── */
       const trimmedText   = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
@@ -3224,7 +3224,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
   
-      const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions,false);
+      const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
       const clonedOptions = structuredClone?.(finalOptions) 
                           ?? JSON.parse(JSON.stringify(finalOptions));
   
