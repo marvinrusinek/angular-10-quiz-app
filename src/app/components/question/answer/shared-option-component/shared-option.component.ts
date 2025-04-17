@@ -315,59 +315,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }  
   }
   
-  /* initializeFromConfig(): void {
-    this.optionBindings = [];
-    this.currentQuestion = null;
-    this.optionsToDisplay = [];
-
-    if (!this.config || !this.config.optionsToDisplay?.length) {
-      console.warn('[🧩 initializeFromConfig] Config missing or empty.');
-      return;
-    }
-  
-    this.currentQuestion = this.config.currentQuestion;
-
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.error('[Q6 Error] No optionsToDisplay in SharedOptionComponent!');
-    }    
-
-    if (!Array.isArray(this.config.optionsToDisplay) || this.config.optionsToDisplay.length === 0) {
-      console.warn('[⚠️ SharedOptionComponent] No options in config.optionsToDisplay');
-    } else {
-      this.optionsToDisplay = [...this.config.optionsToDisplay];
-      console.log('[✅ SharedOptionComponent] optionsToDisplay set:', this.optionsToDisplay);
-    }
-  
-    // Generate feedback once before bindings
-    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
-  
-    // Assign feedback to each option BEFORE binding
-    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
-      ...opt,
-      optionId: opt.optionId ?? idx,
-      feedback: opt.feedback ?? feedbackMessage,
-      correct: opt.correct ?? false
-    }));
-  
-    // Now initialize bindings with proper feedback and IDs
-    this.initializeOptionBindings();
-  
-    const questionType = this.currentQuestion?.type || QuestionType.SingleAnswer;
-    this.type = this.convertQuestionType(questionType);
-  
-    this.showFeedback = this.config.showFeedback || false;
-    this.showFeedbackForOption = this.config.showFeedbackForOption || {};
-    this.correctMessage = this.config.correctMessage || '';
-    this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
-    this.shouldResetBackground = this.config.shouldResetBackground || false;
-  
-    this.initializeFeedbackBindings();
-  
-    console.log('✅ SharedOptionComponent initialized with config:', this.config);
-  } */
   initializeFromConfig(): void {
-    // 🔁 Forcefully reset bindings and selection states
+    /* ---- FULL RESET ─ clear bindings / selection / flags ---- */
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -376,24 +325,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedback = false;
     this.shouldResetBackground = false;
     this.optionsRestored = false;
-  
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-  
+
+    /* ---- GUARD ─ config or options missing ---- */
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
-  
     this.currentQuestion = this.config.currentQuestion;
     this.optionsToDisplay = [...this.config.optionsToDisplay];
 
-    // 🧠 Generate feedback message once based on correct options
-    const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-    const fallbackFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay)
-      ?? 'No feedback available.';
+    // GENERATE/PATCH FEEDBACK FOR EVERY OPTION
+    const correctOpts = this.optionsToDisplay.filter(o => o.correct);
+    const fallbackFeedback =
+      this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
 
-    // 🧪 Reassign fallback IDs and feedback if missing
+    // Ensure IDs / flags / feedback are present on every option
     this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
@@ -403,27 +351,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       active: true,
       showIcon: false
     }));
-    
-    // 🔁 Rebuild option bindings
-    this.initializeOptionBindings();
-  
-    const questionType = this.currentQuestion?.type || QuestionType.SingleAnswer;
-    this.type = this.convertQuestionType(questionType);
-  
+
+    // Initialize bindings and feedback maps
+    this.initializeOptionBindings(); // creates this.optionBindings
+
+    const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
+    this.type = this.convertQuestionType(qType);
+
     this.showFeedback = this.config.showFeedback || false;
     this.showFeedbackForOption = this.config.showFeedbackForOption || {};
     this.correctMessage = this.config.correctMessage || '';
     this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
     this.shouldResetBackground = this.config.shouldResetBackground || false;
-  
-    // 🔄 Bind feedback state
-    this.initializeFeedbackBindings();
 
-    console.log('[✅ SharedOptionComponent Final Init]', {
-      currentQuestion: this.currentQuestion?.questionText,
-      options: this.optionsToDisplay.map(o => o.text),
-      optionBindings: this.optionBindings
-    });
+    this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
   }
 
   private handleQuestionChange(change: SimpleChange): void {
