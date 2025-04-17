@@ -52,7 +52,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   optionBindings: OptionBindings[];
   optionsInitialized = false;
-  protected containerInitialized = false;
+  containerInitialized = false;
   private initializedOnce = false;
 
   constructor(

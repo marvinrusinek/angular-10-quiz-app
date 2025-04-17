@@ -3418,7 +3418,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
 
-    // Wait until Angular has created quizQuestionComponent
+    // Wait until Angular has created QuizQuestionComponent
     await firstValueFrom(this.ngZone.onStable.pipe(take(1)));
 
     await this.injectDynamicComponent();
@@ -3442,10 +3442,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     return true;
   }
-
   
-  /* Inject the answer component after the child’s ViewContainerRef exists. 
-  Never called twice for the same question. */
+  /* Inject the answer component after the child’s ViewContainerRef exists. Never called twice for the same question. */
   private async injectDynamicComponent(): Promise<void> {
     if (!this.quizQuestionComponent) {
       console.warn('[injectDynamicComponent] child component not yet created');  // should never happen
