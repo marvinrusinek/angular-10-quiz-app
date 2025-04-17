@@ -187,12 +187,12 @@ export class QuizQuestionComponent
   private isRestoringState = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
-    answered: false,
+    answered: false
   };
   private forceQuestionDisplay = true;
   readyForExplanationDisplay = false;
-  private isExplanationReady = false;
-  private isExplanationLocked = true;
+  isExplanationReady = false;
+  isExplanationLocked = true;
   currentExplanationText = '';
 
   private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
