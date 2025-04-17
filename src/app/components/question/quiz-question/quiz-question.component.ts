@@ -76,13 +76,13 @@ export class QuizQuestionComponent
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
-    option: SelectedOption;
-    index: number;
-    checked: boolean;
+    option: SelectedOption,
+    index: number,
+    checked: boolean
   }>();
   @Output() displayStateChange = new EventEmitter<{
-    mode: 'question' | 'explanation';
-    answered: boolean;
+    mode: 'question' | 'explanation',
+    answered: boolean
   }>();
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
@@ -180,8 +180,7 @@ export class QuizQuestionComponent
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
-  private displayMode$: BehaviorSubject<'question' | 'explanation'> =
-    new BehaviorSubject('question');
+  private displayMode$: BehaviorSubject<'question' | 'explanation'> = new BehaviorSubject('question');
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
