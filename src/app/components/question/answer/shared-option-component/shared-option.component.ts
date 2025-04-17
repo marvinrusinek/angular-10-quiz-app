@@ -90,8 +90,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.initializeOptionBindings();
     this.initializeFromConfig();
 
-    console.log('[✅ optionBindings]', this.optionBindings?.map(b => b.option.text));
-
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
     if (!this.showFeedbackForOption) {
@@ -116,7 +114,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    /* ---- CONFIG ----*/
     const incomingConfig: SharedOptionConfig | undefined =
       changes.config?.currentValue;
 
@@ -128,9 +125,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const incomingQText = incomingConfig?.currentQuestion?.questionText?.trim() ?? '[❌ Incoming Q missing]';
     const currentQText  = this.currentQuestion?.questionText?.trim() ?? '[❌ Current Q missing]';
 
-    const configChanged   = !!changes.config;
+    const configChanged = !!changes.config;
     const questionChanged = incomingQText !== currentQText;
-    const optsMissing     = !this.optionsToDisplay?.length;
+    const optsMissing = !this.optionsToDisplay?.length;
 
     if (incomingConfig && (configChanged || questionChanged || optsMissing)) {
       console.log('[🔁 Reinit] Forcing reinit due to config / question / missing opts');
@@ -140,21 +137,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[⏸️ ngOnChanges] Skipped reinit — nothing meaningful changed.');
     }
 
-    /* ---- LEGACY CURRENT‑QUESTION BINDING ---- */
     if (changes.currentQuestion) {
-      console.log('[🟡 ngOnChanges] currentQuestion changed');
       this.handleQuestionChange(changes.currentQuestion);
     }
 
-    /* ---- OPTIONS‑TO‑DISPLAY ---- */
     if (changes.optionsToDisplay) {
-      console.log('[🟡 ngOnChanges] optionsToDisplay changed — rebuilding bindings');
-      this.initializeOptionBindings();      // resets optionBindings
-      this.initializeFeedbackBindings();    // resets feedback
-      this.generateOptionBindings();        // fills optionBindings
+      this.initializeOptionBindings(); // resets optionBindings
+      this.initializeFeedbackBindings(); // resets feedback
+      this.generateOptionBindings(); // fills optionBindings
     }
 
-    /* ---- RESET BACKGROUND ---- */
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
@@ -716,8 +708,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Ensure feedbackConfigs exists and assign the new config
       this.feedbackConfigs = this.feedbackConfigs ?? [];
       this.feedbackConfigs[index] = this.generateFeedbackConfig(selectedHydratedOption, index);
-  
-      console.log(`[✅ FeedbackConfig SET for index ${index}]`, this.feedbackConfigs[index]);
     }
   
     // Trigger change detection
@@ -790,12 +780,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
-    console.log('Processing feedback for selected option:', { option, index, optionId });
-  
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   
-    // const hydratedOption = this.optionsToDisplay?.[index] as SelectedOption;
     const hydratedOption = this.optionsToDisplay?.[index];
     if (!hydratedOption) {
       console.warn('[⚠️ FeedbackGen] No option found at index', index);
@@ -809,7 +796,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
 
     this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
-    console.log('[✅ Feedback Config SET]', this.feedbackConfig);
     // this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
   
@@ -825,66 +811,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptions: this.selectedOptionService.selectedOptionsMap,
     });
   }  
-  
-  /* private generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
-    console.log('[generateFeedbackConfig] Raw option received:', {
-      text: option?.text,
-      correct: option?.correct,
-      feedback: option?.feedback
-    });
-    
-    const config = {
-      ...this.feedbackConfig, // merge existing feedbackConfig properties
-      selectedOption: option ?? null,
-      correctMessage: option?.correct
-        ? this.correctMessage ?? 'No correct message available'
-        : '',
-      feedback: option?.feedback ?? 'No feedback available',
-      showFeedback: true,
-      idx: index
-    };
 
-    console.log('[generateFeedbackConfig] Generated Feedback Config:', config);
-    return config;
-  } */
-  /* generateFeedbackConfig(option: SelectedOption, index: number): FeedbackProps {
-    const config: FeedbackProps = {
-      selectedOption: option,
-      correctMessage: option.correct
-        ? `The correct options are: ${option.text}`
-        : '',
-      feedback: option.feedback || `⚠️ Missing feedback for ${option.text}`,
-      showFeedback: true,
-      idx: index,
-      options: this.optionsToDisplay ?? [],
-      question: this.currentQuestion ?? null
-    };
-  
-    console.log(`[⚙️ generateFeedbackConfig] index: ${index}`, config);
-    return config;
-  } */
-  /* generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
-    const isCorrect = !!option.correct;
-  
-    // Find the index of the correct option
-    const correctIndex = this.optionsToDisplay?.findIndex(o => o.correct) ?? -1;
-    const correctOptionLabel = correctIndex >= 0 ? `Option ${correctIndex + 1}` : '[unknown]';
-  
-    const config: FeedbackProps = {
-      selectedOption: option,
-      correctMessage: '',
-      feedback: isCorrect
-        ? `The correct answer is ${correctOptionLabel}.`
-        : `The correct answer is ${correctOptionLabel}.`, // same message regardless
-      showFeedback: true,
-      idx: selectedIndex,
-      options: this.optionsToDisplay ?? [],
-      question: this.currentQuestion ?? null
-    };
-  
-    console.log(`[⚙️ generateFeedbackConfig] index: ${selectedIndex}`, config);
-    return config;
-  } */
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     const correctMessage = this.feedbackService.setCorrectMessage(
       this.optionsToDisplay?.filter(o => o.correct),
@@ -901,9 +828,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       question: this.currentQuestion ?? null
     };
   
-    console.log(`[⚙️ generateFeedbackConfig] index: ${selectedIndex}`, config);
     return config;
-  }  
+  }
 
   private triggerChangeDetection(): void {
     this.config.showFeedback = true;
