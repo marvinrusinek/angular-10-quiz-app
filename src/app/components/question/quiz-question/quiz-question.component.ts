@@ -217,7 +217,6 @@ export class QuizQuestionComponent
   selectionMessage$ = this.selectionMessageSubject.asObservable();
   selectionMessageSubscription: Subscription;
 
-  containerInitialized = false;
   private containerReady = new Subject<void>();
 
   private _ready = new ReplaySubject<ViewContainerRef>(1);
