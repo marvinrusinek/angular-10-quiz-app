@@ -37,7 +37,13 @@ import { SharedVisibilityService } from '../../shared/services/shared-visibility
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
-type AnimationState = 'animationStarted' | 'none'; 
+type AnimationState = 'animationStarted' | 'none';
+
+export interface LoadedQuestionData {
+  question: QuizQuestion;
+  options: Option[];
+  explanation: string;
+}
 
 @Component({
   selector: 'codelab-quiz-component',
@@ -3274,13 +3280,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       setTimeout(() => this.shouldRenderOptions = true, 0);
-
-      if (questionIndex === 5) {
-        console.log('[✅ Q6 RENDER-READY]', {
-          question: this.question,
-          options: this.optionsToDisplay
-        });
-      }
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
