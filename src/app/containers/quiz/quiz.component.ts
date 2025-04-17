@@ -3445,7 +3445,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   
-  /* Inject the answer component after the child’s ViewContainerRef exists. Never called twice for the same question. */
+  /* Inject the answer component after the child’s ViewContainerRef exists. 
+  Never called twice for the same question. */
   private async injectDynamicComponent(): Promise<void> {
     if (!this.quizQuestionComponent) {
       console.warn('[injectDynamicComponent] child component not yet created');  // should never happen
