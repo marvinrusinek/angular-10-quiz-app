@@ -1471,7 +1471,7 @@ export class QuizQuestionComponent
 
   async loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void> {
     try {  
-      // Guard – Missing question or options
+      // Guard –- missing question or options
       if (!question || !Array.isArray(options) || options.length === 0) {
         console.warn('[⚠️ Early return A] Missing question or options', {
           question: question ?? '[undefined]',
@@ -1481,7 +1481,7 @@ export class QuizQuestionComponent
         return;
       }
   
-      // Guard – Missing container
+      // Guard –- missing container
       if (!this.dynamicAnswerContainer) {
         console.warn('[⚠️ Early return B] dynamicAnswerContainer not available');
         return;
