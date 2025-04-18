@@ -3415,10 +3415,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
 
+    this.cdRef.detectChanges();
+
+    if (
+      this.quizQuestionComponent &&
+      this.currentQuestion?.questionText &&
+      this.optionsToDisplay?.length
+    ) {
+      this.quizQuestionComponent.containerInitialized = false;
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
+      this.quizQuestionComponent.shouldRenderFinalOptions = false;
+  
+      this.quizQuestionComponent.loadDynamicComponent(
+        this.currentQuestion!,
+        this.optionsToDisplay!
+      );
+  
+      // one more flush so question and options paint together
+      this.cdRef.detectChanges();
+    } else {
+      console.warn('[🚫 Dynamic injection skipped]', {
+        component: !!this.quizQuestionComponent,
+        questionText: this.currentQuestion?.questionText,
+        optionsLength: this.optionsToDisplay?.length
+      });
+    }
+
     // Wait until Angular has created QuizQuestionComponent
     await firstValueFrom(this.ngZone.onStable.pipe(take(1)));
-
-    await this.injectDynamicComponent();
   
     if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
@@ -3438,26 +3462,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.cdRef.detectChanges();
   
     return true;
-  }
-  
-  /* Inject the answer component after the child’s ViewContainerRef exists. Never called twice for the same question. */
-  private async injectDynamicComponent(): Promise<void> {
-    if (!this.quizQuestionComponent) {
-      console.warn('[injectDynamicComponent] child component not yet created');  // should never happen
-      return;
-    }
-
-    // Wait until the VCRef is ready
-    const vc = await firstValueFrom(this.quizQuestionComponent.containerReady$);
-
-    // Clear any previous instance
-    vc.clear();
-
-    // Do the injection
-    this.quizQuestionComponent.loadDynamicComponent(
-      this.currentQuestion!, // guaranteed by fetch step
-      this.optionsToDisplay!
-    );
   }
 
   // Reset UI immediately before navigating
