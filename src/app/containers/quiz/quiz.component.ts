@@ -156,8 +156,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   previousIndex: number | null = null;
   isQuestionIndexChanged = false;
   isQuestionDisplayed = false;
-
-  isQuestionDataReady = false;
   
   isNavigating = false;
   private isNavigatedByUrl = false;
@@ -176,6 +174,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   nextButtonStyle: { [key: string]: string } = {};
   isContentAvailable$: Observable<boolean>;
   isContentInitialized = false;
+  hasContentLoaded = false;
 
   badgeText$: Observable<string>;
   private hasInitializedBadge = false; // prevents duplicate updates
@@ -463,15 +462,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  async loadQuestionContents(questionIndex: number): Promise<QuizComponentData> { 
+  async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
       // Prevent stale rendering
+      this.hasContentLoaded = false;
       this.hasOptionsLoaded = false;
       this.shouldRenderOptions = false;
       this.isLoading = true;
       this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
-
+  
       // Reset state before fetching new data
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
@@ -482,63 +482,77 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
         return;
       }
-
-      let data: QuizComponentData;
-
+  
       try {
-        type QuizComponentData = { 
+        // avoid shadowing your real QuizComponentData
+        type FetchedData = {
           question: QuizQuestion | null;
-          options: Option[] | null;
-          explanation: string | null };
-
-        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
-        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+          options:  Option[]      | null;
+          explanation: string    | null;
+        };
+  
+        const question$    = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const options$     = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
         const explanation$ = this.explanationTextService.explanationsInitialized
           ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
           : of('');
-
-        const data: QuizComponentData = await lastValueFrom(
+  
+        const data: FetchedData = await lastValueFrom(
           forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
             catchError(error => {
-              console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
-              return of({ question: null, options: [], explanation: '' } as QuizComponentData);
+              console.error(
+                `[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`,
+                error
+              );
+              return of({ question: null, options: [], explanation: '' } as FetchedData);
             })
           )
         );
-
-        // Validate retrieved data
-        if (!data.options || data.options.length === 0) {
-          console.warn(`[QuizComponent] ⚠️ No options found for Q${questionIndex}. Skipping update.`);
+  
+        // All‑or‑nothing guard: require questionText + at least one option
+        if (
+          !data.question?.questionText?.trim() ||
+          !Array.isArray(data.options) ||
+          data.options.length === 0
+        ) {
+          console.warn(
+            `[QuizComponent] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`
+          );
+          this.isLoading = false;
           return;
         }
-
+  
         // Extract correct options **for the current question
         const correctOptions = data.options.filter(opt => opt.correct);
-
+  
         // Ensure `generateFeedbackForOptions` receives correct data for each question
-        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
-        
+        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(
+          correctOptions,
+          data.options
+        );
+  
         // Apply the same feedback message to all options
-        const updatedOptions = data.options.map((opt) => ({
+        const updatedOptions = data.options.map(opt => ({
           ...opt,
           feedback: feedbackMessage
         }));
-
+  
         // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
-        this.hasOptionsLoaded = true;
-
+        this.hasOptionsLoaded   = true;
+  
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
-        
-        this.questionData = data.question ?? ({} as QuizQuestion);
+  
+        this.questionData       = data.question ?? ({} as QuizQuestion);
         this.isQuestionDisplayed = true;
-        this.isLoading = false;
+        this.isLoading          = false;
       } catch (error) {
-        console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
+        console.error(
+          `[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`,
+          error
+        );
         this.isLoading = false;
       }
-
-      return data;
     } catch (error) {
       console.error(`[QuizComponent] ❌ Unexpected error:`, error);
       this.isLoading = false;

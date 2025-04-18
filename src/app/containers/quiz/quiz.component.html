@@ -1,58 +1,58 @@
 <ng-container>
-<mat-card
-  [@changeRoute]="animationState$ | async"
-  (@changeRoute.done)="animationDoneHandler()"
->
-  <codelab-quiz-header></codelab-quiz-header>
+  <mat-card
+    [@changeRoute]="animationState$ | async"
+    (@changeRoute.done)="animationDoneHandler()"
+  >
+    <codelab-quiz-header></codelab-quiz-header>
 
-  <mat-card-content *ngIf="combinedQuestionData$ | async">
-    <!-- the scoreboard -->
-    <codelab-scoreboard></codelab-scoreboard>
+    <mat-card-content *ngIf="quizAlreadyInitialized && combinedQuestionData$ | async">
+      <!-- the scoreboard -->
+      <codelab-scoreboard></codelab-scoreboard>
 
-    <ng-container *ngIf="shouldDisplayContent">
-      <!-- the question and options -->
-      <codelab-quiz-content
-        [questionToDisplay]="questionToDisplay"
-        [questionToDisplay$]="questionToDisplay$"
-        [explanationToDisplay]="explanationToDisplay"
-        [displayState$]="displayState$"
-      >
-      </codelab-quiz-content>
-      <!--[displayVariables]="displayVariables"-->
-      <ng-content></ng-content>
-
-      <ng-container *ngIf="isContentAvailable || (isContentAvailable$ | async); else noQuestion">
-        <codelab-quiz-question
-          *ngIf="isQuestionDisplayed && questionData"
-          #quizQuestionComponent
-          [quizData]="quizComponentData"
-          [questionData]="questionData"
-          [options]="options"
-          [currentQuestionIndex]="currentQuestionIndex"
+      <ng-container *ngIf="shouldDisplayContent">
+        <!-- the question and options -->
+        <codelab-quiz-content
+          [questionToDisplay]="questionToDisplay"
+          [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
           [displayState$]="displayState$"
-          [shouldRenderOptions]="shouldRenderOptions"
-          (answer)="selectedAnswer($event)"
-          (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
-          (feedbackTextChange)="feedbackText = $event"
-          (nextButtonState)="updateAndSyncNextButtonState($event)"
-          (optionSelected)="onOptionSelected($event)"
-        ></codelab-quiz-question>
-      </ng-container>
+        >
+        </codelab-quiz-content>
+        <!--[displayVariables]="displayVariables"-->
+        <ng-content></ng-content>
 
-      <ng-template #noQuestion>
-        <ng-container *ngIf="!hasLoadingError; else errorTemplate">
-          <span class="loading-state">
-            Loading quiz content...
-          </span>
+        <ng-container *ngIf="isContentAvailable || (isContentAvailable$ | async); else noQuestion">
+          <codelab-quiz-question
+            *ngIf="isQuestionDisplayed && questionData"
+            #quizQuestionComponent
+            [quizData]="quizComponentData"
+            [questionData]="questionData"
+            [options]="options"
+            [currentQuestionIndex]="currentQuestionIndex"
+            [explanationToDisplay]="explanationToDisplay"
+            [displayState$]="displayState$"
+            [shouldRenderOptions]="shouldRenderOptions"
+            (answer)="selectedAnswer($event)"
+            (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
+            (feedbackTextChange)="feedbackText = $event"
+            (nextButtonState)="updateAndSyncNextButtonState($event)"
+            (optionSelected)="onOptionSelected($event)"
+          ></codelab-quiz-question>
         </ng-container>
-      </ng-template>
 
-      <ng-template #errorTemplate>
-        <p>Error loading question. Please try again.</p>
-      </ng-template>
-    </ng-container>
-  </mat-card-content>
+        <ng-template #noQuestion>
+          <ng-container *ngIf="!hasLoadingError; else errorTemplate">
+            <span class="loading-state">
+              Loading quiz content...
+            </span>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #errorTemplate>
+          <p>Error loading question. Please try again.</p>
+        </ng-template>
+      </ng-container>
+    </mat-card-content>
 
   <mat-card-footer [ngClass]="cardFooterClass">
     <!-- instructions message -->
