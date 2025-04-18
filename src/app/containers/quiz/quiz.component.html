@@ -5,7 +5,7 @@
   >
     <codelab-quiz-header></codelab-quiz-header>
 
-    <mat-card-content *ngIf="questionTextLoaded && hasOptionsLoaded && (combinedQuestionData$ | async)">
+    <mat-card-content *ngIf="combinedQuestionData$ | async">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
