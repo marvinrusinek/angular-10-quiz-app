@@ -5,7 +5,7 @@
   >
     <codelab-quiz-header></codelab-quiz-header>
 
-    <mat-card-content *ngIf="combinedQuestionData$ | async">
+    <mat-card-content *ngIf="combinedQuestionData$ | async as combined">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
@@ -26,8 +26,8 @@
             *ngIf="isQuestionDisplayed && questionData"
             #quizQuestionComponent
             [quizData]="quizComponentData"
-            [questionData]="questionData"
-            [options]="options"
+            [questionData]="combined.question"
+            [options]="combined.options"
             [currentQuestionIndex]="currentQuestionIndex"
             [explanationToDisplay]="explanationToDisplay"
             [displayState$]="displayState$"

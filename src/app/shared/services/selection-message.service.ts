@@ -4,15 +4,13 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
-  selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to start the quiz.');
-  optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private selectionMessageSubject = new BehaviorSubject<string>('');
+  selectionMessage$ = this.selectionMessageSubject.asObservable().pipe(
+    distinctUntilChanged(),
+    debounceTime(50)
+  );
 
-  selectionMessage$: Observable<string> = this.selectionMessageSubject
-    .asObservable()
-    .pipe(
-      distinctUntilChanged(),
-      debounceTime(100)
-    );
+  optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
@@ -23,30 +21,24 @@ export class SelectionMessageService {
   public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
-    isAnswered: boolean,
-    isMultipleAnswer: boolean
+    isAnswered: boolean
   ): string {
-    if (questionIndex === 0 && !isAnswered) {
-      return 'Please select an option to start the quiz.';
+    // 1) first question, not answered
+    if (!isAnswered) {
+      return questionIndex === 0
+        ? 'Please select an option to start the quiz.'
+        : 'Please select an option to continue...';
     }
-  
-    if (isMultipleAnswer && !isAnswered) {
-      return 'Please select an option to continue...';
+    // 2) answered, but not last
+    if (questionIndex < totalQuestions - 1) {
+      return 'Please click the next button to continue...';
     }
-  
-    if (isAnswered && questionIndex < totalQuestions - 1) {
-      return 'Please click the next button to continue.';
-    }
-  
-    if (questionIndex === totalQuestions - 1 && !isAnswered) {
-      return 'Please select an option to continue...';
-    }
-  
+    // 3) answered, last question
     return 'Please click the Show Results button.';
   }
 
   // Method to update the message
-  updateSelectionMessage(newMessage: string | undefined): void {
+  /* updateSelectionMessage(newMessage: string | undefined): void {
     // Ensure the message is defined and not empty
     if (typeof newMessage === 'undefined' || newMessage === null) {
       console.warn('[updateSelectionMessage] Provided message is undefined or null, ignoring update.');
@@ -59,6 +51,11 @@ export class SelectionMessageService {
       this.selectionMessageSubject.next(newMessage);
     } else {
       console.log('[updateSelectionMessage] No update required, selection message remains unchanged:', newMessage);
+    }
+  } */
+  public updateSelectionMessage(msg: string) {
+    if (msg && this.selectionMessageSubject.value !== msg) {
+      this.selectionMessageSubject.next(msg);
     }
   }
 
