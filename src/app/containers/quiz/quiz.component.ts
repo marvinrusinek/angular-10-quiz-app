@@ -231,6 +231,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        // Wait one tick so Angular finishes whatever it was doing
+        queueMicrotask(() => this.injectDynamicComponent());
+      }
+    });
+
     this.options$ = this.getOptions(this.currentQuestionIndex);
     this.isContentAvailable$ = this.getContentAvailability();
 
@@ -3462,7 +3469,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /* Only inject if the container is empty. */
-  private tryInjectDynamicComponent(): void {
+  private injectDynamicComponent(): void {
     if (
       !this.quizQuestionComponent ||
       !this.currentQuestion?.questionText ||
