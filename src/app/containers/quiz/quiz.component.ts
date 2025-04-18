@@ -1521,14 +1521,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // This function loads the question corresponding to the provided index.
-  async loadQuestionByRouteIndex(questionIndex: number): Promise<void> {
+  async loadQuestionByRouteIndex(routeIndex: number): Promise<void> {
     try {
+      const questionIndex = routeIndex - 1; // convert 1-based URL index to 0-based
       console.log(`[loadQuestionByRouteIndex] 🚀 Navigating to Q${questionIndex}`);
   
       if (!this.quiz || questionIndex < 0 || questionIndex >= this.quiz.questions.length) {
         console.error('[loadQuestionByRouteIndex] ❌ Question index out of bounds:', questionIndex);
         return;
       }
+  
+      // Set the current index and badge (only now that it's confirmed valid)
+      this.currentQuestionIndex = questionIndex;
+      this.quizService.setCurrentQuestionIndex(questionIndex);
+      this.quizService.updateBadgeText(questionIndex + 1, this.quiz.questions.length);
   
       this.resetFeedbackState();
   
@@ -1572,7 +1578,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }, 50);
       }, 150);
   
-      // Now await feedback generation
+      // Await feedback generation
       try {
         const feedback = await (this.quizQuestionComponent?.generateFeedbackText(question) ?? Promise.resolve(''));
         this.feedbackText = feedback;
