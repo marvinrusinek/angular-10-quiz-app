@@ -3461,6 +3461,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return true;
   }
 
+  /* Only inject if the container is empty. */
+  private tryInjectDynamicComponent(): void {
+    if (
+      !this.quizQuestionComponent ||
+      !this.currentQuestion?.questionText ||
+      !this.optionsToDisplay?.length
+    ) {
+      return; // nothing to inject with
+    }
+
+    const viewRef = this.quizQuestionComponent.dynamicAnswerContainer;
+    if (!viewRef || viewRef.length) { // already has a child → skip
+      return;
+    }
+
+    console.log('[🔄 Reinjection] Dynamic container was empty – reinjecting');
+    this.quizQuestionComponent.containerInitialized = false;
+    this.quizQuestionComponent.sharedOptionConfig = undefined;
+    this.quizQuestionComponent.shouldRenderFinalOptions = false;
+
+    this.quizQuestionComponent.loadDynamicComponent(
+      this.currentQuestion,
+      this.optionsToDisplay
+    );
+  }
+
+
   // Reset UI immediately before navigating
   private resetUI(): void {
     // Clear current question reference and options
