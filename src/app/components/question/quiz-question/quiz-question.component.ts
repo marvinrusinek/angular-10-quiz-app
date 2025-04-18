@@ -314,6 +314,13 @@ export class QuizQuestionComponent
       this.subscribeToOptionSelection();
       this.subscribeToNavigationFlags();
       this.subscribeToTotalQuestions();
+
+      const msg = this.selectionMessageService.determineSelectionMessage(
+        this.questionIndex,
+        this.totalQuestions,
+        /* isAnswered= */ false
+      );
+      this.selectionMessageService.updateSelectionMessage(msg);
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
@@ -2478,6 +2485,14 @@ export class QuizQuestionComponent
           console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – not ready');
         }
       }, 30);
+
+      // Now push the “click next / show results” message
+      const msg = this.selectionMessageService.determineSelectionMessage(
+        this.questionIndex,
+        this.totalQuestions,
+        /* isAnswered= */ true
+      );
+      this.selectionMessageService.updateSelectionMessage(msg);
     
       // ✅ Finalize selection + timer state
       this.markQuestionAsAnswered(lockedIndex);
