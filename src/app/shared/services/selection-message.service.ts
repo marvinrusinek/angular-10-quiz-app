@@ -25,22 +25,26 @@ export class SelectionMessageService {
     isMultipleAnswer: boolean
   ): string {
     if (questionIndex === 0 && !isAnswered) {
-      return 'Please select an option to start the quiz.';
+      return 'Please start the quiz by selecting an option.';
     }
   
-    if (isMultipleAnswer && !isAnswered) {
+    // Q2–Q6, unanswered
+    if (questionIndex > 0 && !isAnswered) {
       return 'Please select an option to continue...';
     }
   
+    // answered but not last
     if (isAnswered && questionIndex < totalQuestions - 1) {
       return 'Please click the next button to continue...';
     }
   
-    if (questionIndex === totalQuestions - 1 && !isAnswered) {
-      return 'Please select an option to continue...';
+    // last question answered
+    if (questionIndex === totalQuestions - 1 && isAnswered) {
+      return 'Please click the Show Results button.';
     }
   
-    return 'Please click the Show Results button.';
+    // fallback
+    return '';
   }
 
   // Method to update the message
