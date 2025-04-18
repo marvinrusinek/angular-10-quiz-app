@@ -601,7 +601,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async setSelectionMessage(isAnswered: boolean) {
+  /* private async setSelectionMessage(isAnswered: boolean) {
     const isMultiple = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(
         this.currentQuestion
@@ -614,6 +614,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isAnswered,
       isMultiple
     );
+    this.selectionMessageService.updateSelectionMessage(msg);
+  } */
+  private async refreshSelectionMessage(isAnswered: boolean) {
+    // grab the multiple‑answer flag
+    const isMultiple = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion!)
+    );
+  
+    const msg = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultiple
+    );
+  
     this.selectionMessageService.updateSelectionMessage(msg);
   }
 
@@ -809,7 +824,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.updateMultipleAnswerSelection(option, checked);
     }
   
-    // ✅ Only set isAnswered if it hasn't been set already
+    // Only set isAnswered if it hasn't been set already
     const currentAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
     if (!currentAnswered) {
       this.selectedOptionService.setAnswered(true);
@@ -823,13 +838,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   
-    // 🔄 Sync quiz state service
+    // Sync quiz state service
     this.quizStateService.setAnswerSelected(true);
-  
-    // ✅ Evaluate next button state after selection
-    this.evaluateNextButtonState();
 
-    await this.onAnswerSelected(true);
+    // After marking the option as answered
+    await this.refreshSelectionMessage(true);
+  
+    // Evaluate next button state after selection
+    this.evaluateNextButtonState();
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
@@ -3345,6 +3361,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         this.timerService.isTimerRunning = false;
       }
+
+      // After everything else for this question is set up but before user picks:
+      await this.refreshSelectionMessage(false);
 
       return true;
     } catch (error) {
