@@ -3180,14 +3180,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('Evaluating Next button state after display state update in QuizComponent.');
       this.evaluateNextButtonState();
     }
-  } 
+  }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     // Reset loading state for options
     this.hasOptionsLoaded = false;
     this.shouldRenderOptions = false;
     this.isLoading = true;
-  
+
     try {
       /* ──────────────────────────  Safety Checks  ────────────────────────── */
       if (
@@ -3199,49 +3199,54 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-
       if (questionIndex === this.totalQuestions - 1) {
         console.log(`[🔚 Last Question] Q${questionIndex}`);
       }
-  
+
       /* ─────────────────────────  Reset Local State  ────────────────────── */
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
-  
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
       this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
-  
+
       /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
-        firstValueFrom(this.quizService.getCurrentOptions(questionIndex)) 
+        firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
       ]);
-  
-      if (!fetchedQuestion || !fetchedQuestion.questionText?.trim() || !fetchedOptions?.length) {
+
+      // Validate arrival of both question and options
+      if (
+        !fetchedQuestion ||
+        !fetchedQuestion.questionText?.trim() ||
+        !Array.isArray(fetchedOptions) ||
+        fetchedOptions.length === 0
+      ) {
         console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
 
-      /* ───────────────────  Post-fetch processing (unchanged)  ──────────── */
+      /* ───────────────────  Post‑fetch Processing (unchanged)  ──────────── */
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
-  
+
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
         feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
-  
+
       const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
-      const clonedOptions = structuredClone?.(finalOptions) 
+      const clonedOptions = structuredClone?.(finalOptions)
                           ?? JSON.parse(JSON.stringify(finalOptions));
-  
+
+      /* ───────────────────  Assign into Component State  ──────────────── */
       this.question = {
         questionText: fetchedQuestion.questionText,
         explanation: fetchedQuestion.explanation ?? '',
@@ -3251,17 +3256,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = { ...this.question };
       this.optionsToDisplay = [...clonedOptions];
 
-      // Both pieces are ready – allow the template to show them *now*
-      this.shouldRenderOptions = true;
+      // Both are ready – allow the template to show them now
       this.hasOptionsLoaded = true;
+      this.shouldRenderOptions = true;
+      this.cdRef.detectChanges();
 
-      // Fire change detection only after both are present
-      this.cdRef.detectChanges(); 
-  
       /* ───────────  Explanation / Timer / Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
-  
+
       if (isAnswered) {
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
         this.explanationTextService.setExplanationTextForQuestionIndex(
@@ -3270,27 +3273,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         );
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       }
-  
+
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
-  
+
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-  
+
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
-  
+
       if (!isAnswered) {
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
         this.timerService.isTimerRunning = false;
       }
-  
-      // Allow template to render options
+
+      // final microtask so question + options render in sync
       queueMicrotask(() => (this.shouldRenderOptions = true));
       return true;
     } catch (error) {
@@ -3298,6 +3301,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   }
+
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
     try {
