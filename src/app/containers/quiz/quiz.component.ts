@@ -3225,6 +3225,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
       this.cdRef.detectChanges();
+      // Tiny delay to clear any in‑flight bindings
       await new Promise(res => setTimeout(res, 30));
 
       /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
@@ -3244,21 +3245,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
 
-      /* ───────────────────  Post‑fetch Processing (unchanged)  ──────────── */
+      /* ───────────────────  Process question text  ──────────── */
       const trimmedText = fetchedQuestion.questionText.trim();
-      // this.questionToDisplay = trimmedText;
-      // this.questionToDisplay$.next(trimmedText);
+      this.questionToDisplay = trimmedText;
+      this.questionToDisplay$.next(trimmedText);
+      this.questionTextLoaded = true;
 
+      /* ───────── Hydrate & clone options ───────── */
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
         feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
-
       const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
       const clonedOptions = structuredClone?.(finalOptions)
-                          ?? JSON.parse(JSON.stringify(finalOptions));
+        ?? JSON.parse(JSON.stringify(finalOptions));
 
       /* ───────────────────  Assign into Component State  ──────────────── */
       this.question = {
@@ -3270,13 +3272,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = { ...this.question };
       this.optionsToDisplay = [...clonedOptions];
 
-      this.questionToDisplay = trimmedText;
-      this.questionToDisplay$.next(trimmedText);
-      this.questionTextLoaded = true;
-
-      // Both are ready –- allow the template to show them now
-      this.hasOptionsLoaded = true;
+      /* ───────── Flip “options loaded” flags together ───────── */
+      this.hasOptionsLoaded    = true;
       this.shouldRenderOptions = true;
+
+      // All three flags are now true → one CD run will paint Q + badge + options
       this.cdRef.detectChanges();
 
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
