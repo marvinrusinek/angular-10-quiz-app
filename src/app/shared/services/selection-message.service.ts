@@ -21,19 +21,25 @@ export class SelectionMessageService {
   public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
-    isAnswered: boolean
+    isAnswered: boolean,
+    isMultipleAnswer: boolean
   ): string {
-    // 1) first question, not answered
-    if (!isAnswered) {
-      return questionIndex === 0
-        ? 'Please select an option to start the quiz.'
-        : 'Please select an option to continue...';
+    if (questionIndex === 0 && !isAnswered) {
+      return 'Please select an option to start the quiz.';
     }
-    // 2) answered, but not last
-    if (questionIndex < totalQuestions - 1) {
+  
+    if (isMultipleAnswer && !isAnswered) {
+      return 'Please select an option to continue...';
+    }
+  
+    if (isAnswered && questionIndex < totalQuestions - 1) {
       return 'Please click the next button to continue...';
     }
-    // 3) answered, last question
+  
+    if (questionIndex === totalQuestions - 1 && !isAnswered) {
+      return 'Please select an option to continue...';
+    }
+  
     return 'Please click the Show Results button.';
   }
 
