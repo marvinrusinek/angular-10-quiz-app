@@ -601,7 +601,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  /* private async setSelectionMessage(isAnswered: boolean) {
+  private async setSelectionMessage(isAnswered: boolean) {
     const isMultiple = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(
         this.currentQuestion
@@ -615,9 +615,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isMultiple
     );
     this.selectionMessageService.updateSelectionMessage(msg);
-  } */
+  }
   private async refreshSelectionMessage(isAnswered: boolean) {
-    // grab the multiple‑answer flag
     const isMultiple = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion!)
     );
