@@ -3523,7 +3523,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = null;
       this.cdRef.detectChanges();
   
-      // ✅ ADD navigation to load the Q&A content
+      // Add navigation to load Q&A
       await this.navigateToQuestion(questionIndex);
   
     } catch (error) {
