@@ -17,7 +17,7 @@ export class SelectionMessageService {
     return this.selectionMessageSubject.getValue(); // get the current message value
   }
 
-  // Message Determination Function
+  // Message determination function
   public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
