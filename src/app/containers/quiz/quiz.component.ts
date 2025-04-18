@@ -3197,6 +3197,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     // Reset loading state for options
+    this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
     this.shouldRenderOptions = false;
     this.isLoading = true;
@@ -3271,6 +3272,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
+      this.questionTextLoaded = true;
 
       // Both are ready – allow the template to show them now
       this.hasOptionsLoaded = true;
