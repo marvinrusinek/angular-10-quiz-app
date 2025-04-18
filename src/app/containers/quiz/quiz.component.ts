@@ -3185,6 +3185,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
+
       if (questionIndex === this.totalQuestions - 1) {
         console.log(`[🔚 Last Question] Q${questionIndex}`);
       }
@@ -3201,7 +3202,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await new Promise(res => setTimeout(res, 30));
   
       /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
-      const quizId = this.quizService.getCurrentQuizId();
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
         firstValueFrom(this.quizService.getCurrentOptions(questionIndex)) 
@@ -3213,7 +3213,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       /* ───────────────────  Post-fetch processing (unchanged)  ──────────── */
-      const trimmedText   = fetchedQuestion.questionText.trim();
+      const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
   
@@ -3236,6 +3236,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.currentQuestion = { ...this.question };
       this.optionsToDisplay = [...clonedOptions];
+
+      // Both pieces are ready – allow the template to show them *now*
+      this.shouldRenderOptions = true;
+      this.hasOptionsLoaded = true;
+
+      // Fire change detection only after both are present
+      this.cdRef.detectChanges(); 
   
       /* ───────────  Explanation / Timer / Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
