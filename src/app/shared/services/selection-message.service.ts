@@ -28,31 +28,23 @@ export class SelectionMessageService {
     isAnswered: boolean,
     isMultipleAnswer: boolean
   ): string {
-    console.log('[📢 determineSelectionMessage]', {
-      questionIndex,
-      totalQuestions,
-      isAnswered,
-      isMultipleAnswer
-    });
+    const isLastQuestion = questionIndex === totalQuestions - 1;
   
-    if (questionIndex === 0 && !isAnswered) {
-      return 'Please start the quiz by selecting an option.';
+    if (!isAnswered) {
+      if (questionIndex === 0) {
+        return 'Please start the quiz by selecting an option.';
+      } else {
+        return 'Please select an option to continue...';
+      }
     }
   
-    if (isMultipleAnswer && !isAnswered) {
-      return 'Please select an option to continue...';
+    // If answered
+    if (isLastQuestion) {
+      return 'Please click the Show Results button.';
     }
   
-    if (isAnswered && questionIndex < totalQuestions - 1) {
-      return 'Please click the next button to continue.';
-    }
-  
-    if (questionIndex === totalQuestions - 1 && !isAnswered) {
-      return 'Please select an option to continue...';
-    }
-  
-    return 'Please click the Show Results button.';
-  }
+    return 'Please click the next button to continue.';
+  }  
 
   // Method to update the message
   /* updateSelectionMessage(newMessage: string | undefined): void {
