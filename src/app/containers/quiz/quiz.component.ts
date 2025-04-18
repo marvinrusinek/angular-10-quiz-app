@@ -3401,7 +3401,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
-      this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
 
