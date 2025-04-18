@@ -8,7 +8,6 @@ export class SelectionMessageService {
     'Please select an option to start the quiz.'
   );
 
-  // Give both operators the <string> generic so TS knows
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
     distinctUntilChanged<string>(),
     debounceTime<string>(100)
@@ -25,26 +24,21 @@ export class SelectionMessageService {
   public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
-    isAnswered: boolean,
-    isMultipleAnswer: boolean
+    isAnswered: boolean
   ): string {
-    const isLastQuestion = questionIndex === totalQuestions - 1;
+    const isFirst = questionIndex === 0;
+    const isLast = questionIndex === totalQuestions - 1;
   
     if (!isAnswered) {
-      if (questionIndex === 0) {
-        return 'Please start the quiz by selecting an option.';
-      } else {
-        return 'Please select an option to continue...';
-      }
+      return isFirst
+        ? 'Please start the quiz by selecting an option.'
+        : 'Please select an option to continue...';
     }
   
-    // If answered
-    if (isLastQuestion) {
-      return 'Please click the Show Results button.';
-    }
-  
-    return 'Please click the next button to continue.';
-  }  
+    return isLast
+      ? 'Please click the Show Results button.'
+      : 'Please click the next button to continue.';
+  }    
 
   // Method to update the message
   /* updateSelectionMessage(newMessage: string | undefined): void {
