@@ -3552,9 +3552,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
       return false;
     }
-
+  
     this.cdRef.detectChanges();
-
+  
     if (
       this.quizQuestionComponent &&
       this.currentQuestion?.questionText &&
@@ -3590,8 +3590,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Update internal state
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
-    this.quizService.updateBadgeText(questionIndex + 1, this.totalQuestions);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+  
+    // ✅ Badge update moved down and guarded
+    const currentIndex = this.quizService.getCurrentQuestionIndex?.();
+    const total = this.totalQuestions;
+  
+    if (
+      typeof currentIndex === 'number' &&
+      typeof total === 'number' &&
+      currentIndex >= 0 &&
+      currentIndex < total
+    ) {
+      this.quizService.updateBadgeText(currentIndex + 1, total);
+    } else {
+      console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions', {
+        currentIndex,
+        total
+      });
+    }
   
     // Trigger change detection
     this.cdRef.detectChanges();
