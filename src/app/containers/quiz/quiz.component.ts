@@ -101,8 +101,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
-  public selectionMessage$: Observable<string> =
-    this.selectionMessageService.selectionMessage$;
+  selectionMessage$: Observable<string>;
+  //public selectionMessage$: Observable<string> =
+  //  this.selectionMessageService.selectionMessage$;
   private subs = new Subscription();
   isAnswered = false;
   correctAnswers: any[] = [];
@@ -242,6 +243,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.refreshQuestionOnReset();
       })
     );
+
+    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
     this.quizComponentData = {
       data: this.data,
@@ -616,6 +619,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
     this.selectionMessageService.updateSelectionMessage(msg);
   }
+
   private async refreshSelectionMessage(isAnswered: boolean) {
     const isMultiple = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion!)
@@ -629,6 +633,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   
     this.selectionMessageService.updateSelectionMessage(msg);
+  }
+
+  private async setMessageForNewQuestion(qIndex: number) {
+    const newMsg = qIndex === 0
+      ? 'Please select an option to start the quiz.'
+      : 'Please select an option to continue...';
+    this.selectionMessageService.updateSelectionMessage(newMsg);
   }
 
   private async afterQuestionLoad() {
@@ -841,8 +852,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
 
     // After marking the option as answered
-    await this.refreshSelectionMessage(true);
-  
+    //await this.refreshSelectionMessage(true);
+
+    const last = this.currentQuestionIndex === this.totalQuestions - 1;
+    const nextMsg = last
+      ? 'Please click the Show Results button.'
+      : 'Please click the next button to continue.';
+    this.selectionMessageService.updateSelectionMessage(nextMsg);
+    
     // Evaluate next button state after selection
     this.evaluateNextButtonState();
   }
@@ -3307,6 +3324,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
+
+      // Set the appropriate selection message for the new question
+      this.setMessageForNewQuestion(questionIndex);
 
       /* ───────────────────  Process question text  ──────────── */
       const trimmedText = fetchedQuestion.questionText.trim();
