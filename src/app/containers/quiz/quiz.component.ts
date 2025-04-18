@@ -3504,7 +3504,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
-      // Validate badge and question index consistency
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
         console.warn(
@@ -3512,24 +3511,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         );
       }
   
-      // Reset general UI state
       this.resetUI();
   
-      // Only reset explanation-related state if not locked
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.resetStateBetweenQuestions();
       } else {
         console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
       }
   
-      // Clear options and current question display
       this.optionsToDisplay = [];
       this.currentQuestion = null;
-      this.cdRef.detectChanges(); // ensure view updates after reset
+      this.cdRef.detectChanges();
+  
+      // ✅ ADD navigation to load the Q&A content
+      await this.navigateToQuestion(questionIndex);
+  
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
     }
   }
+  
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
     // Bounds check
