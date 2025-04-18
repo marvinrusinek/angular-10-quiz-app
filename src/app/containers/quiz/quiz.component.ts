@@ -1953,8 +1953,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         switchMap((params: ParamMap) => {
           const quizId = params.get('quizId');
           const questionIndexParam = params.get('questionIndex');
-          const routeIndex = Number(questionIndexParam) || 1;
-          const internalIndex = Math.max(routeIndex - 1, 0); // 0-based index
+          const routeIndex = Number(questionIndexParam);
+          const internalIndex = isNaN(routeIndex) ? 0 : Math.max(routeIndex - 1, 0); // 0-based
   
           console.log(`[Route Init] 📍 quizId=${quizId}, routeIndex=${routeIndex}, internalIndex=${internalIndex}`);
   
@@ -1964,53 +1964,45 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
   
           this.quizId = quizId;
-          // this.currentQuestionIndex = internalIndex;
   
-          // MUST return { quizData, questionIndex }
           return this.handleRouteParams(params).pipe(
-            catchError((error: Error) => {
-              console.error('[Route Init] ❌ Error in handleRouteParams:', error);
+            switchMap(({ quizData }) => {
+              if (!quizData || !Array.isArray(quizData.questions)) {
+                console.error('[Route Init] ❌ Invalid quiz data or missing questions array.');
+                return EMPTY;
+              }
+  
+              const lastIndex = quizData.questions.length - 1;
+              const adjustedIndex = Math.min(Math.max(internalIndex, 0), lastIndex);
+  
+              this.currentQuestionIndex = adjustedIndex;
+              this.totalQuestions = quizData.questions.length;
+  
+              this.quizService.setActiveQuiz(quizData);
+              this.quizService.setCurrentQuestionIndex(adjustedIndex);
+              this.quizService.updateBadgeText(adjustedIndex + 1, quizData.questions.length);
+  
+              this.initializeQuizState();
+  
+              return this.quizService.getQuestionByIndex(adjustedIndex);
+            }),
+            catchError((error) => {
+              console.error('[Route Init] ❌ Error during quiz initialization:', error);
               return EMPTY;
             })
-          );
-        }),
-        switchMap(({ quizData, questionIndex }) => {
-          if (!quizData || !Array.isArray(quizData.questions)) {
-            console.error('[Route Init] ❌ Invalid quiz data or missing questions array.', quizData);
-            return EMPTY;
-          }
-  
-          const lastIndex = quizData.questions.length - 1;
-          const adjustedIndex = Math.min(Math.max(questionIndex, 0), lastIndex);
-          this.currentQuestionIndex = adjustedIndex;
-  
-          this.quizService.setActiveQuiz(quizData);
-          this.quizService.setCurrentQuestionIndex(adjustedIndex);
-          this.initializeQuizState();
-  
-          return this.quizService.getQuestionByIndex(adjustedIndex);
-        }),
-        catchError((error: Error) => {
-          console.error('[Route Init] ❌ Failed to initialize quiz:', error);
-          return EMPTY;
+          )
         })
       )
       .subscribe({
-        next: async (question: QuizQuestion | null) => {
+        next: async (question) => {
           if (!question) {
             console.error('[Route Init] ❌ No question returned.');
             return;
           }
   
           this.currentQuiz = this.quizService.getActiveQuiz();
-          console.log(`[Route Init] ✅ Question Loaded: Q${this.currentQuestionIndex}`);
-
-          // Set badge here once everything is final
-          this.quizService.updateBadgeText(
-            this.currentQuestionIndex + 1,
-            this.currentQuiz?.questions?.length ?? 0
-          );
-          
+          console.log(`[Route Init] ✅ Loaded Q${this.currentQuestionIndex}`);
+  
           await this.resetUIAndNavigate(this.currentQuestionIndex);
         },
         complete: () => {
@@ -2018,6 +2010,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       });
   }
+  
 
   initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe((data) => {
