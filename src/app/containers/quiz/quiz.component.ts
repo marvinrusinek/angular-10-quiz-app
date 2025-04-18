@@ -356,9 +356,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.currentQuestionIndex = restoredIndex;
           localStorage.setItem('savedQuestionIndex', JSON.stringify(restoredIndex));
         }
-
-        // Ensure badge text updates correctly
-        this.quizService.updateBadgeText(restoredIndex + 1, totalQuestions);
         
         this.cdRef.detectChanges();
       } catch (error) {
