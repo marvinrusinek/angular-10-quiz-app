@@ -233,10 +233,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     document.addEventListener('visibilitychange', async () => {
       if (document.visibilityState === 'visible') {
+        // Re‑draw the badge with whatever index we already hav
         const idx = this.quizService.getCurrentQuestionIndex();
         this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
   
-        // then re‑inject the dynamic component
+        // Then re‑inject the dynamic component
         queueMicrotask(() => this.injectDynamicComponent());
       }
     });
