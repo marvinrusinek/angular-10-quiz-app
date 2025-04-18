@@ -851,17 +851,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Sync quiz state service
     this.quizStateService.setAnswerSelected(true);
 
-    // After marking the option as answered
-    // await this.refreshSelectionMessage(true);
-
+    // Dynamically set the correct selection message
     await this.updateSelectionMessage(true);
 
-    const last = this.currentQuestionIndex === this.totalQuestions - 1;
-    const nextMsg = last
-      ? 'Please click the Show Results button.'
-      : 'Please click the next button to continue.';
-    this.selectionMessageService.updateSelectionMessage(nextMsg);
-    
     // Evaluate next button state after selection
     this.evaluateNextButtonState();
   }
