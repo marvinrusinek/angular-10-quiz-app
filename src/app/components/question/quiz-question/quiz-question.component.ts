@@ -215,7 +215,7 @@ export class QuizQuestionComponent
 
   selectionMessageSubject = new BehaviorSubject<string>('');
   selectionMessage$ = this.selectionMessageSubject.asObservable();
-  selectionMessageSubscription: Subscription;
+  selectionMessageSubscription: Subscription = new Subscription();
 
   private containerReady = new Subject<void>();
 
