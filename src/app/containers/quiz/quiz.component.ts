@@ -234,12 +234,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     document.addEventListener('visibilitychange', async () => {
       if (document.visibilityState === 'visible') {
         const idx = this.quizService.getCurrentQuestionIndex();
-        console.log('[Visibility] restoring quiz to Q' + idx);
-  
-        // we run the navigation back inside NgZone to keep change‑detection happy
-        await this.ngZone.run(async () => {
-          await this.navigateToQuestion(idx);
-        });
+        this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
   
         // then re‑inject the dynamic component
         queueMicrotask(() => this.injectDynamicComponent());
