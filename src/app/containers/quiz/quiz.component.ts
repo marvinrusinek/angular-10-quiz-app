@@ -101,7 +101,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
-  selectionMessage$: Observable<string>;
+  // selectionMessage$: Observable<string>;
+  public selectionMessage$ = this.selectionMessageService.selectionMessage$;
+  private subs = new Subscription();
   isAnswered = false;
   correctAnswers: any[] = [];
   nextExplanationText = '';
@@ -394,6 +396,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // this.selectedOptionService.setAnswered(false);
     this.resetQuestionState();
     this.subscribeToSelectionMessage();
+
+    this.setSelectionMessage(false);
   
     // Explanation text subscription
     this.quizService.nextExplanationText$.subscribe((text) => {
@@ -597,6 +601,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  private async setSelectionMessage(isAnswered: boolean) {
+    const isMultiple = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(
+        this.currentQuestion
+      )
+    );
+
+    const msg = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultiple
+    );
+    this.selectionMessageService.updateSelectionMessage(msg);
+  }
+
+  private async afterQuestionLoad() {
+    // unanswered yet
+    await this.setSelectionMessage(false);
+  }
+
+  public async onAnswerSelected(answered: boolean) {
+    // answered===true
+    await this.setSelectionMessage(answered);
+  }
+
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
       next: async (question: QuizQuestion) => {
@@ -764,10 +794,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  onOptionSelected(
+  async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
-  ): void {
+  ): Promise<void> {
     if (!isUserAction) return;
   
     const { option, checked } = event;
@@ -798,6 +828,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // ✅ Evaluate next button state after selection
     this.evaluateNextButtonState();
+
+    await this.onAnswerSelected(true);
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
@@ -855,6 +887,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   ngOnDestroy(): void {
+    this.subs.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
     this.unsubscribe$.next();
@@ -2978,6 +3011,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
       }
+
+      await this.afterQuestionLoad();
   
       // Re-evaluate Next button state
       const shouldEnableNext = this.isAnyOptionSelected();
