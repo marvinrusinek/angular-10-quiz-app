@@ -2987,8 +2987,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
-    if (this.isNavigating) {
-      console.warn('[⏳ advanceToNextQuestion] Already navigating – skipping.');
+    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+      firstValueFrom(this.quizStateService.isLoading$),
+      firstValueFrom(this.quizStateService.isNavigating$),
+      firstValueFrom(this.isButtonEnabled$)
+    ]);
+
+    // Prevent navigation if any blocking conditions are met
+    if (isLoading || isNavigating || !isEnabled) {
+      console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
       return;
     }
   
@@ -2997,6 +3004,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setNavigating(true);
   
     try {
+      // Start animation
+      console.log('Advance to Next Question Clicked');
+      this.animationState$.next('animationStarted');
+
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
 
