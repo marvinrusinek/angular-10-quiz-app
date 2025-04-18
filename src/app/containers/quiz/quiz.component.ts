@@ -1964,7 +1964,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
   
           this.quizId = quizId;
-          this.currentQuestionIndex = internalIndex;
+          // this.currentQuestionIndex = internalIndex;
   
           // MUST return { quizData, questionIndex }
           return this.handleRouteParams(params).pipe(
@@ -2005,9 +2005,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.currentQuiz = this.quizService.getActiveQuiz();
           console.log(`[Route Init] ✅ Question Loaded: Q${this.currentQuestionIndex}`);
 
-          const totalQuestions = this.currentQuiz?.questions?.length ?? 0;
-          this.quizService.updateBadgeText(this.currentQuestionIndex + 1, totalQuestions);
-  
+          // Set badge here once everything is final
+          this.quizService.updateBadgeText(
+            this.currentQuestionIndex + 1,
+            this.currentQuiz?.questions?.length ?? 0
+          );
+          
           await this.resetUIAndNavigate(this.currentQuestionIndex);
         },
         complete: () => {
