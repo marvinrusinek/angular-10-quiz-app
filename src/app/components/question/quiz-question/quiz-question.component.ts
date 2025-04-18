@@ -213,7 +213,8 @@ export class QuizQuestionComponent
   feedbackTextSubject = new BehaviorSubject<string>('');
   feedbackText$ = this.feedbackTextSubject.asObservable();
 
-  public selectionMessage$ = this.selectionMessageService.selectionMessage$;
+  selectionMessageSubject = new BehaviorSubject<string>('');
+  selectionMessage$ = this.selectionMessageSubject.asObservable();
   selectionMessageSubscription: Subscription;
 
   private containerReady = new Subject<void>();
