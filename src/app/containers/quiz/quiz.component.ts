@@ -3440,9 +3440,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         optionsLength: this.optionsToDisplay?.length
       });
     }
-
-    // Wait until Angular has created QuizQuestionComponent
-    await firstValueFrom(this.ngZone.onStable.pipe(take(1)));
   
     if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
