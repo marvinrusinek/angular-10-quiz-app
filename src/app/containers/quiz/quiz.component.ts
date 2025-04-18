@@ -3005,7 +3005,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       // Start animation
-      console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
 
       const currentIndex = this.quizService.getCurrentQuestionIndex();
@@ -3088,6 +3087,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }  
 
     try {
+      // Start animation
+      this.animationState$.next('animationStarted');
+
       this.resetOptionState();
       this.isOptionSelected = false;
       
