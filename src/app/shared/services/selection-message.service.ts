@@ -30,11 +30,15 @@ export class SelectionMessageService {
     const isLast = questionIndex === totalQuestions - 1;
   
     if (!isAnswered) {
-      return isFirst
-        ? 'Please start the quiz by selecting an option.'
-        : 'Please select an option to continue...';
+      // Before selection
+      if (isFirst) {
+        return 'Please start the quiz by selecting an option.';
+      } else {
+        return 'Please select an option to continue...';
+      }
     }
   
+    // After selection
     return isLast
       ? 'Please click the Show Results button.'
       : 'Please click the next button to continue.';
