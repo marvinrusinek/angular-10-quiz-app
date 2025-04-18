@@ -100,6 +100,7 @@ export class QuizQuestionComponent
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
+  @Input() questionIndex!: number;
   @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
@@ -114,12 +115,12 @@ export class QuizQuestionComponent
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
-  questionIndex!: number;
   questionsArray: QuizQuestion[] = [];
   questionsObservableSubscription: Subscription;
   questionForm: FormGroup = new FormGroup({});
   questionRenderComplete = new EventEmitter<void>();
   questionToDisplay = '';
+  totalQuestions!: number;
   private lastProcessedQuestionIndex: number | null = null;
   explanationsCache: { [index: number]: string } = {};
   explanationsMap: { [index: number]: string } = {};
@@ -136,7 +137,6 @@ export class QuizQuestionComponent
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
   options$: Observable<Option[]>;
-  totalQuestions: number;
   currentOptions: Option[] | undefined;
   correctAnswers: number[] | undefined;
   correctMessage = '';
