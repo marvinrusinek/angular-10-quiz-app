@@ -3274,12 +3274,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay$.next(trimmedText);
       this.questionTextLoaded = true;
 
-      // Both are ready – allow the template to show them now
+      // Both are ready –- allow the template to show them now
       this.hasOptionsLoaded = true;
       this.shouldRenderOptions = true;
       this.cdRef.detectChanges();
 
-      /* ───────────  Explanation / Timer / Badge Logic  ───────── */
+      /* ───────────  Explanation/Timer/Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
 
