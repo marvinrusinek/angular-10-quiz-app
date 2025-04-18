@@ -371,12 +371,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Centralized routing + quiz setup
     this.initializeQuizData();
   
-    // Total questions setup
+    // Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
       if (totalQuestions > 0) {
         this.totalQuestions = totalQuestions;
+    
+        const currentIndex = this.quizService.getCurrentQuestionIndex();
+        const validIndex = currentIndex >= 0 && currentIndex < totalQuestions ? currentIndex : 0;
+    
+        if (!this.hasInitializedBadge) {
+          this.quizService.updateBadgeText(validIndex + 1, totalQuestions);
+          this.hasInitializedBadge = true;
+        } else {
+          console.log('[Badge] Skipping duplicate badge initialization.');
+        }
       } else {
-        console.warn('Total questions not available yet.');
+        console.warn('[Badge] Total questions not available yet.');
       }
     });
   
