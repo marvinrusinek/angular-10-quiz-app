@@ -2004,6 +2004,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           this.currentQuiz = this.quizService.getActiveQuiz();
           console.log(`[Route Init] ✅ Question Loaded: Q${this.currentQuestionIndex}`);
+
+          const totalQuestions = this.currentQuiz?.questions?.length ?? 0;
+          this.quizService.updateBadgeText(this.currentQuestionIndex + 1, totalQuestions);
   
           await this.resetUIAndNavigate(this.currentQuestionIndex);
         },
