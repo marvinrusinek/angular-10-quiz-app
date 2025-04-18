@@ -620,8 +620,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const msg = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      isAnswered,
-      isMultiple
+      isAnswered
     );
     this.selectionMessageService.updateSelectionMessage(msg);
   }
@@ -634,8 +633,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const msg = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      isAnswered,
-      isMultiple
+      isAnswered
     );
   
     this.selectionMessageService.updateSelectionMessage(msg);
@@ -877,8 +875,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const msg = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      isAnswered,
-      isMultipleAnswer
+      isAnswered
     );
   
     this.selectionMessageService.updateSelectionMessage(msg);
