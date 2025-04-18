@@ -484,15 +484,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       try {
-        // avoid shadowing your real QuizComponentData
         type FetchedData = {
           question: QuizQuestion | null;
-          options:  Option[]      | null;
-          explanation: string    | null;
+          options: Option[] | null;
+          explanation: string | null;
         };
   
-        const question$    = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
-        const options$     = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
         const explanation$ = this.explanationTextService.explanationsInitialized
           ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
           : of('');
@@ -539,13 +538,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
-        this.hasOptionsLoaded   = true;
+        this.hasOptionsLoaded = true;
   
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
   
-        this.questionData       = data.question ?? ({} as QuizQuestion);
+        this.questionData = data.question ?? ({} as QuizQuestion);
         this.isQuestionDisplayed = true;
-        this.isLoading          = false;
+        this.isLoading = false;
       } catch (error) {
         console.error(
           `[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`,
