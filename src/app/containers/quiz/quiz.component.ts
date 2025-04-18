@@ -313,19 +313,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private registerVisibilityChangeHandler(): void {
     document.addEventListener('visibilitychange', async () => {
       if (document.visibilityState === 'visible') {
-        // Wait for the Angular zone to stabilize before updating UI
-        await firstValueFrom(this.ngZone.onStable);
-  
-        // Trust navigateToQuestion() to handle badge rendering properly
-        const index = this.quizService.getCurrentQuestionIndex();
-  
-        // Only update badge if navigateToQuestion has already run
-        if (this.currentQuestionIndex === index) {
-          this.quizService.updateBadgeText(index + 1, this.totalQuestions);
-        }
-  
-        // Reinjection still allowed
-        queueMicrotask(() => this.injectDynamicComponent());
+        this.ngZone.run(() => {
+          setTimeout(() => {
+            const idx = this.quizService.getCurrentQuestionIndex();
+    
+            if (typeof idx === 'number' && idx >= 0 && idx < this.totalQuestions) {
+              this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
+            } else {
+              console.warn('[Visibility] Skipped badge update due to invalid index:', idx);
+            }
+    
+            queueMicrotask(() => this.injectDynamicComponent());
+          }, 50); // wait for state restore
+        });
       }
     });
   }
