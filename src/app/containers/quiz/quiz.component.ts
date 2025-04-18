@@ -231,17 +231,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
 
-    document.addEventListener('visibilitychange', async () => {
-      if (document.visibilityState === 'visible') {
-        // Re‑draw the badge with whatever index we already hav
-        const idx = this.quizService.getCurrentQuestionIndex();
-        this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
-  
-        // Then re‑inject the dynamic component
-        queueMicrotask(() => this.injectDynamicComponent());
-      }
-    });
-
     this.options$ = this.getOptions(this.currentQuestionIndex);
     this.isContentAvailable$ = this.getContentAvailability();
 
@@ -317,6 +306,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
+  private registerVisibilityChangeHandler(): void {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        // Re‑draw the badge with whatever index we already have
+        const idx = this.quizService.getCurrentQuestionIndex();
+        this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
+  
+        // Then re‑inject the dynamic component
+        queueMicrotask(() => this.injectDynamicComponent());
+      }
+    });
+  }
+
   private async restoreStateAfterFocus(): Promise<void> {
     this.ngZone.run(async () => {
       if (this.isLoading || this.quizStateService.isLoading()) {
@@ -355,6 +357,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    this.registerVisibilityChangeHandler();
     this.initializeDisplayVariables();
   
     // Centralized routing + quiz setup
