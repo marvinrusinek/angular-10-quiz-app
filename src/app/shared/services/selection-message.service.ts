@@ -4,10 +4,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
-  private selectionMessageSubject = new BehaviorSubject<string>('');
-  selectionMessage$ = this.selectionMessageSubject.asObservable().pipe(
-    distinctUntilChanged(),
-    debounceTime(50)
+  private selectionMessageSubject = new BehaviorSubject<string>(
+    'Please select an option to start the quiz.'
+  );
+
+  // Give both operators the <string> generic so TS knows
+  public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
+    distinctUntilChanged<string>(),
+    debounceTime<string>(100)
   );
 
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
