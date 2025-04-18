@@ -38,7 +38,7 @@ export class SelectionMessageService {
     return isLast
       ? 'Please click the Show Results button.'
       : 'Please click the next button to continue.';
-  }    
+  }
 
   // Method to update the message
   /* updateSelectionMessage(newMessage: string | undefined): void {
