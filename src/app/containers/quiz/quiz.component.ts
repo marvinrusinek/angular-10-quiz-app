@@ -852,7 +852,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
 
     // After marking the option as answered
-    //await this.refreshSelectionMessage(true);
+    // await this.refreshSelectionMessage(true);
+
+    await this.updateSelectionMessage(true);
 
     const last = this.currentQuestionIndex === this.totalQuestions - 1;
     const nextMsg = last
@@ -863,6 +865,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Evaluate next button state after selection
     this.evaluateNextButtonState();
   }
+
+  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
+    if (!this.currentQuestion) {
+      console.warn('[updateSelectionMessage] ❌ currentQuestion not available');
+      return;
+    }
+  
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
+  
+    const msg = this.selectionMessageService.determineSelectionMessage(
+      this.currentQuestionIndex,
+      this.totalQuestions,
+      isAnswered,
+      isMultipleAnswer
+    );
+  
+    this.selectionMessageService.updateSelectionMessage(msg);
+  }  
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
