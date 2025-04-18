@@ -56,7 +56,8 @@
 
   <mat-card-footer [ngClass]="cardFooterClass">
     <!-- instructions message -->
-    <h5 class="instructions-message" *ngIf="selectionMessage as message">
+    <h5 class="instructions-message"
+    *ngIf="selectionMessage$ | async as message">
       {{ message }}
     </h5>
 
