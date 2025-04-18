@@ -3232,8 +3232,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       /* ───────────────────  Post‑fetch Processing (unchanged)  ──────────── */
       const trimmedText = fetchedQuestion.questionText.trim();
-      this.questionToDisplay = trimmedText;
-      this.questionToDisplay$.next(trimmedText);
+      // this.questionToDisplay = trimmedText;
+      // this.questionToDisplay$.next(trimmedText);
 
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
@@ -3255,6 +3255,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.currentQuestion = { ...this.question };
       this.optionsToDisplay = [...clonedOptions];
+
+      this.questionToDisplay = trimmedText;
+      this.questionToDisplay$.next(trimmedText);
 
       // Both are ready – allow the template to show them now
       this.hasOptionsLoaded = true;
@@ -3293,15 +3296,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       }
 
-      // final microtask so question + options render in sync
-      queueMicrotask(() => (this.shouldRenderOptions = true));
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
       return false;
     }
   }
-
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
     try {
