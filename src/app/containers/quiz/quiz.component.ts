@@ -857,13 +857,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     await this.setSelectionMessage(true);
 
-    const message = this.selectionMessageService.determineSelectionMessage(
+    /* const message = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       true // because the user just selected an option
     );
     
-    this.selectionMessageService.updateSelectionMessage(message); // dynamically set the correct selection message
+    this.selectionMessageService.updateSelectionMessage(message); // dynamically set the correct selection message */
 
     // Evaluate next button state after selection
     this.evaluateNextButtonState();
