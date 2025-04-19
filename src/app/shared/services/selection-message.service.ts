@@ -39,12 +39,14 @@ export class SelectionMessageService {
 
   // Method to update the message
   public updateSelectionMessage(message: string): void {
-    if (!message?.trim()) return; // skip empty or whitespace-only messages
-    if (message && this.selectionMessageSubject.getValue() !== message) {
-      console.log('[🧩 updateSelectionMessage]', message);
+    if (!message?.trim()) return;
+    
+    const current = this.selectionMessageSubject.getValue();
+    if (current !== message) {
+      console.log('[🧩 updateSelectionMessage]', { current, new: message });
       this.selectionMessageSubject.next(message);
     }
-  }
+  }  
 
   public resetMessage(): void {
     this.selectionMessageSubject.next('');
