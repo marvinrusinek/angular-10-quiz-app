@@ -281,7 +281,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         if (!newQuestion) return;
   
         this.ngZone.run(() => {
-          this.currentQuestion = null;  // force reset to clear stale UI
+          this.currentQuestion = null; // force reset to clear stale UI
   
           setTimeout(() => {
             this.currentQuestion = { ...newQuestion };
@@ -367,7 +367,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.registerVisibilityChangeHandler();
     this.initializeDisplayVariables();
   
-    // Centralized routing + quiz setup
+    // Centralized routing and quiz setup
     this.initializeQuizData();
   
     // Total questions and badge setup
