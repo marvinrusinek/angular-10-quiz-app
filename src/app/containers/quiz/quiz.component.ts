@@ -3332,6 +3332,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       /* ─────────────────────────  Reset Local State  ────────────────────── */
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
+      this.selectionMessageService.updateSelectionMessage('');
       this.currentQuestion = null;
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
