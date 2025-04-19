@@ -3381,8 +3381,7 @@ export class QuizQuestionComponent
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      questionState.isAnswered,
-      isMultipleAnswer
+      questionState.isAnswered
     );
 
     this.selectionMessageService.updateSelectionMessage(newMessage);
@@ -3430,7 +3429,7 @@ export class QuizQuestionComponent
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
-      text: option.text,
+      text: option.text
     };
     this.selectedOptionService.toggleSelectedOption(
       this.currentQuestionIndex,
@@ -3498,7 +3497,7 @@ export class QuizQuestionComponent
         questionText: currentQuestion.questionText,
         explanationText: currentQuestion.explanation,
         correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-        options: this.optionsToDisplay,
+        options: this.optionsToDisplay
       };
 
       // Determine if the current question is answered
