@@ -796,11 +796,6 @@ export class QuizQuestionComponent
 
         // Use the adjusted index for explanation text to ensure sync
         this.fetchAndSetExplanationText(adjustedIndex);
-
-        // Subscribe to the isAnswered$ observable to get the boolean value
-        this.quizStateService.isAnswered$.subscribe((isAnswered: boolean) => {
-          this.updateSelectionMessage(isAnswered);
-        });
       });
   }
 
