@@ -406,8 +406,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // this.selectedOptionService.setAnswered(false);
     this.resetQuestionState();
     this.subscribeToSelectionMessage();
-
-    this.setSelectionMessage(false);
   
     // Explanation text subscription
     this.quizService.nextExplanationText$.subscribe((text) => {
