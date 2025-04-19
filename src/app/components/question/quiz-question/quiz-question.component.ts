@@ -4133,8 +4133,7 @@ export class QuizQuestionComponent
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      isAnswered,
-      isMultipleAnswer
+      isAnswered
     );
 
     if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
