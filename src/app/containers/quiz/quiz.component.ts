@@ -610,19 +610,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async setSelectionMessage(isAnswered: boolean) {
-    const isMultiple = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(
-        this.currentQuestion
-      )
-    );
-
-    const msg = this.selectionMessageService.determineSelectionMessage(
+  private setSelectionMessage(isAnswered: boolean): void {
+    const message = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
       isAnswered
     );
-    this.selectionMessageService.updateSelectionMessage(msg);
+  
+    this.selectionMessageService.updateSelectionMessage(message);
   }
 
   private async refreshSelectionMessage(isAnswered: boolean) {
