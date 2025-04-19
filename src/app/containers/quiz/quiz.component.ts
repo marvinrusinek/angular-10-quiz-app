@@ -847,25 +847,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Update selection message
     this.setSelectionMessage(true);
   }
-
-  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
-    if (!this.currentQuestion) {
-      console.warn('[updateSelectionMessage] ❌ currentQuestion not available');
-      return;
-    }
-  
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-    );
-  
-    const msg = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
-  
-    this.selectionMessageService.updateSelectionMessage(msg);
-  }  
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
