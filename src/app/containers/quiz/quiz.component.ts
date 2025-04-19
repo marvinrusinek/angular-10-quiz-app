@@ -621,7 +621,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const current = this.selectionMessageService.getCurrentMessage();
   
       if (newMessage !== current) {
-        console.log('[🧩 setSelectionMessage]', { index, total, isAnswered, newMessage });
+        console.log('[🧩 setSelectionMessage]', {
+          index,
+          total,
+          isAnswered,
+          current,
+          newMessage
+        });
         this.selectionMessageService.updateSelectionMessage(newMessage);
       }
     } catch (error) {
