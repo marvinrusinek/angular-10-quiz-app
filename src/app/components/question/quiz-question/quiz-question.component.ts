@@ -315,13 +315,6 @@ export class QuizQuestionComponent
       this.subscribeToNavigationFlags();
       this.subscribeToTotalQuestions();
 
-      const msg = this.selectionMessageService.determineSelectionMessage(
-        this.questionIndex,
-        this.totalQuestions,
-        /* isAnswered= */ false
-      );
-      this.selectionMessageService.updateSelectionMessage(msg);
-
       // 1) seed local subject with whatever the service has now
       this.selectionMessageSubject.next(
         this.selectionMessageService.getCurrentMessage()
@@ -336,11 +329,6 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-  }
-
-  private updateMessage(newMsg: string) {
-    this.selectionMessageService.updateSelectionMessage(newMsg);
-    this.selectionMessageSubject.next(newMsg);
   }
 
   /* async ngAfterViewInit(): Promise<void> {
@@ -776,16 +764,6 @@ export class QuizQuestionComponent
         })
       )
       .subscribe();
-  }
-
-  // Update selection message based on the current question state
-  private async updateSelectionMessageForCurrentQuestion(): Promise<void> {
-    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-
-    // Update the selection message only if necessary, ensuring it doesn't impact question rendering
-    if (isAnswered) {
-      await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-    }
   }
 
   // Function to set up shared visibility subscription
@@ -1635,52 +1613,7 @@ export class QuizQuestionComponent
   
   // rename
   private async loadInitialQuestionAndMessage(): Promise<void> {
-    // Set the initial message after the question is loaded
-    this.setInitialMessage();
-
     await this.handleQuestionState();
-  }
-
-  private setInitialMessage(): void {
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    const currentMessage =
-      this.selectionMessageService.selectionMessageSubject.getValue();
-
-    // Only set the message if it's not already set or if it's empty
-    if (!currentMessage || currentMessage === '') {
-      this.selectionMessageService.updateSelectionMessage(initialMessage);
-    } else {
-      console.log('Initial message already set, skipping update.');
-    }
-  }
-
-  private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(
-        this.currentQuestion
-      )
-    );
-
-    let newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered,
-      isMultipleAnswer
-    );
-
-    // If the message has already been updated to 'Please click the next button', don't change it
-    if (this.selectionMessage === 'Please click the next button to continue.') {
-      newMessage = 'Please click the next button to continue.';
-    }
-
-    // Only update the message if it has changed
-    if (this.selectionMessage !== newMessage) {
-      console.log(
-        `Updating message from "${this.selectionMessage}" to "${newMessage}"`
-      );
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-      this.selectionMessage = newMessage;
-    }
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
@@ -1783,7 +1716,6 @@ export class QuizQuestionComponent
       // Update explanation and feedback
       await this.updateExplanationText(lockedIndex);
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      this.updateSelectionMessage(false);
       await this.handleExplanationDisplay();
 
       return true;
@@ -2246,7 +2178,6 @@ export class QuizQuestionComponent
       const initialMessage = 'Please start the quiz by selecting an option.';
       if (this.selectionMessage !== initialMessage) {
         this.selectionMessage = initialMessage;
-        this.selectionMessageService.updateSelectionMessage(initialMessage);
       }
     } else {
       const isAnswered = await this.isQuestionAnswered(
@@ -2260,20 +2191,6 @@ export class QuizQuestionComponent
         console.log('[handleQuestionState] No message update required');
       }
     }
-  }
-
-  // Subscribe to option selection changes
-  private subscribeToOptionSelection(): void {
-    this.selectedOptionService
-      .isOptionSelected$()
-      .pipe(
-        debounceTime(300), // debounce to avoid rapid state changes
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(async () => {
-        await this.updateSelectionMessageBasedOnState();
-      });
   }
 
   private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
@@ -2501,16 +2418,8 @@ export class QuizQuestionComponent
           console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – not ready');
         }
       }, 30);
-
-      // Now push the “click next / show results” message
-      const msg = this.selectionMessageService.determineSelectionMessage(
-        this.questionIndex,
-        this.totalQuestions,
-        /* isAnswered= */ true
-      );
-      this.selectionMessageService.updateSelectionMessage(msg);
     
-      // ✅ Finalize selection + timer state
+      // Finalize selection + timer state
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
@@ -3373,19 +3282,6 @@ export class QuizQuestionComponent
     // Select the option and update the state
     this.selectOption(currentQuestion, option, index);
 
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion)
-    );
-
-    // Update selection message with the correct state
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      questionState.isAnswered
-    );
-
-    this.selectionMessageService.updateSelectionMessage(newMessage);
-
     this.processCurrentQuestionState(currentQuestion, option, index);
     await this.handleCorrectnessAndTimer();
   }
@@ -3395,17 +3291,6 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {}; // reset the feedback object
     this.showFeedbackForOption[option.optionId] =
       this.showFeedback && this.selectedOption === option;
-  }
-
-  private resetMessages(): void {
-    this.selectionMessageService.resetMessage();
-    const initialMessage = 'Please start the quiz by selecting an option.';
-    if (this.selectionMessage !== initialMessage) {
-      this.selectionMessage = initialMessage;
-      this.selectionMessageService.updateSelectionMessage(initialMessage);
-    }
-    this.lastMessage = initialMessage;
-    this.selectedOptionService.setOptionSelected(false);
   }
 
   private resetStateForNewQuestion(): void {
@@ -3419,9 +3304,6 @@ export class QuizQuestionComponent
     this.selectedOptionService.clearOptions();
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.setOptionSelected(false);
-    this.selectionMessage = 'Please select an option to continue...';
-    this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
-    this.selectionMessageService.resetMessage();
   }
 
   private processOptionSelectionAndUpdateState(index: number): void {
@@ -3440,39 +3322,6 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnsweredState(true);
     this.answerSelected.emit(true);
     this.isFirstQuestion = false; // reset after the first option click
-  }
-
-  private async updateSelectionMessageBasedOnCurrentState(
-    isAnswered: boolean
-  ): Promise<void> {
-    try {
-      const newMessage =
-        this.selectionMessageService?.determineSelectionMessage(
-          this.currentQuestionIndex,
-          this.totalQuestions,
-          isAnswered,
-          await firstValueFrom(
-            this.quizQuestionManagerService.isMultipleAnswerQuestion(
-              this.currentQuestion
-            )
-          )
-        );
-
-      // New message
-      if (this.selectionMessage !== newMessage) {
-        this.selectionMessage = newMessage;
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-      } else {
-        console.log(
-          '[updateSelectionMessageBasedOnCurrentState] No message update required'
-        );
-      }
-    } catch (error) {
-      console.error(
-        '[updateSelectionMessageBasedOnCurrentState] Error updating selection message:',
-        error
-      );
-    }
   }
 
   public async fetchAndProcessCurrentQuestion(): Promise<QuizQuestion | null> {
@@ -3507,11 +3356,10 @@ export class QuizQuestionComponent
 
       // Update the selection message based on the current state
       if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
+        // await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
       } else {
         console.log('No update required for the selection message.');
       }
-      this.updateAnswerStateAndMessage(isAnswered);
 
       // Return the fetched current question
       return currentQuestion;
@@ -3536,44 +3384,6 @@ export class QuizQuestionComponent
       this.currentQuestionIndex
     );
     this.questionAnswered.emit();
-  }
-
-  private async updateAnswerStateAndMessage(
-    isAnswered: boolean
-  ): Promise<void> {
-    try {
-      // Retrieve the isMultipleAnswer flag asynchronously
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(
-          this.currentQuestion
-        )
-      );
-
-      // Call determineSelectionMessage with all four required arguments
-      const message = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered,
-        isMultipleAnswer
-      );
-
-      this.setSelectionMessageIfChanged(message);
-    } catch (error) {
-      console.error(
-        '[updateAnswerStateAndMessage] Error updating selection message:',
-        error
-      );
-    }
-  }
-
-  // Sets the selection message if it has changed
-  private setSelectionMessageIfChanged(newMessage: string): void {
-    if (this.selectionMessage !== newMessage) {
-      this.selectionMessage = newMessage;
-      this.selectionMessageService.updateSelectionMessage(newMessage);
-    } else {
-      console.log('[setSelectionMessageIfChanged] No message update required');
-    }
   }
 
   private async handleCorrectnessAndTimer(): Promise<void> {
@@ -4141,32 +3951,6 @@ export class QuizQuestionComponent
     }
   }
 
-  private initializeMessageUpdateSubscription(): void {
-    if (this.selectionMessageSubscription) {
-      this.selectionMessageSubscription.unsubscribe();
-    }
-
-    this.selectionMessageSubscription = this.selectionMessageSubject
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe({
-        next: async (message: string) => {
-          try {
-            // Use the received message directly
-            if (message) {
-              this.selectionMessage = message; // Update local selectionMessage
-              this.selectionMessageService.updateSelectionMessage(message);
-            } else {
-              // Otherwise, determine the message based on the current state
-              await this.updateSelectionMessageBasedOnState();
-            }
-          } catch (error) {
-            console.error('Error updating selection message:', error);
-          }
-        },
-        error: (error) => console.error('Subscription error:', error),
-      });
-  }
-
   private checkInitialMessage(): void {
     const isAnswered = false; // Ensure it only applies initially
 
@@ -4175,33 +3959,6 @@ export class QuizQuestionComponent
       if (this.selectionMessageService.getCurrentMessage() !== initialMessage) {
         this.selectionMessageSubject.next(initialMessage);
       }
-    }
-  }
-
-  public async updateSelectionMessageBasedOnState(): Promise<void> {
-    try {
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizQuestionManagerService.isMultipleAnswerQuestion(
-          this.currentQuestion
-        )
-      );
-
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        isAnswered
-      );
-
-      // Update only if the message has changed
-      if (this.selectionMessage !== newMessage) {
-        this.selectionMessage = newMessage;
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-      }
-    } catch (error) {
-      console.error('Error updating selection message:', error);
     }
   }
 
