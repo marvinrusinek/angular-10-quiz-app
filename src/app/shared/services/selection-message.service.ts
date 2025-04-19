@@ -21,14 +21,21 @@ export class SelectionMessageService {
   }
 
   // Message determination function
-  public determineSelectionMessage(index: number, totalQuestions: number, isAnswered: boolean): string {
+  public determineSelectionMessage(
+    questionIndex: number,
+    totalQuestions: number,
+    isAnswered: boolean
+  ): string {
+    const isFirst = questionIndex === 0;
+    const isLast = questionIndex === totalQuestions - 1;
+  
     if (!isAnswered) {
-      return index === 0
+      return isFirst
         ? 'Please start the quiz by selecting an option.'
         : 'Please select an option to continue...';
     }
-
-    return index === totalQuestions - 1
+  
+    return isLast
       ? 'Please click the Show Results button.'
       : 'Please click the next button to continue.';
   }
