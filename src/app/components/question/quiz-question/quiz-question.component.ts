@@ -2595,7 +2595,7 @@ export class QuizQuestionComponent
           ? option.correct
             ? '✅ This is a correct answer!'
             : '❌ Incorrect answer!'
-          : option.feedback, // Preserve feedback for other options
+          : option.feedback, // preserve feedback for other options
       showIcon: option.optionId === selectedOption.optionId, // show icon for clicked option only
       selected: option.optionId === selectedOption.optionId, // ensure clicked option stays selected
     }));
@@ -2606,7 +2606,7 @@ export class QuizQuestionComponent
     // Add a slight delay to ensure UI refreshes properly
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Ensure UI updates **after** applying feedback
+    // Ensure UI updates after applying feedback
     // Ensure the flag is initialized if missing
     if (!this.showFeedbackForOption[selectedOption.optionId]) {
       this.showFeedbackForOption[selectedOption.optionId] = true;
