@@ -803,7 +803,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  async onOptionSelected(
+  /* async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
@@ -857,6 +857,56 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     // Enable next button
+    this.evaluateNextButtonState();
+  } */
+  async onOptionSelected(
+    event: { option: SelectedOption; index: number; checked: boolean },
+    isUserAction: boolean = true
+  ): Promise<void> {
+    if (!isUserAction) return;
+  
+    const { option, checked } = event;
+    console.log('[🟢 onOptionSelected triggered]', { option, checked });
+  
+    // Handle selection logic
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = checked ? [option] : [];
+    } else {
+      this.updateMultipleAnswerSelection(option, checked);
+    }
+  
+    // Only mark as answered if not already done
+    const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
+    if (!alreadyAnswered) {
+      this.selectedOptionService.setAnswered(true);
+      console.log('[✅ onOptionSelected] Question marked as answered.');
+    } else {
+      console.log('[ℹ️ onOptionSelected] Already answered — skipping update.');
+    }
+  
+    // Update local state
+    this.isAnswered = true;
+  
+    // Persist session state
+    sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
+    sessionStorage.setItem('displayExplanation', 'true');
+  
+    // Sync answer flag to services
+    this.quizStateService.setAnswerSelected(true);
+  
+    // ✅ Set selection message AFTER state is fully updated
+    try {
+      await this.setSelectionMessage(true);
+      console.log('[🧪 post-setSelectionMessage]', {
+        index: this.currentQuestionIndex,
+        message: this.selectionMessageService.getCurrentMessage()
+      });
+    } catch (err) {
+      console.error('[❌ setSelectionMessage failed]', err);
+    }
+  
+    // ✅ Enable the Next button
     this.evaluateNextButtonState();
   }
   
