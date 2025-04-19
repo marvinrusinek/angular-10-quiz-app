@@ -21,23 +21,17 @@ export class SelectionMessageService {
   }
 
   // Message determination function
-  public determineSelectionMessage(
-    questionIndex: number,
-    totalQuestions: number,
-    isAnswered: boolean
-  ): string {
-    const isLast = questionIndex === totalQuestions - 1;
-  
+  public determineSelectionMessage(index: number, totalQuestions: number, isAnswered: boolean): string {
     if (!isAnswered) {
-      return questionIndex === 0
+      return index === 0
         ? 'Please start the quiz by selecting an option.'
         : 'Please select an option to continue...';
     }
-  
-    return isLast
+
+    return index === totalQuestions - 1
       ? 'Please click the Show Results button.'
       : 'Please click the next button to continue.';
-  }  
+  }
 
   // Method to update the message
   /* updateSelectionMessage(newMessage: string | undefined): void {
@@ -55,9 +49,10 @@ export class SelectionMessageService {
       console.log('[updateSelectionMessage] No update required, selection message remains unchanged:', newMessage);
     }
   } */
-  public updateSelectionMessage(msg: string) {
-    if (msg && this.selectionMessageSubject.value !== msg) {
-      this.selectionMessageSubject.next(msg);
+  public updateSelectionMessage(message: string): void {
+    if (message && this.selectionMessageSubject.getValue() !== message) {
+      console.log('[🧩 updateSelectionMessage]', message);
+      this.selectionMessageSubject.next(message);
     }
   }
 
