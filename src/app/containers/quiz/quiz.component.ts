@@ -3378,7 +3378,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // All three flags are now true → one CD run will paint Q + badge + options
       this.cdRef.detectChanges();
-      await this.setSelectionMessage(false);
 
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
@@ -3401,6 +3400,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+      
+      await this.setSelectionMessage(false);
 
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
