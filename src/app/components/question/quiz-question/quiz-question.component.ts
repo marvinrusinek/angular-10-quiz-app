@@ -311,21 +311,8 @@ export class QuizQuestionComponent
 
       // Additional subscriptions and state tracking
       this.setupSubscriptions();
-      this.subscribeToOptionSelection();
       this.subscribeToNavigationFlags();
       this.subscribeToTotalQuestions();
-
-      // 1) seed local subject with whatever the service has now
-      this.selectionMessageSubject.next(
-        this.selectionMessageService.getCurrentMessage()
-      );
-
-      // 2) subscribe the service’s stream into your local subject
-      this.selectionMessageSubscription.add(
-        this.selectionMessageService.selectionMessage$
-          .pipe(distinctUntilChanged())
-          .subscribe((msg: string) => this.selectionMessageSubject.next(msg))
-      );
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
@@ -1889,7 +1876,6 @@ export class QuizQuestionComponent
   private resetTexts(): void {
     this.explanationTextSubject.next('');
     this.feedbackTextSubject.next('');
-    this.selectionMessageSubject.next('');
   }
 
   isSelectedOption(option: Option): boolean {
