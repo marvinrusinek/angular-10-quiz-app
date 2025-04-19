@@ -102,7 +102,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
   selectionMessage$: Observable<string>;
-  private lastSelectionMessage = '';
   //public selectionMessage$: Observable<string> =
   //  this.selectionMessageService.selectionMessage$;
   private subs = new Subscription();
