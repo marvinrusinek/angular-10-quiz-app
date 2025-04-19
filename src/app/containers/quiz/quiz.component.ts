@@ -3368,7 +3368,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Set selection message only if unanswered
       if (!isAnswered) {
-        await this.setSelectionMessage(false);
+        // Defer the update slightly to avoid overwriting user selection
+        setTimeout(() => {
+          this.setSelectionMessage(false);
+        }, 150);
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
         this.timerService.isTimerRunning = false;
