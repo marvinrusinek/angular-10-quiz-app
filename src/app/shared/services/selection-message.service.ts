@@ -47,7 +47,7 @@ export class SelectionMessageService {
       return;
     }
   
-    if (message !== current) {
+    if (message && message.trim() !== '' && current !== message) {
       console.log(`[📢 updateSelectionMessage] New: ${message} | Replacing: ${current}`);
       this.selectionMessageSubject.next(message);
     } else {
