@@ -26,11 +26,10 @@ export class SelectionMessageService {
     totalQuestions: number,
     isAnswered: boolean
   ): string {
-    const isFirst = questionIndex === 0;
     const isLast = questionIndex === totalQuestions - 1;
   
     if (!isAnswered) {
-      return isFirst
+      return questionIndex === 0
         ? 'Please start the quiz by selecting an option.'
         : 'Please select an option to continue...';
     }
