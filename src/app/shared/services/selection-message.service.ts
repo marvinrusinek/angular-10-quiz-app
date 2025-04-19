@@ -39,14 +39,18 @@ export class SelectionMessageService {
 
   // Method to update the message
   public updateSelectionMessage(message: string): void {
-    if (!message?.trim()) return;
-  
     const current = this.selectionMessageSubject.getValue();
+    
+    if (!message?.trim()) {
+      console.warn('[updateSelectionMessage] Skipped empty or blank message');
+      return;
+    }
+  
     if (message !== current) {
-      console.log('[🧩 updateSelectionMessage] New:', message);
+      console.log(`[📢 updateSelectionMessage] New: ${message} | Replacing: ${current}`);
       this.selectionMessageSubject.next(message);
     } else {
-      console.log('[ℹ️ updateSelectionMessage] Skipping duplicate message:', message);
+      console.log(`[⏸️ updateSelectionMessage] No update needed for: ${message}`);
     }
   }  
 }
