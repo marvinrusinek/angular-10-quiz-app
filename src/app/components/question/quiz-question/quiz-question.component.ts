@@ -2362,6 +2362,7 @@ export class QuizQuestionComponent
       this.markQuestionAsAnswered(lockedIndex);
       this.answerSelected.emit(true);
       await this.handleCorrectnessOutcome(true);
+      this.finalizeSelection(option, lockedIndex);
       this.saveQuizState();
     
       this.cdRef.markForCheck();
@@ -3922,6 +3923,7 @@ export class QuizQuestionComponent
     option: SelectedOption,
     optionIndex: number
   ): Promise<void> {
+    console.log("MYTESTING");
     if (optionIndex < 0) {
       console.error(`Invalid optionIndex ${optionIndex}.`);
       return;
