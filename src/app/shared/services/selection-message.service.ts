@@ -7,12 +7,10 @@ export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(
     'Please select an option to start the quiz.'
   );
-
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
     distinctUntilChanged<string>(),
     debounceTime<string>(100)
   );
-
   optionSelectedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   // Getter for the current selection message
@@ -49,7 +47,7 @@ export class SelectionMessageService {
     }
   }
 
-  resetMessage(): void {
+  public resetMessage(): void {
     this.selectionMessageSubject.next('');
     this.optionSelectedSubject.next(false);
   }
