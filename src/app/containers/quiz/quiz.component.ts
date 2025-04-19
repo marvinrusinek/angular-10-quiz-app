@@ -630,13 +630,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectionMessageService.updateSelectionMessage(msg);
   }
 
-  private async setMessageForNewQuestion(qIndex: number) {
-    const newMsg = qIndex === 0
-      ? 'Please select an option to start the quiz.'
-      : 'Please select an option to continue...';
-    this.selectionMessageService.updateSelectionMessage(newMsg);
-  }
-
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
       next: async (question: QuizQuestion) => {
@@ -3327,9 +3320,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
-
-      // Set the appropriate selection message for the new question
-      this.setMessageForNewQuestion(questionIndex);
 
       /* ───────────────────  Process question text  ──────────── */
       const trimmedText = fetchedQuestion.questionText.trim();
