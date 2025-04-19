@@ -821,7 +821,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     this.isAnswered = true;  
-    this.setSelectionMessage(true); // update selection message
   
     // Update persisted session state
     sessionStorage.setItem('isAnswered', 'true');
@@ -833,6 +832,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Enable next button
     this.evaluateNextButtonState();
+
+    // Set selection message after state is updated
+    this.setSelectionMessage(true);
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
