@@ -834,7 +834,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[ℹ️ onOptionSelected] Already answered — skipping update.');
     }
   
-    this.isAnswered = true;
+    this.isAnswered = true;  
+    this.setSelectionMessage(true); // update selection message
   
     // Update persisted session state
     sessionStorage.setItem('isAnswered', 'true');
@@ -843,9 +844,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Sync state across services
     this.quizStateService.setAnswerSelected(true);
-  
-    // Update selection message
-    this.setSelectionMessage(true);
 
     // Enable next button
     this.evaluateNextButtonState();
