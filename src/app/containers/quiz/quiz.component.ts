@@ -863,6 +863,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
+    console.log('[🟢 onOptionSelected] Fired', {
+      index: this.currentQuestionIndex,
+      questionText: this.currentQuestion?.questionText,
+    });
+    
     if (!isUserAction) return;
   
     const { option, checked } = event;
@@ -3405,10 +3410,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
-        // Defer the update slightly to avoid overwriting user selection
-        setTimeout(() => {
-          this.setSelectionMessage(false);
-        }, 150);
+        const expected = this.selectionMessageService.determineSelectionMessage(
+          questionIndex,
+          this.totalQuestions,
+          false
+        );
+        const current = this.selectionMessageService.getCurrentMessage();
+      
+        if (current !== expected) {
+          // Defer update slightly to avoid race conditions with user input
+          setTimeout(() => {
+            this.setSelectionMessage(false);
+          }, 150);
+        } else {
+          console.log('[🛑 Skipping redundant setSelectionMessage(false)]');
+        }
+      
         this.timerService.startTimer(this.timerService.timePerQuestion);
       }
   
