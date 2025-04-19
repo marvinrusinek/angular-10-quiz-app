@@ -808,7 +808,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     isUserAction: boolean = true
   ): Promise<void> {
     console.log('[🟢 onOptionSelected triggered]', { event });
-    // ❌ Skip deselection events and non-user-initiated ones
+    // Skip deselection events and non-user-initiated ones
     if (!event.checked || !isUserAction) return;
   
     const { option, checked } = event;
@@ -2251,8 +2251,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.log(
             `Question at index ${index} is ${answered ? 'already answered' : 'not answered'}.`
           );
-  
-          this.quizQuestionComponent?.updateSelectionMessageBasedOnState();
         } else {
           console.error('Question not found for index:', index);
         }
