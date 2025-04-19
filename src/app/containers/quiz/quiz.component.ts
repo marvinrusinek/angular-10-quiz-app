@@ -612,9 +612,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const index = this.currentQuestionIndex;
     const total = this.totalQuestions;
   
-    const message = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
-    this.selectionMessageService.updateSelectionMessage(message);
-  }  
+    const newMessage = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
+    const current = this.selectionMessageService.getCurrentMessage?.();
+  
+    if (newMessage !== current) {
+      console.log('[🧩 setSelectionMessage]', { index, isAnswered, newMessage });
+      this.selectionMessageService.updateSelectionMessage(newMessage);
+    }
+  }
 
   private async refreshSelectionMessage(isAnswered: boolean) {
     const isMultiple = await firstValueFrom(
@@ -3386,7 +3391,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       }
 
-      this.setSelectionMessage(false);
+      await this.setSelectionMessage(false);
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
