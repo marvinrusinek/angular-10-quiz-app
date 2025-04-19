@@ -9,9 +9,7 @@ export class SelectionMessageService {
   private readonly NEXT_BTN_MSG = 'Please click the next button to continue.';
   private readonly SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 
-  private selectionMessageSubject = new BehaviorSubject<string>(
-    'Please select an option to start the quiz.'
-  );
+  private selectionMessageSubject = new BehaviorSubject<string>(this.START_MSG);
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
     distinctUntilChanged(),
     debounceTime(100)
