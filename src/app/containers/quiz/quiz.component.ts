@@ -102,6 +102,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
   selectionMessage$: Observable<string>;
+  private lastSelectionMessage = '';
   //public selectionMessage$: Observable<string> =
   //  this.selectionMessageService.selectionMessage$;
   private subs = new Subscription();
@@ -617,13 +618,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isAnswered
     );
   
-    console.log('[🧩 setSelectionMessage]', {
-      index: this.currentQuestionIndex,
-      isAnswered,
-      message
-    });
-    
-    this.selectionMessageService.updateSelectionMessage(message);
+    if (message !== this.lastSelectionMessage) {
+      console.log('[🧩 setSelectionMessage]', {
+        index: this.currentQuestionIndex,
+        isAnswered,
+        message
+      });
+  
+      this.selectionMessageService.updateSelectionMessage(message);
+      this.lastSelectionMessage = message;
+    } else {
+      console.log('[⏸️ setSelectionMessage] Skipped duplicate message:', message);
+    }
   }
 
   private async refreshSelectionMessage(isAnswered: boolean) {
