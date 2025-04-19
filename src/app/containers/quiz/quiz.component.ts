@@ -608,20 +608,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
-    const index = this.currentQuestionIndex;
-    const total = this.totalQuestions;
+    try {
+      const index = this.currentQuestionIndex;
+      const total = this.totalQuestions;
   
-    if (typeof index !== 'number' || isNaN(index) || total <= 0) {
-      console.warn('[❌ setSelectionMessage] Invalid index or totalQuestions');
-      return;
-    }
+      if (typeof index !== 'number' || isNaN(index) || total <= 0) {
+        console.warn('[❌ setSelectionMessage] Invalid index or totalQuestions');
+        return;
+      }
   
-    const newMessage = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
-    const current = this.selectionMessageService.getCurrentMessage();
+      const newMessage = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
+      const current = this.selectionMessageService.getCurrentMessage();
   
-    if (newMessage !== current) {
-      console.log('[🧩 setSelectionMessage]', { index, total, isAnswered, newMessage });
-      this.selectionMessageService.updateSelectionMessage(newMessage);
+      if (newMessage !== current) {
+        console.log('[🧩 setSelectionMessage]', { index, total, isAnswered, newMessage });
+        this.selectionMessageService.updateSelectionMessage(newMessage);
+      }
+    } catch (error) {
+      console.error('[❌ setSelectionMessage] Error:', error);
     }
   }
 
