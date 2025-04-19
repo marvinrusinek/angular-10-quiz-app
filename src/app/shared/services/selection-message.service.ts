@@ -4,6 +4,11 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
+  private readonly START_MSG = 'Please start the quiz by selecting an option.';
+  private readonly CONTINUE_MSG = 'Please select an option to continue...';
+  private readonly NEXT_BTN_MSG = 'Please click the next button to continue.';
+  private readonly SHOW_RESULTS_MSG = 'Please click the Show Results button.';
+
   private selectionMessageSubject = new BehaviorSubject<string>(
     'Please select an option to start the quiz.'
   );
@@ -25,17 +30,13 @@ export class SelectionMessageService {
   ): string {
     const isFirst = questionIndex === 0;
     const isLast = questionIndex === totalQuestions - 1;
-  
+
     if (!isAnswered) {
-      return isFirst
-        ? 'Please start the quiz by selecting an option.'
-        : 'Please select an option to continue...';
+      return isFirst ? this.START_MSG : this.CONTINUE_MSG;
     }
-  
-    return isLast
-      ? 'Please click the Show Results button.'
-      : 'Please click the next button to continue.';
-  }  
+
+    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+  }
 
   // Method to update the message
   public updateSelectionMessage(message: string): void {
