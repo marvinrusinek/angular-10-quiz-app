@@ -2293,8 +2293,7 @@ export class QuizQuestionComponent
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
-      isAnswered,
-      isMultipleAnswer
+      isAnswered
     );
 
     console.log('Determined new message:', newMessage);
@@ -4195,8 +4194,7 @@ export class QuizQuestionComponent
       const newMessage = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
-        isAnswered,
-        isMultipleAnswer
+        isAnswered
       );
 
       // Update only if the message has changed
@@ -4207,51 +4205,6 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('Error updating selection message:', error);
     }
-  }
-
-  private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizQuestionManagerService
-      .isMultipleAnswerQuestion(currentQuestion)
-      .subscribe({
-        next: () => {
-          const selectedOptions =
-            this.quizService.selectedOptionsMap.get(
-              this.currentQuestionIndex
-            ) || [];
-          if (selectedOptions.length > 0) {
-            this.fetchQuestionsArray(currentQuestion);
-          } else {
-            this.explanationTextService.explanationText$.next('');
-          }
-        },
-        error: (error) => {
-          console.error('Error in isMultipleAnswer subscription:', error);
-        },
-      });
-  }
-
-  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
-    this.isLoadingQuestions = true;
-    this.questions$.pipe(take(1)).subscribe({
-      next: (questionsArray: QuizQuestion[]) => {
-        if (!questionsArray || questionsArray.length === 0) {
-          console.warn('Questions array is empty or undefined.');
-          this.isLoadingQuestions = false;
-          return;
-        }
-
-        this.questionsArray = questionsArray;
-        const questionIndex = this.questionsArray.findIndex(
-          (q) => q.questionText === currentQuestion.questionText
-        );
-        this.prepareAndSetExplanationText(questionIndex);
-        this.isLoadingQuestions = false;
-      },
-      error: (error: Error) => {
-        console.error('Error fetching questions array:', error);
-        this.isLoadingQuestions = false;
-      },
-    });
   }
 
   shouldShowIcon(option: Option): boolean {
