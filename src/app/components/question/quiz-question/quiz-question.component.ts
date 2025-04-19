@@ -441,7 +441,6 @@ export class QuizQuestionComponent
 
         // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
-        await this.checkAsynchronousStateChanges();
 
         // Ensure optionsToDisplay is populated before proceeding
         if (
@@ -2224,22 +2223,6 @@ export class QuizQuestionComponent
     }
   }
 
-  private async checkAsynchronousStateChanges(): Promise<void> {
-    try {
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
-      const currentSelectionState =
-        this.selectedOptionService.getCurrentOptionSelectedState();
-
-      if (isAnswered !== currentSelectionState) {
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      }
-    } catch (error) {
-      console.error('Error checking asynchronous state changes:', error);
-    }
-  }
-
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message);
   }
@@ -3712,12 +3695,6 @@ export class QuizQuestionComponent
                 this.applyOptionFeedback(previouslySelectedOption);
               }
             });
-
-          // Check if the question has already been answered
-          const isAnswered = await this.isQuestionAnswered(
-            this.currentQuestionIndex
-          );
-          this.updateSelectionMessage(isAnswered);
 
           this.initializeForm();
           this.questionForm.updateValueAndValidity();
