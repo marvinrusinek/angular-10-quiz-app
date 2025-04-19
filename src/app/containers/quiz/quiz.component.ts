@@ -808,8 +808,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     isUserAction: boolean = true
   ): Promise<void> {
     console.log('[🟢 onOptionSelected triggered]', { event });
-    // Skip deselection events and non-user-initiated ones
-    if (!event.checked || !isUserAction) return;
+    // 🚫 Skip if it's not a user action or the option was deselected
+    if (!isUserAction || !event.checked) {
+      console.warn('[⏩ Skipping onOptionSelected]', { isUserAction, checked: event.checked });
+      return;
+    }
   
     const { option, checked } = event;
   
