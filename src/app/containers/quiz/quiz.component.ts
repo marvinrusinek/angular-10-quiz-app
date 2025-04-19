@@ -651,11 +651,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectionMessageService.updateSelectionMessage(newMsg);
   }
 
-  private async afterQuestionLoad() {
-    // unanswered yet
-    await this.setSelectionMessage(false);
-  }
-
   public async onAnswerSelected(answered: boolean) {
     // answered===true
     await this.setSelectionMessage(answered);
@@ -3082,8 +3077,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
       }
-
-      await this.afterQuestionLoad();
   
       // Re-evaluate Next button state
       const shouldEnableNext = this.isAnyOptionSelected();
