@@ -350,7 +350,6 @@ export class QuizQuestionComponent
       if (this.questionsArray && this.questionsArray.length > 0) {
         this.updateExplanationUI(index, explanationText);
       }
-      this.setInitialMessage();
     }, 50);
   } */
   async ngAfterViewInit(): Promise<void> {
@@ -380,7 +379,6 @@ export class QuizQuestionComponent
         const explanationText =
           question.explanation || 'No explanation available';
         this.updateExplanationUI(index, explanationText);
-        this.setInitialMessage();
       }, 50);
     } else {
       console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
@@ -1452,11 +1450,6 @@ export class QuizQuestionComponent
         );
         this.feedbackText = 'Unable to generate feedback.';
       }
-
-      // Set the initial message for the first question
-      if (this.currentQuestionIndex === 0) {
-        this.setInitialMessage();
-      }
     } catch (error) {
       console.error(
         '[initializeComponent] Error during initialization:',
@@ -1969,18 +1962,6 @@ export class QuizQuestionComponent
     await this.initializeQuizQuestionsAndAnswers();
 
     console.info('Quiz questions and answers initialized.');
-
-    // Ensure the question is fully loaded before setting the message
-    // this.loadQuestionAndSetInitialMessage(); rename
-  }
-
-  // rename
-  private loadQuestionAndSetInitialMessage(): void {
-    // Set the initial message after the question is fully loaded
-    setTimeout(() => {
-      console.info('Setting initial message.');
-      this.setInitialMessage();
-    }, 100); // Adjust the delay as needed
   }
 
   // might need later
