@@ -2159,12 +2159,6 @@ export class QuizQuestionComponent
         this.currentQuestionIndex
       );
       this.clearSelection();
-
-      if (this.shouldUpdateMessageOnAnswer(isAnswered)) {
-        await this.updateSelectionMessageBasedOnCurrentState(isAnswered);
-      } else {
-        console.log('[handleQuestionState] No message update required');
-      }
     }
   }
 
