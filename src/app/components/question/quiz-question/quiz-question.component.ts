@@ -3476,7 +3476,7 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
 
     // Reset selection state and feedback
-    this.selectionMessageService.resetMessage();
+    // this.selectionMessageService.resetMessage();
     this.showFeedbackForOption = {};
     this.isFeedbackApplied = false;
 
