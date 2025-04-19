@@ -3363,7 +3363,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
 
-      this.setSelectionMessage(false);
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.setQuestionText(trimmedText);
@@ -3378,6 +3377,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       }
 
+      await this.setSelectionMessage(false);
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
