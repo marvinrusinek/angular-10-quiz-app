@@ -43,7 +43,7 @@ export class SelectionMessageService {
   
     const current = this.selectionMessageSubject.getValue();
     if (message !== current) {
-      console.log('[🧩 updateSelectionMessage]', message);
+      console.log('[🧩 updateSelectionMessage] New:', message);
       this.selectionMessageSubject.next(message);
     } else {
       console.log('[ℹ️ updateSelectionMessage] Skipping duplicate message:', message);
