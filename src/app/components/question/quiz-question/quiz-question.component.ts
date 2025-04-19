@@ -16,6 +16,7 @@ import {
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
+import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
@@ -2850,8 +2851,13 @@ export class QuizQuestionComponent
 
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(
-    allCorrectSelected: boolean
+    allCorrectSelected: boolean,
+    option: SelectedOption
   ): Promise<void> {
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      await this.handleMultipleAnswerTimerLogic(option);
+    }
+    
     if (allCorrectSelected) {
       if (this.timerService.isTimerRunning) {
         // Stop timer immediately
@@ -3031,7 +3037,7 @@ export class QuizQuestionComponent
       this.currentQuestionIndex
     );
     this.answerSelected.emit(true);
-    await this.handleCorrectnessOutcome(true);
+    await this.handleCorrectnessOutcome(true, option);
     await this.processSelectedOption(option, index, true);
     await this.finalizeOptionSelection(option, index, questionState);
     this.saveQuizState();
@@ -3806,18 +3812,18 @@ export class QuizQuestionComponent
       currentQuestion.options = this.quizService.assignOptionIds(
         currentQuestion.options
       );
-
+  
       // Get selected options, but only include those with a valid optionId
       const selectedOptions: Option[] = this.selectedOptionService
         .getSelectedOptionIndices(this.currentQuestionIndex)
         .map((index) => currentQuestion.options[index])
         .filter((option) => option && option.optionId !== undefined);
-
+  
       // Check if the option is already selected
       const isOptionSelected = selectedOptions.some(
         (option) => option.optionId === optionIndex
       );
-
+  
       // Add or remove the option based on its current state
       if (!isOptionSelected) {
         this.selectedOptionService.addSelectedOptionIndex(
@@ -3830,7 +3836,7 @@ export class QuizQuestionComponent
           optionIndex
         );
       }
-
+  
       // Check if all correct answers are selected
       const allCorrectSelected =
         await this.selectedOptionService.areAllCorrectAnswersSelected(
@@ -3841,13 +3847,13 @@ export class QuizQuestionComponent
         '[handleOptionClicked] All correct answers selected:',
         allCorrectSelected
       );
-
+  
       // Update answered state
       this.selectedOptionService.updateAnsweredState(
         currentQuestion.options,
         this.currentQuestionIndex
       );
-
+  
       // Handle multiple-answer logic
       if (allCorrectSelected) {
         console.log(
@@ -3855,12 +3861,12 @@ export class QuizQuestionComponent
         );
         this.timerService.stopTimer();
       }
-
+  
       // Ensure the UI reflects the changes
       this.cdRef.markForCheck();
-
+  
       // Trigger explanation + next button logic
-      await this.handleCorrectnessOutcome(allCorrectSelected);
+      await this.handleCorrectnessOutcome(allCorrectSelected, this.selectedOption);
     } catch (error) {
       console.error('[handleOptionClicked] Unhandled error:', error);
     }
