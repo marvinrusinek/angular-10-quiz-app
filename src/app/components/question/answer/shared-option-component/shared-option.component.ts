@@ -29,7 +29,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
-  @Output() optionSelected = new EventEmitter<{ option: Option, index: number, checked: boolean }>();
+  // @Output() optionSelected = new EventEmitter<{ option: Option, index: number, checked: boolean }>();
   @Output() optionChanged = new EventEmitter<Option>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
@@ -614,13 +614,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     const eventData = {
-      option: optionBinding.option,
-      index: index,
-      checked: checked
+      option: {
+        ...optionBinding.option,
+        questionIndex: questionIndex
+      },
+      index,
+      checked
     };
   
     console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected:`, eventData);
-    this.optionSelected.emit(eventData);
+    this.optionClicked.emit(eventData);
   }
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {

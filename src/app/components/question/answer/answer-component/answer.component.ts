@@ -34,7 +34,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
-  type: 'single' | 'multiple'; // Store the type (single or multiple answer)
+  type: 'single' | 'multiple'; // store the type (single or multiple answer)
   selectedOptionIndex: number = -1;
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
