@@ -651,11 +651,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectionMessageService.updateSelectionMessage(newMsg);
   }
 
-  public async onAnswerSelected(answered: boolean) {
-    // answered===true
-    await this.setSelectionMessage(answered);
-  }
-
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
       next: async (question: QuizQuestion) => {
