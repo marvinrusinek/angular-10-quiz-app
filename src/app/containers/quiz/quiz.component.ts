@@ -617,7 +617,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isAnswered
     );
   
-    console.log(`[🟢 setSelectionMessage] Q${this.currentQuestionIndex}, answered=${isAnswered} →`, message);
+    console.log('[🧩 setSelectionMessage]', {
+      index: this.currentQuestionIndex,
+      isAnswered,
+      message
+    });
+    
     this.selectionMessageService.updateSelectionMessage(message);
   }
 
