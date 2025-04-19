@@ -3343,13 +3343,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
 
+      // Set selection message only if unanswered
       if (!isAnswered) {
+        await this.setSelectionMessage(false);
         this.timerService.startTimer(this.timerService.timePerQuestion);
       } else {
         this.timerService.isTimerRunning = false;
       }
 
-      await this.setSelectionMessage(false);
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
