@@ -2377,33 +2377,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       !Array.isArray(selectedQuiz.questions) ||
       selectedQuiz.questions.length === 0
     ) {
-      console.error(
-        `Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`
-      );
+      console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
       return;
     }
 
-    if (
-      !this.quizService.isValidQuestionIndex(
-        questionIndex,
-        selectedQuiz.questions
-      )
+    if (!this.quizService.isValidQuestionIndex(questionIndex, selectedQuiz.questions)
     ) {
-      console.error(
-        `Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`
-      );
+      console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
       return;
     }
-
-    const currentQuestion = selectedQuiz.questions[questionIndex];
 
     // Initialize the quiz state for the current question
     this.quizStateService.createDefaultQuestionState();
-
-    // Reset the selection message to prompt user to select an option
-    this.selectionMessageService.selectionMessageSubject.next(
-      'Please select an option to continue...'
-    );
   }
 
   private initializeQuizState(): void {
