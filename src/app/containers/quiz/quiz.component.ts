@@ -237,14 +237,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isContentAvailable$ = this.getContentAvailability();
 
     this.isAnswered$ = this.selectedOptionService.isAnswered$;
+    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
     this.subscriptions.add(
       this.quizService.quizReset$.subscribe(() => {
         this.refreshQuestionOnReset();
       })
     );
-
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
     this.quizComponentData = {
       data: this.data,
