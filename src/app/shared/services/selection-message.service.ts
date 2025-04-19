@@ -33,6 +33,15 @@ export class SelectionMessageService {
       return isFirst ? this.START_MSG : this.CONTINUE_MSG;
     }
 
+    console.log('[📍 determineSelectionMessage]', {
+      questionIndex,
+      totalQuestions,
+      isAnswered,
+      result: isAnswered
+        ? (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
+        : (isFirst ? this.START_MSG : this.CONTINUE_MSG),
+    });
+
     return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   }
 
