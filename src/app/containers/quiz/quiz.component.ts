@@ -807,6 +807,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
+    console.log('[🟢 onOptionSelected triggered]', { event });
     if (!isUserAction) return;
   
     const { option, checked } = event;
@@ -838,10 +839,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
 
     // Set selection message after state is updated
-    await this.setSelectionMessage(true);
-    console.log('[🧪 post-setSelectionMessage]', {
-      current: this.selectionMessageService.getCurrentMessage(),
-    });    
+    try {
+      await this.setSelectionMessage(true);
+      console.log('[🧪 post-setSelectionMessage]', {
+        current: this.selectionMessageService.getCurrentMessage(),
+      });
+    } catch (err) {
+      console.error('[❌ setSelectionMessage failed]', err);
+    }
 
     // Enable next button
     this.evaluateNextButtonState();
