@@ -3469,8 +3469,7 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.showExplanationChange.emit(false);
 
-    // Reset selection state and feedback
-    // this.selectionMessageService.resetMessage();
+    // Reset feedback
     this.showFeedbackForOption = {};
     this.isFeedbackApplied = false;
 

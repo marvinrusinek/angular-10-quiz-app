@@ -46,9 +46,5 @@ export class SelectionMessageService {
       console.log('[🧩 updateSelectionMessage]', { current, new: message });
       this.selectionMessageSubject.next(message);
     }
-  }  
-
-  public resetMessage(): void {
-    this.selectionMessageSubject.next('');
   }
 }
