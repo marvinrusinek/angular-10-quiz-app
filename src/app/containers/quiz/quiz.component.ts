@@ -836,11 +836,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Sync state across services
     this.quizStateService.setAnswerSelected(true);
 
-    // Enable next button
-    this.evaluateNextButtonState();
-
     // Set selection message after state is updated
     this.setSelectionMessage(true);
+
+    // Enable next button
+    this.evaluateNextButtonState();
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
