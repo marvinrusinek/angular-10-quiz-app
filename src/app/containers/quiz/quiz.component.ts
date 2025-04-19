@@ -762,6 +762,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  /* likely remove unless tooltip gets added
   private refreshTooltip(): void {
     if (this.nextButtonTooltip) {
       this.ngZone.runOutsideAngular(() => {
@@ -778,7 +779,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private disableNextButtonWithTooltip(message: string): void {
     this.isNextButtonEnabled = false;
     this.updateTooltip(message); // Update tooltip to reflect the disabled state
-  }
+  } */
   
   private updateTooltip(message: string): void {
     setTimeout(() => {
