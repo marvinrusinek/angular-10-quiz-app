@@ -2944,10 +2944,6 @@ export class QuizQuestionComponent
     this.showFeedbackForOption[option.optionId] = option.selected;
   }
 
-  private emitOptionSelected(option: SelectedOption, index: number): void {
-    this.optionSelected.emit({ option, index, checked: option.selected });
-  }
-
   private startLoading(): void {
     this.isLoading = true;
     this.quizStateService.setLoading(true);
@@ -3575,9 +3571,6 @@ export class QuizQuestionComponent
         },
         totalCorrectAnswers
       );
-
-      // Emit an event to notify the parent component that an option is selected
-      this.emitOptionSelected(option, optionIndex);
 
       // Display explanation text only if an option has been selected
       if (this.isAnswered || this.isOptionSelected) {
