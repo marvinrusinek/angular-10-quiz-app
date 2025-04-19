@@ -28,21 +28,23 @@ export class SelectionMessageService {
   ): string {
     const isFirst = questionIndex === 0;
     const isLast = questionIndex === totalQuestions - 1;
-
-    if (!isAnswered) {
-      return isFirst ? this.START_MSG : this.CONTINUE_MSG;
-    }
-
-    console.log('[📍 determineSelectionMessage]', {
+  
+    const msg = !isAnswered
+      ? isFirst
+        ? this.START_MSG
+        : this.CONTINUE_MSG
+      : isLast
+      ? this.SHOW_RESULTS_MSG
+      : this.NEXT_BTN_MSG;
+  
+    console.log('[🔁 determineSelectionMessage]', {
       questionIndex,
       totalQuestions,
       isAnswered,
-      result: isAnswered
-        ? (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
-        : (isFirst ? this.START_MSG : this.CONTINUE_MSG),
+      result: msg,
     });
-
-    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+  
+    return msg;
   }
 
   // Method to update the message
