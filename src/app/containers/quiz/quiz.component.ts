@@ -855,6 +855,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Sync quiz state service
     this.quizStateService.setAnswerSelected(true);
 
+    await this.setSelectionMessage(true);
+
     const message = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
@@ -3388,6 +3390,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // All three flags are now true → one CD run will paint Q + badge + options
       this.cdRef.detectChanges();
+      await this.setSelectionMessage(false);
 
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
