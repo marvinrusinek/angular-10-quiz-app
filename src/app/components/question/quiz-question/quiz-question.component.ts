@@ -2294,20 +2294,20 @@ export class QuizQuestionComponent
     );
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
-    // ✅ Apply selection logic right away
+    // Apply selection logic right away
     this.updateOptionSelection(event, option);
     this.selectedOptionService.setAnswered(true);
   
     try {
-      // ✅ Display question text immediately to prevent flicker
+      // Display question text immediately to prevent flicker
       this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
       this.cdRef.detectChanges();
     
-      // ✅ Fetch explanation text early
+      // Fetch explanation text early
       const explanationToUse = await this.updateExplanationText(lockedIndex);
       const trimmed = explanationToUse?.trim() || 'No explanation available';
     
-      // ✅ Only emit if different or not yet formatted
+      // Only emit if different or not yet formatted
       const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
       const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
     
@@ -2327,11 +2327,11 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
       }
     
-      // ✅ THEN update state and allow explanation to be shown
+      // Update state and allow explanation to be shown
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     
-      // ✅ Apply feedback
+      // Apply feedback
       if (!this.optionsToDisplay?.length) {
         await new Promise((res) => setTimeout(res, 50));
         this.optionsToDisplay = this.populateOptionsToDisplay();
@@ -2346,7 +2346,7 @@ export class QuizQuestionComponent
     
       this.showFeedbackForOption[option.optionId || 0] = true;
     
-      // ✅ Trigger explanation evaluation
+      // Trigger explanation evaluation
       setTimeout(() => {
         const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
         const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
@@ -2366,7 +2366,7 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }    
-  }  
+  }
 
   private async fetchAndUpdateExplanationText(
     questionIndex: number
