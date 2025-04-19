@@ -3263,7 +3263,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.hasOptionsLoaded = false;
     this.shouldRenderOptions = false;
     this.isLoading = true;
-
+  
     try {
       /* ──────────────────────────  Safety Checks  ────────────────────────── */
       if (
@@ -3278,7 +3278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (questionIndex === this.totalQuestions - 1) {
         console.log(`[🔚 Last Question] Q${questionIndex}`);
       }
-
+  
       /* ─────────────────────────  Reset Local State  ────────────────────── */
       this.explanationTextService.resetExplanationState();
       this.resetQuestionState();
@@ -3289,13 +3289,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
       // Tiny delay to clear any in‑flight bindings
       await new Promise(res => setTimeout(res, 30));
-
+  
       /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
         firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
       ]);
-
+  
       // Validate arrival of both question and options
       if (
         !fetchedQuestion ||
@@ -3306,13 +3306,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
-
+  
       /* ───────────────────  Process question text  ──────────── */
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
       this.questionTextLoaded = true;
-
+  
       /* ───────── Hydrate & clone options ───────── */
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
@@ -3323,7 +3323,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
       const clonedOptions = structuredClone?.(finalOptions)
         ?? JSON.parse(JSON.stringify(finalOptions));
-
+  
       /* ───────────────────  Assign into Component State  ──────────────── */
       this.question = {
         questionText: fetchedQuestion.questionText,
@@ -3333,18 +3333,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.currentQuestion = { ...this.question };
       this.optionsToDisplay = [...clonedOptions];
-
+  
       /* ───────── Flip “options loaded” flags together ───────── */
       this.hasOptionsLoaded    = true;
       this.shouldRenderOptions = true;
-
+  
       // All three flags are now true → one CD run will paint Q + badge + options
       this.cdRef.detectChanges();
-
+  
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
       const isAnswered = await this.isQuestionAnswered(questionIndex);
       let explanationText = '';
-
+  
       if (isAnswered) {
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
         this.explanationTextService.setExplanationTextForQuestionIndex(
@@ -3352,31 +3352,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           explanationText
         );
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      }
-
-      this.setQuestionDetails(trimmedText, finalOptions, explanationText);
-      this.currentQuestionIndex = questionIndex;
-      this.explanationToDisplay = explanationText;
-
-      this.quizService.setCurrentQuestion(this.currentQuestion);
-      this.quizService.setCurrentQuestionIndex(questionIndex);
-      this.quizStateService.setQuestionText(trimmedText);
-      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
-      await this.loadQuestionContents(questionIndex);
-      await this.quizService.checkIfAnsweredCorrectly();
-
-      // Set selection message only if unanswered
-      if (!isAnswered) {
+        this.timerService.isTimerRunning = false;
+      } else {
         // Defer the update slightly to avoid overwriting user selection
         setTimeout(() => {
           this.setSelectionMessage(false);
         }, 150);
         this.timerService.startTimer(this.timerService.timePerQuestion);
-      } else {
-        this.timerService.isTimerRunning = false;
       }
-
+  
+      this.setQuestionDetails(trimmedText, finalOptions, explanationText);
+      this.currentQuestionIndex = questionIndex;
+      this.explanationToDisplay = explanationText;
+  
+      this.quizService.setCurrentQuestion(this.currentQuestion);
+      this.quizService.setCurrentQuestionIndex(questionIndex);
+      this.quizStateService.setQuestionText(trimmedText);
+      this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+  
+      await this.loadQuestionContents(questionIndex);
+      await this.quizService.checkIfAnsweredCorrectly();
+  
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
