@@ -838,7 +838,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
 
     // Set selection message after state is updated
-    this.setSelectionMessage(true);
+    await this.setSelectionMessage(true);
 
     // Enable next button
     this.evaluateNextButtonState();
