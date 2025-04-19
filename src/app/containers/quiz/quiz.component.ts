@@ -609,25 +609,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private setSelectionMessage(isAnswered: boolean): void {
-    const message = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
+    const index = this.currentQuestionIndex;
+    const total = this.totalQuestions;
   
-    if (message !== this.lastSelectionMessage) {
-      console.log('[🧩 setSelectionMessage]', {
-        index: this.currentQuestionIndex,
-        isAnswered,
-        message
-      });
-  
-      this.selectionMessageService.updateSelectionMessage(message);
-      this.lastSelectionMessage = message;
-    } else {
-      console.log('[⏸️ setSelectionMessage] Skipped duplicate message:', message);
-    }
-  }
+    const message = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
+    this.selectionMessageService.updateSelectionMessage(message);
+  }  
 
   private async refreshSelectionMessage(isAnswered: boolean) {
     const isMultiple = await firstValueFrom(
@@ -851,11 +838,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Sync state across services
     this.quizStateService.setAnswerSelected(true);
   
-    // Update selection message
-    this.setSelectionMessage(true);
-  
     // Enable next button
     this.evaluateNextButtonState();
+
+    // Update selection message
+    this.setSelectionMessage(true);
   }
 
   private async updateSelectionMessage(isAnswered: boolean): Promise<void> {
@@ -3399,8 +3386,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-      
-      await this.setSelectionMessage(false);
 
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
@@ -3411,6 +3396,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       }
 
+      this.setSelectionMessage(false);
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
