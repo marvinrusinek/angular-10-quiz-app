@@ -3415,7 +3415,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       // After everything else for this question is set up but before user picks:
-      await this.refreshSelectionMessage(false);
+      // await this.refreshSelectionMessage(false);
+      this.setSelectionMessage(false);
 
       return true;
     } catch (error) {
