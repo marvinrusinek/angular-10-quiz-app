@@ -610,6 +610,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     const index = this.currentQuestionIndex;
     const total = this.totalQuestions;
+
+    if (typeof index !== 'number' || total <= 0) {
+      console.warn('[🧩 setSelectionMessage] Invalid index or totalQuestions');
+      return;
+    }
   
     const newMessage = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
     const current = this.selectionMessageService.getCurrentMessage(); // call directly, no optional chaining
