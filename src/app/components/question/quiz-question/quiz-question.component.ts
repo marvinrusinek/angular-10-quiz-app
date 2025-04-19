@@ -2468,7 +2468,7 @@ export class QuizQuestionComponent
 
   // ====================== Helper Functions ======================
   private async handleMultipleAnswerTimerLogic(option: Option): Promise<void> {
-    this.showFeedback = true; // Enable feedback display
+    this.showFeedback = true; // enable feedback display
 
     try {
       // Check if all correct options are selected
