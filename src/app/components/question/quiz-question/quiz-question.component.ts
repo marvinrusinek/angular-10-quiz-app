@@ -2360,10 +2360,7 @@ export class QuizQuestionComponent
     
       // Finalize selection + timer state
       this.markQuestionAsAnswered(lockedIndex);
-      this.answerSelected.emit(true);
-      await this.handleCorrectnessOutcome(true);
-      this.finalizeSelection(option, lockedIndex);
-      this.saveQuizState();
+      this.finalizeSelection(option, event.index);
     
       this.cdRef.markForCheck();
     } catch (error) {
@@ -3033,7 +3030,11 @@ export class QuizQuestionComponent
     const questionState = this.initializeQuestionState(
       this.currentQuestionIndex
     );
+    this.answerSelected.emit(true);
+    await this.handleCorrectnessOutcome(true);
+    await this.processSelectedOption(option, index, true);
     await this.finalizeOptionSelection(option, index, questionState);
+    this.saveQuizState();
   }
 
   private initializeQuestionState(questionIndex: number): QuestionState {
@@ -3923,7 +3924,6 @@ export class QuizQuestionComponent
     option: SelectedOption,
     optionIndex: number
   ): Promise<void> {
-    console.log("MYTESTING");
     if (optionIndex < 0) {
       console.error(`Invalid optionIndex ${optionIndex}.`);
       return;
