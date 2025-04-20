@@ -863,34 +863,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
-    console.log('[🟢 onOptionSelected fired]', event);
-    /* console.log('[🟢 onOptionSelected] Fired', {
-      index: this.currentQuestionIndex,
-      questionText: this.currentQuestion?.questionText,
-    }); */
-    
     if (!isUserAction) return;
   
     const { option, checked } = event;
-    console.log('[🟢 onOptionSelected triggered]', { option, checked });
+    console.log('[🟢 onOptionSelected triggered]', {
+      index: this.currentQuestionIndex,
+      option,
+      checked
+    });
   
-    // Handle selection logic
+    // Single vs multiple selection logic
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
       this.updateMultipleAnswerSelection(option, checked);
     }
   
-    // Only mark as answered if not already done
+    // Mark as answered only once
     const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
     if (!alreadyAnswered) {
       this.selectedOptionService.setAnswered(true);
-      console.log('[✅ onOptionSelected] Question marked as answered.');
+      console.log('[✅ onOptionSelected] Marked as answered');
     } else {
-      console.log('[ℹ️ onOptionSelected] Already answered — skipping update.');
+      console.log('[ℹ️ onOptionSelected] Already answered');
     }
   
-    // Update local state
     this.isAnswered = true;
   
     // Persist session state
@@ -898,21 +895,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   
-    // Sync answer flag to services
+    // Sync state
     this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
   
-    // ✅ Set selection message AFTER state is fully updated
+    // 🌟 Set selection message now
     try {
       await this.setSelectionMessage(true);
+  
       console.log('[🧪 post-setSelectionMessage]', {
         index: this.currentQuestionIndex,
-        message: this.selectionMessageService.getCurrentMessage()
+        current: this.selectionMessageService.getCurrentMessage()
       });
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
     }
   
-    // ✅ Enable the Next button
+    // Evaluate next button
     this.evaluateNextButtonState();
   }
   
