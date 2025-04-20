@@ -154,6 +154,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   hasLoadingError = false;
   public hasOptionsLoaded = false;
   public shouldRenderOptions = false;
+  private resetComplete = false;
 
   isOptionSelected = false;
   private isCurrentQuestionAnswered = false;
@@ -3305,11 +3306,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       /* ─────────────────────────  Reset Local State  ────────────────────── */
-      this.explanationTextService.resetExplanationState();
-      this.resetQuestionState();
-      this.selectionMessageService.updateSelectionMessage('');
       this.currentQuestion = null;
+      this.resetQuestionState();
       this.resetQuestionDisplayState();
+      this.explanationTextService.resetExplanationState();
+      this.selectionMessageService.updateSelectionMessage('');
+      this.resetComplete = false;
 
       this.cdRef.detectChanges();
       // Tiny delay to clear any in‑flight bindings
@@ -3426,6 +3428,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
   
+      // Mark question ready
+      this.resetComplete = true;
+      
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
