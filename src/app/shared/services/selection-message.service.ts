@@ -31,17 +31,15 @@ export class SelectionMessageService {
   
     const msg = !isAnswered
       ? isFirst
-        ? this.START_MSG
-        : this.CONTINUE_MSG
+        ? this.START_MSG : this.CONTINUE_MSG
       : isLast
-      ? this.SHOW_RESULTS_MSG
-      : this.NEXT_BTN_MSG;
+        ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   
     console.log('[🔁 determineSelectionMessage]', {
       questionIndex,
       totalQuestions,
       isAnswered,
-      result: msg,
+      result: msg
     });
   
     return msg;
