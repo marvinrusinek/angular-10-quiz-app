@@ -8,5 +8,9 @@
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
       <!-- Enable spinner -->
     </div>
+
+    <app-answer
+      (optionSelected)="onOptionSelected($event)"
+    ></app-answer>
   </form>
 </ng-container>
