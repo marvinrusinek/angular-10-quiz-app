@@ -878,10 +878,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     // Evaluate next button
-    setTimeout(() => {
-      this.evaluateNextButtonState();
-      this.cdRef.detectChanges();
-    }, 50);
+    this.evaluateNextButtonState();
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
@@ -3311,6 +3308,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionToDisplay = '';
+      this.isButtonEnabledSubject.next(false); // disable Next
+      this.isNextButtonEnabled = false;
+
       this.cdRef.detectChanges();
       // Tiny delay to clear any in‑flight bindings
       await new Promise(res => setTimeout(res, 30));
