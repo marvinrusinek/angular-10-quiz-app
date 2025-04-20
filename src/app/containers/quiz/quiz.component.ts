@@ -149,6 +149,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
   private quizAlreadyInitialized = false;
+  private questionInitialized = false;
   questionTextLoaded = false;
   hasLoadingError = false;
   public hasOptionsLoaded = false;
@@ -896,11 +897,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private resetQuestionState(): void {
     // Clear local UI state
+    this.questionInitialized = false; // block during reset
+    this.isAnswered = false;
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
+    this.setSelectionMessage(false);
   
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
@@ -3305,11 +3309,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetQuestionState();
       this.selectionMessageService.updateSelectionMessage('');
       this.currentQuestion = null;
-      this.optionsToDisplay = [];
-      this.explanationToDisplay = '';
-      this.questionToDisplay = '';
-      this.isButtonEnabledSubject.next(false); // disable Next
-      this.isNextButtonEnabled = false;
+      this.resetQuestionDisplayState();
 
       this.cdRef.detectChanges();
       // Tiny delay to clear any in‑flight bindings
