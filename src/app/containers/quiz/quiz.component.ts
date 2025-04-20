@@ -713,11 +713,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Standard rule: enable only if answered, not loading/navigating
     const shouldEnable = isAnswered && !isLoading && !isNavigating;
+    const canProceed = this.isAnswered;
   
     // Update reactive state
-    this.isButtonEnabledSubject.next(shouldEnable);
-    this.isNextButtonEnabled = shouldEnable;
-    this.updateAndSyncNextButtonState(shouldEnable);
+    this.isButtonEnabledSubject.next(canProceed);     // drives async pipe
+    this.isNextButtonEnabled = shouldEnable;          // optional local use
+    this.updateAndSyncNextButtonState(shouldEnable);  // downstream effects (tooltip, styling)
     
     return shouldEnable;
   }
