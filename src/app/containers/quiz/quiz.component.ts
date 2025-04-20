@@ -807,7 +807,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  lastLoggedIndex = -1;
+  /* lastLoggedIndex = -1;
   public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
@@ -850,11 +850,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
-    /* console.log('[🟢 onOptionSelected triggered]', {
+    // console.log('[🟢 onOptionSelected triggered]', {
       index: this.currentQuestionIndex,
       option,
       checked
-    }); */
+    //});
   
     // Set selection message after state is updated
     try {
@@ -877,6 +877,61 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         this.selectionMessageService.updateSelectionMessage(nextMessage);
       }
+  
+      console.log('[🧪 post-setSelectionMessage]', {
+        index: this.currentQuestionIndex,
+        current: this.selectionMessageService.getCurrentMessage()
+      });
+    } catch (err) {
+      console.error('[❌ setSelectionMessage failed]', err);
+    }
+  
+    // Evaluate next button
+    this.evaluateNextButtonState();
+  } */
+  public async onOptionSelected(
+    event: { option: SelectedOption; index: number; checked: boolean },
+    isUserAction: boolean = true
+  ): Promise<void> {
+    if (!isUserAction) return;
+  
+    const { option, checked } = event;
+    console.log('[🟢 onOptionSelected triggered]', {
+      index: this.currentQuestionIndex,
+      option,
+      checked
+    });
+  
+    // Single vs multiple selection logic
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = checked ? [option] : [];
+    } else {
+      this.updateMultipleAnswerSelection(option, checked);
+    }
+  
+    // Mark as answered only once
+    const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
+    if (!alreadyAnswered) {
+      this.selectedOptionService.setAnswered(true);
+      console.log('[✅ onOptionSelected] Marked as answered');
+    } else {
+      console.log('[ℹ️ onOptionSelected] Already answered');
+    }
+  
+    this.isAnswered = true;
+  
+    // Persist session state
+    sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
+    sessionStorage.setItem('displayExplanation', 'true');
+  
+    // Sync state
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
+  
+    // 🌟 Set selection message now
+    try {
+      await this.setSelectionMessage(true);
   
       console.log('[🧪 post-setSelectionMessage]', {
         index: this.currentQuestionIndex,
