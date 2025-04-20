@@ -807,7 +807,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  /* lastLoggedIndex = -1;
+  lastLoggedIndex = -1;
+  
   public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
@@ -818,81 +819,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     this.lastLoggedIndex = event.index;
     console.log('[🟢 onOptionSelected triggered]', event);
-
-    if (!isUserAction) return;
-  
-    const { option, checked } = event;
-  
-    // Single vs multiple selection logic
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.updateMultipleAnswerSelection(option, checked);
-    }
-  
-    // Mark as answered only once
-    const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
-    if (!alreadyAnswered) {
-      this.selectedOptionService.setAnswered(true);
-      console.log('[✅ onOptionSelected] Marked as answered');
-    } else {
-      console.log('[ℹ️ onOptionSelected] Already answered');
-    }
-  
-    this.isAnswered = true;
-  
-    // Update persisted session state
-    sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
-    sessionStorage.setItem('displayExplanation', 'true');
-  
-    // Sync state across services
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-
-    // console.log('[🟢 onOptionSelected triggered]', {
-      index: this.currentQuestionIndex,
-      option,
-      checked
-    //});
-  
-    // Set selection message after state is updated
-    try {
-      // await this.setSelectionMessage(true);
-
-      const index = this.currentQuestionIndex;
-      const total = this.totalQuestions;
-
-      const nextMessage = this.selectionMessageService.determineSelectionMessage(index, total, true);
-      const currentMessage = this.selectionMessageService.getCurrentMessage();
-
-      if (nextMessage !== currentMessage) {
-        console.log('[🧩 setSelectionMessage after selection]', {
-          index,
-          total,
-          isAnswered: true,
-          current: currentMessage,
-          newMessage: nextMessage
-        });
-
-        this.selectionMessageService.updateSelectionMessage(nextMessage);
-      }
-  
-      console.log('[🧪 post-setSelectionMessage]', {
-        index: this.currentQuestionIndex,
-        current: this.selectionMessageService.getCurrentMessage()
-      });
-    } catch (err) {
-      console.error('[❌ setSelectionMessage failed]', err);
-    }
-  
-    // Evaluate next button
-    this.evaluateNextButtonState();
-  } */
-  public async onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): Promise<void> {
+    
     if (!isUserAction) return;
   
     const { option, checked } = event;
@@ -920,16 +847,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.isAnswered = true;
   
-    // Persist session state
+    // Update persisted session state
     sessionStorage.setItem('isAnswered', 'true');
     sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   
-    // Sync state
+    // Sync state across services
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
-    // 🌟 Set selection message now
+    // Set selection message after state is updated
     try {
       await this.setSelectionMessage(true);
   
