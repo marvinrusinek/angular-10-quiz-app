@@ -691,37 +691,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
   
   private evaluateNextButtonState(): boolean {
-    console.log('[🧪 evaluateNextButtonState]', {
-      currentIndex: this.currentQuestionIndex,
-      isAnswered: this.isAnswered,
-      selectedOptions: this.selectedOptions,
-      optionCount: this.selectedOptions?.length ?? 0
-    });
-
-    // Clear any residual option state before evaluation
-    // this.resetOptionState();
-  
-    // Get current state flags
-    const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
+    const isAnswered = this.isAnswered;
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
-    // Force enable Next button for multiple-answer questions (temp logic)
-    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-      console.log('[🟢 Multi-answer] Forcing Next button enabled.');
-      this.updateAndSyncNextButtonState(true);
-      return true;
-    }
-  
-    // Standard rule: enable only if answered, not loading/navigating
     const shouldEnable = isAnswered && !isLoading && !isNavigating;
-    const canProceed = this.isAnswered;
   
-    // Update reactive state
-    this.isButtonEnabledSubject.next(canProceed);     // drives async pipe
-    this.isNextButtonEnabled = shouldEnable;          // optional local use
-    this.updateAndSyncNextButtonState(shouldEnable);  // downstream effects (tooltip, styling)
-    
+    console.log('[🧪 evaluateNextButtonState]', {
+      currentIndex: this.currentQuestionIndex,
+      isAnswered,
+      isLoading,
+      isNavigating,
+      selectedOptions: this.selectedOptions,
+      shouldEnable
+    });
+  
+    // ✅ Update all reactive and internal flags
+    this.isButtonEnabledSubject.next(shouldEnable);
+    this.isNextButtonEnabled = shouldEnable;
+    this.updateAndSyncNextButtonState(shouldEnable);
+  
     return shouldEnable;
   }
 
