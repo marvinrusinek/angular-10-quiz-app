@@ -3364,12 +3364,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       } else {
         // Only show selection message if unanswered
-        const current = this.selectionMessageService.getCurrentMessage();
         const expected = this.selectionMessageService.determineSelectionMessage(
           questionIndex,
           this.totalQuestions,
           false
         );
+
+        const current = this.selectionMessageService.getCurrentMessage();
       
         console.log('[🔍 Selection Message Check]', { current, expected });
       
