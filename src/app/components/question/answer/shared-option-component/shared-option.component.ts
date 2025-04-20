@@ -605,24 +605,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
-    const questionIndex = this.quizService.getCurrentQuestionIndex();
-  
-    if (!optionBinding || !optionBinding.option) {
-      console.error(`[SharedOptionComponent] ❌ Cannot emit optionSelected: Missing option at index ${index}`);
-      console.error(`[SharedOptionComponent] ❌ optionBinding:`, optionBinding);
+    if (!optionBinding?.option) {
+      console.warn('[SharedOptionComponent] ⚠️ Cannot emit event — invalid option');
       return;
     }
   
     const eventData = {
       option: {
         ...optionBinding.option,
-        questionIndex: questionIndex
+        questionIndex: this.quizService.getCurrentQuestionIndex()
       },
       index,
       checked
     };
   
-    console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected:`, eventData);
+    console.log('[SharedOptionComponent] 🚀 Emitting optionSelected:', eventData);
     this.optionSelected.emit(eventData);
   }
 
