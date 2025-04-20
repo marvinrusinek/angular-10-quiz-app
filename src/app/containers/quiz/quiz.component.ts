@@ -803,62 +803,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  /* async onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): Promise<void> {
-    console.log('[🟢 onOptionSelected triggered]', { event });
-    // Skip if it's not a user action or the option was deselected or already answered
-    if (!isUserAction || !event.checked || this.isAnswered) {
-      console.warn('[⏩ Skipping onOptionSelected]', {
-        isUserAction,
-        checked: event.checked,
-        isAnswered: this.isAnswered
-      });
-      return;
-    }
-  
-    const { option, checked } = event;
-  
-    // Handle selection logic
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.updateMultipleAnswerSelection(option, checked);
-    }
-  
-    // Only mark as answered if not already done
-    const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
-    if (!alreadyAnswered) {
-      this.selectedOptionService.setAnswered(true);
-      console.log('[✅ onOptionSelected] Question marked as answered.');
-    } else {
-      console.log('[ℹ️ onOptionSelected] Already answered — skipping update.');
-    }
-  
-    this.isAnswered = true;  
-  
-    // Update persisted session state
-    sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
-    sessionStorage.setItem('displayExplanation', 'true');
-  
-    // Sync state across services
-    this.quizStateService.setAnswerSelected(true);
-
-    // Set selection message after state is updated
-    try {
-      await this.setSelectionMessage(true);
-      console.log('[🧪 post-setSelectionMessage]', {
-        current: this.selectionMessageService.getCurrentMessage(),
-      });
-    } catch (err) {
-      console.error('[❌ setSelectionMessage failed]', err);
-    }
-
-    // Enable next button
-    this.evaluateNextButtonState();
-  } */
   lastLoggedIndex = -1;
   public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
@@ -893,12 +837,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.isAnswered = true;
   
-    // Persist session state
+    // Update persisted session state
     sessionStorage.setItem('isAnswered', 'true');
     sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   
-    // Sync state
+    // Sync state across services
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
@@ -908,7 +852,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       checked
     }); */
   
-    // Set selection message now
+    // Set selection message after state is updated
     try {
       await this.setSelectionMessage(true);
   
