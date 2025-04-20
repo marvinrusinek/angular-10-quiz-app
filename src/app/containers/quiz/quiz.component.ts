@@ -403,7 +403,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Answer state and navigation setup
     this.subscribeToOptionSelection();
     this.handleNavigationToQuestion(this.currentQuestionIndex);
-    this.nextButtonStateService.initializeNextButtonStateStream();
+    this.nextButtonStateService.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnsweredSubject.asObservable(),
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
     this.initializeTooltip();
     this.resetOptionState();
     // this.selectedOptionService.setAnswered(false);
