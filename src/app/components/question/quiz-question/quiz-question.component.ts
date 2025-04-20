@@ -2362,6 +2362,7 @@ export class QuizQuestionComponent
       // Finalize selection + timer state
       this.markQuestionAsAnswered(lockedIndex);
       this.finalizeSelection(option, event.index);
+      this.optionSelected.emit(event);
     
       this.cdRef.markForCheck();
     } catch (error) {
