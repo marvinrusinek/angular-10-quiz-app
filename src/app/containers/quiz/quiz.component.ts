@@ -854,7 +854,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Set selection message after state is updated
     try {
-      await this.setSelectionMessage(true);
+      // await this.setSelectionMessage(true);
+
+      const index = this.currentQuestionIndex;
+      const total = this.totalQuestions;
+
+      const nextMessage = this.selectionMessageService.determineSelectionMessage(index, total, true);
+      const currentMessage = this.selectionMessageService.getCurrentMessage();
+
+      if (nextMessage !== currentMessage) {
+        console.log('[🧩 setSelectionMessage after selection]', {
+          index,
+          total,
+          isAnswered: true,
+          current: currentMessage,
+          newMessage: nextMessage
+        });
+
+        this.selectionMessageService.updateSelectionMessage(nextMessage);
+      }
   
       console.log('[🧪 post-setSelectionMessage]', {
         index: this.currentQuestionIndex,
@@ -3355,6 +3373,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       let explanationText = '';
   
       if (isAnswered) {
+        // ✅ Already answered: restore explanation state + stop timer
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
         this.explanationTextService.setExplanationTextForQuestionIndex(
           questionIndex,
@@ -3363,36 +3382,35 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
-        // Only show selection message if unanswered
-        const nextMessage = this.selectionMessageService.determineSelectionMessage(
+        // ❌ Not answered yet: show the correct selection message + start timer
+        const expectedMessage = this.selectionMessageService.determineSelectionMessage(
           questionIndex,
           this.totalQuestions,
           false
         );
-
         const currentMessage = this.selectionMessageService.getCurrentMessage();
       
-        console.log('[🔍 Selection Message Check]', { currentMessage, nextMessage });
+        console.log('[🔍 Selection Message Check]', {
+          questionIndex,
+          currentMessage,
+          expectedMessage
+        });
       
-        if (currentMessage !== nextMessage) {
-          console.log('[🧩 setSelectionMessage after selection]', {
-            index: this.currentQuestionIndex,
+        if (currentMessage !== expectedMessage) {
+          console.log('[🧩 setSelectionMessage]', {
+            index: questionIndex,
             total: this.totalQuestions,
-            isAnswered: true,
+            isAnswered: false,
             current: currentMessage,
-            newMessage: nextMessage
+            newMessage: expectedMessage
           });
-        
-          this.selectionMessageService.updateSelectionMessage(nextMessage);
-        
-          /* console.log('[✍️ Updating selection message for unanswered question]');
-          // setTimeout(() => this.setSelectionMessage(false), 150);
-          // Slight delay to ensure it's not overwritten
+      
+          // Slight delay avoids overwrite by early option selection
           setTimeout(() => {
             this.selectionMessageService.updateSelectionMessage(expectedMessage);
-          }, 100); */
+          }, 100);
         } else {
-          console.log('[🛑 Skipping redundant setSelectionMessage(false)]');
+          console.log('[🛑 Skipping redundant setSelectionMessage]');
         }
       
         this.timerService.startTimer(this.timerService.timePerQuestion);
