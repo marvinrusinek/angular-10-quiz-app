@@ -3364,7 +3364,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       } else {
         // Only show selection message if unanswered
-        const expectedMessage = this.selectionMessageService.determineSelectionMessage(
+        const nextMessage = this.selectionMessageService.determineSelectionMessage(
           questionIndex,
           this.totalQuestions,
           false
@@ -3372,18 +3372,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const currentMessage = this.selectionMessageService.getCurrentMessage();
       
-        console.log('[🔍 Selection Message Check]', { currentMessage, expectedMessage });
+        console.log('[🔍 Selection Message Check]', { currentMessage, nextMessage });
       
-        if (currentMessage !== expectedMessage) {
+        if (currentMessage !== nextMessage) {
           console.log('[🧩 setSelectionMessage after selection]', {
             index: this.currentQuestionIndex,
             total: this.totalQuestions,
             isAnswered: true,
             current: currentMessage,
-            newMessage: expectedMessage
+            newMessage: nextMessage
           });
         
-          this.selectionMessageService.updateSelectionMessage(expectedMessage);
+          this.selectionMessageService.updateSelectionMessage(nextMessage);
         
           /* console.log('[✍️ Updating selection message for unanswered question]');
           // setTimeout(() => this.setSelectionMessage(false), 150);
