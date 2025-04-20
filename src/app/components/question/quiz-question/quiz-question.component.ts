@@ -3866,36 +3866,6 @@ export class QuizQuestionComponent
     }
   }
 
-  private async updateMessageForCurrentState(
-    currentQuestion: QuizQuestion
-  ): Promise<void> {
-    const isAnswered = await this.isQuestionAnswered(this.currentQuestionIndex);
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion)
-    );
-
-    const newMessage = this.selectionMessageService.determineSelectionMessage(
-      this.currentQuestionIndex,
-      this.totalQuestions,
-      isAnswered
-    );
-
-    if (this.selectionMessageService.getCurrentMessage() !== newMessage) {
-      this.selectionMessageSubject.next(newMessage);
-    }
-  }
-
-  private checkInitialMessage(): void {
-    const isAnswered = false; // Ensure it only applies initially
-
-    if (this.currentQuestionIndex === 0 && !isAnswered) {
-      const initialMessage = 'Please select an option to start the quiz.';
-      if (this.selectionMessageService.getCurrentMessage() !== initialMessage) {
-        this.selectionMessageSubject.next(initialMessage);
-      }
-    }
-  }
-
   shouldShowIcon(option: Option): boolean {
     const selectedOptions = this.selectedOptionService.getSelectedOptions(); // retrieve all selected options
     const showFeedbackForOption =
