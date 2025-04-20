@@ -866,11 +866,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!isUserAction) return;
   
     const { option, checked } = event;
-    console.log('[🟢 onOptionSelected triggered]', {
-      index: this.currentQuestionIndex,
-      option,
-      checked
-    });
   
     // Single vs multiple selection logic
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
@@ -898,6 +893,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Sync state
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
+
+    console.log('[🟢 onOptionSelected triggered]', {
+      index: this.currentQuestionIndex,
+      option,
+      checked
+    });
   
     // Set selection message now
     try {
