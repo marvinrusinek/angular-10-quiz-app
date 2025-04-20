@@ -55,18 +55,6 @@ export class NextButtonStateService {
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.updateAndSyncNextButtonState(isEnabled);
     });
-  }  
-
-  public updateAndSyncNextButtonState(isEnabled: boolean): void {
-    this.ngZone.run(() => {
-      this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
-
-      this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none',
-      };
-    });
   }
 
   public evaluateNextButtonState(
@@ -85,5 +73,17 @@ export class NextButtonStateService {
 
     this.updateAndSyncNextButtonState(shouldEnable);
     return shouldEnable;
+  }
+
+  public updateAndSyncNextButtonState(isEnabled: boolean): void {
+    this.ngZone.run(() => {
+      this.isNextButtonEnabled = isEnabled;
+      this.isButtonEnabledSubject.next(isEnabled);
+
+      this.nextButtonStyle = {
+        opacity: isEnabled ? '1' : '0.5',
+        'pointer-events': isEnabled ? 'auto' : 'none',
+      };
+    });
   }
 }
