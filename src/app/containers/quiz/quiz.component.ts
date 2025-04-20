@@ -699,7 +699,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
 
     // Clear any residual option state before evaluation
-    this.resetOptionState();
+    // this.resetOptionState();
   
     // Get current state flags
     const isAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
