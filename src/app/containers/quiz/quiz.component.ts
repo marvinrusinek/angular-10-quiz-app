@@ -666,7 +666,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.restoreSelectionState();
 
         // Re-evaluate the Next button state
-        this.nextButtonStateService.evaluateNextButtonState();
+        this.nextButtonStateService.evaluateNextButtonState(
+          this.isAnswered,
+          this.quizStateService.isLoadingSubject.getValue(),
+          this.quizStateService.isNavigatingSubject.getValue()
+        );
       },
       error: (err) => {
         console.error('Error fetching question:', err);
