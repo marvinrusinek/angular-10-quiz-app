@@ -859,14 +859,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Enable next button
     this.evaluateNextButtonState();
   } */
-  async onOptionSelected(
+  public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
-    console.log('[🟢 onOptionSelected] Fired', {
+    console.log('[🟢 onOptionSelected fired]', event);
+    /* console.log('[🟢 onOptionSelected] Fired', {
       index: this.currentQuestionIndex,
       questionText: this.currentQuestion?.questionText,
-    });
+    }); */
     
     if (!isUserAction) return;
   
