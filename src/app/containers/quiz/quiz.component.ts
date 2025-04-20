@@ -827,8 +827,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
     this.lastLoggedIndex = event.index;
-    console.log('[🟢 onOptionSelected triggered]', event);
-    
+  
     if (!isUserAction) return;
   
     const { option, checked } = event;
@@ -838,7 +837,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       checked
     });
   
-    // Single vs multiple selection logic
+    if (!this.resetComplete) {
+      console.warn('[🚫 Blocked: Question not ready]');
+      return;
+    }
+  
+    // Handle single vs multiple answer
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
@@ -856,31 +860,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.isAnswered = true;
   
-    // Update persisted session state
+    // Persist state
     sessionStorage.setItem('isAnswered', 'true');
     sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   
-    // Sync state across services
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
-    // Set selection message after state is updated
+    // Selection message + button state
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
-      }, 50); // add brief async delay so state has time to propagate
+        this.evaluateNextButtonState();
+        this.cdRef.detectChanges(); // force UI sync
   
-      console.log('[🧪 post-setSelectionMessage]', {
-        index: this.currentQuestionIndex,
-        current: this.selectionMessageService.getCurrentMessage()
-      });
+        console.log('[🧪 post-setSelectionMessage]', {
+          index: this.currentQuestionIndex,
+          current: this.selectionMessageService.getCurrentMessage()
+        });
+      }, 50);
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
     }
-
-    // Evaluate next button
-    this.evaluateNextButtonState();
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
