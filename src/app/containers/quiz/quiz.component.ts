@@ -899,7 +899,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
-    // 🌟 Set selection message now
+    // Set selection message now
     try {
       await this.setSelectionMessage(true);
   
