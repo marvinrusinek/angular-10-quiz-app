@@ -715,12 +715,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.optionSelected.emit({
       option: {
-        ...option, // include all properties
+        ...option,
         questionIndex: this.quizService.getCurrentQuestionIndex()
       },
-      index: optionIndex,
+      index,
       checked: true
-    });    
+    });   
   
     // Trigger change detection
     this.triggerChangeDetection();
