@@ -126,6 +126,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   questionIndex: number;
   currentQuestionIndex = 0;
+  lastLoggedIndex = -1;
   totalQuestions = 0;
   progressPercentage = new BehaviorSubject<number>(0);
   correctCount: number;
@@ -806,8 +807,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.detectChanges();
       });
   }
-
-  lastLoggedIndex = -1;
   
   public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
