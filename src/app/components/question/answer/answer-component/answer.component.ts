@@ -161,7 +161,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   public override async onOptionClicked(
     event: { option: SelectedOption; index: number; checked: boolean }
   ): Promise<void> {
-    const { option, index, checked } = event; // Destructure the event object
+    const { option, index, checked } = event; // destructure the event object
 
     console.log('AnswerComponent: onOptionClicked called with:', { option, index, checked });
   
@@ -169,7 +169,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     if (this.type === 'single') {
       this.selectedOptionIndex = index;
       this.selectedOption = option;
-      this.showFeedbackForOption = { [option.optionId]: true }; // Show feedback for selected option
+      this.showFeedbackForOption = { [option.optionId]: true }; // show feedback for selected option
   
     } else {
       // Handle multiple-answer questions by toggling selection
@@ -187,7 +187,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   
     // Emit the option selected event
-    this.optionClicked.emit(event);
     this.optionSelected.emit(event);
     // this.optionSelected.emit({ option, index, checked });
     console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
