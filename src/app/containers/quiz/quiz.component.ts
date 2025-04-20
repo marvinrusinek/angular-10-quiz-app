@@ -859,10 +859,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Enable next button
     this.evaluateNextButtonState();
   } */
+  lastLoggedIndex = -1;
   public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
+    if (event.index === this.lastLoggedIndex) {
+      console.warn('[🟡 Skipping duplicate event]', event);
+      return;
+    }
+    this.lastLoggedIndex = event.index;
+    console.log('[🟢 onOptionSelected triggered]', event);
+
     if (!isUserAction) return;
   
     const { option, checked } = event;
@@ -894,11 +902,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
-    console.log('[🟢 onOptionSelected triggered]', {
+    /* console.log('[🟢 onOptionSelected triggered]', {
       index: this.currentQuestionIndex,
       option,
       checked
-    });
+    }); */
   
     // Set selection message now
     try {
