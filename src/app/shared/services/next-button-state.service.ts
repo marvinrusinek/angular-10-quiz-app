@@ -2,8 +2,8 @@ import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { combineLatest, distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
-import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { QuizStateService } from '../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
 @Injectable({ providedIn: 'root' })
 export class NextButtonStateService {
