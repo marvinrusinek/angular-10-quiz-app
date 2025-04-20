@@ -3375,8 +3375,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[🔍 Selection Message Check]', { currentMessage, expectedMessage });
       
         if (currentMessage !== expectedMessage) {
-          console.log('[✍️ Updating selection message for unanswered question]');
-          setTimeout(() => this.setSelectionMessage(false), 150);
+          console.log('[🧩 setSelectionMessage after selection]', {
+            index: this.currentQuestionIndex,
+            total: this.totalQuestions,
+            isAnswered: true,
+            current: currentMessage,
+            newMessage: expectedMessage
+          });
+        
+          this.selectionMessageService.updateSelectionMessage(expectedMessage);
+        
+          /* console.log('[✍️ Updating selection message for unanswered question]');
+          // setTimeout(() => this.setSelectionMessage(false), 150);
+          // Slight delay to ensure it's not overwritten
+          setTimeout(() => {
+            this.selectionMessageService.updateSelectionMessage(expectedMessage);
+          }, 100); */
         } else {
           console.log('[🛑 Skipping redundant setSelectionMessage(false)]');
         }
