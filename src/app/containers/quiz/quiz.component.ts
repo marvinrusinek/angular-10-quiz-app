@@ -809,7 +809,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
-        this.nextButtonStateService.evaluateNextButtonState();
+        this.nextButtonStateService.evaluateNextButtonState(
+          this.isAnswered,
+          this.quizStateService.isLoadingSubject.getValue(),
+          this.quizStateService.isNavigatingSubject.getValue()
+        );        
         this.cdRef.detectChanges(); // force UI sync
   
         console.log('[🧪 post-setSelectionMessage]', {
