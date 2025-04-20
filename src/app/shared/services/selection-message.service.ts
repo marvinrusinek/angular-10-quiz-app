@@ -11,8 +11,7 @@ export class SelectionMessageService {
 
   private selectionMessageSubject = new BehaviorSubject<string>(this.START_MSG);
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
-    distinctUntilChanged(),
-    debounceTime(100)
+    distinctUntilChanged()
   );
 
   // Getter for the current selection message
