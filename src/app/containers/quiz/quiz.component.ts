@@ -3009,7 +3009,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Re-evaluate Next button state
       const shouldEnableNext = this.isAnyOptionSelected();
-      this.updateAndSyncNextButtonState(shouldEnableNext);
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
     } catch (error) {
       console.error('[advanceToNextQuestion] ❌ Unexpected error:', error);
     } finally {
@@ -3222,7 +3222,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // If the question is answered, evaluate the Next button state
     if (answered) {
       console.log('Evaluating Next button state after display state update in QuizComponent.');
-      this.evaluateNextButtonState();
+      this.nextButtonStateService.evaluateNextButtonState(
+        this.isAnswered,
+        this.quizStateService.isLoadingSubject.getValue(),
+        this.quizStateService.isNavigatingSubject.getValue()
+      );      
     }
   }
 
