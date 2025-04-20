@@ -26,6 +26,11 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
+  @Output() optionClicked = new EventEmitter<{
+    option: SelectedOption;
+    index: number;
+    checked: boolean;
+  }>();
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
@@ -182,6 +187,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   
     // Emit the option selected event
+    this.optionClicked.emit(event);
     this.optionSelected.emit(event);
     // this.optionSelected.emit({ option, index, checked });
     console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
