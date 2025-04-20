@@ -623,7 +623,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     console.log(`[SharedOptionComponent] 🚀 Emitting optionSelected:`, eventData);
-    this.optionClicked.emit(eventData);
+    this.optionSelected.emit(eventData);
   }
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
