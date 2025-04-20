@@ -36,12 +36,8 @@
           (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
           (feedbackTextChange)="feedbackText = $event"
           (nextButtonState)="updateAndSyncNextButtonState($event)"
-          (optionSelected)="onOptionSelected($event)"
         ></codelab-quiz-question>
         <app-answer
-          [question]="currentQuestion"
-          [options]="optionsToDisplay"
-          [index]="currentQuestionIndex"
           (optionSelected)="onOptionSelected($event)"
         ></app-answer>
       </ng-container>
