@@ -689,6 +689,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
   
   private evaluateNextButtonState(): boolean {
+    console.log('[🧪 evaluateNextButtonState]', {
+      currentIndex: this.currentQuestionIndex,
+      isAnswered: this.isAnswered,
+      selectedOptions: this.selectedOptions,
+      optionCount: this.selectedOptions?.length ?? 0
+    });
+
     // Clear any residual option state before evaluation
     this.resetOptionState();
   
@@ -868,9 +875,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
     }
-  
+
     // Evaluate next button
-    this.evaluateNextButtonState();
+    setTimeout(() => {
+      this.evaluateNextButtonState();
+      this.cdRef.detectChanges();
+    }, 50);
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
