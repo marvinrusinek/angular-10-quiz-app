@@ -27,6 +27,7 @@ import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../shared/services/feedback.service';
+import { NextButtonStateService } from '../../shared/services/next-button-state.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -217,6 +218,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private timerService: TimerService,
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
+    private nextButtonStateService: NextButtonStateService,
     private selectionMessageService: SelectionMessageService,
     private selectedOptionService: SelectedOptionService,
     private resetStateService: ResetStateService,
@@ -401,7 +403,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Answer state and navigation setup
     this.subscribeToOptionSelection();
     this.handleNavigationToQuestion(this.currentQuestionIndex);
-    this.initializeNextButtonState();
+    this.nextButtonStateService.initializeNextButtonStateStream();
     this.initializeTooltip();
     this.resetOptionState();
     // this.selectedOptionService.setAnswered(false);
@@ -660,7 +662,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.restoreSelectionState();
 
         // Re-evaluate the Next button state
-        this.evaluateNextButtonState();
+        this.nextButtonStateService.evaluateNextButtonState();
       },
       error: (err) => {
         console.error('Error fetching question:', err);
@@ -799,7 +801,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
-        this.evaluateNextButtonState();
+        this.nextButtonStateService.evaluateNextButtonState();
         this.cdRef.detectChanges(); // force UI sync
   
         console.log('[🧪 post-setSelectionMessage]', {
