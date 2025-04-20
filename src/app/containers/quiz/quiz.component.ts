@@ -666,68 +666,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Error fetching question:', err);
       },
     });
-  }
-  
-  private initializeNextButtonState(): void {
-    console.log('[🧪 QuizComponent] initializing button state stream...');
-
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    ]).pipe(
-      map(([isAnswered, isLoading, isNavigating]) => {
-        const isEnabled = isAnswered && !isLoading && !isNavigating;
-        console.log('[🧪 isButtonEnabled$]', { isAnswered, isLoading, isNavigating, isEnabled });
-        return isEnabled;
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
-    );
-  
-    this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
-  }  
-  
-  private evaluateNextButtonState(): boolean {
-    const isAnswered = this.isAnswered;
-    const isLoading = this.quizStateService.isLoadingSubject.getValue();
-    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
-    const shouldEnable = isAnswered && !isLoading && !isNavigating;
-  
-    console.log('[🧪 evaluateNextButtonState]', {
-      currentIndex: this.currentQuestionIndex,
-      isAnswered,
-      isLoading,
-      isNavigating,
-      selectedOptions: this.selectedOptions,
-      shouldEnable
-    });
-  
-    // ✅ Update all reactive and internal flags
-    this.isButtonEnabledSubject.next(shouldEnable);
-    this.isNextButtonEnabled = shouldEnable;
-    this.updateAndSyncNextButtonState(shouldEnable);
-  
-    return shouldEnable;
-  }
-
-  updateAndSyncNextButtonState(isEnabled: boolean): void {
-    this.ngZone.run(() => {
-      this.isNextButtonEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
-  
-      this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none',
-      };
-  
-      this.cdRef.markForCheck();
-    });
-  
-    this.nextButtonTooltip$ = this.nextButtonTooltipSubject.asObservable();
   }  
 
   // Tooltip for next button
