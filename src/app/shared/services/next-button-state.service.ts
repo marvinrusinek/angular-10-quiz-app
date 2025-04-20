@@ -1,8 +1,9 @@
 import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
-import { QuizStateService } from './quiz-state.service';
-import { SelectedOptionService } from './selected-option.service';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { combineLatest, distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
+
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 
 @Injectable({ providedIn: 'root' })
 export class NextButtonStateService {
@@ -25,16 +26,22 @@ export class NextButtonStateService {
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
   ) {
-    this.initializeNextButtonState();
-  }
-
-  private initializeNextButtonState(): void {
-    console.log('[🧪 NextButtonStateService] Initializing button state stream...');
-
-    this.isButtonEnabled$ = combineLatest([
-      this.selectedOptionService.isAnsweredSubject,
+    this.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnsweredSubject.asObservable(),
       this.quizStateService.isLoading$,
       this.quizStateService.isNavigating$
+    );
+  }
+
+  public initializeNextButtonStateStream(
+    isAnswered$: Observable<boolean>,
+    isLoading$: Observable<boolean>,
+    isNavigating$: Observable<boolean>
+  ): void {
+    this.isButtonEnabled$ = combineLatest([
+      isAnswered$,
+      isLoading$,
+      isNavigating$
     ]).pipe(
       map(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
@@ -44,11 +51,11 @@ export class NextButtonStateService {
       distinctUntilChanged(),
       shareReplay(1)
     );
-
+  
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.updateAndSyncNextButtonState(isEnabled);
     });
-  }
+  }  
 
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
