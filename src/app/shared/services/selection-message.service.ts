@@ -11,9 +11,8 @@ export class SelectionMessageService {
 
   private selectionMessageSubject = new BehaviorSubject<string>(this.START_MSG);
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
-    distinctUntilChanged(),
-    debounceTime(100)
-  );
+    distinctUntilChanged()
+  );  
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
@@ -56,7 +55,7 @@ export class SelectionMessageService {
       return;
     }
   
-    if (message && message.trim() !== '' && current !== message) {
+    if (current !== message) {
       console.log(`[📢 updateSelectionMessage] New: ${message} | Replacing: ${current}`);
       this.selectionMessageSubject.next(message);
     } else {
