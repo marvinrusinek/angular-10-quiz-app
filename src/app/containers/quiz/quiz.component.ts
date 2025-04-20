@@ -859,7 +859,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
-      }, 50);
+      }, 50); // add brief async delay so state has time to propagate
   
       console.log('[🧪 post-setSelectionMessage]', {
         index: this.currentQuestionIndex,
