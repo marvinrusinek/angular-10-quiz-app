@@ -821,7 +821,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
 
     this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
-    // this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
     this.feedbackConfig[index] = this.currentFeedbackConfig;
   
     console.log('Feedback configuration after update:', {
