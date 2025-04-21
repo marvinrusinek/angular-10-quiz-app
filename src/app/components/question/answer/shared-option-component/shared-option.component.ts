@@ -1115,23 +1115,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
   
         // Map optionsToDisplay to initialize optionBindings
-        /* this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-          const optionBinding = this.getOptionBindings(option, idx);
-  
-          // Generate feedback for each option
-          option.feedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
-  
-          // Return the created option binding
-          return optionBinding;
-        }); */
+        const existingSelectionMap = new Map(
+          (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
+        );
+
         this.optionBindings = this.optionsToDisplay.map((option, idx) => {
           const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
-          
-          // Update the original option
           option.feedback = feedbackMessage;
         
-          // Now create the binding with up-to-date feedback
-          const optionBinding = this.getOptionBindings(option, idx);
+          const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
+          const optionBinding = this.getOptionBindings(option, idx, isSelected);
         
           return optionBinding;
         });
