@@ -23,5 +23,5 @@ export interface OptionBindings {
   change: (element: MatCheckbox | MatRadioButton) => void;
   disabled: boolean;
   ariaLabel: string;
-  optionAlreadyHandled: boolean;
+  optionAlreadyHandled?: boolean;
 }
