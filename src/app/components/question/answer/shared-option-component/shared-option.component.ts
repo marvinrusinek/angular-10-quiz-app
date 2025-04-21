@@ -1,6 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatRadioChange } from '@angular/material/radio';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -600,10 +600,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedbackForOption[optionId] = true;
   }
 
-  private applyOptionAttributes(optionBinding: OptionBindings, element: MatCheckbox | MatRadioButton): void {
+  private applyOptionAttributes(
+    optionBinding: OptionBindings,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
     const attributes = this.getOptionAttributes(optionBinding);
-    this.applyAttributes(element._elementRef.nativeElement, attributes);
-    element._elementRef.nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
+  
+    const nativeElement =
+      'source' in event && event.source?._elementRef
+        ? event.source._elementRef.nativeElement
+        : null;
+  
+    if (!nativeElement) {
+      console.warn('[⚠️ applyOptionAttributes] Could not resolve native element for event:', event);
+      return;
+    }
+  
+    this.applyAttributes(nativeElement, attributes);
+    nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
   }
 
   private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
