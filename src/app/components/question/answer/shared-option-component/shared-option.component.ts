@@ -1226,6 +1226,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
+        this.cdRef.detectChanges();
         console.log('[🟢 optionsReady = true]');
       });
     }, 100); // Delay rendering to avoid event fire during init
@@ -1322,6 +1323,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         setTimeout(() => {
           this.ngZone.run(() => {
             this.optionsReady = true;
+            this.cdRef.detectChanges();
             console.log('[🟢 optionsReady = true]');
           });
         }, 100); // Delay rendering to avoid event fire during init
