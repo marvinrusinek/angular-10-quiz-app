@@ -511,11 +511,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
-    if (optionBinding.optionAlreadyHandled) {
-      console.warn('[⛔ Ignored redundant change event]');
-      return;
-    }
-    
     const clickedAt = Date.now();
 
     console.warn('[🧪 OPTION CLICKED]', {
