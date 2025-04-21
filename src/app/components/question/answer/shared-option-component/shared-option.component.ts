@@ -473,57 +473,60 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[⏳ Blocked: View not fully initialized]');
       return;
     }
-    
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-  
-    console.log('[🖱️ updateOptionAndUI event]', { checked, optionBinding });
-  
-    if (checked === optionBinding.isSelected) {
-      console.warn('[⚠️ Skipping redundant update — already selected]', { index });
-      return;
-    }
-  
-    optionBinding.isSelected = checked;
 
-    if (!this.isValidOptionBinding(optionBinding)) return;    
-  
-    this.ngZone.run(() => {
-      try {
-        const selectedOption = optionBinding.option as SelectedOption;
-        const optionId = this.getOptionId(selectedOption, index);
-        const questionIndex = this.quizService.currentQuestionIndex;
-  
-        // Update selected options map
-        this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-  
-        // Immediate state updates
-        this.selectedOptionService.setOptionSelected(true);
-  
-        // Check if the option state changes correctly
-        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-  
-        // Update the active state of options
-        this.updateOptionActiveStates(optionBinding);
-  
-        // Update feedback and apply attributes
-        this.updateFeedbackState(optionId);
-        this.applyOptionAttributes(optionBinding, event);
-  
-        // Emit the event to notify other components of the selection
-        this.emitOptionSelectedEvent(optionBinding, index, checked);
-  
-        // Finalize state update
-        this.finalizeOptionSelection(optionBinding, checked);
-  
-        // Allow browser to settle before change detection
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            this.cdRef.detectChanges(); // ensure UI reflects the changes
-          }, 0);
-        });
-      } catch (error) {
-        console.error('[❌ updateOptionAndUI error]', error);
+    // Defer until the checked state is updated
+    requestAnimationFrame(() => {
+      const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+
+      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
+
+      if (checked === optionBinding.isSelected) {
+        console.warn('[⚠️ Skipping redundant update — already selected]', { index });
+        return;
       }
+  
+      optionBinding.isSelected = checked;
+
+      if (!this.isValidOptionBinding(optionBinding)) return;    
+    
+      this.ngZone.run(() => {
+        try {
+          const selectedOption = optionBinding.option as SelectedOption;
+          const optionId = this.getOptionId(selectedOption, index);
+          const questionIndex = this.quizService.currentQuestionIndex;
+    
+          // Update selected options map
+          this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
+    
+          // Immediate state updates
+          this.selectedOptionService.setOptionSelected(true);
+    
+          // Check if the option state changes correctly
+          if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
+    
+          // Update the active state of options
+          this.updateOptionActiveStates(optionBinding);
+    
+          // Update feedback and apply attributes
+          this.updateFeedbackState(optionId);
+          this.applyOptionAttributes(optionBinding, event);
+    
+          // Emit the event to notify other components of the selection
+          this.emitOptionSelectedEvent(optionBinding, index, checked);
+    
+          // Finalize state update
+          this.finalizeOptionSelection(optionBinding, checked);
+    
+          // Allow browser to settle before change detection
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              this.cdRef.detectChanges(); // ensure UI reflects the changes
+            }, 0);
+          });
+        } catch (error) {
+          console.error('[❌ updateOptionAndUI error]', error);
+        }
+      });
     });
   }
 
