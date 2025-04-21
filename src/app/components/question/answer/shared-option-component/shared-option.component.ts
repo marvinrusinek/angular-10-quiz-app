@@ -1221,6 +1221,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       mapped: this.optionBindings?.map(b => b.option.text),
       source: this.optionsToDisplay?.map(o => o.text)
     });
+
+    this.viewReady = true;
+    this.cdRef.detectChanges();
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
@@ -1307,6 +1310,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
+
+        this.viewReady = true;
+        this.cdRef.detectChanges();
 
         console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
       },
