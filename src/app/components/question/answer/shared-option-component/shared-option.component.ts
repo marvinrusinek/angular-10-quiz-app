@@ -272,7 +272,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionsRestored = true;
     } catch (error) {
       console.error('[restoreOptionsToDisplay] Error during restoration:', error);
-      
+
       const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
       if (!hasSelection) {
         this.optionsToDisplay = [];
@@ -286,7 +286,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private synchronizeOptionBindings(): void {
     if (!this.optionsToDisplay?.length) {
       console.warn('[synchronizeOptionBindings] No options to synchronize.');
-      this.optionBindings = [];
+    
+      const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
+      if (!hasSelection) {
+        this.optionBindings = [];
+      } else {
+        console.warn('[🛡️ Skipped clearing optionBindings in sync — selection exists]');
+      }
+    
       return;
     }
 
