@@ -1004,7 +1004,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return '';
   }
 
-  getOptionBindings(option: Option, idx: number): OptionBindings {
+  getOptionBindings(option: Option, index: number, isSelected: boolean = false): OptionBindings {
     return {
       option: {
         ...option,
@@ -1031,7 +1031,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
 
-  getOptionBindings(option: Option, index: number, isSelected: boolean = false): OptionBindings {
+  private generateOptionBindings(): void {    
     if (!this.optionsToDisplay?.length) return;
 
     const existingSelectionMap = new Map(
