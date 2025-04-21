@@ -242,8 +242,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     try {
       if (!this.currentQuestion?.options || this.currentQuestion.options.length === 0) {
         console.warn('[restoreOptionsToDisplay] No current question or options available.');
-        this.optionsToDisplay = [];
-        this.optionBindings = [];
+      
+        // Only clear bindings if nothing is selected
+        const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
+        if (!hasSelection) {
+          this.optionsToDisplay = [];
+          this.optionBindings = [];
+        } else {
+          console.warn('[🛡️ Skipped clearing optionBindings — selection detected]');
+        }
+      
         return;
       }
 
@@ -264,8 +272,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionsRestored = true;
     } catch (error) {
       console.error('[restoreOptionsToDisplay] Error during restoration:', error);
-      this.optionsToDisplay = [];
-      this.optionBindings = [];
+      
+      const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
+      if (!hasSelection) {
+        this.optionsToDisplay = [];
+        this.optionBindings = [];
+      } else {
+        console.warn('[🛡️ Skipped clearing optionBindings in catch — selection exists]');
+      }
     }
   }
 
@@ -484,8 +498,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.warn('[⚠️ Skipping redundant update — already selected]', { index });
         return;
       }
-  
+
+      // ✅ Assign BEFORE logging
       optionBinding.isSelected = checked;
+
+      console.log(`[✅ isSelected set] optionBinding:`, {
+        index,
+        isSelected: optionBinding.isSelected,
+        checked
+      });      
+  
+      setTimeout(() => {
+        console.log(`[⏳ Delayed isSelected check]`, {
+          index,
+          isSelected: optionBinding.isSelected
+        });
+      }, 100);
 
       if (!this.isValidOptionBinding(optionBinding)) return;    
     
