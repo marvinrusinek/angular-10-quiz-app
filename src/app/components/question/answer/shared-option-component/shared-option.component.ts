@@ -158,7 +158,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
       this.generateOptionBindings();
-      this.cdRef.detectChanges();
     }
 
     this.viewInitialized = true;
