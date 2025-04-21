@@ -359,7 +359,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
       return;
     }
-    
+
     this.currentQuestion = this.config.currentQuestion;
     this.optionsToDisplay = [...this.config.optionsToDisplay];
 
@@ -1031,12 +1031,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
 
-  private generateOptionBindings(): void {    
+  getOptionBindings(option: Option, index: number, isSelected: boolean = false): OptionBindings {
     if (!this.optionsToDisplay?.length) return;
-  
-    this.optionBindings = this.optionsToDisplay.map((option, idx) =>
-      this.getOptionBindings(option, idx)
+
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
+      return this.getOptionBindings(option, idx, isSelected);
+    });
 
     console.log('[🔁 SOC generateOptionBindings]', {
       mapped: this.optionBindings?.map(b => b.option.text),
