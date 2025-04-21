@@ -469,6 +469,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    if (!this.viewInitialized) {
+      console.warn('[⏳ Blocked: View not fully initialized]');
+      return;
+    }
+    
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
     console.log('[🖱️ updateOptionAndUI event]', { checked, optionBinding });
@@ -479,11 +484,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     optionBinding.isSelected = checked;
-  
-    if (!this.viewInitialized) {
-      console.warn('[⏳ Blocked: View not fully initialized]');
-      return;
-    }
 
     if (!this.isValidOptionBinding(optionBinding)) return;    
   
