@@ -76,6 +76,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private viewInitialized = false;
   viewReady = false;
   private lastSelectedOptionMap: Map<number, number> = new Map(); // optionId -> timestamp
+  optionsReady = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -1222,6 +1223,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       source: this.optionsToDisplay?.map(o => o.text)
     });
 
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+        console.log('[🟢 optionsReady = true]');
+      });
+    }, 100); // Delay rendering to avoid event fire during init
+
     this.viewReady = true;
     this.cdRef.detectChanges();
   }
@@ -1310,6 +1318,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
+
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.optionsReady = true;
+            console.log('[🟢 optionsReady = true]');
+          });
+        }, 100); // Delay rendering to avoid event fire during init
 
         this.viewReady = true;
         this.cdRef.detectChanges();
