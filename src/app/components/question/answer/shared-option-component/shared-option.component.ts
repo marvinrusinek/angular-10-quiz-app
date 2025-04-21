@@ -550,11 +550,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       // Assign BEFORE logging
       optionBinding.isSelected = checked;
-      console.log(`[✅ isSelected set] optionBinding:`, {
+      console.warn('[✅ SET isSelected]', {
         index,
         isSelected: optionBinding.isSelected,
-        checked
+        checked,
+        source: 'updateOptionAndUI'
       });
+
+      (console as any).lastSelectedOptionId = optionBinding.option.optionId;
+      (console as any).lastSetSelectedAt = Date.now();
   
       setTimeout(() => {
         console.log(`[⏳ Delayed isSelected check]`, {
