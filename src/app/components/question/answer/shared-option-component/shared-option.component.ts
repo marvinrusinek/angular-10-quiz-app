@@ -339,7 +339,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   initializeFromConfig(): void {
     const last = (console as any).lastOptionClicked;
     if (last) {
-      console.warn(`[🕵️‍♂️ generateOptionBindings triggered AFTER click]`, {
+      console.warn(`[🕵️‍♂️ initializeFromConfig triggered AFTER click]`, {
         timeSinceClick: Date.now() - last.time,
         optionId: last.optionId
       });
@@ -1045,7 +1045,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private generateOptionBindings(): void {    
     const last = (console as any).lastOptionClicked;
     if (last) {
-      console.warn(`[🕵️‍♂️ initializeOptionBindings triggered AFTER click]`, {
+      console.warn(`[🕵️‍♂️ generateOptionBindings triggered AFTER click]`, {
         timeSinceClick: Date.now() - last.time,
         optionId: last.optionId
       });
