@@ -354,6 +354,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
+
+    if (this.optionBindings?.some(opt => opt.isSelected)) {
+      console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
+      return;
+    }
+    
     this.currentQuestion = this.config.currentQuestion;
     this.optionsToDisplay = [...this.config.optionsToDisplay];
 
@@ -362,13 +368,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const fallbackFeedback =
       this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
 
+    const existingSelectionMap = new Map(
+      (this.optionsToDisplay ?? []).map(opt => [opt.optionId, opt.selected])
+    );
+
     // Ensure IDs/flags/feedback are present on every option
     this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
       feedback: opt.feedback ?? fallbackFeedback,
-      selected: false,
+      selected: existingSelectionMap.get(opt.optionId) ?? false,
       active: true,
       showIcon: false
     }));
