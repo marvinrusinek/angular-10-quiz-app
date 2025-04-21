@@ -75,6 +75,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private hasLoggedMissingComponent = false;
   private viewInitialized = false;
   viewReady = false;
+  private lastSelectedOptionMap: Map<number, number> = new Map(); // optionId -> timestamp
 
   optionTextStyle = { color: 'black' };
 
@@ -511,6 +512,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    const optionId = optionBinding.option.optionId;
+    const now = Date.now();
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+  
+    const lastSetAt = this.lastSelectedOptionMap.get(optionId);
+  
+    // 🚫 Skip redundant back-to-back events (usually false after true)
+    if (
+      typeof lastSetAt === 'number' &&
+      now - lastSetAt < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Suppressed redundant false event]', { optionId, index, now });
+      return;
+    }
+
+
     const clickedAt = Date.now();
 
     console.warn('[🧪 OPTION CLICKED]', {
@@ -549,13 +567,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       // Assign BEFORE logging
       optionBinding.isSelected = checked;
-      optionBinding.optionAlreadyHandled = true;
-      
+      this.lastSelectedOptionMap.set(optionId, now);
+
       console.warn('[✅ SET isSelected]', {
+        optionId,
         index,
-        isSelected: optionBinding.isSelected,
         checked,
-        source: 'updateOptionAndUI'
+        isSelected: optionBinding.isSelected
       });
 
       (console as any).lastSelectedOptionId = optionBinding.option.optionId;
