@@ -507,7 +507,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return option.showIcon === true;
   }
 
-  updateOptionAndUI(
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -616,6 +616,122 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           // Finalize state update
           this.finalizeOptionSelection(optionBinding, checked);
     
+          // Allow browser to settle before change detection
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              this.cdRef.detectChanges(); // ensure UI reflects the changes
+            }, 0);
+          });
+        } catch (error) {
+          console.error('[❌ updateOptionAndUI error]', error);
+        }
+      });
+    });
+  } */
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const optionId = optionBinding.option.optionId;
+    const clickedAt = Date.now();
+  
+    console.warn('[🧪 OPTION CLICKED]', {
+      optionId,
+      clickedAt
+    });
+  
+    (console as any).lastOptionClicked = {
+      clickedAt,
+      optionId
+    };
+  
+    // Delay to check overwrite
+    setTimeout(() => {
+      console.log('[🕵️ isSelected AFTER 150ms]', {
+        optionId,
+        isSelected: optionBinding.isSelected
+      });
+    }, 150);
+  
+    if (!this.viewInitialized) {
+      console.warn('[⏳ Blocked: View not fully initialized]');
+      return;
+    }
+  
+    // Defer until the checked state is updated
+    requestAnimationFrame(() => {
+      const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+      const lastSetAt = this.lastSelectedOptionMap.get(optionId);
+      const now = Date.now();
+  
+      // 🚫 Skip redundant back-to-back events (usually false after true)
+      if (
+        typeof lastSetAt === 'number' &&
+        now - lastSetAt < 150 &&
+        checked === false
+      ) {
+        console.warn('[⛔ Suppressed redundant false event]', { optionId, index, now });
+        return;
+      }
+  
+      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
+  
+      if (checked === optionBinding.isSelected) {
+        console.warn('[⚠️ Skipping redundant update — already selected]', { index });
+        return;
+      }
+  
+      // Assign BEFORE logging
+      optionBinding.isSelected = checked;
+      this.lastSelectedOptionMap.set(optionId, now);
+  
+      console.warn('[✅ SET isSelected]', {
+        optionId,
+        index,
+        checked,
+        isSelected: optionBinding.isSelected
+      });
+  
+      (console as any).lastSelectedOptionId = optionBinding.option.optionId;
+      (console as any).lastSetSelectedAt = now;
+  
+      setTimeout(() => {
+        console.log(`[⏳ Delayed isSelected check]`, {
+          index,
+          isSelected: optionBinding.isSelected
+        });
+      }, 100);
+  
+      if (!this.isValidOptionBinding(optionBinding)) return;
+  
+      this.ngZone.run(() => {
+        try {
+          const selectedOption = optionBinding.option as SelectedOption;
+          const questionIndex = this.quizService.currentQuestionIndex;
+  
+          // Update selected options map
+          this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
+  
+          // Immediate state updates
+          this.selectedOptionService.setOptionSelected(true);
+  
+          // Check if the option state changes correctly
+          if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
+  
+          // Update the active state of options
+          this.updateOptionActiveStates(optionBinding);
+  
+          // Update feedback and apply attributes
+          this.updateFeedbackState(optionId);
+          this.applyOptionAttributes(optionBinding, event);
+  
+          // Emit the event to notify other components of the selection
+          this.emitOptionSelectedEvent(optionBinding, index, checked);
+  
+          // Finalize state update
+          this.finalizeOptionSelection(optionBinding, checked);
+  
           // Allow browser to settle before change detection
           requestAnimationFrame(() => {
             setTimeout(() => {
