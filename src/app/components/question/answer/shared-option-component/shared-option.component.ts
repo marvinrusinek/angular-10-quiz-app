@@ -298,26 +298,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
+    );
   
     this.optionBindings = this.optionsToDisplay.map(option => ({
       type: isMultipleAnswer ? 'multiple' : 'single',
       option: option,
-      feedback: option.feedback ?? 'No feedback available.', // Default feedback
-      isSelected: !!option.selected, // Ensure boolean
-      active: option.active ?? true, // Default active state
-      appHighlightOption: option.highlight, // Adjust for app logic
-      isCorrect: !!option.correct, // Ensure boolean
-      showFeedback: false, // Adjust based on app logic
-      showFeedbackForOption: {}, // Default or computed value
-      highlightCorrectAfterIncorrect: false, // Default or computed value
-      allOptions: [...this.optionsToDisplay], // Provide all options
+      feedback: option.feedback ?? 'No feedback available.',
+      isSelected: existingSelectionMap.get(option.optionId) ?? !!option.selected,
+      active: option.active ?? true,
+      appHighlightOption: option.highlight,
+      isCorrect: !!option.correct,
+      showFeedback: false,
+      showFeedbackForOption: {},
+      highlightCorrectAfterIncorrect: false,
+      allOptions: [...this.optionsToDisplay],
       appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
-      appHighlightReset: false, // Default reset value
-      disabled: false, // Default disabled state
-      ariaLabel: `Option ${option.text}`, // Accessible label
-      appResetBackground: false, // Default or computed value
-      optionsToDisplay: [...this.optionsToDisplay], // Pass all options
-      checked: option.selected ?? false, // Default to option's selected state
+      appHighlightReset: false,
+      disabled: false,
+      ariaLabel: `Option ${option.text}`,
+      appResetBackground: false,
+      optionsToDisplay: [...this.optionsToDisplay],
+      checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
       change: () => {}
     }));
   }
