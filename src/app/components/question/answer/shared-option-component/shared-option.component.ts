@@ -510,7 +510,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
-  ): void {    
+  ): void {
+    if (optionBinding.optionAlreadyHandled) {
+      console.warn('[⛔ Ignored redundant change event]');
+      return;
+    }
+    
     const clickedAt = Date.now();
 
     console.warn('[🧪 OPTION CLICKED]', {
@@ -1059,8 +1064,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       change: (element: MatCheckbox | MatRadioButton) => this.handleOptionClick(option as SelectedOption, idx, element.checked),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
-      checked: this.isSelectedOption(option),
-      optionAlreadyHandled: false
+      checked: this.isSelectedOption(option)
     };
   }
 
