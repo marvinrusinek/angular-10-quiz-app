@@ -1004,7 +1004,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return '';
   }
 
-  getOptionBindings(option: Option, index: number, isSelected: boolean = false): OptionBindings {
+  getOptionBindings(option: Option, idx: number, isSelected: boolean = false): OptionBindings {
     return {
       option: {
         ...option,
