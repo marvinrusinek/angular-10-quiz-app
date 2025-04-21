@@ -74,6 +74,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
   private viewInitialized = false;
+  viewReady = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -153,17 +154,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-
   ngAfterViewInit(): void {
-    if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
-      console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
-      this.generateOptionBindings();
+    // Delay both rendering and option generation until view is stable
+    setTimeout(() => {
+      if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
+        console.warn('[⚠️ SOC] Forcing optionBindings generation AFTER viewReady');
+        this.generateOptionBindings();
+      }
+  
+      this.viewReady = true;
       this.cdRef.detectChanges();
-    }
-
-    this.viewInitialized = true;
-    console.log('[✅ View ready]');
-  }  
+  
+      console.log('[✅ View ready]');
+    }, 50); // or 100 if needed
+  }
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
