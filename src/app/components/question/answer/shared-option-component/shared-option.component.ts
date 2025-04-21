@@ -466,6 +466,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     inputElement: MatCheckbox | MatRadioButton
   ): void {
     if (!this.isValidOptionBinding(optionBinding)) return;
+
+    if (inputElement.checked === optionBinding.isSelected) {
+      console.warn('[⚠️ Skipping redundant update — already selected]', { index });
+      return;
+    }
+    optionBinding.isSelected = inputElement.checked;
   
     this.ngZone.run(() => {
       try {
