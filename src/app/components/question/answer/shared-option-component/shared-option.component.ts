@@ -155,19 +155,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngAfterViewInit(): void {
-    // Delay both rendering and option generation until view is stable
-    setTimeout(() => {
-      if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
-        console.warn('[⚠️ SOC] Forcing optionBindings generation AFTER viewReady');
-        this.generateOptionBindings();
-      }
-  
-      this.viewReady = true;
+    if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
+      console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
+      this.generateOptionBindings();
       this.cdRef.detectChanges();
-  
-      console.log('[✅ View ready]');
-    }, 50); // or 100 if needed
-  }
+    }
+
+    this.viewInitialized = true;
+    console.log('[✅ View ready]');
+  }  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
