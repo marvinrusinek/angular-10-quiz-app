@@ -512,6 +512,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    const clickedAt = Date.now();
+
+    console.warn('[🧪 OPTION CLICKED]', {
+      optionId: optionBinding.option.optionId,
+      clickedAt
+    });
+  
+    (console as any).lastOptionClicked = {
+      clickedAt,
+      optionId: optionBinding.option.optionId
+    };
+  
+    // Delay to check overwrite
+    setTimeout(() => {
+      console.log('[🕵️ isSelected AFTER 150ms]', {
+        optionId: optionBinding.option.optionId,
+        isSelected: optionBinding.isSelected
+      });
+    }, 150);
+
     if (!this.viewInitialized) {
       console.warn('[⏳ Blocked: View not fully initialized]');
       return;
@@ -528,17 +548,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         return;
       }
 
-      // ✅ Assign BEFORE logging
+      // Assign BEFORE logging
       optionBinding.isSelected = checked;
       console.log(`[✅ isSelected set] optionBinding:`, {
         index,
         isSelected: optionBinding.isSelected,
         checked
       });
-      (console as any).lastOptionClicked = {
-        optionId: optionBinding.option.optionId,
-        time: Date.now()
-      };
   
       setTimeout(() => {
         console.log(`[⏳ Delayed isSelected check]`, {
@@ -1105,24 +1121,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[🧪 Binding Init] currentQuestion:`, this.currentQuestion?.questionText);
     console.log(`[🧪 Binding Init] optionsToDisplay:`, this.optionsToDisplay);
 
-    const last = (console as any).lastOptionClicked;
-    if (last) {
-      console.warn(`[🕵️‍♂️ initializeOptionBindings triggered AFTER click]`, {
-        timeSinceClick: Date.now() - last.time,
-        optionId: last.optionId
-      });
-    }
-
-    if (this.optionBindings?.some(o => o.isSelected)) {
-      console.warn('[🛡️ Skipped initializeOptionBindings — selection already exists]');
-      return;
-    }
-
     // Fetch the current question by index
     this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
       next: (question) => {
         if (!question) {
           console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
+          return;
+        }
+
+        if (this.optionBindings?.some(o => o.isSelected)) {
+          console.warn('[🛡️ Skipped initializeOptionBindings — selection already exists]');
           return;
         }
   
