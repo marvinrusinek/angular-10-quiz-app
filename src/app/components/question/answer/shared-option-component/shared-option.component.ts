@@ -73,6 +73,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private optionsRestored = false; // tracks if options are restored
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
+  private viewInitialized = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -159,6 +160,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.generateOptionBindings();
       this.cdRef.detectChanges();
     }
+
+    this.viewInitialized = true;
+    console.log('[✅ View ready]');
   }  
 
   ngAfterViewChecked(): void {
@@ -476,7 +480,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     optionBinding.isSelected = checked;
   
-    if (!this.isValidOptionBinding(optionBinding)) return;
+    if (!this.viewInitialized) {
+      console.warn('[⏳ Blocked: View not fully initialized]');
+      return;
+    }
+
+    if (!this.isValidOptionBinding(optionBinding)) return;    
   
     this.ngZone.run(() => {
       try {
