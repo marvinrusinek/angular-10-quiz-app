@@ -1,6 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { MatRadioButton } from '@angular/material/radio';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatRadioChange } from '@angular/material/radio';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -463,61 +463,57 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
-    inputElement: MatCheckbox | MatRadioButton
+    event: MatCheckboxChange | MatRadioChange
   ): void {
-    if (inputElement.checked === optionBinding.isSelected) {
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+  
+    console.log('[🖱️ updateOptionAndUI event]', { checked, optionBinding });
+  
+    if (checked === optionBinding.isSelected) {
       console.warn('[⚠️ Skipping redundant update — already selected]', { index });
       return;
     }
-    optionBinding.isSelected = inputElement.checked;
-
+  
+    optionBinding.isSelected = checked;
+  
     if (!this.isValidOptionBinding(optionBinding)) return;
   
     this.ngZone.run(() => {
       try {
-        // Set the radio/checkbox as checked and focus it
-        inputElement.checked = true;
-        inputElement.focus(); // Ensure the element gains focus
-  
         const selectedOption = optionBinding.option as SelectedOption;
-        const checked = inputElement.checked;
         const optionId = this.getOptionId(selectedOption, index);
         const questionIndex = this.quizService.currentQuestionIndex;
-
+  
         // Update selected options map
         this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
   
         // Immediate state updates
         this.selectedOptionService.setOptionSelected(true);
-        // this.selectedOptionService.isAnsweredSubject.next(true);
   
         // Check if the option state changes correctly
         if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-
+  
         // Update the active state of options
         this.updateOptionActiveStates(optionBinding);
   
-        // Set the element's state directly
-        inputElement.checked = checked;
-  
-        // Update feedback and apply attributes immediately
+        // Update feedback and apply attributes
         this.updateFeedbackState(optionId);
-        this.applyOptionAttributes(optionBinding, inputElement);
+        this.applyOptionAttributes(optionBinding, event);
   
         // Emit the event to notify other components of the selection
         this.emitOptionSelectedEvent(optionBinding, index, checked);
   
-        // Ensure selection state updates are properly finalized
+        // Finalize state update
         this.finalizeOptionSelection(optionBinding, checked);
   
-        // Add a small timeout to let the browser finish rendering before detecting changes
+        // Allow browser to settle before change detection
         requestAnimationFrame(() => {
           setTimeout(() => {
             this.cdRef.detectChanges(); // ensure UI reflects the changes
           }, 0);
         });
       } catch (error) {
-        console.error('Error updating option and UI:', error);
+        console.error('[❌ updateOptionAndUI error]', error);
       }
     });
   }
