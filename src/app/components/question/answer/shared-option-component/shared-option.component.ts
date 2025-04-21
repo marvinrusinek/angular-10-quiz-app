@@ -522,12 +522,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       // ✅ Assign BEFORE logging
       optionBinding.isSelected = checked;
-
       console.log(`[✅ isSelected set] optionBinding:`, {
         index,
         isSelected: optionBinding.isSelected,
         checked
-      });      
+      });
+      (console as any).lastOptionClicked = {
+        optionId: optionBinding.option.optionId,
+        time: Date.now()
+      };
   
       setTimeout(() => {
         console.log(`[⏳ Delayed isSelected check]`, {
@@ -1032,6 +1035,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private generateOptionBindings(): void {    
+    const last = (console as any).lastOptionClicked;
+    if (last) {
+      console.warn(`[🕵️‍♂️ initializeOptionBindings triggered AFTER click]`, {
+        timeSinceClick: Date.now() - last.time,
+        optionId: last.optionId
+      });
+    }
+
     if (!this.optionsToDisplay?.length) return;
 
     const existingSelectionMap = new Map(
@@ -1085,6 +1096,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   initializeOptionBindings(): void {
     console.log(`[🧪 Binding Init] currentQuestion:`, this.currentQuestion?.questionText);
     console.log(`[🧪 Binding Init] optionsToDisplay:`, this.optionsToDisplay);
+
+    const last = (console as any).lastOptionClicked;
+    if (last) {
+      console.warn(`[🕵️‍♂️ initializeOptionBindings triggered AFTER click]`, {
+        timeSinceClick: Date.now() - last.time,
+        optionId: last.optionId
+      });
+    }
+
+    if (this.optionBindings?.some(o => o.isSelected)) {
+      console.warn('[🛡️ Skipped initializeOptionBindings — selection already exists]');
+      return;
+    }
 
     // Fetch the current question by index
     this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
