@@ -28,6 +28,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons!: QueryList<ElementRef>;
   @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes!: QueryList<ElementRef>;
+  @ViewChildren('highlightRef') highlightRefs: QueryList<HighlightOptionDirective>;
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
