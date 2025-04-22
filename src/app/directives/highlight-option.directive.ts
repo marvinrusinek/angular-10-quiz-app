@@ -105,7 +105,7 @@ export class HighlightOptionDirective implements OnChanges {
       changes.option || changes.isSelected || changes.showFeedback || changes.appHighlightReset;
   
     if (highlightRelevant) {
-      // ✅ Prioritize local option.highlight first
+      // Prioritize local option.highlight first
       if (this.option?.highlight || this.isSelected) {
         console.log('[🎯 Applying local highlight immediately]');
         this.updateHighlight();
