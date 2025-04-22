@@ -305,6 +305,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
+
+    if (this.optionBindings?.some(b => b.isSelected)) {
+      console.warn('[🛡️ Skipped reassignment — already selected]');
+      return;
+    }
   
     this.optionBindings = this.optionsToDisplay.map(option => ({
       type: isMultipleAnswer ? 'multiple' : 'single',
@@ -327,6 +332,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
       change: () => {}
     }));
+    console.warn('[🧨 optionBindings REASSIGNED]', {
+      stackTrace: new Error().stack
+    });    
   }
 
   preserveOptionHighlighting(): void {
@@ -1328,11 +1336,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
+
+    if (this.optionBindings?.some(b => b.isSelected)) {
+      console.warn('[🛡️ Skipped reassignment — already selected]');
+      return;
+    }
   
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
       return this.getOptionBindings(option, idx, isSelected);
     });
+    console.warn('[🧨 optionBindings REASSIGNED]', {
+      stackTrace: new Error().stack
+    });    
 
     console.log('[🔁 SOC generateOptionBindings]', {
       mapped: this.optionBindings?.map(b => b.option.text),
@@ -1435,6 +1451,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
+        console.warn('[🧨 optionBindings REASSIGNED]', {
+          stackTrace: new Error().stack
+        });        
 
         setTimeout(() => {
           this.ngZone.run(() => {
@@ -1455,6 +1474,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   initializeFeedbackBindings(): void { 
+    if (this.optionBindings?.some(b => b.isSelected)) {
+      console.warn('[🛡️ Skipped reassignment — already selected]');
+      return;
+    }
+
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
       if (!optionBinding || !optionBinding.option) {
         console.warn(`Option binding at index ${idx} is null or undefined. Using default feedback properties.`);
