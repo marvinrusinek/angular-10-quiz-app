@@ -1,7 +1,5 @@
-<section id="question">
-  <h3 question-content>
-    <ng-container *ngIf="combinedText$ | async as combinedText">
-      <div [innerHTML]="combinedText"></div>
-    </ng-container>
-  </h3>
-</section>
+<h3 question-content>
+  <ng-container *ngIf="combinedText$ | async as combinedText">
+    <div [innerHTML]="combinedText"></div>
+  </ng-container>
+</h3>
