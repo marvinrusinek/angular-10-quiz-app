@@ -1578,10 +1578,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
-    
-      // Ensure selected options are persistently flagged for highlight
-      if (isSelected) {
-        // option.selected = true;
+
+      if (this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
       }
     
@@ -1689,6 +1687,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
           const optionBinding = this.getOptionBindings(option, idx, isSelected);
+
+          // ✅ Restore highlight for previously selected options
+          if (this.highlightedOptionIds.has(option.optionId)) {
+            option.highlight = true;
+          }
         
           return optionBinding;
         });
