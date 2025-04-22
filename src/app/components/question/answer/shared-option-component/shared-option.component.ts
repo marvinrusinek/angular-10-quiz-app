@@ -77,6 +77,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   viewReady = false;
   private lastSelectedOptionMap: Map<number, number> = new Map(); // optionId -> timestamp
   optionsReady = false;
+  private lastClickedOptionId: number | null = null;
+  private lastClickTimestamp: number | null = null;
 
   optionTextStyle = { color: 'black' };
 
@@ -635,17 +637,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     const optionId = optionBinding.option.optionId;
-    const clickedAt = Date.now();
-  
-    console.warn('[🧪 OPTION CLICKED]', {
-      optionId,
-      clickedAt
-    });
-  
-    (console as any).lastOptionClicked = {
-      clickedAt,
-      optionId
-    };
+    const now = Date.now();
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+
+    // 🚫 Block back-to-back toggle with same option in < 150ms
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Blocked duplicate false event]', { optionId });
+      return;
+    }
+
+    // Record latest valid interaction
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
   
     // Delay to check overwrite
     setTimeout(() => {
@@ -1323,7 +1331,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         setTimeout(() => {
           this.ngZone.run(() => {
             this.optionsReady = true;
-            this.cdRef.detectChanges();
             console.log('[🟢 optionsReady = true]');
           });
         }, 100); // Delay rendering to avoid event fire during init
