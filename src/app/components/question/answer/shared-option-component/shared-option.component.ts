@@ -414,7 +414,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const allInputs = [...radioInputs, ...checkboxInputs];
   
       allInputs.forEach((elRef: ElementRef) => {
+        console.log('[🔍 native element]', elRef.nativeElement);
+
         const input = elRef.nativeElement.querySelector('input');
+        console.log('[🔍 input inside element]', input);
+
         if (input) {
           if (input.checked) {
             input.focus();     // 🔍 Ensure it's focused
