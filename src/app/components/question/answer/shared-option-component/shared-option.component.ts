@@ -26,8 +26,8 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons: QueryList<ElementRef>;
-  @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes: QueryList<ElementRef>;
+  @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons!: QueryList<ElementRef>;
+  @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes!: QueryList<ElementRef>;
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
@@ -222,6 +222,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
+  @HostListener('change', ['$event'])
+  onNativeChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const optionId = this.getOptionIdFromInput(input);
+    const checked = input.checked;
+
+    console.warn('[🖲️ Native change]', { optionId, checked });
+
+    const optionBinding = this.optionBindings.find(o => o.option.optionId === optionId);
+    if (!optionBinding) {
+      console.warn('[⛔ No matching binding found for input change]');
+      return;
+    }
+
+    this.updateOptionAndUI(optionBinding, this.optionBindings.indexOf(optionBinding), {
+      checked
+    } as MatCheckboxChange);
+  }
+
+  private getOptionIdFromInput(input: HTMLInputElement): number {
+    const id = input?.getAttribute('data-option-id');
+    return id ? parseInt(id, 10) : -1;
+  }
+  
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
@@ -335,7 +359,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
       change: () => {}
     }));
-    this.syncOptionInputState();
+    this.attachNativeChangeListeners();
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
     });    
@@ -361,6 +385,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[🎯 Inputs synchronized]');
     }, 100); // delay to allow DOM to settle
   }  
+
+  private attachNativeChangeListeners(): void {
+    setTimeout(() => {
+      const radioElements = this.radioButtons?.toArray() || [];
+      const checkboxElements = this.checkboxes?.toArray() || [];
+      const allElements = [...radioElements, ...checkboxElements];
+  
+      allElements.forEach((elRef: ElementRef) => {
+        const nativeInput = elRef.nativeElement.querySelector('input');
+        if (nativeInput) {
+          // Prevent duplicate bindings if re-rendered
+          nativeInput.removeEventListener('change', this.handleNativeChange);
+          nativeInput.addEventListener('change', this.handleNativeChange);
+        }
+      });
+  
+      console.log('[🧠 Native input listeners attached]');
+    }, 100); // Delay ensures DOM is rendered and inputs exist
+  }
+  
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
@@ -1373,7 +1417,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
       return this.getOptionBindings(option, idx, isSelected);
     });
-    this.syncOptionInputState();
+    this.attachNativeChangeListeners();
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
     });    
@@ -1484,7 +1528,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
-        this.syncOptionInputState();
+        this.attachNativeChangeListeners();
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
         });        
