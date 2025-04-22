@@ -169,7 +169,48 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.viewInitialized = true;
     console.log('[✅ View ready]');
-  }  
+
+    setTimeout(() => {
+      const allRadioInputs = this.radioButtons?.toArray() || [];
+      const allCheckboxInputs = this.checkboxes?.toArray() || [];
+  
+      const allInputs = [...allRadioInputs, ...allCheckboxInputs];
+  
+      allInputs.forEach((elRef, idx) => {
+        const input = elRef.nativeElement.querySelector('input');
+        if (input) {
+          input.dataset.optionId = idx.toString(); // ✅ TEMPORARY ID by index
+  
+          input.removeEventListener('change', this.handleNativeChange); // just in case
+          input.addEventListener('change', this.handleNativeChange);
+  
+          console.log('[🧩 Listener added for input]', idx);
+        } else {
+          console.warn('[❌ No native input found]', elRef.nativeElement);
+        }
+      });
+    }, 100); // give DOM time to render inputs
+  }
+
+  private handleNativeChange = (event: Event): void => {
+    const input = event.target as HTMLInputElement;
+    const idAttr = input?.dataset?.optionId;
+  
+    const optionId = idAttr ? parseInt(idAttr, 10) : -1;
+    const checked = input.checked;
+  
+    console.warn('[🖲️ Native input change fired!]', { optionId, checked });
+  
+    const optionBinding = this.optionBindings?.[optionId];
+    if (!optionBinding) {
+      console.warn('[❌ No matching option binding for input]', { optionId });
+      return;
+    }
+  
+    this.updateOptionAndUI(optionBinding, optionId, {
+      checked
+    } as MatCheckboxChange); // or MatRadioChange if you prefer
+  };  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
