@@ -1096,21 +1096,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionBindings.forEach((binding) => {
       const isCurrent = binding.option.optionId === currentBinding.option.optionId;
   
-      // ✅ Only uncheck others — don’t reset their highlight
-      if (!isCurrent && binding.isSelected) {
-        binding.isSelected = false;
-        // Do NOT touch binding.option.highlight here — keep it true
-      }
-  
+      // Always highlight the currently selected option
       if (isCurrent) {
         binding.isSelected = true;
-        binding.option.highlight = true; // ✅ highlight current
+        binding.option.highlight = true;
+      } else {
+        // Deselect others, but keep their highlight if they were already selected
+        const wasSelected = binding.isSelected;
+        binding.isSelected = false;
+  
+        if (wasSelected) {
+          binding.option.highlight = true; // ✅ preserve highlight
+        }
       }
   
       this.selectedOptionMap.set(binding.option.optionId, binding.isSelected);
     });
   
-    this.cdRef.detectChanges(); // 🔁 sync view with updated selection
+    this.cdRef.detectChanges(); // 🔁 apply changes to UI
   }
 
   private isValidOptionBinding(optionBinding: OptionBindings): boolean {
