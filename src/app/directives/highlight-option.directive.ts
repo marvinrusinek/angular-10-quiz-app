@@ -38,7 +38,7 @@ export class HighlightOptionDirective implements OnChanges {
     private userPreferenceService: UserPreferenceService
   ) {}
 
-  /* ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     // Check if relevant inputs have changed
     if (
       changes.option ||
@@ -101,16 +101,8 @@ export class HighlightOptionDirective implements OnChanges {
         '[HighlightOptionDirective] No relevant changes detected, skipping highlight update'
       );
     }
-  } */
-  ngOnChanges(): void {
-    // Always attempt to update highlight
-    try {
-      this.updateHighlight();
-    } catch (error) {
-      console.error('[HighlightOptionDirective] Error in ngOnChanges → updateHighlight:', error);
-    }
   }
-  
+
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   @HostListener('click', ['$event'])
