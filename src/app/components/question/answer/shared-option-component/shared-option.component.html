@@ -13,7 +13,7 @@
         appHighlightOption
         [checked]="optionBinding.isSelected"
         (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
-        [attr.autofocus]="optionIndex === 0 ? true : null"
+        (click)="onMatLabelClicked(optionBinding, index, $event)"
       >
         <ng-container
           *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"
@@ -30,7 +30,7 @@
         appHighlightOption
         [checked]="optionBinding.isSelected"
         (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
-        [attr.autofocus]="optionIndex === 0 ? true : null"
+        (click)="onMatLabelClicked(optionBinding, index, $event)"
       >
         <ng-container
           *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"
