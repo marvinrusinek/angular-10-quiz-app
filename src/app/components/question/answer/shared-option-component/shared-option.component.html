@@ -8,9 +8,9 @@
           *ngSwitchCase="'multiple'"
           #checkbox
           appMatClickFix
+          appHighlightOption
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
-          appHighlightOption
           [checked]="optionBinding.isSelected"
           (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
           (click)="onMatLabelClicked(optionBinding, index, $event)"
@@ -25,9 +25,9 @@
           *ngSwitchCase="'single'"
           #radio
           appMatClickFix
+          appHighlightOption
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
-          appHighlightOption
           [checked]="optionBinding.isSelected"
           (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
           (click)="onMatLabelClicked(optionBinding, index, $event)"
@@ -36,7 +36,6 @@
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"
           ></ng-container>
         </mat-radio-button>
-
       </ng-container>
 
       <!-- Feedback display -->
