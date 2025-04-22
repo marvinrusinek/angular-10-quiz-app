@@ -92,3 +92,119 @@
 .mat-radio-layout {
   display: block !important;
 }
+
+/* @import '../../../../variables';
+
+.options {
+  display: flex;
+  align-items: center;
+  width: 630px;
+  height: auto;
+  font-family: $font-stack;
+  font-size: 20px;
+  color: $dark-brown;
+  background-color: $light-gray;
+  border: 2px solid $medium-gray;
+  padding: 10px 5px 10px 30px;
+  margin-left: 5px;
+  cursor: pointer;
+
+  &:hover {
+    border: 2px solid $vivid-blue;
+  }
+
+  .option-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+  }
+
+  input[type='radio'],
+  input[type='checkbox'] {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: $vivid-blue;
+    cursor: pointer;
+  }
+  
+  .option-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .option-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    flex-grow: 1;
+    font-size: 20px;
+    color: black;
+  }
+
+  .native-input {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: $vivid-blue;
+  }
+
+  .feedback-wrapper {
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .option-text {
+    display: inline-block;
+  }
+
+  input.native-input {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: $vivid-blue;
+    flex-shrink: 0;
+  }
+
+  .inline-feedback {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .material-icons.icon {
+    flex-shrink: 0;
+    font-size: 22px;
+    // color: $dark-gray;
+  }
+
+  .feedback-row {
+    margin-top: 8px;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.5;
+    color: $dark-brown;
+  }
+}
+
+.correct {
+  background-color: $green;
+}
+
+.incorrect {
+  background-color: $red;
+}
+
+.correct,
+.incorrect {
+  border: 2px solid $vivid-blue;
+}
+
+.correct-icon {
+  color: green;
+  margin-left: 10px;
+}
+
+.incorrect-icon {
+  color: red;
+  margin-left: 10px;
+} */
