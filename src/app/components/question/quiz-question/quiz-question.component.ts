@@ -1148,8 +1148,6 @@ export class QuizQuestionComponent
             this.updateDisplayStateToExplanation();
           }
         }
-  
-        this.cdRef.detectChanges();
       } catch (error) {
         console.error('[handleRouteChanges] ❌ Unexpected error:', error);
       }
