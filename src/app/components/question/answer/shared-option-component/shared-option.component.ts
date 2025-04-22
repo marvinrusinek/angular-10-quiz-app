@@ -84,6 +84,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   hasUserClicked = false;
   private freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
+  highlightedOptionIds: Set<number> = new Set();
 
   optionTextStyle = { color: 'black' };
 
@@ -1013,7 +1014,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // ✅ STEP 1: Update selection + highlight BEFORE feedback/icon
       optionBinding.isSelected = checked;
       optionBinding.option.selected = checked;
-      optionBinding.option.highlight = true;
+      // optionBinding.option.highlight = true;
+
+      if (checked) {
+        this.highlightedOptionIds.add(optionId);
+        optionBinding.option.highlight = true;
+      } else {
+        this.highlightedOptionIds.delete(optionId);
+        optionBinding.option.highlight = false;
+      }
   
       this.selectedOptionMap.set(optionId, checked);
       this.hasUserClicked = true;
