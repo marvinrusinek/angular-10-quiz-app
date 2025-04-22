@@ -962,7 +962,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-
+  
     if (!this.freezeOptionBindings) {
       this.freezeOptionBindings = true;
       console.warn('[🧊 OptionBindings frozen after first selection]');
@@ -982,7 +982,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Record latest valid interaction
     this.lastClickedOptionId = optionId;
     this.lastClickTimestamp = now;
-
+  
     setTimeout(() => {
       const selected = this.optionBindings.filter(o => o.isSelected);
       console.log('[✅ Selected options after UI update]', selected.map(o => o.option.optionId));
@@ -1010,17 +1010,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         return;
       }
   
-      // Assign BEFORE logging
+      // ✅ STEP 1: Set selection state early
       optionBinding.isSelected = checked;
-      this.selectedOptionMap.set(optionBinding.option.optionId, checked);
-
-      this.showFeedbackForOption[optionId] = true;
-      this.updateFeedbackState(optionId);
-
+      this.selectedOptionMap.set(optionId, checked);
+  
+      // ✅ STEP 2: Set highlight BEFORE feedback
+      optionBinding.option.highlight = true;
+      this.cdRef.detectChanges(); // force UI update before feedback logic
+  
+      // ✅ STEP 3: Slight delay for feedback to appear after highlight
+      setTimeout(() => {
+        this.showFeedbackForOption[optionId] = true;
+        this.updateFeedbackState(optionId);
+        this.cdRef.detectChanges();
+      }, 20); // 20ms delay allows highlight paint first
+  
+      // Optional: handle single-answer enforcement
       if (this.type === 'single') {
         this.enforceSingleSelection(optionBinding);
       }
-      
+  
       this.hasUserClicked = true;
   
       console.warn('[✅ SET isSelected]', {
@@ -1061,7 +1070,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
           // Update feedback and apply attributes
           this.showFeedback = true;
-          this.updateFeedbackState(optionId);
           this.applyOptionAttributes(optionBinding, event);
           this.cdRef.detectChanges();
   
@@ -1766,8 +1774,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   /* shouldShowIcon(option: Option): boolean {
     return this.showFeedback && option.showIcon;
   } */
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     return !!(this.showFeedbackForOption?.[option.optionId]);
+  } */
+  shouldShowIcon(option: Option): boolean {
+    const id = option.optionId;
+    return !!(
+      this.showFeedback &&
+      (this.showFeedbackForOption?.[id] || option.showIcon)
+    );
   }
 
   shouldShowFeedback(index: number): boolean {
