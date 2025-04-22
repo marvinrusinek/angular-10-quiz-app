@@ -1089,21 +1089,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
   
-
-  private enforceSingleSelection(selectedBinding: OptionBindings): void {
+  /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
       const isTarget = binding === selectedBinding;
   
       if (!isTarget && binding.isSelected) {
         binding.isSelected = false;
   
-        // ✅ Preserve feedback state for previously selected option
+        // Preserve feedback state for previously selected option
         const id = binding.option.optionId;
         this.showFeedbackForOption[id] = true;
         this.updateFeedbackState(id);
       }
     });
-  }
+  } */
+  private enforceSingleSelection(selectedBinding: OptionBindings): void {
+    this.optionBindings.forEach(binding => {
+      if (binding !== selectedBinding) {
+        binding.isSelected = false;
+        binding.option.selected = false;
+      }
+    });
+  }  
 
   private isValidOptionBinding(optionBinding: OptionBindings): boolean {
     if (!optionBinding || !optionBinding.option) {
@@ -1560,19 +1567,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private generateOptionBindings(): void {
-    // ✅ Guard: don't allow reassignment after user click
+    // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
       return;
     }
   
-    // ✅ Guard: no options available
+    // Guard: no options available
     if (!this.optionsToDisplay?.length) {
       console.warn('[⚠️ No options to display]');
       return;
     }
   
-    // ✅ Map current selections (if any)
+    // Map current selections (if any)
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [
         binding.option.optionId,
@@ -1580,12 +1587,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ])
     );
   
-    // ✅ Build fresh bindings using retained selection state
+    // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
 
-      if (isSelected) {
+      // Always persist highlight for selected options
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
       }
     
@@ -1694,7 +1702,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
           const optionBinding = this.getOptionBindings(option, idx, isSelected);
 
-          if (isSelected) {
+          // Highlight selected or previously highlighted options
+          if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
             option.highlight = true;
           }
         
