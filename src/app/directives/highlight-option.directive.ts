@@ -38,14 +38,12 @@ export class HighlightOptionDirective implements OnChanges {
     private userPreferenceService: UserPreferenceService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
+    const highlightRelevant =
+      changes.option || changes.isSelected || changes.showFeedback || changes.appHighlightReset;
+
     // Check if relevant inputs have changed
-    if (
-      changes.option ||
-      changes.showFeedback ||
-      changes.isSelected ||
-      changes.appHighlightReset
-    ) {
+    if (highlightRelevant) {
       try {
         // Ensure `currentOptions` are properly initialized
         this.quizService.currentOptions.subscribe((currentOptions) => {
@@ -101,6 +99,26 @@ export class HighlightOptionDirective implements OnChanges {
         '[HighlightOptionDirective] No relevant changes detected, skipping highlight update'
       );
     }
+  } */
+  ngOnChanges(changes: SimpleChanges): void {
+    const highlightRelevant =
+      changes.option || changes.isSelected || changes.showFeedback || changes.appHighlightReset;
+  
+    if (highlightRelevant) {
+      // ✅ Prioritize local option.highlight first
+      if (this.option?.highlight || this.isSelected) {
+        console.log('[🎯 Applying local highlight immediately]');
+        this.updateHighlight();
+      } else {
+        // Fallback in case it's unset
+        setTimeout(() => {
+          console.log('[⏳ Delayed highlight fallback triggered]');
+          this.updateHighlight();
+        }, 25);
+      }
+    } else {
+      console.log('[🔕 No relevant input change — skipping highlight update]');
+    }
   }
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
@@ -130,8 +148,10 @@ export class HighlightOptionDirective implements OnChanges {
   }
 
   updateHighlight(): void {
+    const selected = this.option?.selected || this.isSelected;
+
     // If the option is already highlighted, reapply the highlight color
-    if (this.option?.highlight) {
+    if (this.option?.highlight || selected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // green for correct, red for incorrect
       this.setBackgroundColor(color);
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
