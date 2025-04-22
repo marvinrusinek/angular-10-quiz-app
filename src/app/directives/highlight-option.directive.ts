@@ -44,7 +44,8 @@ export class HighlightOptionDirective implements OnChanges {
       changes.option ||
       changes.showFeedback ||
       changes.isSelected ||
-      changes.appHighlightReset
+      changes.appHighlightReset || 
+      (this.option && this.option.highlight)
     ) {
       try {
         // Ensure `currentOptions` are properly initialized
