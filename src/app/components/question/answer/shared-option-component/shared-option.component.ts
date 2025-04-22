@@ -1022,7 +1022,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       setTimeout(() => {
         this.showFeedbackForOption[optionId] = true;
         this.updateFeedbackState(optionId);
-        this.cdRef.detectChanges();
       }, 20); // 20ms delay allows highlight paint first
   
       // Optional: handle single-answer enforcement

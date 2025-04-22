@@ -102,27 +102,15 @@ export class HighlightOptionDirective implements OnChanges {
       );
     }
   } */
-  ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes.option ||
-      changes.showFeedback ||
-      changes.isSelected ||
-      changes.appHighlightReset
-    ) {
-      try {
-        this.updateHighlight(); // ✅ Immediately reflect highlight state
-      } catch (error) {
-        console.error('[HighlightOptionDirective] Error in updateHighlight():', error);
-      }
-    } else {
-      console.log(
-        '[HighlightOptionDirective] No relevant changes detected, skipping highlight update'
-      );
+  ngOnChanges(): void {
+    // Always attempt to update highlight
+    try {
+      this.updateHighlight();
+    } catch (error) {
+      console.error('[HighlightOptionDirective] Error in ngOnChanges → updateHighlight:', error);
     }
   }
   
-  
-
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   @HostListener('click', ['$event'])
