@@ -79,6 +79,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionsReady = false;
   private lastClickedOptionId: number | null = null;
   private lastClickTimestamp: number | null = null;
+  private hasUserClicked = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -810,6 +811,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Assign BEFORE logging
       optionBinding.isSelected = checked;
       this.lastSelectedOptionMap.set(optionId, now);
+      
+      this.hasUserClicked = true;
   
       console.warn('[✅ SET isSelected]', {
         optionId,
