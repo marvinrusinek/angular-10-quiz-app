@@ -552,9 +552,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
-        option.highlight = true; // Highlight selected options
-      } else {
-        option.highlight = false; // Clear highlight for others
+        option.highlight = true; // highlight selected options
       }
     }  
   }
@@ -1024,11 +1022,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // optionBinding.option.highlight = true;
 
       if (checked) {
-        this.highlightedOptionIds.add(optionId);
         optionBinding.option.highlight = true;
-      } else {
-        this.highlightedOptionIds.delete(optionId);
-        optionBinding.option.highlight = false;
+        this.highlightedOptionIds.add(optionId);
       }
   
       this.selectedOptionMap.set(optionId, checked);
