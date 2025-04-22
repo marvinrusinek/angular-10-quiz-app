@@ -82,6 +82,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private lastClickedOptionId: number | null = null;
   private lastClickTimestamp: number | null = null;
   private hasUserClicked = false;
+  private freezeOptionBindings = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -374,8 +375,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
 
-    if (this.hasUserClicked) {
-      console.warn('[🛡️ Reassignment blocked — user has already interacted]');
+    if (this.freezeOptionBindings) {
+      console.warn('[🚫 Skipped optionBindings reassignment — user has interacted]');
       return;
     }
   
@@ -908,6 +909,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+
+    if (!this.freezeOptionBindings) {
+      this.freezeOptionBindings = true;
+      console.warn('[🧊 OptionBindings frozen after first selection]');
+    }
   
     // 🚫 Block back-to-back toggle with same option in < 150ms
     if (
@@ -1480,8 +1486,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
 
-    if (this.hasUserClicked) {
-      console.warn('[🛡️ Reassignment blocked — user has already interacted]');
+    if (this.freezeOptionBindings) {
+      console.warn('[🚫 Skipped optionBindings reassignment — user has interacted]');
       return;
     }
   
@@ -1586,8 +1592,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
         );
 
-        if (this.hasUserClicked) {
-          console.warn('[🛡️ Reassignment blocked — user has already interacted]');
+        if (this.freezeOptionBindings) {
+          console.warn('[🚫 Skipped optionBindings reassignment — user has interacted]');
           return;
         }
 
