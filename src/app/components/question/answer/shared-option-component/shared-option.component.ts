@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
@@ -26,6 +26,8 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
+  @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons: QueryList<ElementRef>;
+  @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes: QueryList<ElementRef>;
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
@@ -333,10 +335,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
       change: () => {}
     }));
+    this.syncOptionInputState();
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
     });    
   }
+
+  private syncOptionInputState(): void {
+    setTimeout(() => {
+      const radioInputs = this.radioButtons?.toArray() || [];
+      const checkboxInputs = this.checkboxes?.toArray() || [];
+  
+      const allInputs = [...radioInputs, ...checkboxInputs];
+  
+      allInputs.forEach((elRef: ElementRef) => {
+        const input = elRef.nativeElement.querySelector('input');
+        if (input) {
+          if (input.checked) {
+            input.focus();     // 🔍 Ensure it's focused
+            input.click();     // 🖱️ Force click if needed
+          }
+        }
+      });
+  
+      console.log('[🎯 Inputs synchronized]');
+    }, 100); // delay to allow DOM to settle
+  }  
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
@@ -1349,6 +1373,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
       return this.getOptionBindings(option, idx, isSelected);
     });
+    this.syncOptionInputState();
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
     });    
@@ -1459,6 +1484,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
+        this.syncOptionInputState();
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
         });        
