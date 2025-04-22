@@ -172,6 +172,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.viewInitialized = true;
     this.viewReady = true;
     console.log('[✅ View ready]');
+
+    setTimeout(() => {
+      this.highlightRefs.forEach((dir, idx) => {
+        console.log(`[🔁 Forcing highlight on option ${idx}]`);
+        dir.manuallyTriggerHighlight();
+      });
+    }, 0); // after DOM settles
   }
 
   private handleNativeChange = (event: Event): void => {

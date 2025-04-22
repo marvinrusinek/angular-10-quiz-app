@@ -7,7 +7,8 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
-  selector: '[appHighlightOption]'
+  selector: '[appHighlightOption]',
+  exportAs: 'appHighlightOption'
 })
 export class HighlightOptionDirective implements OnChanges {
   @Output() resetBackground = new EventEmitter<boolean>();
@@ -187,6 +188,14 @@ export class HighlightOptionDirective implements OnChanges {
       console.error('All options are not defined');
     }
   }
+
+  public manuallyTriggerHighlight(): void {
+    try {
+      this.updateHighlight();
+    } catch (err) {
+      console.error('[🔧 manuallyTriggerHighlight] Failed:', err);
+    }
+  }  
 
   private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);

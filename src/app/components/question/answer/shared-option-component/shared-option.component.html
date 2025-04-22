@@ -11,6 +11,7 @@
         [optionBinding]="optionBinding"
         [optionIndex]="optionIndex"
         appHighlightOption
+        #highlightRef="appHighlightOption"
         [checked]="optionBinding.isSelected"
         (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
         [attr.autofocus]="optionIndex === 0 ? true : null"
@@ -25,10 +26,10 @@
         *ngSwitchCase="'single'"
         #radio
         appMatClickFix
-        [componentRef]="this"
         [optionBinding]="optionBinding"
         [optionIndex]="optionIndex"
         appHighlightOption
+        #highlightRef="appHighlightOption"
         [checked]="optionBinding.isSelected"
         (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
         [attr.autofocus]="optionIndex === 0 ? true : null"
