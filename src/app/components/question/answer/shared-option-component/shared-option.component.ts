@@ -81,8 +81,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionsReady = false;
   private lastClickedOptionId: number | null = null;
   private lastClickTimestamp: number | null = null;
-  private hasUserClicked = false;
+  hasUserClicked = false;
   private freezeOptionBindings = false;
+  private selectedOptionMap: Map<number, boolean> = new Map();
 
   optionTextStyle = { color: 'black' };
 
@@ -167,30 +168,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
       this.generateOptionBindings();
     }
-
+  
     this.viewInitialized = true;
+    this.viewReady = true;
     console.log('[✅ View ready]');
-
-    setTimeout(() => {
-      const allRadioInputs = this.radioButtons?.toArray() || [];
-      const allCheckboxInputs = this.checkboxes?.toArray() || [];
-  
-      const allInputs = [...allRadioInputs, ...allCheckboxInputs];
-  
-      allInputs.forEach((elRef, idx) => {
-        const input = elRef.nativeElement.querySelector('input');
-        if (input) {
-          input.dataset.optionId = idx.toString(); // ✅ TEMPORARY ID by index
-  
-          input.removeEventListener('change', this.handleNativeChange); // just in case
-          input.addEventListener('change', this.handleNativeChange);
-  
-          console.log('[🧩 Listener added for input]', idx);
-        } else {
-          console.warn('[❌ No native input found]', elRef.nativeElement);
-        }
-      });
-    }, 100); // give DOM time to render inputs
   }
 
   private handleNativeChange = (event: Event): void => {
@@ -319,6 +300,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
         if (!hasSelection) {
           this.optionsToDisplay = [];
+
+          if (this.freezeOptionBindings) return;
           this.optionBindings = [];
         } else {
           console.warn('[🛡️ Skipped clearing optionBindings — selection detected]');
@@ -348,6 +331,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
       if (!hasSelection) {
         this.optionsToDisplay = [];
+
+        if (this.freezeOptionBindings) return;
         this.optionBindings = [];
       } else {
         console.warn('[🛡️ Skipped clearing optionBindings in catch — selection exists]');
@@ -361,6 +346,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
       const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
       if (!hasSelection) {
+        if (this.freezeOptionBindings) return;
         this.optionBindings = [];
       } else {
         console.warn('[🛡️ Skipped clearing optionBindings in sync — selection exists]');
@@ -376,8 +362,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     );
 
     if (this.freezeOptionBindings) {
-      console.warn('[🚫 Skipped optionBindings reassignment — user has interacted]');
-      return;
+      throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
   
     this.optionBindings = this.optionsToDisplay.map(option => ({
@@ -401,7 +386,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
       change: () => {}
     }));
-    this.attachNativeChangeListeners();
+    setTimeout(() => {
+      this.cdRef.detectChanges(); // ensure the DOM updates
+    }, 0);    
+    // this.attachNativeChangeListeners();
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
     });    
@@ -451,7 +439,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100); // Delay ensures DOM is rendered and inputs exist
   }
 
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     console.warn('[📡 MatRadioChange]', { index, value: event.value });
   
     // Prevent double change bug: skip if already selected
@@ -461,8 +449,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, {
-      checked: true
-    } as MatRadioChange);
+      checked: true,
+      source: {} as MatRadioButton,
+      value: optionBinding.option.optionId
+    } as MatRadioChange);    
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    requestAnimationFrame(() => {
+      if (optionBinding.isSelected === true) {
+        console.warn('[⚠️ Skipping redundant radio event]');
+        return;
+      }
+  
+      this.updateOptionAndUI(optionBinding, index, {
+        checked: true,
+        source: event.source,
+        value: event.value
+      });
+    });
   }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
@@ -476,6 +480,54 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.updateOptionAndUI(optionBinding, index, event);
   }
+
+  onMatLabelClicked(optionBinding: OptionBindings, index: number, event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+  
+    // Skip if actual input element was clicked
+    if (target.tagName === 'INPUT' || target.closest('mat-radio-button input, mat-checkbox input')) {
+      return;
+    }
+  
+    const inputEl = (event.currentTarget as HTMLElement).querySelector('input');
+    if (inputEl) {
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      inputEl.click(); // ensures the visual indicator is triggered
+      console.log('[📌 Synthetic change dispatched to input]');
+    }
+  }
+
+  onNativeRadioChanged(optionBinding: OptionBindings, index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const checked = input.checked;
+  
+    if (optionBinding.isSelected === checked) return;
+  
+    this.updateOptionAndUI(optionBinding, index, { checked } as any);
+  }
+  
+  onNativeCheckboxChanged(optionBinding: OptionBindings, index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const checked = input.checked;
+  
+    if (optionBinding.isSelected === checked) return;
+  
+    this.updateOptionAndUI(optionBinding, index, { checked } as any);
+  }
+
+  onNativeOptionChanged(
+    optionBinding: OptionBindings,
+    index: number,
+    event: Event
+  ): void {
+    const input = event.target as HTMLInputElement;
+    const checked = input.checked;
+  
+    if (optionBinding.isSelected === checked) return;
+  
+    this.updateOptionAndUI(optionBinding, index, { checked } as any);
+  }
+  
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
@@ -497,6 +549,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     // Full reset ─- clear bindings, selection, flags
+    if (this.freezeOptionBindings) return;
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -929,6 +982,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Record latest valid interaction
     this.lastClickedOptionId = optionId;
     this.lastClickTimestamp = now;
+
+    setTimeout(() => {
+      const selected = this.optionBindings.filter(o => o.isSelected);
+      console.log('[✅ Selected options after UI update]', selected.map(o => o.option.optionId));
+    }, 100);    
   
     // Delay to check overwrite
     setTimeout(() => {
@@ -954,7 +1012,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       // Assign BEFORE logging
       optionBinding.isSelected = checked;
-      this.lastSelectedOptionMap.set(optionId, now);
+      this.selectedOptionMap.set(optionBinding.option.optionId, checked);
+
+      this.showFeedbackForOption[optionId] = true;
+      this.updateFeedbackState(optionId);
+
+      if (this.type === 'single') {
+        this.enforceSingleSelection(optionBinding);
+      }
       
       this.hasUserClicked = true;
   
@@ -1016,6 +1081,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           console.error('[❌ updateOptionAndUI error]', error);
         }
       });
+    });
+  }
+
+  private enforceSingleSelection(selectedBinding: OptionBindings): void {
+    this.optionBindings.forEach(binding => {
+      const isTarget = binding === selectedBinding;
+  
+      if (!isTarget && binding.isSelected) {
+        binding.isSelected = false;
+  
+        // ✅ Preserve feedback state for previously selected option
+        const id = binding.option.optionId;
+        this.showFeedbackForOption[id] = true;
+        this.updateFeedbackState(id);
+      }
     });
   }
 
@@ -1471,50 +1551,49 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
 
-  private generateOptionBindings(): void {    
-    const last = (console as any).lastOptionClicked;
-    if (last) {
-      console.warn(`[🕵️‍♂️ generateOptionBindings triggered AFTER click]`, {
-        timeSinceClick: Date.now() - last.time,
-        optionId: last.optionId
-      });
-    }
-
-    if (!this.optionsToDisplay?.length) return;
-
-    const existingSelectionMap = new Map(
-      (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
-    );
-
+  private generateOptionBindings(): void {
+    // ✅ Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
-      console.warn('[🚫 Skipped optionBindings reassignment — user has interacted]');
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
       return;
     }
   
+    // ✅ Guard: no options available
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    // ✅ Map current selections (if any)
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [
+        binding.option.optionId,
+        binding.isSelected
+      ])
+    );
+  
+    // ✅ Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
+      const isSelected =
+        existingSelectionMap.get(option.optionId) ?? !!option.selected;
+  
       return this.getOptionBindings(option, idx, isSelected);
     });
-    this.attachNativeChangeListeners();
-    console.warn('[🧨 optionBindings REASSIGNED]', {
-      stackTrace: new Error().stack
-    });    
-
-    console.log('[🔁 SOC generateOptionBindings]', {
-      mapped: this.optionBindings?.map(b => b.option.text),
-      source: this.optionsToDisplay?.map(o => o.text)
+  
+    console.log('[🔁 Option bindings generated]', {
+      texts: this.optionBindings.map(b => b.option.text),
+      selected: this.optionBindings.map(b => b.isSelected)
     });
-
+  
+    // ✅ Mark view ready after DOM settles
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
+        this.viewReady = true;
         this.cdRef.detectChanges();
-        console.log('[🟢 optionsReady = true]');
+        console.log('[✅ optionsReady & viewReady set]');
       });
-    }, 100); // Delay rendering to avoid event fire during init
-
-    this.viewReady = true;
-    this.cdRef.detectChanges();
+    }, 100);
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
@@ -1593,8 +1672,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         );
 
         if (this.freezeOptionBindings) {
-          console.warn('[🚫 Skipped optionBindings reassignment — user has interacted]');
-          return;
+          throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
         }
 
         this.optionBindings = this.optionsToDisplay.map((option, idx) => {
@@ -1606,7 +1684,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
-        this.attachNativeChangeListeners();
+        setTimeout(() => {
+          this.cdRef.detectChanges(); // ensure the DOM updates
+        }, 0);        
+        // this.attachNativeChangeListeners();
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
         });        
@@ -1682,8 +1763,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
   
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     return this.showFeedback && option.showIcon;
+  } */
+  shouldShowIcon(option: Option): boolean {
+    return !!(this.showFeedbackForOption?.[option.optionId]);
   }
 
   shouldShowFeedback(index: number): boolean {
