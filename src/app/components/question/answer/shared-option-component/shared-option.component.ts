@@ -1241,8 +1241,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-
-  updateHighlighting(): void {
+  /* updateHighlighting(): void {
     if (!this.highlightDirectives?.length) return;
   
     let index = 0;
@@ -1267,7 +1266,39 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       directive.updateHighlight();
       index++;
     }
-  }
+  } */
+  updateHighlighting(): void {
+    if (!this.highlightDirectives?.length) return;
+  
+    this.highlightDirectives.forEach((directive, index) => {
+      const binding = this.optionBindings[index];
+      if (!binding) {
+        console.warn(`[❌ updateHighlighting] No binding found for index ${index}`);
+        return;
+      }
+  
+      const option = binding.option;
+  
+      // Sync all state flags to directive
+      directive.option = option;
+      directive.isSelected = binding.isSelected || !!option.selected;
+      directive.isCorrect = !!option.correct;
+      directive.showFeedback = this.showFeedback &&
+                               this.showFeedbackForOption[option.optionId ?? index];
+      directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
+  
+      // Force option to retain highlight if previously selected
+      if (binding.isSelected || option.selected || option.highlight) {
+        option.highlight = true;
+      }
+  
+      // Icon shows for selected options
+      option.showIcon = directive.isSelected && this.showFeedback;
+  
+      // Trigger directive to apply highlight immediately
+      directive.updateHighlight();
+    });
+  }  
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
