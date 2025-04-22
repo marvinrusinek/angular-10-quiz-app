@@ -366,27 +366,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
   
-    this.optionBindings = this.optionsToDisplay.map(option => ({
-      type: isMultipleAnswer ? 'multiple' : 'single',
-      option: option,
-      feedback: option.feedback ?? 'No feedback available.',
-      isSelected: existingSelectionMap.get(option.optionId) ?? !!option.selected,
-      active: option.active ?? true,
-      appHighlightOption: option.highlight,
-      isCorrect: !!option.correct,
-      showFeedback: false,
-      showFeedbackForOption: {},
-      highlightCorrectAfterIncorrect: false,
-      allOptions: [...this.optionsToDisplay],
-      appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
-      appHighlightReset: false,
-      disabled: false,
-      ariaLabel: `Option ${option.text}`,
-      appResetBackground: false,
-      optionsToDisplay: [...this.optionsToDisplay],
-      checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
-      change: () => {}
-    }));
+    this.optionBindings = this.optionsToDisplay.map(option => {
+      // Restore highlight for previously selected options
+      if (this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+    
+      return {
+        type: isMultipleAnswer ? 'multiple' : 'single',
+        option: option,
+        feedback: option.feedback ?? 'No feedback available.',
+        isSelected: existingSelectionMap.get(option.optionId) ?? !!option.selected,
+        active: option.active ?? true,
+        appHighlightOption: option.highlight,
+        isCorrect: !!option.correct,
+        showFeedback: false,
+        showFeedbackForOption: {},
+        highlightCorrectAfterIncorrect: false,
+        allOptions: [...this.optionsToDisplay],
+        appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
+        appHighlightReset: false,
+        disabled: false,
+        ariaLabel: `Option ${option.text}`,
+        appResetBackground: false,
+        optionsToDisplay: [...this.optionsToDisplay],
+        checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
+        change: () => {}
+      };
+    });
     setTimeout(() => {
       this.cdRef.detectChanges(); // ensure the DOM updates
     }, 0);    
@@ -1579,6 +1586,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
 
+      // Restore highlight for previously selected options
       if (this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
       }
@@ -1688,7 +1696,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
           const optionBinding = this.getOptionBindings(option, idx, isSelected);
 
-          // ✅ Restore highlight for previously selected options
+          // Restore highlight for previously selected options
           if (this.highlightedOptionIds.has(option.optionId)) {
             option.highlight = true;
           }
@@ -1774,18 +1782,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
   
-  /* shouldShowIcon(option: Option): boolean {
-    return this.showFeedback && option.showIcon;
-  } */
-  /* shouldShowIcon(option: Option): boolean {
-    return !!(this.showFeedbackForOption?.[option.optionId]);
-  } */
   shouldShowIcon(option: Option): boolean {
     const id = option.optionId;
-    return !!(
-      this.showFeedback &&
-      (this.showFeedbackForOption?.[id] || option.showIcon)
-    );
+    return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
 
   shouldShowFeedback(index: number): boolean {
