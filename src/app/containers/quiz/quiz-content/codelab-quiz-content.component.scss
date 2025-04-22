@@ -1,19 +1,15 @@
 @import "../../../../variables";
 
-#question {
+h3 {
   float: left;
   font-family: $font-stack;
-  margin: 0 0 35px 6.5px;
-  padding: 5px 10px 15px 20px;
+  margin: 5px 0 35px 6.5px;
+  padding: 10px 10px 15px 20px;
   background-color: $light-gray;
   border: 2px solid $vivid-blue;
   color: $dark-brown;
   width: 630px;
   height: auto;
   vertical-align: middle;
-
-  h3 {
-    margin-top: 5px;
-    line-height: 1.35;
-  }
+  line-height: 1.35;
 }
