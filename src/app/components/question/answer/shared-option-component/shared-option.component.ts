@@ -989,8 +989,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           this.updateOptionActiveStates(optionBinding);
   
           // Update feedback and apply attributes
+          this.showFeedback = true;
           this.updateFeedbackState(optionId);
           this.applyOptionAttributes(optionBinding, event);
+          this.cdRef.detectChanges();
   
           // Emit the event to notify other components of the selection
           this.emitOptionSelectedEvent(optionBinding, index, checked);
