@@ -307,8 +307,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
 
-    if (this.optionBindings?.some(b => b.isSelected)) {
-      console.warn('[🛡️ Skipped reassignment — already selected]');
+    if (this.hasUserClicked) {
+      console.warn('[🛡️ Reassignment blocked — user has already interacted]');
       return;
     }
   
@@ -1340,8 +1340,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
 
-    if (this.optionBindings?.some(b => b.isSelected)) {
-      console.warn('[🛡️ Skipped reassignment — already selected]');
+    if (this.hasUserClicked) {
+      console.warn('[🛡️ Reassignment blocked — user has already interacted]');
       return;
     }
   
@@ -1444,6 +1444,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         const existingSelectionMap = new Map(
           (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
         );
+
+        if (this.hasUserClicked) {
+          console.warn('[🛡️ Reassignment blocked — user has already interacted]');
+          return;
+        }
 
         this.optionBindings = this.optionsToDisplay.map((option, idx) => {
           const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
