@@ -28,7 +28,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons!: QueryList<ElementRef>;
   @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes!: QueryList<ElementRef>;
-  @ViewChildren('highlightRef') highlightRefs: QueryList<HighlightOptionDirective>;
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
@@ -173,13 +172,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.viewInitialized = true;
     this.viewReady = true;
     console.log('[✅ View ready]');
-
-    setTimeout(() => {
-      this.highlightRefs.forEach((dir, idx) => {
-        console.log(`[🔁 Forcing highlight on option ${idx}]`);
-        dir.manuallyTriggerHighlight();
-      });
-    }, 0); // after DOM settles
   }
 
   private handleNativeChange = (event: Event): void => {
