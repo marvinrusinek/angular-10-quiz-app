@@ -38,14 +38,13 @@ export class HighlightOptionDirective implements OnChanges {
     private userPreferenceService: UserPreferenceService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     // Check if relevant inputs have changed
     if (
       changes.option ||
       changes.showFeedback ||
       changes.isSelected ||
-      changes.appHighlightReset || 
-      (this.option && this.option.highlight)
+      changes.appHighlightReset
     ) {
       try {
         // Ensure `currentOptions` are properly initialized
@@ -101,6 +100,55 @@ export class HighlightOptionDirective implements OnChanges {
       console.log(
         '[HighlightOptionDirective] No relevant changes detected, skipping highlight update'
       );
+    }
+  } */
+  ngOnChanges(changes: SimpleChanges): void {
+    const option = this.option;
+  
+    // ✅ Always apply immediate visual update
+    this.updateHighlight();
+  
+    // ✅ Only run async correctness check if any of these key inputs changed
+    const shouldRunAsync =
+      changes.option ||
+      changes.showFeedback ||
+      changes.isSelected ||
+      changes.appHighlightReset;
+  
+    if (!shouldRunAsync || !option) return;
+  
+    try {
+      const currentOptions = this.quizService.currentOptions?.getValue?.() ??
+                             this.quizService.currentOptions;
+  
+      // Fallback: exit early if not an array or empty
+      if (!Array.isArray(currentOptions) || currentOptions.length === 0) {
+        console.warn('[HighlightOptionDirective] Invalid or empty currentOptions:', currentOptions);
+        return;
+      }
+  
+      const currentIndex = this.quizService.currentQuestionIndex;
+      if (currentIndex == null || currentIndex < 0) {
+        console.error('[HighlightOptionDirective] Invalid currentQuestionIndex:', currentIndex);
+        return;
+      }
+  
+      // Async check (used for "all correct selected" state)
+      this.selectedOptionService
+        .areAllCorrectAnswersSelected(currentOptions, currentIndex)
+        .then((result) => {
+          this.areAllCorrectAnswersSelected = result;
+  
+          console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', result);
+  
+          // 🔁 Re-apply highlight if needed after correctness update
+          this.updateHighlight();
+        })
+        .catch((error) => {
+          console.error('[HighlightOptionDirective] Error while checking correct answers:', error);
+        });
+    } catch (error) {
+      console.error('[HighlightOptionDirective] Error in ngOnChanges:', error);
     }
   }
   
