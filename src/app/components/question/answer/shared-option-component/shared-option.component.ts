@@ -1811,10 +1811,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId !== undefined && optionId === this.lastFeedbackOptionId;
   } */
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackAnchorOptionId;
-  }  
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+  
+    const historyLength = this.selectedOptionHistory.length;
+  
+    if (historyLength === 0) return false;
+  
+    if (historyLength === 1) {
+      return optionId === this.selectedOptionHistory[0]; // first selection
+    }
+  
+    if (historyLength === 2) {
+      return optionId === this.selectedOptionHistory[1]; // second selection
+    }
+  
+    // For 3+ selections, return second-to-last
+    const secondToLast = this.selectedOptionHistory[historyLength - 2];
+    return optionId === secondToLast;
+  }
   
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
