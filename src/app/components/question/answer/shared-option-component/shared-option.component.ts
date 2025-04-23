@@ -915,12 +915,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption[+key] = false;
     });
   
-    // ✅ STEP 3: Preserve feedback on previously selected option only
-    if (this.lastFeedbackOptionId !== undefined) {
-      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
-      this.updateFeedbackState(this.lastFeedbackOptionId);
-    }
-  
+    // ✅ STEP 3: Set new feedback visibility only for current option
+    this.showFeedbackForOption[optionId] = checked;
+    this.updateFeedbackState(optionId);
     this.showFeedback = true;
   
     // ✅ STEP 4: Feedback config inline (create or update)
@@ -934,17 +931,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // ✅ STEP 5: Trigger directive sync
+    // ✅ STEP 5: Save feedback anchor ONLY if newly selected
+    if (!optionBinding.option.selected || this.lastFeedbackOptionId !== optionId) {
+      this.lastFeedbackOptionId = optionId;
+    }
+  
+    // ✅ STEP 6: Trigger directive sync
     this.forceHighlightRefresh(optionId);
   
-    // ✅ STEP 6: Handle single-answer logic
+    // ✅ STEP 7: Handle single-answer logic
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // ✅ STEP 7: Final logic and state updates
+    // ✅ STEP 8: Final logic and state updates
     this.ngZone.run(() => {
       try {
         const selectedOption = optionBinding.option as SelectedOption;
@@ -966,11 +968,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
-  
-    // ✅ STEP 8: Save this as the last option that should show feedback
-    this.lastFeedbackOptionId = optionId;
-  }
-  
+  }  
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
