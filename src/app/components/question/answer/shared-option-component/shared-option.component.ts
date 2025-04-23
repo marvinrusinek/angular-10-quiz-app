@@ -1339,6 +1339,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked =
       (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+
+    // Block re-click on already selected options
+    if (optionBinding.option.selected) {
+      console.warn('[🔒 Option already selected — blocking re-click]', optionId);
+      return;
+    }
   
     // Freeze option bindings on first click
     if (!this.freezeOptionBindings) {
