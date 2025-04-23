@@ -1817,22 +1817,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
+    const history = this.selectedOptionHistory;
+    const len = history.length;
   
-    const historyLength = this.selectedOptionHistory.length;
+    if (len === 0) return false;
   
-    if (historyLength === 0) return false;
-  
-    if (historyLength === 1) {
-      return optionId === this.selectedOptionHistory[0]; // first selection
+    // If it's the very first selection
+    if (len === 1) {
+      return optionId === history[0];
     }
   
-    if (historyLength === 2) {
-      return optionId === this.selectedOptionHistory[1]; // second selection
+    // If repeated click, don't show feedback under it again
+    const last = history[len - 1];
+    const secondToLast = history[len - 2];
+  
+    // Show feedback under second-to-last IF user clicked same option again
+    if (last === secondToLast) {
+      return optionId === secondToLast;
     }
   
-    // For 3+ selections, return second-to-last
-    const secondToLast = this.selectedOptionHistory[historyLength - 2];
-    return optionId === secondToLast;
+    // Otherwise, show on the last newly selected option
+    return optionId === last;
   }
   
   isAnswerCorrect(): boolean {
