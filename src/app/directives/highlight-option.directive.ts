@@ -207,6 +207,9 @@ export class HighlightOptionDirective implements OnChanges {
     const selected = this.option?.selected || this.isSelected;
     const optionId = this.option?.optionId;
   
+    // ✅ Always prioritize option.highlight over selected
+    const shouldHighlight = this.option?.highlight === true;
+  
     console.log('[🔦 updateHighlight] state', {
       selected,
       highlight: this.option?.highlight,
@@ -216,7 +219,7 @@ export class HighlightOptionDirective implements OnChanges {
     });
   
     // If the option is already highlighted or selected, apply highlight color and show icon/feedback
-    if (this.option?.highlight || selected) {
+    if (shouldHighlight || selected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
       this.setBackgroundColor(color);
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
@@ -271,6 +274,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.showFeedbackForOption[optionId] = false;
     }
   }
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
