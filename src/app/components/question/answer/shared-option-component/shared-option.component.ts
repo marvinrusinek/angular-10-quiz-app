@@ -1665,25 +1665,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       d => d.option?.optionId === optionId
     );
   
-    if (directive) {
-      const binding = this.optionBindings.find(
-        b => b.option.optionId === optionId
-      );
-  
-      if (!binding) return;
-  
-      // Sync directive input properties before update
-      directive.option = binding.option;
-      directive.isSelected = binding.isSelected;
-      directive.isCorrect = binding.option.correct ?? false;
-      directive.showFeedback = this.showFeedbackForOption[optionId];
-  
-      directive.updateHighlight(); // run after inputs are synced
-    } else {
+    if (!directive) {
       console.warn('[⚠️ No directive found to refresh highlight for]', optionId);
+      return;
     }
   
-    this.cdRef.detectChanges(); // ensure DOM renders changes
+    const binding = this.optionBindings.find(
+      b => b.option.optionId === optionId
+    );
+  
+    if (!binding) {
+      console.warn('[⚠️ No binding found to sync with directive for]', optionId);
+      return;
+    }
+  
+    // 🧠 Sync inputs explicitly
+    directive.option = binding.option;
+    directive.isSelected = binding.isSelected;
+    directive.isCorrect = binding.option.correct ?? false;
+    directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
+  
+    directive.updateHighlight();
+    this.cdRef.detectChanges(); // force render
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
