@@ -17,7 +17,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() appHighlightReset: boolean;
   @Input() appResetBackground: boolean;
   @Input() option: Option;
-  @Input() showFeedbackForOption: { [key: number]: boolean };
+  @Input() showFeedbackForOption: { [key: number]: boolean } = {};
   @Input() highlightCorrectAfterIncorrect: boolean;
   @Input() allOptions: Option[]; // to access all options directly
   @Input() optionsToDisplay: Option[];
@@ -101,21 +101,25 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   ngOnChanges(changes: SimpleChanges): void {
-    const highlightRelevant =
+    const hasRelevantChange =
       changes.option || changes.isSelected || changes.showFeedback || changes.appHighlightReset;
   
-    if (highlightRelevant) {
-      // Prioritize local option.highlight first
-      if (this.option?.highlight || this.isSelected) {
-        console.log('[🎯 Applying local highlight immediately]');
-        this.updateHighlight();
-      } else {
-        // Fallback in case it's unset
-        setTimeout(() => {
-          console.log('[⏳ Delayed highlight fallback triggered]');
-          this.updateHighlight();
-        }, 25);
-      }
+    if (hasRelevantChange) {
+      const id = this.option?.optionId;
+      const selected = this.option?.selected || this.isSelected;
+      const highlight = this.option?.highlight;
+      const showIcon = this.option?.showIcon;
+      const showFeedback = this.showFeedbackForOption?.[id] ?? false;
+  
+      console.log('[🔦 updateHighlight] state', {
+        selected,
+        highlight,
+        isSelected: this.isSelected,
+        showIcon,
+        showFeedbackForOption: this.showFeedbackForOption?.[id],
+      });
+  
+      this.updateHighlight();
     } else {
       console.log('[🔕 No relevant input change — skipping highlight update]');
     }
@@ -149,15 +153,16 @@ export class HighlightOptionDirective implements OnChanges {
 
   updateHighlight(): void {
     const selected = this.option?.selected || this.isSelected;
+    const optionId = this.option?.optionId;
 
     console.log('[🔦 updateHighlight] state', {
-      selected: this.option?.selected,
+      selected,
       highlight: this.option?.highlight,
       isSelected: this.isSelected,
       showIcon: this.option?.showIcon,
-      showFeedbackForOption: this.showFeedbackForOption?.[this.option?.optionId ?? -1]
+      showFeedbackForOption: this.showFeedbackForOption?.[optionId],
     });
-    
+
     // If the option is already highlighted, reapply the highlight color
     if (this.option?.highlight || selected) {
       const color = this.isCorrect ? '#43f756' : '#ff0000'; // green for correct, red for incorrect
