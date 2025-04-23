@@ -1804,8 +1804,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return optionId === this.feedbackAnchorOptionId;
-  }  
+    return optionId === this.previousFeedbackOptionId;
+  }
   
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
