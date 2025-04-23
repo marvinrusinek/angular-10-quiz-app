@@ -7,23 +7,35 @@ import { OptionBindings } from '../shared/models/OptionBindings.model';
 export class MatClickFixDirective {
   @Input() optionBinding: OptionBindings;
   @Input() optionIndex: number;
-  @Input() componentRef: any; // Component instance to call update method
+  @Input() componentRef: any; // component instance to call update method
 
   constructor(private el: ElementRef) {}
 
   @HostListener('click', ['$event'])
   handleClick(event: MouseEvent): void {
-    // If user directly clicked input, let Angular Material handle it
-    if ((event.target as HTMLElement).tagName === 'INPUT') return;
+    const target = event.target as HTMLElement;
 
-    // Call update function directly on the component
+    // Skip if actual input was clicked — let Angular Material handle it normally
+    if (target.tagName === 'INPUT' || target.closest('input')) {
+      return;
+    }
+
+    // Skip if option already selected
+    if (this.optionBinding?.isSelected || this.optionBinding?.option?.selected) {
+      console.warn('[MatClickFix] 🛑 Option already selected — skipping');
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    // Trigger update function directly on the parent component
     if (this.componentRef?.updateOptionAndUI && typeof this.componentRef.updateOptionAndUI === 'function') {
-      console.warn('[⚡️ Directly invoking updateOptionAndUI]');
+      console.warn('[MatClickFix] ⚡️ Calling updateOptionAndUI manually');
       this.componentRef.updateOptionAndUI(this.optionBinding, this.optionIndex, {
         checked: true
-      } as any); // Pass dummy event
+      } as any); // Pass dummy synthetic event
     } else {
-      console.error('[❌ updateOptionAndUI not available on componentRef]');
+      console.error('[MatClickFix] ❌ updateOptionAndUI not available on componentRef');
     }
   }
 }
