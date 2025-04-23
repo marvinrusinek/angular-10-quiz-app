@@ -890,13 +890,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
-    // ✅ Prevent re-clicks on already selected options
+    // ✅ Block re-selection of already selected option
     if (optionBinding.option.selected && checked === true) {
-      console.warn('[🔒 Already selected — skipping update]', optionId);
+      console.warn('[🔒 Already selected — skipping full update]', optionId);
       return;
     }
   
-    // ✅ Prevent rapid duplicate unselects
+    // ✅ Block duplicate false clicks
     if (
       this.lastClickedOptionId === optionId &&
       this.lastClickTimestamp &&
@@ -912,41 +912,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
-    // ✅ STEP 1: Apply selection + highlight state
+    // ✅ STEP 1: Visuals — highlight, icon, selection
     optionBinding.option.highlight = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
   
-    // ✅ STEP 2: Maintain a history of selected optionIds (avoid duplicates)
+    // ✅ STEP 2: Maintain click history
     if (!this.selectedOptionHistory.includes(optionId)) {
       this.selectedOptionHistory.push(optionId);
-      if (this.selectedOptionHistory.length > 2) {
-        this.selectedOptionHistory.shift(); // maintain max 2 entries
-      }
     }
   
-    // ✅ STEP 3: Determine which option should display feedback
+    // ✅ STEP 3: Clear all feedback visibility
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    const feedbackAnchorId =
-      this.selectedOptionHistory.length === 1
-        ? this.selectedOptionHistory[0]
-        : this.selectedOptionHistory.length === 2
-        ? this.selectedOptionHistory[1] // second click should show feedback
-        : this.selectedOptionHistory[0]; // for 3+ clicks, show 2nd-to-last
-  
-    if (feedbackAnchorId !== undefined && feedbackAnchorId !== null) {
-      this.showFeedbackForOption[feedbackAnchorId] = true;
-      this.updateFeedbackState(feedbackAnchorId);
+    // ✅ STEP 4: Set feedback display only if this option is not already in the history
+    let feedbackAnchorId = -1;
+    if (this.selectedOptionHistory.length >= 2) {
+      const candidate = this.selectedOptionHistory[this.selectedOptionHistory.length - 2];
+      feedbackAnchorId = candidate;
+    } else {
+      feedbackAnchorId = optionId;
     }
   
+    this.showFeedbackForOption[feedbackAnchorId] = true;
+    this.lastFeedbackOptionId = feedbackAnchorId;
+    this.updateFeedbackState(feedbackAnchorId);
     this.showFeedback = true;
   
-    // ✅ STEP 4: Store feedback config
+    // ✅ STEP 5: Feedback config setup
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -957,17 +954,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // ✅ STEP 5: Sync visuals
+    // ✅ STEP 6: Refresh UI elements via directive
     this.forceHighlightRefresh(optionId);
   
-    // ✅ STEP 6: Enforce single-answer mode if enabled
+    // ✅ STEP 7: Handle single-answer questions
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // ✅ STEP 7: Final update logic
+    // ✅ STEP 8: Final updates
     this.ngZone.run(() => {
       try {
         const selectedOption = optionBinding.option as SelectedOption;
@@ -1842,7 +1839,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Otherwise, show on the last newly selected option
     return optionId === last;
   } */
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
   
     // If fewer than 2 options have been selected, show feedback under the only selected one
@@ -1856,7 +1853,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     return false;
-  }
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return optionId === this.lastFeedbackOptionId;
+  } 
  
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
