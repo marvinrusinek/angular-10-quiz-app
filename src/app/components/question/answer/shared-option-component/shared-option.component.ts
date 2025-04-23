@@ -915,10 +915,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption[+key] = false;
     });
   
-    // ✅ STEP 3: Set new feedback visibility only for current option
-    this.showFeedbackForOption[optionId] = checked;
-    this.lastSelectedOptionIndex = index;
-    this.updateFeedbackState(optionId);
+    // ✅ STEP 3: Preserve feedback on previously selected option only
+    if (this.lastFeedbackOptionId !== undefined) {
+      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+      this.updateFeedbackState(this.lastFeedbackOptionId);
+    }
+  
     this.showFeedback = true;
   
     // ✅ STEP 4: Feedback config inline (create or update)
@@ -964,7 +966,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
+  
+    // ✅ STEP 8: Save this as the last option that should show feedback
+    this.lastFeedbackOptionId = optionId;
   }
+  
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
