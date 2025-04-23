@@ -79,6 +79,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastSelectedOptionId: number = -1;
   lastFeedbackAnchorOptionId: number = -1;
   visitedOptionIds: Set<number> = new Set();
+  lastSelectionId: number = -1;
+  secondLastSelectionId: number = -1;
+  lastFeedbackOptionId: number = -1;
 
   isNavigatingBackwards = false;
   isOptionSelected = false;
@@ -890,13 +893,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
-    // ✅ Block re-selection of already selected option
+    // ✅ Block if already selected
     if (optionBinding.option.selected && checked === true) {
-      console.warn('[🔒 Already selected — skipping full update]', optionId);
+      console.warn('[🔒 Already selected — skipping update]', optionId);
       return;
     }
   
-    // ✅ Block duplicate false clicks
+    // ✅ Prevent rapid false toggles
     if (
       this.lastClickedOptionId === optionId &&
       this.lastClickTimestamp &&
@@ -912,38 +915,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
-    // ✅ STEP 1: Visuals — highlight, icon, selection
+    // ✅ STEP 1: Update selection state
     optionBinding.option.highlight = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
   
-    // ✅ STEP 2: Maintain click history
-    if (!this.selectedOptionHistory.includes(optionId)) {
-      this.selectedOptionHistory.push(optionId);
+    // ✅ STEP 2: Update distinct selection tracking
+    if (this.lastSelectionId !== optionId) {
+      this.secondLastSelectionId = this.lastSelectionId;
+      this.lastSelectionId = optionId;
     }
   
-    // ✅ STEP 3: Clear all feedback visibility
+    // ✅ STEP 3: Reset all feedback visibility
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    // ✅ STEP 4: Set feedback display only if this option is not already in the history
-    let feedbackAnchorId = -1;
-    if (this.selectedOptionHistory.length >= 2) {
-      const candidate = this.selectedOptionHistory[this.selectedOptionHistory.length - 2];
-      feedbackAnchorId = candidate;
+    // ✅ STEP 4: Show feedback under second-to-last unique selection
+    if (this.secondLastSelectionId !== -1) {
+      this.showFeedbackForOption[this.secondLastSelectionId] = true;
+      this.lastFeedbackOptionId = this.secondLastSelectionId;
+      this.updateFeedbackState(this.secondLastSelectionId);
     } else {
-      feedbackAnchorId = optionId;
+      this.lastFeedbackOptionId = optionId;
+      this.showFeedbackForOption[optionId] = true;
+      this.updateFeedbackState(optionId);
     }
   
-    this.showFeedbackForOption[feedbackAnchorId] = true;
-    this.lastFeedbackOptionId = feedbackAnchorId;
-    this.updateFeedbackState(feedbackAnchorId);
     this.showFeedback = true;
   
-    // ✅ STEP 5: Feedback config setup
+    // ✅ STEP 5: Set feedback config
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -954,17 +957,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // ✅ STEP 6: Refresh UI elements via directive
+    // ✅ STEP 6: Force directive sync
     this.forceHighlightRefresh(optionId);
   
-    // ✅ STEP 7: Handle single-answer questions
+    // ✅ STEP 7: Single-answer logic
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // ✅ STEP 8: Final updates
+    // ✅ STEP 8: Final state updates
     this.ngZone.run(() => {
       try {
         const selectedOption = optionBinding.option as SelectedOption;
@@ -1857,7 +1860,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackOptionId;
-  } 
+  }  
  
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
