@@ -174,15 +174,15 @@ export class HighlightOptionDirective implements OnChanges {
       this.setPointerEvents('none'); // disable interactions for deactivated options
       this.renderer.addClass(this.el.nativeElement, 'deactivated-option'); // add deactivation class
       this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed'); // set cursor for deactivated options
-      // this.option.highlight = false; // Ensure the highlight state is cleared
+      // this.option.highlight = false; // ensure the highlight state is cleared
       return;
     }
 
     // Reset state for other options
-    this.setBackgroundColor('white'); // Default background color for unselected options
-    this.setPointerEvents('auto'); // Enable interactions for unselected options
-    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // Remove deactivation class
-    this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer'); // Restore pointer for active options
+    this.setBackgroundColor('white'); // default background color for unselected options
+    this.setPointerEvents('auto'); // enable interactions for unselected options
+    // this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // remove deactivation class
+    this.setCursor('pointer'); // restore pointer for active options
 
     /* if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
@@ -222,6 +222,10 @@ export class HighlightOptionDirective implements OnChanges {
 
   private setPointerEvents(value: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'pointer-events', value);
+  }
+
+  private setCursor(value: string): void {
+    this.renderer.setStyle(this.el.nativeElement, 'cursor', value);
   }
 
   // Reset the state in-between questions
