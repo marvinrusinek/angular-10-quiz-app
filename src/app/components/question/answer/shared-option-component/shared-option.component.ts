@@ -1251,23 +1251,39 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.highlightedOptionIds.add(optionId);
         optionBinding.option.highlight = true;
         optionBinding.option.showIcon = true;
+        this.showFeedbackForOption[optionId] = true;
+        this.lastSelectedOptionIndex = index;
+      
+        this.feedbackConfigs[optionId] = {
+          feedback: optionBinding.option.feedback,
+          showFeedback: true,
+          options: this.optionsToDisplay,
+          question: this.currentQuestion,
+          selectedOption: optionBinding.option,
+          correctMessage: '',
+          idx: index,
+        };
       } else {
         this.highlightedOptionIds.delete(optionId);
         optionBinding.option.highlight = false;
         optionBinding.option.showIcon = false;
+        this.showFeedbackForOption[optionId] = false;
+        if (this.feedbackConfigs[optionId]) {
+          this.feedbackConfigs[optionId].showFeedback = false;
+        }
       }
   
-      this.lastSelectedOptionIndex = index;
+      // this.lastSelectedOptionIndex = index;
       this.selectedOptionMap.set(optionId, checked);
       this.hasUserClicked = true;
 
-      // STEP 2: Set feedback flags and force immediate update
-      this.showFeedbackForOption[optionId] = checked;
+      // Set feedback flags and force immediate update
+      // this.showFeedbackForOption[optionId] = checked;
+      this.forceHighlightRefresh(optionId);
       this.updateFeedbackState(optionId);
       this.showFeedback = true;
 
-      this.forceHighlightRefresh(optionId); // triggers directive sync
-      this.cdRef.detectChanges(); // 🔁 ensure highlight + icon + feedback are visible immediately
+      this.cdRef.detectChanges(); // ensure highlight + icon + feedback are visible immediately
   
       // Enforce single-answer behavior
       if (this.type === 'single') {
