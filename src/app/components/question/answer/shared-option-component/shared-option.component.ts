@@ -1353,6 +1353,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
   
+    // ✅ STEP 1.5: Set icon + highlight + feedback all together
     if (checked) {
       this.highlightedOptionIds.add(optionId);
       optionBinding.option.highlight = true;
@@ -1374,6 +1375,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       optionBinding.option.highlight = false;
       optionBinding.option.showIcon = false;
       this.showFeedbackForOption[optionId] = false;
+  
       if (this.feedbackConfigs[optionId]) {
         this.feedbackConfigs[optionId].showFeedback = false;
       }
@@ -1381,13 +1383,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.selectedOptionMap.set(optionId, checked);
   
-    // ✅ STEP 2: Force update visuals synchronously
-    this.forceHighlightRefresh(optionId);
+    // ✅ STEP 2: Force visual updates immediately
+    this.forceHighlightRefresh(optionId);   // <-- now includes .updateHighlight + .cdRef
+    this.highlightDirectives
+      ?.filter(dir => dir.option?.optionId === optionId)
+      ?.forEach(dir => dir.cdRef.detectChanges());
+
     this.updateFeedbackState(optionId);
     this.showFeedback = true;
+  
+    // ✅ Force full UI update once states are set
     this.cdRef.detectChanges();
   
-    // ✅ STEP 3: Proceed with async UI/logic updates
+    // ✅ STEP 3: Proceed with async logic updates
     requestAnimationFrame(() => {
       if (!this.isValidOptionBinding(optionBinding)) return;
   
@@ -1410,7 +1418,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           this.emitOptionSelectedEvent(optionBinding, index, checked);
           this.finalizeOptionSelection(optionBinding, checked);
   
-          // Final sync after everything completes
+          // Final sync after all logic completes
           this.cdRef.detectChanges();
         } catch (err) {
           console.error('[❌ updateOptionAndUI error]', err);
@@ -1630,7 +1638,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  private forceHighlightRefresh(optionId: number): void {
+  /* private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
       console.warn('[⚠️ No highlightDirectives available]');
       return;
@@ -1656,6 +1664,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.cdRef.detectChanges(); // 🧼 Apply updates to DOM
+  } */
+  private forceHighlightRefresh(optionId: number): void {
+    for (const directive of this.highlightDirectives ?? []) {
+      if (directive.option?.optionId === optionId) {
+        directive.isSelected = directive.option?.selected ?? false;
+        directive.isCorrect = directive.option?.correct ?? false;
+        directive.showFeedback = this.showFeedbackForOption[optionId];
+        directive.updateHighlight();
+      }
+    }
+  
+    this.cdRef.detectChanges(); // 🔁 force DOM update
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
