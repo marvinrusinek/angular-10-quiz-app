@@ -930,9 +930,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // ✅ STEP 4: Force immediate sync of highlight and feedback
+    // STEP 4: Force immediate sync of highlight and feedback
     this.forceHighlightRefresh(optionId);
-    this.cdRef.detectChanges();
+    // this.cdRef.detectChanges();
+
+    // Prevent re-processing the same selected option again
+    if (optionBinding.option.selected && this.selectedOptionMap.get(optionId)) {
+      console.warn('[🔒 Option already selected — skipping further updates]', optionId);
+      return;
+    }
   
     // ✅ STEP 5: Handle single-answer logic
     if (this.type === 'single') {
