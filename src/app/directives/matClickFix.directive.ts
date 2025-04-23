@@ -1,4 +1,4 @@
-import { Directive, HostListener, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { Directive, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
 
 @Directive({
@@ -8,8 +8,6 @@ export class MatClickFixDirective {
   @Output() matClickFixed = new EventEmitter<{ optionBinding: OptionBindings; index: number }>();
   @Input() optionBinding: OptionBindings;
   @Input() optionIndex: number;
-
-  constructor(private el: ElementRef) {}
 
   @HostListener('click', ['$event'])
   handleClick(event: MouseEvent): void {
