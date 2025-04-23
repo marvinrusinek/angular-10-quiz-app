@@ -1640,7 +1640,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     for (const directive of this.highlightDirectives) {
       if (directive.option?.optionId === optionId) {
-        directive.updateHighlight();
+        directive.isSelected = directive.option?.selected ?? false;
+        directive.isCorrect = directive.option?.correct ?? false;
+        directive.showFeedback = this.showFeedbackForOption[optionId];
+  
+        directive.updateHighlight(); // 🔁 Sync visual state
         found = true;
       }
     }
@@ -1650,6 +1654,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.warn('[⚠️ No matching directive for optionId]', optionId);
     }
+  
+    this.cdRef.detectChanges(); // 🧼 Apply updates to DOM
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
