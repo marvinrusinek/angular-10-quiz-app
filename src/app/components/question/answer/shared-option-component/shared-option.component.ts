@@ -76,7 +76,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private feedbackAnchorOptionId: number | null = null;
   private previousSelectedOptionId: number | null = null;
   private currentSelectedOptionId: number = -1;
-  private lastSelectedOptionId: number = -1;
+  lastSelectedOptionId: number = -1;
+  lastFeedbackAnchorOptionId: number = -1;
+
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
@@ -887,9 +889,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
-    // ✅ Block if already selected to prevent re-clicks BEFORE any updates
+    // ✅ Block if already selected to prevent re-clicks
     if (optionBinding.option.selected && checked === true) {
-      console.warn('[🔒 Already selected — skipping full update]', optionId);
+      console.warn('[🔒 Already selected — skipping update]', optionId);
       return;
     }
   
@@ -909,36 +911,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
-    // ✅ STEP 1: Apply selection state and visual flags immediately
+    // ✅ STEP 1: Apply selection + visuals
     optionBinding.option.highlight = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
     optionBinding.option.showIcon = checked;
-  
     this.selectedOptionMap.set(optionId, checked);
   
-    // ✅ STEP 2: Clear all feedback visibility
+    // ✅ STEP 2: Determine whether to move feedback anchor
+    if (
+      this.lastSelectedOptionId !== -1 &&
+      this.lastSelectedOptionId !== optionId
+    ) {
+      // Only change anchor if the new option is different
+      this.lastFeedbackAnchorOptionId = this.lastSelectedOptionId;
+    }
+  
+    this.lastSelectedOptionId = optionId;
+  
+    // ✅ STEP 3: Clear all feedback visibility
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    // ✅ STEP 3: Save previous selected option as anchor
-    if (this.lastSelectedOptionId !== optionId) {
-      this.lastFeedbackOptionId = this.lastSelectedOptionId;
-    }
-  
-    // ✅ STEP 4: Update current selected ID
-    this.lastSelectedOptionId = optionId;
-  
-    // ✅ STEP 5: Only show feedback on the previous selection (not current)
-    if (this.lastFeedbackOptionId !== undefined && this.lastFeedbackOptionId !== -1) {
-      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
-      this.updateFeedbackState(this.lastFeedbackOptionId);
+    // ✅ STEP 4: Show feedback ONLY under anchor (second-to-last selected)
+    if (this.lastFeedbackAnchorOptionId !== -1) {
+      this.showFeedbackForOption[this.lastFeedbackAnchorOptionId] = true;
+      this.updateFeedbackState(this.lastFeedbackAnchorOptionId);
     }
   
     this.showFeedback = true;
   
-    // ✅ STEP 6: Update feedback config (even for current, to keep state in sync)
+    // ✅ STEP 5: Set feedback config
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -949,17 +953,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // ✅ STEP 7: Force highlight sync
+    // ✅ STEP 6: Force highlight + feedback refresh
     this.forceHighlightRefresh(optionId);
   
-    // ✅ STEP 8: Handle single-answer logic
+    // ✅ STEP 7: Handle single-answer logic
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // ✅ STEP 9: Final logic and state updates
+    // ✅ STEP 8: Final state updates
     this.ngZone.run(() => {
       try {
         const selectedOption = optionBinding.option as SelectedOption;
