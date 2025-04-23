@@ -922,26 +922,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption[+key] = false;
     });
   
-    // ✅ STEP 3: Update feedback anchor — push to history stack
-    this.lastSelectedOptionIds ??= [];
-    this.lastSelectedOptionIds.push(optionId);
-  
-    if (this.lastSelectedOptionIds.length > 2) {
-      this.lastSelectedOptionIds.shift(); // Keep max 2 recent
+    // ✅ STEP 3: Save previous selected option as anchor
+    if (this.lastSelectedOptionId !== optionId) {
+      this.lastFeedbackOptionId = this.lastSelectedOptionId;
     }
   
-    const feedbackAnchorId =
-      this.lastSelectedOptionIds.length > 1
-        ? this.lastSelectedOptionIds[0]
-        : optionId;
+    // ✅ STEP 4: Update current selected ID
+    this.lastSelectedOptionId = optionId;
   
-    this.lastFeedbackOptionId = feedbackAnchorId;
-    this.showFeedbackForOption[feedbackAnchorId] = true;
+    // ✅ STEP 5: Only show feedback on the previous selection (not current)
+    if (this.lastFeedbackOptionId !== undefined && this.lastFeedbackOptionId !== -1) {
+      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+      this.updateFeedbackState(this.lastFeedbackOptionId);
+    }
   
-    this.updateFeedbackState(feedbackAnchorId);
     this.showFeedback = true;
   
-    // ✅ STEP 4: Feedback config inline (create or update)
+    // ✅ STEP 6: Update feedback config (even for current, to keep state in sync)
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -952,17 +949,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // ✅ STEP 5: Trigger directive sync
+    // ✅ STEP 7: Force highlight sync
     this.forceHighlightRefresh(optionId);
   
-    // ✅ STEP 6: Handle single-answer logic
+    // ✅ STEP 8: Handle single-answer logic
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // ✅ STEP 7: Final logic and state updates
+    // ✅ STEP 9: Final logic and state updates
     this.ngZone.run(() => {
       try {
         const selectedOption = optionBinding.option as SelectedOption;
@@ -985,6 +982,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
+  
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
@@ -1811,7 +1809,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return optionId === this.lastSelectedOptionId;
+    return optionId === this.lastFeedbackOptionId;
   }  
   
   isAnswerCorrect(): boolean {
