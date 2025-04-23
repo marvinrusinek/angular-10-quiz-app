@@ -1015,21 +1015,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Set selected and highlight states together
       optionBinding.isSelected = checked;
       optionBinding.option.selected = checked;
-      optionBinding.option.highlight = checked;
-      optionBinding.option.showIcon = checked;
+      
+      if (checked) {
+        this.highlightedOptionIds.add(optionId);
+        optionBinding.option.highlight = true;
+        optionBinding.option.showIcon = true;
+        this.showFeedbackForOption[optionId] = true;
+      } else {
+        this.highlightedOptionIds.delete(optionId);
+        optionBinding.option.highlight = false;
+        optionBinding.option.showIcon = false;
+        this.showFeedbackForOption[optionId] = false;
+      }
 
-      this.showFeedbackForOption[optionId] = checked;
       this.lastSelectedOptionIndex = index;
       this.selectedOptionMap.set(optionId, checked);
       this.hasUserClicked = true;
 
-      // Update feedback immediately
-      this.updateFeedbackState(optionId);
-
-      // Refresh visuals immediately
+      // Step 2: Ensure highlight + icon are painted
       this.forceHighlightRefresh(optionId);
-
-      // Trigger full DOM update *after all state is ready*
       this.cdRef.detectChanges();
 
       // Enforce single-answer behavior if needed
