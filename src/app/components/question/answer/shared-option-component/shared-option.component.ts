@@ -1372,18 +1372,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         optionBinding
       });
   
-      // Prevent re-click on already selected option
-      if (optionBinding.isSelected && optionBinding.option.highlight) {
-        console.warn('[🔒 Already highlighted and selected — skipping]', optionId);
-        return;
-      }
-  
       // Immediately set highlight flag to trigger directive sync
       optionBinding.option.highlight = true;
   
       // Set selection + icon + local state
       optionBinding.isSelected = checked;
       optionBinding.option.selected = checked;
+
+      if (optionBinding.option.selected && checked === true) {
+        console.warn('[🔒 Already selected — skipping feedback reassignment]', optionId);
+        return;
+      }      
   
       if (checked) {
         this.highlightedOptionIds.add(optionId);
@@ -1425,6 +1424,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedback = true;
   
       this.cdRef.detectChanges();
+
+      // Prevent re-processing the same selected option again
+      if (optionBinding.option.selected && this.selectedOptionMap.get(optionId)) {
+        console.warn('[🔒 Option already selected — skipping further updates]', optionId);
+        return;
+      }
   
       // Enforce single-answer behavior if needed
       if (this.type === 'single') {
@@ -2273,11 +2278,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
 
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const config = this.feedbackConfigs?.[index];
     const isLastSelected = index === this.lastSelectedOptionIndex;
   
     return !!(isLastSelected && config?.showFeedback && config?.feedback);
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+  
+    if (this.type === 'single') {
+      return index === this.lastSelectedOptionIndex &&
+             !!this.feedbackConfigs?.[optionId]?.showFeedback;
+    }
+  
+    return !!(
+      this.showFeedbackForOption?.[optionId] &&
+      this.feedbackConfigs?.[optionId]?.showFeedback
+    );
   }
   
   isAnswerCorrect(): boolean {
