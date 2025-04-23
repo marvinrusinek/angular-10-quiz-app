@@ -1778,7 +1778,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
 
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
   
     if (this.type === 'single') {
@@ -1790,7 +1790,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption?.[optionId] &&
       this.feedbackConfigs?.[optionId]?.showFeedback
     );
-  }
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return optionId !== undefined && optionId === this.lastFeedbackOptionId;
+  }  
   
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
