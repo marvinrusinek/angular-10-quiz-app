@@ -1036,6 +1036,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.forceHighlightRefresh(optionId);
       this.cdRef.detectChanges();
 
+      // ✅ STEP 3: Feedback update happens immediately after highlight/icon state
+      this.updateFeedbackState(optionId);
+      this.showFeedback = true;
+
+      this.cdRef.detectChanges(); // 🔁 ensure feedback renders in same frame
+
       // Enforce single-answer behavior if needed
       if (this.type === 'single') {
         this.enforceSingleSelection(optionBinding);
