@@ -150,7 +150,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
   private quizAlreadyInitialized = false;
-  private questionInitialized = false;
+  questionInitialized = false;
   questionTextLoaded = false;
   hasLoadingError = false;
   public hasOptionsLoaded = false;
