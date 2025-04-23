@@ -1373,11 +1373,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         return;
       }
   
-      // Update selection state
+      // ✅ Step 1: Update selection + highlight + icon immediately
       optionBinding.isSelected = checked;
       optionBinding.option.selected = checked;
   
-      // Update highlight, icon, and feedback at once
       if (checked) {
         this.highlightedOptionIds.add(optionId);
         optionBinding.option.highlight = true;
@@ -1385,7 +1384,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.showFeedbackForOption[optionId] = true;
         this.lastSelectedOptionIndex = index;
   
-        // Force feedback config update inline
+        // ✅ Force feedback config update inline
         if (!this.feedbackConfigs[optionId]) {
           this.feedbackConfigs[optionId] = {
             feedback: optionBinding.option.feedback,
@@ -1411,16 +1410,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       this.selectedOptionMap.set(optionId, checked);
   
-      // Ensure highlight + icon are painted
+      // ✅ Step 2: Force visual sync BEFORE feedback renders
       this.forceHighlightRefresh(optionId);
       this.cdRef.detectChanges();
   
-      // Feedback update happens immediately after highlight/icon state
+      // ✅ Step 3: Feedback update after highlight/icon
       this.updateFeedbackState(optionId);
       this.showFeedback = true;
-      this.cdRef.detectChanges(); // 🔁 ensure feedback renders in same frame
+      this.cdRef.detectChanges();
   
-      // Enforce single-answer behavior if needed
+      // ✅ Enforce single-answer logic
       if (this.type === 'single') {
         this.enforceSingleSelection(optionBinding);
       }
@@ -1446,7 +1445,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           this.emitOptionSelectedEvent(optionBinding, index, checked);
           this.finalizeOptionSelection(optionBinding, checked);
   
-          // ✅ Final UI sync
+          // Final UI sync
           requestAnimationFrame(() => {
             setTimeout(() => {
               this.cdRef.detectChanges();
