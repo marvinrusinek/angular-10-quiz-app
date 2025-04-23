@@ -273,8 +273,7 @@ export class HighlightOptionDirective implements OnChanges {
     if (optionId !== undefined) {
       this.showFeedbackForOption[optionId] = false;
     }
-  }
-  
+  }  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
