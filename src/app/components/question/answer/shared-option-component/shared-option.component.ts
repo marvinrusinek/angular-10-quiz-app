@@ -71,6 +71,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
   lastFeedbackOptionId = -1;
+  secondToLastFeedbackOptionId = -1;
+  private previousFeedbackOptionId: number | null = null;
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
@@ -911,17 +913,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.selectedOptionMap.set(optionId, checked);
   
-    // ✅ STEP 2: Clear previous feedback visibility
+    // ✅ STEP 2: Shift previous feedback anchor to allow displaying it on the second-to-last selected option
+    if (this.lastFeedbackOptionId !== -1 && this.lastFeedbackOptionId !== optionId) {
+      this.prevFeedbackOptionId = this.lastFeedbackOptionId;
+    }
+    this.lastFeedbackOptionId = optionId;
+  
+    // ✅ STEP 3: Clear previous feedback visibility
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    // ✅ STEP 3: Set new feedback visibility only for current option
-    this.showFeedbackForOption[optionId] = checked;
-    this.updateFeedbackState(optionId);
+    // ✅ STEP 4: Set feedback ONLY under the second-to-last selected option
+    if (this.prevFeedbackOptionId !== -1) {
+      this.showFeedbackForOption[this.prevFeedbackOptionId] = true;
+      this.updateFeedbackState(this.prevFeedbackOptionId);
+    }
+  
     this.showFeedback = true;
   
-    // ✅ STEP 4: Feedback config inline (create or update)
+    // ✅ STEP 5: Feedback config inline (create or update)
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -931,11 +942,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       correctMessage: '',
       idx: index,
     };
-  
-    // ✅ STEP 5: Save feedback anchor ONLY if newly selected
-    if (!optionBinding.option.selected || this.lastFeedbackOptionId !== optionId) {
-      this.lastFeedbackOptionId = optionId;
-    }
   
     // ✅ STEP 6: Trigger directive sync
     this.forceHighlightRefresh(optionId);
@@ -969,7 +975,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
-  }  
+  }
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
@@ -1791,10 +1797,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.feedbackConfigs?.[optionId]?.showFeedback
     );
   } */
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId !== undefined && optionId === this.lastFeedbackOptionId;
-  }  
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return optionId === this.lastFeedbackOptionId;
+  }
   
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
