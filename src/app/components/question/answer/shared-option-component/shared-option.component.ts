@@ -1340,13 +1340,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const checked =
       (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
-    // ✅ Freeze option bindings on first click
+    // Freeze option bindings on first click
     if (!this.freezeOptionBindings) {
       this.freezeOptionBindings = true;
       console.warn('[🧊 OptionBindings frozen after first selection]');
     }
   
-    // 🚫 Block rapid toggle (false after true in <150ms)
+    // Block rapid toggle (false after true in <150ms)
     if (
       this.lastClickedOptionId === optionId &&
       this.lastClickTimestamp &&
@@ -1365,23 +1365,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
-    // ✅ Schedule update in next frame
+    // Schedule update in next frame
     requestAnimationFrame(() => {
       console.log('[🖱️ updateOptionAndUI (after frame)]', {
         checked,
-        optionBinding,
+        optionBinding
       });
   
-      // 🔒 Prevent re-click on already selected option
+      // Prevent re-click on already selected option
       if (optionBinding.option.selected && checked === true) {
         console.warn('[🔒 Already selected — skipping]', optionId);
         return;
       }
   
-      // ✅ STEP 0: Immediately set highlight flag to trigger directive sync
+      // Immediately set highlight flag to trigger directive sync
       optionBinding.option.highlight = true;
   
-      // ✅ STEP 1: Set selection + icon + local state
+      // Set selection + icon + local state
       optionBinding.isSelected = checked;
       optionBinding.option.selected = checked;
   
@@ -1391,7 +1391,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.showFeedbackForOption[optionId] = true;
         this.lastSelectedOptionIndex = index;
   
-        // ✅ Update feedback config inline
+        // Update feedback config inline
         this.feedbackConfigs[optionId] = {
           feedback: optionBinding.option.feedback,
           showFeedback: true,
@@ -1399,8 +1399,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           question: this.currentQuestion,
           selectedOption: optionBinding.option,
           correctMessage: '',
-          idx: index,
+          idx: index
         };
+
+        // First-click workaround: force highlight re-eval after DOM stabilizes
+        setTimeout(() => {
+          this.forceHighlightRefresh(optionId);
+        }, 0);
       } else {
         this.highlightedOptionIds.delete(optionId);
         optionBinding.option.highlight = false;
@@ -1415,41 +1420,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.selectedOptionMap.set(optionId, checked);
       this.hasUserClicked = true;
   
-      // ✅ STEP 2: Force directive highlight + feedback sync
-      this.forceHighlightRefresh(optionId);           // ⬅️ triggers updateHighlight()
-      this.updateFeedbackState(optionId);             // ⬅️ ensures feedback is bound
+      // Force feedback sync
+      this.updateFeedbackState(optionId);
       this.showFeedback = true;
   
-      this.cdRef.detectChanges();                     // 🔁 sync changes immediately
+      this.cdRef.detectChanges();
   
-      // ✅ STEP 3: Enforce single-answer behavior if needed
+      // Enforce single-answer behavior if needed
       if (this.type === 'single') {
         this.enforceSingleSelection(optionBinding);
       }
   
       if (!this.isValidOptionBinding(optionBinding)) return;
   
-      // ✅ STEP 4: Final updates inside Angular zone
+      // Final updates inside Angular zone
       this.ngZone.run(() => {
         try {
           const selectedOption = optionBinding.option as SelectedOption;
           const questionIndex = this.quizService.currentQuestionIndex;
   
-          // ✅ Update quiz state
+          // Update quiz state
           this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
           this.selectedOptionService.setOptionSelected(true);
   
           if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
   
-          // ✅ Apply visual/logic updates
+          // Apply visual/logic updates
           this.updateOptionActiveStates(optionBinding);
           this.applyOptionAttributes(optionBinding, event);
   
-          // ✅ Notify external listeners
+          // Notify external listeners
           this.emitOptionSelectedEvent(optionBinding, index, checked);
           this.finalizeOptionSelection(optionBinding, checked);
   
-          // ✅ Final UI flush
+          // Final UI flush
           requestAnimationFrame(() => {
             setTimeout(() => {
               this.cdRef.detectChanges();
