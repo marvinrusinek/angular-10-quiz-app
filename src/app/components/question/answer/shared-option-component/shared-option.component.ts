@@ -1382,7 +1382,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       if (optionBinding.option.selected && checked === true) {
         console.warn('[🔒 Already selected — skipping feedback reassignment]', optionId);
         return;
-      }      
+      }
   
       if (checked) {
         this.highlightedOptionIds.add(optionId);
