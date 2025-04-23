@@ -1385,9 +1385,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // ✅ STEP 2: Force visual updates immediately
     this.forceHighlightRefresh(optionId);   // <-- now includes .updateHighlight + .cdRef
-    this.highlightDirectives
-      ?.filter(dir => dir.option?.optionId === optionId)
-      ?.forEach(dir => dir.cdRef.detectChanges());
 
     this.updateFeedbackState(optionId);
     this.showFeedback = true;
@@ -1482,13 +1479,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     optionBinding.isSelected = true;
     optionBinding.option.selected = checked;
-    optionBinding.option.highlight = true; // ✅ Add this line to trigger highlight
+    optionBinding.option.highlight = true;
   
     this.selectedOptionIndex = index;
     this.selectedOptionId = optionId;
     this.selectedOption = optionBinding.option;
     this.isOptionSelected = true;
-  
+
+    // Force sync update to directive highlight
+    this.forceHighlightRefresh(optionId);
     return true;
   }
 
@@ -1666,16 +1665,41 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges(); // 🧼 Apply updates to DOM
   } */
   private forceHighlightRefresh(optionId: number): void {
-    for (const directive of this.highlightDirectives ?? []) {
-      if (directive.option?.optionId === optionId) {
-        directive.isSelected = directive.option?.selected ?? false;
-        directive.isCorrect = directive.option?.correct ?? false;
-        directive.showFeedback = this.showFeedbackForOption[optionId];
-        directive.updateHighlight();
-      }
+    const directive = this.highlightDirectives.find(
+      dir => dir.option?.optionId === optionId
+    );
+  
+    if (!directive) {
+      console.warn('[⚠️ No matching directive for optionId]', optionId);
+      return;
     }
   
-    this.cdRef.detectChanges(); // 🔁 force DOM update
+    // Update directive inputs manually if needed
+    directive.isSelected = directive.option?.selected ?? false;
+    directive.isCorrect = directive.option?.correct ?? false;
+    directive.showFeedback = this.showFeedbackForOption?.[optionId] ?? false;
+  
+    // ✅ Force ngOnChanges to fire
+    if (directive.ngOnChanges) {
+      directive.ngOnChanges({
+        isSelected: {
+          currentValue: directive.isSelected,
+          previousValue: !directive.isSelected,
+          firstChange: false,
+          isFirstChange: () => false,
+        },
+        option: {
+          currentValue: directive.option,
+          previousValue: null,
+          firstChange: false,
+          isFirstChange: () => false,
+        }
+      });
+    }
+  
+    directive.updateHighlight(); // ensure fallback
+    directive.cdRef.detectChanges(); // force update
+    console.log('[✨ Forced highlight refresh complete]', optionId);
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
