@@ -151,7 +151,7 @@ export class HighlightOptionDirective implements OnChanges {
     }
   }
 
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     const selected = this.option?.selected || this.isSelected;
     const optionId = this.option?.optionId;
 
@@ -197,11 +197,79 @@ export class HighlightOptionDirective implements OnChanges {
     // this.renderer.removeClass(this.el.nativeElement, 'deactivated-option'); // remove deactivation class
     this.setCursor('pointer'); // restore pointer for active options
 
-    /* if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+    // if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
       this.highlightCorrectAnswers();
     } else {
       this.setBackgroundColor(color);
-    } */
+    //}
+  } */
+  updateHighlight(): void {
+    const selected = this.option?.selected || this.isSelected;
+    const optionId = this.option?.optionId;
+  
+    console.log('[🔦 updateHighlight] state', {
+      selected,
+      highlight: this.option?.highlight,
+      isSelected: this.isSelected,
+      showIcon: this.option?.showIcon,
+      showFeedbackForOption: this.showFeedbackForOption?.[optionId]
+    });
+  
+    // If the option is already highlighted or selected, apply highlight color and show icon/feedback
+    if (this.option?.highlight || selected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
+      this.setBackgroundColor(color);
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+  
+      // ✅ Ensure icon and feedback sync together
+      this.option.showIcon = true;
+      if (optionId !== undefined) {
+        this.showFeedbackForOption[optionId] = true;
+      }
+  
+      return;
+    }
+  
+    // Highlight only the selected option (green/red)
+    if (this.isSelected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000';
+      this.setBackgroundColor(color);
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+  
+      this.option.showIcon = true;
+      if (optionId !== undefined) {
+        this.showFeedbackForOption[optionId] = true;
+      }
+  
+      return;
+    }
+  
+    // Grey out incorrect options when a correct one is selected
+    if (!this.isCorrect && this.option?.active === false) {
+      this.setBackgroundColor('#a3a3a3');
+      this.setPointerEvents('none');
+      this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed');
+  
+      this.option.showIcon = false;
+      if (optionId !== undefined) {
+        this.showFeedbackForOption[optionId] = false;
+      }
+  
+      return;
+    }
+  
+    // Reset for unselected/default options
+    this.setBackgroundColor('white');
+    this.setPointerEvents('auto');
+    this.setCursor('pointer');
+  
+    this.option.showIcon = false;
+    if (optionId !== undefined) {
+      this.showFeedbackForOption[optionId] = false;
+    }
   }
 
   private highlightCorrectAnswers(): void {
