@@ -879,8 +879,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-  
-    // ✅ Block if already selected to prevent re-clicks
+
+    // Fully block re-click on selected option
     if (optionBinding.option.selected && checked === true) {
       console.warn('[🔒 Already selected — skipping full update]', optionId);
       return;
@@ -902,24 +902,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
-    // ✅ STEP 1: Apply selection state and visual flags immediately
+    // Apply selection state and visual flags immediately
     optionBinding.option.highlight = true;
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
   
-    // ✅ Immediately trigger directive repaint to ensure highlight shows
+    // Immediately trigger directive repaint to ensure highlight shows
     this.forceHighlightRefresh(optionId);
   
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
+
+    // Only set index if actually selected
     this.lastSelectedOptionIndex = index;
   
-    // ✅ STEP 2: Feedback state
+    // Feedback state
     this.showFeedbackForOption[optionId] = checked;
     this.updateFeedbackState(optionId);
     this.showFeedback = true;
   
-    // ✅ STEP 3: Feedback config inline (create or update)
+    // Feedback config inline (create or update)
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -930,24 +932,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index,
     };
   
-    // STEP 4: Force immediate sync of highlight and feedback
+    // Force immediate sync of highlight and feedback
     this.forceHighlightRefresh(optionId);
     // this.cdRef.detectChanges();
 
     // Prevent re-processing the same selected option again
-    if (optionBinding.option.selected && this.selectedOptionMap.get(optionId)) {
-      console.warn('[🔒 Option already selected — skipping further updates]', optionId);
+    if (optionBinding.option.selected && checked === true) {
+      console.warn('[🔒 Already selected — skipping full update]', optionId);
       return;
     }
   
-    // ✅ STEP 5: Handle single-answer logic
+    // Handle single-answer logic
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // ✅ STEP 6: Final logic and state updates
+    // Final logic and state updates
     this.ngZone.run(() => {
       try {
         const selectedOption = optionBinding.option as SelectedOption;
@@ -964,7 +966,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.emitOptionSelectedEvent(optionBinding, index, checked);
         this.finalizeOptionSelection(optionBinding, checked);
   
-        // ✅ Final DOM sync
+        // Final DOM sync
         requestAnimationFrame(() => {
           this.cdRef.detectChanges();
         });
