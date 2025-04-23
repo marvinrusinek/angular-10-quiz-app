@@ -72,12 +72,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastSelectedOptionIndex = -1;
   lastFeedbackOptionId = -1;
   secondToLastFeedbackOptionId = -1;
-  private previousFeedbackOptionId: number | null = null;
   private feedbackAnchorOptionId: number | null = null;
   private previousSelectedOptionId: number | null = null;
   private currentSelectedOptionId: number = -1;
+  highlightedOptionIds: Set<number> = new Set();
   lastSelectedOptionId: number = -1;
   lastFeedbackAnchorOptionId: number = -1;
+  visitedOptionIds: Set<number> = new Set();
 
   isNavigatingBackwards = false;
   isOptionSelected = false;
@@ -94,7 +95,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   hasUserClicked = false;
   private freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
-  highlightedOptionIds: Set<number> = new Set();
 
   optionTextStyle = { color: 'black' };
 
@@ -887,7 +887,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ): void {
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+    const checked =
+      (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
     // ✅ Block if already selected to prevent re-clicks
     if (optionBinding.option.selected && checked === true) {
@@ -927,6 +928,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.lastFeedbackAnchorOptionId = this.lastSelectedOptionId;
     }
   
+    // Always track most recent selection
     this.lastSelectedOptionId = optionId;
   
     // ✅ STEP 3: Clear all feedback visibility
@@ -938,6 +940,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (this.lastFeedbackAnchorOptionId !== -1) {
       this.showFeedbackForOption[this.lastFeedbackAnchorOptionId] = true;
       this.updateFeedbackState(this.lastFeedbackAnchorOptionId);
+      console.log('[🎯 Feedback shown under anchor]', this.lastFeedbackAnchorOptionId);
     }
   
     this.showFeedback = true;
@@ -986,6 +989,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
+  
   
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
@@ -1813,7 +1817,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return optionId === this.lastFeedbackOptionId;
+    return optionId === this.lastFeedbackAnchorOptionId;
   }  
   
   isAnswerCorrect(): boolean {
