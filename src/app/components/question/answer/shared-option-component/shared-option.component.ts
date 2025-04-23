@@ -1339,12 +1339,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked =
       (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-
-    // Block re-click on already selected options
-    if (optionBinding.option.selected) {
-      console.warn('[🔒 Option already selected — blocking re-click]', optionId);
-      return;
-    }
   
     // Freeze option bindings on first click
     if (!this.freezeOptionBindings) {
@@ -1379,8 +1373,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
   
       // Prevent re-click on already selected option
-      if (optionBinding.option.selected && checked === true) {
-        console.warn('[🔒 Already selected — skipping]', optionId);
+      if (optionBinding.isSelected && optionBinding.option.highlight) {
+        console.warn('[🔒 Already highlighted and selected — skipping]', optionId);
         return;
       }
   
