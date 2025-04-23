@@ -1354,23 +1354,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('[🖱️ updateOptionAndUI]', { checked, optionBinding });
   
-    // 🔒 Prevent re-click on already selected option
+    // Prevent re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
       console.warn('[🔒 Already selected — skipping]', optionId);
       return;
     }
   
-    // ✅ Update selection state
+    // Update selection state
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
   
-    // ✅ Update highlight, icon, and feedback at once
+    // Update highlight, icon, and feedback at once
     if (checked) {
       this.highlightedOptionIds.add(optionId);
       optionBinding.option.highlight = true;
       optionBinding.option.showIcon = true;
       this.showFeedbackForOption[optionId] = true;
       this.lastSelectedOptionIndex = index;
+
+      // Force feedback config update inline
+      if (!this.feedbackConfigs[optionId]) {
+        this.feedbackConfigs[optionId] = {
+          feedback: optionBinding.option.feedback,
+          showFeedback: true,
+          options: this.optionsToDisplay, // or [] if not available
+          question: this.currentQuestion,
+          selectedOption: optionBinding.option,
+          correctMessage: optionBinding.option.correct ? 'Correct!' : 'Incorrect.',
+          idx: index
+        };        
+      } else {
+        this.feedbackConfigs[optionId].showFeedback = true;
+      }
     } else {
       this.highlightedOptionIds.delete(optionId);
       optionBinding.option.highlight = false;
