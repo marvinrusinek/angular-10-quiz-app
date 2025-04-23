@@ -1084,7 +1084,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     });
   } */
-  updateOptionAndUI(
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -1192,6 +1192,225 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           console.error('[❌ updateOptionAndUI error]', error);
         }
       });
+    });
+  } */
+  /* updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const optionId = optionBinding.option.optionId;
+    const now = Date.now();
+    const checked =
+      (event as MatCheckboxChange).checked ??
+      (event as MatRadioChange).value;
+  
+    // ✅ Freeze option bindings on first click
+    if (!this.freezeOptionBindings) {
+      this.freezeOptionBindings = true;
+      console.warn('[🧊 OptionBindings frozen after first selection]');
+    }
+  
+    // 🚫 Block rapid toggle (false after true in <150ms)
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Blocked duplicate false event]', { optionId });
+      return;
+    }
+  
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
+  
+    if (!this.viewInitialized) {
+      console.warn('[⏳ Blocked: View not fully initialized]');
+      return;
+    }
+  
+    // ✅ Schedule update in next frame
+    requestAnimationFrame(() => {
+      console.log('[🖱️ updateOptionAndUI (after frame)]', {
+        checked,
+        optionBinding,
+      });
+  
+      // 🔒 Prevent re-click on already selected option
+      if (optionBinding.option.selected && checked === true) {
+        console.warn('[🔒 Already selected — skipping]', optionId);
+        return;
+      }
+  
+      // ✅ STEP 1: Set selection + highlight + icon
+      optionBinding.isSelected = checked;
+      optionBinding.option.selected = checked;
+  
+      if (checked) {
+        this.highlightedOptionIds.add(optionId);
+        optionBinding.option.highlight = true;
+        optionBinding.option.showIcon = true;
+      } else {
+        this.highlightedOptionIds.delete(optionId);
+        optionBinding.option.highlight = false;
+        optionBinding.option.showIcon = false;
+      }
+  
+      this.lastSelectedOptionIndex = index;
+      this.selectedOptionMap.set(optionId, checked);
+      this.hasUserClicked = true;
+  
+      // ✅ STEP 2: Immediately reflect visuals
+      this.forceHighlightRefresh(optionId);
+      this.cdRef.detectChanges();
+  
+      // ✅ STEP 3: Show feedback AFTER Angular completes view updates
+      setTimeout(() => {
+        this.showFeedbackForOption[optionId] = checked;
+        this.updateFeedbackState(optionId);
+        this.showFeedback = true;
+        this.cdRef.detectChanges(); // 🔁 ensure final paint includes feedback
+      }, 10); // minimal delay to ensure view is ready
+  
+      // ✅ Optional: Enforce single-answer behavior
+      if (this.type === 'single') {
+        this.enforceSingleSelection(optionBinding);
+      }
+  
+      if (!this.isValidOptionBinding(optionBinding)) return;
+  
+      // ✅ Final state update inside Angular zone
+      this.ngZone.run(() => {
+        try {
+          const selectedOption = optionBinding.option as SelectedOption;
+          const questionIndex = this.quizService.currentQuestionIndex;
+  
+          // ✅ Update quiz state
+          this.selectedOptionService.addSelectedOptionIndex(
+            questionIndex,
+            optionId
+          );
+          this.selectedOptionService.setOptionSelected(true);
+  
+          if (
+            !this.handleOptionState(optionBinding, optionId, index, checked)
+          )
+            return;
+  
+          // ✅ UI and styling updates
+          this.updateOptionActiveStates(optionBinding);
+          this.applyOptionAttributes(optionBinding, event);
+  
+          // ✅ Notify system of selection
+          this.emitOptionSelectedEvent(optionBinding, index, checked);
+          this.finalizeOptionSelection(optionBinding, checked);
+  
+          // ✅ Final DOM sync
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              this.cdRef.detectChanges();
+            }, 0);
+          });
+        } catch (error) {
+          console.error('[❌ updateOptionAndUI error]', error);
+        }
+      });
+    });
+  }  */
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const optionId = optionBinding.option.optionId;
+    const now = Date.now();
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+  
+    // ✅ Freeze option bindings on first click
+    if (!this.freezeOptionBindings) {
+      this.freezeOptionBindings = true;
+      console.warn('[🧊 OptionBindings frozen after first selection]');
+    }
+  
+    // 🚫 Block rapid toggle (false after true in <150ms)
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Blocked duplicate false event]', { optionId });
+      return;
+    }
+  
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
+  
+    if (!this.viewInitialized) {
+      console.warn('[⏳ Blocked: View not fully initialized]');
+      return;
+    }
+  
+    console.log('[🖱️ updateOptionAndUI]', { checked, optionBinding });
+  
+    // 🔒 Prevent re-click on already selected option
+    if (optionBinding.option.selected && checked === true) {
+      console.warn('[🔒 Already selected — skipping]', optionId);
+      return;
+    }
+  
+    // ✅ Update selection state
+    optionBinding.isSelected = checked;
+    optionBinding.option.selected = checked;
+  
+    // ✅ Update highlight, icon, and feedback at once
+    if (checked) {
+      this.highlightedOptionIds.add(optionId);
+      optionBinding.option.highlight = true;
+      optionBinding.option.showIcon = true;
+      this.showFeedbackForOption[optionId] = true;
+      this.lastSelectedOptionIndex = index;
+    } else {
+      this.highlightedOptionIds.delete(optionId);
+      optionBinding.option.highlight = false;
+      optionBinding.option.showIcon = false;
+      this.showFeedbackForOption[optionId] = false;
+    }
+  
+    this.selectedOptionMap.set(optionId, checked);
+    this.hasUserClicked = true;
+  
+    // ✅ Force highlight update immediately
+    this.forceHighlightRefresh(optionId);
+  
+    // ✅ Run everything together inside zone
+    this.ngZone.run(() => {
+      try {
+        const selectedOption = optionBinding.option as SelectedOption;
+        const questionIndex = this.quizService.currentQuestionIndex;
+  
+        this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
+        this.selectedOptionService.setOptionSelected(true);
+  
+        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
+  
+        this.updateOptionActiveStates(optionBinding);
+        this.applyOptionAttributes(optionBinding, event);
+        this.updateFeedbackState(optionId);
+        this.showFeedback = true;
+  
+        this.emitOptionSelectedEvent(optionBinding, index, checked);
+        this.finalizeOptionSelection(optionBinding, checked);
+  
+        if (this.type === 'single') {
+          this.enforceSingleSelection(optionBinding);
+        }
+  
+        this.cdRef.detectChanges(); // ✅ ONE PASS to render everything together
+      } catch (error) {
+        console.error('[❌ updateOptionAndUI error]', error);
+      }
     });
   }
   
