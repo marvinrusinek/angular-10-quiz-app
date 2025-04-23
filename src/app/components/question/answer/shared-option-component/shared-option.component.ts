@@ -974,7 +974,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     });
   } */
-  /* updateOptionAndUI(
+  updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -1011,6 +1011,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // ✅ Schedule update in next frame
     requestAnimationFrame(() => {
       console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
+
+      // 🔒 Prevent re-click on already selected option
+      if (optionBinding.option.selected && checked === true) {
+        console.warn('[🔒 Already selected — skipping]', optionId);
+        return;
+      }
   
       // Set selected and highlight states together
       optionBinding.isSelected = checked;
@@ -1021,11 +1027,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         optionBinding.option.highlight = true;
         optionBinding.option.showIcon = true;
         this.showFeedbackForOption[optionId] = true;
+        this.updateFeedbackState(optionId); // sync immediately
+        this.showFeedback = true;
       } else {
         this.highlightedOptionIds.delete(optionId);
         optionBinding.option.highlight = false;
         optionBinding.option.showIcon = false;
         this.showFeedbackForOption[optionId] = false;
+        this.updateFeedbackState(optionId); // remove if unchecked
       }
 
       this.lastSelectedOptionIndex = index;
@@ -1035,12 +1044,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Step 2: Ensure highlight + icon are painted
       this.forceHighlightRefresh(optionId);
       this.cdRef.detectChanges();
-
-      // ✅ STEP 3: Feedback update happens immediately after highlight/icon state
-      this.updateFeedbackState(optionId);
-      this.showFeedback = true;
-
-      this.cdRef.detectChanges(); // 🔁 ensure feedback renders in same frame
 
       // Enforce single-answer behavior if needed
       if (this.type === 'single') {
@@ -1080,84 +1083,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
       });
     });
-  } */
-  updateOptionAndUI(
-    optionBinding: OptionBindings,
-    index: number,
-    event: MatCheckboxChange | MatRadioChange
-  ): void {
-    const optionId = optionBinding.option.optionId;
-    const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-  
-    // ❌ Prevent double toggling (e.g. false-after-true in <150ms)
-    if (
-      this.lastClickedOptionId === optionId &&
-      this.lastClickTimestamp &&
-      now - this.lastClickTimestamp < 150 &&
-      !checked
-    ) {
-      console.warn('[⛔ Blocked duplicate false event]', { optionId });
-      return;
-    }
-  
-    // ❌ Prevent interaction with already-selected options
-    if (optionBinding.option.selected) {
-      console.warn('[⛔ Already selected — skipping click]', optionId);
-      return;
-    }
-  
-    this.lastClickedOptionId = optionId;
-    this.lastClickTimestamp = now;
-  
-    requestAnimationFrame(() => {
-      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
-  
-      // ✅ STEP 1: Mark selection state
-      optionBinding.isSelected = checked;
-      optionBinding.option.selected = checked;
-      this.selectedOptionMap.set(optionId, checked);
-  
-      // ✅ STEP 2: Set visual flags (immediate)
-      optionBinding.option.highlight = checked;
-      optionBinding.option.showIcon = checked;
-      this.showFeedbackForOption[optionId] = checked;
-      this.lastSelectedOptionIndex = index;
-  
-      // ✅ STEP 3: Apply feedback + highlight refresh before DOM update
-      this.updateFeedbackState(optionId);
-      this.forceHighlightRefresh(optionId);
-  
-      // ✅ STEP 4: Refresh the UI immediately
-      this.cdRef.detectChanges();
-  
-      if (this.type === 'single') {
-        this.enforceSingleSelection(optionBinding);
-      }
-  
-      this.hasUserClicked = true;
-  
-      // ✅ STEP 5: Final logic
-      const selectedOption = optionBinding.option as SelectedOption;
-      const questionIndex = this.quizService.currentQuestionIndex;
-      this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-      this.selectedOptionService.setOptionSelected(true);
-  
-      if (!this.isValidOptionBinding(optionBinding)) return;
-  
-      if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-  
-      this.updateOptionActiveStates(optionBinding);
-      this.applyOptionAttributes(optionBinding, event);
-      this.emitOptionSelectedEvent(optionBinding, index, checked);
-      this.finalizeOptionSelection(optionBinding, checked);
-  
-      // Final render pass to sync everything
-      requestAnimationFrame(() => {
-        this.cdRef.detectChanges();
-      });
-    });
   }
+  
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
@@ -1371,18 +1298,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private forceHighlightRefresh(optionId: number): void {
-    const directive = this.highlightDirectives.find(
-      dir => dir.option?.optionId === optionId
-    );
-  
-    if (directive) {
-      console.log('[✨ Forcing highlight refresh]', optionId);
-      directive.updateHighlight(); // forces sync highlight
-      this.cdRef.detectChanges();  // ensure DOM updates
-    } else {
-      console.warn('[⚠️ No directive found to force highlight]', optionId);
+    if (!this.highlightDirectives?.length) {
+      console.warn('[⚠️ No highlightDirectives available]');
+      return;
     }
-  }  
+  
+    let found = false;
+  
+    for (const directive of this.highlightDirectives) {
+      if (directive.option?.optionId === optionId) {
+        directive.updateHighlight();
+        found = true;
+      }
+    }
+  
+    if (found) {
+      console.log('[✨ Highlight refresh triggered]', optionId);
+    } else {
+      console.warn('[⚠️ No matching directive for optionId]', optionId);
+    }
+  }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
