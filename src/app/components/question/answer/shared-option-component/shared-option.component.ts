@@ -974,7 +974,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     });
   } */
-  updateOptionAndUI(
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -1083,8 +1083,117 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
       });
     });
-  }
+  } */
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const optionId = optionBinding.option.optionId;
+    const now = Date.now();
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
+    // ✅ Freeze option bindings on first click
+    if (!this.freezeOptionBindings) {
+      this.freezeOptionBindings = true;
+      console.warn('[🧊 OptionBindings frozen after first selection]');
+    }
+  
+    // 🚫 Block rapid toggle (false after true in <150ms)
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Blocked duplicate false event]', { optionId });
+      return;
+    }
+  
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
+  
+    if (!this.viewInitialized) {
+      console.warn('[⏳ Blocked: View not fully initialized]');
+      return;
+    }
+  
+    // ✅ Schedule update in next frame
+    requestAnimationFrame(() => {
+      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
+  
+      // 🔒 Prevent re-click on already selected option
+      if (optionBinding.option.selected && checked === true) {
+        console.warn('[🔒 Already selected — skipping]', optionId);
+        return;
+      }
+  
+      // ✅ STEP 1: Set all visual state together BEFORE detectChanges
+      optionBinding.isSelected = checked;
+      optionBinding.option.selected = checked;
+  
+      if (checked) {
+        this.highlightedOptionIds.add(optionId);
+        optionBinding.option.highlight = true;
+        optionBinding.option.showIcon = true;
+        this.showFeedbackForOption[optionId] = true;
+      } else {
+        this.highlightedOptionIds.delete(optionId);
+        optionBinding.option.highlight = false;
+        optionBinding.option.showIcon = false;
+        this.showFeedbackForOption[optionId] = false;
+      }
+  
+      this.lastSelectedOptionIndex = index;
+      this.selectedOptionMap.set(optionId, checked);
+      this.hasUserClicked = true;
+  
+      // ✅ STEP 2: Force visual update for highlight + icon + feedback together
+      this.forceHighlightRefresh(optionId);
+      this.updateFeedbackState(optionId);
+      this.showFeedback = true;
+  
+      this.cdRef.detectChanges(); // 🔁 Everything now updates in this paint cycle
+  
+      // ✅ STEP 3: Enforce single-answer behavior if needed
+      if (this.type === 'single') {
+        this.enforceSingleSelection(optionBinding);
+      }
+  
+      // ✅ STEP 4: Validate and update state
+      if (!this.isValidOptionBinding(optionBinding)) return;
+  
+      this.ngZone.run(() => {
+        try {
+          const selectedOption = optionBinding.option as SelectedOption;
+          const questionIndex = this.quizService.currentQuestionIndex;
+  
+          // ✅ Update quiz state and service
+          this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
+          this.selectedOptionService.setOptionSelected(true);
+  
+          if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
+  
+          // ✅ UI-related updates
+          this.updateOptionActiveStates(optionBinding);
+          this.applyOptionAttributes(optionBinding, event);
+  
+          // ✅ Notify components
+          this.emitOptionSelectedEvent(optionBinding, index, checked);
+          this.finalizeOptionSelection(optionBinding, checked);
+  
+          // ✅ Final UI sync (safety net)
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              this.cdRef.detectChanges();
+            }, 0);
+          });
+        } catch (error) {
+          console.error('[❌ updateOptionAndUI error]', error);
+        }
+      });
+    });
+  }
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
