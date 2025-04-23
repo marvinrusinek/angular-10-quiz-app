@@ -67,8 +67,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   isSubmitted = false;
   iconVisibility: boolean[] = []; // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
-  lastSelectedOptionIndex: number | null = null;
+  // lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
+  lastSelectedOptionIndex = -1;
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
@@ -394,6 +395,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         change: () => {}
       };
     });
+    this.updateHighlighting();
     setTimeout(() => {
       this.cdRef.detectChanges(); // ensure the DOM updates
     }, 0);    
@@ -1010,49 +1012,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     requestAnimationFrame(() => {
       console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
   
-      // 🟡 Prevent unnecessary update
-      if (checked === optionBinding.isSelected) {
-        console.warn('[⚠️ Skipping redundant update — already selected]', { index });
-        return;
-      }
-  
-      // ✅ STEP 1: Update selection + highlight BEFORE feedback/icon
+      // Set selected and highlight states together
       optionBinding.isSelected = checked;
       optionBinding.option.selected = checked;
+      optionBinding.option.highlight = checked;
+      optionBinding.option.showIcon = checked;
+
+      this.showFeedbackForOption[optionId] = checked;
+      this.lastSelectedOptionIndex = index;
       this.selectedOptionMap.set(optionId, checked);
-      // optionBinding.option.highlight = true;
-
-      if (checked) {
-        optionBinding.option.highlight = true;
-        this.highlightedOptionIds.add(optionId);
-      }
-
-      if (this.type === 'single') {
-        this.enforceSingleSelection(optionBinding);
-      }
-      
       this.hasUserClicked = true;
-  
-      this.cdRef.detectChanges(); // 🔁 Ensure highlight is applied before feedback
-  
-      // ✅ STEP 2: Show feedback slightly later to let highlight settle visually
-      setTimeout(() => {
-        this.showFeedbackForOption[optionId] = true;
-        this.updateFeedbackState(optionId);
-        this.cdRef.detectChanges();
-      }, 20);
-  
-      // Optional: single-answer enforcement
+
+      // Update feedback immediately
+      this.updateFeedbackState(optionId);
+
+      // Refresh visuals immediately
+      this.forceHighlightRefresh(optionId);
+
+      // Trigger full DOM update *after all state is ready*
+      this.cdRef.detectChanges();
+
+      // Enforce single-answer behavior if needed
       if (this.type === 'single') {
         this.enforceSingleSelection(optionBinding);
       }
-  
-      console.warn('[✅ SET isSelected]', {
-        optionId,
-        index,
-        checked,
-        isSelected: optionBinding.isSelected
-      });
   
       if (!this.isValidOptionBinding(optionBinding)) return;
   
@@ -1298,6 +1281,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Trigger directive to apply highlight immediately
       directive.updateHighlight();
     });
+  }
+
+  private forceHighlightRefresh(optionId: number): void {
+    const directive = this.highlightDirectives.find(
+      dir => dir.option?.optionId === optionId
+    );
+  
+    if (directive) {
+      console.log('[✨ Forcing highlight refresh]', optionId);
+      directive.updateHighlight(); // forces sync highlight
+      this.cdRef.detectChanges();  // ensure DOM updates
+    } else {
+      console.warn('[⚠️ No directive found to force highlight]', optionId);
+    }
   }  
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
@@ -1630,6 +1627,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
       return this.getOptionBindings(option, idx, isSelected);
     });
+    this.updateHighlighting();
   
     console.log('[🔁 Option bindings generated]', {
       texts: this.optionBindings.map(b => b.option.text),
@@ -1740,6 +1738,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
+        this.updateHighlighting();
         setTimeout(() => {
           this.cdRef.detectChanges(); // ensure the DOM updates
         }, 0);        
