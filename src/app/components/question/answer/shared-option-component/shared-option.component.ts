@@ -1650,66 +1650,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
 
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-  
-    if (this.type === 'single') {
-      return index === this.lastSelectedOptionIndex &&
-             !!this.feedbackConfigs?.[optionId]?.showFeedback;
-    }
-  
-    return !!(
-      this.showFeedbackForOption?.[optionId] &&
-      this.feedbackConfigs?.[optionId]?.showFeedback
-    );
-  } */
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return optionId !== undefined && optionId === this.lastFeedbackOptionId;
-  } */
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return optionId === this.lastFeedbackAnchorOptionId;
-  } */
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-    const history = this.selectedOptionHistory;
-    const len = history.length;
-  
-    if (len === 0) return false;
-  
-    // If it's the very first selection
-    if (len === 1) {
-      return optionId === history[0];
-    }
-  
-    // If repeated click, don't show feedback under it again
-    const last = history[len - 1];
-    const secondToLast = history[len - 2];
-  
-    // Show feedback under second-to-last IF user clicked same option again
-    if (last === secondToLast) {
-      return optionId === secondToLast;
-    }
-  
-    // Otherwise, show on the last newly selected option
-    return optionId === last;
-  } */
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-  
-    // If fewer than 2 options have been selected, show feedback under the only selected one
-    if (this.selectedOptionHistory.length === 1) {
-      return optionId === this.selectedOptionHistory[0];
-    }
-  
-    // If 2+ options selected, show feedback under second-to-last selected
-    if (this.selectedOptionHistory.length === 2) {
-      return optionId === this.selectedOptionHistory[0];
-    }
-  
-    return false;
-  } */
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackOptionId;
