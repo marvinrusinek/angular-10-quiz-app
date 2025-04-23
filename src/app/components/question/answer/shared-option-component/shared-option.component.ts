@@ -1194,7 +1194,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     });
   } */
-  /* updateOptionAndUI(
+  updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -1260,20 +1260,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.lastSelectedOptionIndex = index;
       this.selectedOptionMap.set(optionId, checked);
       this.hasUserClicked = true;
+
+      // STEP 2: Set feedback flags and force immediate update
+      this.showFeedbackForOption[optionId] = checked;
+      this.updateFeedbackState(optionId);
+      this.showFeedback = true;
+
+      this.forceHighlightRefresh(optionId); // triggers directive sync
+      this.cdRef.detectChanges(); // 🔁 ensure highlight + icon + feedback are visible immediately
   
-      // ✅ STEP 2: Immediately reflect visuals
-      this.forceHighlightRefresh(optionId);
-      this.cdRef.detectChanges();
-  
-      // ✅ STEP 3: Show feedback AFTER Angular completes view updates
-      setTimeout(() => {
-        this.showFeedbackForOption[optionId] = checked;
-        this.updateFeedbackState(optionId);
-        this.showFeedback = true;
-        this.cdRef.detectChanges(); // 🔁 ensure final paint includes feedback
-      }, 10); // minimal delay to ensure view is ready
-  
-      // ✅ Optional: Enforce single-answer behavior
+      // Enforce single-answer behavior
       if (this.type === 'single') {
         this.enforceSingleSelection(optionBinding);
       }
@@ -1317,8 +1313,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
       });
     });
-  }  */
-  updateOptionAndUI(
+  }
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -1422,7 +1418,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
       });
     });
-  }
+  } */
   
   /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
@@ -1666,40 +1662,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   private forceHighlightRefresh(optionId: number): void {
     const directive = this.highlightDirectives.find(
-      dir => dir.option?.optionId === optionId
+      d => d.option?.optionId === optionId
     );
   
-    if (!directive) {
-      console.warn('[⚠️ No matching directive for optionId]', optionId);
-      return;
+    if (directive) {
+      const binding = this.optionBindings.find(
+        b => b.option.optionId === optionId
+      );
+  
+      if (!binding) return;
+  
+      // ✅ Sync directive input properties before update
+      directive.option = binding.option;
+      directive.isSelected = binding.isSelected;
+      directive.isCorrect = binding.option.correct ?? false;
+      directive.showFeedback = this.showFeedbackForOption[optionId];
+  
+      directive.updateHighlight(); // 🔥 Run after inputs are synced
+    } else {
+      console.warn('[⚠️ No directive found to refresh highlight for]', optionId);
     }
   
-    // Update directive inputs manually if needed
-    directive.isSelected = directive.option?.selected ?? false;
-    directive.isCorrect = directive.option?.correct ?? false;
-    directive.showFeedback = this.showFeedbackForOption?.[optionId] ?? false;
-  
-    // ✅ Force ngOnChanges to fire
-    if (directive.ngOnChanges) {
-      directive.ngOnChanges({
-        isSelected: {
-          currentValue: directive.isSelected,
-          previousValue: !directive.isSelected,
-          firstChange: false,
-          isFirstChange: () => false,
-        },
-        option: {
-          currentValue: directive.option,
-          previousValue: null,
-          firstChange: false,
-          isFirstChange: () => false,
-        }
-      });
-    }
-  
-    directive.updateHighlight(); // ensure fallback
-    directive.cdRef.detectChanges(); // force update
-    console.log('[✨ Forced highlight refresh complete]', optionId);
+    this.cdRef.detectChanges(); // 🔁 Ensure DOM renders changes
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
