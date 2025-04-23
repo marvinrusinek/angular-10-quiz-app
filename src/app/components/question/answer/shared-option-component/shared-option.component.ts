@@ -70,6 +70,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   // lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
+  lastFeedbackOptionId = -1;
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
