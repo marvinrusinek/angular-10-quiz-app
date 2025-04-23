@@ -81,7 +81,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   visitedOptionIds: Set<number> = new Set();
   lastSelectionId: number = -1;
   secondLastSelectionId: number = -1;
-  lastFeedbackOptionId: number = -1;
+  hasUserClickedOnce = false;
 
   isNavigatingBackwards = false;
   isOptionSelected = false;
