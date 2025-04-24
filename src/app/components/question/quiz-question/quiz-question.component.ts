@@ -2315,8 +2315,6 @@ export class QuizQuestionComponent
     const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
   
     if (!alreadySet || !alreadyFormatted) {
-      console.log('[📤 Emitting explanation AFTER first click]', trimmed, performance.now());
-  
       this.explanationTextService.setExplanationText(trimmed);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
