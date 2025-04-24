@@ -554,7 +554,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Ensure feedback is enabled
+    if (!this.showFeedback) return ''; // ensure feedback is enabled
   
     // Return 'close' if feedback explicitly marks it incorrect
     if (option.feedback === 'x') return 'close';
@@ -617,9 +617,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
       this.lastFeedbackOptionId = optionId; // only move feedback anchor if this is new
-      console.log('[🧠 New option selected — feedback anchor moved]', optionId);
+      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
-      console.log('[📛 Revisited option — feedback anchor NOT moved]', optionId);
+      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
   
     // Clear all feedback visibility
@@ -703,14 +703,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return true;
   }
 
-  private getOptionId(option: SelectedOption, index: number): number {
-    if (typeof option.optionId === 'number') {
-      return option.optionId;
-    }
-    console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
-    return index;
-  }
-
   private handleOptionState(
     optionBinding: OptionBindings,
     optionId: number,
@@ -721,8 +713,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('Option already selected:', optionBinding.option);
       return false;
     }
-  
-    console.log(`Handling option click for ID: ${optionId}`);
+
     this.handleOptionClick(optionBinding.option as SelectedOption, index, checked);
   
     optionBinding.isSelected = true;
@@ -826,32 +817,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-  /* updateHighlighting(): void {
-    if (!this.highlightDirectives?.length) return;
-  
-    let index = 0;
-    for (const directive of this.highlightDirectives) {
-      const binding = this.optionBindings[index];
-  
-      if (!binding) {
-        console.warn(`No binding found for index ${index}`);
-        index++;
-        continue;
-      }
-  
-      directive.isSelected = binding.isSelected;
-      directive.isCorrect = binding.option.correct;
-      directive.showFeedback = this.showFeedback && 
-                               this.showFeedbackForOption[binding.option.optionId ?? index];
-      directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
-  
-      // Only show the icon for selected options if feedback is enabled
-      binding.option.showIcon = binding.isSelected && this.showFeedback;
-  
-      directive.updateHighlight();
-      index++;
-    }
-  } */
   updateHighlighting(): void {
     if (!this.highlightDirectives?.length) return;
   
