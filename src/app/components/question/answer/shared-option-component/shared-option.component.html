@@ -12,7 +12,6 @@
           [optionIndex]="optionIndex"
           [checked]="optionBinding.isSelected"
           (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
-          (click)="onMatLabelClicked(optionBinding, index, $event)"
         >
           <ng-container
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"
@@ -28,7 +27,6 @@
           [optionIndex]="optionIndex"
           [checked]="optionBinding.isSelected"
           (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
-          (click)="onMatLabelClicked(optionBinding, index, $event)"
         >
           <ng-container
             *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"

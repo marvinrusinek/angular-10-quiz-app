@@ -393,33 +393,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateOptionAndUI(optionBinding, index, event);
   }
 
-  onMatLabelClicked(optionBinding: OptionBindings, index: number, event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-  
-    // Skip if native input was clicked (Angular Material already handles it)
-    if (target.tagName === 'INPUT' || target.closest('input')) {
-      return;
-    }
-  
-    // Only act if the option isn't selected yet
-    if (!optionBinding.isSelected) {
-      console.warn('[🧪 Synthetic click triggered on label]');
-  
-      const inputEl = (event.currentTarget as HTMLElement).querySelector('input');
-      if (inputEl) {
-        inputEl.click();
-      }
-  
-      // Fallback: if click does not propagate, call updateOptionAndUI manually
-      setTimeout(() => {
-        if (!optionBinding.isSelected) {
-          console.warn('[⚠️ Fallback triggered — manually invoking update]');
-          this.updateOptionAndUI(optionBinding, index, { checked: true } as MatCheckboxChange);
-        }
-      }, 50);
-    }
-  }
-
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
