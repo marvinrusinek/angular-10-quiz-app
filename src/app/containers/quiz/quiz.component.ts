@@ -648,6 +648,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  private async evaluateSelectionMessage(): Promise<void> {
+    const isMultipleAnswer = this.isMultipleAnswer(this.currentQuestion);
+  
+    if (isMultipleAnswer && !this.isAnswered) {
+      const message = this.selectionMessageService.getRemainingAnswersMessage(this.optionsToDisplay);
+      this.selectionMessageService.updateSelectionMessage(message);
+    } else {
+      const message = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        this.isAnswered
+      );
+      this.selectionMessageService.updateSelectionMessage(message);
+    }
+  }
+
   private async handleNavigationToQuestion(questionIndex: number): Promise<void> {
     this.quizService.getCurrentQuestion(questionIndex).subscribe({
       next: async (question: QuizQuestion) => {
@@ -809,6 +825,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
+        this.evaluateSelectionMessage();
         this.nextButtonStateService.evaluateNextButtonState(
           this.isAnswered,
           this.quizStateService.isLoadingSubject.getValue(),
@@ -2294,6 +2311,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  private async isMultipleAnswer(question: QuizQuestion): Promise<boolean> {
+    return await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(question));
+  }
+
   isLastQuestion(): boolean {
     return this.currentQuestionIndex === this.totalQuestions - 1;
   }
@@ -2313,8 +2334,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   ): Promise<void> {
     try {
       const [multipleAnswers, isExplanationDisplayed] = await Promise.all([
-        firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(question)),
-        this.explanationTextService.isExplanationTextDisplayedSource.getValue(),
+        this.isMultipleAnswer(question),
+        this.explanationTextService.isExplanationTextDisplayedSource.getValue()
       ]);
   
       const correctAnswersText = 
@@ -3485,7 +3506,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('Error during resetUIAndNavigate():', error);
     }
   }
-  
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
     this.sharedOptionComponent?.resetUIForNewQuestion();
