@@ -578,6 +578,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     const optionId = optionBinding.option.optionId;
+    if (optionId == null) {
+      console.error('[❌ optionId is undefined on click]', optionBinding.option);
+      return;
+    }
+
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
