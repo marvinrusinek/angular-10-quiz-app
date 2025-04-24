@@ -1434,25 +1434,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // This function updates the content based on the provided index.
   // It validates the index, checks if navigation is needed, and loads the appropriate question.
   updateContentBasedOnIndex(index: number): void {
-    // Check if the original (1-based) index is out of bounds
-    if (index < 1 || index > this.quiz.questions.length) {
-      console.error('Invalid index:', index);
+    const adjustedIndex = index - 1;
+
+    // Check if the adjusted index is out of bounds
+    if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
+      console.error('Invalid index:', adjustedIndex);
       return;
     }
-  
-    const adjustedIndex = index - 1;
-  
+
     // Check if the index has changed or if navigation is triggered by the URL
     if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
       this.previousIndex = adjustedIndex;
       this.resetExplanationText();
-      this.loadQuestionByRouteIndex(index); // Pass in 1-based index as expected
-  
+      this.loadQuestionByRouteIndex(adjustedIndex);
+
       // Prepare and display feedback
       setTimeout(() => {
         this.prepareFeedback(); // Call after options are loaded
       }, 100); // Add slight delay to ensure options are loaded
-  
+
       this.isNavigatedByUrl = false;
     } else {
       console.log('No index change detected, still on index:', adjustedIndex);

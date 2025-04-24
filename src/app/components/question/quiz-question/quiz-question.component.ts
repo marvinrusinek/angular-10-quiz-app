@@ -2380,6 +2380,9 @@ export class QuizQuestionComponent
       this.prepareQuestionText();
       const explanationToUse = await this.updateExplanationText(lockedIndex);
       await this.emitExplanationIfNeeded(explanationToUse);
+
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.updateDisplayState(lockedIndex);
       await this.applyFeedbackIfNeeded(option);
   
