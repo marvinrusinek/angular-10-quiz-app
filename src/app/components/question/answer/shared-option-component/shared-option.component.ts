@@ -1389,6 +1389,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateHighlighting();
   }
 
+  public resetUIForNewQuestion(): void {
+    this.hasUserClicked = false;
+    this.highlightedOptionIds.clear();
+    this.selectedOptionMap.clear();
+    this.showFeedbackForOption = {};
+    this.lastFeedbackOptionId = -1;
+    this.lastSelectedOptionId = -1;
+  
+    // Reset the selection history between questions
+    this.selectedOptionHistory = [];
+  }
+  
+
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
       return '';

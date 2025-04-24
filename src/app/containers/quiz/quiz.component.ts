@@ -3488,6 +3488,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
+    this.sharedOptionComponent?.resetUIForNewQuestion();
+    
     // Bounds check
     if (
       typeof questionIndex !== 'number' ||
