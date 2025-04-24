@@ -403,13 +403,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       };
     });
     this.updateHighlighting();
+    
     setTimeout(() => {
       this.cdRef.detectChanges(); // ensure the DOM updates
     }, 0);    
-    // this.attachNativeChangeListeners();
+
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
-    });    
+    });
   }
 
   private syncOptionInputState(): void {
@@ -435,42 +436,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       console.log('[🎯 Inputs synchronized]');
     }, 100); // delay to allow DOM to settle
-  }  
-
-  private attachNativeChangeListeners(): void {
-    setTimeout(() => {
-      const radioElements = this.radioButtons?.toArray() || [];
-      const checkboxElements = this.checkboxes?.toArray() || [];
-      const allElements = [...radioElements, ...checkboxElements];
-  
-      allElements.forEach((elRef: ElementRef) => {
-        const nativeInput = elRef.nativeElement.querySelector('input');
-        if (nativeInput) {
-          // Prevent duplicate bindings if re-rendered
-          nativeInput.removeEventListener('change', this.handleNativeChange);
-          nativeInput.addEventListener('change', this.handleNativeChange);
-        }
-      });
-  
-      console.log('[🧠 Native input listeners attached]');
-    }, 100); // Delay ensures DOM is rendered and inputs exist
   }
 
-  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    console.warn('[📡 MatRadioChange]', { index, value: event.value });
-  
-    // Prevent double change bug: skip if already selected
-    if (optionBinding.isSelected === true) {
-      console.warn('[⚠️ Skipping redundant radio event]');
-      return;
-    }
-  
-    this.updateOptionAndUI(optionBinding, index, {
-      checked: true,
-      source: {} as MatRadioButton,
-      value: optionBinding.option.optionId
-    } as MatRadioChange);    
-  } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     requestAnimationFrame(() => {
       if (optionBinding.isSelected === true) {
@@ -501,18 +468,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   onMatLabelClicked(optionBinding: OptionBindings, index: number, event: MouseEvent): void {
     const target = event.target as HTMLElement;
   
-    // 🛑 Skip if native input was clicked (Angular Material already handles it)
+    // Skip if native input was clicked (Angular Material already handles it)
     if (target.tagName === 'INPUT' || target.closest('input')) {
       return;
     }
   
-    // ✅ Only act if the option isn't selected yet
+    // Only act if the option isn't selected yet
     if (!optionBinding.isSelected) {
       console.warn('[🧪 Synthetic click triggered on label]');
   
       const inputEl = (event.currentTarget as HTMLElement).querySelector('input');
       if (inputEl) {
-        // NOTE: Dispatching only click here — Material will handle change propagation
         inputEl.click();
       }
   
@@ -1511,9 +1477,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }  
 
   initializeOptionBindings(): void {
-    console.log(`[🧪 Binding Init] currentQuestion:`, this.currentQuestion?.questionText);
-    console.log(`[🧪 Binding Init] optionsToDisplay:`, this.optionsToDisplay);
-
     // Fetch the current question by index
     this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
       next: (question) => {
@@ -1528,7 +1491,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
   
         this.currentQuestion = question;
-        console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
   
         // Retrieve correct options for the current question
         const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
@@ -1538,10 +1500,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           return;
         }
   
-        console.log('[initializeOptionBindings] Correct options:', correctOptions);
-  
         // Ensure optionsToDisplay is defined and populated
-        console.log('[optionBindings]', this.optionBindings);
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
           console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
           return;
@@ -1570,11 +1529,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
           return optionBinding;
         });
+        
         this.updateHighlighting();
+
         setTimeout(() => {
           this.cdRef.detectChanges(); // ensure the DOM updates
         }, 0);        
-        // this.attachNativeChangeListeners();
+
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
         });        
@@ -1584,7 +1545,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
             this.optionsReady = true;
             console.log('[🟢 optionsReady = true]');
           });
-        }, 100); // Delay rendering to avoid event fire during init
+        }, 100); // delay rendering to avoid event fire during init
 
         this.viewReady = true;
         this.cdRef.detectChanges();
@@ -1606,7 +1567,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
       if (!optionBinding || !optionBinding.option) {
         console.warn(`Option binding at index ${idx} is null or undefined. Using default feedback properties.`);
-        return this.getDefaultFeedbackProps(idx); // Return default values when binding is invalid
+        return this.getDefaultFeedbackProps(idx); // return default values when binding is invalid
       }
   
       const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
@@ -1658,7 +1619,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackOptionId;
-  }  
+  }
  
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
