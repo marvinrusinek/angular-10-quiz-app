@@ -11,7 +11,6 @@ import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
@@ -89,10 +88,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   viewInitialized = false;
   viewReady = false;
   optionsReady = false;
-  private lastClickedOptionId: number | null = null;
-  private lastClickTimestamp: number | null = null;
+  lastClickedOptionId: number | null = null;
+  lastClickTimestamp: number | null = null;
   hasUserClicked = false;
-  private freezeOptionBindings = false;
+  freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
 
@@ -101,7 +100,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   constructor(
     private feedbackService: FeedbackService,
     private quizService: QuizService,
-    private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
@@ -826,7 +824,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Final state updates inside Angular zone
     this.ngZone.run(() => {
       try {
-        const selectedOption = optionBinding.option as SelectedOption;
         const questionIndex = this.quizService.currentQuestionIndex;
   
         this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
