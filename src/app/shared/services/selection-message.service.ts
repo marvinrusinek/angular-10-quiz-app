@@ -46,16 +46,16 @@ export class SelectionMessageService {
     return msg;
   }
 
-  getRemainingAnswersMessage(correctOptions: Option[], selectedOptions: Option[]): string {
-    const total = correctOptions.length;
-    const selectedCorrect = selectedOptions.filter(opt => opt.correct && opt.selected).length;
-    const remaining = total - selectedCorrect;
+  public getRemainingAnswersMessage(options: Option[]): string {
+    const correctOptions = options.filter(opt => opt.correct);
+    const selectedCorrect = correctOptions.filter(opt => opt.selected).length;
+    const remaining = correctOptions.length - selectedCorrect;
   
     if (remaining <= 0) {
       return 'You may now click Next to continue.';
     }
   
-    return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    return `Select ${remaining} more correct answer${remaining !== 1 ? 's' : ''} to continue...`;
   }
 
   // Method to update the message
