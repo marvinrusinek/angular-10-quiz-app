@@ -1396,11 +1396,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedbackForOption = {};
     this.lastFeedbackOptionId = -1;
     this.lastSelectedOptionId = -1;
-  
-    // Reset the selection history between questions
     this.selectedOptionHistory = [];
-  }
-  
+    this.feedbackConfigs = [];
+    this.iconVisibility = [];
+  }  
 
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
