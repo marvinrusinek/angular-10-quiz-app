@@ -850,7 +850,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  /* private forceHighlightRefresh(optionId: number): void {
+  private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
       console.warn('[⚠️ No highlightDirectives available]');
       return;
@@ -860,61 +860,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     for (const directive of this.highlightDirectives) {
       if (directive.option?.optionId === optionId) {
-        directive.isSelected = directive.option?.selected ?? false;
-        directive.isCorrect = directive.option?.correct ?? false;
-        directive.showFeedback = this.showFeedbackForOption[optionId];
+        const binding = this.optionBindings.find(
+          b => b.option.optionId === optionId
+        );
   
-        directive.updateHighlight(); // 🔁 Sync visual state
+        if (!binding) {
+          console.warn('[⚠️ No binding found to sync with directive for]', optionId);
+          continue;
+        }
+  
+        // Sync critical directive inputs from the current binding
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected;
+        directive.isCorrect = binding.option.correct ?? false;
+        directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
+  
+        // Ensure highlight flag is enabled for this refresh
+        directive.option.highlight = true;
+
+        directive.updateHighlight(); // sync visual state
         found = true;
+        break; // stop after first match
       }
     }
   
-    if (found) {
-      console.log('[✨ Highlight refresh triggered]', optionId);
-    } else {
-      console.warn('[⚠️ No matching directive for optionId]', optionId);
+    if (!found) {
+      console.warn('[⚠️ No matching directive found for optionId]', optionId);
     }
   
-    this.cdRef.detectChanges(); // 🧼 Apply updates to DOM
-  } */
-  private forceHighlightRefresh(optionId: number): void {
-    const directive = this.highlightDirectives.find(
-      d => d.option?.optionId === optionId
-    );
-  
-    if (!directive) {
-      console.warn('[⚠️ No directive found to refresh highlight for]', optionId);
-      return;
-    }
-  
-    const binding = this.optionBindings.find(
-      b => b.option.optionId === optionId
-    );
-  
-    if (!binding) {
-      console.warn('[⚠️ No binding found to sync with directive for]', optionId);
-      return;
-    }
-  
-    // Sync critical directive inputs from the current binding
-    directive.option = binding.option;
-    directive.isSelected = binding.isSelected;
-    directive.isCorrect = binding.option.correct ?? false;
-    directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
-  
-    // Force highlight now, before paint
-    directive.option.highlight = true;
-  
-    console.log('[✨ Forcing highlight refresh on directive]', {
-      optionId,
-      highlight: directive.option.highlight,
-      selected: directive.option.selected,
-      isSelected: directive.isSelected,
-      isCorrect: directive.isCorrect,
-      showFeedback: directive.showFeedback,
-    });
-  
-    directive.updateHighlight();
+    this.cdRef.detectChanges(); // apply updates to DOM
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
