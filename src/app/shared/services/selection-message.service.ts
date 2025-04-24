@@ -59,5 +59,5 @@ export class SelectionMessageService {
     } else {
       console.log(`[⏸️ updateSelectionMessage] No update needed for: ${message}`);
     }
-  }  
+  }
 }
