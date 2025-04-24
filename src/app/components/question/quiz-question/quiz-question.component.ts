@@ -2294,8 +2294,8 @@ export class QuizQuestionComponent
 
       this.quizService.setCurrentQuestionIndex(lockedIndex);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.updateDisplayState(lockedIndex);
       await this.applyFeedbackIfNeeded(option);
+      this.markAsAnsweredAndShowExplanation(lockedIndex);
   
       this.finalizeAfterClick(option, event.index);
     } catch (error) {
@@ -2321,7 +2321,7 @@ export class QuizQuestionComponent
     }
   }
   
-  private updateDisplayState(index: number): void {
+  private markAsAnsweredAndShowExplanation(index: number): void {
     this.quizService.setCurrentQuestionIndex(index);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   }
@@ -2888,17 +2888,6 @@ export class QuizQuestionComponent
         this.selectedOptionService.isAnsweredSubject.getValue();
       this.nextButtonState.emit(shouldEnableNext);
     }, 50);
-  }
-
-  private updateDisplayState(
-    mode: 'question' | 'explanation',
-    answered: boolean
-  ): void {
-    // Log the state update for debugging
-    console.log('Updating display state:', { mode, answered });
-
-    // Emit the new state to the subject
-    this.displayStateSubject.next({ mode, answered });
   }
 
   private handleInitialSelection(event: {
