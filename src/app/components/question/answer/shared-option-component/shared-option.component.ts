@@ -278,10 +278,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionsToDisplay = this.currentQuestion.options.map(option => ({
         ...option,
         active: option.active ?? true, // Default to true
-        feedback: option.feedback ?? 'No feedback available.', // Restore feedback
-        showIcon: option.showIcon ?? false, // Preserve icon state
-        selected: option.selected ?? false, // Restore selection state
-        highlight: option.highlight ?? option.selected // Restore highlight state
+        feedback: option.feedback ?? 'No feedback available.', // restore feedback
+        showIcon: option.showIcon ?? false, // preserve icon state
+        selected: option.selected ?? false, // restore selection state
+        highlight: option.highlight ?? option.selected // restore highlight state
       }));
 
       // Synchronize bindings
@@ -368,31 +368,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  private syncOptionInputState(): void {
-    setTimeout(() => {
-      const radioInputs = this.radioButtons?.toArray() || [];
-      const checkboxInputs = this.checkboxes?.toArray() || [];
-  
-      const allInputs = [...radioInputs, ...checkboxInputs];
-  
-      allInputs.forEach((elRef: ElementRef) => {
-        console.log('[🔍 native element]', elRef.nativeElement);
-
-        const input = elRef.nativeElement.querySelector('input');
-        console.log('[🔍 input inside element]', input);
-
-        if (input) {
-          if (input.checked) {
-            input.focus();     // 🔍 Ensure it's focused
-            input.click();     // 🖱️ Force click if needed
-          }
-        }
-      });
-  
-      console.log('[🎯 Inputs synchronized]');
-    }, 100); // delay to allow DOM to settle
-  }
-
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     requestAnimationFrame(() => {
       if (optionBinding.isSelected === true) {
@@ -409,8 +384,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
-    console.warn('[📡 MatCheckboxChange]', { index, checked: event.checked });
-  
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -446,38 +419,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }, 50);
     }
   }
-
-  onNativeRadioChanged(optionBinding: OptionBindings, index: number, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const checked = input.checked;
-  
-    if (optionBinding.isSelected === checked) return;
-  
-    this.updateOptionAndUI(optionBinding, index, { checked } as any);
-  }
-  
-  onNativeCheckboxChanged(optionBinding: OptionBindings, index: number, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const checked = input.checked;
-  
-    if (optionBinding.isSelected === checked) return;
-  
-    this.updateOptionAndUI(optionBinding, index, { checked } as any);
-  }
-
-  onNativeOptionChanged(
-    optionBinding: OptionBindings,
-    index: number,
-    event: Event
-  ): void {
-    const input = event.target as HTMLInputElement;
-    const checked = input.checked;
-  
-    if (optionBinding.isSelected === checked) return;
-  
-    this.updateOptionAndUI(optionBinding, index, { checked } as any);
-  }
-  
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
