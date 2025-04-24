@@ -2313,7 +2313,6 @@ export class QuizQuestionComponent
   
     const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
     const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-  
     if (!alreadySet || !alreadyFormatted) {
       this.explanationTextService.setExplanationText(trimmed);
       this.explanationTextService.setShouldDisplayExplanation(true);
