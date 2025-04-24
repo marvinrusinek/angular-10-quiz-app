@@ -401,8 +401,6 @@ export class SelectedOptionService {
 
   // Method to add or remove a selected option for a question
   toggleSelectedOption(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
-    console.log('toggleSelectedOption called with', { questionIndex, option });
-
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -517,9 +515,10 @@ export class SelectedOptionService {
         questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
         if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
           if (this.selectedOptionsMap.size === 0) {
-            console.info('[updateAnsweredState] selectedOptionsMap is empty. Using default options without warning.');
+            console.info('[updateAnsweredState] selectedOptionsMap is empty.  Using default options without warning.');
           } else if (!this.selectedOptionsMap.has(questionIndex)) {
-            console.warn(`[updateAnsweredState] No entry for questionIndex: ${questionIndex}. Using default options.`);
+            console.warn(`[updateAnsweredState] No entry for questionIndex: 
+            ${questionIndex}. Using default options.`);
           }
           questionOptions = this.getDefaultOptions();
         }
@@ -675,8 +674,7 @@ export class SelectedOptionService {
       return keys[0];
     }
   
-    console.info(
-      '[getFallbackQuestionIndex] No keys found in selectedOptionsMap. Defaulting to 0. This may indicate no options were selected yet.'
+    console.info('[getFallbackQuestionIndex] No keys found in selectedOptionsMap. Defaulting to 0. This may indicate no options were selected yet.'
     );
     return 0;
   }
