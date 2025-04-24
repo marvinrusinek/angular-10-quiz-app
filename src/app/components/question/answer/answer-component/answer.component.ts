@@ -39,8 +39,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
-  type: 'single' | 'multiple'; // store the type (single or multiple answer)
-  selectedOptionIndex: number = -1;
+  type: 'single' | 'multiple'; // store the type (single/multiple answer)
+  selectedOptionIndex = -1;
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
@@ -85,7 +85,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       console.error('viewContainerRefs is undefined or not initialized.');
     }
   
-    this.cdRef.detectChanges(); // Ensure change detection runs
+    this.cdRef.detectChanges(); // ensure change detection runs
   }
 
 
@@ -97,9 +97,9 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
     if (this.viewContainerRefs && this.viewContainerRefs.length > 0) {
       console.log('viewContainerRefs available in handleViewContainerRef:', this.viewContainerRefs);
-      this.viewContainerRef = this.viewContainerRefs.first; // Assign the first available ViewContainerRef
+      this.viewContainerRef = this.viewContainerRefs.first; // assign the first available ViewContainerRef
       this.loadQuizQuestionComponent();
-      this.hasComponentLoaded = true; // Prevent further attempts to load
+      this.hasComponentLoaded = true; // prevent further attempts to load
     } else {
       console.warn('No viewContainerRef available in handleViewContainerRef');
     }
@@ -127,8 +127,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
       if (typeof isMultipleAnswer === 'boolean') {
         this.type = isMultipleAnswer ? 'multiple' : 'single';
-        this.hasComponentLoaded = true; // Prevent further attempts to load
-        this.quizQuestionComponentLoaded.emit(); // Notify listeners that the component is loaded
+        this.hasComponentLoaded = true; // prevent further attempts to load
+        this.quizQuestionComponentLoaded.emit(); // notify listeners that the component is loaded
         this.cdRef.markForCheck();
       } else {
         console.error('Could not determine whether question is multiple answer.');
