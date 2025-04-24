@@ -1,18 +1,10 @@
-import { AfterViewInit, ChangeDetectionStrategy,
-  ChangeDetectorRef, Component, ComponentRef,
-  ComponentFactoryResolver, ElementRef,
-  EventEmitter, HostListener, Input,
-  NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef,
+  ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from,
-  Observable, of, ReplaySubject, Subject, Subscription
-} from 'rxjs';
-import {
-  catchError, debounceTime, distinctUntilChanged,
-  filter, map, switchMap, take, takeUntil, tap
-} from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription} from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -2278,7 +2270,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2366,6 +2358,96 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }    
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) return;
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
+    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
+  
+    this.updateOptionSelection(event, option);
+    this.selectedOptionService.setAnswered(true);
+  
+    try {
+      this.prepareQuestionText();
+      const explanationToUse = await this.updateExplanationText(lockedIndex);
+      await this.emitExplanationIfNeeded(explanationToUse);
+      this.updateDisplayState(lockedIndex);
+      await this.applyFeedbackIfNeeded(option);
+  
+      this.finalizeAfterClick(option, event.index);
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  }
+
+  private prepareQuestionText(): void {
+    this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
+    this.cdRef.detectChanges();
+  }
+  
+  private async emitExplanationIfNeeded(rawExplanation: string): Promise<void> {
+    const trimmed = rawExplanation?.trim() || 'No explanation available';
+  
+    const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
+    const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+  
+    if (!alreadySet || !alreadyFormatted) {
+      console.log('[📤 Emitting explanation AFTER first click]', trimmed, performance.now());
+  
+      this.explanationTextService.setExplanationText(trimmed);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.lockExplanation();
+      this.cdRef.detectChanges();
+    }
+  }
+  
+  private updateDisplayState(index: number): void {
+    this.quizService.setCurrentQuestionIndex(index);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  }
+  
+  private async applyFeedbackIfNeeded(option: SelectedOption): Promise<void> {
+    if (!this.optionsToDisplay?.length) {
+      await new Promise((res) => setTimeout(res, 50));
+      this.optionsToDisplay = this.populateOptionsToDisplay();
+    }
+  
+    const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
+    if (!foundOption) return;
+  
+    if (!this.isFeedbackApplied) {
+      await this.applyOptionFeedback(foundOption);
+    }
+  
+    this.showFeedbackForOption[option.optionId || 0] = true;
+  
+    setTimeout(() => {
+      const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+      const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+  
+      if (ready && show) {
+        this.explanationTextService.triggerExplanationEvaluation();
+      } else {
+        console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – not ready');
+      }
+    }, 30);
+  }
+  
+  private finalizeAfterClick(option: SelectedOption, index: number): void {
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    this.markQuestionAsAnswered(lockedIndex);
+    this.finalizeSelection(option, index);
+    this.optionSelected.emit({ option, index, checked: true });
+    this.cdRef.markForCheck();
   }
 
   private async fetchAndUpdateExplanationText(
@@ -2632,7 +2714,7 @@ export class QuizQuestionComponent
         active: true,
         feedback: option.feedback || this.generateFeedbackForOption(option), // restore or regenerate feedback
         showIcon: option.correct || option.showIcon, // ensure icons are displayed for correct options
-        selected: option.selected ?? false, // use saved state if available
+        selected: option.selected ?? false // use saved state if available
       }));
     } catch (error) {
       console.error(
@@ -2719,7 +2801,7 @@ export class QuizQuestionComponent
       ...option,
       active: option.correct, // only correct options remain active
       feedback: option.correct ? undefined : 'x', // set 'x' for incorrect options
-      showIcon: true, // ensure icons are displayed
+      showIcon: true // ensure icons are displayed
     }));
   }
 
