@@ -119,7 +119,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
 
-    console.log('Received config:', this.config);
     if (
       this.config &&
       this.config.optionsToDisplay &&
