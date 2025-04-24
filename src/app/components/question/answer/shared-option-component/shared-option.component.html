@@ -7,7 +7,6 @@
         <mat-checkbox
           *ngSwitchCase="'multiple'"
           #checkbox
-          appMatClickFix
           appHighlightOption
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
@@ -24,7 +23,6 @@
         <mat-radio-button
           *ngSwitchCase="'single'"
           #radio
-          appMatClickFix
           appHighlightOption
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"

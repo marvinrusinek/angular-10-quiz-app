@@ -788,7 +788,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId; // Only move feedback anchor if this is new
+      this.lastFeedbackOptionId = optionId; // only move feedback anchor if this is new
       console.log('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
       console.log('[📛 Revisited option — feedback anchor NOT moved]', optionId);
