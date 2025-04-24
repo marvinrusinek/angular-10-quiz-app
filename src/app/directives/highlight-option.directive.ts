@@ -218,9 +218,11 @@ export class HighlightOptionDirective implements OnChanges {
       showFeedbackForOption: this.showFeedbackForOption?.[optionId]
     });
   
+    let color = '';
+
     // If the option is already highlighted or selected, apply highlight color and show icon/feedback
     if (shouldHighlight || selected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
+      color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
       this.setBackgroundColor(color);
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
       this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
@@ -236,7 +238,7 @@ export class HighlightOptionDirective implements OnChanges {
   
     // Highlight only the selected option (green/red)
     if (this.isSelected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000';
+      color = this.isCorrect ? '#43f756' : '#ff0000';
       this.setBackgroundColor(color);
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
       this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
@@ -273,7 +275,13 @@ export class HighlightOptionDirective implements OnChanges {
     if (optionId !== undefined) {
       this.showFeedbackForOption[optionId] = false;
     }
-  }  
+
+    if (this.showFeedback && this.highlightCorrectAfterIncorrect) {
+      this.highlightCorrectAnswers();
+    } else {
+      this.setBackgroundColor(color);
+    }
+  }
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
