@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+
+import { Option } from '../../shared/models/Option.model';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -44,6 +46,18 @@ export class SelectionMessageService {
     return msg;
   }
 
+  getRemainingAnswersMessage(correctOptions: Option[], selectedOptions: Option[]): string {
+    const total = correctOptions.length;
+    const selectedCorrect = selectedOptions.filter(opt => opt.correct && opt.selected).length;
+    const remaining = total - selectedCorrect;
+  
+    if (remaining <= 0) {
+      return 'You may now click Next to continue.';
+    }
+  
+    return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+  }
+
   // Method to update the message
   public updateSelectionMessage(message: string): void {
     const current = this.selectionMessageSubject.getValue();
@@ -59,5 +73,5 @@ export class SelectionMessageService {
     } else {
       console.log(`[⏸️ updateSelectionMessage] No update needed for: ${message}`);
     }
-  }
+  }  
 }
