@@ -824,6 +824,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Selection message + button state
     try {
       setTimeout(async () => {
+        const mode = 'explanation';
+        const answered = true;
+        this.updateDisplayState(mode, answered);
+        
         await this.setSelectionMessage(true);
         this.evaluateSelectionMessage();
         this.nextButtonStateService.evaluateNextButtonState(
