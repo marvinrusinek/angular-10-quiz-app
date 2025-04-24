@@ -120,7 +120,7 @@ export class SelectedOptionService {
     };
   
     this.selectedOptionSubject.next(deselectedOption);
-    this.isOptionSelectedSubject.next(false); // Indicate that no option is selected
+    this.isOptionSelectedSubject.next(false); // indicate that no option is selected
   }
 
   // Adds an option to the selectedOptionsMap
@@ -128,13 +128,13 @@ export class SelectedOptionService {
     // Check if option is valid
     if (!option) {
       console.error('Option is undefined. Cannot add it to selectedOptionsMap.');
-      return; // Stop execution to prevent errors
+      return; // stop execution to prevent errors
     }
 
     // Check if optionId is valid
     if (option.optionId === undefined || option.optionId === null) {
       console.error('option.optionId is undefined:', option);
-      return; // Stop execution to prevent errors
+      return; // stop execution to prevent errors
     }
 
     // Get the current selected options for this question
@@ -166,16 +166,14 @@ export class SelectedOptionService {
   }
 
   setNextButtonEnabled(enabled: boolean): void {
-    this.isNextButtonEnabledSubject.next(enabled);  // Update the button's enabled state
+    this.isNextButtonEnabledSubject.next(enabled);  // update the button's enabled state
   }  
 
   clearSelection(): void {
-    this.isOptionSelectedSubject.next(false); // No option selected
+    this.isOptionSelectedSubject.next(false); // no option selected
   }
 
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
-    console.log('Entering setSelectedOption with:', option);
-
     if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
@@ -192,7 +190,7 @@ export class SelectedOptionService {
         return;
       }
       console.error('Expected a single SelectedOption, but received an array:', option);
-      return; // Exit early if the option is not valid
+      return; // exit early if the option is not valid
     }
 
     if (this.isOptionAlreadySelected(option)) {
@@ -203,7 +201,7 @@ export class SelectedOptionService {
     this.ngZone.run(() => {
       this.selectedOption = option;
       this.selectedOptionSubject.next(option);
-      this.isOptionSelectedSubject.next(true); // Ensure button enablement
+      this.isOptionSelectedSubject.next(true); // ensure button enablement
     });
   }
 
@@ -226,7 +224,6 @@ export class SelectedOptionService {
   }
   
   private isSingleOptionAlreadySelected(option: SelectedOption): boolean {
-    // Use type assertion to explicitly tell TypeScript that selectedOption is of type SelectedOption
     const selectedOption = this.selectedOption as SelectedOption;
     return selectedOption?.optionId === option.optionId;
   }
@@ -249,11 +246,9 @@ export class SelectedOptionService {
     // Set the selected option
     this.selectedOption = option;
     this.selectedOptionSubject.next(option);
-    console.log('SelectedOptionService: Selected option set, current value:', this.selectedOptionSubject.getValue());
 
     // Update the selected status
     this.isOptionSelectedSubject.next(true);
-    console.log('SelectedOptionService: isOptionSelected updated to true');
 
     // Update selectedOptionsMap based on question index and multi-select status
     if (!this.selectedOptionsMap.has(currentQuestionIndex)) {
@@ -268,16 +263,11 @@ export class SelectedOptionService {
       this.selectedOptionsMap.set(currentQuestionIndex, [option]);
     }
 
-    console.log('SelectedOptionService: Updated selectedOptionsMap:', this.selectedOptionsMap);
-
     this.updateSelectedOptions(currentQuestionIndex, option.optionId, 'add');
   }
 
   getSelectedOptions(): SelectedOption[] {
     const selectedOptions = this.selectedOptionSubject.getValue();
-    
-    // Debug the retrieved value
-    console.log('[getSelectedOptions] Raw selected options:', selectedOptions);
   
     // Ensure the returned value is an array
     if (Array.isArray(selectedOptions)) {
@@ -319,7 +309,7 @@ export class SelectedOptionService {
   
     // If selectedOptions is somehow not an array, log a warning
     console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
-    return false; // Return false if selectedOptions is invalid
+    return false; // return false if selectedOptions is invalid
   }  
 
   clearSelectedOption(): void {
@@ -344,9 +334,9 @@ export class SelectedOptionService {
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOption$.pipe(
-      startWith(this.selectedOptionSubject.getValue()), // Emit the current state immediately when subscribed
-      map(option => option !== null), // Determine if an option is selected
-      distinctUntilChanged() // Emit only when the selection state changes
+      startWith(this.selectedOptionSubject.getValue()), // emit the current state immediately when subscribed
+      map(option => option !== null), // determine if an option is selected
+      distinctUntilChanged() // emit only when the selection state changes
     );
   }  
 
@@ -381,14 +371,14 @@ export class SelectedOptionService {
     if (!existingOption) {
       const newOption: SelectedOption = {
         optionId: optionIndex,
-        questionIndex, // Ensure the questionIndex is set correctly
-        text: `Option ${optionIndex + 1}`, // Placeholder text, update if needed
-        correct: false, // Default to false unless explicitly set elsewhere
-        selected: true, // Mark as selected since it's being added
+        questionIndex, // ensure the questionIndex is set correctly
+        text: `Option ${optionIndex + 1}`, // placeholder text, update if needed
+        correct: false, // default to false unless explicitly set elsewhere
+        selected: true, // mark as selected since it's being added
       };
 
-      options.push(newOption); // Add the new option
-      this.selectedOptionsMap.set(questionIndex, options); // Update the map
+      options.push(newOption); // add the new option
+      this.selectedOptionsMap.set(questionIndex, options); // update the map
 
       console.log(`[addSelectedOptionIndex] Updated selectedOptionsMap:`, 
       Array.from(this.selectedOptionsMap.entries()));
@@ -429,10 +419,7 @@ export class SelectedOptionService {
     }
 
     this.handleSingleOption(option, questionIndex, isMultiSelect);
-
     this.selectedOptionsMap.set(questionIndex, options);
-    console.log('Updated selectedOptionsMap:', this.selectedOptionsMap);
-
     this.updateSelectedOptions(questionIndex, option.optionId, 'add');
   }
 
@@ -642,11 +629,8 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean): void {
-    console.log('[🧩 setAnswered] called with:', isAnswered);
     const current = this.isAnsweredSubject.getValue();
     if (current !== isAnswered) {
-      console.log('[🧩 setAnswered] isAnswered =', isAnswered);
-      console.trace();
       this.isAnsweredSubject.next(isAnswered);
       sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
     } else {
@@ -658,8 +642,6 @@ export class SelectedOptionService {
     const current = this.isAnsweredSubject.getValue();
   
     if (current !== isAnswered) {
-      console.log('[🧨 setAnsweredState] isAnswered =', isAnswered);
-      console.trace("TRACE!!"); // 🔍 Trace the origin of the call
       this.isAnsweredSubject.next(isAnswered);
     } else {
       console.log('[🟡 setAnsweredState] No change needed (already', current + ')');
@@ -680,7 +662,7 @@ export class SelectedOptionService {
       .map((_, index) => ({
         optionId: index,
         text: `Default Option ${index + 1}`,
-        correct: index === 0, // Default to the first option as correct
+        correct: index === 0, // default to the first option as correct
         selected: false
       }));
     return defaultOptions;
