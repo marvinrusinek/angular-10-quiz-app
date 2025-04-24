@@ -67,14 +67,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   isSubmitted = false;
   iconVisibility: boolean[] = []; // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
-  // lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
   lastFeedbackOptionId = -1;
   secondToLastFeedbackOptionId = -1;
-  private feedbackAnchorOptionId: number | null = null;
-  private previousSelectedOptionId: number | null = null;
-  private currentSelectedOptionId: number = -1;
   highlightedOptionIds: Set<number> = new Set();
   lastSelectedOptionId: number = -1;
   lastFeedbackAnchorOptionId: number = -1;
@@ -90,9 +86,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private optionsRestored = false; // tracks if options are restored
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
-  private viewInitialized = false;
+  viewInitialized = false;
   viewReady = false;
-  private lastSelectedOptionMap: Map<number, number> = new Map(); // optionId -> timestamp
   optionsReady = false;
   private lastClickedOptionId: number | null = null;
   private lastClickTimestamp: number | null = null;
