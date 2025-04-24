@@ -101,7 +101,7 @@ export class SelectedOptionService {
       this.selectedOptionSubject.next(selectedOption);
   
       if (!isMultiSelect) {
-        this.isOptionSelectedSubject.next(true); // Enable Next button for single-answer questions
+        this.isOptionSelectedSubject.next(true); // enable Next button for single-answer questions
         this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
         this.setNextButtonEnabled(true);
       } else {
@@ -234,8 +234,7 @@ export class SelectedOptionService {
       console.error('Unexpected array in this.selectedOption');
       return false;
     }
-  
-    // Use type assertion to explicitly tell TypeScript that this.selectedOption is a single SelectedOption
+
     const selectedOption = this.selectedOption as SelectedOption;
   
     // Compare selected options with the array passed in
@@ -374,14 +373,14 @@ export class SelectedOptionService {
         questionIndex, // ensure the questionIndex is set correctly
         text: `Option ${optionIndex + 1}`, // placeholder text, update if needed
         correct: false, // default to false unless explicitly set elsewhere
-        selected: true, // mark as selected since it's being added
+        selected: true // mark as selected since it's being added
       };
 
       options.push(newOption); // add the new option
       this.selectedOptionsMap.set(questionIndex, options); // update the map
 
       console.log(`[addSelectedOptionIndex] Updated selectedOptionsMap:`, 
-      Array.from(this.selectedOptionsMap.entries()));
+        Array.from(this.selectedOptionsMap.entries()));
     } else {
       console.log(`[addSelectedOptionIndex] Option ${optionIndex} already exists for questionIndex ${questionIndex}`);
     }
