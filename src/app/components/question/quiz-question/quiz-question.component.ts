@@ -2434,12 +2434,9 @@ export class QuizQuestionComponent
       // Cache and display
       this.explanationTextService.formattedExplanations[questionIndex] = {
         questionIndex,
-        explanation: explanationText,
+        explanation: explanationText
       };
-      sessionStorage.setItem(
-        `explanationText_${questionIndex}`,
-        explanationText
-      );
+      sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
       this.applyExplanation(explanationText);
     } catch (error) {
       console.error(
