@@ -844,12 +844,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
   
-  /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
+  private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
       const isTarget = binding === selectedBinding;
   
       if (!isTarget && binding.isSelected) {
         binding.isSelected = false;
+        binding.option.selected = false;
   
         // Preserve feedback state for previously selected option
         const id = binding.option.optionId;
@@ -857,15 +858,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.updateFeedbackState(id);
       }
     });
-  } */
-  private enforceSingleSelection(selectedBinding: OptionBindings): void {
-    this.optionBindings.forEach(binding => {
-      if (binding !== selectedBinding) {
-        binding.isSelected = false;
-        binding.option.selected = false;
-      }
-    });
-  }  
+  }
 
   private isValidOptionBinding(optionBinding: OptionBindings): boolean {
     if (!optionBinding || !optionBinding.option) {
