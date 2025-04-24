@@ -14,7 +14,8 @@
           (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
         >
           <ng-container
-            *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"
+            *ngTemplateOutlet="optionContent; 
+            context: getOptionContext(optionBinding, optionIndex)"
           ></ng-container>
         </mat-checkbox>
 
@@ -29,7 +30,8 @@
           (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
         >
           <ng-container
-            *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"
+            *ngTemplateOutlet="optionContent; 
+            context: getOptionContext(optionBinding, optionIndex)"
           ></ng-container>
         </mat-radio-button>
       </ng-container>
@@ -49,7 +51,10 @@
     <span class="option-text" [ngStyle]="optionTextStyle">
       {{ getOptionDisplayText(option, optionIndex) }}
     </span>
-    <mat-icon *ngIf="shouldShowIcon(option)" class="material-icons icon" [ngClass]="optionIconClass">
+    <mat-icon
+      *ngIf="shouldShowIcon(option)" 
+      class="material-icons icon"
+      [ngClass]="optionIconClass">
       {{ getOptionIcon(option) }}
     </mat-icon>
   </div>
