@@ -1234,17 +1234,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
     this.updateHighlighting();
   
-    console.log('[🔁 Option bindings generated]', {
-      texts: this.optionBindings.map(b => b.option.text),
-      selected: this.optionBindings.map(b => b.isSelected)
-    });
-  
-    // ✅ Mark view ready after DOM settles
+    // Mark view ready after DOM settles
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
         this.viewReady = true;
-        this.cdRef.detectChanges();
         console.log('[✅ optionsReady & viewReady set]');
       });
     }, 100);
