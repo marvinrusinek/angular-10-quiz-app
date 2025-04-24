@@ -5,7 +5,6 @@ import { distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { isValidOption } from '../../shared/utils/option-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
