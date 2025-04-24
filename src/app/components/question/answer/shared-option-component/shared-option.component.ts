@@ -180,28 +180,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
-    console.log('[✅ View ready]');
   }
-
-  private handleNativeChange = (event: Event): void => {
-    const input = event.target as HTMLInputElement;
-    const idAttr = input?.dataset?.optionId;
-  
-    const optionId = idAttr ? parseInt(idAttr, 10) : -1;
-    const checked = input.checked;
-  
-    console.warn('[🖲️ Native input change fired!]', { optionId, checked });
-  
-    const optionBinding = this.optionBindings?.[optionId];
-    if (!optionBinding) {
-      console.warn('[❌ No matching option binding for input]', { optionId });
-      return;
-    }
-  
-    this.updateOptionAndUI(optionBinding, optionId, {
-      checked
-    } as MatCheckboxChange); // or MatRadioChange if you prefer
-  };  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
@@ -254,30 +233,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  @HostListener('change', ['$event'])
-  onNativeChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const optionId = this.getOptionIdFromInput(input);
-    const checked = input.checked;
-
-    console.warn('[🖲️ Native change]', { optionId, checked });
-
-    const optionBinding = this.optionBindings.find(o => o.option.optionId === optionId);
-    if (!optionBinding) {
-      console.warn('[⛔ No matching binding found for input change]');
-      return;
-    }
-
-    this.updateOptionAndUI(optionBinding, this.optionBindings.indexOf(optionBinding), {
-      checked
-    } as MatCheckboxChange);
-  }
-
-  private getOptionIdFromInput(input: HTMLInputElement): number {
-    const id = input?.getAttribute('data-option-id');
-    return id ? parseInt(id, 10) : -1;
-  }
-  
   private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
