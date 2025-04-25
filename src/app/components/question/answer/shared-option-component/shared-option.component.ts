@@ -427,13 +427,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (checked) {
       this.optionClickedOnce = true;
     }
-  
-    console.log('[⚡ change fired]', {
-      optionBinding,
-      event,
-      checked: event.checked
-    });
-  
+    
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
