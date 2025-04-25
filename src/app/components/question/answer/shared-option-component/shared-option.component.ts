@@ -1,4 +1,5 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
@@ -87,6 +88,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   selectedOptionHistory: number[] = [];
   private clickLocked = false;
   private optionClickedOnce = false;
+  form: FormGroup;
 
   optionTextStyle = { color: 'black' };
 
@@ -96,10 +98,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
+    this.initializeForm();
     this.initializeOptionBindings();
     this.initializeFromConfig();
 
@@ -1508,6 +1512,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     return feedbackProps;
   }  
+
+  initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: [null] // for single-answer questions
+    });
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
