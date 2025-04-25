@@ -10,7 +10,6 @@
           appHighlightOption
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
-          [checked]="optionBinding.isSelected"
           (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
           (click)="onOptionClickFallback(optionBinding, optionIndex)"
         >
@@ -21,13 +20,18 @@
         </mat-checkbox>
 
         <!-- Handle single choice options -->
+        <mat-radio-group
+          *ngSwitchCase="'single'"
+          [(ngModel)]="selectedRadioOptionId"
+          (change)="onMatRadioGroupChanged($event)"
+        >
         <mat-radio-button
           *ngSwitchCase="'single'"
           #radio
           appHighlightOption
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
-          [checked]="optionBinding.isSelected"
+          [value]="optionBinding.option.optionId"
           (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
           (click)="onOptionClickFallback(optionBinding, optionIndex)"
         >
@@ -35,7 +39,7 @@
             *ngTemplateOutlet="optionContent; 
             context: getOptionContext(optionBinding, optionIndex)"
           ></ng-container>
-        </mat-radio-button>
+        </mat-radio-button></mat-radio-group>
       </ng-container>
 
       <!-- Feedback display -->

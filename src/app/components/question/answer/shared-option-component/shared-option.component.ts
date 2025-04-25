@@ -409,6 +409,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
+  selectedRadioOptionId: number | null = null;
+
+  onMatRadioGroupChanged(event: MatRadioChange): void {
+    const selectedOptionId = event.value;
+    const optionBinding = this.optionBindings.find(
+      ob => ob.option.optionId === selectedOptionId
+    );
+    const index = this.optionBindings.findIndex(
+      ob => ob.option.optionId === selectedOptionId
+    );
+
+    if (optionBinding) {
+      this.updateOptionAndUI(optionBinding, index, event);
+    }
+  }
+
+
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
