@@ -1458,6 +1458,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
       return this.getOptionBindings(option, idx, isSelected);
     });
+    console.log('[🧩 OptionBindings loaded]', this.optionBindings);
     this.updateHighlighting();
   
     // Mark view ready after DOM settles
