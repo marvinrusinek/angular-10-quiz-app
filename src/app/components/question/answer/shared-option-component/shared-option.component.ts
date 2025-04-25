@@ -85,6 +85,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
+  private clickLocked = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -617,11 +618,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-  
-    // Block unchecking an unselected radio button
-    if (!optionBinding.option.selected && checked === false) {
-      console.warn('[🛡️ Blocking false event on unselected option]', optionId);
+
+    // Block if already processed
+    if (this.clickLocked) {
+      console.warn('[⛔ Click already locked, skipping extra event]');
       return;
+    }
+  
+    // If the event is "unchecked" but the option is not selected, skip it
+    if (!optionBinding.option.selected && checked === false) {
+      console.warn('[🛡️ Ignoring false uncheck on unselected option]', { optionId });
+      return;
+    }
+
+    // After successfully processing valid checked event, lock further clicks
+    if (checked) {
+      this.clickLocked = true;
     }
   
     // Block rapid duplicate unselect toggle
