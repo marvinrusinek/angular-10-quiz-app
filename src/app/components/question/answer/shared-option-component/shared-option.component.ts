@@ -473,8 +473,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  selectedRadioOptionId: number | null = null;
-
   onMatRadioGroupChanged(event: MatRadioChange): void {
     const selectedOptionId = event.value;
     const optionBinding = this.optionBindings.find(
