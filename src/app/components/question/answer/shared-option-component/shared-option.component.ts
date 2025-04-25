@@ -619,9 +619,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
 
-    // Block if already processed
-    if (this.clickLocked) {
-      console.warn('[⛔ Click already locked, skipping extra event]');
+    // Only block for single-answer questions
+    if (this.type === 'single' && this.clickLocked) {
+      console.warn('[⛔ Click already locked for single-answer]', optionId);
       return;
     }
   
@@ -631,8 +631,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
 
-    // After successfully processing valid checked event, lock further clicks
-    if (checked) {
+    // After valid first selection for SINGLE ANSWER, lock further clicks
+    if (this.type === 'single' && checked) {
       this.clickLocked = true;
     }
   
