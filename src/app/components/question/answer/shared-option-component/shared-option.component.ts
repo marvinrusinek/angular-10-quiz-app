@@ -760,7 +760,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
-    // Apply selection and visuals
+    // ✅ Apply selection and visuals
     optionBinding.option.highlight = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
@@ -770,23 +770,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
-    // Track selection history and feedback anchor
+    // ✅ Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
   
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId; // only move feedback anchor if this is new
+      this.lastFeedbackOptionId = optionId;
       console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
       console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
   
-    // Clear all feedback visibility
+    // ✅ Clear all feedback visibility
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    // Show feedback for current anchor only
+    // ✅ Show feedback for current anchor only
     if (this.lastFeedbackOptionId !== -1) {
       this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
       this.updateFeedbackState(this.lastFeedbackOptionId);
@@ -794,7 +794,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.showFeedback = true;
   
-    // Set feedback config for current option
+    // ✅ Set feedback config for current option
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -805,17 +805,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index
     };
   
-    // Trigger directive repaint for highlight + feedback
+    // ✅ Force directive repaint
     this.forceHighlightRefresh(optionId);
   
-    // Enforce single-answer behavior if applicable
+    // ✅ Enforce single-answer behavior if applicable
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
-    // Final state updates inside Angular zone
+    // ✅ Final state updates inside Angular zone
     this.ngZone.run(() => {
       try {
         const questionIndex = this.quizService.currentQuestionIndex;
@@ -837,7 +837,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   
-    // Now lock further clicks, but ONLY after successful processing
+    // Set clickLocked only for single-answer after valid selection
     if (this.type === 'single' && checked) {
       this.clickLocked = true;
     }
