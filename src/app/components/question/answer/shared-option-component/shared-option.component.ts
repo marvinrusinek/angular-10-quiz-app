@@ -352,7 +352,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateHighlighting();
   }
 
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     const checked = event.value; // ✅ MatRadioChange uses .value
   
     if (this.optionClickedOnce && !checked) {
@@ -382,7 +382,39 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         value: event.value
       });
     });
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const checked = event.value;
+  
+    if (this.optionClickedOnce && !checked) {
+      console.warn('[🛡️ Ignoring duplicate uncheck event]');
+      return;
+    }
+  
+    if (checked) {
+      this.optionClickedOnce = true;
+    }
+  
+    console.log('[⚡ change fired]', {
+      optionBinding,
+      event,
+      checked: event.value
+    });
+  
+    requestAnimationFrame(() => {
+      if (optionBinding.isSelected === true) {
+        console.warn('[⚠️ Skipping redundant radio event]');
+        return;
+      }
+  
+      this.updateOptionAndUI(optionBinding, index, {
+        checked: true,
+        source: event.source,
+        value: event.value
+      } as unknown as MatCheckboxChange); // 👈 Correct cast to satisfy the method
+    });
   }
+  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     const checked = event.checked; // ✅ MatCheckboxChange uses .checked
@@ -763,6 +795,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
+    // 🛡️ Ignore rogue unchecked event
+    if (!optionBinding.option.selected && checked === false) {
+      console.warn('[🛡️ Ignoring false uncheck on unselected option]', { optionId });
+      return;
+    }
+  
     // 🛡️ Block rapid duplicate unselect toggle
     if (
       this.lastClickedOptionId === optionId &&
@@ -777,18 +815,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.lastClickedOptionId = optionId;
     this.lastClickTimestamp = now;
   
-    // 🛡️ Ignore rogue unchecked event
-    if (!optionBinding.option.selected && checked === false) {
-      console.warn('[🛡️ Ignoring false uncheck on unselected option]', { optionId });
-      return;
-    }
-  
-    // ✅ Apply selection and visuals
+    // ✅ Apply selection and visuals immediately
     optionBinding.option.highlight = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.selected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
+  
+    // ✅ Immediately flush DOM updates so Material picks it up
+    this.cdRef.detectChanges();
   
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
@@ -828,7 +863,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idx: index
     };
   
-    // ✅ Force directive repaint
+    // ✅ Force directive repaint (redundant after detectChanges, but safe)
     this.forceHighlightRefresh(optionId);
   
     // ✅ Enforce single-answer behavior if applicable
@@ -854,13 +889,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.emitOptionSelectedEvent(optionBinding, index, checked);
         this.finalizeOptionSelection(optionBinding, checked);
   
-        requestAnimationFrame(() => this.cdRef.detectChanges());
+        // (no need for extra requestAnimationFrame here now, detectChanges already forced earlier)
       } catch (error) {
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
   
-    // Set clickLocked only for single-answer after valid selection
+    // 🔒 Set clickLocked only for single-answer after valid selection
     if (this.type === 'single' && checked) {
       this.clickLocked = true;
     }
