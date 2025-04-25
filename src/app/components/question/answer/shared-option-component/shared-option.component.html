@@ -12,6 +12,7 @@
           [optionIndex]="optionIndex"
           [checked]="optionBinding.isSelected"
           (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
+          (click)="onOptionClickFallback(optionBinding, optionIndex)"
         >
           <ng-container
             *ngTemplateOutlet="optionContent; 
@@ -28,6 +29,7 @@
           [optionIndex]="optionIndex"
           [checked]="optionBinding.isSelected"
           (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
+          (click)="onOptionClickFallback(optionBinding, optionIndex)"
         >
           <ng-container
             *ngTemplateOutlet="optionContent; 
