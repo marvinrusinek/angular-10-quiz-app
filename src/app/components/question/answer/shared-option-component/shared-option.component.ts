@@ -392,6 +392,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateOptionAndUI(optionBinding, index, event);
   }
 
+  onOptionClickFallback(optionBinding: OptionBindings, index: number): void {
+    const optionId = optionBinding.option.optionId;
+    const selected = optionBinding.option.selected;
+  
+    if (!selected) {
+      console.warn('[🩹 Fallback click triggered - forcing update]', { optionId });
+  
+      const fakeEvent = {
+        checked: true,
+        value: true
+      } as MatCheckboxChange | MatRadioChange;
+  
+      this.updateOptionAndUI(optionBinding, index, fakeEvent);
+    }
+  }
+
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
