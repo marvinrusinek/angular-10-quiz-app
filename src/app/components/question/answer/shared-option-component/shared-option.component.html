@@ -21,11 +21,12 @@
       </mat-checkbox>
 
       <!-- Handle single choice options -->
-      <mat-radio-group [formControl]="form.get('selectedOptionId')">
+      <mat-radio-group *ngIf="form" [formControl]="form.get('selectedOptionId')">
         <mat-radio-button
           *ngSwitchCase="'single'"
           #radio
           appHighlightOption
+          [value]="optionBinding.option.optionId"
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
           [checked]="optionBinding.option.selected"
