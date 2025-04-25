@@ -605,7 +605,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return option.showIcon === true;
   }
 
-  updateOptionAndUI(
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -619,9 +619,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
 
-    // Only block for single-answer questions
+    // 🛡️ Only block extra events AFTER selection is processed
     if (this.type === 'single' && this.clickLocked) {
-      console.warn('[⛔ Click already locked for single-answer]', optionId);
+      console.warn('[⛔ Already locked after selection]', optionId);
       return;
     }
   
@@ -725,6 +725,122 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
+  } */
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const optionId = optionBinding.option.optionId;
+    if (optionId == null) {
+      console.error('[❌ optionId is undefined on click]', optionBinding.option);
+      return;
+    }
+  
+    const now = Date.now();
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+  
+    // 🛡️ Block rapid duplicate unselect toggle
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Duplicate false event]', optionId);
+      return;
+    }
+  
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
+  
+    // 🛡️ Ignore rogue unchecked event
+    if (!optionBinding.option.selected && checked === false) {
+      console.warn('[🛡️ Ignoring false uncheck on unselected option]', { optionId });
+      return;
+    }
+  
+    // Apply selection and visuals
+    optionBinding.option.highlight = checked;
+    optionBinding.isSelected = checked;
+    optionBinding.option.selected = checked;
+    optionBinding.option.showIcon = checked;
+    this.selectedOptionMap.set(optionId, checked);
+  
+    this.freezeOptionBindings ??= true;
+    this.hasUserClicked = true;
+  
+    // Track selection history and feedback anchor
+    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
+  
+    if (!isAlreadyVisited) {
+      this.selectedOptionHistory.push(optionId);
+      this.lastFeedbackOptionId = optionId; // only move feedback anchor if this is new
+      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
+    } else {
+      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
+    }
+  
+    // Clear all feedback visibility
+    Object.keys(this.showFeedbackForOption).forEach((key) => {
+      this.showFeedbackForOption[+key] = false;
+    });
+  
+    // Show feedback for current anchor only
+    if (this.lastFeedbackOptionId !== -1) {
+      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+      this.updateFeedbackState(this.lastFeedbackOptionId);
+    }
+  
+    this.showFeedback = true;
+  
+    // Set feedback config for current option
+    this.feedbackConfigs[optionId] = {
+      feedback: optionBinding.option.feedback,
+      showFeedback: true,
+      options: this.optionsToDisplay,
+      question: this.currentQuestion,
+      selectedOption: optionBinding.option,
+      correctMessage: '',
+      idx: index
+    };
+  
+    // Trigger directive repaint for highlight + feedback
+    this.forceHighlightRefresh(optionId);
+  
+    // Enforce single-answer behavior if applicable
+    if (this.type === 'single') {
+      this.enforceSingleSelection(optionBinding);
+    }
+  
+    if (!this.isValidOptionBinding(optionBinding)) return;
+  
+    // Final state updates inside Angular zone
+    this.ngZone.run(() => {
+      try {
+        const questionIndex = this.quizService.currentQuestionIndex;
+  
+        this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
+        this.selectedOptionService.setOptionSelected(true);
+  
+        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
+  
+        this.updateOptionActiveStates(optionBinding);
+        this.applyOptionAttributes(optionBinding, event);
+  
+        this.emitOptionSelectedEvent(optionBinding, index, checked);
+        this.finalizeOptionSelection(optionBinding, checked);
+  
+        requestAnimationFrame(() => this.cdRef.detectChanges());
+      } catch (error) {
+        console.error('[❌ updateOptionAndUI error]', error);
+      }
+    });
+  
+    // Now lock further clicks, but ONLY after successful processing
+    if (this.type === 'single' && checked) {
+      this.clickLocked = true;
+    }
   }
   
   private enforceSingleSelection(selectedBinding: OptionBindings): void {
