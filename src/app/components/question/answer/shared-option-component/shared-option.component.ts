@@ -1,5 +1,4 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
@@ -86,10 +85,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
-  private clickLocked = false;
-  private optionClickedOnce = false;
-  form: FormGroup;
-  selectedRadioOptionId: number | null = null;
 
   optionTextStyle = { color: 'black' };
 
@@ -99,23 +94,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone,
-    private fb: FormBuilder
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
     this.initializeOptionBindings();
     this.initializeFromConfig();
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
-
-    if (this.optionsToDisplay?.length) {
-      console.log('[🧩 OptionBindings loaded via ngOnInit]');
-      this.generateOptionBindings();
-    } else {
-      console.warn('[⚠️ No options available on ngOnInit]');
-    }
 
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
@@ -179,6 +165,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngAfterViewInit(): void {
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
+      this.generateOptionBindings();
     }
   
     this.viewInitialized = true;
@@ -361,88 +348,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       };
     });
     this.updateHighlighting();
+    
+    setTimeout(() => {
+      this.cdRef.detectChanges(); // ensure the DOM updates
+    }, 0);    
+
+    console.warn('[🧨 optionBindings REASSIGNED]', {
+      stackTrace: new Error().stack
+    });
   }
 
-  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    const checked = event.value; // ✅ MatRadioChange uses .value
-  
-    if (this.optionClickedOnce && !checked) {
-      console.warn('[🛡️ Ignoring duplicate uncheck event]');
-      return;
-    }
-  
-    if (checked) {
-      this.optionClickedOnce = true;
-    }
-  
-    console.log('[⚡ change fired]', {
-      optionBinding,
-      event,
-      checked: event.value
-    });
-    
-    requestAnimationFrame(() => {
-      if (optionBinding.isSelected === true) {
-        console.warn('[⚠️ Skipping redundant radio event]');
-        return;
-      }
-  
-      this.updateOptionAndUI(optionBinding, index, {
-        checked: true,         // MatRadioChange doesn't have checked, so we simulate it
-        source: event.source,
-        value: event.value
-      });
-    });
-  } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    const checked = event.value;
-    const selectedOptionId = optionBinding.option.optionId;
-  
-    if (this.optionClickedOnce && !checked) {
-      console.warn('[🛡️ Ignoring duplicate uncheck event]');
-      return;
-    }
-  
-    if (checked) {
-      this.optionClickedOnce = true;
-    }
-  
-    console.log('[⚡ change fired]', {
-      optionBinding,
-      event,
-      checked: event.value
-    });
-  
     requestAnimationFrame(() => {
       if (optionBinding.isSelected === true) {
         console.warn('[⚠️ Skipping redundant radio event]');
         return;
       }
-
-      // Update the FormControl manually
-      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
   
       this.updateOptionAndUI(optionBinding, index, {
         checked: true,
         source: event.source,
         value: event.value
-      } as unknown as MatCheckboxChange); // correct cast to satisfy the method
+      });
     });
   }
   
-  
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
-    const checked = event.checked; // ✅ MatCheckboxChange uses .checked
-  
-    if (this.optionClickedOnce && !checked) {
-      console.warn('[🛡️ Ignoring duplicate uncheck event]');
-      return;
-    }
-  
-    if (checked) {
-      this.optionClickedOnce = true;
-    }
-    
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -453,10 +384,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   onOptionClickFallback(optionBinding: OptionBindings, index: number): void {
-    console.warn('[🛠 fallback click fired]', {
-      optionBinding
-    });
-    
     const optionId = optionBinding.option.optionId;
     const selected = optionBinding.option.selected;
   
@@ -472,6 +399,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.updateOptionAndUI(optionBinding, index, fakeEvent);
     }
   }
+
+  selectedRadioOptionId: number | null = null;
 
   onMatRadioGroupChanged(event: MatRadioChange): void {
     const selectedOptionId = event.value;
@@ -604,6 +533,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateHighlighting();
+    this.cdRef.detectChanges();
   }
 
   getOptionContext(optionBinding: OptionBindings, idx: number) {
@@ -680,22 +610,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-
-    // 🛡️ Only block extra events AFTER selection is processed
-    if (this.type === 'single' && this.clickLocked) {
-      console.warn('[⛔ Already locked after selection]', optionId);
-      return;
-    }
   
-    // If the event is "unchecked" but the option is not selected, skip it
-    if (!optionBinding.option.selected && checked === false) {
-      console.warn('[🛡️ Ignoring false uncheck on unselected option]', { optionId });
+    // Block re-click on already selected option
+    if (optionBinding.option.selected && checked === true) {
+      console.warn('[🔒 Already selected — skipping update]', optionId);
       return;
-    }
-
-    // After valid first selection for SINGLE ANSWER, lock further clicks
-    if (this.type === 'single' && checked) {
-      this.clickLocked = true;
     }
   
     // Block rapid duplicate unselect toggle
@@ -788,131 +707,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
-  /* updateOptionAndUI(
-    optionBinding: OptionBindings,
-    index: number,
-    event: MatCheckboxChange | MatRadioChange
-  ): void {
-    const optionId = optionBinding.option.optionId;
-    if (optionId == null) {
-      console.error('[❌ optionId is undefined on click]', optionBinding.option);
-      return;
-    }
-    console.log('[🔥 Selected after click]', {
-      optionId,
-      highlight: optionBinding.option.highlight,
-      isSelected: optionBinding.isSelected,
-      selected: optionBinding.option.selected
-    });
-  
-    const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-  
-    // 🛡️ Ignore rogue unchecked event
-    if (!optionBinding.option.selected && checked === false) {
-      console.warn('[🛡️ Ignoring false uncheck on unselected option]', { optionId });
-      return;
-    }
-  
-    // 🛡️ Block rapid duplicate unselect toggle
-    if (
-      this.lastClickedOptionId === optionId &&
-      this.lastClickTimestamp &&
-      now - this.lastClickTimestamp < 150 &&
-      checked === false
-    ) {
-      console.warn('[⛔ Duplicate false event]', optionId);
-      return;
-    }
-  
-    this.lastClickedOptionId = optionId;
-    this.lastClickTimestamp = now;
-  
-    // ✅ Apply selection and visuals immediately
-    optionBinding.option.highlight = checked;
-    optionBinding.isSelected = checked;
-    optionBinding.option.selected = checked;
-    optionBinding.option.showIcon = checked;
-    this.selectedOptionMap.set(optionId, checked);
-  
-    // ✅ Immediately flush DOM updates so Material picks it up
-    this.cdRef.detectChanges();
-  
-    this.freezeOptionBindings ??= true;
-    this.hasUserClicked = true;
-  
-    // ✅ Track selection history and feedback anchor
-    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
-  
-    if (!isAlreadyVisited) {
-      this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId;
-      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
-    } else {
-      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
-    }
-  
-    // ✅ Clear all feedback visibility
-    Object.keys(this.showFeedbackForOption).forEach((key) => {
-      this.showFeedbackForOption[+key] = false;
-    });
-  
-    // ✅ Show feedback for current anchor only
-    if (this.lastFeedbackOptionId !== -1) {
-      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
-      this.updateFeedbackState(this.lastFeedbackOptionId);
-    }
-  
-    this.showFeedback = true;
-  
-    // ✅ Set feedback config for current option
-    this.feedbackConfigs[optionId] = {
-      feedback: optionBinding.option.feedback,
-      showFeedback: true,
-      options: this.optionsToDisplay,
-      question: this.currentQuestion,
-      selectedOption: optionBinding.option,
-      correctMessage: '',
-      idx: index
-    };
-  
-    // ✅ Force directive repaint (redundant after detectChanges, but safe)
-    this.forceHighlightRefresh(optionId);
-  
-    // ✅ Enforce single-answer behavior if applicable
-    if (this.type === 'single') {
-      this.enforceSingleSelection(optionBinding);
-    }
-  
-    if (!this.isValidOptionBinding(optionBinding)) return;
-  
-    // ✅ Final state updates inside Angular zone
-    this.ngZone.run(() => {
-      try {
-        const questionIndex = this.quizService.currentQuestionIndex;
-  
-        this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-        this.selectedOptionService.setOptionSelected(true);
-  
-        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-  
-        this.updateOptionActiveStates(optionBinding);
-        this.applyOptionAttributes(optionBinding, event);
-  
-        this.emitOptionSelectedEvent(optionBinding, index, checked);
-        this.finalizeOptionSelection(optionBinding, checked);
-  
-        // (no need for extra requestAnimationFrame here now, detectChanges already forced earlier)
-      } catch (error) {
-        console.error('[❌ updateOptionAndUI error]', error);
-      }
-    });
-  
-    // 🔒 Set clickLocked only for single-answer after valid selection
-    if (this.type === 'single' && checked) {
-      this.clickLocked = true;
-    }
-  } */
   
   private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
@@ -1347,6 +1141,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.showFeedback = true;
     this.updateHighlighting();
+    this.cdRef.detectChanges();
   
     // Reset the backward navigation flag
     this.isNavigatingBackwards = false;
@@ -1455,11 +1250,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      // Guarantee that properties exist
-      option.selected = option.selected ?? false;
-      option.highlight = option.highlight ?? false;
-      option.showIcon = option.showIcon ?? false;
-
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
 
@@ -1470,7 +1260,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
       return this.getOptionBindings(option, idx, isSelected);
     });
-    console.log('[🧩 OptionBindings loaded]', this.optionBindings);
     this.updateHighlighting();
   
     // Mark view ready after DOM settles
@@ -1515,12 +1304,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     return feedbackProps;
   }  
-
-  initializeForm(): void {
-    this.form = this.fb.group({
-      selectedOptionId: [null] // for single-answer questions
-    });
-  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
@@ -1578,6 +1361,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
         this.updateHighlighting();
 
+        setTimeout(() => {
+          this.cdRef.detectChanges(); // ensure the DOM updates
+        }, 0);        
+
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
         });        
@@ -1585,6 +1372,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         setTimeout(() => {
           this.ngZone.run(() => {
             this.optionsReady = true;
+            console.log('[🟢 optionsReady = true]');
           });
         }, 100); // delay rendering to avoid event fire during init
 
