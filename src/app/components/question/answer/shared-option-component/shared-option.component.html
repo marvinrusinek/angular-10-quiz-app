@@ -20,11 +20,6 @@
         </mat-checkbox>
 
         <!-- Handle single choice options -->
-        <mat-radio-group
-          *ngSwitchCase="'single'"
-          [(ngModel)]="selectedRadioOptionId"
-          (change)="onMatRadioGroupChanged($event)"
-        >
         <mat-radio-button
           *ngSwitchCase="'single'"
           #radio
@@ -39,7 +34,7 @@
             *ngTemplateOutlet="optionContent; 
             context: getOptionContext(optionBinding, optionIndex)"
           ></ng-container>
-        </mat-radio-button></mat-radio-group>
+        </mat-radio-button>
       </ng-container>
 
       <!-- Feedback display -->
