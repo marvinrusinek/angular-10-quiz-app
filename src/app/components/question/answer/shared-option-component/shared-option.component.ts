@@ -105,6 +105,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
+    if (this.optionsToDisplay?.length) {
+      console.log('[🧩 OptionBindings loaded via ngOnInit]');
+      this.generateOptionBindings();
+    } else {
+      console.warn('[⚠️ No options available on ngOnInit]');
+    }
+
     if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
     }
@@ -1420,6 +1427,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private generateOptionBindings(): void {
+    console.log("MY GOB TEST");
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
