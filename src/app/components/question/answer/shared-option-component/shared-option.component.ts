@@ -174,7 +174,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngAfterViewInit(): void {
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
-      this.generateOptionBindings();
     }
   
     this.viewInitialized = true;
@@ -1427,7 +1426,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private generateOptionBindings(): void {
-    console.log("MY GOB TEST");
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
@@ -1450,6 +1448,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      // Guarantee that properties exist
+      option.selected = option.selected ?? false;
+      option.highlight = option.highlight ?? false;
+      option.showIcon = option.showIcon ?? false;
+
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
 
