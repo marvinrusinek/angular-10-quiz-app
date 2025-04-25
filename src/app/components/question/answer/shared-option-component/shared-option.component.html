@@ -21,8 +21,9 @@
         </mat-checkbox>
 
         <!-- Handle single choice options -->
+        <mat-radio-group *ngSwitchCase="'single'">
         <mat-radio-button
-          *ngSwitchCase="'single'"
+          
           #radio
           appHighlightOption
           [optionBinding]="optionBinding"
@@ -35,7 +36,7 @@
             *ngTemplateOutlet="optionContent; 
             context: getOptionContext(optionBinding, optionIndex)"
           ></ng-container>
-        </mat-radio-button>
+        </mat-radio-button></mat-radio-group>
       </ng-container>
 
       <!-- Feedback display -->
