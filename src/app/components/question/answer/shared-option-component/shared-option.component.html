@@ -22,21 +22,21 @@
 
       <!-- Handle single choice options -->
       <mat-radio-group *ngSwitchCase="'single'">
-      <mat-radio-button
-        
-        #radio
-        appHighlightOption
-        [optionBinding]="optionBinding"
-        [optionIndex]="optionIndex"
-        [checked]="optionBinding.option.selected"
-        (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
-        (click)="onOptionClickFallback(optionBinding, optionIndex)"
-      >
+        <mat-radio-button
+          #radio
+          appHighlightOption
+          [optionBinding]="optionBinding"
+          [optionIndex]="optionIndex"
+          [checked]="optionBinding.option.selected"
+          (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
+          (click)="onOptionClickFallback(optionBinding, optionIndex)"
+        >
         <ng-container
           *ngTemplateOutlet="optionContent; 
           context: getOptionContext(optionBinding, optionIndex)"
         ></ng-container>
-      </mat-radio-button></mat-radio-group>
+      </mat-radio-button>
+    </mat-radio-group>
     </ng-container>
 
     <!-- Feedback display -->
@@ -65,5 +65,5 @@
 
 <!-- Fallback when no options are available -->
 <ng-template #noOptions>
-<p>No options available.</p>
+  <p>No options available.</p>
 </ng-template>
