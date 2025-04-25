@@ -89,6 +89,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private clickLocked = false;
   private optionClickedOnce = false;
   form: FormGroup;
+  selectedRadioOptionId: number | null = null;
 
   optionTextStyle = { color: 'black' };
 
