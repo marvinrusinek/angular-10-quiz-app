@@ -351,6 +351,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    console.log('[⚡ change fired]', {
+      optionBinding,
+      event,
+      checked: (event as MatRadioChange) ?? (event as MatRadioChange).value
+    });
+    
     requestAnimationFrame(() => {
       if (optionBinding.isSelected === true) {
         console.warn('[⚠️ Skipping redundant radio event]');
@@ -366,6 +372,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+    console.log('[⚡ change fired]', {
+      optionBinding,
+      event,
+      checked: (event as MatCheckboxChange).checked ?? (event as MatCheckboxChange)
+    });
+    
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -376,6 +388,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   onOptionClickFallback(optionBinding: OptionBindings, index: number): void {
+    console.warn('[🛠 fallback click fired]', {
+      optionBinding
+    });
+    
     const optionId = optionBinding.option.optionId;
     const selected = optionBinding.option.selected;
   
@@ -602,9 +618,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
-    // Block re-click on already selected option
-    if (optionBinding.option.selected && checked === true) {
-      console.warn('[🔒 Already selected — skipping update]', optionId);
+    // Block unchecking an unselected radio button
+    if (!optionBinding.option.selected && checked === false) {
+      console.warn('[🛡️ Blocking false event on unselected option]', optionId);
       return;
     }
   
