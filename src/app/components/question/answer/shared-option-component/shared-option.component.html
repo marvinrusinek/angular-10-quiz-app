@@ -10,6 +10,7 @@
         appHighlightOption
         [optionBinding]="optionBinding"
         [optionIndex]="optionIndex"
+        [value]="optionBinding.option.optionId"
         [checked]="optionBinding.option.selected"
         (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
         (click)="onOptionClickFallback(optionBinding, optionIndex)"
@@ -26,9 +27,9 @@
           *ngSwitchCase="'single'"
           #radio
           appHighlightOption
-          [value]="optionBinding.option.optionId"
           [optionBinding]="optionBinding"
           [optionIndex]="optionIndex"
+          [value]="optionBinding.option.optionId"
           [checked]="optionBinding.option.selected"
           (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
           (click)="onOptionClickFallback(optionBinding, optionIndex)"
