@@ -401,8 +401,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       const fakeEvent = {
         checked: true,
-        value: true
-      } as MatCheckboxChange | MatRadioChange;
+        value: true,
+        source: null as any
+      } as unknown as MatCheckboxChange | MatRadioChange;
   
       this.updateOptionAndUI(optionBinding, index, fakeEvent);
     }
