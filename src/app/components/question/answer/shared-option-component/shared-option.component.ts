@@ -63,21 +63,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   feedbackConfigs: FeedbackProps[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
-  isSubmitted = false;
   iconVisibility: boolean[] = []; // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
-  lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
   lastFeedbackOptionId = -1;
-  secondToLastFeedbackOptionId = -1;
   highlightedOptionIds: Set<number> = new Set();
-  lastSelectedOptionId: number = -1;
   lastFeedbackAnchorOptionId: number = -1;
-  visitedOptionIds: Set<number> = new Set();
-  lastSelectionId: number = -1;
-  secondLastSelectionId: number = -1;
-  hasUserClickedOnce = false;
-  firstClickOccurred = false;
 
   isNavigatingBackwards = false;
   isOptionSelected = false;
@@ -1157,7 +1148,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private resetState(): void {
-    this.isSubmitted = false;
     this.showFeedback = false;
     this.selectedOption = null;
     this.selectedOptionIndex = null;
@@ -1192,7 +1182,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.selectedOptionMap.clear();
     this.showFeedbackForOption = {};
     this.lastFeedbackOptionId = -1;
-    this.lastSelectedOptionId = -1;
     this.selectedOptionHistory = [];
     this.feedbackConfigs = [];
     this.iconVisibility = [];
