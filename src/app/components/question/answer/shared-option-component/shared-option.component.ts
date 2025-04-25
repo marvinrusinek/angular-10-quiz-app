@@ -667,7 +667,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return option.showIcon === true;
   }
 
-  /* updateOptionAndUI(
+  updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -787,8 +787,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
-  } */
-  updateOptionAndUI(
+  }
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -912,7 +912,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (this.type === 'single' && checked) {
       this.clickLocked = true;
     }
-  }
+  } */
   
   private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
