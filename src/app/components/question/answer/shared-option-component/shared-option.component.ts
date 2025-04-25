@@ -396,6 +396,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     const checked = event.value;
+    const selectedOptionId = optionBinding.option.optionId;
   
     if (this.optionClickedOnce && !checked) {
       console.warn('[🛡️ Ignoring duplicate uncheck event]');
@@ -417,12 +418,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.warn('[⚠️ Skipping redundant radio event]');
         return;
       }
+
+      // Update the FormControl manually
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
   
       this.updateOptionAndUI(optionBinding, index, {
         checked: true,
         source: event.source,
         value: event.value
-      } as unknown as MatCheckboxChange); // 👈 Correct cast to satisfy the method
+      } as unknown as MatCheckboxChange); // correct cast to satisfy the method
     });
   }
   
