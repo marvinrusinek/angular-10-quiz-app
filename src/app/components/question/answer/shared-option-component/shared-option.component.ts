@@ -86,6 +86,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
   private clickLocked = false;
+  private optionClickedOnce = false;
 
   optionTextStyle = { color: 'black' };
 
@@ -352,10 +353,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const checked = event.value; // ✅ MatRadioChange uses .value
+  
+    if (this.optionClickedOnce && !checked) {
+      console.warn('[🛡️ Ignoring duplicate uncheck event]');
+      return;
+    }
+  
+    if (checked) {
+      this.optionClickedOnce = true;
+    }
+  
     console.log('[⚡ change fired]', {
       optionBinding,
       event,
-      checked: (event as MatRadioChange) ?? (event as MatRadioChange).value
+      checked: event.value
     });
     
     requestAnimationFrame(() => {
@@ -365,7 +377,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
   
       this.updateOptionAndUI(optionBinding, index, {
-        checked: true,
+        checked: true,         // MatRadioChange doesn't have checked, so we simulate it
         source: event.source,
         value: event.value
       });
@@ -373,12 +385,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+    const checked = event.checked; // ✅ MatCheckboxChange uses .checked
+  
+    if (this.optionClickedOnce && !checked) {
+      console.warn('[🛡️ Ignoring duplicate uncheck event]');
+      return;
+    }
+  
+    if (checked) {
+      this.optionClickedOnce = true;
+    }
+  
     console.log('[⚡ change fired]', {
       optionBinding,
       event,
-      checked: (event as MatCheckboxChange).checked ?? (event as MatCheckboxChange)
+      checked: event.checked
     });
-    
+  
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
