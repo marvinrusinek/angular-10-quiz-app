@@ -348,14 +348,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       };
     });
     this.updateHighlighting();
-    
-    setTimeout(() => {
-      this.cdRef.detectChanges(); // ensure the DOM updates
-    }, 0);    
-
-    console.warn('[🧨 optionBindings REASSIGNED]', {
-      stackTrace: new Error().stack
-    });
   }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
@@ -533,7 +525,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateHighlighting();
-    this.cdRef.detectChanges();
   }
 
   getOptionContext(optionBinding: OptionBindings, idx: number) {
@@ -1141,7 +1132,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.showFeedback = true;
     this.updateHighlighting();
-    this.cdRef.detectChanges();
   
     // Reset the backward navigation flag
     this.isNavigatingBackwards = false;
@@ -1361,10 +1351,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         
         this.updateHighlighting();
 
-        setTimeout(() => {
-          this.cdRef.detectChanges(); // ensure the DOM updates
-        }, 0);        
-
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
         });        
@@ -1372,7 +1358,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         setTimeout(() => {
           this.ngZone.run(() => {
             this.optionsReady = true;
-            console.log('[🟢 optionsReady = true]');
           });
         }, 100); // delay rendering to avoid event fire during init
 
