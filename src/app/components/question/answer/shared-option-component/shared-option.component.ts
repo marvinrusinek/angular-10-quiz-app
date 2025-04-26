@@ -1697,28 +1697,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }  
 
   private initializeForm(): void {
-    this.form = new FormGroup({
-      selectedOptionId: new FormControl(null)
+    this.form = this.fb.group({
+      selectedOptionId: [null]
     });
   
-    // Subscribe to listen to option changes
-    this.form.get('selectedOptionId')?.valueChanges.subscribe(selectedOptionId => {
-      console.log('[🟢 FormControl valueChanges]', { selectedOptionId, timestamp: performance.now() });
+    this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
+      console.log('[🛎️ FormControl valueChanged]', selectedOptionId);
   
-      this.optionBindings.forEach(binding => {
+      this.optionBindings?.forEach(binding => {
         const isSelected = binding.option.optionId === selectedOptionId;
+  
         binding.isSelected = isSelected;
         binding.option.selected = isSelected;
         binding.option.highlight = isSelected;
         binding.option.showIcon = isSelected;
   
-        // Update directive if available
-        (binding as any).directiveInstance?.updateHighlight();
+        // 🧩 Refresh highlight immediately
+        binding.directiveInstance?.updateHighlight();
       });
   
       this.cdRef.detectChanges();
     });
-  }  
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
