@@ -366,19 +366,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    requestAnimationFrame(() => {
-      if (optionBinding.isSelected === true) {
-        console.warn('[⚠️ Skipping redundant radio event]');
-        return;
-      }
+    console.log('[⚡ MatRadioChange triggered]', event);
   
-      this.updateOptionAndUI(optionBinding, index, {
-        checked: true,
-        source: event.source,
-        value: event.value
-      });
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (optionBinding.isSelected) {
+          console.warn('[⚠️ Skipping redundant radio event]');
+          return;
+        }
+  
+        this.updateOptionAndUI(optionBinding, index, {
+          checked: true,
+          source: event.source,
+          value: event.value
+        });
+      }, 0);
     });
-  }
+  }  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
