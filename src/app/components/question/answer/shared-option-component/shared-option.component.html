@@ -1,54 +1,52 @@
 <ng-container *ngIf="optionBindings?.length > 0; else noOptions">
-<div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
-  <label class="options">
-    <ng-container [ngSwitch]="optionBinding.type">
+<ng-container [ngSwitch]="optionBindings[0]?.type">
 
-      <!-- Handle multiple choice options -->
-      <mat-checkbox
-        *ngSwitchCase="'multiple'"
-        #checkbox
-        appHighlightOption
-        [optionBinding]="optionBinding"
-        [optionIndex]="optionIndex"
-        [value]="optionBinding.option.optionId"
-        [checked]="optionBinding.option.selected"
-        (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
-        (click)="onOptionClickFallback(optionBinding, optionIndex)"
+  <!-- Single-answer question -->
+  <ng-container *ngSwitchCase="'single'">
+    <form *ngIf="form && optionBindings?.length > 0" [formGroup]="form">
+      <mat-radio-group
+        [formControl]="form.get('selectedOptionId')"
+        name="selectedOptionId"
       >
-        <ng-container
-          *ngTemplateOutlet="optionContent; 
-          context: getOptionContext(optionBinding, optionIndex)"
-        ></ng-container>
-      </mat-checkbox>
+        <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
+          <label class="options">
+            <mat-radio-button
+              [value]="optionBinding.option.optionId"
+            >
+              <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
+            </mat-radio-button>
 
-      <!-- Handle single choice options -->
-      <mat-radio-group>
-        <mat-radio-button
-          *ngSwitchCase="'single'"
-          #radio
-          appHighlightOption
-          [optionBinding]="optionBinding"
-          [optionIndex]="optionIndex"
-          [value]="optionBinding.option.optionId"
+            <codelab-quiz-feedback
+              *ngIf="shouldShowFeedback(optionIndex)"
+              [feedbackConfig]="feedbackConfigs[optionIndex]"
+            ></codelab-quiz-feedback>
+          </label>
+        </div>
+      </mat-radio-group>
+    </form>
+  </ng-container>
+
+  <!-- Multiple-answer question -->
+  <ng-container *ngSwitchCase="'multiple'">
+    <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
+      <label class="options">
+        <mat-checkbox
           [checked]="optionBinding.option.selected"
-          (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
+          (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
           (click)="onOptionClickFallback(optionBinding, optionIndex)"
         >
-        <ng-container
-          *ngTemplateOutlet="optionContent; 
-          context: getOptionContext(optionBinding, optionIndex)"
-        ></ng-container>
-      </mat-radio-button>
-    </mat-radio-group>
-    </ng-container>
+          <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
+        </mat-checkbox>
 
-    <!-- Feedback display -->
-    <codelab-quiz-feedback
-      *ngIf="shouldShowFeedback(optionIndex)"
-      [feedbackConfig]="feedbackConfigs[optionIndex]"
-    ></codelab-quiz-feedback>
-  </label>
-</div>
+        <codelab-quiz-feedback
+          *ngIf="shouldShowFeedback(optionIndex)"
+          [feedbackConfig]="feedbackConfigs[optionIndex]"
+        ></codelab-quiz-feedback>
+      </label>
+    </div>
+  </ng-container>
+
+</ng-container>
 </ng-container>
 
 <!-- Template for displaying the option content -->
@@ -64,9 +62,4 @@
     {{ getOptionIcon(option) }}
   </mat-icon>
 </div>
-</ng-template>
-
-<!-- Fallback when no options are available -->
-<ng-template #noOptions>
-  <p>No options available.</p>
 </ng-template>

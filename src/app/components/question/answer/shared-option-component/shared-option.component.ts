@@ -1261,6 +1261,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return this.getOptionBindings(option, idx, isSelected);
     });
     this.updateHighlighting();
+
+    // Force detectChanges immediately
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      console.log('[🛠 detectChanges forced after generateOptionBindings]');
+    }, 0);
   
     // Mark view ready after DOM settles
     setTimeout(() => {
