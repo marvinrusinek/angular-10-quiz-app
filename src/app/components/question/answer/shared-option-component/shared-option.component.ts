@@ -377,22 +377,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         source: event.source,
         value: event.value
       });
-
-      // After UI update, trigger optionClicked logic
-      setTimeout(() => {
-        if (optionBinding && optionBinding.option) {
-          const selectedOption: SelectedOption = {
-            ...optionBinding.option,
-            questionIndex: this.quizService.currentQuestionIndex
-          };
-      
-          this.optionSelected.emit({
-            option: selectedOption,
-            index: index,
-            checked: true
-          });
-        }
-      }, 0);
     });
   }
   
