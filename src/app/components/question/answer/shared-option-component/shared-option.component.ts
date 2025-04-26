@@ -1262,6 +1262,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
     this.updateHighlighting();
 
+    // After updateHighlighting(), set initial selected value
+    const firstSelectedOption = this.optionBindings.find(binding => binding.isSelected);
+    if (firstSelectedOption) {
+      console.log('[🧠 Setting initial selectedOptionId]', firstSelectedOption.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
+    }
+
     // Force detectChanges immediately
     setTimeout(() => {
       this.cdRef.detectChanges();
