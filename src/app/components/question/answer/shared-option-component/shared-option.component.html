@@ -22,7 +22,7 @@
       </mat-checkbox>
 
       <!-- Handle single choice options -->
-      <!--<mat-radio-group *ngIf="form" [formControl]="form.get('selectedOptionId')">-->
+      <mat-radio-group>
         <mat-radio-button
           *ngSwitchCase="'single'"
           #radio
@@ -39,7 +39,7 @@
           context: getOptionContext(optionBinding, optionIndex)"
         ></ng-container>
       </mat-radio-button>
-    <!--</mat-radio-group>-->
+    </mat-radio-group>
     </ng-container>
 
     <!-- Feedback display -->
