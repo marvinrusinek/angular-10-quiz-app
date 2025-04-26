@@ -435,6 +435,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   } */
   onMatRadioChange(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    console.log('[🔵 onMatRadioChanged fired]', { event, value: event.value, time: performance.now() });
+
     console.log('[🔄 MatRadioChange fired]', {
       optionBinding,
       selectedValue: event.value
