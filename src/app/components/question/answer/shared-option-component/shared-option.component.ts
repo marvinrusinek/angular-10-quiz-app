@@ -483,30 +483,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
-    const checked = event.checked;
-  
-    console.log('[🔵 onMatCheckboxChanged fired]', {
-      checked,
-      optionBinding,
-      index
-    });
-  
-    // Update selection state manually for multiple-answer questions
-    optionBinding.isSelected = checked;
-    optionBinding.option.selected = checked;
-    optionBinding.option.highlight = checked;
-    optionBinding.option.showIcon = checked;
-  
-    // Refresh the highlight immediately
-    (optionBinding as any).directiveInstance?.updateHighlight();
-  
-    // Update the global map if needed
-    const optionId = optionBinding.option.optionId;
-    if (optionId !== undefined) {
-      this.selectedOptionMap.set(optionId, checked);
+    // Prevent double change bug
+    if (optionBinding.isSelected === event.checked) {
+      console.warn('[⚠️ Skipping redundant checkbox event]');
+      return;
     }
   
-    this.cdRef.detectChanges();
+    this.updateOptionAndUI(optionBinding, index, event);
   }
 
   onOptionClickFallback(optionBinding: OptionBindings, index: number): void {
