@@ -434,7 +434,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     console.log('[🔵 onMatRadioChanged fired]', { event, value: event.value, time: performance.now() });
 
     console.log('[🔄 MatRadioChange fired]', {
@@ -462,6 +462,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: true
     });
   
+    this.cdRef.detectChanges();
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const selectedOptionId = event.value;
+    const option = optionBinding.option;
+  
+    console.log('[🟢 Radio Changed]', {
+      selectedOptionId,
+      timestamp: performance.now()
+    });
+  
+    if (!option || option.optionId !== selectedOptionId) {
+      console.warn('[⚠️ Mismatch detected] Event value does not match clicked option.');
+    }
+  
+    // Update manual states
+    this.optionBindings.forEach(binding => {
+      const isSelected = binding.option.optionId === selectedOptionId;
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+      binding.option.highlight = isSelected;
+      binding.option.showIcon = isSelected;
+  
+      (binding as any).directiveInstance?.updateHighlight();
+    });
+  
+    // Update FormControl manually to ensure form is in sync (optional safety)
+    this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: false });
+  
+    // Trigger UI refresh
     this.cdRef.detectChanges();
   }
   
