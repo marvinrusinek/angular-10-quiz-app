@@ -101,12 +101,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
+    this.initializeForm();
     this.initializeOptionBindings();
     this.initializeFromConfig();
-
-    this.form = this.fb.group({
-      selectedOptionId: [null] // for single-answer questions
-    });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
@@ -1474,15 +1471,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
   } */
   private generateOptionBindings(): void {
-    if (this.freezeOptionBindings) {
-      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
-      return;
-    }
-  
-    if (!this.optionsToDisplay?.length) {
-      console.warn('[⚠️ No options to display]');
-      return;
-    }
+    if (this.freezeOptionBindings) return;
+    if (!this.optionsToDisplay?.length) return;
   
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [
@@ -1504,13 +1494,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.updateHighlighting();
   
-    // 🚀 Force detectChanges immediately
+    const firstSelected = this.optionBindings.find(b => b.isSelected);
+    if (firstSelected) {
+      this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId);
+    }
+  
     this.cdRef.detectChanges();
   
-    // 🚀 THEN mark viewReady AFTER detectChanges
+    // Mark everything ready
     this.ngZone.run(() => {
       this.viewReady = true;
-      console.log('[✅ viewReady set true AFTER bindings ready]');
+      console.log('[✅ viewReady set true AFTER form + optionBindings ready]');
     });
   }
 
@@ -1546,6 +1540,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     return feedbackProps;
   }  
+
+  private initializeForm(): void {
+    this.form = new FormGroup({
+      selectedOptionId: new FormControl(null)
+    });
+  
+    this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
+      console.log('[🛎️ Form value changed]', selectedOptionId);
+  
+      this.optionBindings.forEach(binding => {
+        const isSelected = binding.option.optionId === selectedOptionId;
+        binding.isSelected = isSelected;
+        binding.option.selected = isSelected;
+        binding.option.highlight = isSelected;
+        binding.option.showIcon = isSelected;
+  
+        binding.directiveInstance?.updateHighlight();
+      });
+  
+      this.cdRef.detectChanges();
+    });
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
