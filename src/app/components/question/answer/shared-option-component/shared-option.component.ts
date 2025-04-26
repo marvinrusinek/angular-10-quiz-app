@@ -409,7 +409,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }, 0);
     });
   } */
-  onMatRadioChange(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChange(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     console.log('[🔄 MatRadioChange fired]', {
       optionBinding,
       event
@@ -429,6 +429,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     // Emit the manual event
+    this.optionSelected.emit({
+      option: optionBinding.option as SelectedOption,
+      index,
+      checked: true
+    });
+  
+    this.cdRef.detectChanges();
+  } */
+  onMatRadioChange(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    console.log('[🔄 MatRadioChange fired]', {
+      optionBinding,
+      selectedValue: event.value
+    });
+  
+    const selectedId = event.value; // Trust the event
+  
+    this.optionBindings.forEach(binding => {
+      const isSelected = binding.option.optionId === selectedId;
+  
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+      binding.option.highlight = isSelected;
+      binding.option.showIcon = isSelected;
+  
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    // Emit selection
     this.optionSelected.emit({
       option: optionBinding.option as SelectedOption,
       index,
