@@ -204,12 +204,13 @@ export class HighlightOptionDirective implements OnChanges {
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
       this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
   
-      // ✅ Ensure icon and feedback sync together
+      // Ensure icon and feedback sync together
       this.option.showIcon = true;
       if (optionId !== undefined) {
         this.showFeedbackForOption[optionId] = true;
       }
   
+      this.cdRef.detectChanges();
       return;
     }
   
