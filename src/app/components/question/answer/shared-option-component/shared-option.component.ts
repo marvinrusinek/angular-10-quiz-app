@@ -1270,16 +1270,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Subscribe to formControl changes BEFORE setting initial value
     this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
       console.log('[🛎️ FormControl value changed]', selectedOptionId);
-  
+    
       this.optionBindings.forEach(binding => {
         const isSelected = binding.option.optionId === selectedOptionId;
-  
+    
         binding.isSelected = isSelected;
         binding.option.selected = isSelected;
         binding.option.highlight = isSelected;
         binding.option.showIcon = isSelected;
+    
+        // 👇 Call updateHighlight manually if the binding has a directive instance
+        (binding as any).directiveInstance?.updateHighlight();
       });
-  
+    
       this.cdRef.detectChanges();
     });
   
