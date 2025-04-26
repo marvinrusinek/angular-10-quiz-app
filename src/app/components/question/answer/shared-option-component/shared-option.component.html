@@ -1,4 +1,4 @@
-<ng-container *ngIf="form && optionBindings?.length > 0; else noOptions">
+<ng-container *ngIf="form && viewReady && optionBindings?.length > 0; else noOptions">
   <form [formGroup]="form">
     <ng-container [ngSwitch]="optionBindings[0]?.type">
 

@@ -1331,7 +1331,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     }, 100);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
@@ -1416,6 +1416,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[✅ optionsReady & viewReady set]');
       });
     }, 100);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings) {
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
+      return;
+    }
+  
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [
+        binding.option.optionId,
+        binding.isSelected
+      ])
+    );
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected =
+        existingSelectionMap.get(option.optionId) ?? !!option.selected;
+  
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+  
+      return this.getOptionBindings(option, idx, isSelected);
+    });
+  
+    this.updateHighlighting();
+  
+    // 🚀 Force detectChanges immediately
+    this.cdRef.detectChanges();
+  
+    // 🚀 THEN mark viewReady AFTER detectChanges
+    this.ngZone.run(() => {
+      this.viewReady = true;
+      console.log('[✅ viewReady set true AFTER bindings ready]');
+    });
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
