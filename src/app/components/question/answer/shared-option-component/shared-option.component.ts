@@ -1621,13 +1621,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return this.getOptionBindings(option, idx, option.selected ?? false);
     });
   
-    // 🚨 IMPORTANT: Move this AFTER binding ready + detectChanges
     setTimeout(() => {
       this.cdRef.detectChanges();
       this.viewReady = true;
       console.log('[✅ OptionBindings and Form ready]');
   
-      // ✅ Only after bindings ready, now setup preselected + subscription
+      // Only after bindings ready, now setup preselected + subscription
   
       // Preselect if needed
       const firstSelected = this.optionBindings.find(b => b.isSelected);
@@ -1657,6 +1656,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         });
   
     }, 0);
+
+    Promise.resolve().then(() => {
+      this.cdRef.detectChanges();
+      this.viewReady = true;
+      console.log('[✅ Form ready and view initialized]');
+    });
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
