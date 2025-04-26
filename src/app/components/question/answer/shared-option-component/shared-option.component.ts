@@ -465,7 +465,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
   
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -473,7 +473,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
-  }
+  } */
+  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+    const checked = event.checked;
+    const option = optionBinding.option;
+  
+    console.log('[🟢 Checkbox Changed]', {
+      optionId: option.optionId,
+      checked,
+      timestamp: performance.now()
+    });
+  
+    // Update visual + logical states
+    optionBinding.isSelected = checked;
+    option.selected = checked;
+    option.highlight = checked;
+    option.showIcon = checked;
+  
+    // Update highlight directive if attached
+    (optionBinding as any).directiveInstance?.updateHighlight();
+  
+    // Update selected options list (optional if you track selected separately)
+    if (checked) {
+      this.selectedOptionService.addSelectedOptionIndex(this.quizService.currentQuestionIndex, option.optionId);
+    } else {
+      this.selectedOptionService.removeSelectedOptionIndex(this.quizService.currentQuestionIndex, option.optionId);
+    }
+  
+    // Force UI refresh
+    this.cdRef.detectChanges();
+  }  
 
   onOptionClickFallback(optionBinding: OptionBindings, index: number): void {
     const optionId = optionBinding.option.optionId;
