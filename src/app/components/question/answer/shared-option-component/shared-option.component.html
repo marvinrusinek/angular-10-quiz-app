@@ -4,7 +4,7 @@
 
       <!-- Single-answer question -->
       <ng-container *ngSwitchCase="'single'">
-        <mat-radio-group formControlName="selectedOptionId" name="selectedOptionId">
+        <mat-radio-group>
           <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
             <label class="options">
               <mat-radio-button 
