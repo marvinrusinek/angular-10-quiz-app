@@ -21,7 +21,7 @@ export class HighlightOptionDirective implements OnChanges {
   @Input() highlightCorrectAfterIncorrect: boolean;
   @Input() allOptions: Option[]; // to access all options directly
   @Input() optionsToDisplay: Option[];
-  @Input() optionBinding: OptionBindings;
+  @Input() optionBinding: OptionBindings | undefined;
   @Input() isSelected: boolean;
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
@@ -101,29 +101,11 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   ngOnChanges(changes: SimpleChanges): void {
-    const hasRelevantChange =
-      changes.option || changes.isSelected || changes.showFeedback || changes.appHighlightReset;
-  
-    if (hasRelevantChange) {
-      const id = this.option?.optionId;
-      const selected = this.option?.selected || this.isSelected;
-      const highlight = this.option?.highlight;
-      const showIcon = this.option?.showIcon;
-      const showFeedback = this.showFeedbackForOption?.[id] ?? false;
-  
-      console.log('[🔦 updateHighlight] state', {
-        selected,
-        highlight,
-        isSelected: this.isSelected,
-        showIcon,
-        showFeedbackForOption: this.showFeedbackForOption?.[id],
-      });
-  
+    if (changes['optionBinding'] && this.optionBinding) {
+      console.log('[🧩 HighlightOptionDirective] Detected optionBinding change');
       this.updateHighlight();
-    } else {
-      console.log('[🔕 No relevant input change — skipping highlight update]');
     }
-  }
+  }  
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
