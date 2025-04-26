@@ -189,7 +189,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor(color);
     //}
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ No optionBinding.option provided to HighlightOptionDirective]');
       return;
@@ -263,6 +263,60 @@ export class HighlightOptionDirective implements OnChanges {
     } else {
       this.setBackgroundColor(color);
     }
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ No optionBinding.option provided to HighlightOptionDirective]');
+      return;
+    }
+  
+    const option = this.optionBinding.option;
+    const optionId = option.optionId;
+    const shouldHighlight = option.highlight === true;
+  
+    setTimeout(() => { // 🛠 Add this timeout wrap
+      let color = '';
+  
+      // If the option is already highlighted or selected, apply highlight color and show icon/feedback
+      if (shouldHighlight || this.isSelected) {
+        color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
+        this.setBackgroundColor(color);
+        this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+        this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+  
+        option.showIcon = true;
+        if (optionId !== undefined) {
+          this.showFeedbackForOption[optionId] = true;
+        }
+  
+        return;
+      }
+  
+      // Grey out incorrect options
+      if (!this.isCorrect && option?.active === false) {
+        this.setBackgroundColor('#a3a3a3');
+        this.setPointerEvents('none');
+        this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
+        this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed');
+  
+        option.showIcon = false;
+        if (optionId !== undefined) {
+          this.showFeedbackForOption[optionId] = false;
+        }
+  
+        return;
+      }
+  
+      // Reset for unselected/default options
+      this.setBackgroundColor('white');
+      this.setPointerEvents('auto');
+      this.setCursor('pointer');
+  
+      option.showIcon = false;
+      if (optionId !== undefined) {
+        this.showFeedbackForOption[optionId] = false;
+      }
+    }, 0);
   }
 
   private highlightCorrectAnswers(): void {
