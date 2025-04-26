@@ -186,24 +186,19 @@ export class HighlightOptionDirective implements OnChanges {
     //}
   } */
   updateHighlight(): void {
-    const selected = this.option?.selected || this.isSelected;
-    const optionId = this.option?.optionId;
-  
-    // ✅ Always prioritize option.highlight over selected
-    const shouldHighlight = this.option?.highlight === true;
-  
-    console.log('[🔦 updateHighlight] state', {
-      selected,
-      highlight: this.option?.highlight,
-      isSelected: this.isSelected,
-      showIcon: this.option?.showIcon,
-      showFeedbackForOption: this.showFeedbackForOption?.[optionId]
-    });
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ No optionBinding.option provided to HighlightOptionDirective]');
+      return;
+    }
+
+    const option = this.optionBinding.option;
+    const optionId = option.optionId;
+    const shouldHighlight = option.highlight === true;
   
     let color = '';
 
     // If the option is already highlighted or selected, apply highlight color and show icon/feedback
-    if (shouldHighlight || selected) {
+    if (shouldHighlight) {
       color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
       this.setBackgroundColor(color);
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
@@ -253,7 +248,7 @@ export class HighlightOptionDirective implements OnChanges {
     this.setPointerEvents('auto');
     this.setCursor('pointer');
   
-    this.option.showIcon = false;
+    option.showIcon = false;
     if (optionId !== undefined) {
       this.showFeedbackForOption[optionId] = false;
     }
