@@ -466,20 +466,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    const selectedOptionId = event.value;
-  
     console.log('[🔵 onMatRadioChanged fired]', {
-      selectedOptionId,
+      selectedOptionId: event.value,
       optionBinding,
       index
     });
   
-    // Update the form control directly
-    if (this.form.get('selectedOptionId')) {
-      this.form.get('selectedOptionId')!.setValue(selectedOptionId);
-    } else {
-      console.warn('[⚠️ No selectedOptionId formControl available]');
-    }
+    this.form.get('selectedOptionId')?.setValue(event.value);
   }  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
