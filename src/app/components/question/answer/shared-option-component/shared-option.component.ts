@@ -1507,7 +1507,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ viewReady set true AFTER form + optionBindings ready]');
     });
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
       return;
@@ -1554,6 +1554,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[✅ viewReady set true AFTER form + optionBindings ready]');
       });
     }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      option.highlight ??= false;
+      option.selected ??= false;
+      option.showIcon ??= false;
+  
+      return this.getOptionBindings(option, idx, option.selected);
+    });
+  
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      this.viewReady = true;
+    }, 0);
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
@@ -1594,21 +1612,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: new FormControl(null)
     });
   
-    this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
-      console.log('[🛎️ FormControl value changed]', selectedOptionId);
+    this.form.get('selectedOptionId')?.valueChanges.subscribe(selectedId => {
+      console.log('[formControlValueChanged]', selectedId);
   
       this.optionBindings.forEach(binding => {
-        const isSelected = binding.option.optionId === selectedOptionId;
-  
+        const isSelected = binding.option.optionId === selectedId;
         binding.isSelected = isSelected;
         binding.option.selected = isSelected;
         binding.option.highlight = isSelected;
         binding.option.showIcon = isSelected;
-  
         binding.directiveInstance?.updateHighlight();
       });
   
-      this.cdRef.detectChanges(); // flush UI immediately
+      this.cdRef.detectChanges();
     });
   }
 
