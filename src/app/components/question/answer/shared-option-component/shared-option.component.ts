@@ -1235,19 +1235,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private generateOptionBindings(): void {
-    // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
       return;
     }
   
-    // Guard: no options available
     if (!this.optionsToDisplay?.length) {
       console.warn('[⚠️ No options to display]');
       return;
     }
   
-    // Map current selections (if any)
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [
         binding.option.optionId,
@@ -1255,23 +1252,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ])
     );
   
-    // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
-
-      // Always persist highlight for selected options
+  
       if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
       }
-    
+  
       return this.getOptionBindings(option, idx, isSelected);
     });
+  
     this.updateHighlighting();
-
-    // 🛠 Force detectChanges immediately to flush template
+  
     setTimeout(() => this.cdRef.detectChanges(), 0);
-
+  
+    // Subscribe to formControl changes BEFORE setting initial value
     this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
       console.log('[🛎️ FormControl value changed]', selectedOptionId);
   
@@ -1286,14 +1282,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       this.cdRef.detectChanges();
     });
-
+  
+    // Now set initial value, triggering above subscription automatically
     const firstSelectedOption = this.optionBindings.find(binding => binding.isSelected);
     if (firstSelectedOption) {
       console.log('[🧠 Setting initial selectedOptionId]', firstSelectedOption.option.optionId);
       this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
     }
   
-    // Mark view ready after DOM settles
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;

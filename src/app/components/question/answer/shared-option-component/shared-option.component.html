@@ -1,15 +1,45 @@
 <ng-container *ngIf="form && optionBindings?.length > 0; else noOptions">
-<form [formGroup]="form">
-  <ng-container [ngSwitch]="optionBindings[0]?.type">
+  <form [formGroup]="form">
+    <ng-container [ngSwitch]="optionBindings[0]?.type">
 
-    <!-- Single-answer question -->
-    <ng-container *ngSwitchCase="'single'">
-      <mat-radio-group formControlName="selectedOptionId" name="selectedOptionId">
+      <!-- Single-answer question -->
+      <ng-container *ngSwitchCase="'single'">
+        <mat-radio-group formControlName="selectedOptionId" name="selectedOptionId">
+          <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
+            <label class="options">
+              <mat-radio-button 
+                #radio
+                appHighlightOption
+                [optionBinding]="optionBinding"
+                [optionIndex]="optionIndex"
+                [value]="optionBinding.option.optionId"
+                [checked]="optionBinding.option.selected"
+                (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
+                (click)="onOptionClickFallback(optionBinding, optionIndex)"
+              >
+                <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
+              </mat-radio-button>
+
+              <codelab-quiz-feedback
+                *ngIf="shouldShowFeedback(optionIndex)"
+                [feedbackConfig]="feedbackConfigs[optionIndex]"
+              ></codelab-quiz-feedback>
+            </label>
+          </div>
+        </mat-radio-group>
+      </ng-container>
+
+      <!-- Multiple-answer question -->
+      <ng-container *ngSwitchCase="'multiple'">
         <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
           <label class="options">
-            <mat-radio-button [value]="optionBinding.option.optionId">
+            <mat-checkbox
+              [checked]="optionBinding.option.selected"
+              (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
+              (click)="onOptionClickFallback(optionBinding, optionIndex)"
+            >
               <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
-            </mat-radio-button>
+            </mat-checkbox>
 
             <codelab-quiz-feedback
               *ngIf="shouldShowFeedback(optionIndex)"
@@ -17,44 +47,23 @@
             ></codelab-quiz-feedback>
           </label>
         </div>
-      </mat-radio-group>
+      </ng-container>
+
     </ng-container>
-
-    <!-- Multiple-answer question -->
-    <ng-container *ngSwitchCase="'multiple'">
-      <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
-        <label class="options">
-          <mat-checkbox
-            [checked]="optionBinding.option.selected"
-            (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
-            (click)="onOptionClickFallback(optionBinding, optionIndex)"
-          >
-            <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
-          </mat-checkbox>
-
-          <codelab-quiz-feedback
-            *ngIf="shouldShowFeedback(optionIndex)"
-            [feedbackConfig]="feedbackConfigs[optionIndex]"
-          ></codelab-quiz-feedback>
-        </label>
-      </div>
-    </ng-container>
-
-  </ng-container>
-</form>
+  </form>
 </ng-container>
 
 <!-- Template for displaying the option content -->
 <ng-template #optionContent let-option="option" let-optionIndex="idx">
-<div class="option-content">
-  <span class="option-text" [ngStyle]="optionTextStyle">
-    {{ getOptionDisplayText(option, optionIndex) }}
-  </span>
-  <mat-icon
-    *ngIf="shouldShowIcon(option)" 
-    class="material-icons icon"
-    [ngClass]="optionIconClass">
-    {{ getOptionIcon(option) }}
-  </mat-icon>
-</div>
+  <div class="option-content">
+    <span class="option-text" [ngStyle]="optionTextStyle">
+      {{ getOptionDisplayText(option, optionIndex) }}
+    </span>
+    <mat-icon
+      *ngIf="shouldShowIcon(option)" 
+      class="material-icons icon"
+      [ngClass]="optionIconClass">
+      {{ getOptionIcon(option) }}
+    </mat-icon>
+  </div>
 </ng-template>
