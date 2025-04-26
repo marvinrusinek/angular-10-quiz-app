@@ -2,6 +2,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
 import { Option } from './Option.model';
+import { HighlightOptionDirective } from '../../../app/directives/highlight-option.directive';
 
 export interface OptionBindings {
   appHighlightOption: boolean;
@@ -22,5 +23,7 @@ export interface OptionBindings {
   checked: boolean;
   change: (element: MatCheckbox | MatRadioButton) => void;
   disabled: boolean;
-  ariaLabel: string;
+  ariaLabel: string
+  directiveInstance?: HighlightOptionDirective;
+
 }
