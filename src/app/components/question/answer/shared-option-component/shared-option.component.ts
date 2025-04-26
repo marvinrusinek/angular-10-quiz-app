@@ -1621,12 +1621,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return this.getOptionBindings(option, idx, option.selected ?? false);
     });
   
-    setTimeout(() => {
+    // After bindings ready, defer form setup
+    Promise.resolve().then(() => {
       this.cdRef.detectChanges();
       this.viewReady = true;
       console.log('[✅ OptionBindings and Form ready]');
-  
-      // Only after bindings ready, now setup preselected + subscription
   
       // Preselect if needed
       const firstSelected = this.optionBindings.find(b => b.isSelected);
@@ -1635,7 +1634,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
       }
   
-      // Subscribe to formControl changes
+      // Subscribe once to formControl changes
       this.form.get('selectedOptionId')?.valueChanges
         .pipe(distinctUntilChanged())
         .subscribe((selectedOptionId: number) => {
@@ -1648,19 +1647,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
             binding.option.highlight = isSelected;
             binding.option.showIcon = isSelected;
   
-            // Refresh highlight immediately
             binding.directiveInstance?.updateHighlight();
           });
   
           this.cdRef.detectChanges();
         });
-  
-    }, 0);
-
-    Promise.resolve().then(() => {
-      this.cdRef.detectChanges();
-      this.viewReady = true;
-      console.log('[✅ Form ready and view initialized]');
     });
   }
 
