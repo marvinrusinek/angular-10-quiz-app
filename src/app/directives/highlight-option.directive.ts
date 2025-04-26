@@ -266,6 +266,8 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   updateHighlight(): void {
+    console.log('[🟣 updateHighlight]', { optionId: this.option?.optionId, selected: this.option?.selected, highlight: this.option?.highlight, time: performance.now() });
+
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ No optionBinding.option provided to HighlightOptionDirective]');
       return;
