@@ -10,11 +10,11 @@
               <mat-radio-button 
                 #radio
                 appHighlightOption
+                [value]="optionBinding.option.optionId"
                 [checked]="optionBinding.option.selected"
+                (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
                 [optionBinding]="optionBinding"
                 [optionIndex]="optionIndex"
-                [value]="optionBinding.option.optionId"
-                (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
               >
                 <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
               </mat-radio-button>
@@ -39,7 +39,6 @@
               [optionIndex]="optionIndex"
               [value]="optionBinding.option.optionId"
               [checked]="optionBinding.option.selected"
-              (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
               (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
             >
               <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
