@@ -14,8 +14,6 @@
                 [optionBinding]="optionBinding"
                 [optionIndex]="optionIndex"
                 [value]="optionBinding.option.optionId"
-                (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
-                (click)="onOptionClickFallback(optionBinding, optionIndex)"
               >
                 <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)"></ng-container>
               </mat-radio-button>

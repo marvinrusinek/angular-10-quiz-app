@@ -1238,7 +1238,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
 
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
       return;
@@ -1297,6 +1297,92 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
     }
   
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+        this.viewReady = true;
+        console.log('[✅ optionsReady & viewReady set]');
+      });
+    }, 100);
+  } */
+  private generateOptionBindings(): void {
+    // Guard: don't allow reassignment after user click
+    if (this.freezeOptionBindings) {
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
+      return;
+    }
+  
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [
+        binding.option.optionId,
+        binding.isSelected
+      ])
+    );
+  
+    // Build fresh bindings using retained selection state
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected =
+        existingSelectionMap.get(option.optionId) ?? !!option.selected;
+  
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+  
+      return this.getOptionBindings(option, idx, isSelected);
+    });
+  
+    this.updateHighlighting();
+  
+    setTimeout(() => this.cdRef.detectChanges(), 0); // 🛠 Immediately flush DOM
+  
+    // 🛎️ Subscribe to formControl value changes
+    const selectedOptionControl = this.form.get('selectedOptionId');
+    if (selectedOptionControl) {
+      selectedOptionControl.valueChanges.subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        const selectedBinding = this.optionBindings.find(binding => binding.option.optionId === selectedOptionId);
+        if (!selectedBinding) {
+          console.warn('[⚠️ No binding found for selectedOptionId]', selectedOptionId);
+          return;
+        }
+  
+        // ✅ Update local option states based on formControl
+        this.optionBindings.forEach(binding => {
+          const isSelected = binding.option.optionId === selectedOptionId;
+  
+          binding.isSelected = isSelected;
+          binding.option.selected = isSelected;
+          binding.option.highlight = isSelected;
+          binding.option.showIcon = isSelected;
+  
+          binding.directiveInstance?.updateHighlight();
+        });
+  
+        this.cdRef.detectChanges();
+  
+        // ✅ Emit the event manually
+        this.optionSelected.emit({
+          option: selectedBinding.option as SelectedOption,
+          index: this.optionBindings.indexOf(selectedBinding),
+          checked: true
+        });
+      });
+    }
+  
+    // 🧠 Set initial selected value, which will trigger subscription automatically
+    const firstSelectedOption = this.optionBindings.find(binding => binding.isSelected);
+    if (firstSelectedOption) {
+      console.log('[🧠 Setting initial selectedOptionId]', firstSelectedOption.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
+    }
+  
+    // Mark view ready after DOM settles
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
