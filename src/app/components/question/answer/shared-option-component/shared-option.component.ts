@@ -391,7 +391,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     console.log('[⚡ MatRadioChange triggered]', event);
   
     requestAnimationFrame(() => {
@@ -408,7 +408,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         });
       }, 0);
     });
-  }  
+  } */
+  onMatRadioChange(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    console.log('[🔄 MatRadioChange fired]', {
+      optionBinding,
+      event
+    });
+  
+    const selectedId = optionBinding.option.optionId;
+  
+    this.optionBindings.forEach(binding => {
+      const isSelected = binding.option.optionId === selectedId;
+  
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+      binding.option.highlight = isSelected;
+      binding.option.showIcon = isSelected;
+  
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    // Emit the manual event
+    this.optionSelected.emit({
+      option: optionBinding.option as SelectedOption,
+      index,
+      checked: true
+    });
+  
+    this.cdRef.detectChanges();
+  }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
