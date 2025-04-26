@@ -1563,16 +1563,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      option.highlight ??= false;
-      option.selected ??= false;
-      option.showIcon ??= false;
-  
-      return this.getOptionBindings(option, idx, option.selected);
+      return this.getOptionBindings(option, idx, option.selected ?? false);
     });
+  
+    // If any option already pre-selected, set the formControl immediately
+    const firstSelected = this.optionBindings.find(b => b.isSelected);
+    if (firstSelected) {
+      console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+    }
   
     setTimeout(() => {
       this.cdRef.detectChanges();
-      this.viewReady = true;
+      this.viewReady = true; // ✅ Only set after form+options are ready
+      console.log('[✅ OptionBindings ready + Form ready]');
     }, 0);
   }
 
@@ -1614,21 +1618,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: new FormControl(null)
     });
   
-    this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedId: number) => {
-      console.log('[🟢 formControl valueChanges]', { selectedId, time: performance.now() });
-    
+    // Subscribe to listen to option changes
+    this.form.get('selectedOptionId')?.valueChanges.subscribe(selectedOptionId => {
+      console.log('[🟢 FormControl valueChanges]', { selectedOptionId, timestamp: performance.now() });
+  
       this.optionBindings.forEach(binding => {
-        const isSelected = binding.option.optionId === selectedId;
+        const isSelected = binding.option.optionId === selectedOptionId;
         binding.isSelected = isSelected;
         binding.option.selected = isSelected;
         binding.option.highlight = isSelected;
         binding.option.showIcon = isSelected;
-        binding.directiveInstance?.updateHighlight();
+  
+        // Update directive if available
+        (binding as any).directiveInstance?.updateHighlight();
       });
-    
+  
       this.cdRef.detectChanges();
-    });    
-  }
+    });
+  }  
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
