@@ -1272,13 +1272,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // 🛠 Force detectChanges immediately to flush template
     setTimeout(() => this.cdRef.detectChanges(), 0);
 
-    // After updateHighlighting(), set initial selected value
-    const firstSelectedOption = this.optionBindings.find(binding => binding.isSelected);
-    if (firstSelectedOption) {
-      console.log('[🧠 Setting initial selectedOptionId]', firstSelectedOption.option.optionId);
-      this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
-    }
-
     this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
       console.log('[🛎️ FormControl value changed]', selectedOptionId);
   
@@ -1294,6 +1287,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
     });
 
+    const firstSelectedOption = this.optionBindings.find(binding => binding.isSelected);
+    if (firstSelectedOption) {
+      console.log('[🧠 Setting initial selectedOptionId]', firstSelectedOption.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
+    }
   
     // Mark view ready after DOM settles
     setTimeout(() => {
