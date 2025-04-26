@@ -1620,23 +1620,47 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
+    // Build fresh option bindings
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       return this.getOptionBindings(option, idx, option.selected ?? false);
     });
   
-    // ✅ Force detectChanges immediately so bindings are stable
+    // 🚨 IMPORTANT: Move this AFTER binding ready + detectChanges
     setTimeout(() => {
       this.cdRef.detectChanges();
-      this.viewReady = true; // 🧹 Now safe to show view
-      console.log('[✅ OptionBindings ready + Form ready]');
-    }, 0);
+      this.viewReady = true;
+      console.log('[✅ OptionBindings and Form ready]');
   
-    // ✅ After bindings ready, set pre-selected option if any
-    const preselected = this.optionBindings.find(b => b.isSelected);
-    if (preselected) {
-      console.log('[🧠 Setting pre-selected]', preselected.option.optionId);
-      this.form.get('selectedOptionId')?.setValue(preselected.option.optionId, { emitEvent: false });
-    }
+      // ✅ Only after bindings ready, now setup preselected + subscription
+  
+      // Preselect if needed
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      // Subscribe to formControl changes
+      this.form.get('selectedOptionId')?.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe((selectedOptionId: number) => {
+          console.log('[🛎️ formControl valueChanges]', selectedOptionId);
+  
+          this.optionBindings.forEach(binding => {
+            const isSelected = binding.option.optionId === selectedOptionId;
+            binding.isSelected = isSelected;
+            binding.option.selected = isSelected;
+            binding.option.highlight = isSelected;
+            binding.option.showIcon = isSelected;
+  
+            // Refresh highlight immediately
+            binding.directiveInstance?.updateHighlight();
+          });
+  
+          this.cdRef.detectChanges();
+        });
+  
+    }, 0);
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
