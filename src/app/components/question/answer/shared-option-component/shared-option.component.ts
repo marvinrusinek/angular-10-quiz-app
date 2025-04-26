@@ -1,5 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
@@ -1575,21 +1576,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
+    // Build fresh option bindings
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       return this.getOptionBindings(option, idx, option.selected ?? false);
     });
   
-    // If any option already pre-selected, set the formControl immediately
+    // Preselect if needed
     const firstSelected = this.optionBindings.find(b => b.isSelected);
     if (firstSelected) {
       console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
       this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
     }
   
+    // Subscribe once to valueChanges here if not already subscribed
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ formControl valueChanges]', selectedOptionId);
+  
+        this.optionBindings.forEach(binding => {
+          const isSelected = binding.option.optionId === selectedOptionId;
+          binding.isSelected = isSelected;
+          binding.option.selected = isSelected;
+          binding.option.highlight = isSelected;
+          binding.option.showIcon = isSelected;
+  
+          (binding as any).directiveInstance?.updateHighlight();
+        });
+  
+        this.cdRef.detectChanges();
+      });
+  
+    // Finalize UI refresh
     setTimeout(() => {
       this.cdRef.detectChanges();
-      this.viewReady = true; // ✅ Only set after form+options are ready
-      console.log('[✅ OptionBindings ready + Form ready]');
+      this.viewReady = true;
+      console.log('[✅ OptionBindings and Form ready]');
     }, 0);
   }
 
