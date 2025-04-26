@@ -1614,9 +1614,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: new FormControl(null)
     });
   
-    this.form.get('selectedOptionId')?.valueChanges.subscribe(selectedId => {
-      console.log('[formControlValueChanged]', selectedId);
-  
+    this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedId: number) => {
+      console.log('[🟢 formControl valueChanges]', { selectedId, time: performance.now() });
+    
       this.optionBindings.forEach(binding => {
         const isSelected = binding.option.optionId === selectedId;
         binding.isSelected = isSelected;
@@ -1625,9 +1625,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         binding.option.showIcon = isSelected;
         binding.directiveInstance?.updateHighlight();
       });
-  
+    
       this.cdRef.detectChanges();
-    });
+    });    
   }
 
   initializeOptionBindings(): void {
