@@ -10,6 +10,7 @@
               <mat-radio-button 
                 #radio
                 appHighlightOption
+                #highlightDirective="appHighlightOption"
                 [optionBinding]="optionBinding"
                 [optionIndex]="optionIndex"
                 [value]="optionBinding.option.optionId"
@@ -33,6 +34,12 @@
         <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
           <label class="options">
             <mat-checkbox
+              #checkbox
+              appHighlightOption
+              #highlightDirective="appHighlightOption"
+              [optionBinding]="optionBinding"
+              [optionIndex]="optionIndex"
+              [value]="optionBinding.option.optionId"
               [checked]="optionBinding.option.selected"
               (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
               (click)="onOptionClickFallback(optionBinding, optionIndex)"
