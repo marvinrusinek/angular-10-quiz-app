@@ -1269,6 +1269,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
     this.updateHighlighting();
 
+    // 🛠 Force detectChanges immediately to flush template
+    setTimeout(() => this.cdRef.detectChanges(), 0);
+
     // After updateHighlighting(), set initial selected value
     const firstSelectedOption = this.optionBindings.find(binding => binding.isSelected);
     if (firstSelectedOption) {
@@ -1276,11 +1279,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(firstSelectedOption.option.optionId);
     }
 
-    // Force detectChanges immediately
-    setTimeout(() => {
+    this.form.get('selectedOptionId')?.valueChanges.subscribe((selectedOptionId: number) => {
+      console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+      this.optionBindings.forEach(binding => {
+        const isSelected = binding.option.optionId === selectedOptionId;
+  
+        binding.isSelected = isSelected;
+        binding.option.selected = isSelected;
+        binding.option.highlight = isSelected;
+        binding.option.showIcon = isSelected;
+      });
+  
       this.cdRef.detectChanges();
-      console.log('[🛠 detectChanges forced after generateOptionBindings]');
-    }, 0);
+    });
+
   
     // Mark view ready after DOM settles
     setTimeout(() => {
