@@ -434,7 +434,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     console.log('[🔵 onMatRadioChanged fired]', { event, value: event.value, time: performance.now() });
 
     console.log('[🔄 MatRadioChange fired]', {
@@ -463,7 +463,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     this.cdRef.detectChanges();
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const selectedOptionId = event.value;
+  
+    console.log('[🟢 Radio Changed]', {
+      selectedOptionId,
+      timestamp: performance.now()
+    });
+  
+    requestAnimationFrame(() => {
+      this.cdRef.detectChanges();
+    });
   }
+  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
