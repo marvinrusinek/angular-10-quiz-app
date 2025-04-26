@@ -365,6 +365,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
+  onRadioClicked(optionBinding: OptionBindings): void {
+    const selectedId = optionBinding.option.optionId;
+    console.log('[🖱️ Radio clicked]', selectedId);
+  
+    const control = this.form.get('selectedOptionId');
+    if (control) {
+      control.setValue(selectedId, { emitEvent: true });
+    }
+  }  
+
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     console.log('[⚡ MatRadioChange triggered]', event);
   
