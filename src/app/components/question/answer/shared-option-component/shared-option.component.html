@@ -12,6 +12,7 @@
               [optionBinding]="optionBinding"
               [optionIndex]="optionIndex"
               [value]="optionBinding.option.optionId"
+              (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
             >
               <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
               </ng-container>
