@@ -1470,7 +1470,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     }, 100);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings) return;
     if (!this.optionsToDisplay?.length) return;
   
@@ -1506,6 +1506,54 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.viewReady = true;
       console.log('[✅ viewReady set true AFTER form + optionBindings ready]');
     });
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings) {
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
+      return;
+    }
+  
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [
+        binding.option.optionId,
+        binding.isSelected
+      ])
+    );
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
+  
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+  
+      return this.getOptionBindings(option, idx, isSelected);
+    });
+  
+    this.updateHighlighting();
+  
+    // Only after bindings are ready
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+  
+      // Then set initial selected value
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Setting initial selectedOptionId]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+        this.viewReady = true;
+        console.log('[✅ viewReady set true AFTER form + optionBindings ready]');
+      });
+    }, 0);
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
