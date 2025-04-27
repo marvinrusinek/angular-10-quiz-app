@@ -2,7 +2,7 @@
   <form [formGroup]="form">
     <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
       <label class="options">
-        <ng-container [ngSwitch]="optionBindings[0]?.type">
+        <ng-container [ngSwitch]="optionBinding?.type">
 
           <!-- Single-answer -->
           <mat-radio-group *ngSwitchCase="'single'" formControlName="selectedOptionId">
