@@ -512,16 +512,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     const selectedOptionId = optionBinding.option.optionId;
   
     if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
       console.log('[🟢 onMatRadioChanged]', selectedOptionId);
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    console.log('[🟢 onMatRadioChanged fired]', { selectedOptionId });
+  
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: false }); // 👈 disable auto event
+    }
+  
+    // Immediately update selections manually
+    this.updateSelections(selectedOptionId);
   }
   
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  
+  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -529,6 +542,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
+  } */
+  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    console.log('[🟢 onMatCheckboxChanged fired]', { selectedOptionId });
+  
+    // Checkbox multiple-answer => you may have multiple selected, update based on current selection
+    this.updateSelections(selectedOptionId);
   }
   
   private handlePostSelection(selectedBinding: OptionBindings): void {
