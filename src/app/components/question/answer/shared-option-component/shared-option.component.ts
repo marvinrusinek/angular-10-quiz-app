@@ -555,7 +555,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  handleDirectOptionClick(optionBinding: OptionBindings, index: number): void {
+  /* handleDirectOptionClick(optionBinding: OptionBindings, index: number): void {
     const selectedOptionId = optionBinding.option.optionId;
   
     if (selectedOptionId == null) {
@@ -582,7 +582,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // ✅ Now detect changes
     this.cdRef.detectChanges();
+  } */
+  handleDirectOptionClick(optionBinding: OptionBindings, index: number): void {
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    if (selectedOptionId == null) {
+      console.error('[❌ Invalid optionId on click]', { optionBinding });
+      return;
+    }
+  
+    console.log('[🖱️ Direct click received]', { selectedOptionId });
+  
+    // Update the FormControl silently
+    this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: false });
+  
+    // Update all bindings manually
+    this.optionBindings.forEach(binding => {
+      const isSelected = binding.option.optionId === selectedOptionId;
+  
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+      binding.option.highlight = isSelected;
+      binding.option.showIcon = isSelected;
+  
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    this.cdRef.detectChanges();
   }
+  
   
 
   preserveOptionHighlighting(): void {
@@ -2067,7 +2095,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ Form + OptionBindings ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2097,7 +2125,65 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       console.log('[✅ Form + Options ready]');
     }, 0);
+  } */
+  /* private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+  
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      // ✅ Immediately set highlight for preselected options
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      this.viewReady = true;
+      console.log('[✅ OptionBindings and Form ready]');
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+  
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      // Immediately set highlight for preselected options
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.isSelected = true;
+        binding.option.showIcon = true;
+      }
+  
+      return binding;
+    });
+  
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+  
+      // 🧠 After detectChanges, manually refresh highlights
+      this.optionBindings.forEach(binding => {
+        binding.directiveInstance?.updateHighlight();
+      });
+  
+      this.viewReady = true;
+      console.log('[✅ OptionBindings and Form ready]');
+    }, 0);
   }
+  
 
   private updateSelections(selectedOptionId: number): void {
     this.optionBindings.forEach(binding => {
