@@ -521,7 +521,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
   
-  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -529,38 +529,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
-  } */
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
-    const selected = event.checked;
-  
-    if (selected) {
-      if (!this.selectedOptionHistory.includes(optionBinding.option.optionId)) {
-        this.selectedOptionHistory.push(optionBinding.option.optionId);
-      }
-    } else {
-      this.selectedOptionHistory = this.selectedOptionHistory.filter(id => id !== optionBinding.option.optionId);
-    }
-  
-    this.optionBindings.forEach(binding => {
-      const optionId = binding.option.optionId;
-      const isInHistory = this.selectedOptionHistory.includes(optionId);
-  
-      binding.option.highlight = isInHistory;
-      binding.option.showIcon = isInHistory;
-      binding.isSelected = isInHistory;
-      binding.option.selected = isInHistory;
-  
-      binding.showFeedbackForOption = {
-        ...(binding.showFeedbackForOption || {}),
-        [optionId]: isInHistory
-      };
-  
-      binding.directiveInstance?.updateHighlight();
-    });
-  
-    this.cdRef.detectChanges();
   }
-  
   
   private handlePostSelection(selectedBinding: OptionBindings): void {
     if (!selectedBinding) {
