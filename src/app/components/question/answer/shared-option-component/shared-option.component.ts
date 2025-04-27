@@ -2183,7 +2183,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings and Form ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2222,8 +2222,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.viewReady = true;
       console.log('[✅ OptionBindings ready]');
     }, 0);
-  }
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
   
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+  
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.isSelected = true;
+        binding.option.showIcon = true;
+      }
+  
+      return binding;
+    });
+  
+    this.cdRef.detectChanges(); // Detect early
+  
+    // After DOM ready, update highlights
+    setTimeout(() => {
+      this.optionBindings.forEach(binding => {
+        binding.directiveInstance?.updateHighlight();
+      });
+  
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      this.viewReady = true;
+      console.log('[✅ OptionBindings and Highlights ready]');
+    }, 0);
+  }
   
 
   private updateSelections(selectedOptionId: number): void {
@@ -2305,24 +2341,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   private initializeForm(): void {
     this.form = this.fb.group({
-      selectedOptionId: new FormControl(null, Validators.required),
+      selectedOptionId: new FormControl(-1, Validators.required)
     });
   
     this.form.get('selectedOptionId')?.valueChanges
       .pipe(distinctUntilChanged())
       .subscribe((selectedOptionId: number) => {
-        console.log('[🛎️ Form value changed]', selectedOptionId);
-  
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+
         this.optionBindings.forEach(binding => {
           const isSelected = binding.option.optionId === selectedOptionId;
           binding.isSelected = isSelected;
           binding.option.selected = isSelected;
           binding.option.highlight = isSelected;
           binding.option.showIcon = isSelected;
-  
+
+          // 👇 Always refresh all option highlights
           binding.directiveInstance?.updateHighlight();
         });
-  
+
         this.cdRef.detectChanges();
       });
   
