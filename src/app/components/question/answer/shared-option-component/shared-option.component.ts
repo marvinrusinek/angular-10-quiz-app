@@ -546,7 +546,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Then let FormControl naturally update afterward
   }
   
-  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -554,8 +554,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
-  } */
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  }
+  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     if (!optionBinding) return;
   
     const selectedOptionId = optionBinding.option.optionId;
@@ -565,7 +565,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.processImmediateSelection(selectedOptionId);
   
     // Let FormControl catch up too (if needed)
-  }
+  } */
 
   private processImmediateSelection(selectedOptionId: number): void {
     if (!this.form) return;
