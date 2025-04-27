@@ -2151,7 +2151,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings and Form ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2182,7 +2182,48 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.viewReady = true;
       console.log('[✅ OptionBindings and Form ready]');
     }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+  
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      // Set the initial highlight and icon state
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.isSelected = true;
+        binding.option.showIcon = true;
+      }
+  
+      return binding;
+    });
+  
+    this.cdRef.detectChanges(); // ✅ Detect immediately
+  
+    // 🧠 SETUP AFTER DETECTCHANGES
+    setTimeout(() => {
+      // Force refresh directive highlights
+      this.optionBindings.forEach(binding => {
+        binding.directiveInstance?.updateHighlight();
+      });
+  
+      // Now set form value without emitting event
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      this.viewReady = true;
+      console.log('[✅ OptionBindings ready]');
+    }, 0);
   }
+  
   
 
   private updateSelections(selectedOptionId: number): void {
@@ -2255,13 +2296,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
     });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required)
     });
   
     this.viewReady = false; // reset viewReady initially
-  }
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ Form value changed]', selectedOptionId);
+  
+        this.optionBindings.forEach(binding => {
+          const isSelected = binding.option.optionId === selectedOptionId;
+          binding.isSelected = isSelected;
+          binding.option.selected = isSelected;
+          binding.option.highlight = isSelected;
+          binding.option.showIcon = isSelected;
+  
+          binding.directiveInstance?.updateHighlight();
+        });
+  
+        this.cdRef.detectChanges();
+      });
+  
+    this.viewReady = false;
+  }  
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
