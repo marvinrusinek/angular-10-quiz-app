@@ -2626,36 +2626,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   } */
   private updateSelections(selectedOptionId: number): void {
-    console.log('[🛎️ updateSelections]', selectedOptionId);
+    console.log('[🛎️ updateSelections triggered]', selectedOptionId);
   
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
       this.selectedOptionHistory.push(selectedOptionId);
       console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
     }
   
-    this.optionBindings.forEach(binding => {
+    // Update all options at once
+    for (const binding of this.optionBindings) {
       const optionId = binding.option.optionId;
       const wasPreviouslySelected = this.selectedOptionHistory.includes(optionId);
       const isCurrentlySelected = optionId === selectedOptionId;
   
-      // ✅ Highlight anything that was ever selected
       binding.option.highlight = wasPreviouslySelected;
       binding.option.showIcon = wasPreviouslySelected;
       binding.isSelected = isCurrentlySelected;
       binding.option.selected = isCurrentlySelected;
   
-      // ✅ Only the last clicked one shows feedback
+      // Feedback only for current latest
       binding.showFeedbackForOption[optionId] = isCurrentlySelected;
   
-      // ✅ Force repaint if directive exists
-      binding.directiveInstance?.updateHighlight();
-    });
+      // ✅ Force refresh immediately
+      if (binding.directiveInstance) {
+        binding.directiveInstance.updateHighlight();
+      }
+    }
   
     this.lastSelectedOptionId = selectedOptionId;
   
+    // 🔥 Force immediate view update
     this.cdRef.detectChanges();
   }
-  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)

@@ -9,6 +9,7 @@
             <label class="options">
               <mat-radio-button
                 appHighlightOption
+                #highlightDirective="appHighlightOption"
                 [optionBinding]="optionBinding"
                 [optionIndex]="optionIndex"
                 [value]="optionBinding.option.optionId"
