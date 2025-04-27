@@ -534,7 +534,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     console.log('[🟢 onMatRadioChanged]', event.value);
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) return;
   
     const selectedOptionId = optionBinding.option.optionId;
@@ -544,7 +544,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.processImmediateSelection(selectedOptionId);
   
     // Then let FormControl naturally update afterward
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
+  
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
+    }
   }
+  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
@@ -2408,7 +2421,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings generated and highlights refreshed]');
     }, 0);
   }  */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2444,6 +2457,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
         this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
       }
+  
+      console.log('[✅ OptionBindings generated and highlights refreshed]');
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    // ✅ Force immediate template flush
+    this.cdRef.detectChanges();
+  
+    setTimeout(() => {
+      // Refresh highlight for all
+      this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
   
       console.log('[✅ OptionBindings generated and highlights refreshed]');
     }, 0);
@@ -2979,7 +3020,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.updateSelections(selectedOptionId);
       });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(-1, Validators.required)
     });
@@ -3004,6 +3045,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
             this.updateSelections(selectedOptionId);
           });
         });
+      });
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.viewReady = true;
+    console.log('[✅ Form initialized, viewReady = true]');
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    // Immediately subscribe to valueChanges
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null selectedOptionId, skipping]');
+          return;
+        }
+  
+        this.updateSelections(selectedOptionId);
       });
   }
 
