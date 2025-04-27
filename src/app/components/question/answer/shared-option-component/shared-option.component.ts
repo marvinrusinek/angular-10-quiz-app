@@ -545,7 +545,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Then let FormControl naturally update afterward
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) {
       return;
     }
@@ -556,8 +556,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
-  }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
   
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    // Force update FormControl IMMEDIATELY
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      console.log('[🟢 Forcing FormControl setValue on radio change]', selectedOptionId);
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: true });
+    }
+  }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
