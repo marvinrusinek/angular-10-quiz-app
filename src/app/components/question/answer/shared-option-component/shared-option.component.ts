@@ -1767,7 +1767,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         binding.option.highlight = isSelected;
         binding.option.showIcon = isSelected;
   
-        // 🧩 Refresh highlight immediately
+        // Refresh highlight immediately
         binding.directiveInstance?.updateHighlight();
       });
   
