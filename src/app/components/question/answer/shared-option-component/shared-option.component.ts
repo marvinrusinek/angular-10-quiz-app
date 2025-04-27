@@ -2477,7 +2477,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     if (selectedOptionId == null || selectedOptionId === -1) {
       console.warn('[⚠️ Invalid selectedOptionId, skipping]');
       return;
@@ -2508,7 +2508,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.lastSelectedOptionId = selectedOptionId;
     this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    console.log('[🛎️ updateSelections triggered]', selectedOptionId);
+  
+    // 🛡️ Guard against invalid
+    if (selectedOptionId == null || selectedOptionId === -1) {
+      console.warn('[⚠️ Skipping invalid selectedOptionId]', selectedOptionId);
+      return;
+    }
+  
+    // ✅ Track in history if new
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    // ✅ Loop through all option bindings
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isCurrent = optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+      // 🎯 Apply highlight, selection, icons
+      binding.isSelected = isCurrent;
+      binding.option.selected = isCurrent;
+      binding.option.highlight = isCurrent || isPreviouslySelected;
+      binding.option.showIcon = isCurrent || isPreviouslySelected;
+  
+      // 🎯 Feedback only for the current clicked
+      binding.showFeedbackForOption[optionId] = isCurrent;
+  
+      // 🖌️ Immediately update highlight through directive if exists
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    this.cdRef.detectChanges();
   }
+  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
