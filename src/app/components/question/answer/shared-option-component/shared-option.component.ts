@@ -177,6 +177,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
+  
+    console.log('[🛠 ngAfterViewInit starting dummy priming]');
+  
+    setTimeout(() => {
+      if (!this.form) {
+        console.warn('[⚠️ No form available yet]');
+        return;
+      }
+  
+      const dummyOption = this.optionBindings?.[0]?.option?.optionId ?? null;
+      if (dummyOption != null) {
+        console.log('[🛠 ngAfterViewInit priming dummy selection]', dummyOption);
+  
+        // First set to dummy option
+        this.form.get('selectedOptionId')?.setValue(dummyOption, { emitEvent: true });
+  
+        // ✅ Then clear back to -1 after slight delay
+        setTimeout(() => {
+          console.log('[🧹 ngAfterViewInit clearing dummy selection]');
+          this.form.get('selectedOptionId')?.setValue(-1, { emitEvent: true });
+        }, 50);
+      }
+    }, 0);
   }
 
   ngAfterViewChecked(): void {
@@ -2524,7 +2547,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }, 50);
       }
     }, 0);
-    
   }
 
   /* private updateSelections(selectedOptionId: number): void {
