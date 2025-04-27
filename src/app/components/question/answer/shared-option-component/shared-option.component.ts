@@ -72,6 +72,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightedOptionIds: Set<number> = new Set();
   lastFeedbackAnchorOptionId: number = -1;
   selectedRadioOptionId: number | null = null;
+  form: FormGroup;
 
   isNavigatingBackwards = false;
   isOptionSelected = false;
@@ -88,7 +89,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
-  form: FormGroup;
 
   optionTextStyle = { color: 'black' };
 
