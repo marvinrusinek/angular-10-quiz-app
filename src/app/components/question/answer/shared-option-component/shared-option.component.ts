@@ -2495,29 +2495,41 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
     });
   } */
-  private initializeForm(): void {
-    this.form = this.fb.group({
-      selectedOptionId: new FormControl(-1, Validators.required)
+  private updateSelections(selectedOptionId: number): void {
+    if (!this.optionBindings?.length) {
+      console.warn('[⚠️ No optionBindings, skipping updateSelections]');
+      return;
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const id = binding.option.optionId;
+  
+      const isCurrentSelected = id === selectedOptionId;
+      const wasPreviouslySelected = this.selectedOptionHistory.includes(id);
+  
+      // ✅ Always highlight current + previously selected options
+      binding.isSelected = isCurrentSelected;
+      binding.option.selected = isCurrentSelected;
+      binding.option.highlight = isCurrentSelected || wasPreviouslySelected;
+      binding.option.showIcon = isCurrentSelected || wasPreviouslySelected;
+  
+      // ✅ Set showFeedback ONLY for last selected
+      if (isCurrentSelected) {
+        this.lastSelectedOptionId = id;
+      }
+  
+      binding.showFeedbackForOption[id] = (id === this.lastSelectedOptionId);
+  
+      // ✅ Force directive update if available
+      binding.directiveInstance?.updateHighlight();
     });
   
-    this.viewReady = true;
-    console.log('[✅ Form initialized, viewReady = true]');
+    // ✅ Add to selection history only once
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+    }
   
-    this.selectedOptionHistory = [];
-    this.lastSelectedOptionId = undefined;
-  
-    this.form.get('selectedOptionId')?.valueChanges
-      .pipe(distinctUntilChanged())
-      .subscribe((selectedOptionId: number) => {
-        console.log('[🛎️ FormControl value changed]', selectedOptionId);
-  
-        if (selectedOptionId == null || selectedOptionId === -1) {
-          console.warn('[⚠️ Invalid selectedOptionId, skipping]');
-          return;
-        }
-  
-        this.updateSelections(selectedOptionId);
-      });
+    this.cdRef.detectChanges();
   }
 
   initializeOptionBindings(): void {
