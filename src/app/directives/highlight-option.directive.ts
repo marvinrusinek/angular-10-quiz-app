@@ -277,7 +277,7 @@ export class HighlightOptionDirective implements OnChanges {
     const optionId = option.optionId;
     const shouldHighlight = option.highlight === true;
   
-    setTimeout(() => { // 🛠 Add this timeout wrap
+    setTimeout(() => {
       let color = '';
   
       // If the option is already highlighted or selected, apply highlight color and show icon/feedback
