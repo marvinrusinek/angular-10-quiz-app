@@ -2461,7 +2461,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings generated and highlights refreshed]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2487,6 +2487,45 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
   
       console.log('[✅ OptionBindings generated and highlights refreshed]');
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    this.cdRef.detectChanges();
+  
+    setTimeout(() => {
+      this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
+      console.log('[✅ OptionBindings generated and highlights refreshed]');
+  
+      // Force form control to wake up
+      const dummyOption = this.optionBindings?.[0]?.option?.optionId ?? null;
+  
+      if (dummyOption != null) {
+        console.log('[🛠 Priming form control with dummyOption]', dummyOption);
+  
+        this.form.get('selectedOptionId')?.setValue(dummyOption, { emitEvent: false });
+  
+        setTimeout(() => {
+          console.log('[🧹 Clearing dummy selection]');
+          this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+        }, 50);
+      }
     }, 0);
   }
 
