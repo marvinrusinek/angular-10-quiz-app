@@ -1718,7 +1718,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         });
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -1763,6 +1763,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.viewReady = true;  // ✅ Only NOW viewReady
       this.cdRef.detectChanges();
       console.log('[✅ OptionBindings + Form ready + View ready]');
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      return this.getOptionBindings(option, idx, option.selected ?? false);
+    });
+  
+    if (!this.formSubscriptionsSetup) {
+      this.form.get('selectedOptionId')?.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe((selectedOptionId: number) => {
+          console.log('[🛎️ formControl valueChanges]', selectedOptionId);
+  
+          this.optionBindings.forEach(binding => {
+            const isSelected = binding.option.optionId === selectedOptionId;
+            binding.isSelected = isSelected;
+            binding.option.selected = isSelected;
+            binding.option.highlight = isSelected;
+            binding.option.showIcon = isSelected;
+            binding.directiveInstance?.updateHighlight();
+          });
+  
+          this.cdRef.detectChanges();
+        });
+  
+      this.formSubscriptionsSetup = true;
+    }
+  
+    const firstSelected = this.optionBindings.find(b => b.isSelected);
+    if (firstSelected) {
+      this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+    }
+  
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      this.viewReady = true;
     }, 0);
   }
 
