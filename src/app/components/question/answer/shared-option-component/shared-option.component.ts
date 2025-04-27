@@ -2500,30 +2500,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: new FormControl(-1, Validators.required)
     });
   
-    this.viewReady = true; // View ready immediately
+    this.viewReady = true;
     console.log('[✅ Form initialized, viewReady = true]');
   
     this.selectedOptionHistory = [];
     this.lastSelectedOptionId = undefined;
   
     this.form.get('selectedOptionId')?.valueChanges
-    .pipe(distinctUntilChanged())
-    .subscribe((selectedOptionId: number) => {
-      console.log('[🛎️ FormControl value changed]', selectedOptionId);
-
-      if (selectedOptionId == null) {
-        console.warn('[⚠️ Invalid selectedOptionId, skipping]');
-        return;
-      }
-
-      const currentSelectedBinding = this.optionBindings.find(binding => binding.option.optionId === selectedOptionId);
-
-      if (currentSelectedBinding) {
-        this.handlePostSelection(currentSelectedBinding); // ✅ ⬅️ Just like mini updateOptionAndUI()
-      }
-
-      this.cdRef.detectChanges();
-    });
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        if (selectedOptionId == null || selectedOptionId === -1) {
+          console.warn('[⚠️ Invalid selectedOptionId, skipping]');
+          return;
+        }
+  
+        this.updateSelections(selectedOptionId);
+      });
   }
 
   initializeOptionBindings(): void {
