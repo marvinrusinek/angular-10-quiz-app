@@ -2886,7 +2886,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       binding.isSelected = isCurrent;
       binding.option.selected = isCurrent;
-      binding.option.highlight = isPreviouslySelected; // 🧠 <- THIS line fixed your "previous highlight"
+      binding.option.highlight = isPreviouslySelected;
       binding.option.showIcon = isPreviouslySelected;
   
       if (isCurrent) {
@@ -2896,10 +2896,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       binding.showFeedbackForOption[optionId] = isCurrent;
       binding.directiveInstance?.updateHighlight();
     });
-  
-    this.cdRef.detectChanges();
   }
-  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
