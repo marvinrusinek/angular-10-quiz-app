@@ -2405,7 +2405,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ updateSelections]', selectedOptionId);
   
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
@@ -2430,6 +2430,45 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       binding.directiveInstance?.updateHighlight();
     });
+  
+    this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    console.log('[🛎️ updateSelections]', selectedOptionId);
+  
+    if (selectedOptionId == null || selectedOptionId === -1) {
+      console.warn('[⚠️ Invalid selectedOptionId, skipping]');
+      return;
+    }
+  
+    // ✅ Track new selection only if not already present
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    // ✅ Update all option bindings based on history
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+      const isCurrentlySelected = optionId === selectedOptionId;
+  
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+      binding.isSelected = isCurrentlySelected;
+      binding.option.selected = isCurrentlySelected;
+  
+      // ✅ Feedback only for the last clicked one
+      if (this.lastSelectedOptionId !== undefined) {
+        binding.showFeedbackForOption[optionId] = optionId === selectedOptionId;
+      }
+    });
+  
+    // ✅ Update last selected id
+    this.lastSelectedOptionId = selectedOptionId;
+  
+    // ✅ Trigger highlight updates manually (important!)
+    this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
   
     this.cdRef.detectChanges();
   }
