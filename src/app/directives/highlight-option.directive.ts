@@ -39,7 +39,9 @@ export class HighlightOptionDirective implements OnChanges {
     private ngZone: NgZone,
     private userPreferenceService: UserPreferenceService
   ) {
-    this.appHighlightOptionReady.emit(this);
+    if (this.optionBinding) {
+      this.appHighlightOptionReady.emit(this);
+    }
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
@@ -265,8 +267,13 @@ export class HighlightOptionDirective implements OnChanges {
     }
   } */
   updateHighlight(): void {
-    console.log('[🟣 updateHighlight]', { optionId: this.option?.optionId, selected: this.option?.selected, highlight: this.option?.highlight, time: performance.now() });
-
+    console.log('[🟣 updateHighlight]', {
+      optionId: this.option?.optionId,
+      selected: this.option?.selected,
+      highlight: this.option?.highlight,
+      time: performance.now()
+    });
+  
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ No optionBinding.option provided to HighlightOptionDirective]');
       return;
@@ -275,50 +282,47 @@ export class HighlightOptionDirective implements OnChanges {
     const option = this.optionBinding.option;
     const optionId = option.optionId;
     const shouldHighlight = option.highlight === true;
+    let color = '';
   
-    setTimeout(() => {
-      let color = '';
+    // ✅ If highlighted or selected -> green/red
+    if (shouldHighlight || this.isSelected) {
+      color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
+      this.setBackgroundColor(color);
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
   
-      // If the option is already highlighted or selected, apply highlight color and show icon/feedback
-      if (shouldHighlight || this.isSelected) {
-        color = this.isCorrect ? '#43f756' : '#ff0000'; // green/red
-        this.setBackgroundColor(color);
-        this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-        this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
-  
-        option.showIcon = true;
-        if (optionId !== undefined) {
-          this.showFeedbackForOption[optionId] = true;
-        }
-  
-        return;
+      option.showIcon = true;
+      if (optionId !== undefined) {
+        this.showFeedbackForOption[optionId] = true;
       }
   
-      // Grey out incorrect options
-      if (!this.isCorrect && option?.active === false) {
-        this.setBackgroundColor('#a3a3a3');
-        this.setPointerEvents('none');
-        this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
-        this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed');
+      return;
+    }
   
-        option.showIcon = false;
-        if (optionId !== undefined) {
-          this.showFeedbackForOption[optionId] = false;
-        }
-  
-        return;
-      }
-  
-      // Reset for unselected/default options
-      this.setBackgroundColor('white');
-      this.setPointerEvents('auto');
-      this.setCursor('pointer');
+    // ✅ Grey out inactive incorrect options
+    if (!this.isCorrect && option?.active === false) {
+      this.setBackgroundColor('#a3a3a3');
+      this.setPointerEvents('none');
+      this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed');
   
       option.showIcon = false;
       if (optionId !== undefined) {
         this.showFeedbackForOption[optionId] = false;
       }
-    }, 0);
+  
+      return;
+    }
+  
+    // ✅ Default (unselected) options: white
+    this.setBackgroundColor('white');
+    this.setPointerEvents('auto');
+    this.setCursor('pointer');
+  
+    option.showIcon = false;
+    if (optionId !== undefined) {
+      this.showFeedbackForOption[optionId] = false;
+    }
   }
 
   private highlightCorrectAnswers(): void {
