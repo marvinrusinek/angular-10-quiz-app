@@ -14,7 +14,7 @@
                 [value]="optionBinding.option.optionId"
                 (click)="handleDirectOptionClick(optionBinding, optionIndex)"
                 [disabled]="!optionBinding.option.active"
-                
+                (change)="onMatRadioChanged(optionBinding, optionIndex, $event)"
               >
                 <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
                 </ng-container>
