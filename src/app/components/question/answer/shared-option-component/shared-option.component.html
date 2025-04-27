@@ -14,6 +14,7 @@
                 [value]="optionBinding.option.optionId"
                 (click)="handleDirectOptionClick(optionBinding, optionIndex)"
                 [disabled]="!optionBinding.option.active"
+                
               >
                 <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
                 </ng-container>

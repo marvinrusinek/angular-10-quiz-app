@@ -2399,7 +2399,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewReady = false;
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(-1, Validators.required)
     });
@@ -2441,8 +2441,58 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       this.cdRef.detectChanges();
     });
-  }
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(-1, Validators.required)
+    });
   
+    this.viewReady = true; // Set viewReady IMMEDIATELY
+    console.log('[✅ Form initialized, viewReady = true]');
+  
+    this.selectedOptionHistory = []; // Always initialize fresh
+    this.lastSelectedOptionId = undefined;
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        if (selectedOptionId === undefined || selectedOptionId === null) {
+          console.warn('[⚠️ Invalid selectedOptionId, skipping update]');
+          return;
+        }
+  
+        // ✅ First track new selection
+        if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+          this.selectedOptionHistory.push(selectedOptionId);
+        }
+        this.lastSelectedOptionId = selectedOptionId;
+  
+        // Update each binding properly
+        this.optionBindings.forEach(binding => {
+          const optionId = binding.option.optionId;
+          const isSelected = optionId === selectedOptionId;
+          const wasPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+          binding.isSelected = isSelected;
+          binding.option.selected = isSelected;
+          binding.option.highlight = wasPreviouslySelected;
+          binding.option.showIcon = wasPreviouslySelected;
+  
+          // Feedback only under last clicked option
+          binding.showFeedbackForOption = {
+            ...binding.showFeedbackForOption,
+            [optionId]: optionId === this.lastSelectedOptionId
+          };
+  
+          // Force highlight refresh if directive attached
+          binding.directiveInstance?.updateHighlight();
+        });
+  
+        this.cdRef.detectChanges();
+      });
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
