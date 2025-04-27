@@ -555,6 +555,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
+  handleClickDirect(optionBinding: OptionBindings, index: number): void {
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    console.log('[🔥 Immediate click detected]', { selectedOptionId });
+  
+    // Update formControl immediately
+    this.form.get('selectedOptionId')?.setValue(selectedOptionId);
+  
+    // Update local UI immediately
+    this.optionBindings.forEach(binding => {
+      const isSelected = binding.option.optionId === selectedOptionId;
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+      binding.option.highlight = isSelected;
+      binding.option.showIcon = isSelected;
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    // Force UI repaint immediately
+    this.cdRef.detectChanges();
+  }
+  
+
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
