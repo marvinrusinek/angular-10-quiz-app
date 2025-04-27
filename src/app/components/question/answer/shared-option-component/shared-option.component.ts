@@ -565,12 +565,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('[🖱️ Direct click received]', { selectedOptionId });
   
-    // ✅ Patch the value immediately
-    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
-      this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: true });
-    }
+    // ✅ Immediately update the FormControl
+    this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: false });
   
-    // ✅ Manually update optionBindings immediately
+    // ✅ Immediately update the optionBindings too
     this.optionBindings.forEach(binding => {
       const isSelected = binding.option.optionId === selectedOptionId;
   
@@ -578,12 +576,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       binding.option.selected = isSelected;
       binding.option.highlight = isSelected;
       binding.option.showIcon = isSelected;
+  
       binding.directiveInstance?.updateHighlight();
     });
   
-    // ✅ Force view refresh instantly
+    // ✅ Now detect changes
     this.cdRef.detectChanges();
   }
+  
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
