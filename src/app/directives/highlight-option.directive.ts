@@ -37,11 +37,7 @@ export class HighlightOptionDirective implements OnChanges {
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private userPreferenceService: UserPreferenceService
-  ) {
-    if (this.optionBinding) {
-      this.optionBinding.directiveInstance = this;
-    }
-  }
+  ) {}
 
   /* ngOnChanges(changes: SimpleChanges): void {
     const highlightRelevant =
