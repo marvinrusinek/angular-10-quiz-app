@@ -1,5 +1,5 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
@@ -1935,7 +1935,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return feedbackProps;
   }  
 
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: [null]
     });
@@ -1957,6 +1957,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       this.cdRef.detectChanges();
     });
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.formSubscriptionsSetup = false;
+    this.viewReady = false;
   }
 
   initializeOptionBindings(): void {
