@@ -520,13 +520,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     const selectedOptionId = optionBinding.option.optionId;
     if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
       console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (optionBinding?.option.optionId !== event.value) {
+      console.warn('[⚠️ onMatRadioChanged option mismatch]');
+      return;
+    }
+    console.log('[🟢 onMatRadioChanged]', event.value);
   }
+  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
@@ -2658,7 +2666,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // 🔥 Force immediate view update
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ updateSelections]', selectedOptionId);
   
     if (!this.optionBindings?.length) return;
@@ -2680,6 +2688,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       binding.showFeedbackForOption[optionId] = isCurrentlySelected;
   
       // ✅ VERY IMPORTANT: immediately refresh the directive
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    // Add to selection history
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    // Update all options
+    this.optionBindings.forEach(binding => {
+      const isCurrent = binding.option.optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(binding.option.optionId);
+  
+      binding.isSelected = isCurrent;
+      binding.option.selected = isCurrent;
+      binding.option.highlight = isCurrent || isPreviouslySelected;
+      binding.option.showIcon = isCurrent || isPreviouslySelected;
+  
+      if (isCurrent) {
+        this.lastSelectedOptionId = selectedOptionId;
+      }
+  
+      binding.showFeedbackForOption[binding.option.optionId] = isCurrent;
       binding.directiveInstance?.updateHighlight();
     });
   
@@ -2847,17 +2882,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: new FormControl(-1, Validators.required)
     });
   
-    this.viewReady = true;
     this.selectedOptionHistory = [];
     this.lastSelectedOptionId = undefined;
+    this.viewReady = true;
   
     this.form.get('selectedOptionId')?.valueChanges
       .pipe(distinctUntilChanged())
       .subscribe((selectedOptionId: number) => {
         console.log('[🛎️ FormControl value changed]', selectedOptionId);
-        if (selectedOptionId !== null && selectedOptionId !== -1) {
-          this.updateSelections(selectedOptionId);
+  
+        if (selectedOptionId == null || selectedOptionId === -1) {
+          console.warn('[⚠️ Invalid selectedOptionId, skipping]');
+          return;
         }
+  
+        this.updateSelections(selectedOptionId);
       });
   }
 
