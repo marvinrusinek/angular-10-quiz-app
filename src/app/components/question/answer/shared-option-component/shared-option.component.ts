@@ -2300,7 +2300,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings and Highlights ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2333,9 +2333,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       console.log('[✅ OptionBindings generated and highlights refreshed]');
     }, 0);
-  }  
+  }  */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.selectedOptionHistory = []; // ✅ Reset history fresh every time
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    this.cdRef.detectChanges(); // Flush early
+  
+    setTimeout(() => {
+      // Refresh all directive highlights
+      this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
+  
+      // Preselect if any
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      console.log('[✅ OptionBindings generated and highlights refreshed]');
+    }, 0);
+  }
 
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ FormControl value changed]', selectedOptionId);
   
     // Always add new selection to history if not already recorded
@@ -2358,6 +2393,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       // Show feedback ONLY for the latest click
       binding.showFeedbackForOption[optionId] = isCurrentlySelected;
+    });
+  
+    this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    console.log('[🛎️ updateSelections]', selectedOptionId);
+  
+    // Always add new selection to history
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isSelectedNow = optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+      binding.isSelected = isSelectedNow;
+      binding.option.selected = isSelectedNow;
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+  
+      // ✅ Show feedback ONLY for latest selected
+      binding.showFeedbackForOption = {
+        ...(binding.showFeedbackForOption || {}),
+        [optionId]: isSelectedNow
+      };
+  
+      // Refresh directive immediately
+      binding.directiveInstance?.updateHighlight();
     });
   
     this.cdRef.detectChanges();
@@ -2495,41 +2561,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
     });
   } */
-  private updateSelections(selectedOptionId: number): void {
-    if (!this.optionBindings?.length) {
-      console.warn('[⚠️ No optionBindings, skipping updateSelections]');
-      return;
-    }
-  
-    this.optionBindings.forEach(binding => {
-      const id = binding.option.optionId;
-  
-      const isCurrentSelected = id === selectedOptionId;
-      const wasPreviouslySelected = this.selectedOptionHistory.includes(id);
-  
-      // ✅ Always highlight current + previously selected options
-      binding.isSelected = isCurrentSelected;
-      binding.option.selected = isCurrentSelected;
-      binding.option.highlight = isCurrentSelected || wasPreviouslySelected;
-      binding.option.showIcon = isCurrentSelected || wasPreviouslySelected;
-  
-      // ✅ Set showFeedback ONLY for last selected
-      if (isCurrentSelected) {
-        this.lastSelectedOptionId = id;
-      }
-  
-      binding.showFeedbackForOption[id] = (id === this.lastSelectedOptionId);
-  
-      // ✅ Force directive update if available
-      binding.directiveInstance?.updateHighlight();
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(-1, Validators.required)
     });
   
-    // ✅ Add to selection history only once
-    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
-      this.selectedOptionHistory.push(selectedOptionId);
-    }
+    this.viewReady = true;
+    console.log('[✅ Form initialized, viewReady = true]');
   
-    this.cdRef.detectChanges();
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        if (selectedOptionId == null || selectedOptionId === -1) {
+          console.warn('[⚠️ Invalid selectedOptionId, skipping]');
+          return;
+        }
+  
+        this.updateSelections(selectedOptionId);
+      });
   }
 
   initializeOptionBindings(): void {
