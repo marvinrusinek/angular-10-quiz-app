@@ -83,6 +83,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
+  public lastSelectedOptionId: number | undefined;
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
   hasUserClicked = false;
@@ -2408,22 +2409,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Subscribe immediately
     this.form.get('selectedOptionId')?.valueChanges
-      .pipe(distinctUntilChanged())
-      .subscribe((selectedOptionId: number) => {
-        console.log('[🛎️ FormControl value changed]', selectedOptionId);
-  
-        this.optionBindings.forEach(binding => {
-          const isSelected = binding.option.optionId === selectedOptionId;
-          binding.isSelected = isSelected;
-          binding.option.selected = isSelected;
-          binding.option.highlight = isSelected;
-          binding.option.showIcon = isSelected;
-  
-          binding.directiveInstance?.updateHighlight();
-        });
-  
-        this.cdRef.detectChanges();
+    .pipe(distinctUntilChanged())
+    .subscribe((selectedOptionId: number) => {
+      console.log('[🛎️ FormControl value changed]', selectedOptionId);
+
+      this.optionBindings.forEach(binding => {
+        const isCurrentSelected = binding.option.optionId === selectedOptionId;
+        const isPreviouslySelected = this.selectedOptionHistory.includes(binding.option.optionId);
+
+        // ✅ Always highlight current and previous selections
+        binding.option.highlight = isCurrentSelected || isPreviouslySelected;
+        binding.isSelected = isCurrentSelected;
+        binding.option.selected = isCurrentSelected;
+        binding.option.showIcon = isCurrentSelected || isPreviouslySelected;
+
+        // ✅ Set showFeedback ONLY for latest selection
+        if (isCurrentSelected) {
+          this.lastSelectedOptionId = selectedOptionId; // Track latest
+        }
+
+        // ✅ Allow feedback ONLY on last clicked
+        if (this.lastSelectedOptionId !== undefined) {
+          binding.showFeedbackForOption[binding.option.optionId] = binding.option.optionId === this.lastSelectedOptionId;
+        }
       });
+
+      // ✅ Track selection history only once
+      if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+        this.selectedOptionHistory.push(selectedOptionId);
+      }
+
+      this.cdRef.detectChanges();
+    });
   }
   
 
