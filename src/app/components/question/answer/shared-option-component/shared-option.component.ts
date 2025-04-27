@@ -177,29 +177,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
-  
-    console.log('[🛠 ngAfterViewInit starting dummy priming]');
-  
-    setTimeout(() => {
-      if (!this.form) {
-        console.warn('[⚠️ No form available yet]');
-        return;
-      }
-  
-      const dummyOption = this.optionBindings?.[0]?.option?.optionId ?? null;
-      if (dummyOption != null) {
-        console.log('[🛠 ngAfterViewInit priming dummy selection]', dummyOption);
-  
-        // First set to dummy option
-        this.form.get('selectedOptionId')?.setValue(dummyOption, { emitEvent: true });
-  
-        // ✅ Then clear back to -1 after slight delay
-        setTimeout(() => {
-          console.log('[🧹 ngAfterViewInit clearing dummy selection]');
-          this.form.get('selectedOptionId')?.setValue(-1, { emitEvent: true });
-        }, 50);
-      }
-    }, 0);
   }
 
   ngAfterViewChecked(): void {
@@ -2886,7 +2863,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       binding.isSelected = isCurrent;
       binding.option.selected = isCurrent;
-      binding.option.highlight = isPreviouslySelected;
+      binding.option.highlight = isPreviouslySelected; // 🧠 <- THIS line fixed your "previous highlight"
       binding.option.showIcon = isPreviouslySelected;
   
       if (isCurrent) {
@@ -2896,7 +2873,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       binding.showFeedbackForOption[optionId] = isCurrent;
       binding.directiveInstance?.updateHighlight();
     });
+  
+    this.cdRef.detectChanges();
   }
+  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
@@ -3103,7 +3083,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         });
       });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required),
     });
@@ -3127,7 +3107,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
         this.updateSelections(selectedOptionId);
       });
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.viewReady = true;
+    console.log('[✅ Form initialized, viewReady = true]');
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null selectedOptionId, skipping]');
+          return;
+        }
+  
+        // ✅ 1. Update all highlights/icons
+        this.updateSelections(selectedOptionId);
+  
+        // ✅ 2. Track latest selection for feedback
+        this.lastSelectedOptionId = selectedOptionId;
+  
+        this.optionBindings.forEach(binding => {
+          binding.showFeedbackForOption[binding.option.optionId] =
+            binding.option.optionId === this.lastSelectedOptionId;
+        });
+  
+        // ✅ 3. Refresh UI
+        this.cdRef.detectChanges();
+      });
   }
+  
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
