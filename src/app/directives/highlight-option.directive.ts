@@ -7,9 +7,11 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
-  selector: '[appHighlightOption]'
+  selector: '[appHighlightOption]',
+  exportAs: 'appHighlightOption'
 })
 export class HighlightOptionDirective implements OnChanges {
+  @Output() appHighlightOptionReady = new EventEmitter<HighlightOptionDirective>();
   @Output() resetBackground = new EventEmitter<boolean>();
   @Output() optionClicked = new EventEmitter<Option>();
   @Input() appHighlightInputType: 'checkbox' | 'radio' = 'radio';
@@ -36,7 +38,9 @@ export class HighlightOptionDirective implements OnChanges {
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private userPreferenceService: UserPreferenceService
-  ) {}
+  ) {
+    this.appHighlightOptionReady.emit(this);
+  }
 
   /* ngOnChanges(changes: SimpleChanges): void {
     const highlightRelevant =
