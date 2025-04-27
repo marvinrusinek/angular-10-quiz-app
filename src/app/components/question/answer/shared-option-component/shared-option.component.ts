@@ -2223,7 +2223,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2259,8 +2259,41 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.viewReady = true;
       console.log('[✅ OptionBindings and Highlights ready]');
     }, 0);
-  }
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
   
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    this.cdRef.detectChanges(); // ✅ Early flush
+  
+    setTimeout(() => {
+      // Refresh all highlights
+      this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
+  
+      // Preselect if any
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      console.log('[✅ OptionBindings generated and highlights refreshed]');
+    }, 0);
+  }  
 
   private updateSelections(selectedOptionId: number): void {
     this.optionBindings.forEach(binding => {
