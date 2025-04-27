@@ -1909,7 +1909,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -1957,6 +1957,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[✅ viewReady=true]');
       }, 0);
     });
+  } */
+  private generateOptionBindings(): void {
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    // Build fresh option bindings
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      return this.getOptionBindings(option, idx, option.selected ?? false);
+    });
+  
+    // Preselect if needed (after form is ready)
+    const firstSelected = this.optionBindings.find(binding => binding.isSelected);
+    if (firstSelected) {
+      console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+    }
+  
+    // After binding generation, finalize the UI after DOM settles
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      this.viewReady = true;
+      console.log('[✅ OptionBindings created and viewReady set]');
+    }, 0);
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
