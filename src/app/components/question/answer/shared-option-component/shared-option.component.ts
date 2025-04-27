@@ -2625,7 +2625,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ updateSelections triggered]', selectedOptionId);
   
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
@@ -2656,6 +2656,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.lastSelectedOptionId = selectedOptionId;
   
     // 🔥 Force immediate view update
+    this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    console.log('[🛎️ updateSelections]', selectedOptionId);
+  
+    if (!this.optionBindings?.length) return;
+  
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isInHistory = this.selectedOptionHistory.includes(optionId);
+      const isCurrentlySelected = optionId === selectedOptionId;
+  
+      binding.option.highlight = isInHistory;
+      binding.option.showIcon = isInHistory;
+      binding.isSelected = isCurrentlySelected;
+      binding.option.selected = isCurrentlySelected;
+  
+      binding.showFeedbackForOption[optionId] = isCurrentlySelected;
+  
+      // ✅ VERY IMPORTANT: immediately refresh the directive
+      binding.directiveInstance?.updateHighlight();
+    });
+  
     this.cdRef.detectChanges();
   }
 
