@@ -38,7 +38,6 @@
               [optionBinding]="optionBinding"
               [optionIndex]="optionIndex"
               [value]="optionBinding.option.optionId"
-              [checked]="optionBinding.option.selected"
               (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
               (click)="handleDirectOptionClick(optionBinding, optionIndex)"
             >

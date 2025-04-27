@@ -500,7 +500,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) {
       return;
     }
@@ -511,9 +511,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      console.log('[🟢 onMatRadioChanged]', selectedOptionId);
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
+    }
   }
   
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -521,7 +529,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
+  } */
+  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+    const selected = event.checked;
+  
+    if (selected) {
+      if (!this.selectedOptionHistory.includes(optionBinding.option.optionId)) {
+        this.selectedOptionHistory.push(optionBinding.option.optionId);
+      }
+    } else {
+      this.selectedOptionHistory = this.selectedOptionHistory.filter(id => id !== optionBinding.option.optionId);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isInHistory = this.selectedOptionHistory.includes(optionId);
+  
+      binding.option.highlight = isInHistory;
+      binding.option.showIcon = isInHistory;
+      binding.isSelected = isInHistory;
+      binding.option.selected = isInHistory;
+  
+      binding.showFeedbackForOption = {
+        ...(binding.showFeedbackForOption || {}),
+        [optionId]: isInHistory
+      };
+  
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    this.cdRef.detectChanges();
   }
+  
   
   private handlePostSelection(selectedBinding: OptionBindings): void {
     if (!selectedBinding) {
@@ -2400,7 +2439,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ updateSelections]', selectedOptionId);
   
-    // Always add new selection to history
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
       this.selectedOptionHistory.push(selectedOptionId);
       console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
@@ -2408,21 +2446,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.optionBindings.forEach(binding => {
       const optionId = binding.option.optionId;
-      const isSelectedNow = optionId === selectedOptionId;
-      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+      const isInHistory = this.selectedOptionHistory.includes(optionId);
+      const isCurrentlySelected = optionId === selectedOptionId;
   
-      binding.isSelected = isSelectedNow;
-      binding.option.selected = isSelectedNow;
-      binding.option.highlight = isPreviouslySelected;
-      binding.option.showIcon = isPreviouslySelected;
+      binding.option.highlight = isInHistory;
+      binding.option.showIcon = isInHistory;
+      binding.isSelected = isCurrentlySelected;
+      binding.option.selected = isCurrentlySelected;
   
-      // ✅ Show feedback ONLY for latest selected
       binding.showFeedbackForOption = {
         ...(binding.showFeedbackForOption || {}),
-        [optionId]: isSelectedNow
+        [optionId]: isCurrentlySelected
       };
   
-      // Refresh directive immediately
       binding.directiveInstance?.updateHighlight();
     });
   
