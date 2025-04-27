@@ -2338,30 +2338,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ FormControl value changed]', selectedOptionId);
   
-    // ✅ First, record the history
+    // Always add new selection to history if not already recorded
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
       this.selectedOptionHistory.push(selectedOptionId);
       console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
     }
   
-    // ✅ Now, loop through all option bindings
+    // Loop and update highlights/icons based on history
     this.optionBindings.forEach(binding => {
       const optionId = binding.option.optionId;
-      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
-      const isCurrentSelected = optionId === selectedOptionId;
+      const isInHistory = this.selectedOptionHistory.includes(optionId);
+      const isCurrentlySelected = optionId === selectedOptionId;
   
-      // ✅ Always highlight if it was ever selected
-      binding.option.highlight = isPreviouslySelected;
-      binding.isSelected = isCurrentSelected;
-      binding.option.selected = isCurrentSelected;
-      binding.option.showIcon = isPreviouslySelected;
+      // Highlight if ever selected
+      binding.option.highlight = isInHistory;
+      binding.option.showIcon = isInHistory;
+      binding.isSelected = isCurrentlySelected;
+      binding.option.selected = isCurrentlySelected;
   
-      // ✅ Only show feedback for the most recent click
-      binding.showFeedbackForOption[optionId] = isCurrentSelected;
+      // Show feedback ONLY for the latest click
+      binding.showFeedbackForOption[optionId] = isCurrentlySelected;
     });
   
     this.cdRef.detectChanges();
-  }  
+  }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
