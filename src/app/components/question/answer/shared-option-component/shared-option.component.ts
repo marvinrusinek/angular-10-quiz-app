@@ -522,17 +522,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     const selectedOptionId = optionBinding.option.optionId;
-  
-    console.log('[🟢 onMatRadioChanged fired]', { selectedOptionId });
-  
     if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
-      this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: false }); // 👈 disable auto event
+      console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
-  
-    // Immediately update selections manually
-    this.updateSelections(selectedOptionId);
   }
-  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
@@ -2809,7 +2803,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
     });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(-1, Validators.required)
     });
@@ -2831,6 +2825,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
   
         this.updateSelections(selectedOptionId);
+      });
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(-1, Validators.required)
+    });
+  
+    this.viewReady = true;
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+        if (selectedOptionId !== null && selectedOptionId !== -1) {
+          this.updateSelections(selectedOptionId);
+        }
       });
   }
 
