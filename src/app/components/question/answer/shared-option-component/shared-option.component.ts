@@ -2447,10 +2447,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: new FormControl(-1, Validators.required)
     });
   
-    this.viewReady = true; // Set viewReady IMMEDIATELY
+    this.viewReady = true; // View ready immediately
     console.log('[✅ Form initialized, viewReady = true]');
   
-    this.selectedOptionHistory = []; // Always initialize fresh
+    this.selectedOptionHistory = [];
     this.lastSelectedOptionId = undefined;
   
     this.form.get('selectedOptionId')?.valueChanges
@@ -2459,34 +2459,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[🛎️ FormControl value changed]', selectedOptionId);
   
         if (selectedOptionId === undefined || selectedOptionId === null) {
-          console.warn('[⚠️ Invalid selectedOptionId, skipping update]');
+          console.warn('[⚠️ Invalid selectedOptionId, skipping]');
           return;
         }
   
-        // ✅ First track new selection
+        // Track history
         if (!this.selectedOptionHistory.includes(selectedOptionId)) {
           this.selectedOptionHistory.push(selectedOptionId);
         }
         this.lastSelectedOptionId = selectedOptionId;
   
-        // Update each binding properly
+        // Update all options
         this.optionBindings.forEach(binding => {
           const optionId = binding.option.optionId;
-          const isSelected = optionId === selectedOptionId;
           const wasPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+          const isCurrentSelected = optionId === selectedOptionId;
   
-          binding.isSelected = isSelected;
-          binding.option.selected = isSelected;
+          // 🧠 Highlight all previously selected options
           binding.option.highlight = wasPreviouslySelected;
           binding.option.showIcon = wasPreviouslySelected;
   
-          // Feedback only under last clicked option
+          // 🧠 Only set selected=true on the *current* clicked one
+          binding.isSelected = isCurrentSelected;
+          binding.option.selected = isCurrentSelected;
+  
+          // 🧠 Feedback only on latest click
           binding.showFeedbackForOption = {
             ...binding.showFeedbackForOption,
-            [optionId]: optionId === this.lastSelectedOptionId
+            [optionId]: isCurrentSelected
           };
   
-          // Force highlight refresh if directive attached
+          // Force refresh
           binding.directiveInstance?.updateHighlight();
         });
   
