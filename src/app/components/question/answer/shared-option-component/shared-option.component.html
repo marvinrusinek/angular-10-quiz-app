@@ -12,7 +12,7 @@
                 [optionBinding]="optionBinding"
                 [optionIndex]="optionIndex"
                 [value]="optionBinding.option.optionId"
-                (click)="handleClickDirect(optionBinding, optionIndex)"
+                (click)="handleDirectOptionClick(optionBinding, optionIndex)"
               >
                 <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
                 </ng-container>
@@ -38,6 +38,7 @@
               [value]="optionBinding.option.optionId"
               [checked]="optionBinding.option.selected"
               (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
+              (click)="handleDirectOptionClick(optionBinding, optionIndex)"
             >
               <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
               </ng-container>
