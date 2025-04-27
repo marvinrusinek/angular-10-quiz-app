@@ -2,17 +2,16 @@
   <form [formGroup]="form">
     <ng-container [ngSwitch]="optionBindings[0]?.type">
 
-      <!-- Single-answer question -->
+      <!-- Single-answer (radio) questions -->
       <ng-container *ngSwitchCase="'single'">
         <mat-radio-group formControlName="selectedOptionId">
           <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
             <label class="options">
-              <mat-radio-button 
+              <mat-radio-button
                 appHighlightOption
                 [optionBinding]="optionBinding"
                 [optionIndex]="optionIndex"
                 [value]="optionBinding.option.optionId"
-                [attr.data-option-index]="optionIndex" 
               >
                 <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
                 </ng-container>
@@ -27,7 +26,7 @@
         </mat-radio-group>
       </ng-container>
 
-      <!-- Multiple-answer question -->
+      <!-- Multiple-answer (checkbox) questions -->
       <ng-container *ngSwitchCase="'multiple'">
         <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
           <label class="options">
@@ -35,6 +34,7 @@
               appHighlightOption
               [optionBinding]="optionBinding"
               [optionIndex]="optionIndex"
+              [checked]="optionBinding.option.selected"
               [value]="optionBinding.option.optionId"
               (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)"
             >
@@ -54,22 +54,19 @@
   </form>
 </ng-container>
 
-<!-- Template for displaying the option content -->
+<!-- Template for option content -->
 <ng-template #optionContent let-option="option" let-optionIndex="idx">
   <div class="option-content">
     <span class="option-text" [ngStyle]="optionTextStyle">
       {{ getOptionDisplayText(option, optionIndex) }}
     </span>
-    <mat-icon
-      *ngIf="shouldShowIcon(option)" 
-      class="material-icons icon"
-      [ngClass]="optionIconClass">
+    <mat-icon *ngIf="shouldShowIcon(option)" class="material-icons icon" [ngClass]="optionIconClass">
       {{ getOptionIcon(option) }}
     </mat-icon>
   </div>
 </ng-template>
 
-<!-- Fallback when no options available -->
+<!-- Fallback -->
 <ng-template #noOptions>
   <p>No options available.</p>
 </ng-template>
