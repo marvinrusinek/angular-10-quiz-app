@@ -505,13 +505,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptionId: event.value,
       bindingOptionId: optionBinding.option.optionId,
     });
+
+    if (!optionBinding) {
+      return;
+    }
   
     if (optionBinding.option.optionId !== event.value) {
       console.warn('[⚠️ Option mismatch, skipping update]');
       return;
     }
   
-    this.form.get('selectedOptionId')?.setValue(event.value);
+    const selectedOptionId = optionBinding.option.optionId;
+    this.form.get('selectedOptionId')?.setValue(selectedOptionId);
   }  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
