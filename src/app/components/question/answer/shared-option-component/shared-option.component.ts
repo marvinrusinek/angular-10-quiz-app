@@ -1805,7 +1805,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.viewReady = true;
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -1848,6 +1848,56 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
         this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
       }
+  
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      return this.getOptionBindings(option, idx, option.selected ?? false);
+    });
+  
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      console.log('[✅ OptionBindings ready]');
+  
+      if (!this.formSubscriptionsSetup) {
+        this.form.get('selectedOptionId')?.valueChanges
+          .pipe(distinctUntilChanged())
+          .subscribe((selectedOptionId: number) => {
+            console.log('[🛎️ formControl valueChanges]', selectedOptionId);
+  
+            this.optionBindings.forEach(binding => {
+              const isSelected = binding.option.optionId === selectedOptionId;
+              binding.isSelected = isSelected;
+              binding.option.selected = isSelected;
+              binding.option.highlight = isSelected;
+              binding.option.showIcon = isSelected;
+  
+              binding.directiveInstance?.updateHighlight();
+            });
+  
+            this.cdRef.detectChanges();
+          });
+  
+        this.formSubscriptionsSetup = true;
+      }
+  
+      // Preselect if needed
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      // ✅ Only after full stabilization
+      setTimeout(() => {
+        this.viewReady = true;
+        this.cdRef.detectChanges();
+        console.log('[🚀 Form + View fully initialized]');
+      }, 0);
   
     }, 0);
   }
