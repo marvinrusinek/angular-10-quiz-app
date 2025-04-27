@@ -77,20 +77,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
+  optionTextStyle = { color: 'black' };
   private optionsRestored = false; // tracks if options are restored
-  private hasBoundQuizComponent = false;
-  private hasLoggedMissingComponent = false;
-  viewInitialized = false;
-  viewReady = false;
-  optionsReady = false;
-  lastClickedOptionId: number | null = null;
-  lastClickTimestamp: number | null = null;
-  hasUserClicked = false;
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
+  private hasBoundQuizComponent = false;
+  private hasLoggedMissingComponent = false;
+  hasUserClicked = false;
 
-  optionTextStyle = { color: 'black' };
+  optionsReady = false;
+  viewReady = false;
+  viewInitialized = false;
+  
+  lastClickedOptionId: number | null = null;
+  lastClickTimestamp: number | null = null;
 
   constructor(
     private feedbackService: FeedbackService,
