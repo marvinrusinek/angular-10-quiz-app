@@ -2351,15 +2351,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected = option.selected ?? false;
       const binding = this.getOptionBindings(option, idx, isSelected);
-  
+    
+      // 👇 Store directive instance if you have it
+      if (binding.directiveInstance) {
+        binding.directiveInstance.optionBinding = binding;
+      }
+    
       if (isSelected) {
         binding.option.highlight = true;
         binding.option.showIcon = true;
         binding.isSelected = true;
       }
-  
+    
       return binding;
-    });
+    });    
   
     this.cdRef.detectChanges(); // Flush early
   
@@ -2433,7 +2438,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ updateSelections]', selectedOptionId);
   
     if (selectedOptionId == null || selectedOptionId === -1) {
@@ -2470,6 +2475,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // ✅ Trigger highlight updates manually (important!)
     this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
   
+    this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    if (selectedOptionId == null || selectedOptionId === -1) {
+      console.warn('[⚠️ Invalid selectedOptionId, skipping]');
+      return;
+    }
+  
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+      const isCurrentlySelected = optionId === selectedOptionId;
+  
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+      binding.isSelected = isCurrentlySelected;
+      binding.option.selected = isCurrentlySelected;
+  
+      if (this.lastSelectedOptionId !== undefined) {
+        binding.showFeedbackForOption[optionId] = optionId === selectedOptionId;
+      }
+  
+      // 👇 Refresh immediately
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    this.lastSelectedOptionId = selectedOptionId;
     this.cdRef.detectChanges();
   }
 
