@@ -2510,23 +2510,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   
     setTimeout(() => {
-      this.optionBindings.forEach(binding => binding.directiveInstance?.updateHighlight());
-      console.log('[✅ OptionBindings generated and highlights refreshed]');
-  
-      // Force form control to wake up
       const dummyOption = this.optionBindings?.[0]?.option?.optionId ?? null;
-  
+    
       if (dummyOption != null) {
         console.log('[🛠 Priming form control with dummyOption]', dummyOption);
-  
-        this.form.get('selectedOptionId')?.setValue(dummyOption, { emitEvent: false });
-  
+    
+        // ✅ Emit event when setting dummy option
+        this.form.get('selectedOptionId')?.setValue(dummyOption, { emitEvent: true });
+    
         setTimeout(() => {
           console.log('[🧹 Clearing dummy selection]');
-          this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+          this.form.get('selectedOptionId')?.setValue(null, { emitEvent: true });
         }, 50);
       }
     }, 0);
+    
   }
 
   /* private updateSelections(selectedOptionId: number): void {
