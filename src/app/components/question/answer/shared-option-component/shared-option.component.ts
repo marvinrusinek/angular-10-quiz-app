@@ -1997,7 +1997,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings created and viewReady set]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2037,6 +2037,51 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       console.log('[✅ Form + OptionBindings ready]');
     }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) =>
+      this.getOptionBindings(option, idx, option.selected ?? false)
+    );
+  
+    // No valueChanges yet. First set default value safely.
+    const firstSelected = this.optionBindings.find(b => b.isSelected);
+    if (firstSelected) {
+      console.log('[🧠 Preselecting]', firstSelected.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+    }
+  
+    // NOW subscribe
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ formControl valueChanges]', selectedOptionId);
+        this.updateSelections(selectedOptionId);
+      });
+  
+    // NOW mark view ready
+    setTimeout(() => {
+      this.viewReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ Form + Options ready]');
+    }, 0);
+  }
+
+  private updateSelections(selectedOptionId: number): void {
+    this.optionBindings.forEach(binding => {
+      const isSelected = binding.option.optionId === selectedOptionId;
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+      binding.option.highlight = isSelected;
+      binding.option.showIcon = isSelected;
+
+      binding.directiveInstance?.updateHighlight(); // Important for immediate UI update
+    });
+
+    this.cdRef.detectChanges();
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
@@ -2102,20 +2147,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewReady = false; // reset viewReady initially
   }
-
-  /* REMOVE??? private updateSelections(selectedOptionId: number): void {
-    this.optionBindings.forEach(binding => {
-      const isSelected = binding.option.optionId === selectedOptionId;
-      binding.isSelected = isSelected;
-      binding.option.selected = isSelected;
-      binding.option.highlight = isSelected;
-      binding.option.showIcon = isSelected;
-
-      binding.directiveInstance?.updateHighlight(); // Important for immediate UI update
-    });
-
-    this.cdRef.detectChanges();
-  } */
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
