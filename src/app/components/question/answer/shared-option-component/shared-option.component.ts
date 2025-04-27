@@ -529,6 +529,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateOptionAndUI(optionBinding, index, event);
   }
   
+  private handlePostSelection(selectedBinding: OptionBindings): void {
+    if (!selectedBinding) {
+      console.error('[❌ handlePostSelection] No binding found');
+      return;
+    }
+  
+    const optionId = selectedBinding.option.optionId;
+  
+    // Add to selected history if new
+    if (!this.selectedOptionHistory.includes(optionId)) {
+      this.selectedOptionHistory.push(optionId);
+    }
+  
+    // Update last selected
+    this.lastSelectedOptionId = optionId;
+  
+    // Update ALL option states
+    this.optionBindings.forEach(binding => {
+      const isPreviouslySelected = this.selectedOptionHistory.includes(binding.option.optionId);
+      const isCurrentSelected = binding.option.optionId === optionId;
+  
+      binding.isSelected = isCurrentSelected;
+      binding.option.selected = isCurrentSelected;
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+  
+      // Feedback should ONLY show for current
+      binding.showFeedbackForOption = {
+        ...binding.showFeedbackForOption,
+        [binding.option.optionId]: isCurrentSelected
+      };
+  
+      binding.directiveInstance?.updateHighlight(); // 🔥 Force UI repaint
+    });
+  
+    console.log('[✅ handlePostSelection done]', {
+      selectedOptionHistory: this.selectedOptionHistory,
+      lastSelectedOptionId: this.lastSelectedOptionId
+    });
+  }
 
   onOptionClickFallback(optionBinding: OptionBindings, index: number): void {
     const optionId = optionBinding.option.optionId;
@@ -2459,47 +2499,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.lastSelectedOptionId = undefined;
   
     this.form.get('selectedOptionId')?.valueChanges
-      .pipe(distinctUntilChanged())
-      .subscribe((selectedOptionId: number) => {
-        console.log('[🛎️ FormControl value changed]', selectedOptionId);
-  
-        if (selectedOptionId === undefined || selectedOptionId === null) {
-          console.warn('[⚠️ Invalid selectedOptionId, skipping]');
-          return;
-        }
-  
-        // Track history
-        if (!this.selectedOptionHistory.includes(selectedOptionId)) {
-          this.selectedOptionHistory.push(selectedOptionId);
-        }
-        this.lastSelectedOptionId = selectedOptionId;
-  
-        // Update all options
-        this.optionBindings.forEach(binding => {
-          const optionId = binding.option.optionId;
-          const wasPreviouslySelected = this.selectedOptionHistory.includes(optionId);
-          const isCurrentSelected = optionId === selectedOptionId;
-  
-          // 🧠 Highlight all previously selected options
-          binding.option.highlight = wasPreviouslySelected;
-          binding.option.showIcon = wasPreviouslySelected;
-  
-          // 🧠 Only set selected=true on the *current* clicked one
-          binding.isSelected = isCurrentSelected;
-          binding.option.selected = isCurrentSelected;
-  
-          // 🧠 Feedback only on latest click
-          binding.showFeedbackForOption = {
-            ...binding.showFeedbackForOption,
-            [optionId]: isCurrentSelected
-          };
-  
-          // Force refresh
-          binding.directiveInstance?.updateHighlight();
-        });
-  
-        this.cdRef.detectChanges();
-      });
+    .pipe(distinctUntilChanged())
+    .subscribe((selectedOptionId: number) => {
+      console.log('[🛎️ FormControl value changed]', selectedOptionId);
+
+      if (selectedOptionId == null) {
+        console.warn('[⚠️ Invalid selectedOptionId, skipping]');
+        return;
+      }
+
+      const currentSelectedBinding = this.optionBindings.find(binding => binding.option.optionId === selectedOptionId);
+
+      if (currentSelectedBinding) {
+        this.handlePostSelection(currentSelectedBinding); // ✅ ⬅️ Just like mini updateOptionAndUI()
+      }
+
+      this.cdRef.detectChanges();
+    });
   }
 
   initializeOptionBindings(): void {
