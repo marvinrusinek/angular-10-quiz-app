@@ -71,6 +71,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastFeedbackOptionId = -1;
   highlightedOptionIds: Set<number> = new Set();
   lastFeedbackAnchorOptionId: number = -1;
+  selectedRadioOptionId: number | null = null;
 
   isNavigatingBackwards = false;
   isOptionSelected = false;
@@ -515,8 +516,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.updateOptionAndUI(optionBinding, index, fakeEvent);
     }
   }
-
-  selectedRadioOptionId: number | null = null;
 
   onMatRadioGroupChanged(event: MatRadioChange): void {
     const selectedOptionId = event.value;
