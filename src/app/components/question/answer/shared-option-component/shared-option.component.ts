@@ -527,16 +527,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (optionBinding?.option.optionId !== event.value) {
       console.warn('[⚠️ onMatRadioChanged option mismatch]');
       return;
     }
     console.log('[🟢 onMatRadioChanged]', event.value);
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) return;
+  
+    const selectedOptionId = optionBinding.option.optionId;
+    console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
+  
+    // MANUALLY update immediately
+    this.processImmediateSelection(selectedOptionId);
+  
+    // Then let FormControl naturally update afterward
   }
   
-  
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -544,6 +554,47 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
+  } */
+  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+    if (!optionBinding) return;
+  
+    const selectedOptionId = optionBinding.option.optionId;
+    console.log('[🟢 onMatCheckboxChanged fired]', selectedOptionId);
+  
+    // MANUALLY update immediately
+    this.processImmediateSelection(selectedOptionId);
+  
+    // Let FormControl catch up too (if needed)
+  }
+
+  private processImmediateSelection(selectedOptionId: number): void {
+    if (!this.form) return;
+  
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isCurrent = optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+      binding.isSelected = isCurrent;
+      binding.option.selected = isCurrent;
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+      binding.showFeedbackForOption[optionId] = isCurrent;
+  
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    // Manually force update right after
+    this.cdRef.detectChanges();
+  
+    // Update FormControl too so it's in sync
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: false });
+    }
   }
   
   private handlePostSelection(selectedBinding: OptionBindings): void {
