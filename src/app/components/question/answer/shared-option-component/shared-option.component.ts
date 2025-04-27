@@ -2339,7 +2339,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewReady = false; // reset viewReady initially
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(-1, Validators.required)
     });
@@ -2364,7 +2364,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
   
     this.viewReady = false;
-  }  
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(-1, Validators.required)
+    });
+  
+    this.viewReady = true; // set viewReady IMMEDIATELY here
+    console.log('[✅ Form initialized, viewReady = true]');
+  
+    // Subscribe immediately
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        this.optionBindings.forEach(binding => {
+          const isSelected = binding.option.optionId === selectedOptionId;
+          binding.isSelected = isSelected;
+          binding.option.selected = isSelected;
+          binding.option.highlight = isSelected;
+          binding.option.showIcon = isSelected;
+  
+          binding.directiveInstance?.updateHighlight();
+        });
+  
+        this.cdRef.detectChanges();
+      });
+  }
+  
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
