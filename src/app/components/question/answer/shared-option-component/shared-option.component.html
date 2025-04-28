@@ -19,7 +19,6 @@
             *ngSwitchCase="'multiple'"
             appHighlightOption
             [optionBinding]="optionBinding"
-            [checked]="optionBinding.option.selected"
             (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)">
             <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
             </ng-container>
