@@ -2559,7 +2559,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2597,7 +2597,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       console.log('[✅ viewReady = true AFTER bindings ready]');
     }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    // 🛠 Build fresh option bindings
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    console.log('[🧩 OptionBindings generated]', this.optionBindings.length);
+  
+    // ✅ Force flush changes immediately
+    this.cdRef.detectChanges();
+  
+    // ✅ Delay preselecting after bindings and view are stable
+    setTimeout(() => {
+      const firstBinding = this.optionBindings[0]; // Always pick first option for radio
+      if (firstBinding && firstBinding.type === 'single') {
+        console.log('[🧠 Auto-preselecting first single option]', firstBinding.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstBinding.option.optionId, { emitEvent: false });
+      }
+  
+      // ✅ Now truly mark viewReady after formControl is set
+      this.viewReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ viewReady = true AFTER bindings and preselection ready]');
+    }, 0);
   }
+  
 
   /* private updateSelections(selectedOptionId: number): void {
     console.log('[🛎️ FormControl value changed]', selectedOptionId);
@@ -3217,7 +3256,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.cdRef.detectChanges();
       });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required),
     });
@@ -3238,6 +3277,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
   
         this.updateSelections(selectedOptionId);
+      });
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.viewReady = false; // ❗ Correct: viewReady should be FALSE until after bindings ready
+  
+    console.log('[✅ Form initialized, viewReady temporarily false]');
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null or invalid selectedOptionId, skipping update]');
+          return;
+        }
+  
+        console.log('[🛎️ Form value changed]', selectedOptionId);
+  
+        // ✅ Always update selections
+        this.updateSelections(selectedOptionId);
+  
+        // ✅ Track selection history properly
+        if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+          this.selectedOptionHistory.push(selectedOptionId);
+          console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+        }
+  
+        this.cdRef.detectChanges();
       });
   }
 
