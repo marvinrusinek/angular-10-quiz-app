@@ -2797,7 +2797,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ viewReady = true AFTER bindings + subscription ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (!this.optionsToDisplay?.length) {
       console.warn('[⚠️ No options to display]');
       return;
@@ -2846,6 +2846,43 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       console.log('[✅ ViewReady = true]');
     }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    console.log('[🧩 OptionBindings generated]', this.optionBindings.length);
+  
+    // Force flush immediately
+    this.cdRef.detectChanges();
+  
+    // After the view is fully initialized (small delay)
+    setTimeout(() => {
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      // viewReady = true AFTER setting form
+      this.viewReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ viewReady = true after bindings ready]');
+    }, 50); // << 🔥 slight delay matters
   }
 
   private setupFormControlSubscription(): void {
