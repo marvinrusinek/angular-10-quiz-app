@@ -1360,8 +1360,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.option.showIcon = true;
     this.iconVisibility[optionId] = true;
     this.clickedOptionIds.add(optionId);
-  
-    console.log(`Updated option state for optionId ${optionId}`);
   }
 
   private handleSelection(option: SelectedOption, index: number, optionId: number): void {
