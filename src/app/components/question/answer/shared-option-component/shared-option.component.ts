@@ -570,6 +570,72 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: true });
     }
   } */
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
+  
+    const selectedOptionId = optionBinding.option.optionId;
+    const control = this.form.get('selectedOptionId');
+  
+    if (control) {
+      if (control.value !== selectedOptionId) {
+        console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+  
+        // ✅ Only setValue and let valueChanges subscription handle everything
+        control.setValue(selectedOptionId); // emitEvent is true by default
+      }
+    }
+  } */
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) return;
+  
+    const selectedOptionId = optionBinding.option.optionId;
+    const control = this.form.get('selectedOptionId');
+  
+    if (control?.value !== selectedOptionId) {
+      console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+      control.setValue(selectedOptionId, { emitEvent: true });
+  
+      // ⏳ Small promise defer to ensure Angular flushes first
+      Promise.resolve().then(() => {
+        this.cdRef.detectChanges();
+      });
+    }
+  } */
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) return;
+  
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    // Immediately set the form value if different
+    const control = this.form.get('selectedOptionId');
+    if (control && control.value !== selectedOptionId) {
+      console.log('[🟢 onMatRadioChanged fired]', { selectedOptionId });
+  
+      control.setValue(selectedOptionId, { emitEvent: true });
+  
+      // 🔥 Immediately trigger manual highlight/selection state
+      this.updateSelections(selectedOptionId);
+  
+      // 🔥 Immediately force a detectChanges
+      this.cdRef.detectChanges();
+    }
+  } */
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
+  
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      console.log('[🟢 onMatRadioChanged]', selectedOptionId);
+  
+      // Set value and trigger updateSelections naturally
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
+    }
+  } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) {
       return;
@@ -577,23 +643,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     const selectedOptionId = optionBinding.option.optionId;
   
-    // Immediately patch form control to force selection
-    const control = this.form.get('selectedOptionId');
-    if (control) {
-      if (control.value !== selectedOptionId) {
-        console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+    if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
+      console.log('[🟢 onMatRadioChanged fired]', selectedOptionId);
   
-        // 1. Set the value manually
-        control.setValue(selectedOptionId, { emitEvent: true });
-  
-        // 2. Update visual state immediately
-        this.updateSelections(selectedOptionId);
-        
-        // 3. Force a CD cycle immediately to pick up changes
-        this.cdRef.detectChanges();
-      }
+      this.form.get('selectedOptionId')?.setValue(selectedOptionId);
+      // No need to call updateSelections manually here — it happens automatically via valueChanges subscription
     }
   }
+  
+  
+  
+  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
@@ -2636,7 +2696,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ viewReady = true AFTER bindings and preselection ready]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2694,7 +2754,116 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       console.log('[✅ OptionBindings and Form ready]');
     }, 0);
+  } */
+  /* private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    console.log('[🧩 OptionBindings generated]', this.optionBindings.length);
+  
+    this.cdRef.detectChanges();
+  
+    // ⏳ Delay so that formControl and DOM stabilize
+    setTimeout(() => {
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      this.setupFormControlSubscription(); // ✅ Now setup valueChanges cleanly
+  
+      this.viewReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ viewReady = true AFTER bindings + subscription ready]');
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    // Generate fresh bindings
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const binding = this.getOptionBindings(option, idx, option.selected ?? false);
+  
+      if (option.selected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    console.log('[🧩 OptionBindings created]', this.optionBindings.length);
+  
+    // Force detectChanges immediately so DOM updates
+    this.cdRef.detectChanges();
+  
+    // 🧠 Preselect the first selected value without emitting event
+    const firstSelected = this.optionBindings.find(b => b.isSelected);
+    if (firstSelected) {
+      console.log('[🧠 Preselecting optionId]', firstSelected.option.optionId);
+      this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+    }
+  
+    // ✅ Now safely subscribe AFTER form + bindings are ready
+    setTimeout(() => {
+      this.form.get('selectedOptionId')?.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe((selectedOptionId: number) => {
+          if (selectedOptionId == null) {
+            console.warn('[⚠️ Invalid selection]');
+            return;
+          }
+  
+          console.log('[🛎️ Form value changed]', selectedOptionId);
+          this.updateSelections(selectedOptionId);
+        });
+  
+      this.viewReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ ViewReady = true]');
+    }, 0);
   }
+
+  private setupFormControlSubscription(): void {
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null or invalid selectedOptionId, skipping]');
+          return;
+        }
+  
+        console.log('[🛎️ Form value changed]', selectedOptionId);
+  
+        this.updateSelections(selectedOptionId);
+  
+        Promise.resolve().then(() => {
+          this.cdRef.detectChanges();
+        });
+      });
+  
+    console.log('[✅ FormControl subscription ready]');
+  }
+  
   
 
   /* private updateSelections(selectedOptionId: number): void {
@@ -3047,7 +3216,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     if (selectedOptionId == null) {
       console.warn('[⚠️ Invalid selectedOptionId, skipping update]');
       return;
@@ -3084,8 +3253,57 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.lastSelectedOptionId = selectedOptionId;
   
     this.cdRef.detectChanges();
-  }
+  } */
+  /* private updateSelections(selectedOptionId: number): void {
+    if (selectedOptionId == null) return;
   
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isCurrent = optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+      binding.isSelected = isCurrent;
+      binding.option.selected = isCurrent;
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+  
+      binding.showFeedbackForOption[optionId] = isCurrent;
+  
+      binding.directiveInstance?.updateHighlight(); // <- 🔥 make sure this is called
+    });
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    console.log('[🧹 Updating selections]', selectedOptionId);
+  
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+    }
+  
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isCurrent = optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+      binding.isSelected = isCurrent;
+      binding.option.selected = isCurrent;
+      binding.option.highlight = isPreviouslySelected;
+      binding.option.showIcon = isPreviouslySelected;
+  
+      if (isCurrent) {
+        this.lastSelectedOptionId = selectedOptionId;
+      }
+  
+      binding.showFeedbackForOption[optionId] = isCurrent;
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    this.cdRef.detectChanges();
+  }
   
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
@@ -3411,7 +3629,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.cdRef.detectChanges();
       });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     console.log('[🛠️ Initializing Form]');
   
     this.form = this.fb.group({
@@ -3427,7 +3645,61 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // ❗ Subscription will be set after options exist
     // (Moved subscription outside and linked AFTER optionBindings setup!)
+  } */
+  /* private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.viewReady = false;
+    console.log('[✅ Form created, viewReady temporarily false]');
+  } */
+  /* private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    console.log('[✅ Form initialized]');
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.viewReady = false;
+  
+    console.log('[✅ Form initialized, viewReady temporarily false]');
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null selectedOptionId, skipping]');
+          return;
+        }
+  
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+  
+        this.updateSelections(selectedOptionId);
+  
+        if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+          this.selectedOptionHistory.push(selectedOptionId);
+          console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+        }
+  
+        this.cdRef.detectChanges();
+      });
   }
+  
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
@@ -3483,11 +3755,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           return optionBinding;
         });
         
-        this.updateHighlighting();
-
-        setTimeout(() => {
-          this.cdRef.detectChanges(); // ensure the DOM updates
-        }, 0);        
+        this.updateHighlighting();      
 
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
