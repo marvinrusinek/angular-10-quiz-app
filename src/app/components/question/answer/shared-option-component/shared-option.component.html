@@ -1,4 +1,4 @@
-  <ng-container *ngIf="canDisplayOptions; else noOptions">
+<ng-container *ngIf="canDisplayOptions; else noOptions">
   <form [formGroup]="form">
     <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
       <label class="options">
@@ -8,7 +8,6 @@
             <mat-radio-button
               appHighlightOption
               [optionBinding]="optionBinding"
-              [optionIndex]="optionIndex"
               (change)="onMatRadioChanged(optionBinding, optionIndex, $event)">
               <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
               </ng-container>
@@ -20,7 +19,6 @@
             *ngSwitchCase="'multiple'"
             appHighlightOption
             [optionBinding]="optionBinding"
-            [optionIndex]="optionIndex"
             [checked]="optionBinding.option.selected"
             (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)">
             <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
