@@ -636,7 +636,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) {
       return;
     }
@@ -649,11 +649,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
       // No need to call updateSelections manually here — it happens automatically via valueChanges subscription
     }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const selectedOptionId = event.value;
+    console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+  
+    const control = this.form.get('selectedOptionId');
+    if (control && control.value !== selectedOptionId) {
+      control.setValue(selectedOptionId, { emitEvent: true });
+    }
   }
-  
-  
-  
-  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
@@ -3667,7 +3672,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('[✅ Form initialized]');
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required),
     });
@@ -3698,8 +3703,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
         this.cdRef.detectChanges();
       });
-  }
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required)
+    });
   
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+    this.viewReady = false;
+  
+    console.log('[✅ Form initialized]');
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null selectedOptionId, skipping]');
+          return;
+        }
+  
+        console.log('[🛎️ Form value changed]', selectedOptionId);
+        this.updateSelections(selectedOptionId);
+        this.cdRef.detectChanges();
+      });
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
