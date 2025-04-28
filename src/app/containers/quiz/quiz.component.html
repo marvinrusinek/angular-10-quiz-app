@@ -38,11 +38,6 @@
           (nextButtonState)="updateAndSyncNextButtonState($event)"
           (optionSelected)="onOptionSelected($event)"
         ></codelab-quiz-question>
-        <app-answer
-          [question]="questionData"
-          [options]="optionsToDisplay"
-          (optionSelected)="onOptionSelected($event)"
-        ></app-answer>
       </ng-container>
 
       <ng-template #noQuestion>
