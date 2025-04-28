@@ -779,6 +779,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
+  onGroupSelectionChange(event: MatRadioChange) {
+    this.updateSelections(event.value);
+  }
+
   private processImmediateSelection(selectedOptionId: number): void {
     if (!this.form) return;
   
