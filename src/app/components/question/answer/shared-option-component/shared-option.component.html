@@ -9,7 +9,6 @@
               appHighlightOption
               [optionBinding]="optionBinding"
               [optionIndex]="optionIndex"
-              [value]="optionBinding.option.optionId"
               (change)="onMatRadioChanged(optionBinding, optionIndex, $event)">
               <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
               </ng-container>
@@ -22,7 +21,6 @@
             appHighlightOption
             [optionBinding]="optionBinding"
             [optionIndex]="optionIndex"
-            [value]="optionBinding.option.optionId"
             [checked]="optionBinding.option.selected"
             (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)">
             <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
