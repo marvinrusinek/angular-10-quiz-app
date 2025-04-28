@@ -763,7 +763,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // 4️⃣ Trigger change detection if needed
     this.cdRef.detectChanges();
   } */
-  onGroupSelectionChange(event: MatRadioChange) {
+  /* onGroupSelectionChange(event: MatRadioChange) {
     const selectedId = event.value;
     console.log('[🔁 Radio group selectionChange]', selectedId);
   
@@ -777,7 +777,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Force a CD cycle
     this.cdRef.detectChanges();
-  }
+  } */
 
   onGroupSelectionChange(event: MatRadioChange) {
     this.updateSelections(event.value);
