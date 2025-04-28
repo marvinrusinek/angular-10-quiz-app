@@ -4,7 +4,7 @@
       <label class="options">
         <ng-container [ngSwitch]="optionBinding?.type">
           <!-- Single-answer -->
-          <mat-radio-group *ngSwitchCase="'single'" formControlName="selectedOptionId">
+          <mat-radio-group *ngSwitchCase="'single'" formControlName="selectedOptionId" (selectionChange)="onGroupSelectionChange($event)">
             <mat-radio-button
               appHighlightOption
               [optionBinding]="optionBinding"
