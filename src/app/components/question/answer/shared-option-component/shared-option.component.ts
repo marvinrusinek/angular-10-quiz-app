@@ -2501,7 +2501,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[✅ OptionBindings generated and highlights refreshed]');
     }, 0);
   } */
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
       return;
     }
@@ -2535,6 +2535,45 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           this.form.get('selectedOptionId')?.setValue(null, { emitEvent: true });
         }, 50);
       }
+    }, 0);
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;
+    }
+  
+    // Build fresh option bindings
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      if (isSelected) {
+        binding.option.highlight = true;
+        binding.option.showIcon = true;
+        binding.isSelected = true;
+      }
+  
+      return binding;
+    });
+  
+    console.log('[🧩 OptionBindings generated]', this.optionBindings.length);
+  
+    // Force flush immediately
+    this.cdRef.detectChanges();
+  
+    // ✅ Delay setting viewReady slightly AFTER optionBindings and formControl are linked
+    setTimeout(() => {
+      // Preselect if any
+      const firstSelected = this.optionBindings.find(b => b.isSelected);
+      if (firstSelected) {
+        console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
+        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
+      }
+  
+      // Now truly ready
+      this.viewReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ viewReady = true AFTER bindings ready]');
     }, 0);
   }
 
@@ -3120,7 +3159,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.updateSelections(selectedOptionId);
       });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required),
     });
@@ -3155,8 +3194,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         // ✅ 3. Refresh UI
         this.cdRef.detectChanges();
       });
-  }
+  } */
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required),
+    });
   
+    console.log('[✅ Form initialized]');
+    
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    this.form.get('selectedOptionId')?.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        console.log('[🛎️ FormControl value changed]', selectedOptionId);
+        
+        if (selectedOptionId == null) {
+          console.warn('[⚠️ Null selectedOptionId, skipping]');
+          return;
+        }
+  
+        this.updateSelections(selectedOptionId);
+      });
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
