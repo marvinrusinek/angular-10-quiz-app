@@ -44,10 +44,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() highlightCorrectAfterIncorrect: boolean;
-  @Input() quizQuestionComponentOnOptionClicked!: (
-    option: SelectedOption,
-    index: number
-  ) => void;
+  @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
   optionBindings: OptionBindings[] = [];
