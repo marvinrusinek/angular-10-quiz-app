@@ -2960,7 +2960,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     // Track history
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
       this.selectedOptionHistory.push(selectedOptionId);
@@ -2987,7 +2987,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedOptionId: number): void {
+    if (selectedOptionId == null) {
+      console.warn('[⚠️ Invalid selectedOptionId, skipping update]');
+      return;
+    }
+  
+    console.log('[🛎️ updateSelections triggered]', selectedOptionId);
+  
+    // Always track history immediately
+    if (!this.selectedOptionHistory.includes(selectedOptionId)) {
+      this.selectedOptionHistory.push(selectedOptionId);
+      console.log('[🧠 Updated selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    // Now safely update ALL bindings
+    this.optionBindings.forEach(binding => {
+      const optionId = binding.option.optionId;
+      const isCurrentlySelected = optionId === selectedOptionId;
+      const isPreviouslySelected = this.selectedOptionHistory.includes(optionId);
+  
+      // Always highlight previously selected OR currently selected options
+      binding.option.highlight = isCurrentlySelected || isPreviouslySelected;
+      binding.option.showIcon = isCurrentlySelected || isPreviouslySelected;
+      binding.isSelected = isCurrentlySelected;
+      binding.option.selected = isCurrentlySelected;
+  
+      // Show feedback ONLY for the current latest selected option
+      binding.showFeedbackForOption[optionId] = isCurrentlySelected;
+  
+      // Force directive repaint immediately
+      binding.directiveInstance?.updateHighlight();
+    });
+  
+    // Always update lastSelectedOptionId
+    this.lastSelectedOptionId = selectedOptionId;
+  
+    this.cdRef.detectChanges();
   }
+  
   
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
