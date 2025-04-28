@@ -557,7 +557,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.form.get('selectedOptionId')?.setValue(selectedOptionId);
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) {
       return;
     }
@@ -568,6 +568,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (this.form.get('selectedOptionId')?.value !== selectedOptionId) {
       console.log('[🟢 Forcing FormControl setValue on radio change]', selectedOptionId);
       this.form.get('selectedOptionId')?.setValue(selectedOptionId, { emitEvent: true });
+    }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
+  
+    const selectedOptionId = optionBinding.option.optionId;
+  
+    // Immediately patch form control to force selection
+    const control = this.form.get('selectedOptionId');
+    if (control) {
+      if (control.value !== selectedOptionId) {
+        console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+  
+        // 1. Set the value manually
+        control.setValue(selectedOptionId, { emitEvent: true });
+  
+        // 2. Update visual state immediately
+        this.updateSelections(selectedOptionId);
+        
+        // 3. Force a CD cycle immediately to pick up changes
+        this.cdRef.detectChanges();
+      }
     }
   }
   
