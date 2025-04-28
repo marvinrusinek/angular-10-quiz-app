@@ -1,74 +1,55 @@
 <ng-container *ngIf="canDisplayOptions; else noOptions">
-<form [formGroup]="form">
-
-  <!-- SINGLE‐ANSWER MODE -->
-  <ng-container *ngIf="optionBindings?.length > 0 && optionBindings[0].type === 'single'">
-    <mat-radio-group
-      formControlName="selectedOptionId"
-      (selectionChange)="onGroupSelectionChange($event)"
-    >
-      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
-        <label class="options">
-          <mat-radio-button
-            [value]="b.option.optionId"
-            appHighlightOption
-            [optionBinding]="b"
-          >
-            <ng-container
-              *ngTemplateOutlet="optionContent; context: getOptionContext(b, i)"
-            ></ng-container>
-          </mat-radio-button>
-
-          <codelab-quiz-feedback
-            *ngIf="shouldShowFeedback(i)"
-            [feedbackConfig]="feedbackConfigs[i]"
-          ></codelab-quiz-feedback>
-        </label>
-      </div>
-    </mat-radio-group>
-  </ng-container>
-
-  <!-- MULTIPLE‐ANSWER MODE -->
-  <ng-container *ngIf="optionBindings?.length > 0 && optionBindings[0].type === 'multiple'">
-    <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
+  <form [formGroup]="form">
+    <div *ngFor="let optionBinding of optionBindings; let optionIndex = index; trackBy: trackByOption">
       <label class="options">
-        <mat-checkbox
-          [checked]="b.option.selected"
-          [value]="b.option.optionId"
-          appHighlightOption
-          [optionBinding]="b"
-          (change)="onMatCheckboxChanged(b, i, $event)"
-        >
-          <ng-container
-            *ngTemplateOutlet="optionContent; context: getOptionContext(b, i)"
-          ></ng-container>
-        </mat-checkbox>
+        <ng-container [ngSwitch]="optionBinding?.type">
+          <!-- Single-answer -->
+          <mat-radio-group *ngSwitchCase="'single'" formControlName="selectedOptionId">
+            <mat-radio-button
+              appHighlightOption
+              [optionBinding]="optionBinding"
+              (change)="onMatRadioChanged(optionBinding, optionIndex, $event)">
+              <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
+              </ng-container>
+            </mat-radio-button>
+          </mat-radio-group>
 
+          <!-- Multiple-answer -->
+          <mat-checkbox
+            *ngSwitchCase="'multiple'"
+            appHighlightOption
+            [optionBinding]="optionBinding"
+            (change)="onMatCheckboxChanged(optionBinding, optionIndex, $event)">
+            <ng-container *ngTemplateOutlet="optionContent; context: getOptionContext(optionBinding, optionIndex)">
+            </ng-container>
+          </mat-checkbox>
+        </ng-container>
+
+        <!-- Feedback always after option regardless of type -->
         <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]"
-        ></codelab-quiz-feedback>
+          *ngIf="shouldShowFeedback(optionIndex)"
+          [feedbackConfig]="feedbackConfigs[optionIndex]">
+        </codelab-quiz-feedback>
       </label>
     </div>
-  </ng-container>
-
-</form>
+  </form>
 </ng-container>
 
+<!-- Option display template -->
 <ng-template #optionContent let-option="option" let-optionIndex="idx">
-<div class="option-content">
-  <span class="option-text" [ngStyle]="optionTextStyle">
-    {{ getOptionDisplayText(option, optionIndex) }}
-  </span>
-  <mat-icon
-    *ngIf="shouldShowIcon(option)"
-    [ngClass]="optionIconClass"
-  >
-    {{ getOptionIcon(option) }}
-  </mat-icon>
-</div>
+  <div class="option-content">
+    <span class="option-text" [ngStyle]="optionTextStyle">
+      {{ getOptionDisplayText(option, optionIndex) }}
+    </span>
+    <mat-icon
+      *ngIf="shouldShowIcon(option)"
+      [ngClass]="optionIconClass">
+      {{ getOptionIcon(option) }}
+    </mat-icon>
+  </div>
 </ng-template>
 
+<!-- Fallback -->
 <ng-template #noOptions>
-<p>No options available.</p>
+  <p>No options available.</p>
 </ng-template>

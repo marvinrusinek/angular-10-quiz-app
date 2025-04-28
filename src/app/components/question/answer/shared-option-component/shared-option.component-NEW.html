@@ -1,0 +1,74 @@
+<ng-container *ngIf="canDisplayOptions; else noOptions">
+<form [formGroup]="form">
+
+  <!-- SINGLE‐ANSWER MODE -->
+  <ng-container *ngIf="optionBindings?.length > 0 && optionBindings[0].type === 'single'">
+    <mat-radio-group
+      formControlName="selectedOptionId"
+      (selectionChange)="onGroupSelectionChange($event)"
+    >
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
+        <label class="options">
+          <mat-radio-button
+            [value]="b.option.optionId"
+            appHighlightOption
+            [optionBinding]="b"
+          >
+            <ng-container
+              *ngTemplateOutlet="optionContent; context: getOptionContext(b, i)"
+            ></ng-container>
+          </mat-radio-button>
+
+          <codelab-quiz-feedback
+            *ngIf="shouldShowFeedback(i)"
+            [feedbackConfig]="feedbackConfigs[i]"
+          ></codelab-quiz-feedback>
+        </label>
+      </div>
+    </mat-radio-group>
+  </ng-container>
+
+  <!-- MULTIPLE‐ANSWER MODE -->
+  <ng-container *ngIf="optionBindings?.length > 0 && optionBindings[0].type === 'multiple'">
+    <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
+      <label class="options">
+        <mat-checkbox
+          [checked]="b.option.selected"
+          [value]="b.option.optionId"
+          appHighlightOption
+          [optionBinding]="b"
+          (change)="onMatCheckboxChanged(b, i, $event)"
+        >
+          <ng-container
+            *ngTemplateOutlet="optionContent; context: getOptionContext(b, i)"
+          ></ng-container>
+        </mat-checkbox>
+
+        <codelab-quiz-feedback
+          *ngIf="shouldShowFeedback(i)"
+          [feedbackConfig]="feedbackConfigs[i]"
+        ></codelab-quiz-feedback>
+      </label>
+    </div>
+  </ng-container>
+
+</form>
+</ng-container>
+
+<ng-template #optionContent let-option="option" let-optionIndex="idx">
+<div class="option-content">
+  <span class="option-text" [ngStyle]="optionTextStyle">
+    {{ getOptionDisplayText(option, optionIndex) }}
+  </span>
+  <mat-icon
+    *ngIf="shouldShowIcon(option)"
+    [ngClass]="optionIconClass"
+  >
+    {{ getOptionIcon(option) }}
+  </mat-icon>
+</div>
+</ng-template>
+
+<ng-template #noOptions>
+<p>No options available.</p>
+</ng-template>
