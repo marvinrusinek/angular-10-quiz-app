@@ -650,7 +650,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // No need to call updateSelections manually here — it happens automatically via valueChanges subscription
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     const selectedOptionId = event.value;
     console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
   
@@ -658,7 +658,74 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (control && control.value !== selectedOptionId) {
       control.setValue(selectedOptionId, { emitEvent: true });
     }
+  } */
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    const selectedOptionId = event.value;
+    const control = this.form.get('selectedOptionId');
+    if (control && control.value !== selectedOptionId) {
+      control.setValue(selectedOptionId, { emitEvent: true });
+    }
+  } */
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
+  
+    const selectedOptionId = event.value;
+    const control = this.form.get('selectedOptionId');
+  
+    if (control) {
+      if (control.value !== selectedOptionId) {
+        console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+  
+        // 🔥 Force "dirty" and "touched" manually
+        control.markAsDirty();
+        control.markAsTouched();
+  
+        // 🔥 Set the value
+        control.setValue(selectedOptionId, { emitEvent: true });
+  
+        // 🔥 Force CD immediately
+        this.cdRef.detectChanges();
+      }
+    }
+  } */
+  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+    if (!optionBinding) {
+      return;
+    }
+  
+    const selectedOptionId = event.value;
+    const control = this.form.get('selectedOptionId');
+  
+    if (control) {
+      console.log('[🟢 onMatRadioChanged]', { selectedOptionId });
+  
+      // 🔥 1. Immediately update optionBinding manually
+      this.optionBindings.forEach(binding => {
+        const isSelected = binding.option.optionId === selectedOptionId;
+        binding.isSelected = isSelected;
+        binding.option.selected = isSelected;
+        binding.option.highlight = isSelected;
+        binding.option.showIcon = isSelected;
+  
+        if (binding.directiveInstance) {
+          binding.directiveInstance.updateHighlight();
+        }
+      });
+  
+      // 🔥 2. Set FormControl value but WITHOUT emitEvent here
+      control.setValue(selectedOptionId, { emitEvent: false });
+  
+      // 🔥 3. Immediately mark dirty/touched
+      control.markAsDirty();
+      control.markAsTouched();
+  
+      // 🔥 4. Force immediate CD
+      this.cdRef.detectChanges();
+    }
   }
+  
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
