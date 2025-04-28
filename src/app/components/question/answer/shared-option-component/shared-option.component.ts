@@ -745,6 +745,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Let FormControl catch up too (if needed)
   } */
 
+  /* onGroupSelectionChange(event: MatRadioChange) {
+    const selectedId = event.value;
+    console.log('[🔁 Radio group selectionChange]', selectedId);
+  
+    // 1️⃣ Update your form control (though this is automatic via formControlName)
+    this.form.get('selectedOptionId')!.setValue(selectedId, { emitEvent: false });
+  
+    // 2️⃣ Call your existing updateSelections() to handle highlighting, icon, feedback:
+    this.updateSelections(selectedId);
+  
+    // 3️⃣ If you track history:
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+  
+    // 4️⃣ Trigger change detection if needed
+    this.cdRef.detectChanges();
+  } */
+  onGroupSelectionChange(event: MatRadioChange) {
+    const selectedId = event.value;
+    console.log('[🔁 Radio group selectionChange]', selectedId);
+  
+    // Sync your bindings
+    this.updateSelections(selectedId);
+  
+    // Track history
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+  
+    // Force a CD cycle
+    this.cdRef.detectChanges();
+  }
+
   private processImmediateSelection(selectedOptionId: number): void {
     if (!this.form) return;
   
