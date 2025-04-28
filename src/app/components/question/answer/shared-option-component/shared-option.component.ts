@@ -687,7 +687,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     }
   } */
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
+  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     if (!optionBinding) {
       return;
     }
@@ -721,6 +721,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // 🔥 4. Force immediate CD
       this.cdRef.detectChanges();
     }
+  } */
+  onMatRadioChanged(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatRadioChange
+  ): void {
+    // 1) Grab the id straight from the binding (ignore event.value timing)
+    const selectedId = optionBinding.option.optionId;
+  
+    // 2) Immediately drive your own highlight / feedback logic:
+    this.updateSelections(selectedId);
+  
+    // 3) Manually sync the FormControl WITHOUT retriggering updateSelections:
+    const ctrl = this.form.get('selectedOptionId')!;
+    ctrl.setValue(selectedId, { emitEvent: false });
+  
+    // 4) Bypass "pristine" guards so Material paints at once:
+    ctrl.markAsDirty();
+    ctrl.markAsTouched();
+  
+    // 5) Force a DOM update so highlight/icon/feedback all appear now:
+    this.cdRef.detectChanges();
   }
   
   
