@@ -30,6 +30,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() isAnswered: boolean;
   private areAllCorrectAnswersSelected = false;
 
+  private get paintTarget(): HTMLElement {
+    return (this.el.nativeElement as HTMLElement).firstElementChild as HTMLElement;
+  }
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService,
@@ -337,9 +341,11 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const id       = option.optionId;
     const selected = option.selected || option.highlight;   // ← one flag
 
+    let color = '';
+
     // ── CHOSEN or PREVIOUSLY HIGHLIGHTED ──────────────────────────────
     if (selected) {
-      const color = this.isCorrect ? '#43f756' : '#ff0000';   // green / red
+      color = this.isCorrect ? '#43f756' : '#ff0000';   // green / red
       this.setBackgroundColor(color);
 
       option.showIcon                 = true;
@@ -373,6 +379,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
 
     option.showIcon                 = false;
     this.showFeedbackForOption[id]  = false;
+
+    this.renderer.setStyle(this.paintTarget, 'background', color, 2);
   }
 
   private highlightCorrectAnswers(): void {
@@ -417,10 +425,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.setBackgroundColor(color);
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
     this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
-  }
-
-  private get paintTarget(): HTMLElement {
-    return (this.el.nativeElement as HTMLElement).firstElementChild as HTMLElement;
+    this.updateHighlight();
   }
 
   // Reset the state in-between questions
