@@ -265,7 +265,7 @@ export class HighlightOptionDirective implements OnChanges {
       this.setBackgroundColor(color);
     }
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     console.log('[🟣 updateHighlight]', {
       optionId: this.option?.optionId,
       selected: this.option?.selected,
@@ -322,6 +322,52 @@ export class HighlightOptionDirective implements OnChanges {
     if (optionId !== undefined) {
       this.showFeedbackForOption[optionId] = false;
     }
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+
+    const option   = this.optionBinding.option;
+    const id       = option.optionId;
+    const selected = option.selected || option.highlight;   // ← one flag
+
+    // ── CHOSEN or PREVIOUSLY HIGHLIGHTED ──────────────────────────────
+    if (selected) {
+      const color = this.isCorrect ? '#43f756' : '#ff0000';   // green / red
+      this.setBackgroundColor(color);
+
+      option.showIcon                 = true;
+      this.showFeedbackForOption[id]  = true;
+
+      /* make the element look active right now */
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
+      this.setPointerEvents('auto');
+      return;
+    }
+
+    // ── GREY-OUT incorrect, deactivated options ──────────────────────
+    if (!this.isCorrect && option.active === false) {
+      this.setBackgroundColor('#a3a3a3');
+      this.renderer.addClass   (this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle   (this.el.nativeElement, 'cursor', 'not-allowed');
+      this.setPointerEvents('none');
+
+      option.showIcon                 = false;
+      this.showFeedbackForOption[id]  = false;
+      return;
+    }
+
+    // ── DEFAULT (unselected / reset) ─────────────────────────────────
+    this.setBackgroundColor('white');
+    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+    this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
+    this.setPointerEvents('auto');
+
+    option.showIcon                 = false;
+    this.showFeedbackForOption[id]  = false;
   }
 
   private highlightCorrectAnswers(): void {
