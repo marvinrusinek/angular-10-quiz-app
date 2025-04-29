@@ -764,6 +764,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
+  onSingleSelected(
+    binding: OptionBindings,
+    idx: number,
+    event: MatRadioChange
+  ) {
+    const selectedId = event.value;
+  
+    // 1) Update your FormControl value so the model stays in sync
+    this.form.get('selectedOptionId')!
+      .setValue(selectedId, { emitEvent: false });
+  
+    // 2) Drive all UI: highlight current + previous, show icons & feedback
+    this.updateSelections(selectedId);
+  
+    // 3) Trigger Angular to repaint immediately
+    this.cdRef.detectChanges();
+  }
+
   onMatCheckboxChanged(binding: OptionBindings, index: number, ev: MatCheckboxChange) {
     this.updateOptionAndUI(binding, index, ev);
   }
@@ -4105,10 +4123,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
   
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     const id = option.optionId;
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-  }
+  } */
+  shouldShowIcon(option?: Option): boolean {
+    if (!option) return false;
+    const id = option.optionId;
+    return !!(
+      this.showFeedback &&
+      (this.showFeedbackForOption?.[id] || option.showIcon)
+    );
+  }  
 
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
