@@ -13,7 +13,7 @@
              class="option-row options">
 
           <label appHighlightOption [optionBinding]="b">
-            <mat-radio-button [value]="b.option.optionId">
+            <mat-radio-button #highlightDirective="appHighlightOption" [value]="b.option.optionId">
 
               <span class="opt-text">
                 {{ getOptionDisplayText(b.option, i) }}
