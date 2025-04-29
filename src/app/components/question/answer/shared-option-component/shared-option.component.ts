@@ -1,5 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
@@ -92,6 +93,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
 
+  private click$ = new Subject<{ b: OptionBindings; i: number }>();
+  onDestroy$ = new Subject<void>();
+
   constructor(
     private feedbackService: FeedbackService,
     private quizService: QuizService,
@@ -106,13 +110,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
+  public streamClick(binding: OptionBindings, idx: number): void {
+    this.click$.next({ b: binding, i: idx });
+  }
+
   ngOnInit(): void {
-    this.form
+    this.click$
+    .pipe(takeUntil(this.onDestroy$))
+    .subscribe(({ b, i }) => {
+      /* 1️⃣ Update form control immediately */
+      this.form
+        .get('selectedOptionId')
+        ?.setValue(b.option.optionId, { emitEvent: false });
+
+      /* 2️⃣ Visuals + feedback in ONE call */
+      this.updateOptionAndUI(
+        b,
+        i,
+        { value: b.option.optionId } as MatRadioChange
+      );
+
+      /* 3️⃣ Flush once */
+      this.cdRef.detectChanges();
+    });
+
+    /* this.form
       .get('selectedOptionId')!
       .valueChanges
       .subscribe(id => {
         // call updateOptionAndUI here
-      });
+      }); */
 
     this.initializeForm();
     this.initializeOptionBindings();
@@ -175,6 +202,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -791,6 +823,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     // 3) Flush the highlight+icon+feedback in the same tick
     this.cdRef.detectChanges();
+  }
+
+  /* onRadioMouseDown(binding: OptionBindings, index: number): void {
+    // 1) Drive the FormControl so the radio UI shows as selected immediately
+    this.form.get('selectedOptionId')!
+      .setValue(binding.option.optionId, { emitEvent: false });
+  
+    // 2) Run your existing selection logic in one go
+    this.updateOptionAndUI(
+      binding,
+      index,
+      { value: binding.option.optionId } as MatRadioChange
+    );
+  
+    // 3) Flush change detection to render highlight, icon & feedback
+    this.cdRef.detectChanges();
+  } */
+  public onRadioMouseDown(b: OptionBindings, i: number, e: MouseEvent): void {
+    e.preventDefault();           // stop Angular-Material’s own cycle
+    this.form.get('selectedOptionId')!
+        .setValue(b.option.optionId, { emitEvent: false });
+  
+    this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
+    this.cdRef.detectChanges();   // paint immediately
   }
 
 
