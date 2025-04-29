@@ -69,7 +69,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightedOptionIds: Set<number> = new Set();
   lastFeedbackAnchorOptionId: number = -1;
   selectedRadioOptionId: number | null = null;
-  // form: FormGroup;
   form!: FormGroup;
   formSubscriptionsSetup = false;
 
@@ -101,23 +100,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private fb: FormBuilder
-  ) {}
+  ) {
+    this.form = this.fb.group({
+      selectedOptionId: [ null, Validators.required ]
+    });
+  }
 
   ngOnInit(): void {
     this.form
       .get('selectedOptionId')!
       .valueChanges
       .subscribe(id => {
-        // you could call updateOptionAndUI here if needed
+        // call updateOptionAndUI here
       });
 
-    // this.initializeForm();
+    this.initializeForm();
     this.initializeOptionBindings();
     this.initializeFromConfig();
-
-    this.form = this.fb.group({
-      selectedOptionId: [ null, Validators.required ]
-    });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
@@ -1248,10 +1247,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Determine checked status:
     //  - all MatRadioChange events count as "checked = true"
     //  - MatCheckboxChange events use event.checked
-    const isRadio = (ev as MatRadioChange).value !== undefined;
+    const isRadio = (event as MatRadioChange).value !== undefined;
     const checked = isRadio
       ? true
-      : (ev as MatCheckboxChange).checked;
+      : (event as MatCheckboxChange).checked;
   
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
