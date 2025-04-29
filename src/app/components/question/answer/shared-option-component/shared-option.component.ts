@@ -3891,7 +3891,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.showFeedbackForOption[id] = isCurrent;
 
       /* repaint row synchronously */
-      b.directiveInstance?.updateHighlight();
+      // b.directiveInstance?.updateHighlight();
+      b.directiveInstance?.paintNow();
     });
 
     /* --- 3.  Flush to DOM now --------------------------------------------- */
