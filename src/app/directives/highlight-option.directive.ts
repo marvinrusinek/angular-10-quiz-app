@@ -361,6 +361,13 @@ export class HighlightOptionDirective implements OnChanges {
     this.renderer.setStyle(this.el.nativeElement, 'cursor', value);
   }
 
+  public paintNow(): void {
+    const color = this.isCorrect ? '#43f756' : '#ff0000';
+    this.setBackgroundColor(color);
+    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+    this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+  }
+
   // Reset the state in-between questions
   public reset(): void {
     this.isAnswered = false;
