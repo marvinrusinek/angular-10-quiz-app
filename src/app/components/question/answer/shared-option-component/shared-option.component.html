@@ -1,14 +1,15 @@
 <ng-container *ngIf="optionBindings?.length; else noOptions">
   <form [formGroup]="form">
 
-    <!-- SINGLE-ANSWER -->
-    <ng-container *ngIf="optionBindings[0].type === 'single'">
+    <!-- SINGLE-ANSWER MODE -->
+    <div *ngIf="optionBindings[0].type === 'single'">
       <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
         <label class="options">
           <mat-radio-button
+            #rb
             [value]="b.option.optionId"
             [checked]="b.option.selected"
-            (change)="onSingleOptionChange(b, i, $event)"
+            (click)="onRadioClickFallback(rb, b, i)"
             appHighlightOption
             [optionBinding]="b"
           >
@@ -24,10 +25,10 @@
           ></codelab-quiz-feedback>
         </label>
       </div>
-    </ng-container>
+    </div>
 
-    <!-- MULTIPLE-ANSWER -->
-    <ng-container *ngIf="optionBindings[0].type === 'multiple'">
+    <!-- MULTIPLE-ANSWER MODE -->
+    <div *ngIf="optionBindings[0].type === 'multiple'">
       <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
         <label class="options">
           <mat-checkbox
@@ -48,7 +49,7 @@
           ></codelab-quiz-feedback>
         </label>
       </div>
-    </ng-container>
+    </div>
 
   </form>
 </ng-container>
