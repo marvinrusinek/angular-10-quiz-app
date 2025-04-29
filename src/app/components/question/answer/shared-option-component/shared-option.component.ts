@@ -322,9 +322,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
 
-    if (this.freezeOptionBindings) {
+    /* if (this.freezeOptionBindings) {
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
-    }
+    } */
   
     this.optionBindings = this.optionsToDisplay.map(option => {
       // Restore highlight for previously selected options
@@ -1191,9 +1191,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.error('[❌ optionId is undefined on click]', optionBinding.option);
       return;
     }
-
+  
     const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+  
+    // Determine checked status:
+    //  - all MatRadioChange events count as "checked = true"
+    //  - MatCheckboxChange events use event.checked
+    const isRadio = (event as MatRadioChange).value !== undefined;
+    const checked = isRadio
+      ? true
+      : (event as MatCheckboxChange).checked;
   
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
@@ -1219,17 +1226,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Apply selection and visuals
     optionBinding.option.highlight = checked;
-    optionBinding.isSelected = checked;
-    optionBinding.option.selected = checked;
-    optionBinding.option.showIcon = checked;
+    optionBinding.isSelected       = checked;
+    optionBinding.option.selected  = checked;
+    optionBinding.option.showIcon  = checked;
     this.selectedOptionMap.set(optionId, checked);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
-  
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId; // only move feedback anchor if this is new
+      this.lastFeedbackOptionId = optionId; // only move anchor on new visit
       console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
       console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
@@ -1250,13 +1256,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Set feedback config for current option
     this.feedbackConfigs[optionId] = {
-      feedback: optionBinding.option.feedback,
-      showFeedback: true,
-      options: this.optionsToDisplay,
-      question: this.currentQuestion,
+      feedback:       optionBinding.option.feedback,
+      showFeedback:   true,
+      options:        this.optionsToDisplay,
+      question:       this.currentQuestion,
       selectedOption: optionBinding.option,
       correctMessage: '',
-      idx: index
+      idx:            index
     };
   
     // Trigger directive repaint for highlight + feedback
@@ -4027,9 +4033,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
         );
 
-        if (this.freezeOptionBindings) {
+        /* if (this.freezeOptionBindings) {
           throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
-        }
+        } */
 
         this.optionBindings = this.optionsToDisplay.map((option, idx) => {
           const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
