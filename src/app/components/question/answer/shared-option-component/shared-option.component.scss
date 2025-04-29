@@ -72,3 +72,9 @@ div.mat-radio-inner-container {
   color: red;
   margin-left: 10px;
 }
+
+::ng-deep .mat-radio-label-content,
+::ng-deep .mat-checkbox-layout .mat-checkbox-label {
+  display: inline;       /* was block */
+  white-space: normal;   /* allow wrap if text is long */
+}
