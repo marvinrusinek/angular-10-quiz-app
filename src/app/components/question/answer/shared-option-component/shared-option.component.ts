@@ -70,9 +70,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastFeedbackAnchorOptionId: number = -1;
   selectedRadioOptionId: number | null = null;
   // form: FormGroup;
-  form = this.fb.group({
-    selectedOptionId: new FormControl(null, Validators.required)
-  });
+  form!: FormGroup;
   formSubscriptionsSetup = false;
 
   isNavigatingBackwards = false;
@@ -106,9 +104,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
+    this.form
+      .get('selectedOptionId')!
+      .valueChanges
+      .subscribe(id => {
+        // you could call updateOptionAndUI here if needed
+      });
+
+    // this.initializeForm();
     this.initializeOptionBindings();
     this.initializeFromConfig();
+
+    this.form = this.fb.group({
+      selectedOptionId: [ null, Validators.required ]
+    });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
@@ -389,6 +398,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     this.cdRef.detectChanges();
+  }
+
+  /** Single‐answer handler: fires on very first click */
+  onRadioGroupSelectionChange(ev: MatRadioChange) {
+    const id = ev.value as number;
+    const idx = this.optionBindings.findIndex(b => b.option.optionId === id);
+    if (idx < 0) return;
+
+    this.updateOptionAndUI(this.optionBindings[idx], idx, ev);
+    this.cdRef.detectChanges(); // force highlight+icon+feedback now
   }
 
   /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
@@ -813,13 +832,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   /* onMatCheckboxChanged(binding: OptionBindings, index: number, ev: MatCheckboxChange) {
     this.updateOptionAndUI(binding, index, ev);
   } */
-  /** Multi-answer: exactly as before */
-  onMatCheckboxChanged(
-    binding: OptionBindings,
-    index: number,
-    ev: MatCheckboxChange
-  ) {
-    this.updateOptionAndUI(binding, index, ev);
+  onMatCheckboxChanged(binding: OptionBindings, idx: number, ev: MatCheckboxChange) {
+    this.updateOptionAndUI(binding, idx, ev);
     this.cdRef.detectChanges();
   }
   
@@ -1234,10 +1248,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Determine checked status:
     //  - all MatRadioChange events count as "checked = true"
     //  - MatCheckboxChange events use event.checked
-    const isRadio = (event as MatRadioChange).value !== undefined;
+    const isRadio = (ev as MatRadioChange).value !== undefined;
     const checked = isRadio
       ? true
-      : (event as MatCheckboxChange).checked;
+      : (ev as MatCheckboxChange).checked;
   
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
