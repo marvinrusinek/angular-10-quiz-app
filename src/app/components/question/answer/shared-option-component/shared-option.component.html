@@ -2,39 +2,45 @@
   <form [formGroup]="form">
     <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
 
-      <!-- wrapper the directive paints -->
-      <label class="option-row options"
+      <!-- FLEX-ROW that gets coloured by the directive -->
+      <label class="option-row"               <!-- NEW -->
              appHighlightOption
              [optionBinding]="b">
 
-        <!-- radio OR checkbox -->
-        <mat-radio-button  *ngIf="b.type === 'single'"
-                           [value]="b.option.optionId"
-                           (pointerdown)="handleRadio(b,i,$event)">
-          {{ getOptionDisplayText(b.option, i) }}
-        </mat-radio-button>
+        <!-- INPUT ----------------------------------------------------------- -->
+        <ng-container [ngSwitch]="b.type">
 
-        <mat-checkbox     *ngIf="b.type === 'multiple'"
-                          [checked]="b.option.selected"
-                          (change)="onMatCheckboxChanged(b,i,$event)">
-          {{ getOptionDisplayText(b.option, i) }}
-        </mat-checkbox>
+          <!-- single choice -->
+          <mat-radio-button *ngSwitchCase="'single'"
+                            [value]="b.option.optionId"
+                            (pointerdown)="handleRadio(b,i)">
+          </mat-radio-button>
 
-        <!-- icon parked right after the label text -->
+          <!-- multiple choice -->
+          <mat-checkbox     *ngSwitchCase="'multiple'"
+                            [checked]="b.option.selected"
+                            (change)="onMatCheckboxChanged(b,i,$event)">
+          </mat-checkbox>
+
+        </ng-container>
+
+        <!-- TEXT ------------------------------------------------------------ -->
+        <span class="opt-text">
+          {{ getOptionDisplayText(b.option,i) }}
+        </span>
+
+        <!--  ICON (sits on the same row) ------------------------------------ -->
         <mat-icon *ngIf="shouldShowIcon(b.option)"
                   class="opt-icon">
           {{ getOptionIcon(b.option) }}
         </mat-icon>
-
-        <!-- feedback under the same row, but we want it full-width -->
       </label>
 
-      <!-- put feedback in its own block, beneath the row -->
+      <!-- FEEDBACK (under the coloured row) --------------------------------- -->
       <codelab-quiz-feedback
         *ngIf="shouldShowFeedback(i)"
         [feedbackConfig]="feedbackConfigs[i]">
       </codelab-quiz-feedback>
-
     </div>
   </form>
 </ng-container>
