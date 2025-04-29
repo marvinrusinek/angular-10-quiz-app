@@ -891,40 +891,45 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     idx: number,
     ev: PointerEvent
   ): void {
+    /* ---- existing lines ---- */
     ev.preventDefault();
     ev.stopPropagation();
-
+  
     const id = binding.option.optionId;
-
-    /* 1 — update data model */
+  
+    // 1.  data + visuals  (unchanged)
     this.form.get('selectedOptionId')!.setValue(id, { emitEvent: false });
-
     binding.option.selected  = true;
     binding.option.highlight = true;
     binding.option.showIcon  = true;
     binding.isSelected       = true;
-
-    /* 2 — feedback only for this option */
-    Object.keys(this.showFeedbackForOption)
+  
+    // 2.  FEEDBACK  ←   **new block**
+    this.showFeedback = true;                      //  🔥 global flag
+    Object.keys(this.showFeedbackForOption)        //  only this option
           .forEach(k => (this.showFeedbackForOption[+k] = +k === id));
-    this.updateFeedbackState(id);
-
-    /* 3 — remember history (if you still need it) */
-    if (!this.selectedOptionHistory.includes(id)) {
-      this.selectedOptionHistory.push(id);
-    }
-
-    /* 4 — paint immediately */
+  
+    this.feedbackConfigs[id] = {                   //  build / refresh config
+      feedback:        binding.option.feedback,
+      showFeedback:    true,
+      options:         this.optionsToDisplay,
+      question:        this.currentQuestion,
+      selectedOption:  binding.option,
+      correctMessage:  '',
+      idx
+    };
+  
+    this.updateFeedbackState(id);                  //  notify the service
+  
+    // 3.  highlight immediately (unchanged)
     binding.directiveInstance?.updateHighlight();
-
-    /* 5 — enforce single-answer lock */
+  
+    // 4.  lock single-answer, history … (unchanged)
     this.enforceSingleSelection(binding);
-
-    /* 6 — one CD flush */
+  
+    // 5.  single CD flush
     this.cdRef.detectChanges();
   }
-
-
 
   onRadioClickFallback(
     rb: MatRadioButton,
