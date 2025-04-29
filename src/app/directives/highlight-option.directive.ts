@@ -7,8 +7,7 @@ import { SelectedOptionService } from '../shared/services/selectedoption.service
 import { UserPreferenceService } from '../shared/services/user-preference.service';
 
 @Directive({
-  selector: '[appHighlightOption]',
-  exportAs: 'appHighlightOption'
+  selector: '[appHighlightOption]'
 })
 export class HighlightOptionDirective implements OnInit, OnChanges {
   // @Output() appHighlightOptionReady = new EventEmitter<HighlightOptionDirective>();
@@ -31,7 +30,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   private areAllCorrectAnswersSelected = false;
 
   private get paintTarget(): HTMLElement {
-    return (this.el.nativeElement as HTMLElement).firstElementChild as HTMLElement;
+    // host is <label>, its first element child is the flex box
+    return this.el.nativeElement.firstElementChild as HTMLElement ?? this.el.nativeElement;
   }
 
   constructor(
@@ -331,7 +331,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       this.showFeedbackForOption[optionId] = false;
     }
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -351,7 +351,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       option.showIcon                 = true;
       this.showFeedbackForOption[id]  = true;
 
-      /* make the element look active right now */
+      // make the element look active right now
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
       this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
       this.setPointerEvents('auto');
@@ -381,6 +381,62 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.showFeedbackForOption[id]  = false;
 
     this.renderer.setStyle(this.paintTarget, 'background', color, 2);
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    /* ── figure out *where* to paint ───────────────────────── */
+    const paintTarget: HTMLElement =
+      (this.el.nativeElement.firstElementChild as HTMLElement)  // <div class="option-content"> … </div>
+      ?? this.el.nativeElement;                                // Fallback: host <label>
+  
+    const setBG = (c: string) =>
+      this.renderer.setStyle(paintTarget, 'background', c);
+  
+    /* ── flags & colour decision ───────────────────────────── */
+    const opt       = this.optionBinding.option;
+    const id        = opt.optionId;
+    const isChosen  = opt.selected || opt.highlight;           // already picked before
+    let   colour    = 'white';
+  
+    if (isChosen) {
+      colour = this.isCorrect ? '#43f756' : '#ff0000';         // green / red
+      setBG(colour);
+  
+      opt.showIcon                = true;
+      this.showFeedbackForOption[id] = true;
+  
+      // look active
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
+      this.setPointerEvents('auto');
+      return;
+    }
+  
+    if (!this.isCorrect && opt.active === false) {
+      colour = '#a3a3a3';                                      // grey
+      setBG(colour);
+  
+      this.renderer.addClass (this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle (this.el.nativeElement, 'cursor', 'not-allowed');
+      this.setPointerEvents('none');
+  
+      opt.showIcon                = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    /* default (unselected / reset) */
+    setBG(colour);                                             // white
+    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+    this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
+    this.setPointerEvents('auto');
+  
+    opt.showIcon                = false;
+    this.showFeedbackForOption[id] = false;
   }
 
   private highlightCorrectAnswers(): void {
@@ -421,10 +477,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   }
 
   public paintNow(): void {
-    const color = this.isCorrect ? '#43f756' : '#ff0000';
-    this.setBackgroundColor(color);
-    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-    this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
     this.updateHighlight();
   }
 
