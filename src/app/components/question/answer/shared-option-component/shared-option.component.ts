@@ -4531,4 +4531,4 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         return 'single';
     }
   }
-}
+} 
