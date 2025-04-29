@@ -40,6 +40,7 @@ export class HighlightOptionDirective implements OnChanges {
   ) {
     if (this.optionBinding) {
       this.appHighlightOptionReady.emit(this);
+      this.optionBinding.directiveInstance = this;
     }
   }
 
