@@ -118,7 +118,8 @@
   margin: 0;
   position: absolute;  // so it doesn’t disturb layout
 } */
-/* 1. the label has to be the positioning anchor */
+
+/* the label has to be the positioning anchor */
 .options, .option-row {
   position: relative;
 }
@@ -127,9 +128,9 @@
 ::ng-deep .mat-radio-input,
 ::ng-deep .mat-checkbox-input {
   position: absolute !important;
-  top:    0;
-  left:   0;
-  width:  100%;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
   margin: 0;
   opacity: 0;
@@ -142,6 +143,17 @@
 ::ng-deep .mat-checkbox-frame,
 ::ng-deep .mat-checkbox-background {
   display: none !important;
+}
+
+/* put the (invisible) input on top of everything */
+::ng-deep .mat-radio-input,
+::ng-deep .mat-checkbox-input {
+  z-index: 5; // always above content
+}
+
+/* all visual children should let the click pass through */
+.option-row * {
+  pointer-events: none; // click goes straight to the input
 }
 
 
