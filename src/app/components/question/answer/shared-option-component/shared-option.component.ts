@@ -766,13 +766,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
   
-  onRadioClick(binding: OptionBindings, idx: number) {
+  /* onRadioClick(binding: OptionBindings, idx: number) {
     const id = binding.option.optionId;
     this.updateSelections(id);
     // patch form control silently so reactive forms stays in sync
     this.form.get('selectedOptionId')!.setValue(id, { emitEvent: false });
     this.cdRef.detectChanges();
+  } */
+  /** Called on the very first click of any radio button */
+  onRadioClick(
+    binding: OptionBindings,
+    index: number
+  ): void {
+    const optionId = binding.option.optionId;
+    // 1) Immediately set the FormControl so UI shows checked state
+    this.form.get('selectedOptionId')?.setValue(optionId, { emitEvent: false });
+
+    // 2) Trigger your unified selection logic
+    this.updateOptionAndUI(
+      binding,
+      index,
+      { value: optionId } as MatRadioChange
+    );
+
+    // 3) Flush the highlight+icon+feedback in the same tick
+    this.cdRef.detectChanges();
   }
+
 
   onRadioClickFallback(
     rb: MatRadioButton,
