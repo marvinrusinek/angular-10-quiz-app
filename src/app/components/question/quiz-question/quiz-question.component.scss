@@ -93,6 +93,58 @@
   display: block !important;
 }
 
+/* the wrapper Angular-Material injects for every radio/checkbox */
+/* ::ng-deep .mat-radio-label,
+::ng-deep .mat-checkbox-layout{
+  display: flex; // change from block to flex
+  align-items: center; // keep baseline aligned
+  width: 100%; // let the bar span full width
+  padding: 0; // we control spacing ourselves
+} */
+
+/* the span that holds text */
+/* ::ng-deep .mat-radio-label-content,
+::ng-deep .mat-checkbox-label {
+  display: inline; // was block – forces new line
+  white-space: normal; // allow wrapping for long answers
+} */
+
+/* make input reachable but invisible */
+/* ::ng-deep .mat-radio-container,
+::ng-deep .mat-checkbox-inner-container {
+  opacity: 0; // invisible
+  width: 0; // no visual width
+  height: 0;  // no visual height
+  margin: 0;
+  position: absolute;  // so it doesn’t disturb layout
+} */
+/* 1. the label has to be the positioning anchor */
+.options, .option-row {
+  position: relative;
+}
+
+/* enlarge the REAL input – radio & checkbox variant */
+::ng-deep .mat-radio-input,
+::ng-deep .mat-checkbox-input {
+  position: absolute !important;
+  top:    0;
+  left:   0;
+  width:  100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* hide the visual circles/frames */
+::ng-deep .mat-radio-outer-circle,
+::ng-deep .mat-radio-inner-circle,
+::ng-deep .mat-checkbox-frame,
+::ng-deep .mat-checkbox-background {
+  display: none !important;
+}
+
+
 /* @import '../../../../variables';
 
 .options {
