@@ -69,7 +69,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightedOptionIds: Set<number> = new Set();
   lastFeedbackAnchorOptionId: number = -1;
   selectedRadioOptionId: number | null = null;
-  form: FormGroup;
+  // form: FormGroup;
+  form = this.fb.group({
+    selectedOptionId: new FormControl(null, Validators.required)
+  });
   formSubscriptionsSetup = false;
 
   isNavigatingBackwards = false;
@@ -745,8 +748,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
   
+  onRadioClick(binding: OptionBindings, idx: number) {
+    const id = binding.option.optionId;
+    this.updateSelections(id);
+    // patch form control silently so reactive forms stays in sync
+    this.form.get('selectedOptionId')!.setValue(id, { emitEvent: false });
+    this.cdRef.detectChanges();
+  }
   
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
+  /** Fired on the very first click of any radio-button */
+  onGroupSelectionChange(ev: MatRadioChange) {
+    const id = ev.value;
+    this.updateSelections(id);
+    // no need to setValue() again—ReactiveForms has it
+    this.cdRef.detectChanges();
+  }
+
+  onMatCheckboxChanged(binding: OptionBindings, index: number, ev: MatCheckboxChange) {
+    this.updateOptionAndUI(binding, index, ev);
+  }
+  
+  /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -754,7 +776,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.updateOptionAndUI(optionBinding, index, event);
-  }
+  } */
   /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
     if (!optionBinding) return;
   
@@ -800,10 +822,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Force a CD cycle
     this.cdRef.detectChanges();
   } */
-
-  onGroupSelectionChange(event: MatRadioChange) {
-    this.updateSelections(event.value);
-  }
 
   private processImmediateSelection(selectedOptionId: number): void {
     if (!this.form) return;
@@ -2999,7 +3017,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const firstSelected = this.optionBindings.find(b => b.isSelected);
       if (firstSelected) {
         console.log('[🧠 Preselecting first selected option]', firstSelected.option.optionId);
-        this.form.get('selectedOptionId')?.setValue(firstSelected.option.optionId, { emitEvent: false });
       }
   
       // viewReady = true AFTER setting form
@@ -3443,7 +3460,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       binding.directiveInstance?.updateHighlight(); // <- 🔥 make sure this is called
     });
   } */
-  private updateSelections(selectedOptionId: number): void {
+  /* private updateSelections(selectedOptionId: number): void {
     console.log('[🧹 Updating selections]', selectedOptionId);
   
     if (!this.selectedOptionHistory.includes(selectedOptionId)) {
@@ -3469,6 +3486,43 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     this.cdRef.detectChanges();
+  } */
+  /* private updateSelections(selectedId: number) {
+    // record history
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+
+    // update all bindings
+    this.optionBindings.forEach(b => {
+      const id = b.option.optionId;
+      const isCurrent = id === selectedId;
+      const ever      = this.selectedOptionHistory.includes(id);
+
+      b.option.selected  = isCurrent;
+      b.option.highlight = ever;
+      b.option.showIcon  = ever;
+      b.isSelected       = isCurrent;
+      b.showFeedbackForOption[id] = isCurrent;
+
+      b.directiveInstance?.updateHighlight();
+    });
+  } */
+  private updateSelections(selectedId: number) {
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+    this.optionBindings.forEach(b => {
+      const id = b.option.optionId;
+      const ever = this.selectedOptionHistory.includes(id);
+      const current = id === selectedId;
+      b.option.selected  = current;
+      b.option.highlight = ever;
+      b.option.showIcon  = ever;
+      b.isSelected       = current;
+      b.showFeedbackForOption[id] = current;
+      b.directiveInstance?.updateHighlight();
+    });
   }
   
 
@@ -3865,7 +3919,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.cdRef.detectChanges();
       });
   } */
-  private initializeForm(): void {
+  /* private initializeForm(): void {
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required)
     });
@@ -3886,6 +3940,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
         console.log('[🛎️ Form value changed]', selectedOptionId);
         this.updateSelections(selectedOptionId);
+        this.cdRef.detectChanges();
+      });
+  } */
+  /* private initializeForm(): void {
+    // start with NO selection
+    this.form = this.fb.group({
+      selectedOptionId: new FormControl(null, Validators.required)
+    });
+  
+    this.selectedOptionHistory = [];
+    this.lastSelectedOptionId = undefined;
+  
+    // now react on the very first change from null → optionId
+    this.form.get('selectedOptionId')!
+      .valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((selectedOptionId: number) => {
+        if (selectedOptionId == null) return;
+        this.updateSelections(selectedOptionId);
+        this.cdRef.detectChanges();
+      });
+  } */
+  private initializeForm() {
+    this.selectedOptionHistory = [];
+    this.form.get('selectedOptionId')!
+      .valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe(id => {
+        if (id == null) return;
+        this.updateSelections(id);
         this.cdRef.detectChanges();
       });
   }
