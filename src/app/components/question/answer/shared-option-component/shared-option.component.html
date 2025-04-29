@@ -10,11 +10,12 @@
 
         <!-- one loop for all options -->
         <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
-             class="option-row options">
+            class="option-row options">
 
           <label appHighlightOption [optionBinding]="b" [isCorrect]="b.isCorrect">
-            <mat-radio-button [value]="b.option.optionId">
-
+            <mat-radio-button 
+              [value]="b.option.optionId"
+              (click)="optionClick$.next({ binding: b, idx: i })">
               <span class="opt-text">
                 {{ getOptionDisplayText(b.option, i) }}
               </span>
@@ -27,7 +28,7 @@
             </mat-radio-button>
           </label>
 
-          <codelab-quiz-feedback
+          <codelab-quiz-feedback style="padding-bottom: -20px"
             *ngIf="shouldShowFeedback(i)"
             [feedbackConfig]="feedbackConfigs[i]">
           </codelab-quiz-feedback>
@@ -39,12 +40,13 @@
     <!-- MULTIPLE-ANSWER MODE -->
     <ng-template #multiBlock>
       <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
-           class="option-row options">
+          class="option-row options">
 
         <label appHighlightOption [optionBinding]="b" [isCorrect]="b.isCorrect">
           <mat-checkbox
             [checked]="b.option.selected"
-            (change)="onMatCheckboxChanged(b, i, $event)">
+            (change)="onMatCheckboxChanged(b, i, $event)"
+            (click)="optionClick$.next({ binding: b, idx: i })">
 
             <span class="opt-text">
               {{ getOptionDisplayText(b.option, i) }}
