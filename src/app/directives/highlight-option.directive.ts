@@ -419,6 +419,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
   }
 
+  private get paintTarget(): HTMLElement {
+    return (this.el.nativeElement as HTMLElement).firstElementChild as HTMLElement;
+  }
+
   // Reset the state in-between questions
   public reset(): void {
     this.isAnswered = false;
