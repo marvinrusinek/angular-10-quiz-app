@@ -43,6 +43,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     if (this.optionBinding) {
       this.optionBinding.directiveInstance = this;
     }
+    this.updateHighlight();
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
@@ -367,6 +368,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
     this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
     this.setPointerEvents('auto');
+    this.setCursor('pointer');
 
     option.showIcon                 = false;
     this.showFeedbackForOption[id]  = false;
