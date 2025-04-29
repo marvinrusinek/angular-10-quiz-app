@@ -840,14 +840,52 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // 3) Flush change detection to render highlight, icon & feedback
     this.cdRef.detectChanges();
   } */
-  public onRadioMouseDown(b: OptionBindings, i: number, e: MouseEvent): void {
+  /* public onRadioMouseDown(b: OptionBindings, i: number, e: MouseEvent): void {
     e.preventDefault();           // stop Angular-Material’s own cycle
     this.form.get('selectedOptionId')!
         .setValue(b.option.optionId, { emitEvent: false });
   
     this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
     this.cdRef.detectChanges();   // paint immediately
+  } */
+  public onRadioMouseDown(
+    ev: MouseEvent,
+    binding: OptionBindings,
+    idx: number
+  ): void {
+    /* stop Material’s own change/animation; we’ll do it manually */
+    ev.preventDefault();
+
+    const id = binding.option.optionId;
+
+    /* 1 – set form control WITHOUT emitting (avoids second pass) */
+    this.form.get('selectedOptionId')!
+        .setValue(id, { emitEvent: false });
+
+    /* 2 – mark visual state ONCE */
+    binding.option.selected  = true;
+    binding.option.highlight = true;
+    binding.option.showIcon  = true;
+    binding.isSelected       = true;
+
+    /* 3 – feedback for this option only */
+    Object.keys(this.showFeedbackForOption)
+          .forEach(k => this.showFeedbackForOption[+k] = false);
+    this.showFeedbackForOption[id] = true;
+    this.updateFeedbackState(id);
+
+    /* 4 – paint immediately */
+    binding.directiveInstance?.updateHighlight();
+
+    /* 5 – remember history, run any business logic you need */
+    if (!this.selectedOptionHistory.includes(id)) {
+      this.selectedOptionHistory.push(id);
+    }
+
+    /* 6 – single CD flush */
+    this.cdRef.detectChanges();
   }
+
 
 
   onRadioClickFallback(
