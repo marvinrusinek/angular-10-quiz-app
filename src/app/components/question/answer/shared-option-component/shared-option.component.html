@@ -1,60 +1,52 @@
 <ng-container *ngIf="optionBindings?.length; else noOptions">
   <form [formGroup]="form">
 
-    <!-- SINGLE-ANSWER (only ONE radio-group) -->
-    <mat-radio-group *ngIf="optionBindings[0].type === 'single'"
-                     formControlName="selectedOptionId"
-                     (selectionChange)="onGroupSelectionChange($event.value)">
+    <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
+         class="option-row options">
 
-      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
-        <label class="option-row options"
-               appHighlightOption
-               [optionBinding]="b">
+      <ng-container [ngSwitch]="b.type">
 
-          <mat-radio-button [value]="b.option.optionId">
-            <span class="opt-text">
-              {{ getOptionDisplayText(b.option,i) }}
-            </span>
-  
-            <mat-icon *ngIf="shouldShowIcon(b.option)"
-                      class="opt-icon">
+        <!-- SINGLE answer -->
+        <mat-radio-group
+          formControlName="selectedOptionId"
+          (selectionChange)="onGroupSelectionChange($event.value)">
+          <mat-radio-button
+            *ngSwitchCase="'single'"
+            formControlName="selectedOptionId"
+            [value]="b.option.optionId"
+            appHighlightOption
+            [optionBinding]="b"
+            (click)="onRadioClick(b, i)">
+
+            <span class="opt-text">{{ getOptionDisplayText(b.option, i) }}</span>
+            <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
               {{ getOptionIcon(b.option) }}
             </mat-icon>
           </mat-radio-button>
-        </label>
+        </mat-radio-group>
 
-        <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]">
-        </codelab-quiz-feedback>
-      </div>
-    </mat-radio-group>
+        <!-- MULTIPLE answer -->
+        <mat-checkbox
+          *ngSwitchCase="'multiple'"
+          [checked]="b.option.selected"
+          (change)="onMatCheckboxChanged(b,i,$event)"
+          appHighlightOption
+          [optionBinding]="b">
 
-    <!-- MULTIPLE-ANSWER -->
-    <div *ngIf="optionBindings[0].type === 'multiple'">
-      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
-        <label class="option-row"
-               appHighlightOption
-               [optionBinding]="b">
+          <span class="opt-text">{{ getOptionDisplayText(b.option, i) }}</span>
+          <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
+            {{ getOptionIcon(b.option) }}
+          </mat-icon>
+        </mat-checkbox>
 
-          <mat-checkbox [checked]="b.option.selected"
-                        (change)="onMatCheckboxChanged(b,i,$event)">
-            <span class="opt-text">
-              {{ getOptionDisplayText(b.option,i) }}
-            </span>
-              
-            <mat-icon *ngIf="shouldShowIcon(b.option)"
-                      class="opt-icon">
-              {{ getOptionIcon(b.option) }}
-            </mat-icon>            
-          </mat-checkbox>
-        </label>
+      </ng-container>
 
-        <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]">
-        </codelab-quiz-feedback>
-      </div>
+      <!-- exactly one feedback block per option row -->
+      <codelab-quiz-feedback
+        *ngIf="shouldShowFeedback(i)"
+        [feedbackConfig]="feedbackConfigs[i]">
+      </codelab-quiz-feedback>
+
     </div>
 
   </form>
