@@ -48,7 +48,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     if (this.optionBinding) {
       this.optionBinding.directiveInstance = this;
     }
-    this.updateHighlight();
   }
 
   /* ngOnChanges(changes: SimpleChanges): void {
@@ -400,11 +399,11 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt       = this.optionBinding.option;
     const id        = opt.optionId;
     const isChosen  = opt.selected || opt.highlight;           // already picked before
-    let   colour    = 'white';
+    let   color    = 'white';
   
     if (isChosen) {
-      colour = this.isCorrect ? '#43f756' : '#ff0000';         // green / red
-      setBG(colour);
+      color = this.isCorrect ? '#43f756' : '#ff0000';         // green / red
+      setBG(color);
   
       opt.showIcon                = true;
       this.showFeedbackForOption[id] = true;
@@ -417,8 +416,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   
     if (!this.isCorrect && opt.active === false) {
-      colour = '#a3a3a3';                                      // grey
-      setBG(colour);
+      color = '#a3a3a3';                                      // grey
+      setBG(color);
   
       this.renderer.addClass (this.el.nativeElement, 'deactivated-option');
       this.renderer.setStyle (this.el.nativeElement, 'cursor', 'not-allowed');
@@ -430,7 +429,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   
     /* default (unselected / reset) */
-    setBG(colour);                                             // white
+    setBG(color);                                             // white
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
     this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
     this.setPointerEvents('auto');
