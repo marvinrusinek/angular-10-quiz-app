@@ -886,6 +886,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
+  public handleRadio(
+    binding: OptionBindings,
+    idx: number,
+    ev: PointerEvent
+  ): void {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    const id = binding.option.optionId;
+
+    /* 1 — update data model */
+    this.form.get('selectedOptionId')!.setValue(id, { emitEvent: false });
+
+    binding.option.selected  = true;
+    binding.option.highlight = true;
+    binding.option.showIcon  = true;
+    binding.isSelected       = true;
+
+    /* 2 — feedback only for this option */
+    Object.keys(this.showFeedbackForOption)
+          .forEach(k => (this.showFeedbackForOption[+k] = +k === id));
+    this.updateFeedbackState(id);
+
+    /* 3 — remember history (if you still need it) */
+    if (!this.selectedOptionHistory.includes(id)) {
+      this.selectedOptionHistory.push(id);
+    }
+
+    /* 4 — paint immediately */
+    binding.directiveInstance?.updateHighlight();
+
+    /* 5 — enforce single-answer lock */
+    this.enforceSingleSelection(binding);
+
+    /* 6 — one CD flush */
+    this.cdRef.detectChanges();
+  }
+
 
 
   onRadioClickFallback(

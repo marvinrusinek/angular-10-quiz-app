@@ -10,7 +10,7 @@
           <!-- every radio wrapped in .options label -->
           <label class="options">
             <mat-radio-button
-              (mousedown)="onRadioMouseDown($event, b, i)"
+              (pointerdown)="handleRadio(b, i, $event)"
               [value]="b.option.optionId"
               appHighlightOption
               [optionBinding]="b">
