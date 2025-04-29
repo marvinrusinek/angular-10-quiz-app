@@ -782,8 +782,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-  onMatCheckboxChanged(binding: OptionBindings, index: number, ev: MatCheckboxChange) {
+  onSingleOptionChange(
+    binding: OptionBindings,
+    index: number,
+    ev: MatRadioChange
+  ) {
+    // Treat every radio-change as checked = true
     this.updateOptionAndUI(binding, index, ev);
+    this.cdRef.detectChanges();  // push highlight+icon+feedback in same cycle
+  }
+
+  /* onMatCheckboxChanged(binding: OptionBindings, index: number, ev: MatCheckboxChange) {
+    this.updateOptionAndUI(binding, index, ev);
+  } */
+  /** Multi-answer: exactly as before */
+  onMatCheckboxChanged(
+    binding: OptionBindings,
+    index: number,
+    ev: MatCheckboxChange
+  ) {
+    this.updateOptionAndUI(binding, index, ev);
+    this.cdRef.detectChanges();
   }
   
   /* onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
