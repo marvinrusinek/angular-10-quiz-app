@@ -77,3 +77,14 @@ div.mat-radio-inner-container {
   width:0 !important;
   margin:0 !important;
 }
+
+
+/* make input reachable but invisible */
+::ng-deep .mat-radio-container,
+::ng-deep .mat-checkbox-inner-container {
+  opacity: 0;          /* invisible */
+  width   : 0;         /* no visual width  */
+  height  : 0;         /* no visual height */
+  margin  : 0;
+  position: absolute;  /* so it doesn’t disturb layout */
+}
