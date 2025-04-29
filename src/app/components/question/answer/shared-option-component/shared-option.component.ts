@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { auditTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
@@ -82,6 +82,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
   public lastSelectedOptionId: number | undefined;
+
+  // Emits immediately when any radio/checkbox is clicked
+  private readonly optionClick$ = new Subject<{ binding: OptionBindings; idx: number }>();
+
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
   hasUserClicked = false;
@@ -214,6 +218,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
       this.generateOptionBindings();
     }
+
+    this.optionClick$
+      .pipe(auditTime(0))
+      .subscribe(({ binding, idx }) => {
+        this.updateOptionAndUI(binding, idx, { checked: true } as any);
+      });
   
     this.viewInitialized = true;
     this.viewReady = true;
