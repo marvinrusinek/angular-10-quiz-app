@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgZone, OnChanges, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgZone, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
@@ -9,8 +9,8 @@ import { UserPreferenceService } from '../shared/services/user-preference.servic
 @Directive({
   selector: '[appHighlightOption]'
 })
-export class HighlightOptionDirective implements OnChanges {
-  @Output() appHighlightOptionReady = new EventEmitter<HighlightOptionDirective>();
+export class HighlightOptionDirective implements OnInit, OnChanges {
+  // @Output() appHighlightOptionReady = new EventEmitter<HighlightOptionDirective>();
   @Output() resetBackground = new EventEmitter<boolean>();
   @Output() optionClicked = new EventEmitter<Option>();
   @Input() appHighlightInputType: 'checkbox' | 'radio' = 'radio';
@@ -37,9 +37,10 @@ export class HighlightOptionDirective implements OnChanges {
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private userPreferenceService: UserPreferenceService
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     if (this.optionBinding) {
-      this.appHighlightOptionReady.emit(this);
       this.optionBinding.directiveInstance = this;
     }
   }
