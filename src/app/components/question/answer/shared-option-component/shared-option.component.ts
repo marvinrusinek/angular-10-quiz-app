@@ -19,6 +19,7 @@ import { UserPreferenceService } from '../../../../shared/services/user-preferen
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
+
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
