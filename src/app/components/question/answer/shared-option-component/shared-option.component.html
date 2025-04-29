@@ -1,9 +1,7 @@
 <ng-container *ngIf="canDisplayOptions; else noOptions">
   <form [formGroup]="form">
-
     <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption">
       <label class="options">
-
         <ng-container [ngSwitch]="b.type">
 
           <!-- SINGLE-ANSWER -->
@@ -58,7 +56,6 @@
 
       </label>
     </div>
-
   </form>
 </ng-container>
 
