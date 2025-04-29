@@ -10,6 +10,23 @@ div.mat-radio-inner-container {
   display: none;
 }
 
+.option-row {
+  display: flex;              /* all children on one line   */
+  align-items: center;
+  gap: 0.5rem;                /* space between text & icon  */
+  padding: 0.25rem 0.5rem;    /* consistent hit-area        */
+  border-radius: 6px;
+}
+.option-row mat-radio-button,
+.option-row mat-checkbox {
+  margin: 0;
+}
+
+.opt-icon {
+  font-size: 20px;
+  line-height: 20px;
+}
+
 .options {
   mat-checkbox,
   mat-radio-button {
