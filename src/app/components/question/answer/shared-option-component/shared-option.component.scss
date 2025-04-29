@@ -11,7 +11,7 @@ div.mat-radio-inner-container {
 }
 
 .option-row {
-  display: inline-flex;        /*  <-- was flex */
+  display: flex;
   align-items: center;
   gap: .5rem;
   padding: .25rem .5rem;
@@ -73,8 +73,26 @@ div.mat-radio-inner-container {
   margin-left: 10px;
 }
 
+/* 1️⃣ – the wrapper Angular-Material injects for every radio / checkbox  */
+::ng-deep .mat-radio-label,
+::ng-deep .mat-checkbox-layout{
+  display:flex;              /* change from block to flex */
+  align-items:center;        /* keep baseline aligned */
+  width:100%;                /* let the bar span full width */
+  padding:0;                 /* we control spacing ourselves */
+}
+
+/* 2️⃣ – the span that actually holds your text                        */
 ::ng-deep .mat-radio-label-content,
-::ng-deep .mat-checkbox-layout .mat-checkbox-label {
-  display: inline;       /* was block */
-  white-space: normal;   /* allow wrap if text is long */
+::ng-deep .mat-checkbox-label {
+  display:inline;            /* was block – forces new line */
+  white-space:normal;        /* allow wrapping for long answers */
+}
+
+/* 3️⃣ – make Angular-Material’s hidden “container” zero-size so it     */
+/*      doesn’t create an empty column at the start of the row          */
+::ng-deep .mat-radio-container,
+::ng-deep .mat-checkbox-inner-container{
+  width:0 !important;
+  margin:0 !important;
 }
