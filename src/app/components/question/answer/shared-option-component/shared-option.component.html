@@ -9,10 +9,10 @@
 
         <!-- one loop for all options -->
         <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
-            class="option-row options">
+            class="options">
 
           <label appHighlightOption [optionBinding]="b" [isCorrect]="b.isCorrect">
-            <mat-radio-button 
+            <mat-radio-button class="option-row"
               [value]="b.option.optionId"
               (click)="onRadioClick(b, i)">
               <span class="opt-text">
