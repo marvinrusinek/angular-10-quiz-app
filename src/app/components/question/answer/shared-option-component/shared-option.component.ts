@@ -221,20 +221,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     this.optionClick$
-    .pipe(auditTime(0)) // keeps UI perfectly in-sync
-    .subscribe(({ binding, index }) => {
-      const id = binding.option.optionId;
-
-      // Patch the form control (synchronous)
+    .pipe(auditTime(0))
+    .subscribe(({ binding, idx }) => {
+      const id   = binding.option.optionId;
       const ctrl = this.form.get('selectedOptionId')!;
       if (ctrl.value !== id) {
         ctrl.setValue(id, { emitEvent: false });
       }
-
-      // Let existing painter do its thing
-      this.updateOptionAndUI(binding, index, { checked: true } as any);
-
-      // immediate change-detection flush
+      this.updateOptionAndUI(binding, idx, { checked: true } as any);
       this.cdRef.detectChanges();
     });
   
@@ -834,15 +828,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number
   ): void {
     const optionId = binding.option.optionId;
-    // 1) Immediately set the FormControl so UI shows checked state
+    // Immediately set the FormControl so UI shows checked state
     this.form.get('selectedOptionId')?.setValue(optionId, { emitEvent: false });
 
-    // 2) Trigger your unified selection logic
+    // Trigger your unified selection logic
     this.updateOptionAndUI(
       binding,
       index,
       { value: optionId } as MatRadioChange
     );
+
+    // Push the event into the stream
+    this.optionClick$.next({ binding, index });
 
     // 3) Flush the highlight+icon+feedback in the same tick
     this.cdRef.detectChanges();
