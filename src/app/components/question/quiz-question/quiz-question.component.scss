@@ -48,6 +48,16 @@
       pointer-events: none;
     }
 
+    label.options {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    /* everything inside should let the click bubble up */
+    label.options * {
+      pointer-events: none;
+    }
+
     mat-icon {
       font-size: 30px;
       position: absolute;
