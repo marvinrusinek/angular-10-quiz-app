@@ -19,6 +19,7 @@ import { UserPreferenceService } from '../../../../shared/services/user-preferen
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
+type OptionClickPayload = { binding: OptionBindings; index: number };
 
 @Component({
   selector: 'app-shared-option',
@@ -85,7 +86,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   public lastSelectedOptionId: number | undefined;
 
   // Emits immediately when any radio/checkbox is clicked
-  private readonly optionClick$ = new Subject<{ binding: OptionBindings; idx: number }>();
+  private readonly optionClick$ = new Subject<OptionClickPayload>();
 
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
@@ -220,17 +221,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.generateOptionBindings();
     }
 
+    // subscribe
     this.optionClick$
     .pipe(auditTime(0))
-    .subscribe(({ binding, idx }) => {
+    .subscribe(({ binding, index }) => {
       const id   = binding.option.optionId;
       const ctrl = this.form.get('selectedOptionId')!;
       if (ctrl.value !== id) {
         ctrl.setValue(id, { emitEvent: false });
       }
-      this.updateOptionAndUI(binding, idx, { checked: true } as any);
+      this.updateOptionAndUI(binding, index, { checked: true } as any);
       this.cdRef.detectChanges();
-    });
+    }); 
   
     this.viewInitialized = true;
     this.viewReady = true;
