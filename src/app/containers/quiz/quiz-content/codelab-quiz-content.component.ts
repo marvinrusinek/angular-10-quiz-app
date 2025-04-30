@@ -121,14 +121,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.displayState$ = this.quizStateService.displayState$.pipe(
-      tap((state) => console.log('[displayState$ emitted]:', state))
-    );
-
-    this.explanationTextService.explanationText$.subscribe((text) => {
-      console.log('[🧪 explanationText$ EMITTED]:', text);
-    });
-
     /* this.questionToDisplay$.pipe(
       filter(text => !!text?.trim()),
       take(1)
@@ -388,8 +380,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question); // Use next to update BehaviorSubject
-        this.isExplanationDisplayed = false; // Reset explanation display state
+        this.currentQuestion.next(question); // update BehaviorSubject
+        this.isExplanationDisplayed = false; // reset explanation display state
         this.explanationToDisplay = '';
 
         // Reset explanation state
