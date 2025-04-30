@@ -227,39 +227,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
-  
-  /* private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.explanationText$,
-      this.questionToDisplay$,
-      this.correctAnswersText$
-    ]).pipe(
-      tap(([state, explanationText, question, correctText]) => {
-        console.log('💬 combinedText$', {
-          mode: state.mode,
-          explanationText,
-          question,
-          correctText
-        });
-      }),
-      map(([state, explanationText, question, correctText]) => {
-        const explanation = explanationText?.trim();
-        const trimmedQuestion = question?.trim();
-    
-        const showExplanation = state.mode === 'explanation' && !!explanation;
-    
-        if (showExplanation) {
-          return explanation;
-        }
-    
-        return correctText?.trim()
-          ? `${trimmedQuestion} <span class="correct-count">${correctText}</span>`
-          : (trimmedQuestion || 'No question available');
-      }),
-      distinctUntilChanged()
-    );        
-  } */
+
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
