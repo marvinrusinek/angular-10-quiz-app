@@ -8,7 +8,7 @@
   mat-radio-button {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: pointer !important;
     width: 630px;
     height: auto !important;
     font-family: $font-stack;
@@ -87,6 +87,39 @@
     margin-top: 5px;
   }
 }
+
+/* the mat radio/checkbox itself is the click target */
+.option-row.mat-radio-button,
+.option-row.mat-checkbox {
+  display: flex;          /* take entire line */
+  align-items: center;
+  width: 100%;
+  padding: 8px 15px 8px 35px;
+  background: #eee;
+  border: 2px solid #ccc;
+  cursor: pointer;
+}
+
+/* stop the inner span / icon from stealing clicks */
+.option-row .opt-text,
+.option-row .opt-icon {
+  pointer-events: none;
+}
+
+/* full-width label content (Angular-Material inner span) */
+.option-row .mat-radio-label-content,
+.option-row .mat-checkbox-layout .mat-checkbox-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* icons stay inside the grey box */
+.opt-icon {
+  font-size: 22px;
+}
+
 
 // Hide the default checkbox and radio button elements
 ::ng-deep .mat-checkbox .mat-checkbox-frame,
