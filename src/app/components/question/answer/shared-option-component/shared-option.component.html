@@ -5,8 +5,7 @@
     <ng-container *ngIf="optionBindings[0].type === 'single'; else multiBlock">
       <!-- ONE radio-group owns the form control -->
       <mat-radio-group
-        formControlName="selectedOptionId"
-        (selectionChange)="onGroupSelectionChange($event.value)">
+        formControlName="selectedOptionId">
 
         <!-- one loop for all options -->
         <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
@@ -15,7 +14,7 @@
           <label appHighlightOption [optionBinding]="b" [isCorrect]="b.isCorrect">
             <mat-radio-button 
               [value]="b.option.optionId"
-              (click)="optionClick$.next({ binding: b, idx: i })">
+              (click)="onRadioClick(b, i)">
               <span class="opt-text">
                 {{ getOptionDisplayText(b.option, i) }}
               </span>

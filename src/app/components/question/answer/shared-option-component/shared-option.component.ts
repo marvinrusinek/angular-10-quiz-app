@@ -221,10 +221,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     this.optionClick$
-      .pipe(auditTime(0))
-      .subscribe(({ binding, idx }) => {
-        this.updateOptionAndUI(binding, idx, { checked: true } as any);
-      });
+    .pipe(auditTime(0)) // keeps UI perfectly in-sync
+    .subscribe(({ binding, index }) => {
+      const id = binding.option.optionId;
+
+      // Patch the form control (synchronous)
+      const ctrl = this.form.get('selectedOptionId')!;
+      if (ctrl.value !== id) {
+        ctrl.setValue(id, { emitEvent: false });
+      }
+
+      // Let existing painter do its thing
+      this.updateOptionAndUI(binding, index, { checked: true } as any);
+
+      // immediate change-detection flush
+      this.cdRef.detectChanges();
+    });
   
     this.viewInitialized = true;
     this.viewReady = true;
