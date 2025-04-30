@@ -43,6 +43,11 @@
       white-space: normal;
     }
 
+    .option-text,
+    .opt-icon {
+      pointer-events: none;
+    }
+
     mat-icon {
       font-size: 30px;
       position: absolute;
