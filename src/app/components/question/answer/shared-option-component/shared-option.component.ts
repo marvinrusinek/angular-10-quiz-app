@@ -50,6 +50,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
+
+  // Emits immediately when any radio/checkbox is clicked
+  private readonly optionClick$ = new Subject<OptionClickPayload>();
+
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
   feedbackConfig: FeedbackProps = {
@@ -61,8 +65,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     showFeedback: false,
     idx: -1
   };
-  currentFeedbackConfig: FeedbackProps;
   feedbackConfigs: FeedbackProps[] = [];
+  currentFeedbackConfig: FeedbackProps;
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   iconVisibility: boolean[] = []; // array to store visibility state of icons
@@ -70,8 +74,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastSelectedOptionIndex = -1;
   lastFeedbackOptionId = -1;
   highlightedOptionIds: Set<number> = new Set();
-  lastFeedbackAnchorOptionId: number = -1;
-  selectedRadioOptionId: number | null = null;
   form!: FormGroup;
   formSubscriptionsSetup = false;
 
@@ -84,9 +86,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
   public lastSelectedOptionId: number | undefined;
-
-  // Emits immediately when any radio/checkbox is clicked
-  private readonly optionClick$ = new Subject<OptionClickPayload>();
 
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
