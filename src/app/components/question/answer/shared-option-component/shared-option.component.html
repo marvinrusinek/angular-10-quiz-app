@@ -5,7 +5,7 @@
     <mat-radio-group
       *ngIf="optionBindings[0].type === 'single'"
       formControlName="selectedOptionId"
-      (selectionChange)="onGroupSelectionChange($event.value)">
+      (selectionChange)="handleRadioGroupChange($event)">
 
       <div
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"

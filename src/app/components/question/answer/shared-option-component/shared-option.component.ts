@@ -270,6 +270,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.hasBoundQuizComponent = true;
   }
+
+  handleRadioGroupChange(evt: MatRadioChange): void {
+    /* evt.value already IS the optionId we stored in [value] */
+    const optId = evt.value;
+  
+    /* find binding once – O(1) because you already have a Map, or keep simple loop */
+    const idx = this.optionBindings.findIndex(b => b.option.optionId === optId);
+    const binding = this.optionBindings[idx];
+  
+    /* Do everything in ONE synchronous call */
+    this.updateOptionAndUI(binding, idx, { checked: true } as any);
+  }
   
   // Handle visibility changes to restore state
   @HostListener('window:visibilitychange', [])
