@@ -97,7 +97,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
-  form: FormGroup;
+  form!: FormGroup;
 
   optionTextStyle = { color: 'black' };
 
