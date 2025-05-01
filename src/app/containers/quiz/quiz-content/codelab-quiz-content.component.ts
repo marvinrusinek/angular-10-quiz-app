@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -104,7 +104,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -119,6 +120,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    this.displayState$ = this.quizStateService.displayState$.pipe(
+      tap((state) => console.log('[displayState$ emitted]:', state))
+    );
+
+    this.explanationTextService.explanationText$.subscribe((text) => {
+      console.log('[🧪 explanationText$ EMITTED]:', text);
+    });
 
     /* this.questionToDisplay$.pipe(
       filter(text => !!text?.trim()),
@@ -218,7 +227,39 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
   }
-
+  
+  /* private getCombinedDisplayTextStream(): void {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$
+    ]).pipe(
+      tap(([state, explanationText, question, correctText]) => {
+        console.log('💬 combinedText$', {
+          mode: state.mode,
+          explanationText,
+          question,
+          correctText
+        });
+      }),
+      map(([state, explanationText, question, correctText]) => {
+        const explanation = explanationText?.trim();
+        const trimmedQuestion = question?.trim();
+    
+        const showExplanation = state.mode === 'explanation' && !!explanation;
+    
+        if (showExplanation) {
+          return explanation;
+        }
+    
+        return correctText?.trim()
+          ? `${trimmedQuestion} <span class="correct-count">${correctText}</span>`
+          : (trimmedQuestion || 'No question available');
+      }),
+      distinctUntilChanged()
+    );        
+  } */
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
@@ -379,8 +420,8 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question); // update BehaviorSubject
-        this.isExplanationDisplayed = false; // reset explanation display state
+        this.currentQuestion.next(question); // Use next to update BehaviorSubject
+        this.isExplanationDisplayed = false; // Reset explanation display state
         this.explanationToDisplay = '';
 
         // Reset explanation state
