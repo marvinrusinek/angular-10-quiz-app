@@ -448,10 +448,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       };
     });
     this.updateHighlighting();
-    
-    setTimeout(() => {
-      this.cdRef.detectChanges(); // ensure the DOM updates
-    }, 0);    
 
     console.warn('[🧨 optionBindings REASSIGNED]', {
       stackTrace: new Error().stack
@@ -1422,7 +1418,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           return optionBinding;
         });
         
-        this.updateHighlighting();   
+        this.updateHighlighting();
+
+        setTimeout(() => {
+          this.cdRef.detectChanges(); // ensure the DOM updates
+        }, 0);        
 
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
