@@ -1422,11 +1422,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           return optionBinding;
         });
         
-        this.updateHighlighting();
-
-        setTimeout(() => {
-          this.cdRef.detectChanges(); // ensure the DOM updates
-        }, 0);        
+        this.updateHighlighting();   
 
         console.warn('[🧨 optionBindings REASSIGNED]', {
           stackTrace: new Error().stack
