@@ -1479,6 +1479,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return this.selectedOption && this.selectedOption.correct;
   }
 
+  get canDisplayOptions(): boolean {
+    return !!(this.form && this.viewReady && this.optionBindings?.length > 0);
+  }
+
   trackByOption(item: Option, index: number): number {
     return item.optionId;
   }
