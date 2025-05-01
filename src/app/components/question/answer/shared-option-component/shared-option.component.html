@@ -1,4 +1,4 @@
-<ng-container *ngIf="optionBindings?.length; else noOptions">
+<ng-container *ngIf="canDisplayOptions; else noOptions">
   <form [formGroup]="form">
 
     <!-- SINGLE-ANSWER (radio) -->
