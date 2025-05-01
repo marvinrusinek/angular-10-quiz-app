@@ -941,6 +941,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
+  /** Called exactly once per user click on a radio button */
+  handleRadioGroupChange(event: MatRadioChange): void {
+    const optionId = event.value;
+
+    // Find the binding that matches the chosen id
+    const idx = this.optionBindings.findIndex(b => b.option.optionId === optionId);
+    if (idx === -1) { return; }
+
+    const binding = this.optionBindings[idx];
+
+    /* Run the single paint/update routine ↓ */
+    this.updateOptionAndUI(binding, idx, { checked: true } as any);
+
+    /* Make sure icon/feedback redraw this tick */
+    this.cdRef.detectChanges();
+  }
+
+
   onRadioClickFallback(
     rb: MatRadioButton,
     binding: OptionBindings,
