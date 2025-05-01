@@ -285,25 +285,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-  /**
- * Push the newly‐clicked option into history, then synchronise every binding’s
- * visual state (selected, highlight, icon, feedback) in *one* synchronous pass.
- */
+    /**
+   * Push the newly‐clicked option into history, then synchronise every binding’s
+   * visual state (selected, highlight, icon, feedback) in *one* synchronous pass.
+   */
    private updateSelections(selectedId: number): void {
 
-    /* --- 1.  History ------------------------------------------------------- */
+    // History
     if (!this.selectedOptionHistory.includes(selectedId)) {
       this.selectedOptionHistory.push(selectedId);
       console.log('[🧠 selectedOptionHistory]', this.selectedOptionHistory);
     }
 
-    /* --- 2.  Walk every binding and update its flags ----------------------- */
+    // Walk every binding and update its flags
     this.optionBindings.forEach(b => {
       const id          = b.option.optionId;
       const everClicked = this.selectedOptionHistory.includes(id); // in history?
       const isCurrent   = id === selectedId;                       // just clicked?
 
-      /*  ⚠️  This single line is what removed the 2-click lag  */
+      // This single line is what removed the 2-click lag
       b.option.highlight = everClicked;        // highlight if EVER clicked
       b.option.showIcon  = everClicked;        // icon if EVER clicked
       /* --------------------------------------------------------------------- */
@@ -311,15 +311,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.isSelected       = isCurrent;          // radio / checkbox selected
       b.option.selected  = isCurrent;
 
-      /* feedback only for the latest click */
+      // Feedback only for the latest click
       b.showFeedbackForOption[id] = isCurrent;
 
-      /* repaint row synchronously */
-      // b.directiveInstance?.updateHighlight();
+      // repaint row synchronously
       b.directiveInstance?.paintNow();
     });
 
-    /* --- 3.  Flush to DOM now --------------------------------------------- */
+    // Flush to DOM
     this.cdRef.detectChanges();
   }
 
