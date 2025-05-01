@@ -10,13 +10,11 @@
     cursor: pointer !important;
     width: 630px;
     height: auto !important;
-    font-family: $font-stack;
-    font-size: 20px;
-    line-height: 1.35;
+    font: 20px/1.35 $font-stack;
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
-    padding: 8px 15px 3px 35px; 
+    padding: 10px 15px 5px 35px; 
     margin-left: -5px !important;
     padding-left: -25px !important;
     overflow: unset !important;
