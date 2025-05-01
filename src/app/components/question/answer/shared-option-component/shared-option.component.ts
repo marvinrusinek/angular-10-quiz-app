@@ -3,6 +3,8 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
@@ -99,6 +101,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   optionTextStyle = { color: 'black' };
 
+  private click$ = new Subject<{ b: OptionBindings; i: number }>();
+  onDestroy$ = new Subject<void>();
+
   constructor(
     private feedbackService: FeedbackService,
     private quizService: QuizService,
@@ -113,8 +118,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.initializeFromConfig();
 
     this.form = this.fb.group({
-      selectedOptionId: [null] // for single-answer questions
+      selectedOptionId: new FormControl(null, Validators.required)
     });
+  
+    // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
+    this.form.get('selectedOptionId')!.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((id: number) => this.updateSelections(id));
+
+    // React to a click triggered manually, emitting the binding and index for the row the user clicked.
+    this.click$
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(({ b, i }) => {
+        // Update form control immediately
+        this.form
+          .get('selectedOptionId')
+          ?.setValue(b.option.optionId, { emitEvent: false });
+
+        // Visuals + feedback in ONE call
+        this.updateOptionAndUI(
+          b,
+          i,
+          { value: b.option.optionId } as MatRadioChange
+        );
+
+        // Flush once
+        this.cdRef.detectChanges();
+      });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
