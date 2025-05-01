@@ -1,6 +1,7 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -94,6 +95,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
+  form: FormGroup;
 
   optionTextStyle = { color: 'black' };
 
@@ -109,6 +111,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngOnInit(): void {
     this.initializeOptionBindings();
     this.initializeFromConfig();
+
+    this.form = this.fb.group({
+      selectedOptionId: [null] // for single-answer questions
+    });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
