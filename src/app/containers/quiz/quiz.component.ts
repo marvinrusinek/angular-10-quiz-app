@@ -823,25 +823,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Selection message + button state
     try {
-      await this.setSelectionMessage(true);
-      this.updateDisplayState('explanation', true);
-      this.evaluateSelectionMessage();
-    
-      this.nextButtonStateService.evaluateNextButtonState(
-        this.isAnswered,
-        this.quizStateService.isLoadingSubject.getValue(),
-        this.quizStateService.isNavigatingSubject.getValue()
-      );
-    
-      this.cdRef.detectChanges(); // force UI sync
-    
-      console.log('[🧪 post-setSelectionMessage]', {
-        index: this.currentQuestionIndex,
-        current: this.selectionMessageService.getCurrentMessage()
-      });
+      setTimeout(async () => {
+        await this.setSelectionMessage(true);
+        this.evaluateSelectionMessage();
+        this.nextButtonStateService.evaluateNextButtonState(
+          this.isAnswered,
+          this.quizStateService.isLoadingSubject.getValue(),
+          this.quizStateService.isNavigatingSubject.getValue()
+        );        
+        this.cdRef.detectChanges(); // force UI sync
+  
+        console.log('[🧪 post-setSelectionMessage]', {
+          index: this.currentQuestionIndex,
+          current: this.selectionMessageService.getCurrentMessage()
+        });
+      }, 50);
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
-    }    
+    }
   }
   
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {

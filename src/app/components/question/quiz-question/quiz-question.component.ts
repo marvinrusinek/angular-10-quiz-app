@@ -2277,9 +2277,6 @@ export class QuizQuestionComponent
   }): Promise<void> {
     const option = event.option;
     if (!option) return;
-
-    // Slight delay to let form control + DOM fully update
-    await new Promise(resolve => setTimeout(resolve, 0));
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const isMultipleAnswer = await firstValueFrom(
