@@ -241,6 +241,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.hasBoundQuizComponent = true;
   }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
   
   // Handle visibility changes to restore state
   @HostListener('window:visibilitychange', [])
