@@ -50,10 +50,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
-
-  // Emits immediately when any radio/checkbox is clicked
-  private readonly optionClick$ = new Subject<OptionClickPayload>();
-
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
   feedbackConfig: FeedbackProps = {
@@ -65,8 +61,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     showFeedback: false,
     idx: -1
   };
-  feedbackConfigs: FeedbackProps[] = [];
   currentFeedbackConfig: FeedbackProps;
+  feedbackConfigs: FeedbackProps[] = [];
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   iconVisibility: boolean[] = []; // array to store visibility state of icons
@@ -74,6 +70,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   lastSelectedOptionIndex = -1;
   lastFeedbackOptionId = -1;
   highlightedOptionIds: Set<number> = new Set();
+  lastFeedbackAnchorOptionId: number = -1;
+  selectedRadioOptionId: number | null = null;
   form!: FormGroup;
   formSubscriptionsSetup = false;
 
@@ -86,6 +84,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
   public lastSelectedOptionId: number | undefined;
+
+  // Emits immediately when any radio/checkbox is clicked
+  private readonly optionClick$ = new Subject<OptionClickPayload>();
 
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
@@ -120,34 +121,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      selectedOptionId: new FormControl(null, Validators.required)
-    });
-  
-    // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
-    this.form.get('selectedOptionId')!.valueChanges
-      .pipe(distinctUntilChanged())
-      .subscribe((id: number) => this.updateSelections(id));
-
-    // React to a click triggered manually, emitting the binding and index for the row the user clicked.
     this.click$
-      .pipe(takeUntil(this.onDestroy$))
-      .subscribe(({ b, i }) => {
-        // Update form control immediately
-        this.form
-          .get('selectedOptionId')
-          ?.setValue(b.option.optionId, { emitEvent: false });
+    .pipe(takeUntil(this.onDestroy$))
+    .subscribe(({ b, i }) => {
+      /* 1️⃣ Update form control immediately */
+      this.form
+        .get('selectedOptionId')
+        ?.setValue(b.option.optionId, { emitEvent: false });
 
-        // Visuals + feedback in ONE call
-        this.updateOptionAndUI(
-          b,
-          i,
-          { value: b.option.optionId } as MatRadioChange
-        );
+      /* 2️⃣ Visuals + feedback in ONE call */
+      this.updateOptionAndUI(
+        b,
+        i,
+        { value: b.option.optionId } as MatRadioChange
+      );
 
-        // Flush once
-        this.cdRef.detectChanges();
-      });
+      /* 3️⃣ Flush once */
+      this.cdRef.detectChanges();
+    });
 
     /* this.form
       .get('selectedOptionId')!
@@ -269,18 +260,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     this.hasBoundQuizComponent = true;
-  }
-
-  handleRadioGroupChange(evt: MatRadioChange): void {
-    /* evt.value already IS the optionId we stored in [value] */
-    const optId = evt.value;
-  
-    /* find binding once – O(1) because you already have a Map, or keep simple loop */
-    const idx = this.optionBindings.findIndex(b => b.option.optionId === optId);
-    const binding = this.optionBindings[idx];
-  
-    /* Do everything in ONE synchronous call */
-    this.updateOptionAndUI(binding, idx, { checked: true } as any);
   }
   
   // Handle visibility changes to restore state
