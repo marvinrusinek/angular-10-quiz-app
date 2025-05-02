@@ -53,10 +53,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
-
-  // Emits immediately when any radio/checkbox is clicked
-  private readonly optionClick$ = new Subject<OptionClickPayload>();
-
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
   feedbackConfig: FeedbackProps = {
