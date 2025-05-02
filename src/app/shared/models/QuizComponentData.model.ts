@@ -7,7 +7,7 @@ export interface QuizComponentData {
   question: QuizQuestion;
   questions: QuizQuestion[];
   options: Option[];
-  optionsToDisplay: any[];
+  optionsToDisplay: Option[];
   selectedOption: any;
   currentQuestionIndex: number;
   multipleAnswer: boolean;
