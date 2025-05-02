@@ -104,7 +104,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionTextStyle = { color: 'black' };
 
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
-  onDestroy$ = new Subject<void>();
 
   constructor(
     private feedbackService: FeedbackService,
@@ -222,11 +221,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     this.hasBoundQuizComponent = true;
-  }
-
-  ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
   }
   
   // Handle visibility changes to restore state
