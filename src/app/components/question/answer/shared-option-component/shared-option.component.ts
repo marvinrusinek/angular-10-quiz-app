@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -1009,17 +1009,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         directive.isSelected = binding.isSelected;
         directive.isCorrect = binding.option.correct ?? false;
         directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
-  
-        // Ensure highlight flag is enabled for this refresh
         directive.option.highlight = true;
   
-        // ✅ Delay update to prevent flicker from early flush
-        setTimeout(() => {
-          directive.updateHighlight();              // manually trigger visual repaint
-          this.cdRef.detectChanges();               // flush changes after DOM settles
-        }, 10); // A short delay gives Angular room to finish the current pass
-  
         found = true;
+  
+        // 🧠 Fully defer DOM sync until Angular is stable
+        this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+          requestAnimationFrame(() => {
+            directive.updateHighlight();       // 🎯 repaint after DOM settles
+            this.cdRef.detectChanges();        // ✅ flush after paint
+          });
+        });
+  
         break;
       }
     }
@@ -1028,7 +1029,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[⚠️ No matching directive found for optionId]', optionId);
     }
   }
-  
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
@@ -1552,7 +1552,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
   
-  /* shouldShowIcon(option: Option): boolean {
+  shouldShowIcon(option: Option): boolean {
     const id = option.optionId;
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
@@ -1560,14 +1560,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackOptionId;
-  } */
-  shouldShowIcon(option: Option): boolean {
-    return option.optionId === this.lastFeedbackOptionId;
   }
-  
-  shouldShowFeedback(index: number): boolean {
-    return this.optionBindings?.[index]?.option?.optionId === this.lastFeedbackOptionId;
-  }  
  
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
