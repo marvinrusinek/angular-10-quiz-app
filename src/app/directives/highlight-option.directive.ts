@@ -508,14 +508,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
-  public manuallyTriggerHighlight(): void {
-    try {
-      this.updateHighlight();
-    } catch (err) {
-      console.error('[🔧 manuallyTriggerHighlight] Failed:', err);
-    }
-  }  
-
   private setBackgroundColor(color: string): void {
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
