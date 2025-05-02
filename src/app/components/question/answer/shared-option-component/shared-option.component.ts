@@ -769,7 +769,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.emitOptionSelectedEvent(optionBinding, index, checked);
         this.finalizeOptionSelection(optionBinding, checked);
   
-        requestAnimationFrame(() => this.cdRef.detectChanges());
+        this.cdRef.detectChanges();
       } catch (error) {
         console.error('[❌ updateOptionAndUI error]', error);
       }
