@@ -821,9 +821,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.selectedOptionId = optionId;
     this.selectedOption = optionBinding.option;
     this.isOptionSelected = true;
-
-    // Force sync update to directive highlight
-    this.forceHighlightRefresh(optionId);
+    
     return true;
   }
 
@@ -947,7 +945,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  private forceHighlightRefresh(optionId: number): void {
+  /* private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
       console.warn('[⚠️ No highlightDirectives available]');
       return;
@@ -956,7 +954,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     let found = false;
   
     for (const directive of this.highlightDirectives) {
-      if (directive.option?.optionId === optionId) {
+      if (directive.optionBinding?.option?.optionId === optionId) {
         const binding = this.optionBindings.find(
           b => b.option.optionId === optionId
         );
@@ -986,7 +984,51 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.cdRef.detectChanges(); // apply updates to DOM
+  } */
+  private forceHighlightRefresh(optionId: number): void {
+    if (!this.highlightDirectives?.length) {
+      console.warn('[⚠️ No highlightDirectives available]');
+      return;
+    }
+  
+    let found = false;
+  
+    for (const directive of this.highlightDirectives) {
+      if (directive.optionBinding?.option?.optionId === optionId) {
+        const binding = this.optionBindings.find(
+          b => b.option.optionId === optionId
+        );
+  
+        if (!binding) {
+          console.warn('[⚠️ No binding found to sync with directive for]', optionId);
+          continue;
+        }
+  
+        // Sync critical directive inputs from the current binding
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected;
+        directive.isCorrect = binding.option.correct ?? false;
+        directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
+  
+        // Ensure highlight flag is enabled for this refresh
+        directive.option.highlight = true;
+  
+        // ✅ Delay update to prevent flicker from early flush
+        setTimeout(() => {
+          directive.updateHighlight();              // manually trigger visual repaint
+          this.cdRef.detectChanges();               // flush changes after DOM settles
+        }, 10); // A short delay gives Angular room to finish the current pass
+  
+        found = true;
+        break;
+      }
+    }
+  
+    if (!found) {
+      console.warn('[⚠️ No matching directive found for optionId]', optionId);
+    }
   }
+  
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
@@ -1510,7 +1552,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
   
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     const id = option.optionId;
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
@@ -1518,7 +1560,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackOptionId;
+  } */
+  shouldShowIcon(option: Option): boolean {
+    return option.optionId === this.lastFeedbackOptionId;
   }
+  
+  shouldShowFeedback(index: number): boolean {
+    return this.optionBindings?.[index]?.option?.optionId === this.lastFeedbackOptionId;
+  }  
  
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
