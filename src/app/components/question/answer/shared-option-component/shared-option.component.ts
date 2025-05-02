@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { distinctUntilChanged, take } from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -18,6 +18,8 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
+
+type OptionClickPayload = { binding: OptionBindings; index: number };
 
 @Component({
   selector: 'app-shared-option',
@@ -51,6 +53,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
+
+  // Emits immediately when any radio/checkbox is clicked
+  private readonly optionClick$ = new Subject<OptionClickPayload>();
+
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
   feedbackConfig: FeedbackProps = {
@@ -102,6 +108,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionTextStyle = { color: 'black' };
 
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
+  onDestroy$ = new Subject<void>();
 
   constructor(
     private feedbackService: FeedbackService,
@@ -125,6 +132,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.form.get('selectedOptionId')!.valueChanges
       .pipe(distinctUntilChanged())
       .subscribe((id: number) => this.updateSelections(id));
+
+    // React to a click triggered manually, emitting the binding and index for the row the user clicked.
+    this.click$
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(({ b, i }) => {
+        // Update form control immediately
+        this.form
+          .get('selectedOptionId')
+          ?.setValue(b.option.optionId, { emitEvent: false });
+
+        // Visuals + feedback in ONE call
+        this.updateOptionAndUI(
+          b,
+          i,
+          { value: b.option.optionId } as MatRadioChange
+        );
+
+        // Flush once
+        this.cdRef.detectChanges();
+      });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
@@ -219,6 +246,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     this.hasBoundQuizComponent = true;
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
   
   // Handle visibility changes to restore state
@@ -789,7 +821,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.selectedOptionId = optionId;
     this.selectedOption = optionBinding.option;
     this.isOptionSelected = true;
-    
+
+    // Force sync update to directive highlight
+    this.forceHighlightRefresh(optionId);
     return true;
   }
 
@@ -913,7 +947,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  /* private forceHighlightRefresh(optionId: number): void {
+  private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
       console.warn('[⚠️ No highlightDirectives available]');
       return;
@@ -952,50 +986,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.cdRef.detectChanges(); // apply updates to DOM
-  } */
-  private forceHighlightRefresh(optionId: number): void {
-    if (!this.highlightDirectives?.length) {
-      console.warn('[⚠️ No highlightDirectives available]');
-      return;
-    }
-  
-    let found = false;
-  
-    for (const directive of this.highlightDirectives) {
-      if (directive.optionBinding?.option?.optionId === optionId) {
-        const binding = this.optionBindings.find(
-          b => b.option.optionId === optionId
-        );
-  
-        if (!binding) {
-          console.warn('[⚠️ No binding found to sync with directive for]', optionId);
-          continue;
-        }
-  
-        // Sync critical directive inputs from the current binding
-        directive.option = binding.option;
-        directive.isSelected = binding.isSelected;
-        directive.isCorrect = binding.option.correct ?? false;
-        directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
-        directive.option.highlight = true;
-  
-        found = true;
-  
-        // 🧠 Fully defer DOM sync until Angular is stable
-        this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-          requestAnimationFrame(() => {
-            directive.updateHighlight();       // 🎯 repaint after DOM settles
-            this.cdRef.detectChanges();        // ✅ flush after paint
-          });
-        });
-  
-        break;
-      }
-    }
-  
-    if (!found) {
-      console.warn('[⚠️ No matching directive found for optionId]', optionId);
-    }
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
