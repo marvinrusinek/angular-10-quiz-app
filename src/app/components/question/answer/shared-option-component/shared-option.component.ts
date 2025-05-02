@@ -98,6 +98,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   viewReady = false;
   optionsReady = false;
   renderReady = false;
+  displayReady = false;
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
   hasUserClicked = false;
@@ -124,6 +125,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngOnInit(): void {
     this.initializeOptionBindings();
     this.initializeFromConfig();
+
+    // Delay rendering until all setup is confirmed
+    setTimeout(() => {
+      this.initializeDisplay();
+    });
 
     this.form = this.fb.group({
       selectedOptionId: new FormControl(null, Validators.required)
@@ -1576,14 +1582,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return this.selectedOption && this.selectedOption.correct;
   }
   
-  get canDisplayOptions(): boolean {
-    return !!(
-      this.viewReady &&
-      this.form &&
-      this.optionsToDisplay?.length &&
-      this.optionBindings?.length
+  get isReadyToRenderOptions(): boolean {
+    return (
+      !!this.form &&
+      !!this.optionBindings?.length &&
+      !!this.optionsToDisplay?.length &&
+      this.renderReady &&
+      this.viewReady
     );
-  }  
+  }
+
+  private initializeDisplay(): void {
+    if (
+      this.form &&
+      this.optionBindings?.length > 0 &&
+      this.optionsToDisplay?.length > 0
+    ) {
+      this.renderReady = true;
+      this.viewReady = true;
+      this.displayReady = true;
+      this.cdRef.detectChanges(); // flush view
+    } else {
+      console.warn('[🛑 Display init skipped — not ready]');
+    }
+  }
 
   private markRenderReady(): void {
     if (this.optionBindings?.length && this.optionsToDisplay?.length) {
