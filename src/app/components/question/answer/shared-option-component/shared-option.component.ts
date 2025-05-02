@@ -97,6 +97,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   viewInitialized = false;
   viewReady = false;
   optionsReady = false;
+  renderReady = false;
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
   hasUserClicked = false;
@@ -1387,6 +1388,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log('[✅ optionsReady & viewReady set]');
       });
     }, 100);
+
+    this.markRenderReady();
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
@@ -1502,6 +1505,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[initializeOptionBindings] Error fetching current question:', err);
       },
     });
+
+    this.markRenderReady();
   }
 
   initializeFeedbackBindings(): void { 
@@ -1572,8 +1577,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   get canDisplayOptions(): boolean {
-    return !!(this.form && this.viewReady && this.optionBindings?.length > 0);
-  }
+    return !!(this.form && this.viewReady && this.optionsReady && this.optionBindings?.length > 0);
+  }  
+
+  private markRenderReady(): void {
+    if (this.optionBindings?.length && this.optionsToDisplay?.length) {
+      this.ngZone.run(() => {
+        this.renderReady = true;
+        this.cdRef.detectChanges();
+      });
+    }
+  }  
 
   trackByOption(item: Option, index: number): number {
     return item.optionId;

@@ -1,4 +1,4 @@
-<ng-container *ngIf="canDisplayOptions; else noOptions">
+<ng-container *ngIf="canDisplayOptions && renderReady; else noOptions">
 
   <form [formGroup]="form">
 
@@ -84,6 +84,9 @@
 
 </ng-container>
 
-<ng-template #noOptions>
-  <p>No options available.</p>
+<ng-template #noOptions> 
+<span *ngIf="renderReady && !question; else noExplanation">
+  No question available.
+</span>
 </ng-template>
+
