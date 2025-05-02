@@ -129,26 +129,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       .pipe(distinctUntilChanged())
       .subscribe((id: number) => this.updateSelections(id));
 
-    // React to a click triggered manually, emitting the binding and index for the row the user clicked.
-    this.click$
-      .pipe(takeUntil(this.onDestroy$))
-      .subscribe(({ b, i }) => {
-        // Update form control immediately
-        this.form
-          .get('selectedOptionId')
-          ?.setValue(b.option.optionId, { emitEvent: false });
-
-        // Visuals + feedback in ONE call
-        this.updateOptionAndUI(
-          b,
-          i,
-          { value: b.option.optionId } as MatRadioChange
-        );
-
-        // Flush once
-        this.cdRef.detectChanges();
-      });
-
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
     if (!this.showFeedbackForOption) {
