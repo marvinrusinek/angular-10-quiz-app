@@ -181,7 +181,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  protected initializeOptions(): void {
+  /* protected initializeOptions(): void {
     if (!this.question) {
       console.error('initializeOptions - Question is undefined when called');
       return;
@@ -199,6 +199,31 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('initializeOptions - Question or options are undefined', {
         question: this.question
       });
+    }
+  } */
+  protected initializeOptions(): void {
+    if (!this.question || !this.question.options) {
+      console.error('initializeOptions - Invalid question or options', {
+        question: this.question
+      });
+      return;
+    }
+  
+    // Only initialize form if not yet created
+    if (!this.questionForm) {
+      this.questionForm = new FormGroup({});
+      for (const option of this.question.options) {
+        const controlName = `option_${option.optionId}`; // stable + unique
+        if (!this.questionForm.contains(controlName)) {
+          this.questionForm.addControl(controlName, new FormControl(false));
+        }
+      }
+    }
+  
+    // Only set once
+    if (!this.optionsToDisplay?.length) {
+      this.optionsToDisplay = [...this.question.options];
+      console.log('[✅ optionsToDisplay set]', this.optionsToDisplay);
     }
   }
 
