@@ -10,7 +10,6 @@ import { UserPreferenceService } from '../shared/services/user-preference.servic
   selector: '[appHighlightOption]'
 })
 export class HighlightOptionDirective implements OnInit, OnChanges {
-  // @Output() appHighlightOptionReady = new EventEmitter<HighlightOptionDirective>();
   @Output() resetBackground = new EventEmitter<boolean>();
   @Output() optionClicked = new EventEmitter<Option>();
   @Input() appHighlightInputType: 'checkbox' | 'radio' = 'radio';
@@ -23,7 +22,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() allOptions: Option[]; // to access all options directly
   @Input() optionsToDisplay: Option[];
   @Input() optionBinding: OptionBindings | undefined;
-  @Input() isSelected: boolean;
+  @Input() isSelected: boolean = false;
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
@@ -381,13 +380,13 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
 
     this.renderer.setStyle(this.paintTarget, 'background', color, 2);
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
     }
   
-    /* ── figure out *where* to paint ───────────────────────── */
+    // ── figure out *where* to paint ─────────────────────────
     const paintTarget: HTMLElement =
       (this.el.nativeElement.firstElementChild as HTMLElement)  // <div class="option-content"> … </div>
       ?? this.el.nativeElement;                                // Fallback: host <label>
@@ -395,7 +394,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const setBG = (c: string) =>
       this.renderer.setStyle(paintTarget, 'background', c);
   
-    /* ── flags & colour decision ───────────────────────────── */
+    // ── flags & colour decision ─────────────────────────────
     const opt       = this.optionBinding.option;
     const id        = opt.optionId;
     const isChosen  = opt.selected || opt.highlight;           // already picked before
@@ -428,7 +427,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    /* default (unselected / reset) */
+    // default (unselected / reset)
     setBG(color);                                             // white
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
     this.renderer.setStyle (this.el.nativeElement, 'cursor', 'pointer');
@@ -436,7 +435,61 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon                = false;
     this.showFeedbackForOption[id] = false;
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    const paintTarget: HTMLElement =
+      (this.el.nativeElement.firstElementChild as HTMLElement) ??
+      this.el.nativeElement;
+  
+    const setBG = (c: string) =>
+      this.renderer.setStyle(paintTarget, 'background', c);
+  
+    const opt = this.optionBinding.option;
+    const id = opt.optionId;
+    const isChosen = this.isSelected; // use directive input instead of mutating object state
+    let color = 'white';
+  
+    if (isChosen) {
+      color = this.isCorrect ? '#43f756' : '#ff0000'; // green / red
+      setBG(color);
+  
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+      this.setPointerEvents('auto');
+      return;
+    }
+  
+    if (!this.isCorrect && opt.active === false) {
+      color = '#a3a3a3'; // grey
+      setBG(color);
+  
+      this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
+      this.renderer.setStyle(this.el.nativeElement, 'cursor', 'not-allowed');
+      this.setPointerEvents('none');
+  
+      opt.showIcon = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    // default
+    setBG(color);
+    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+    this.renderer.setStyle(this.el.nativeElement, 'cursor', 'pointer');
+    this.setPointerEvents('auto');
+  
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
   }
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
