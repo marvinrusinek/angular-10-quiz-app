@@ -19,8 +19,6 @@ import { UserPreferenceService } from '../../../../shared/services/user-preferen
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
-type OptionClickPayload = { binding: OptionBindings; index: number };
-
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
@@ -53,9 +51,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
-
-  // Emits immediately when any radio/checkbox is clicked
-  private readonly optionClick$ = new Subject<OptionClickPayload>();
 
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
