@@ -1,81 +1,89 @@
 <ng-container *ngIf="canDisplayOptions; else noOptions">
-  <form [formGroup]="form">
 
-    <!-- SINGLE-ANSWER (radio) -->
-    <mat-radio-group
-      *ngIf="optionBindings[0].type === 'single'"
-      formControlName="selectedOptionId"
-      (selectionChange)="handleRadioGroupChange($event)">
+<form [formGroup]="form">
 
-      <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
-        class="option-row">
+  <!-- SINGLE-ANSWER (radio) -->
+  <mat-radio-group
+    *ngIf="optionBindings[0].type === 'single'"
+    formControlName="selectedOptionId"
+    (selectionChange)="handleRadioGroupChange($event)">
 
-        <label class="option-row options"
-              appHighlightOption
-              [optionBinding]="b"
-              [isCorrect]="b.isCorrect">
+    <div
+      *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
+      class="option-row">
 
-          <mat-radio-button
-            [value]="b.option.optionId"
-            (click)="onRadioClick(b, i)">
+      <ng-container *ngIf="feedbackState$ | async as state">
+      <label class="option-row options"
+            appHighlightOption
+            [optionBinding]="b"
+            [isCorrect]="b.isCorrect"
+            [showFeedback]="state.optionId === b.option.optionId && state.showFeedback"
+             [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect">
 
-            <span class="option-text">
-              {{ getOptionDisplayText(b.option, i) }}
-            </span>
+        <mat-radio-button
+          [value]="b.option.optionId"
+          (click)="onRadioClick(b, i)">
 
-            <mat-icon *ngIf="shouldShowIcon(b.option)"
-                      class="opt-icon">
-              {{ getOptionIcon(b.option) }}
-            </mat-icon>
-          </mat-radio-button>
-        </label>
+          <span class="option-text">
+            {{ getOptionDisplayText(b.option, i) }}
+          </span>
 
+          <mat-icon *ngIf="(state.optionId === b.option.optionId && state.showIcon) && shouldShowIcon(b.option)"
+                    class="opt-icon">
+            {{ getOptionIcon(b.option) }}
+          </mat-icon>
+        </mat-radio-button>
+      </label></ng-container>
+
+      <ng-container *ngIf="state as s">
         <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
+          *ngIf="s.optionId === b.option.optionId && s.showFeedback && shouldShowFeedback(i)"
           [feedbackConfig]="feedbackConfigs[i]">
         </codelab-quiz-feedback>
-      </div>
-    </mat-radio-group>
-
-
-    <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="optionBindings[0].type === 'multiple'">
-
-      <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
-        class="option-row">
-
-        <label class="option-row options"
-              appHighlightOption
-              [optionBinding]="b"
-              [isCorrect]="b.isCorrect">
-
-          <mat-checkbox
-            [checked]="b.option.selected"
-            (change)="onMatCheckboxChanged(b, i, $event)">
-
-            <span class="option-text">
-              {{ getOptionDisplayText(b.option, i) }}
-            </span>
-
-            <mat-icon *ngIf="shouldShowIcon(b.option)"
-                      class="opt-icon">
-              {{ getOptionIcon(b.option) }}
-            </mat-icon>
-          </mat-checkbox>
-        </label>
-
-        <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]">
-        </codelab-quiz-feedback>
-      </div>
+      </ng-container>
+      
     </div>
+  </mat-radio-group>
 
-  </form>
+
+  <!-- MULTIPLE-ANSWER (checkbox) -->
+  <div *ngIf="optionBindings[0].type === 'multiple'">
+
+    <div
+      *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
+      class="option-row">
+
+      <label class="option-row options"
+            appHighlightOption
+            [optionBinding]="b"
+            [isCorrect]="b.isCorrect">
+
+        <mat-checkbox
+          [checked]="b.option.selected"
+          (change)="onMatCheckboxChanged(b, i, $event)">
+
+          <span class="option-text">
+            {{ getOptionDisplayText(b.option, i) }}
+          </span>
+
+          <mat-icon *ngIf="shouldShowIcon(b.option)"
+                    class="opt-icon">
+            {{ getOptionIcon(b.option) }}
+          </mat-icon>
+        </mat-checkbox>
+      </label>
+
+      <codelab-quiz-feedback
+        *ngIf="shouldShowFeedback(i)"
+        [feedbackConfig]="feedbackConfigs[i]">
+      </codelab-quiz-feedback>
+    </div>
+  </div>
+
+</form>
+
 </ng-container>
 
 <ng-template #noOptions>
-  <p>No options available.</p>
+<p>No options available.</p>
 </ng-template>
