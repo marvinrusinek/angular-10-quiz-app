@@ -947,7 +947,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  private forceHighlightRefresh(optionId: number): void {
+  /* private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
       console.warn('[⚠️ No highlightDirectives available]');
       return;
@@ -986,6 +986,53 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.cdRef.detectChanges(); // apply updates to DOM
+  } */
+  private forceHighlightRefresh(optionId: number): void {
+    if (!this.highlightDirectives?.length) {
+      console.warn('[⚠️ No highlightDirectives available]');
+      return;
+    }
+  
+    let found = false;
+  
+    for (const directive of this.highlightDirectives) {
+      if (directive.optionBinding?.option?.optionId === optionId) {
+        const binding = this.optionBindings.find(
+          b => b.option.optionId === optionId
+        );
+  
+        if (!binding) {
+          console.warn('[⚠️ No binding found to sync with directive for]', optionId);
+          continue;
+        }
+  
+        // Sync critical directive inputs from the current binding
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected;
+        directive.isCorrect = binding.option.correct ?? false;
+        directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
+  
+        // Ensure highlight flag is enabled for this refresh
+        directive.option.highlight = true;
+  
+        // Defer update to after current rendering phase
+        this.ngZone.runOutsideAngular(() => {
+          requestAnimationFrame(() => {
+            this.ngZone.run(() => {
+              directive.updateHighlight();              // trigger directive update
+              this.cdRef.detectChanges();               // flush DOM changes cleanly
+            });
+          });
+        });
+  
+        found = true;
+        break; // stop after first match
+      }
+    }
+  
+    if (!found) {
+      console.warn('[⚠️ No matching directive found for optionId]', optionId);
+    }
   }
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
