@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
@@ -9,7 +9,6 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 export class NextButtonStateService {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   public isButtonEnabled$: Observable<boolean> = this.isButtonEnabledSubject.asObservable();
-  isNextButtonEnabled = false;
 
   public nextButtonTooltip$ = this.isButtonEnabled$.pipe(
     map((enabled) => (enabled ? 'Next' : 'Please select an option to continue...')),
@@ -26,11 +25,13 @@ export class NextButtonStateService {
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
   ) {
-    this.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnsweredSubject.asObservable(),
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
+    setTimeout(() => {
+      this.initializeNextButtonStateStream(
+        this.selectedOptionService.isAnsweredSubject.asObservable(),
+        this.quizStateService.isLoading$,
+        this.quizStateService.isNavigating$
+      );
+    }, 0);
   }
 
   public initializeNextButtonStateStream(
@@ -38,23 +39,18 @@ export class NextButtonStateService {
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>
   ): void {
-    this.isButtonEnabled$ = combineLatest([
-      isAnswered$,
-      isLoading$,
-      isNavigating$
-    ]).pipe(
-      map(([isAnswered, isLoading, isNavigating]) => {
-        const isEnabled = isAnswered && !isLoading && !isNavigating;
-        console.log('[🧪 isButtonEnabled$]', { isAnswered, isLoading, isNavigating, isEnabled });
-        return isEnabled;
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
-    );
-  
-    this.isButtonEnabled$.subscribe((isEnabled) => {
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
+    combineLatest([isAnswered$, isLoading$, isNavigating$])
+      .pipe(
+        map(([isAnswered, isLoading, isNavigating]) => {
+          const isEnabled = isAnswered && !isLoading && !isNavigating;
+          console.log('[🧪 isButtonEnabled$]', { isAnswered, isLoading, isNavigating, isEnabled });
+          return isEnabled;
+        }),
+        distinctUntilChanged()
+      )
+      .subscribe((isEnabled: boolean) => {
+        this.updateAndSyncNextButtonState(isEnabled);
+      });
   }
 
   public evaluateNextButtonState(
@@ -63,26 +59,22 @@ export class NextButtonStateService {
     isNavigating: boolean
   ): boolean {
     const shouldEnable = isAnswered && !isLoading && !isNavigating;
-
     console.log('[🧪 evaluateNextButtonState]', {
       isAnswered,
       isLoading,
       isNavigating,
       shouldEnable
     });
-
     this.updateAndSyncNextButtonState(shouldEnable);
     return shouldEnable;
   }
 
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
-      this.isNextButtonEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
-
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none',
+        'pointer-events': isEnabled ? 'auto' : 'none'
       };
     });
   }
