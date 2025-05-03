@@ -627,11 +627,13 @@ export class SelectedOptionService {
 
   setAnswered(isAnswered: boolean): void {
     const current = this.isAnsweredSubject.getValue();
+    console.log('[🟢 setAnswered] Incoming:', isAnswered, 'Current:', current);
     if (current !== isAnswered) {
       this.isAnsweredSubject.next(isAnswered);
       sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
+      console.log('[✅ setAnswered] Emitted new answered state:', isAnswered);
     } else {
-      console.log('[🟡 setAnswered] No change needed (already', current + ')');
+      console.log('[⚠️ setAnswered] No change – already:', current);
     }
   }
   
