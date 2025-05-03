@@ -571,7 +571,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
   }
 
-  private setOptionBindingsIfChanged(newOptions: Option[]): void {
+  /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;
   
     const incomingIds = newOptions.map(o => o.optionId).join(',');
@@ -597,6 +597,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         allOptions: [], // or this.optionsToDisplay if needed
       })) as unknown as OptionBindings[];
     } else {
+      this.optionBindings?.forEach((binding, idx) => {
+        const updated = newOptions[idx];
+        binding.option = updated;
+        binding.isSelected = !!updated.selected;
+        binding.isCorrect = updated.correct ?? false;
+      });
+    }
+  } */
+  private setOptionBindingsIfChanged(newOptions: Option[]): void {
+    if (!newOptions?.length) return;
+  
+    const incomingIds = newOptions.map(o => o.optionId).join(',');
+    const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
+  
+    if (incomingIds !== existingIds || !this.optionBindings?.length) {
+      // Create new bindings only if option identity has changed
+      const newBindings: OptionBindings[] = newOptions.map((option, idx) => ({
+        option,
+        index: idx,
+        isSelected: !!option.selected,
+        isCorrect: option.correct ?? false,
+        showFeedback: false,
+        feedback: option.feedback ?? 'No feedback available',
+        showFeedbackForOption: false,
+        highlightCorrectAfterIncorrect: false,
+        highlightIncorrect: false,
+        highlightCorrect: false,
+        styleClass: '',
+        disabled: false,
+        type: this.type ?? 'single',
+        appHighlightOption: false,
+        appHighlightInputType: '',
+        allOptions: this.optionsToDisplay ?? [] // use shared reference to prevent DOM tearing
+      }));
+  
+      this.optionBindings = newBindings;
+    } else {
+      // Patch the existing bindings without changing the array reference
       this.optionBindings?.forEach((binding, idx) => {
         const updated = newOptions[idx];
         binding.option = updated;
