@@ -613,7 +613,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
   
     if (incomingIds !== existingIds || !this.optionBindings?.length) {
-      // Create new bindings only if identity has changed
+      // DEFER assignment until DOM is ready to minimize flicker
       const newBindings: OptionBindings[] = newOptions.map((option, idx) => ({
         option,
         index: idx,
@@ -631,18 +631,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         appHighlightOption: false,
         appHighlightInputType: '',
         allOptions: this.optionsToDisplay ?? []
-      })) as unknown as OptionBindings[];
+      }));
   
-      this.optionBindings = newBindings;
-  
-      // Slight defer to allow Angular to catch up before rendering
+      // Defer state update to next JS tick to avoid immediate redraw
       setTimeout(() => {
-        this.optionsReady = true;
+        this.optionBindings = newBindings;
         this.showOptions = true;
-        this.cdRef.detectChanges();
-      }, 0);  
+        this.cdRef.detectChanges(); // final paint
+      }, 0);
     } else {
-      // Patch existing bindings (no array replacement)
+      // Update in place
       this.optionBindings?.forEach((binding, idx) => {
         const updated = newOptions[idx];
         binding.option = updated;
@@ -650,9 +648,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         binding.isCorrect = updated.correct ?? false;
       });
   
-      // Slight defer to allow Angular to catch up before rendering
+      // Optional: force detectChanges
       setTimeout(() => {
-        this.optionsReady = true;
         this.showOptions = true;
         this.cdRef.detectChanges();
       }, 0);
