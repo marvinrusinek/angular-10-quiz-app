@@ -225,7 +225,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('[✅ optionsToDisplay set]', this.optionsToDisplay);
 
       this.setOptionBindingsIfChanged(this.optionsToDisplay);
-    }
   }
 
   private setOptionBindingsIfChanged(newOptions: Option[]): void {
