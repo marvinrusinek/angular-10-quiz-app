@@ -31,7 +31,7 @@ export class NextButtonStateService {
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
         this.initializeNextButtonStateStream(
-          this.selectedOptionService.isAnsweredSubject.asObservable(),
+          this.selectedOptionService.isAnswered$,
           this.quizStateService.isLoading$,
           this.quizStateService.isNavigating$
         );

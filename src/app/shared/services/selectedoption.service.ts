@@ -631,9 +631,10 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean, force = false): void {
+    console.log('[🧠 setAnswered] Incoming:', isAnswered, 'Current:', this.isAnsweredSubject.getValue(), 'Force:', force);
+    console.trace();
+
     const current = this.isAnsweredSubject.getValue();
-    console.log('[🟢 setAnswered] Incoming:', isAnswered, 'Current:', current);
-  
     if (force || current !== isAnswered) {
       this.isAnsweredSubject.next(isAnswered);
       sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
