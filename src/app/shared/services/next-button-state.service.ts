@@ -20,6 +20,8 @@ export class NextButtonStateService {
     'pointer-events': 'none'
   };
 
+  private initialized = false;
+
   constructor(
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
@@ -54,6 +56,9 @@ export class NextButtonStateService {
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>
   ): void {
+    if (this.initialized) return;
+    this.initialized = true;
+
     combineLatest([isAnswered$, isLoading$, isNavigating$])
       .pipe(
         map(([isAnswered, isLoading, isNavigating]) => {
