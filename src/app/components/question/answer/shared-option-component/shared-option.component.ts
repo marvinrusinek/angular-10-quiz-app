@@ -612,34 +612,45 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
   
     if (incomingIds !== existingIds || !this.optionBindings?.length) {
-      this.optionBindings = newOptions.map((option, idx) =>
-        Object.assign({}, {
-          option,
-          index: idx,
-          isSelected: !!option.selected,
-          isCorrect: option.correct ?? false,
-          showFeedback: false,
-          feedback: option.feedback ?? 'No feedback available',
-          showFeedbackForOption: false,
-          highlightCorrectAfterIncorrect: false,
-          highlightIncorrect: false,
-          highlightCorrect: false,
-          styleClass: '',
-          disabled: false,
-          type: this.type ?? 'single',
-          appHighlightOption: false,
-          appHighlightInputType: '',
-          allOptions: this.optionsToDisplay ?? []
-        }
-      )
-    ) as unknown as OptionBindings[];
+      // Create new bindings only if identity has changed
+      const newBindings: OptionBindings[] = newOptions.map((option, idx) => ({
+        option,
+        index: idx,
+        isSelected: !!option.selected,
+        isCorrect: option.correct ?? false,
+        showFeedback: false,
+        feedback: option.feedback ?? 'No feedback available',
+        showFeedbackForOption: false,
+        highlightCorrectAfterIncorrect: false,
+        highlightIncorrect: false,
+        highlightCorrect: false,
+        styleClass: '',
+        disabled: false,
+        type: this.type ?? 'single',
+        appHighlightOption: false,
+        appHighlightInputType: '',
+        allOptions: this.optionsToDisplay ?? []
+      })) as unknown as OptionBindings[];
+  
+      this.optionBindings = newBindings;
+  
+      // Mark options ready now that bindings are populated
+      this.optionsReady = true;
+  
+      // Flush DOM update to minimize flicker
+      this.cdRef.detectChanges();
+  
     } else {
+      // Patch existing bindings (no array replacement)
       this.optionBindings?.forEach((binding, idx) => {
         const updated = newOptions[idx];
         binding.option = updated;
         binding.isSelected = !!updated.selected;
         binding.isCorrect = updated.correct ?? false;
       });
+  
+      this.optionsReady = true; // still valid, just updated in-place
+      this.cdRef.detectChanges();
     }
   }
 
