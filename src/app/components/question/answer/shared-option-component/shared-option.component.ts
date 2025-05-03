@@ -574,10 +574,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;
   
-    const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
     const incomingIds = newOptions.map(o => o.optionId).join(',');
-  
-    if (existingIds !== incomingIds) {
+    const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
+
+    if (incomingIds !== existingIds) {
       this.optionBindings = newOptions.map((option, idx) => ({
         option,
         index: idx,
