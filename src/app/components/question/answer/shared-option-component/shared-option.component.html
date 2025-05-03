@@ -85,9 +85,5 @@
 </ng-container>
 
 <ng-template #noOptions>
-  <span *ngIf="renderReady && (!question || optionsToDisplay?.length === 0); else noExplanation">
-    No options available.
-  </span>
+  <span *ngIf="renderReady">Loading options...</span>
 </ng-template>
-
-
