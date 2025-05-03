@@ -25,11 +25,16 @@ export class NextButtonStateService {
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
   ) {
-    /* this.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnsweredSubject.asObservable(),
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    ); */
+    // Defer stream setup to avoid circular dependency issues
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.initializeNextButtonStateStream(
+          this.selectedOptionService.isAnswered$,
+          this.quizStateService.isLoading$,
+          this.quizStateService.isNavigating$
+        );
+      }, 0);
+    });
   }
 
   public syncNextButtonState(): void {
