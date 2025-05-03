@@ -613,7 +613,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
   
     if (incomingIds !== existingIds || !this.optionBindings?.length) {
-      // DEFER assignment until DOM is ready to minimize flicker
       const newBindings: OptionBindings[] = newOptions.map((option, idx) => ({
         option,
         index: idx,
@@ -631,29 +630,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         appHighlightOption: false,
         appHighlightInputType: '',
         allOptions: this.optionsToDisplay ?? []
-      }));
+      })) as unknown as OptionBindings[];
   
-      // Defer state update to next JS tick to avoid immediate redraw
-      setTimeout(() => {
-        this.optionBindings = newBindings;
-        this.showOptions = true;
-        this.cdRef.detectChanges(); // final paint
-      }, 0);
+      this.optionBindings = newBindings;
     } else {
-      // Update in place
       this.optionBindings?.forEach((binding, idx) => {
         const updated = newOptions[idx];
         binding.option = updated;
         binding.isSelected = !!updated.selected;
         binding.isCorrect = updated.correct ?? false;
       });
-  
-      // Optional: force detectChanges
-      setTimeout(() => {
-        this.showOptions = true;
-        this.cdRef.detectChanges();
-      }, 0);
     }
+  
+    // Immediate update instead of deferring
+    this.optionsReady = true;
+    this.showOptions = true;
+    this.cdRef.detectChanges();
   }
 
   private handleQuestionChange(change: SimpleChange): void {
