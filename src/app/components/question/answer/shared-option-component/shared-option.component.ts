@@ -94,6 +94,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionsReady = false;
   renderReady = false;
   displayReady = false;
+  showOptions = false;
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
   hasUserClicked = false;
@@ -634,12 +635,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       this.optionBindings = newBindings;
   
-      // Mark options ready now that bindings are populated
-      this.optionsReady = true;
-  
-      // Flush DOM update to minimize flicker
-      this.cdRef.detectChanges();
-  
+      // Slight defer to allow Angular to catch up before rendering
+      setTimeout(() => {
+        this.optionsReady = true;
+        this.showOptions = true;
+        this.cdRef.detectChanges();
+      }, 0);  
     } else {
       // Patch existing bindings (no array replacement)
       this.optionBindings?.forEach((binding, idx) => {
@@ -649,8 +650,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         binding.isCorrect = updated.correct ?? false;
       });
   
-      this.optionsReady = true; // still valid, just updated in-place
-      this.cdRef.detectChanges();
+      // Slight defer to allow Angular to catch up before rendering
+      setTimeout(() => {
+        this.optionsReady = true;
+        this.showOptions = true;
+        this.cdRef.detectChanges();
+      }, 0);
     }
   }
 
