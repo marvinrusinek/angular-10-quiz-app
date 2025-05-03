@@ -38,23 +38,20 @@ export class NextButtonStateService {
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>
   ): void {
-    combineLatest([
+    this.isButtonEnabled$ = combineLatest([
       isAnswered$,
       isLoading$,
       isNavigating$
-    ])
-    .pipe(
+    ]).pipe(
       map(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
         console.log('[🧪 isButtonEnabled$]', { isAnswered, isLoading, isNavigating, isEnabled });
         return isEnabled;
       }),
-      distinctUntilChanged()
-    )
-    .subscribe((isEnabled) => {
-      this.updateAndSyncNextButtonState(isEnabled);
-    });
-    
+      distinctUntilChanged(),
+      shareReplay(1)
+    );
+  
     this.isButtonEnabled$.subscribe((isEnabled) => {
       this.updateAndSyncNextButtonState(isEnabled);
     });
