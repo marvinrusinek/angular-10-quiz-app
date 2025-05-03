@@ -118,7 +118,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
-    this.initializeOptionBindings();
+    //this.initializeOptionBindings();
     this.initializeFromConfig();
 
     // Delay rendering until all setup is confirmed
@@ -206,9 +206,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     if (changes.optionsToDisplay) {
-      this.initializeOptionBindings(); // resets optionBindings
+      //this.initializeOptionBindings(); // resets optionBindings
       this.initializeFeedbackBindings(); // resets feedback
-      this.generateOptionBindings(); // fills optionBindings
+      // this.generateOptionBindings(); // fills optionBindings
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
@@ -219,7 +219,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngAfterViewInit(): void {
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
-      this.generateOptionBindings();
+      // this.generateOptionBindings();
     }
   
     this.viewInitialized = true;
@@ -388,7 +388,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }));
 
       // Synchronize bindings
-      this.synchronizeOptionBindings();
+      // this.synchronizeOptionBindings();
 
       // Mark as restored
       this.optionsRestored = true;
@@ -557,7 +557,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }));
 
     // Initialize bindings and feedback maps
-    this.initializeOptionBindings(); // creates this.optionBindings
+    // this.initializeOptionBindings(); // creates this.optionBindings
+    this.setOptionBindingsIfChanged(this.optionsToDisplay);
 
     const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
     this.type = this.convertQuestionType(qType);
@@ -571,12 +572,51 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
   }
 
+  private setOptionBindingsIfChanged(newOptions: Option[]): void {
+    if (!newOptions?.length) return;
+  
+    const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
+    const incomingIds = newOptions.map(o => o.optionId).join(',');
+  
+    if (existingIds !== incomingIds) {
+      this.optionBindings = newOptions.map((option, idx) => ({
+        option,
+        index: idx,
+        isSelected: !!option.selected,
+        isCorrect: option.correct ?? false,
+        showFeedback: false,
+      
+        // Required props from OptionBindings
+        appHighlightOption: false,
+        feedback: option.feedback ?? 'No feedback available',
+        showFeedbackForOption: false,
+        highlightCorrectAfterIncorrect: false,
+        highlightIncorrect: false,
+        highlightCorrect: false,
+        styleClass: '',
+        disabled: false,
+        type: this.currentQuestion?.type ?? 'single',
+      
+        // Add these required properties if in your interface
+        allOptions: [], // or pass actual list if needed
+        appHighlightInputType: '', // or actual value
+      })) as unknown as OptionBindings[];
+    } else {
+      this.optionBindings?.forEach((binding, idx) => {
+        const updated = newOptions[idx];
+        binding.option = updated;
+        binding.isSelected = !!updated.selected;
+        binding.isCorrect = updated.correct ?? false;
+      });
+    }
+  }
+
   private handleQuestionChange(change: SimpleChange): void {
     const previousSelections = new Set(this.selectedOptions);
     
     // Reset the component state
     this.resetState();
-    this.initializeOptionBindings();
+    // this.initializeOptionBindings();
   
     // Check if this is not the first change (i.e., we're navigating between questions)
     if (!change.firstChange) {
@@ -1618,10 +1658,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.cdRef.detectChanges();
       });
     }
-  }  
+  }
 
-  trackByOption(item: Option, index: number): number {
-    return item.optionId;
+  trackByOptionId(index: number, binding: OptionBindings): number {
+    return binding.option?.optionId ?? index;
   }
 
   convertQuestionType(type: QuestionType): 'single' | 'multiple' {

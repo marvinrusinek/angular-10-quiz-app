@@ -223,47 +223,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     // Always set and synchronize options
     this.optionsToDisplay = [...this.question.options];
     console.log('[✅ optionsToDisplay set]', this.optionsToDisplay);
-
-      this.setOptionBindingsIfChanged(this.optionsToDisplay);
-  }
-
-  private setOptionBindingsIfChanged(newOptions: Option[]): void {
-    if (!newOptions?.length) return;
-  
-    const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
-    const incomingIds = newOptions.map(o => o.optionId).join(',');
-  
-    if (existingIds !== incomingIds) {
-      this.optionBindings = newOptions.map((option, idx) => ({
-        option,
-        index: idx,
-        isSelected: !!option.selected,
-        isCorrect: option.correct ?? false,
-        showFeedback: false,
-      
-        // Required props from OptionBindings
-        appHighlightOption: false,
-        feedback: option.feedback ?? 'No feedback available',
-        showFeedbackForOption: false,
-        highlightCorrectAfterIncorrect: false,
-        highlightIncorrect: false,
-        highlightCorrect: false,
-        styleClass: '',
-        disabled: false,
-        type: this.currentQuestion?.type ?? 'single',
-      
-        // Add these required properties if in your interface
-        allOptions: [], // or pass actual list if needed
-        appHighlightInputType: '', // or actual value
-      })) as unknown as OptionBindings[];
-    } else {
-      this.optionBindings?.forEach((binding, idx) => {
-        const updated = newOptions[idx];
-        binding.option = updated;
-        binding.isSelected = !!updated.selected;
-        binding.isCorrect = updated.correct ?? false;
-      });
-    }
   }
 
   public async initializeSharedOptionConfig(options?: Option[]): Promise<void> {
