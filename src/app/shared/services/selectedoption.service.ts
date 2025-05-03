@@ -45,7 +45,7 @@ export class SelectedOptionService {
   }
 
   constructor(
-    private ngZone: NgZone
+    private ngZone: NgZone,
   ) {}
 
   setQuestionText(text: string): void {
