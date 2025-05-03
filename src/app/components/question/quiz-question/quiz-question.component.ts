@@ -2281,9 +2281,9 @@ export class QuizQuestionComponent
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
     this.updateOptionSelection(event, option);
-    
+
     this.quizService.setCurrentQuestionIndex(lockedIndex);
-    this.selectedOptionService.setAnswered(true);
+    this.selectedOptionService.setAnswered(true, true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     try {
