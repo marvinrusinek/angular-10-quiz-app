@@ -2219,11 +2219,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
     try {
       const isAnswered$ = this.quizService.isAnswered(questionIndex);
+      
+      if (!isAnswered$) {
+        console.warn(`[❌ isAnswered$ undefined/null for Q${questionIndex}]`);
+        return false;
+      }
+  
       const isAnswered = await firstValueFrom(isAnswered$);
+  
+      console.log('[✅ isQuestionAnswered]', { questionIndex, isAnswered });
   
       return isAnswered;
     } catch (error) {
-      console.error(`Error determining if question ${questionIndex} is answered:`, error);
+      console.error(`❌ [isQuestionAnswered] Error for Q${questionIndex}:`, error);
       return false;
     }
   }
@@ -3252,6 +3260,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
+    console.log('[🚩 ENTERED fetchAndSetQuestionData]', { questionIndex });
     // Reset loading state for options
     this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
@@ -3286,6 +3295,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await new Promise(res => setTimeout(res, 30));
   
       /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
+      console.log('[⏳ Starting parallel fetch for question and options]');
+
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
         firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
@@ -3343,7 +3354,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
   
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
-      const isAnswered = await this.isQuestionAnswered(questionIndex);
+      const isAnswered = this.selectedOptionService.isQuestionAnswered(questionIndex);
+
+      console.log('[🧪 fetchAndSetQuestionData → isAnswered]', {
+        questionIndex,
+        isAnsweredFromService: isAnswered
+      });
+      this.selectedOptionService.setAnswered(isAnswered, true);      
+
       let explanationText = '';
   
       if (isAnswered) {
