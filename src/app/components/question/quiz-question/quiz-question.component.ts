@@ -2281,15 +2281,16 @@ export class QuizQuestionComponent
     if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
     this.updateOptionSelection(event, option);
+    
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
     this.selectedOptionService.setAnswered(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     try {
       this.prepareQuestionText();
       const explanationToUse = await this.updateExplanationText(lockedIndex);
       await this.emitExplanationIfNeeded(explanationToUse);
 
-      this.quizService.setCurrentQuestionIndex(lockedIndex);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       await this.applyFeedbackIfNeeded(option);
       this.markAsAnsweredAndShowExplanation(lockedIndex);
   

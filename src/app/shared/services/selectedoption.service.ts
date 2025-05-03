@@ -626,6 +626,7 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean): void {
+    console.log('[🔍 ENTERED setAnswered] with:', isAnswered);
     const current = this.isAnsweredSubject.getValue();
     console.log('[🟢 setAnswered] Incoming:', isAnswered, 'Current:', current);
     if (current !== isAnswered) {
