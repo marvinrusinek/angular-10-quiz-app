@@ -1653,16 +1653,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
   }
-  
-  get isReadyToRenderOptions(): boolean {
-    return (
-      !!this.form &&
-      !!this.optionBindings?.length &&
-      !!this.optionsToDisplay?.length &&
-      this.renderReady &&
-      this.viewReady
-    );
-  }
 
   get canDisplayOptions(): boolean {
     return (
