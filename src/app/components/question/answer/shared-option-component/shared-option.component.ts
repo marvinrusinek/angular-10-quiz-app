@@ -557,7 +557,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }));
 
     // Initialize bindings and feedback maps
-    this.initializeOptionBindings(); // creates this.optionBindings
+    // this.initializeOptionBindings(); // creates this.optionBindings
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
 
     const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
