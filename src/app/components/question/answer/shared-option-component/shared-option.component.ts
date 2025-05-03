@@ -1589,10 +1589,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   get canDisplayOptions(): boolean {
     return !!(
-      this.form &&
       this.renderReady &&
+      this.form &&
       this.optionBindings?.length &&
-      this.optionBindings.every(b => b?.option)
+      this.optionBindings.every(b => b?.option && b.option.optionId != null)
     );
   }  
 
