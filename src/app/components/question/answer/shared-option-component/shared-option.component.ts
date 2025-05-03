@@ -1424,7 +1424,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     return feedbackProps;
-  }  
+  }
 
   initializeOptionBindings(): void {
     // Fetch the current question by index
