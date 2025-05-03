@@ -557,7 +557,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }));
 
     // Initialize bindings and feedback maps
-    // this.initializeOptionBindings(); // creates this.optionBindings
+    this.initializeOptionBindings(); // creates this.optionBindings
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
 
     const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
@@ -585,9 +585,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         isSelected: !!option.selected,
         isCorrect: option.correct ?? false,
         showFeedback: false,
-      
-        // Required props from OptionBindings
-        appHighlightOption: false,
         feedback: option.feedback ?? 'No feedback available',
         showFeedbackForOption: false,
         highlightCorrectAfterIncorrect: false,
@@ -595,11 +592,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         highlightCorrect: false,
         styleClass: '',
         disabled: false,
-        type: this.currentQuestion?.type ?? 'single',
-      
-        // Add these required properties if in your interface
-        allOptions: [], // or pass actual list if needed
-        appHighlightInputType: '', // or actual value
+        type: this.type ?? 'single', // fallback
+        appHighlightOption: false,
+        appHighlightInputType: '',
+        allOptions: [], // or this.optionsToDisplay if needed
       })) as unknown as OptionBindings[];
     } else {
       this.optionBindings?.forEach((binding, idx) => {
