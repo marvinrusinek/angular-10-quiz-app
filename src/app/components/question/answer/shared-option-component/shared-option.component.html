@@ -9,7 +9,7 @@
       (selectionChange)="handleRadioGroupChange($event)">
 
       <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
+        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
 
         <ng-container *ngIf="feedbackState$ | async as state">
@@ -50,7 +50,7 @@
     <div *ngIf="optionBindings[0].type === 'multiple'">
 
       <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOption"
+        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
 
         <label class="option-row options"
