@@ -557,7 +557,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }));
 
     // Initialize bindings and feedback maps
-    // this.initializeOptionBindings(); // creates this.optionBindings
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
 
     const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
@@ -1623,12 +1622,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     );
   }
 
-  get canDisplayOptions(): boolean {
+  /* get canDisplayOptions(): boolean {
     return this.renderReady &&
            !!this.form &&
            !!this.optionBindings?.length &&
            this.optionBindings.every(b => b?.option);
-  }  
+  } */
+  get canDisplayOptions(): boolean {
+    return (
+      !!this.form &&
+      !!this.renderReady &&
+      Array.isArray(this.optionBindings) &&
+      this.optionBindings.length > 0 &&
+      this.optionBindings.every(b => !!b.option)
+    );
+  }
 
   private initializeDisplay(): void {
     if (
