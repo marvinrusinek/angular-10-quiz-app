@@ -1875,9 +1875,9 @@ export class QuizQuestionComponent
     return isOptionSelected;
   }
 
-  trackByOption(index: number, option: Option): string | number {
-    return option.optionId || index;
-  }
+  trackByOptionId(index: number, option: Option): number {
+    return option.optionId;
+  }  
 
   public get canRenderFinalOptions(): boolean {
     return this._canRenderFinalOptions;
