@@ -625,12 +625,10 @@ export class SelectedOptionService {
     });
   }
 
-  isQuestionAnswered(questionIndex: number): boolean {
-    return (
-      this.selectedOptionsMap.has(questionIndex) &&
-      this.selectedOptionsMap.get(questionIndex).length > 0
-    );
-  }  
+  public isQuestionAnswered(questionIndex: number): boolean {
+    const options = this.selectedOptionsMap.get(questionIndex);
+    return Array.isArray(options) && options.length > 0;
+  }
 
   setAnswered(isAnswered: boolean, force = false): void {
     const current = this.isAnsweredSubject.getValue();

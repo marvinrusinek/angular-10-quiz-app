@@ -3295,6 +3295,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await new Promise(res => setTimeout(res, 30));
   
       /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
+      const isAnswered = this.selectedOptionService.isQuestionAnswered(questionIndex);
+      console.log('[🧪 fetchAndSetQuestionData → isAnswered]', {
+        questionIndex,
+        isAnsweredFromService: isAnswered
+      });
+
+      this.selectedOptionService.setAnswered(isAnswered, true);    
+
       console.log('[⏳ Starting parallel fetch for question and options]');
 
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
@@ -3354,14 +3362,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
   
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
-      const isAnswered = this.selectedOptionService.isQuestionAnswered(questionIndex);
-
-      console.log('[🧪 fetchAndSetQuestionData → isAnswered]', {
-        questionIndex,
-        isAnsweredFromService: isAnswered
-      });
-      this.selectedOptionService.setAnswered(isAnswered, true);      
-
       let explanationText = '';
   
       if (isAnswered) {
