@@ -2271,18 +2271,24 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log('[🔥 onOptionClicked] method triggered');
+    console.log('[🧪 onOptionClicked] event received:', event);
     const option = event.option;
-    if (!option) return;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
-    if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
+    // if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
     this.updateOptionSelection(event, option);
 
     this.quizService.setCurrentQuestionIndex(lockedIndex);
+    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
     this.selectedOptionService.setAnswered(true, true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   

@@ -632,7 +632,7 @@ export class SelectedOptionService {
 
   setAnswered(isAnswered: boolean, force = false): void {
     console.log('[🧠 setAnswered] Incoming:', isAnswered, 'Current:', this.isAnsweredSubject.getValue(), 'Force:', force);
-    console.trace();
+    console.trace("SET ANSWERED TRACE");
 
     const current = this.isAnsweredSubject.getValue();
     if (force || current !== isAnswered) {
