@@ -612,29 +612,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
   
     if (incomingIds !== existingIds || !this.optionBindings?.length) {
-      // Create new bindings only if option identity has changed
-      const newBindings: OptionBindings[] = newOptions.map((option, idx) => ({
-        option,
-        index: idx,
-        isSelected: !!option.selected,
-        isCorrect: option.correct ?? false,
-        showFeedback: false,
-        feedback: option.feedback ?? 'No feedback available',
-        showFeedbackForOption: false,
-        highlightCorrectAfterIncorrect: false,
-        highlightIncorrect: false,
-        highlightCorrect: false,
-        styleClass: '',
-        disabled: false,
-        type: this.type ?? 'single',
-        appHighlightOption: false,
-        appHighlightInputType: '',
-        allOptions: this.optionsToDisplay ?? [] // use shared reference to prevent DOM tearing
-      }));
-  
-      this.optionBindings = newBindings;
+      this.optionBindings = newOptions.map((option, idx) =>
+        Object.assign({}, {
+          option,
+          index: idx,
+          isSelected: !!option.selected,
+          isCorrect: option.correct ?? false,
+          showFeedback: false,
+          feedback: option.feedback ?? 'No feedback available',
+          showFeedbackForOption: false,
+          highlightCorrectAfterIncorrect: false,
+          highlightIncorrect: false,
+          highlightCorrect: false,
+          styleClass: '',
+          disabled: false,
+          type: this.type ?? 'single',
+          appHighlightOption: false,
+          appHighlightInputType: '',
+          allOptions: this.optionsToDisplay ?? []
+        }
+      )
+    ) as unknown as OptionBindings[];
     } else {
-      // Patch the existing bindings without changing the array reference
       this.optionBindings?.forEach((binding, idx) => {
         const updated = newOptions[idx];
         binding.option = updated;
