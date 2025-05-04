@@ -112,6 +112,7 @@ export class QuizQuestionComponent
     options: Option[];
     explanation: string;
   } | null = null;
+  private _questionPayload: QuestionPayload | null = null;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -273,6 +274,21 @@ export class QuizQuestionComponent
       selectedOptionService,
       cdRef
     );
+  }
+
+  @Input() set questionPayload(value: QuestionPayload | null) {
+    if (!value) return;
+  
+    const serialized = JSON.stringify(value);
+    if (serialized !== this.lastSerializedPayload) {
+      this.lastSerializedPayload = serialized;
+      this._questionPayload = value;
+      this.questionPayloadSubject.next(value); // Emit into stream
+    }
+  }
+  
+  get questionPayload(): QuestionPayload | null {
+    return this._questionPayload;
   }
 
   async ngOnInit(): Promise<void> {
