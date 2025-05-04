@@ -3290,7 +3290,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.hasOptionsLoaded = false;
     this.shouldRenderOptions = false;
     this.isLoading = true;
-    this.quizQuestionComponent.renderReady = true;
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.renderReady = true;
+    }
   
     try {
       /* ──────────────────────────  Safety Checks  ────────────────────────── */
@@ -3558,9 +3560,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
   
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.renderReady = false;
+    }
     this.sharedOptionComponent?.resetUIForNewQuestion();
-    this.quizQuestionComponent.renderReady = false;
 
     // Bounds check
     if (
