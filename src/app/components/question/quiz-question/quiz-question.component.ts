@@ -223,7 +223,7 @@ export class QuizQuestionComponent
   selectionMessageSubscription: Subscription = new Subscription();
 
   private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
-  public renderReady$: Observable<boolean>;
+  public renderReady$ = new BehaviorSubject<boolean>(false);
 
   private containerReady = new Subject<void>();
 
@@ -634,12 +634,12 @@ export class QuizQuestionComponent
     const current = JSON.stringify(this.optionsToDisplay);
   
     if (incoming !== current) {
-      this.renderReady = false;
+      this.renderReady$.next(false);
       setTimeout(() => {
         this.optionsToDisplay = [...newOptions];
         this.renderReady = true;
         this.cdRef.detectChanges();
-      }, 10); // keep delay minimal
+      }, 0);
     }
   }
 
