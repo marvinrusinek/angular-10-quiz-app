@@ -1412,15 +1412,11 @@ export class QuizService implements OnDestroy {
   }
 
   // Method to check if the current question is answered
-  /* isAnswered(questionIndex: number): Observable<boolean> {
+  isAnswered(questionIndex: number): Observable<boolean> {
     const isAnswered =
       this.selectedOptionsMap.has(questionIndex) &&
       this.selectedOptionsMap.get(questionIndex).length > 0;
     return of(isAnswered);
-  } */
-  isAnswered(questionIndex: number): Observable<boolean> {
-    // Only return isAnswered$ if the current question matches
-    return this.selectedOptionService.isAnswered$;
   }
 
   get totalQuestions$(): Observable<number> {
