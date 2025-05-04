@@ -4,7 +4,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription} from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -289,6 +289,13 @@ export class QuizQuestionComponent
 
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
+
+      this.questionPayloadSubject
+      .pipe(
+        filter((payload): payload is QuestionPayload => !!payload),
+        auditTime(30) // debounce-like behavior to batch rapid updates
+      )
+      .subscribe((payload: QuestionPayload) => this.hydrateFromPayload(payload));
 
       // Add the visibility change listener
       document.addEventListener(
