@@ -200,6 +200,8 @@ export class QuizQuestionComponent
   private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
   private lastSerializedOptions = '';
   private lastSerializedPayload = '';
+  private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
+  private hydrationInProgress = false;
 
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
@@ -276,7 +278,7 @@ export class QuizQuestionComponent
     );
   }
 
-  @Input() set questionPayload(value: QuestionPayload | null) {
+  /* @Input() set questionPayload(value: QuestionPayload | null) {
     if (!value) return;
   
     const serialized = JSON.stringify(value);
@@ -284,6 +286,11 @@ export class QuizQuestionComponent
       this.lastSerializedPayload = serialized;
       this._questionPayload = value;
       this.questionPayloadSubject.next(value); // emit into stream
+    }
+  } */
+  @Input() set questionPayload(value: QuestionPayload | null) {
+    if (value) {
+      this.payloadSubject.next(value);
     }
   }
   
@@ -390,6 +397,34 @@ export class QuizQuestionComponent
 
     this._ready.next(this.vcRef);
     this._ready.complete();
+
+    this.payloadSubject
+    .pipe(
+      filter((payload): payload is QuestionPayload => !!payload), // <- strong type guard
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+    )
+    .subscribe((payload: QuestionPayload) => {
+      if (this.hydrationInProgress) return;
+      this.hydrationInProgress = true;
+
+      this.renderReady = false;
+
+      requestAnimationFrame(() => {
+        const { question, options, explanation } = payload;
+        this.currentQuestion = question;
+        this.explanationToDisplay = explanation?.trim() || '';
+
+        this.optionsToDisplay = [...options];
+        this.cdRef.detectChanges();
+
+        requestAnimationFrame(() => {
+          this.renderReady = true;
+          this.hydrationInProgress = false;
+          this.cdRef.detectChanges();
+        });
+      });
+    });
+
 
     const index = this.currentQuestionIndex;
 
