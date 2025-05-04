@@ -385,7 +385,7 @@ export class QuizQuestionComponent
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.questionPayload && this.questionPayload) {
-      this.hydrateFromPayload(this.questionPayload);
+      this.questionPayloadSubject.next(this.questionPayload);
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
@@ -394,7 +394,7 @@ export class QuizQuestionComponent
         changes['selectedOptions']
       );
     }
-  }  
+  }
   
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
