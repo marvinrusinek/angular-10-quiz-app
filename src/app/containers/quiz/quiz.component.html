@@ -24,6 +24,7 @@
         <ng-container *ngIf="isContentAvailable || (isContentAvailable$ | async); else noQuestion">
           <codelab-quiz-question
             *ngIf="isQuestionDisplayed && questionData"
+            [questionPayload]="quizQuestionInputs"
             [quizData]="quizComponentData"
             [questionData]="combined.question"
             [options]="combined.options"

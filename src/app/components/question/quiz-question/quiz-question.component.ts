@@ -106,6 +106,11 @@ export class QuizQuestionComponent
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
   @Input() passedOptions: Option[] | null = null;
+  @Input() questionPayload: {
+    question: QuizQuestion;
+    options: Option[];
+    explanation: string;
+  } | null = null;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -192,6 +197,7 @@ export class QuizQuestionComponent
 
   private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
   private lastSerializedOptions = '';
+  private lastSerializedPayload = '';
 
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
@@ -368,33 +374,30 @@ export class QuizQuestionComponent
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes.passedOptions && Array.isArray(changes.passedOptions.currentValue)) {
-      const newOptions = changes.passedOptions.currentValue;
-      const serialized = JSON.stringify(newOptions);
-
-      // Skip if same as last
-      if (this.lastSerializedOptions === serialized) return;
-      this.lastSerializedOptions = serialized;
-
-      // 🔒 Delay all updates to next macro-task
+    if (changes.questionPayload && this.questionPayload) {
+      const serialized = JSON.stringify(this.questionPayload);
+  
+      // ✅ Skip duplicate render attempts
+      if (this.lastSerializedPayload === serialized) return;
+      this.lastSerializedPayload = serialized;
+  
       this.renderReady = false;
-
+  
+      // tiny delay to allow Angular input bindings to settle
       setTimeout(() => {
-        // Recheck to avoid stale options
-        if (this.lastSerializedOptions === JSON.stringify(newOptions)) {
-          this.optionsToDisplay = [...newOptions];
+        // Reconfirm it's still the latest payload
+        if (this.lastSerializedPayload === JSON.stringify(this.questionPayload)) {
+          this.currentQuestion = this.questionPayload.question;
+          this.optionsToDisplay = [...this.questionPayload.options];
+          this.explanationToDisplay = this.questionPayload.explanation || '';
+  
           this.renderReady = true;
-          this.cdRef.detectChanges(); // Ensure proper re-render
+          this.cdRef.detectChanges(); // ensure full repaint
         }
-      }, 30); // ⏱ Slight delay (10–30ms) helps smooth out timing
+      }, 30);
     }
-
-    const currentQuestionChange = changes['currentQuestion'];
-    const selectedOptionsChange = changes['selectedOptions'];
-
-    this.handleQuestionAndOptionsChange(currentQuestionChange, selectedOptionsChange);
   }
-
+  
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
     document.removeEventListener(
@@ -558,20 +561,6 @@ export class QuizQuestionComponent
     }));
   
     console.log(`${context} ✅ Set optionsToDisplay:`, this.optionsToDisplay.map(o => o.text));
-  }
-
-  public updateOptionsSafely(newOptions: Option[]): void {
-    const incoming = JSON.stringify(newOptions);
-    const current = JSON.stringify(this.optionsToDisplay);
-  
-    if (incoming !== current) {
-      this.renderReady = false;
-      setTimeout(() => {
-        this.optionsToDisplay = [...newOptions];
-        this.renderReady = true;
-        this.cdRef.detectChanges();
-      }, 0);
-    }
   }
 
   private resetOptionsDueToInvalidData(reason: string): void {
