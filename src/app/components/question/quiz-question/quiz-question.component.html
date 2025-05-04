@@ -9,6 +9,7 @@
       <!-- Enable spinner -->
     </div>
     <app-shared-option
+      [optionBindings]="bindings"
       (optionClicked)="onOptionClicked($event)">
     </app-shared-option>
   </form>

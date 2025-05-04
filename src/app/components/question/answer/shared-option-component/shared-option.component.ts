@@ -293,8 +293,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     const binding = this.optionBindings[idx];
   
-    /* Run the single paint/update routine ↓ */
+    // Update option state/UI
     this.updateOptionAndUI(binding, idx, { checked: true } as any);
+
+    // Emit to parent
+    this.quizQuestionComponent.onOptionClicked({
+      option: {
+        optionId: binding.option.optionId,
+        questionIndex: this.quizService.currentQuestionIndex,
+        text: binding.option.text
+      },
+      index: idx,
+      checked: true
+    });
   
     /* Make sure icon/feedback redraw this tick */
     this.cdRef.detectChanges();
@@ -497,9 +508,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.optionClicked.emit(selectedOption);
   
-    if (this.quizQuestionComponent?.onOptionClicked) {
+    //if (this.quizQuestionComponent?.onOptionClicked) {
       this.quizQuestionComponent.onOptionClicked(selectedOption);
-    }
+    //}
   }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
