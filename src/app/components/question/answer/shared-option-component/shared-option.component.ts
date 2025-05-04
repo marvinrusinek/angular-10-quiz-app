@@ -18,6 +18,7 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
+import { createTrue } from 'typescript';
 
 @Component({
   selector: 'app-shared-option',
@@ -481,10 +482,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: true
     });
   } */
-  onRadioClick(binding: OptionBindings, index: number): void { 
+  onRadioClick(binding: OptionBindings, index: number): void {
     console.log('[🟢 onRadioClick] Option clicked:', { binding, index });
   
-    this.optionClicked.emit({
+    const selectedOption = {
       option: {
         optionId: binding.option.optionId,
         questionIndex: this.quizService.currentQuestionIndex,
@@ -492,7 +493,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       },
       index,
       checked: true
-    });
+    };
+  
+    this.optionClicked.emit(selectedOption);
+  
+    if (this.quizQuestionComponent?.onOptionClicked) {
+      this.quizQuestionComponent.onOptionClicked(selectedOption);
+    }
   }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
