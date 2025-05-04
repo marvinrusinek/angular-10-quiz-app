@@ -372,31 +372,27 @@ export class QuizQuestionComponent
       const newOptions = changes.passedOptions.currentValue;
       const serialized = JSON.stringify(newOptions);
 
-      // ✅ Prevent duplicate updates
-      if (this.lastSerializedOptions !== serialized) {
-        this.lastSerializedOptions = serialized;
+      // Skip if same as last
+      if (this.lastSerializedOptions === serialized) return;
+      this.lastSerializedOptions = serialized;
 
-        this.renderReady = false;
+      // 🔒 Delay all updates to next macro-task
+      this.renderReady = false;
 
-        setTimeout(() => {
+      setTimeout(() => {
+        // Recheck to avoid stale options
+        if (this.lastSerializedOptions === JSON.stringify(newOptions)) {
           this.optionsToDisplay = [...newOptions];
           this.renderReady = true;
-          this.cdRef.markForCheck(); // or detectChanges() if needed
-        }, 0);
-      }
-    } else if (changes.passedOptions && !changes.passedOptions.currentValue) {
-      console.warn(
-        `[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`
-      );
+          this.cdRef.detectChanges(); // Ensure proper re-render
+        }
+      }, 30); // ⏱ Slight delay (10–30ms) helps smooth out timing
     }
 
     const currentQuestionChange = changes['currentQuestion'];
     const selectedOptionsChange = changes['selectedOptions'];
 
-    this.handleQuestionAndOptionsChange(
-      currentQuestionChange,
-      selectedOptionsChange
-    );
+    this.handleQuestionAndOptionsChange(currentQuestionChange, selectedOptionsChange);
   }
 
   ngOnDestroy(): void {
