@@ -105,6 +105,7 @@ export class QuizQuestionComponent
   @Input() selectionMessage: string;
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
+  @Input() passedOptions: Option[] | null = null;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -190,6 +191,7 @@ export class QuizQuestionComponent
   currentExplanationText = '';
 
   private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
+  private lastSerializedOptions = '';
 
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
@@ -366,22 +368,26 @@ export class QuizQuestionComponent
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes.options) {
-      const receivedOptions = JSON.stringify(changes.options.currentValue);
+    if (changes.passedOptions && Array.isArray(changes.passedOptions.currentValue)) {
+      const newOptions = changes.passedOptions.currentValue;
+      const serialized = JSON.stringify(newOptions);
 
-      // Prevent duplicate logging
-      if (this.lastLoggedOptions !== receivedOptions) {
-        this.lastLoggedOptions = receivedOptions;
-      }
+      // ✅ Prevent duplicate updates
+      if (this.lastSerializedOptions !== serialized) {
+        this.lastSerializedOptions = serialized;
 
-      if (changes.options.currentValue) {
-        // Set optionsToDisplay
-        this.optionsToDisplay = [...changes.options.currentValue];
-      } else {
-        console.warn(
-          `[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`
-        );
+        this.renderReady = false;
+
+        setTimeout(() => {
+          this.optionsToDisplay = [...newOptions];
+          this.renderReady = true;
+          this.cdRef.markForCheck(); // or detectChanges() if needed
+        }, 0);
       }
+    } else if (changes.passedOptions && !changes.passedOptions.currentValue) {
+      console.warn(
+        `[QuizQuestionComponent] ⚠️ No valid options available for Q${this.fixedQuestionIndex}. Keeping previous options.`
+      );
     }
 
     const currentQuestionChange = changes['currentQuestion'];

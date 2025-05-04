@@ -3350,7 +3350,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
-      this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
+      this.passedOptions = clonedOptions;
+      // this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
   
       /* ───────── Flip “options loaded” flags together ───────── */
       this.hasOptionsLoaded    = true;
