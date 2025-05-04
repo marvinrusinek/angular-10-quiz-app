@@ -4,7 +4,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription} from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -220,8 +220,8 @@ export class QuizQuestionComponent
   selectionMessage$ = this.selectionMessageSubject.asObservable();
   selectionMessageSubscription: Subscription = new Subscription();
 
-  public renderReady$!: Observable<boolean>;
   private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
+  public renderReady$: Observable<boolean>;
 
   private containerReady = new Subject<void>();
 
@@ -313,6 +313,21 @@ export class QuizQuestionComponent
         auditTime(30) // debounce-like behavior to batch rapid updates
       )
       .subscribe((payload: QuestionPayload) => this.hydrateFromPayload(payload));
+
+
+      this.renderReady$ = this.questionPayloadSubject.asObservable().pipe(
+        filter((payload): payload is QuestionPayload => !!payload),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+        tap(() => this.renderReady = false), // Optional: legacy fallback
+        delay(30), // allow Angular to bind inputs
+        tap((payload) => {
+          this.currentQuestion = payload.question;
+          this.optionsToDisplay = [...payload.options];
+          this.explanationToDisplay = payload.explanation?.trim() || '';
+        }),
+        map(() => true), // signal readiness
+        tap(() => this.cdRef.detectChanges()) // ensure full repaint
+      );
 
       // Add the visibility change listener
       document.addEventListener(
