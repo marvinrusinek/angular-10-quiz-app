@@ -107,11 +107,11 @@ export class QuizQuestionComponent
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
   @Input() passedOptions: Option[] | null = null;
-  @Input() questionPayload: {
+  /* @Input() questionPayload: {
     question: QuizQuestion;
     options: Option[];
     explanation: string;
-  } | null = null;
+  } | null = null; */
   private _questionPayload: QuestionPayload | null = null;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
