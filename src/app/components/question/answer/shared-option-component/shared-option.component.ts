@@ -285,6 +285,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   handleRadioGroupChange(event: MatRadioChange): void {
+    console.log("MYTEST123");
     const optionId = event.value;
   
     // Find the binding that matches the chosen id
