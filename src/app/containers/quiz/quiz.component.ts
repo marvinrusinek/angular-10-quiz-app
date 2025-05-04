@@ -3356,8 +3356,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         if (this.quizQuestionComponent) {
           this.quizQuestionComponent.renderReady = true;
         }
-      }, 0);      
-      
+      }, 0);
   
       /* ───────── Flip “options loaded” flags together ───────── */
       this.hasOptionsLoaded    = true;
