@@ -84,16 +84,6 @@
   }
 }
 
-:host {
-  display: block;
-  opacity: 0;
-  transition: opacity 0.2s ease-in;
-}
-
-:host.render-ready {
-  opacity: 1;
-}
-
 /* the mat radio/checkbox itself is the click target */
 .option-row.mat-radio-button,
 .option-row.mat-checkbox {

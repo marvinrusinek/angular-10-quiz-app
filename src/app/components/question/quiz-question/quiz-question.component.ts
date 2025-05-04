@@ -396,6 +396,7 @@ export class QuizQuestionComponent
     }
   }
   
+  
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
     document.removeEventListener(
