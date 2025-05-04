@@ -964,13 +964,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return this.currentQuestionIndex === 0;
   }
 
-  public get shouldHideNextButton(): boolean {
+  /* public get shouldHideNextButton(): boolean {
     // Hide if data isn't loaded or on the last question
     return (
       !this.isQuizDataLoaded ||
       this.currentQuestionIndex >= this.totalQuestions - 1
     );
-  }
+  } */
+  public get shouldHideNextButton(): boolean {
+    return (
+      !this.isQuizDataLoaded ||
+      !this.quizQuestionComponent.renderReady ||
+      this.currentQuestionIndex >= this.totalQuestions - 1
+    );
+  }  
 
   public get shouldHideShowResultsButton(): boolean {
     // Hide if data isn't loaded or not on the last question
@@ -3279,6 +3286,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.hasOptionsLoaded = false;
     this.shouldRenderOptions = false;
     this.isLoading = true;
+    this.quizQuestionComponent.renderReady = true;
   
     try {
       /* ──────────────────────────  Safety Checks  ────────────────────────── */
@@ -3548,7 +3556,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {  
     this.sharedOptionComponent?.resetUIForNewQuestion();
-    
+    this.quizQuestionComponent.renderReady = false;
+
     // Bounds check
     if (
       typeof questionIndex !== 'number' ||
