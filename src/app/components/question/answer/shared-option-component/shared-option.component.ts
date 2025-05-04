@@ -468,10 +468,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  onRadioClick(binding: OptionBindings, index: number): void {
+  /* onRadioClick(binding: OptionBindings, index: number): void {
     console.log('[🟢 onRadioClick] Option clicked:', { binding, index });
   
     this.quizQuestionComponent.onOptionClicked({
+      option: {
+        optionId: binding.option.optionId,
+        questionIndex: this.quizService.currentQuestionIndex,
+        text: binding.option.text
+      },
+      index,
+      checked: true
+    });
+  } */
+  onRadioClick(binding: OptionBindings, index: number): void {
+    console.log('[🟢 onRadioClick] Option clicked:', { binding, index });
+  
+    this.optionClicked.emit({
       option: {
         optionId: binding.option.optionId,
         questionIndex: this.quizService.currentQuestionIndex,
