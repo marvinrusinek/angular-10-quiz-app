@@ -156,6 +156,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isLoading = false;
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
+  isQuizRenderReady = false;
   private quizAlreadyInitialized = false;
   questionInitialized = false;
   questionTextLoaded = false;
@@ -385,6 +386,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Centralized routing and quiz setup
     this.initializeQuizData();
+
+    this.quizQuestionComponent.renderReady$
+      .pipe(debounceTime(10)) // optional smoothing
+      .subscribe((isReady: boolean) => {
+        // Only show next button or update UI when true
+        this.isQuizRenderReady = isReady;
+      });
   
     // Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
@@ -978,6 +986,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public get shouldHideNextButton(): boolean {
     return (
       !this.isQuizDataLoaded ||
+      !this.isQuizRenderReady || 
       !this.quizQuestionComponent?.renderReady ||
       this.currentQuestionIndex >= this.totalQuestions - 1
     );
