@@ -375,37 +375,16 @@ export class QuizQuestionComponent
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.questionPayload && this.questionPayload) {
-      const serialized = JSON.stringify(this.questionPayload);
-  
-      // Skip redundant updates
-      if (this.lastSerializedPayload === serialized) return;
-      this.lastSerializedPayload = serialized;
-  
-      this.renderReady = false;
-  
-      setTimeout(() => {
-        if (this.lastSerializedPayload === JSON.stringify(this.questionPayload)) {
-          const { question, options, explanation } = this.questionPayload;
-  
-          this.currentQuestion = question;
-          this.explanationToDisplay = explanation?.trim() || '';
-  
-          // Delegate option hydration
-          this.updateOptionsSafely(options);
-        } else {
-          console.warn('[🛑 Payload mismatch after delay, skipping hydration]');
-        }
-      }, 30);
+      this.hydrateFromPayload(this.questionPayload);
     }
-
-    const currentQuestionChange = changes['currentQuestion'];
-    const selectedOptionsChange = changes['selectedOptions'];
-
-    this.handleQuestionAndOptionsChange(
-      currentQuestionChange,
-      selectedOptionsChange
-    );
-  }
+  
+    if (changes['currentQuestion'] || changes['selectedOptions']) {
+      this.handleQuestionAndOptionsChange(
+        changes['currentQuestion'],
+        changes['selectedOptions']
+      );
+    }
+  }  
   
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
