@@ -283,7 +283,7 @@ export class QuizQuestionComponent
     if (serialized !== this.lastSerializedPayload) {
       this.lastSerializedPayload = serialized;
       this._questionPayload = value;
-      this.questionPayloadSubject.next(value); // Emit into stream
+      this.questionPayloadSubject.next(value); // emit into stream
     }
   }
   
