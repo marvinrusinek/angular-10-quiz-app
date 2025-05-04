@@ -129,7 +129,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
 
     this.form = this.fb.group({
-      selectedOptionId: new FormControl(null, Validators.required)
+      selectedOptionId: [null, Validators.required]
     });
   
     // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
