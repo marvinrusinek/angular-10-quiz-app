@@ -46,7 +46,7 @@ export class NextButtonStateService {
     this.updateAndSyncNextButtonState(isEnabled);
   }
 
-  public initializeNextButtonStateStream(
+  /* public initializeNextButtonStateStream(
     isAnswered$: Observable<boolean>,
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>
@@ -58,12 +58,37 @@ export class NextButtonStateService {
       .pipe(
         map(([isAnswered, isLoading, isNavigating]) => {
           const isEnabled = isAnswered && !isLoading && !isNavigating;
+          this.isButtonEnabledSubject.next(isEnabled);
           console.log('[🧪 isButtonEnabled$]', { isAnswered, isLoading, isNavigating, isEnabled });
           return isEnabled;
         }),
         distinctUntilChanged()
       )
       .subscribe((isEnabled: boolean) => {
+        this.updateAndSyncNextButtonState(isEnabled);
+      });
+  } */
+  public initializeNextButtonStateStream(
+    isAnswered$: Observable<boolean>,
+    isLoading$: Observable<boolean>,
+    isNavigating$: Observable<boolean>
+  ): void {
+    if (this.initialized) return;
+    this.initialized = true;
+  
+    combineLatest([isAnswered$, isLoading$, isNavigating$])
+      .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .subscribe(([isAnswered, isLoading, isNavigating]) => {
+        const isEnabled = isAnswered && !isLoading && !isNavigating;
+  
+        console.log('[🧪 evaluateNextButtonState]', {
+          isAnswered,
+          isLoading,
+          isNavigating,
+          isEnabled
+        });
+  
+        this.isButtonEnabledSubject.next(isEnabled);
         this.updateAndSyncNextButtonState(isEnabled);
       });
   }
