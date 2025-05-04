@@ -169,7 +169,7 @@ export class QuizQuestionComponent
   shouldRenderOptions = false;
   shouldRenderFinalOptions = false;
   areOptionsReadyToRender = false;
-  renderReady = false;
+  public renderReady = false;
   private _canRenderFinalOptions = false;
   explanationLocked = false; // flag to lock explanation
   explanationVisible = false;
