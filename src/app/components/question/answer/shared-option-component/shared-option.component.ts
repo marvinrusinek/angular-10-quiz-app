@@ -287,40 +287,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   handleRadioGroupChange(event: MatRadioChange): void {
     console.log('[✅ handleRadioGroupChange]', event);
-    const optionId = event.value;
   
-    // Find the binding that matches the chosen id
-    const idx = this.optionBindings.findIndex(b => b.option.optionId === optionId);
-    if (idx === -1) return;
+    const selectedId = event.value;
+    const idx = this.optionBindings.findIndex(b => b.option.optionId === selectedId);
+    if (idx === -1) {
+      console.warn('[❌ No matching option found for ID]', selectedId);
+      return;
+    }
   
-    const binding = this.optionBindings[idx];
+    const selectedBinding = this.optionBindings[idx];
+    const selectedOption = {
+      optionId: selectedBinding.option.optionId,
+      questionIndex: this.quizService.currentQuestionIndex,
+      text: selectedBinding.option.text
+    };
   
-    // Update option state/UI
-    this.updateOptionAndUI(binding, idx, { checked: true } as any);
-
-    this.optionClicked.emit({
-      option: {
-        optionId: binding.option.optionId,
-        questionIndex: this.quizService.currentQuestionIndex,
-        text: binding.option.text
-      },
-      index: idx,
-      checked: true
-    });
-
-    // Emit to parent
     this.quizQuestionComponent.onOptionClicked({
-      option: {
-        optionId: binding.option.optionId,
-        questionIndex: this.quizService.currentQuestionIndex,
-        text: binding.option.text
-      },
+      option: selectedOption,
       index: idx,
       checked: true
     });
   
-    /* Make sure icon/feedback redraw this tick */
-    this.cdRef.detectChanges();
+    console.log('🔍 Form value after selection:', this.form.value);
   }
 
     /**
