@@ -27,16 +27,11 @@ export class NextButtonStateService {
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
   ) {
-    // Defer stream setup to avoid circular dependency issues
-    this.ngZone.runOutsideAngular(() => {
-      setTimeout(() => {
-        this.initializeNextButtonStateStream(
-          this.selectedOptionService.isAnswered$,
-          this.quizStateService.isLoading$,
-          this.quizStateService.isNavigating$
-        );
-      }, 0);
-    });
+    this.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnswered$,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
   }
 
   public syncNextButtonState(): void {
