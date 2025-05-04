@@ -481,10 +481,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       checked: true
     });
   } */
-  onRadioClick(binding: OptionBindings, index: number): void {
-    console.log('[TEST] Entered onRadioClick');
-    return; // Just to prove it's being triggered
-    
+  onRadioClick(binding: OptionBindings, index: number): void { 
     console.log('[🟢 onRadioClick] Option clicked:', { binding, index });
   
     this.optionClicked.emit({
