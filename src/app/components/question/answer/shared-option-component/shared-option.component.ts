@@ -285,12 +285,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   handleRadioGroupChange(event: MatRadioChange): void {
-    console.log("MYTEST123");
+    console.log('[✅ handleRadioGroupChange]', event);
     const optionId = event.value;
   
     // Find the binding that matches the chosen id
     const idx = this.optionBindings.findIndex(b => b.option.optionId === optionId);
-    if (idx === -1) { return; }
+    if (idx === -1) return;
   
     const binding = this.optionBindings[idx];
   
