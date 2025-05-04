@@ -88,7 +88,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   quizQuestionInputs: {
     question: QuizQuestion;
     options: Option[];
-    explanation: string;
+    // explanation: string;
   } | null = null;
 
   currentQuiz: Quiz;
@@ -3358,8 +3358,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = { ...this.question };
       this.quizQuestionInputs = {
         question: { ...this.question },
-        options: [...clonedOptions],
-        explanation: this.explanationToDisplay
+        options: [...clonedOptions]
+        // explanation: this.explanationToDisplay
       };
   
       /* ───────── Flip “options loaded” flags together ───────── */
