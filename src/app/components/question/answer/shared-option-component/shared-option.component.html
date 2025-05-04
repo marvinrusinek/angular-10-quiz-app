@@ -12,6 +12,7 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         (click)="onRadioClick(b, i)"
+        name="selectedOptionId"
       >
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}

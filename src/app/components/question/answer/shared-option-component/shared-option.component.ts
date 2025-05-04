@@ -219,6 +219,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngAfterViewInit(): void {
+    console.log('form value:', this.form.value);
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
       // this.generateOptionBindings();
