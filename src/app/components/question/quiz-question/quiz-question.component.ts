@@ -558,6 +558,20 @@ export class QuizQuestionComponent
     console.log(`${context} ✅ Set optionsToDisplay:`, this.optionsToDisplay.map(o => o.text));
   }
 
+  public updateOptionsSafely(newOptions: Option[]): void {
+    const incoming = JSON.stringify(newOptions);
+    const current = JSON.stringify(this.optionsToDisplay);
+  
+    if (incoming !== current) {
+      this.renderReady = false;
+      setTimeout(() => {
+        this.optionsToDisplay = [...newOptions];
+        this.renderReady = true;
+        this.cdRef.detectChanges();
+      }, 0);
+    }
+  }
+
   private resetOptionsDueToInvalidData(reason: string): void {
     if (this.optionsToDisplay.length > 0) {
       console.warn(`[setOptionsToDisplay] 🚨 Resetting options due to issue: ${reason}`);
