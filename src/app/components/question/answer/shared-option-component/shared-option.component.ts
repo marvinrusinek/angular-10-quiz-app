@@ -480,7 +480,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       index,
       checked: true
     });
-  }  
+  }
 
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     requestAnimationFrame(() => {
