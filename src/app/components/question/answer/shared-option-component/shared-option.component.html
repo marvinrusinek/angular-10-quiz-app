@@ -17,11 +17,11 @@
                 appHighlightOption
                 [optionBinding]="b"
                 [isCorrect]="b.isCorrect"
-                [isSelected]="shouldShowFeedback(i)"
-                (click)="onRadioClick(b, i)">
+                [isSelected]="shouldShowFeedback(i)">
 
             <mat-radio-button
-              [value]="b.option.optionId">
+              [value]="b.option.optionId"
+              (click)="onRadioClick(b, i)">
 
               <span class="option-text">
                 {{ getOptionDisplayText(b.option, i) }}
