@@ -237,6 +237,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
+    this.quizQuestionComponent.renderReady = false;
+
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
         // Pause updates here (if needed)
