@@ -14,6 +14,7 @@ import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
+import { QuestionPayload } from '../../../shared/models/QuestionPayload.model';
 import { QuestionState } from '../../../shared/models/QuestionState.model';
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -217,6 +218,8 @@ export class QuizQuestionComponent
   selectionMessageSubject = new BehaviorSubject<string>('');
   selectionMessage$ = this.selectionMessageSubject.asObservable();
   selectionMessageSubscription: Subscription = new Subscription();
+
+  private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
 
   private containerReady = new Subject<void>();
 
