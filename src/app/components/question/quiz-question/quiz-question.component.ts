@@ -377,13 +377,13 @@ export class QuizQuestionComponent
     if (changes.questionPayload && this.questionPayload) {
       const serialized = JSON.stringify(this.questionPayload);
   
-      // ✅ Skip duplicate render attempts
+      // Skip duplicate render attempts
       if (this.lastSerializedPayload === serialized) return;
       this.lastSerializedPayload = serialized;
   
       this.renderReady = false;
   
-      // tiny delay to allow Angular input bindings to settle
+      // Tiny delay to allow Angular input bindings to settle
       setTimeout(() => {
         // Reconfirm it's still the latest payload
         if (this.lastSerializedPayload === JSON.stringify(this.questionPayload)) {
