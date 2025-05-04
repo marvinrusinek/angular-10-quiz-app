@@ -377,25 +377,34 @@ export class QuizQuestionComponent
     if (changes.questionPayload && this.questionPayload) {
       const serialized = JSON.stringify(this.questionPayload);
   
-      // Skip duplicate render attempts
+      // Skip redundant updates
       if (this.lastSerializedPayload === serialized) return;
       this.lastSerializedPayload = serialized;
   
       this.renderReady = false;
   
-      // Tiny delay to allow Angular input bindings to settle
       setTimeout(() => {
-        // Reconfirm it's still the latest payload
         if (this.lastSerializedPayload === JSON.stringify(this.questionPayload)) {
-          this.currentQuestion = this.questionPayload.question;
-          this.optionsToDisplay = [...this.questionPayload.options];
-          this.explanationToDisplay = this.questionPayload.explanation || '';
+          const { question, options, explanation } = this.questionPayload;
   
-          this.renderReady = true;
-          this.cdRef.detectChanges(); // ensure full repaint
+          this.currentQuestion = question;
+          this.explanationToDisplay = explanation?.trim() || '';
+  
+          // Delegate option hydration
+          this.updateOptionsSafely(options);
+        } else {
+          console.warn('[🛑 Payload mismatch after delay, skipping hydration]');
         }
       }, 30);
     }
+
+    const currentQuestionChange = changes['currentQuestion'];
+    const selectedOptionsChange = changes['selectedOptions'];
+
+    this.handleQuestionAndOptionsChange(
+      currentQuestionChange,
+      selectedOptionsChange
+    );
   }
   
   ngOnDestroy(): void {
@@ -575,6 +584,29 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges();
       }, 0);
     }
+  }
+
+  private hydrateFromPayload(payload: QuestionPayload): void {
+    const serialized = JSON.stringify(payload);
+  
+    // Skip if same as last
+    if (this.lastSerializedPayload === serialized) return;
+    this.lastSerializedPayload = serialized;
+  
+    this.renderReady = false;
+  
+    setTimeout(() => {
+      if (this.lastSerializedPayload === JSON.stringify(payload)) {
+        const { question, options, explanation } = payload;
+  
+        this.currentQuestion = question;
+        this.explanationToDisplay = explanation?.trim() || '';
+  
+        this.updateOptionsSafely(options);
+      } else {
+        console.warn('[🛑 Payload mismatch after delay, skipping hydration]');
+      }
+    }, 30);
   }
   
   private resetOptionsDueToInvalidData(reason: string): void {
