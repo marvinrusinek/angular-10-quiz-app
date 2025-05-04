@@ -93,7 +93,7 @@
             </button>
           </div>
 
-          <div class="next-question-nav" [hidden]="shouldHideNextButton">
+          <div class="next-question-nav" *ngIf="shouldHideNextButton">
             <button
               type="button"
               #nextButton="matTooltip"
