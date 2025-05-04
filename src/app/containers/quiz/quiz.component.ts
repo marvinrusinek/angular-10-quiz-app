@@ -83,6 +83,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   options: Option[] = [];
+  private pendingOptions: Option[] | null = null;
   questionData!: QuizQuestion;
 
   quizQuestionInputs: {
@@ -455,6 +456,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngAfterViewInit(): void {
     this.loadQuestionContents(this.currentQuestionIndex);
+
+    if (this.pendingOptions && this.quizQuestionComponent) {
+      this.quizQuestionComponent.updateOptionsSafely(this.pendingOptions);
+      this.pendingOptions = null;
+    }
   }
 
   initializeDisplayVariables(): void {
@@ -3356,7 +3362,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
-      this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
+      // this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
       this.quizQuestionInputs = {
         question: { ...this.question },
         options: [...clonedOptions]
