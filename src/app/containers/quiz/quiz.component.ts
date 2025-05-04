@@ -3302,9 +3302,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         isAnsweredFromService: isAnswered
       });
 
-      if (isAnswered) {
-        this.selectedOptionService.setAnswered(true);
-      }    
+      this.selectedOptionService.setAnswered(isAnswered, true);
 
       console.log('[⏳ Starting parallel fetch for question and options]');
 
