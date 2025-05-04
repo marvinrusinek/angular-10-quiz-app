@@ -405,24 +405,24 @@ export class QuizQuestionComponent
     )
     .subscribe((payload: QuestionPayload) => {
       if (this.hydrationInProgress) return;
+      this.renderReady = false;
       this.hydrationInProgress = true;
 
-      this.renderReady = false;
-
-      requestAnimationFrame(() => {
-        const { question, options, explanation } = payload;
-        this.currentQuestion = question;
-        this.explanationToDisplay = explanation?.trim() || '';
-
-        this.optionsToDisplay = [...options];
-        this.cdRef.detectChanges();
-
+      setTimeout(() => {
         requestAnimationFrame(() => {
-          this.renderReady = true;
-          this.hydrationInProgress = false;
+          const { question, options, explanation } = payload;
+          this.currentQuestion = question;
+          this.explanationToDisplay = explanation?.trim() || '';
+          this.optionsToDisplay = [...options];
           this.cdRef.detectChanges();
+      
+          requestAnimationFrame(() => {
+            this.renderReady = true;
+            this.hydrationInProgress = false;
+            this.cdRef.detectChanges();
+          });
         });
-      });
+      }, 0);      
     });
 
 
