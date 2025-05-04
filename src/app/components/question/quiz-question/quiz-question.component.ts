@@ -2278,19 +2278,16 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-    this.selectedOptionService.setAnswered(true, true);
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
     // if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
     this.updateOptionSelection(event, option);
-
-    this.quizService.setCurrentQuestionIndex(lockedIndex);
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     try {
       this.prepareQuestionText();
@@ -2299,6 +2296,9 @@ export class QuizQuestionComponent
 
       await this.applyFeedbackIfNeeded(option);
       this.markAsAnsweredAndShowExplanation(lockedIndex);
+
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.finalizeAfterClick(option, event.index);
     } catch (error) {
