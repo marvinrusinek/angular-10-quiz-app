@@ -2278,6 +2278,7 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
+    this.selectedOptionService.setAnswered(true, true);
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const isMultipleAnswer = await firstValueFrom(
@@ -2289,7 +2290,6 @@ export class QuizQuestionComponent
 
     this.quizService.setCurrentQuestionIndex(lockedIndex);
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
-    this.selectedOptionService.setAnswered(true, true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     try {
