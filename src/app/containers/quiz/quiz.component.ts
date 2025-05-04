@@ -85,6 +85,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   options: Option[] = [];
   questionData!: QuizQuestion;
 
+  quizQuestionInputs: {
+    question: QuizQuestion;
+    options: Option[];
+    explanation: string;
+  } | null = null;
+
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
@@ -3350,8 +3356,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
-      this.passedOptions = clonedOptions;
-      // this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
+      this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
+      this.quizQuestionInputs = {
+        question: { ...this.question },
+        options: [...clonedOptions],
+        explanation: explanationText
+      };
   
       /* ───────── Flip “options loaded” flags together ───────── */
       this.hasOptionsLoaded    = true;
