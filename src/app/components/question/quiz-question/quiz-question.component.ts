@@ -604,7 +604,7 @@ export class QuizQuestionComponent
         this.optionsToDisplay = [...newOptions];
         this.renderReady = true;
         this.cdRef.detectChanges();
-      }, 0);
+      }, 10); // keep delay minimal
     }
   }
 
