@@ -296,6 +296,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Update option state/UI
     this.updateOptionAndUI(binding, idx, { checked: true } as any);
 
+    console.log("TESTING123");
+
     // Emit to parent
     this.quizQuestionComponent.onOptionClicked({
       option: {
