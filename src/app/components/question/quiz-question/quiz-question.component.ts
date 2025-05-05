@@ -1,9 +1,8 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef,
-  ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription} from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
@@ -663,13 +662,16 @@ export class QuizQuestionComponent
           this.internalBufferReady = true;
           this.cdRef.detectChanges();
   
-          // Flip to visible
-          requestAnimationFrame(() => {
-            this.finalRenderReady = true;
-            this.renderReady = true;               // mark ready internally
-            this.renderReadySubject.next(true);    // notify observers
-            this.cdRef.detectChanges();
-          });
+          // Delay visibility flip to avoid flicker
+          setTimeout(() => {
+            requestAnimationFrame(() => {
+              this.internalBufferReady = true;
+              this.finalRenderReady = true;
+              this.renderReady = true;               // mark ready internally
+              this.renderReadySubject.next(true);    // notify observers
+              this.cdRef.detectChanges();
+            });
+          }, 16); // delay next frame paint
         });
       }, 0);
     } else {
