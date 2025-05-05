@@ -87,12 +87,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private pendingOptions: Option[] | null = null;
   questionData!: QuizQuestion;
 
-  quizQuestionInputs: {
-    question: QuizQuestion;
-    options: Option[];
-    // explanation: string;
-  } | null = null;
-
   currentQuiz: Quiz;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
