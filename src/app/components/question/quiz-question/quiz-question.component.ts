@@ -642,18 +642,20 @@ export class QuizQuestionComponent
     if (incoming !== current) {
       this.renderReadySubject.next(false);
 
-      requestAnimationFrame(() => {
-        const latest = JSON.stringify(newOptions);
-        if (latest !== this.lastSerializedOptions) {
-          // Track the last serialized set to avoid stale updates
-          this.lastSerializedOptions = latest;
-        }
-  
-        // Batch update state
-        this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
-        this.renderReady = true;                 // mark ready internally
-        this.renderReadySubject.next(true);      // notify observers
-      });
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          const latest = JSON.stringify(newOptions);
+          if (latest !== this.lastSerializedOptions) {
+            // Track the last serialized set to avoid stale updates
+            this.lastSerializedOptions = latest;
+          }
+    
+          // Batch update state
+          this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
+          this.renderReady = true;                 // mark ready internally
+          this.renderReadySubject.next(true);      // notify observers
+        });
+      }, 0);
     }
   }
 
