@@ -656,7 +656,7 @@ export class QuizQuestionComponent
   
           // Batch update state
           this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
-
+  
           // Allow Angular to paint
           this.cdRef.detectChanges();
   
@@ -670,6 +670,18 @@ export class QuizQuestionComponent
           });
         });
       }, 0);
+  
+      // Fallback after 150ms in case hydration hangs
+      setTimeout(() => {
+        if (!this.finalRenderReady || this.optionsToDisplay.length === 0) {
+          console.warn('[🛠️ Fallback triggered in updateOptionsSafely]');
+          this.finalRenderReady = true;
+          this.renderReady = true;
+          this.renderReadySubject.next(true);
+          this.cdRef.detectChanges();
+        }
+      }, 150);
+  
     } else {
       // Fallback trigger in case options didn't change but still need refresh
       if (!this.finalRenderReady) {
