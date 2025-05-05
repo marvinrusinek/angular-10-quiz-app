@@ -645,13 +645,9 @@ export class QuizQuestionComponent
           this.lastSerializedOptions = latest;
         }
   
-        // Apply the new options safely
-        this.optionsToDisplay = [...newOptions];
-  
-        // Signal that rendering is ready
-        this.renderReady = true;
-
-        this.renderReadySubject.next(true); // mark render complete
+        this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
+        this.renderReady = true;                 // mark ready internally
+        this.renderReadySubject.next(true);      // notify observers
       }, 30);
     }
   }
@@ -659,7 +655,7 @@ export class QuizQuestionComponent
   private hydrateFromPayload(payload: QuestionPayload): void {
     const serialized = JSON.stringify(payload);
   
-    // Skip if same as last
+    // Skip if identical
     if (this.lastSerializedPayload === serialized) return;
     this.lastSerializedPayload = serialized;
   
@@ -672,7 +668,7 @@ export class QuizQuestionComponent
         this.currentQuestion = question;
         this.explanationToDisplay = explanation?.trim() || '';
   
-        this.updateOptionsSafely(options);
+        this.updateOptionsSafely(options); // hydration logic
       } else {
         console.warn('[🛑 Payload mismatch after delay, skipping hydration]');
       }
