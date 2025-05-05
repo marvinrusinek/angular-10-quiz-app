@@ -657,25 +657,22 @@ export class QuizQuestionComponent
   
           // Batch update state
           this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
-  
-          // Populate buffer
-          this.internalBufferReady = true;
+
+          // Allow Angular to paint
           this.cdRef.detectChanges();
   
-          // Delay visibility flip to avoid flicker
-          setTimeout(() => {
-            requestAnimationFrame(() => {
-              this.internalBufferReady = true;
-              this.finalRenderReady = true;
-              this.renderReady = true;               // mark ready internally
-              this.renderReadySubject.next(true);    // notify observers
-              this.cdRef.detectChanges();
-            });
-          }, 16); // delay next frame paint
+          // Flip visibility on next animation frame
+          requestAnimationFrame(() => {
+            this.internalBufferReady = true;
+            this.finalRenderReady = true;
+            this.renderReady = true;               // mark ready internally
+            this.renderReadySubject.next(true);    // notify observers
+            this.cdRef.detectChanges();
+          });
         });
       }, 0);
     } else {
-      // Force render-ready if no change but UI needs redraw
+      // Fallback trigger in case options didn't change but still need refresh
       if (!this.finalRenderReady) {
         this.finalRenderReady = true;
         this.renderReady = true;
