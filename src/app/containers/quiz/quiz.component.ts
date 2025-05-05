@@ -387,12 +387,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Centralized routing and quiz setup
     this.initializeQuizData();
 
-    this.quizQuestionComponent.renderReady$
-      .pipe(debounceTime(10)) // optional smoothing
-      .subscribe((isReady: boolean) => {
-        // Only show next button or update UI when true
-        this.isQuizRenderReady = isReady;
-      });
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.renderReady$
+        .pipe(debounceTime(10)) // optional smoothing
+        .subscribe((isReady: boolean) => {
+          // Only show next button or update UI when true
+          this.isQuizRenderReady = isReady;
+        });
+    }
   
     // Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
