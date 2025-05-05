@@ -386,15 +386,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Centralized routing and quiz setup
     this.initializeQuizData();
-
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.renderReady$
-        .pipe(debounceTime(10)) // optional smoothing
-        .subscribe((isReady: boolean) => {
-          // Only show next button or update UI when true
-          this.isQuizRenderReady = isReady;
-        });
-    }
   
     // Total questions and badge setup
     this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
@@ -467,16 +458,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       startWith(false)
     ); */
 
-
   ngAfterViewInit(): void {
     this.loadQuestionContents(this.currentQuestionIndex);
-
-    if (this.pendingOptions && this.quizQuestionComponent) {
-      this.quizQuestionComponent.updateOptionsSafely(this.pendingOptions);
-      this.pendingOptions = null;
+    
+    if (this.quizQuestionComponent) {
+      if (this.pendingOptions) {
+        this.quizQuestionComponent.updateOptionsSafely(this.pendingOptions);
+        this.pendingOptions = null;
+      }
+    
+      this.quizQuestionComponent.renderReady$
+        .pipe(debounceTime(10)) // smoothing UI updates
+        .subscribe((isReady: boolean) => {
+          // Show next button or update UI when true
+          this.isQuizRenderReady = isReady;
+        });
+    } else {
+      console.warn('[⚠️ quizQuestionComponent not available in ngAfterViewInit]');
     }
   }
-
+    
   initializeDisplayVariables(): void {
     this.displayVariables = {
       question: this.questionToDisplay || 'No question available',
