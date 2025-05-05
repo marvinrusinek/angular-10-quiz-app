@@ -3382,9 +3382,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.hasOptionsLoaded    = true;
       this.shouldRenderOptions = true;
   
-      // All three flags are now true → one CD run will paint Q + badge + options
-      this.cdRef.detectChanges();
-  
       /* ───────────  Explanation/Timer/Badge Logic  ───────── */
       let explanationText = '';
   
