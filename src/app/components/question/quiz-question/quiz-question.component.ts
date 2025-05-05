@@ -635,11 +635,23 @@ export class QuizQuestionComponent
   
     if (incoming !== current) {
       this.renderReady$.next(false);
+
       setTimeout(() => {
+        const latest = JSON.stringify(newOptions);
+        if (latest !== this.lastSerializedOptions) {
+          // Track the last serialized set to avoid stale updates
+          this.lastSerializedOptions = latest;
+        }
+  
+        // Apply the new options safely
         this.optionsToDisplay = [...newOptions];
+  
+        // Signal that rendering is ready
         this.renderReady = true;
+  
+        // Force change detection if needed
         this.cdRef.detectChanges();
-      }, 0);
+      }, 30);
     }
   }
 
