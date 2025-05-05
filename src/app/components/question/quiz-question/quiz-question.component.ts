@@ -324,11 +324,13 @@ export class QuizQuestionComponent
           this.optionsToDisplay = [...options];
           this.explanationToDisplay = explanation?.trim() || '';
         }),
-        delay(16), // Let DOM settle (~1 frame)
+        delay(16), // let DOM settle (~1 frame)
         map(() => true),
         tap(() => {
-          this.renderReady = true;
-          this.cdRef.detectChanges(); // trigger show
+          requestAnimationFrame(() => {
+            this.renderReady = true;
+            this.cdRef.detectChanges(); // only show after next browser paint
+          });
         })
       );
 
