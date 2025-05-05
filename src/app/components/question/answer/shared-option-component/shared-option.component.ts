@@ -52,6 +52,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
+  @Input() finalRenderReady = false;
 
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
@@ -95,7 +96,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionsReady = false;
   renderReady = false;
   displayReady = false;
-  finalRenderReady = false;
   showOptions = false;
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
