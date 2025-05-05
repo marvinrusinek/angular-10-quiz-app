@@ -646,7 +646,7 @@ export class QuizQuestionComponent
       this.renderReadySubject.next(false);
       this.internalBufferReady = false;
       this.finalRenderReady = false;
-
+  
       setTimeout(() => {
         requestAnimationFrame(() => {
           const latest = JSON.stringify(newOptions);
@@ -654,20 +654,21 @@ export class QuizQuestionComponent
             // Track the last serialized set to avoid stale updates
             this.lastSerializedOptions = latest;
           }
-    
+  
           // Batch update state
           this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
-
+  
           // Populate buffer
           this.internalBufferReady = true;
           this.cdRef.detectChanges();
-
+  
           // Flip to visible
           requestAnimationFrame(() => {
             this.finalRenderReady = true;
-            this.renderReady = true;                 // mark ready internally
-            this.renderReadySubject.next(true);      // notify observers
+            this.renderReady = true;               // mark ready internally
+            this.renderReadySubject.next(true);    // notify observers
             this.cdRef.detectChanges();
+          });
         });
       }, 0);
     }
