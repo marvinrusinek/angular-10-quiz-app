@@ -107,11 +107,6 @@ export class QuizQuestionComponent
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
   @Input() passedOptions: Option[] | null = null;
-  /* @Input() questionPayload: {
-    question: QuizQuestion;
-    options: Option[];
-    explanation: string;
-  } | null = null; */
   private _questionPayload: QuestionPayload | null = null;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
@@ -283,7 +278,7 @@ export class QuizQuestionComponent
     );
   }
 
-  /* @Input() set questionPayload(value: QuestionPayload | null) {
+  @Input() set questionPayload(value: QuestionPayload | null) {
     if (!value) return;
   
     const serialized = JSON.stringify(value);
@@ -291,14 +286,6 @@ export class QuizQuestionComponent
       this.lastSerializedPayload = serialized;
       this._questionPayload = value;
       this.questionPayloadSubject.next(value); // emit into stream
-    }
-  } */
-  @Input() set questionPayload(value: QuestionPayload | null) {
-    if (!value) return;
-  
-    const serialized = JSON.stringify(value);
-    if (serialized !== this.lastSerializedPayload) {
-      this.lastSerializedPayload = serialized;
       this.hydrateFromPayload(value);
     }
   }
@@ -334,7 +321,7 @@ export class QuizQuestionComponent
       this.renderReady$ = this.questionPayloadSubject.asObservable().pipe(
         filter((payload): payload is QuestionPayload => !!payload),
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        tap(() => this.renderReady = false), // Optional: legacy fallback
+        tap(() => this.renderReady = false),
         delay(30), // allow Angular to bind inputs
         tap((payload) => {
           this.currentQuestion = payload.question;
