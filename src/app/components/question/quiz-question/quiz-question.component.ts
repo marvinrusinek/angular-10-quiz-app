@@ -703,7 +703,7 @@ export class QuizQuestionComponent
   
         this.finalRenderReady = true;
         this.renderReady = true;
-        this.renderReadySubject.next(true); // ✅ Notify stream-based subscribers
+        this.renderReadySubject.next(true); // notify stream-based subscribers
         this.cdRef.detectChanges();
       }
       return;
