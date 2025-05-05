@@ -734,9 +734,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-  getOptionContext(optionBinding: OptionBindings, idx: number) {
+  /* getOptionContext(optionBinding: OptionBindings, idx: number) {
     return { option: optionBinding.option, idx: idx };
+  } */
+  getOptionContext(optionBinding: OptionBindings, index: number) {
+    return { optionBinding, index };
   }
+  
 
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
