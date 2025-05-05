@@ -3667,8 +3667,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return true;
   }
 
-  /* Only inject if the container is empty. */
   private injectDynamicComponent(): void {
+    // Only inject if the container is empty
     if (
       !this.quizQuestionComponent ||
       !this.currentQuestion?.questionText ||
@@ -3692,7 +3692,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay
     );
   }
-
 
   // Reset UI immediately before navigating
   private resetUI(): void {
