@@ -1687,6 +1687,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   shouldShowIcon(option: Option): boolean {
+    if (!option || typeof option !== 'object') return false;
+    
     const id = option.optionId;
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }

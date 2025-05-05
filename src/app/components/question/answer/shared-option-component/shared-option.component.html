@@ -1,66 +1,76 @@
 <ng-container *ngIf="renderReady && canDisplayOptions && optionsToDisplay?.length > 0; else noOptions">
 
-  <form [formGroup]="form">
+<form [formGroup]="form">
 
-    <!-- SINGLE-ANSWER (radio) -->
-    <mat-radio-group
-      *ngIf="optionBindings[0].type === 'single'"
-      formControlName="selectedOptionId"
-      (change)="handleRadioGroupChange($event)"
-    >
-      <mat-radio-button
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
-        [value]="b.option.optionId"
-        name="selectedOptionId"
-      >
-        <span class="option-text">
-          {{ getOptionDisplayText(b.option, i) }}
-        </span>
+  <!-- SINGLE-ANSWER (radio) -->
+  <mat-radio-group
+    *ngIf="optionBindings[0].type === 'single'"
+    formControlName="selectedOptionId"
+    (change)="handleRadioGroupChange($event)">
 
-        <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
-          {{ getOptionIcon(b.option) }}
-        </mat-icon>
-      </mat-radio-button>
-    </mat-radio-group>
+    <ng-container *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId">
+      <ng-container 
+        *ngTemplateOutlet="radioOptionTemplate; context: getOptionContext(b, i)">
+      </ng-container>
+    </ng-container>
+  </mat-radio-group>
 
-    <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="optionBindings[0].type === 'multiple'">
+  <!-- MULTIPLE-ANSWER (checkbox) -->
+  <div *ngIf="optionBindings[0].type === 'multiple'">
+    <ng-container *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId">
+      <ng-container 
+        *ngTemplateOutlet="checkboxOptionTemplate; context: getOptionContext(b, i)">
+      </ng-container>
+    </ng-container>
+  </div>
 
-      <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
-        class="option-row">
-
-        <label class="option-row options"
-              appHighlightOption
-              [optionBinding]="b"
-              [isCorrect]="b.isCorrect">
-
-          <mat-checkbox
-            [checked]="b.option.selected"
-            (change)="onMatCheckboxChanged(b, i, $event)">
-
-            <span class="option-text">
-              {{ getOptionDisplayText(b.option, i) }}
-            </span>
-
-            <mat-icon *ngIf="shouldShowIcon(b.option)"
-                      class="opt-icon">
-              {{ getOptionIcon(b.option) }}
-            </mat-icon>
-          </mat-checkbox>
-        </label>
-
-        <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]">
-        </codelab-quiz-feedback>
-      </div>
-    </div>
-
-  </form>
+</form>
 
 </ng-container>
 
+<ng-template #radioOptionTemplate let-optionBinding let-index="index">
+<mat-radio-button [value]="optionBinding?.option?.optionId" name="selectedOptionId">
+  <span class="option-text">
+    {{ getOptionDisplayText(optionBinding?.option, index) }}
+  </span>
+  <mat-icon *ngIf="shouldShowIcon(optionBinding?.option)" class="opt-icon">
+    {{ getOptionIcon(optionBinding?.option) }}
+  </mat-icon>
+</mat-radio-button>
+</ng-template>
+
+<ng-template #checkboxOptionTemplate let-optionBinding let-index="index">
+<div class="option-row" *ngIf="optionBinding?.option">
+  <label class="option-row options"
+         appHighlightOption
+         [optionBinding]="optionBinding"
+         [isCorrect]="optionBinding?.isCorrect">
+
+    <mat-checkbox
+      [checked]="optionBinding?.option?.selected"
+      (change)="onMatCheckboxChanged(optionBinding, index, $event)">
+
+      <span class="option-text">
+        {{ getOptionDisplayText(optionBinding?.option, index) }}
+      </span>
+
+      <mat-icon *ngIf="shouldShowIcon(optionBinding?.option)"
+                class="opt-icon">
+        {{ getOptionIcon(optionBinding?.option) }}
+      </mat-icon>
+    </mat-checkbox>
+  </label>
+
+  <codelab-quiz-feedback
+    *ngIf="shouldShowFeedback(index)"
+    [feedbackConfig]="feedbackConfigs[index]">
+  </codelab-quiz-feedback>
+</div>
+</ng-template>
+
+
+
+
 <ng-template #noOptions>
-  <span style="min-height: 1rem;">Loading options...</span>
+<span style="min-height: 1rem;">Loading options...</span>
 </ng-template>
