@@ -671,6 +671,14 @@ export class QuizQuestionComponent
           });
         });
       }, 0);
+    } else {
+      // Force render-ready if no change but UI needs redraw
+      if (!this.finalRenderReady) {
+        this.finalRenderReady = true;
+        this.renderReady = true;
+        this.renderReadySubject.next(true);
+        this.cdRef.detectChanges();
+      }
     }
   }
 
