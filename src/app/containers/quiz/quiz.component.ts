@@ -3436,6 +3436,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = explanationText;
 
       if (this.quizQuestionComponent) {
+        this.delayRenderChild();
         const payload: QuestionPayload = {
           question: this.currentQuestion!,
           options: clonedOptions,
@@ -3829,4 +3830,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[setDisplayStateForExplanationsAfterRestart] ❌ Error fetching explanation:', error);
     }
   }
+
+  private delayRenderChild(): void {
+    this.shouldRenderChild = false;
+    setTimeout(() => {
+      this.shouldRenderChild = true;
+    }, 0); // or use requestAnimationFrame
+  }  
 }
