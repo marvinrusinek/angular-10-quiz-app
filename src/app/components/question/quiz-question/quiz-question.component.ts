@@ -649,6 +649,7 @@ export class QuizQuestionComponent
           this.lastSerializedOptions = latest;
         }
   
+        // Batch update state
         this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
         this.renderReady = true;                 // mark ready internally
         this.renderReadySubject.next(true);      // notify observers
