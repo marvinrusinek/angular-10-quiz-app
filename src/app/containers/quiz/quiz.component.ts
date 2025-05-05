@@ -3380,7 +3380,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const payload: QuestionPayload = {
           question: this.currentQuestion!,
           options: clonedOptions,
-          explanation: this.explanationToDisplay
+          explanation: explanationText
         };
         this.quizQuestionComponent.questionPayload = payload;
       }
