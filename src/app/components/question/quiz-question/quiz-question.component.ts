@@ -461,7 +461,21 @@ export class QuizQuestionComponent
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.questionPayload && this.questionPayload) {
-      this.hydrateFromPayload(this.questionPayload);
+      const serialized = JSON.stringify(this.questionPayload);
+    
+      if (this.lastSerializedPayload !== serialized) {
+        this.lastSerializedPayload = serialized;
+        this.hydrateFromPayload(this.questionPayload);
+      } else {
+        // Fallback if identical payload is resent
+        if (!this.finalRenderReady) {
+          console.warn('[⚠️ Fallback render trigger] For unchanged payload');
+          this.finalRenderReady = true;
+          this.renderReady = true;
+          this.renderReadySubject.next(true);
+          this.cdRef.detectChanges();
+        }
+      }
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
