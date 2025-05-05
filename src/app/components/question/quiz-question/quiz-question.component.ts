@@ -223,7 +223,9 @@ export class QuizQuestionComponent
   selectionMessageSubscription: Subscription = new Subscription();
 
   private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
-  public renderReady$ = new BehaviorSubject<boolean>(false);
+  // public renderReady$ = new BehaviorSubject<boolean>(false);
+  private renderReadySubject = new BehaviorSubject<boolean>(false);
+  public renderReady$ = this.renderReadySubject.asObservable();
 
   private containerReady = new Subject<void>();
 
@@ -452,7 +454,7 @@ export class QuizQuestionComponent
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.questionPayload && this.questionPayload) {
-      this.questionPayloadSubject.next(this.questionPayload);
+      this.hydrateFromPayload(this.questionPayload);
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
@@ -634,7 +636,7 @@ export class QuizQuestionComponent
     const current = JSON.stringify(this.optionsToDisplay);
   
     if (incoming !== current) {
-      this.renderReady$.next(false);
+      this.renderReadySubject.next(false);
 
       setTimeout(() => {
         const latest = JSON.stringify(newOptions);
@@ -648,9 +650,8 @@ export class QuizQuestionComponent
   
         // Signal that rendering is ready
         this.renderReady = true;
-  
-        // Force change detection if needed
-        this.cdRef.detectChanges();
+
+        this.renderReadySubject.next(true); // mark render complete
       }, 30);
     }
   }
