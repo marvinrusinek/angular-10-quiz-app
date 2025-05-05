@@ -70,9 +70,9 @@ export class QuizQuestionComponent
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
-    option: SelectedOption;
-    index: number;
-    checked: boolean;
+    option: SelectedOption,
+    index: number,
+    checked: boolean
   }>();
   @Output() displayStateChange = new EventEmitter<{
     mode: 'question' | 'explanation',
