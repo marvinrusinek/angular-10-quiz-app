@@ -10,6 +10,7 @@ import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { QuizData } from '../../shared/models/QuizData.model';
+import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
@@ -3381,11 +3382,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.currentQuestion = { ...this.question };
       // this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
-      this.quizQuestionInputs = {
-        question: { ...this.question },
-        options: [...clonedOptions]
-        // explanation: this.explanationToDisplay
-      };
+      
+      if (this.quizQuestionComponent) {
+        const payload: QuestionPayload = {
+          question: this.currentQuestion!,
+          options: clonedOptions,
+          explanation: this.explanationToDisplay
+        };
+        this.quizQuestionComponent.questionPayload = payload;
+      }
   
       /* ───────── Flip “options loaded” flags together ───────── */
       this.hasOptionsLoaded    = true;
