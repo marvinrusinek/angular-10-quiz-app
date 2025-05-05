@@ -4833,6 +4833,6 @@ export class QuizQuestionComponent
     // Use a new array to trigger change detection
     setTimeout(() => {
       this.audioList = [];
-    }, 1000); // Ensure audio has time to play before clearing
+    }, 1000); // ensure audio has time to play before clearing
   }
 }
