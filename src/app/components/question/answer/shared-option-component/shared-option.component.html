@@ -1,4 +1,4 @@
-<ng-container *ngIf="finalRenderReady; else noOptions">
+<ng-container *ngIf="renderReady && canDisplayOptions; else noOptions">
 
   <form [formGroup]="form">
 
