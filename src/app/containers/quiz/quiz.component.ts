@@ -190,6 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private hasInitializedBadge = false; // prevents duplicate updates
 
   shouldDisplayCorrectAnswers = false;
+  shouldRenderChild = false;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -3441,6 +3442,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           explanation: explanationText
         };
         this.quizQuestionComponent.questionPayload = payload;
+
+        requestAnimationFrame(() => {
+          this.shouldRenderChild = true;
+        });
       }
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
