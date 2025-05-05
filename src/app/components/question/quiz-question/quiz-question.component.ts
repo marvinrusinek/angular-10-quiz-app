@@ -724,7 +724,9 @@ export class QuizQuestionComponent
     }, 150); // Adjust as needed (e.g., 100–300ms)
   }
 
-  private triggerRenderReady(): void {
+  private triggerRenderReady(reason: string = ''): void {
+    if (reason) console.log(reason);
+  
     this.finalRenderReady = true;
     this.renderReady = true;
     this.renderReadySubject.next(true);
