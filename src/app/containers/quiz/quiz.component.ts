@@ -3440,14 +3440,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.delayRenderChild(); // prevent premature rendering
       
         requestAnimationFrame(() => {
-          // Assign payload after DOM is ready
-          this.questionPayload: QuestionPayload = {
+          this.questionPayload = {
             question: this.currentQuestion!,
             options: clonedOptions,
             explanation: explanationText
           };
       
-          // Trigger rendering of child component
           this.shouldRenderChild = true;
           this.cdRef.detectChanges();
         });
