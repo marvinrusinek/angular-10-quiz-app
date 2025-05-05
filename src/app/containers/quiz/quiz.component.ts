@@ -3375,15 +3375,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.currentQuestion = { ...this.question };
       // this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
-      
-      if (this.quizQuestionComponent) {
-        const payload: QuestionPayload = {
-          question: this.currentQuestion!,
-          options: clonedOptions,
-          explanation: explanationText
-        };
-        this.quizQuestionComponent.questionPayload = payload;
-      }
   
       /* ───────── Flip “options loaded” flags together ───────── */
       this.hasOptionsLoaded    = true;
@@ -3442,6 +3433,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
+
+      if (this.quizQuestionComponent) {
+        const payload: QuestionPayload = {
+          question: this.currentQuestion!,
+          options: clonedOptions,
+          explanation: explanationText
+        };
+        this.quizQuestionComponent.questionPayload = payload;
+      }
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
