@@ -696,17 +696,25 @@ export class QuizQuestionComponent
   private hydrateFromPayload(payload: QuestionPayload): void {
     const serialized = JSON.stringify(payload);
   
+    // Avoid redundant hydration
     if (this.lastSerializedPayload === serialized) {
-      console.log('[🟡 hydrateFromPayload] Skipped: No change');
+      if (!this.finalRenderReady) {
+        console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
+  
+        this.finalRenderReady = true;
+        this.renderReady = true;
+        this.renderReadySubject.next(true); // ✅ Notify stream-based subscribers
+        this.cdRef.detectChanges();
+      }
       return;
     }
   
+    // Store current state and block render
     this.lastSerializedPayload = serialized;
     this.renderReady = false;
     this.finalRenderReady = false;
-  
-    // Don't let Angular render partial state
-    this.cdRef.detectChanges();
+    this.renderReadySubject.next(false);
+    this.cdRef.detectChanges(); // hide immediately
   
     requestAnimationFrame(() => {
       const { question, options, explanation } = payload;
@@ -718,11 +726,11 @@ export class QuizQuestionComponent
       requestAnimationFrame(() => {
         this.finalRenderReady = true;
         this.renderReady = true;
-        this.cdRef.detectChanges(); // UI now safe to show
+        this.renderReadySubject.next(true); // ✅ Stream update for *ngIf | async
+        this.cdRef.detectChanges();
       });
     });
   }
-  
 
   private enforceHydrationFallback(): void {
     // If renderReady is still false after a timeout, trigger fallback
