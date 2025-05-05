@@ -203,6 +203,9 @@ export class QuizQuestionComponent
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   private hydrationInProgress = false;
 
+  public internalBufferReady = false;
+  public finalRenderReady = false;
+
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
     answered: boolean
@@ -641,6 +644,8 @@ export class QuizQuestionComponent
   
     if (incoming !== current) {
       this.renderReadySubject.next(false);
+      this.internalBufferReady = false;
+      this.finalRenderReady = false;
 
       setTimeout(() => {
         requestAnimationFrame(() => {
@@ -652,8 +657,17 @@ export class QuizQuestionComponent
     
           // Batch update state
           this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
-          this.renderReady = true;                 // mark ready internally
-          this.renderReadySubject.next(true);      // notify observers
+
+          // Populate buffer
+          this.internalBufferReady = true;
+          this.cdRef.detectChanges();
+
+          // Flip to visible
+          requestAnimationFrame(() => {
+            this.finalRenderReady = true;
+            this.renderReady = true;                 // mark ready internally
+            this.renderReadySubject.next(true);      // notify observers
+            this.cdRef.detectChanges();
         });
       }, 0);
     }
