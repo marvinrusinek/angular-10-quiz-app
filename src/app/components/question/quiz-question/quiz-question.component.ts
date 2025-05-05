@@ -723,7 +723,13 @@ export class QuizQuestionComponent
       }
     }, 150); // Adjust as needed (e.g., 100–300ms)
   }
-  
+
+  private triggerRenderReady(): void {
+    this.finalRenderReady = true;
+    this.renderReady = true;
+    this.renderReadySubject.next(true);
+    this.cdRef.detectChanges();
+  }
   
   private resetOptionsDueToInvalidData(reason: string): void {
     if (this.optionsToDisplay.length > 0) {
