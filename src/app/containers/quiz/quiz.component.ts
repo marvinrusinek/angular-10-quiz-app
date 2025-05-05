@@ -979,13 +979,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return this.currentQuestionIndex === 0;
   }
 
-  /* public get shouldHideNextButton(): boolean {
-    // Hide if data isn't loaded or on the last question
-    return (
-      !this.isQuizDataLoaded ||
-      this.currentQuestionIndex >= this.totalQuestions - 1
-    );
-  } */
   public get shouldHideNextButton(): boolean {
     return (
       !this.isQuizDataLoaded ||
