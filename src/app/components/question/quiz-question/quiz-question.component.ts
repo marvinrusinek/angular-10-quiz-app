@@ -642,7 +642,7 @@ export class QuizQuestionComponent
     if (incoming !== current) {
       this.renderReadySubject.next(false);
 
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         const latest = JSON.stringify(newOptions);
         if (latest !== this.lastSerializedOptions) {
           // Track the last serialized set to avoid stale updates
@@ -652,7 +652,7 @@ export class QuizQuestionComponent
         this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
         this.renderReady = true;                 // mark ready internally
         this.renderReadySubject.next(true);      // notify observers
-      }, 30);
+      });
     }
   }
 
@@ -660,12 +660,14 @@ export class QuizQuestionComponent
     const serialized = JSON.stringify(payload);
   
     // Skip if identical
-    if (this.lastSerializedPayload === serialized) return;
+    if (this.lastSerializedPayload === serialized) {
+      console.log('[🟡 hydrateFromPayload] Skipped: No change');
+      return;
+    }
     this.lastSerializedPayload = serialized;
-  
     this.renderReady = false;
   
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       if (this.lastSerializedPayload === JSON.stringify(payload)) {
         const { question, options, explanation } = payload;
   
@@ -674,9 +676,9 @@ export class QuizQuestionComponent
   
         this.updateOptionsSafely(options); // hydration logic
       } else {
-        console.warn('[🛑 Payload mismatch after delay, skipping hydration]');
+        console.warn('[🛑 Payload mismatch after RAF, skipping hydration]');
       }
-    }, 30);
+    });
   }
   
   private resetOptionsDueToInvalidData(reason: string): void {
