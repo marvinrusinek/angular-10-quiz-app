@@ -197,6 +197,9 @@ export class QuizQuestionComponent
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   private hydrationInProgress = false;
 
+  public finalRenderReadySubject = new BehaviorSubject<boolean>(false);
+  public finalRenderReady$ = this.finalRenderReadySubject.asObservable();
+
   public internalBufferReady = false;
   public finalRenderReady = false;
 
@@ -701,9 +704,9 @@ export class QuizQuestionComponent
       if (!this.finalRenderReady) {
         console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
   
-        this.finalRenderReady = true;
+        this.finalRenderReadySubject.next(true);
         this.renderReady = true;
-        this.renderReadySubject.next(true); // notify stream-based subscribers
+        this.renderReadySubject.next(true);
         this.cdRef.detectChanges();
       }
       return;
@@ -714,7 +717,8 @@ export class QuizQuestionComponent
     this.renderReady = false;
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
-    this.cdRef.detectChanges(); // hide immediately
+    this.finalRenderReadySubject.next(false); // block UI early
+    this.cdRef.detectChanges();
   
     requestAnimationFrame(() => {
       const { question, options, explanation } = payload;
@@ -724,13 +728,13 @@ export class QuizQuestionComponent
       this.explanationToDisplay = explanation?.trim() || '';
   
       requestAnimationFrame(() => {
-        this.finalRenderReady = true;
         this.renderReady = true;
-        this.renderReadySubject.next(true); // ✅ Stream update for *ngIf | async
+        this.renderReadySubject.next(true);
+        this.finalRenderReadySubject.next(true);
         this.cdRef.detectChanges();
       });
     });
-  }
+  }  
 
   private enforceHydrationFallback(): void {
     // If renderReady is still false after a timeout, trigger fallback
