@@ -78,6 +78,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questions: QuizQuestion[];
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
+  questionPayload: QuestionPayload | null = null;
   currentQuestion$: Observable<QuizQuestion | null> = 
     this.quizStateService.currentQuestion$.pipe(startWith(null));
   currentQuestionType: string;
@@ -3436,16 +3437,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationToDisplay = explanationText;
 
       if (this.quizQuestionComponent) {
-        this.delayRenderChild();
-        const payload: QuestionPayload = {
-          question: this.currentQuestion!,
-          options: clonedOptions,
-          explanation: explanationText
-        };
-        this.quizQuestionComponent.questionPayload = payload;
-
+        this.delayRenderChild(); // prevent premature rendering
+      
         requestAnimationFrame(() => {
+          // Assign payload after DOM is ready
+          this.questionPayload: QuestionPayload = {
+            question: this.currentQuestion!,
+            options: clonedOptions,
+            explanation: explanationText
+          };
+      
+          // Trigger rendering of child component
           this.shouldRenderChild = true;
+          this.cdRef.detectChanges();
         });
       }
   
@@ -3833,8 +3837,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private delayRenderChild(): void {
     this.shouldRenderChild = false;
-    setTimeout(() => {
+  
+    requestAnimationFrame(() => {
       this.shouldRenderChild = true;
-    }, 0); // or use requestAnimationFrame
+      this.cdRef.detectChanges(); // force update if needed
+    });
   }  
 }
