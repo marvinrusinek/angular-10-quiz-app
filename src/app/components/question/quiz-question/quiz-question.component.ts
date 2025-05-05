@@ -451,20 +451,17 @@ export class QuizQuestionComponent
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.questionPayload && this.questionPayload) {
       const serialized = JSON.stringify(this.questionPayload);
-    
+  
       if (this.lastSerializedPayload !== serialized) {
         this.lastSerializedPayload = serialized;
         this.hydrateFromPayload(this.questionPayload);
-      } else {
-        // Fallback if identical payload is resent
-        if (!this.finalRenderReady) {
-          console.warn('[⚠️ Fallback render trigger] For unchanged payload');
-          this.finalRenderReady = true;
-          this.renderReady = true;
-          this.renderReadySubject.next(true);
-          this.cdRef.detectChanges();
-        }
+      } else if (!this.finalRenderReady) {
+        console.warn('[⚠️ Fallback render trigger] For unchanged payload');
+        this.triggerRenderReady();
       }
+  
+      this.questionPayloadSubject.next(this.questionPayload);
+      this.enforceHydrationFallback(); // backup safety net
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
@@ -474,7 +471,6 @@ export class QuizQuestionComponent
       );
     }
   }
-  
   
   ngOnDestroy(): void {
     super.ngOnDestroy ? super.ngOnDestroy() : null;
@@ -713,6 +709,21 @@ export class QuizQuestionComponent
       });
     }, 10); // add slight debounce
   }
+
+  private enforceHydrationFallback(): void {
+    // If renderReady is still false after a timeout, trigger fallback
+    setTimeout(() => {
+      if (
+        !this.renderReady &&
+        (!this.optionsToDisplay || this.optionsToDisplay.length === 0)
+      ) {
+        console.warn('[🛠️ Fallback triggered: Forcing render]');
+        this.renderReady = true;
+        this.cdRef.detectChanges();
+      }
+    }, 150); // Adjust as needed (e.g., 100–300ms)
+  }
+  
   
   private resetOptionsDueToInvalidData(reason: string): void {
     if (this.optionsToDisplay.length > 0) {
