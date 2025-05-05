@@ -309,26 +309,27 @@ export class QuizQuestionComponent
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
 
-      this.questionPayloadSubject
-      .pipe(
+      this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
-        auditTime(30) // debounce-like behavior to batch rapid updates
-      )
-      .subscribe((payload: QuestionPayload) => this.hydrateFromPayload(payload));
-
-
-      this.renderReady$ = this.questionPayloadSubject.asObservable().pipe(
-        filter((payload): payload is QuestionPayload => !!payload),
+        auditTime(30), // batch rapid changes
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        tap(() => this.renderReady = false),
-        delay(30), // allow Angular to bind inputs
-        tap((payload) => {
-          this.currentQuestion = payload.question;
-          this.optionsToDisplay = [...payload.options];
-          this.explanationToDisplay = payload.explanation?.trim() || '';
+        tap(() => {
+          this.renderReady = false;
+          this.cdRef.detectChanges(); // trigger hide
         }),
-        map(() => true), // signal readiness
-        tap(() => this.cdRef.detectChanges()) // ensure full repaint
+        tap((payload) => {
+          // Consolidated hydration here
+          const { question, options, explanation } = payload;
+          this.currentQuestion = question;
+          this.optionsToDisplay = [...options];
+          this.explanationToDisplay = explanation?.trim() || '';
+        }),
+        delay(16), // Let DOM settle (~1 frame)
+        map(() => true),
+        tap(() => {
+          this.renderReady = true;
+          this.cdRef.detectChanges(); // trigger show
+        })
       );
 
       // Add the visibility change listener
