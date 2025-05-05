@@ -696,31 +696,33 @@ export class QuizQuestionComponent
   private hydrateFromPayload(payload: QuestionPayload): void {
     const serialized = JSON.stringify(payload);
   
-    // Skip if identical
     if (this.lastSerializedPayload === serialized) {
       console.log('[🟡 hydrateFromPayload] Skipped: No change');
       return;
     }
+  
     this.lastSerializedPayload = serialized;
     this.renderReady = false;
     this.finalRenderReady = false;
-    this.cdRef.detectChanges(); // hide content
   
-    setTimeout(() => {
+    // Don't let Angular render partial state
+    this.cdRef.detectChanges();
+  
+    requestAnimationFrame(() => {
+      const { question, options, explanation } = payload;
+  
+      this.currentQuestion = question;
+      this.optionsToDisplay = [...options];
+      this.explanationToDisplay = explanation?.trim() || '';
+  
       requestAnimationFrame(() => {
-        if (this.lastSerializedPayload === JSON.stringify(payload)) {
-          const { question, options, explanation } = payload;
-    
-          this.currentQuestion = question;
-          this.explanationToDisplay = explanation?.trim() || '';
-
-          this.updateOptionsSafely(options); // hydration logic
-        } else {
-          console.warn('[🛑 Payload mismatch after RAF, skipping hydration]');
-        }
+        this.finalRenderReady = true;
+        this.renderReady = true;
+        this.cdRef.detectChanges(); // UI now safe to show
       });
-    }, 10); // add slight debounce
+    });
   }
+  
 
   private enforceHydrationFallback(): void {
     // If renderReady is still false after a timeout, trigger fallback

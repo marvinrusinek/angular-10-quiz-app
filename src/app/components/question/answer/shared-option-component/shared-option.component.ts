@@ -95,6 +95,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionsReady = false;
   renderReady = false;
   displayReady = false;
+  finalRenderReady = false;
   showOptions = false;
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
