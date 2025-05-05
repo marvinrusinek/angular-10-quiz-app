@@ -291,8 +291,12 @@ export class QuizQuestionComponent
     }
   } */
   @Input() set questionPayload(value: QuestionPayload | null) {
-    if (value) {
-      this.payloadSubject.next(value);
+    if (!value) return;
+  
+    const serialized = JSON.stringify(value);
+    if (serialized !== this.lastSerializedPayload) {
+      this.lastSerializedPayload = serialized;
+      this.hydrateFromPayload(value);
     }
   }
   
