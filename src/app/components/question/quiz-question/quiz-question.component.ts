@@ -695,19 +695,28 @@ export class QuizQuestionComponent
     }
     this.lastSerializedPayload = serialized;
     this.renderReady = false;
+    this.finalRenderReady = false;
+    this.cdRef.detectChanges(); // hide content
   
-    requestAnimationFrame(() => {
-      if (this.lastSerializedPayload === JSON.stringify(payload)) {
-        const { question, options, explanation } = payload;
-  
-        this.currentQuestion = question;
-        this.explanationToDisplay = explanation?.trim() || '';
-  
-        this.updateOptionsSafely(options); // hydration logic
-      } else {
-        console.warn('[🛑 Payload mismatch after RAF, skipping hydration]');
-      }
-    });
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        if (this.lastSerializedPayload === JSON.stringify(payload)) {
+          const { question, options, explanation } = payload;
+    
+          this.currentQuestion = question;
+          this.explanationToDisplay = explanation?.trim() || '';
+          this.optionsToDisplay = [...options];
+
+          this.cdRef.detectChanges(); // allow DOM paint
+
+          this.renderReady = true;
+          this.finalRenderReady = true;
+          this.updateOptionsSafely(options); // hydration logic
+        } else {
+          console.warn('[🛑 Payload mismatch after RAF, skipping hydration]');
+        }
+      });
+    }, 10); // add slight debounce
   }
   
   private resetOptionsDueToInvalidData(reason: string): void {
