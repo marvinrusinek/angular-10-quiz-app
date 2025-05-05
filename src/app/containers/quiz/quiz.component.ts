@@ -983,7 +983,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public get shouldHideNextButton(): boolean {
     return (
       !this.isQuizDataLoaded ||
-      !this.quizQuestionComponent?.renderReady ||
       this.currentQuestionIndex >= this.totalQuestions - 1
     );
   }  
