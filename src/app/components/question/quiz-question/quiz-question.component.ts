@@ -705,12 +705,7 @@ export class QuizQuestionComponent
     
           this.currentQuestion = question;
           this.explanationToDisplay = explanation?.trim() || '';
-          this.optionsToDisplay = [...options];
 
-          this.cdRef.detectChanges(); // allow DOM paint
-
-          this.renderReady = true;
-          this.finalRenderReady = true;
           this.updateOptionsSafely(options); // hydration logic
         } else {
           console.warn('[🛑 Payload mismatch after RAF, skipping hydration]');
