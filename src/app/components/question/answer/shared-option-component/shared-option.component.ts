@@ -1232,10 +1232,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       },
       index,
       checked: true
-    });   
-  
-    // Trigger change detection
-    this.triggerChangeDetection();
+    });
   
     // Call external click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
@@ -1348,17 +1345,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     return config;
   }
-
-  private triggerChangeDetection(): void {
-    this.config.showFeedback = true;
-    this.config.showExplanation = true;
-    this.config.isAnswerCorrect = this.selectedOption?.correct ?? false;
-    this.config.showCorrectMessage = this.selectedOption?.correct ?? false;
-  
-    this.cdRef.detectChanges();
-    console.log('Change detection triggered');
-  }
-
 
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
