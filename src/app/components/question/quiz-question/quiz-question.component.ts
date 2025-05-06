@@ -699,26 +699,27 @@ export class QuizQuestionComponent
   private hydrateFromPayload(payload: QuestionPayload): void {
     const serialized = JSON.stringify(payload);
   
-    // Avoid redundant hydration
+    // Skip if no change
     if (this.lastSerializedPayload === serialized) {
       if (!this.finalRenderReady) {
         console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
   
-        this.finalRenderReadySubject.next(true);
         this.renderReady = true;
         this.renderReadySubject.next(true);
+        this.finalRenderReady = true;
+        this.finalRenderReadySubject.next(true);
         this.cdRef.detectChanges();
       }
       return;
     }
   
-    // Store current state and block render
+    // New payload — store and reset render flags
     this.lastSerializedPayload = serialized;
     this.renderReady = false;
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
-    this.finalRenderReadySubject.next(false); // block UI early
-    this.cdRef.detectChanges();
+    this.finalRenderReadySubject.next(false);
+    this.cdRef.detectChanges(); // hide UI during reset
   
     requestAnimationFrame(() => {
       const { question, options, explanation } = payload;
@@ -730,12 +731,13 @@ export class QuizQuestionComponent
       requestAnimationFrame(() => {
         this.renderReady = true;
         this.renderReadySubject.next(true);
+        this.finalRenderReady = true;
         this.finalRenderReadySubject.next(true);
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges(); // show when fully ready
       });
     });
-  }  
-
+  }
+  
   private enforceHydrationFallback(): void {
     // If renderReady is still false after a timeout, trigger fallback
     setTimeout(() => {
