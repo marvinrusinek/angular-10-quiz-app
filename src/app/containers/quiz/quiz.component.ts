@@ -3457,7 +3457,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Now safely trigger rendering AFTER payload is ready
         requestAnimationFrame(() => {
           this.shouldRenderQuestionComponent = true;
-          this.cdRef.detectChanges(); // ensure template update
+          this.cdRef.detectChanges(); // ensure template updatey
         });
       });
 
