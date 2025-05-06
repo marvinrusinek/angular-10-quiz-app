@@ -2,7 +2,7 @@ import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetecto
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
@@ -18,7 +18,6 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
-import { createTrue } from 'typescript';
 
 @Component({
   selector: 'app-shared-option',
@@ -52,7 +51,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
-  @Input() finalRenderReady = false;
+  @Input() finalRenderReady$: Observable<boolean> | null = null;
+  public finalRenderReady = false;
+  private finalRenderReadySub?: Subscription;
 
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
@@ -128,6 +129,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     setTimeout(() => {
       this.initializeDisplay();
     });
+
+    if (this.finalRenderReady$) {
+      this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
+        this.finalRenderReady = ready;
+        this.cdRef.detectChanges(); // ensure UI updates
+      });
+    }
 
     this.form = this.fb.group({
       selectedOptionId: [null, Validators.required]
@@ -257,6 +265,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ngOnDestroy(): void {
     this.onDestroy$.next();
     this.onDestroy$.complete();
+    this.finalRenderReadySub?.unsubscribe();
   }
   
   // Handle visibility changes to restore state
