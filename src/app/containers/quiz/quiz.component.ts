@@ -3331,8 +3331,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         isAnsweredFromService: isAnswered
       });
 
-      // ✅ Only set false if it's actually unanswered
+      // Only set false if it's actually unanswered
       if (isAnswered) {
+        this.quizStateService.setAnswered(true);
         this.selectedOptionService.setAnswered(true, true);
         this.nextButtonStateService.syncNextButtonState();
       }
