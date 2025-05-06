@@ -26,13 +26,7 @@ export class NextButtonStateService {
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
-  ) {
-    this.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnswered$,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
-  }
+  ) {}
 
   public syncNextButtonState(): void {
     const isAnswered = this.selectedOptionService.getAnsweredState();
