@@ -200,9 +200,9 @@ export class QuizQuestionComponent
   public finalRenderReadySubject = new BehaviorSubject<boolean>(false);
   public finalRenderReady$ = this.finalRenderReadySubject.asObservable();
 
-  public internalBufferReady = false;
   public finalRenderReady = false;
-
+  public internalBufferReady = false;
+  
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
     answered: boolean
