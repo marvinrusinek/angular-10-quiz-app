@@ -28,8 +28,6 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  // @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons!: QueryList<ElementRef>; remove??
-  // @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes!: QueryList<ElementRef>; remove??
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
@@ -1046,8 +1044,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
+    this.selectedOptionService.isAnsweredSubject.next(true);
     this.updateHighlighting();
-    // this.selectedOptionService.isAnsweredSubject.next(true);
     this.cdRef.detectChanges();
   }
 
