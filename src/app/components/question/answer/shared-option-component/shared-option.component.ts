@@ -1116,8 +1116,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.ngZone.runOutsideAngular(() => {
           requestAnimationFrame(() => {
             this.ngZone.run(() => {
-              directive.updateHighlight();              // trigger directive update
-              this.cdRef.detectChanges();               // flush DOM changes cleanly
+              directive.updateHighlight();  // trigger directive update
+              this.cdRef.detectChanges();   // flush DOM changes cleanly
             });
           });
         });
