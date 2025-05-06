@@ -414,8 +414,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Answer state and navigation setup
     this.subscribeToOptionSelection();
     this.handleNavigationToQuestion(this.currentQuestionIndex);
-
-    this.initializeNextButtonStateStream(
+    
+    this.nextButtonStateService.initializeNextButtonStateStream(
       this.selectedOptionService.isAnswered$,
       this.quizStateService.isLoading$,
       this.quizStateService.isNavigating$
@@ -3615,6 +3615,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
       return false;
     }
+  
+    this.cdRef.detectChanges();
   
     if (
       this.quizQuestionComponent &&
