@@ -1,4 +1,7 @@
-<ng-container *ngIf="renderReady && canDisplayOptions && optionsToDisplay?.length > 0; else noOptions">
+<ng-container 
+  *ngIf="renderReady && canDisplayOptions && optionsToDisplay?.length > 0; else noOptions"
+  [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
+  [style.minHeight]="'1rem'">
 
   <form [formGroup]="form">
 
