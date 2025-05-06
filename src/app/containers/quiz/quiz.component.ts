@@ -3334,6 +3334,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // ✅ Only set false if it's actually unanswered
       if (isAnswered) {
         this.selectedOptionService.setAnswered(true, true);
+        this.nextButtonStateService.syncNextButtonState();
       }
 
       console.log('[⏳ Starting parallel fetch for question and options]');
