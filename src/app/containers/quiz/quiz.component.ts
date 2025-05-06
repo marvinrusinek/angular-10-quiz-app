@@ -215,6 +215,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   });
   displayState$ = this.displayStateSubject.asObservable();
 
+  shouldRenderQuestionComponent = false;
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
