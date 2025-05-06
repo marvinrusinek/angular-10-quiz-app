@@ -26,6 +26,7 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
+import { NextButtonStateService } from '../../../shared/services/next-button-state.service';
 import { ResetBackgroundService } from '../../../shared/services/reset-background.service';
 import { ResetStateService } from '../../../shared/services/reset-state.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
@@ -254,6 +255,7 @@ export class QuizQuestionComponent
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected feedbackService: FeedbackService,
+    protected nextButtonStateService: NextButtonStateService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetStateService: ResetStateService,
     protected selectedOptionService: SelectedOptionService,
