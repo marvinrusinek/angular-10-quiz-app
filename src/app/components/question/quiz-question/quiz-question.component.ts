@@ -2502,6 +2502,7 @@ export class QuizQuestionComponent
       await this.applyFeedbackIfNeeded(option);
       this.markAsAnsweredAndShowExplanation(lockedIndex);
 
+      this.quizStateService.setAnswered(true);
       this.selectedOptionService.setAnswered(true, true);
       this.nextButtonStateService.syncNextButtonState();
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
