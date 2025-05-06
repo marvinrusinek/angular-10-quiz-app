@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
@@ -8,7 +8,9 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 @Injectable({ providedIn: 'root' })
 export class NextButtonStateService {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-  public isButtonEnabled$: Observable<boolean> = this.isButtonEnabledSubject.asObservable();
+  public isButtonEnabled$: Observable<boolean> = this.isButtonEnabledSubject.asObservable().pipe(
+    shareReplay(1)
+  );
 
   public nextButtonTooltip$ = this.isButtonEnabled$.pipe(
     map((enabled) => (enabled ? 'Next' : 'Please select an option to continue...')),
@@ -40,28 +42,6 @@ export class NextButtonStateService {
     this.updateAndSyncNextButtonState(isEnabled);
   }
 
-  /* public initializeNextButtonStateStream(
-    isAnswered$: Observable<boolean>,
-    isLoading$: Observable<boolean>,
-    isNavigating$: Observable<boolean>
-  ): void {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    combineLatest([isAnswered$, isLoading$, isNavigating$])
-      .pipe(
-        map(([isAnswered, isLoading, isNavigating]) => {
-          const isEnabled = isAnswered && !isLoading && !isNavigating;
-          this.isButtonEnabledSubject.next(isEnabled);
-          console.log('[🧪 isButtonEnabled$]', { isAnswered, isLoading, isNavigating, isEnabled });
-          return isEnabled;
-        }),
-        distinctUntilChanged()
-      )
-      .subscribe((isEnabled: boolean) => {
-        this.updateAndSyncNextButtonState(isEnabled);
-      });
-  } */
   public initializeNextButtonStateStream(
     isAnswered$: Observable<boolean>,
     isLoading$: Observable<boolean>,
@@ -82,7 +62,6 @@ export class NextButtonStateService {
           isEnabled
         });
   
-        this.isButtonEnabledSubject.next(isEnabled);
         this.updateAndSyncNextButtonState(isEnabled);
       });
   }
