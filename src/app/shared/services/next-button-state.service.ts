@@ -34,6 +34,10 @@ export class NextButtonStateService {
     console.log(`[NextButtonStateService] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
   }
 
+  ngOnDestroy(): void {
+    this.cleanupNextButtonStateStream();
+  }
+
   public syncNextButtonState(): void {
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
@@ -75,7 +79,9 @@ export class NextButtonStateService {
   }
 
   public cleanupNextButtonStateStream(): void {
+    console.log('[🧹 cleanupNextButtonStateStream] Cleaning up subscription');
     this.nextButtonStateSubscription?.unsubscribe();
+    this.nextButtonStateSubscription = undefined;
     this.initialized = false;
   }
 
