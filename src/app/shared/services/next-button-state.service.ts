@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 
 import { QuizStateService } from '../../shared/services/quizstate.service';
@@ -21,6 +21,8 @@ export class NextButtonStateService {
     opacity: '0.5',
     'pointer-events': 'none'
   };
+
+  private nextButtonStateSubscription?: Subscription;
 
   private initialized = false;
 
@@ -51,21 +53,30 @@ export class NextButtonStateService {
   ): void {
     if (this.initialized) return;
     this.initialized = true;
-  
-    combineLatest([isAnswered$, isLoading$, isNavigating$])
-      .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+
+    this.nextButtonStateSubscription = combineLatest([isAnswered$, isLoading$, isNavigating$])
+      .pipe(
+        distinctUntilChanged(([a1, b1, c1], [a2, b2, c2]) => 
+          a1 === a2 && b1 === b2 && c1 === c2
+        )
+      )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
-  
+
         console.log('[🧪 evaluateNextButtonState]', {
           isAnswered,
           isLoading,
           isNavigating,
           isEnabled
         });
-  
+
         this.updateAndSyncNextButtonState(isEnabled);
       });
+  }
+
+  public cleanupNextButtonStateStream(): void {
+    this.nextButtonStateSubscription?.unsubscribe();
+    this.initialized = false;
   }
 
   public evaluateNextButtonState(
