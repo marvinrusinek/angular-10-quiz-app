@@ -117,8 +117,6 @@ export class QuizQuestionComponent
   private _questionPayload: QuestionPayload | null = null;
   totalQuestions!: number;
   private lastProcessedQuestionIndex: number | null = null;
-  explanationsCache: { [index: number]: string } = {};
-  explanationsMap: { [index: number]: string } = {};
   fixedQuestionIndex = 0;
 
   combinedQuestionData$: Subject<{
