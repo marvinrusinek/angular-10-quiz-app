@@ -2534,6 +2534,13 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
+
+    // Final state sync to ensure everything is up-to-date
+    setTimeout(() => {
+      this.nextButtonStateService.syncNextButtonState();
+      this.cdRef.detectChanges();
+      console.log('[✅ Final state sync after first click]');
+    }, 0);
   }
 
   private prepareQuestionText(): void {
