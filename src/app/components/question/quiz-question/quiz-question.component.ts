@@ -2488,6 +2488,9 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
+
+    // Update option selection state
+    this.updateOptionSelection(event, option);
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     console.log('[🔒 lockedIndex]:', lockedIndex);
@@ -2497,9 +2500,6 @@ export class QuizQuestionComponent
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
-  
-    // Update option selection state
-    this.updateOptionSelection(event, option);
   
     // Verify the current answered state
     const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
