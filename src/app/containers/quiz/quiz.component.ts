@@ -940,9 +940,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.optionSelectedSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
 
+    this.nextButtonStateService.cleanupNextButtonStateStream();
+
     if (this.nextButtonTooltip) {
-      this.nextButtonTooltip.disabled = true; // Disable tooltips
-      this.nextButtonTooltip.hide(); // Hide any active tooltip
+      this.nextButtonTooltip.disabled = true; // disable tooltips
+      this.nextButtonTooltip.hide(); // hide any active tooltip
     }
   }
 
