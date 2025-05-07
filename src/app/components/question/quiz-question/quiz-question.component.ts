@@ -48,7 +48,6 @@ export class QuizQuestionComponent
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   private vcRef!: ViewContainerRef;
   @Output() answer = new EventEmitter<number>();
-  @Output() answersChange = new EventEmitter<string[]>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
