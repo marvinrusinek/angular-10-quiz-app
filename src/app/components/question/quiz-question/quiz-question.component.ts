@@ -2488,29 +2488,25 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Update the answered state only if not already set
-    const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
-    if (!isAlreadyAnswered) {
-      this.selectedOptionService.setAnswered(true, true);
-      console.log('[✅ setAnswered called]');
-    } else {
-      console.log('[🟡 setAnswered] No change – already answered');
-    }
-
-    this.nextButtonStateService.syncNextButtonState();
-  
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.quizService.setCurrentQuestionIndex(lockedIndex);
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
     // if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
-  
+
     this.updateOptionSelection(event, option);
 
-    this.quizStateService.setAnswered(true);
-
-    this.nextButtonStateService.syncNextButtonState();
+    // Update the answered state only if not already set
+    const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
+    if (!isAlreadyAnswered) {
+      this.quizStateService.setAnswered(true);
+      this.selectedOptionService.setAnswered(true, true);
+      this.nextButtonStateService.syncNextButtonState();
+      console.log('[✅ setAnswered called]');
+    } else {
+      console.log('[🟡 setAnswered] No change – already answered');
+    }
   
     try {
       this.prepareQuestionText();
