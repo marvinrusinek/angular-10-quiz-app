@@ -391,6 +391,7 @@ export class QuizQuestionComponent
   } */
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+    console.log('[🔄 ngAfterViewInit] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
 
     this.containerReady.next();
     this.containerReady.complete();
@@ -451,6 +452,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.log('[🔄 ngOnChanges] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
     if (changes.questionPayload && this.questionPayload) {
       const serialized = JSON.stringify(this.questionPayload);
   
@@ -2480,6 +2482,10 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
+
+    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
+    this.selectedOptionService.setAnswered(true, true);
+    console.log('[✅ setAnswered called]');
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.quizService.setCurrentQuestionIndex(lockedIndex);
@@ -2492,13 +2498,7 @@ export class QuizQuestionComponent
 
     this.quizStateService.setAnswered(true);
 
-    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
-    this.selectedOptionService.setAnswered(true, true);
-    console.log('[✅ setAnswered called]');
-
     this.nextButtonStateService.syncNextButtonState();
-
-    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
   
     try {
       this.prepareQuestionText();
