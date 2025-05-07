@@ -120,7 +120,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
-    //this.initializeOptionBindings();
     this.initializeFromConfig();
 
     // Delay rendering until all setup is confirmed
@@ -1511,7 +1510,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   initializeOptionBindings(): void {
     console.log('[🚀 initializeOptionBindings STARTED]');
   
-    // Prevent multiple executions
     if (this.optionBindingsInitialized) {
       console.warn('[🛑 initializeOptionBindings already called, skipping]');
       return;
@@ -1519,78 +1517,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.optionBindingsInitialized = true;
   
-    // Fetch the current question by index
-    this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
-      next: (question) => {
-        if (!question) {
-          console.error('[initializeOptionBindings] ❌ No current question found. Aborting initialization.');
-          this.optionBindingsInitialized = false;
-          return;
-        }
+    const options = this.quizQuestionComponent.populateOptionsToDisplay();
   
-        if (this.optionBindings?.some(o => o.isSelected)) {
-          console.warn('[🛡️ Skipped initializeOptionBindings — selection already exists]');
-          this.optionBindingsInitialized = false;
-          return;
-        }
+    if (!options.length) {
+      console.warn('[⚠️ initializeOptionBindings] No options available. Exiting initialization.');
+      this.optionBindingsInitialized = false;
+      return;
+    }
   
-        this.currentQuestion = question;
-  
-        // Retrieve correct options for the current question
-        const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-  
-        if (!correctOptions || correctOptions.length === 0) {
-          console.warn('[initializeOptionBindings] ⚠️ No correct options defined. Skipping feedback generation.');
-          this.optionBindingsInitialized = false;
-          return;
-        }
-  
-        // Ensure optionsToDisplay is defined and populated
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.warn('[⚠️ optionsToDisplay is empty or undefined. Attempting to repopulate...]');
-  
-          // Attempt to repopulate optionsToDisplay
-          this.quizService.getCurrentOptions().subscribe({
-            next: (options) => {
-              if (!options || options.length === 0) {
-                console.warn('[initializeOptionBindings] ❌ No options available after repopulation attempt.');
-                this.optionBindingsInitialized = false;
-                return;
-              }
-  
-              this.optionsToDisplay = options;
-              console.log('[✅ optionsToDisplay repopulated]:', this.optionsToDisplay);
-  
-              // Retry initialization with the new options
-              this.optionBindingsInitialized = false;
-              this.initializeOptionBindings();
-            },
-            error: (err) => {
-              console.error('[initializeOptionBindings] ❌ Error repopulating optionsToDisplay:', err);
-              this.optionBindingsInitialized = false;
-            },
-          });
-  
-          return;
-        }
-  
-        // Proceed with processing option bindings
-        this.processOptionBindings();
-      },
-      error: (err) => {
-        console.error('[initializeOptionBindings] ❌ Error fetching current question:', err);
-        this.optionBindingsInitialized = false;
-      },
-    });
-  
-    this.markRenderReady();
+    this.processOptionBindings();
   }
 
   private processOptionBindings(): void {
     console.log('[⚡ processOptionBindings STARTED]');
   
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+    const options = this.quizQuestionComponent.populateOptionsToDisplay();
+  
+    if (!options.length) {
       console.warn('[⚠️ processOptionBindings] No options to process. Exiting.');
+      this.optionBindingsInitialized = false;
       return;
     }
   
@@ -1605,8 +1550,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
   
-    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
+    this.optionBindings = options.map((option, idx) => {
+      const feedbackMessage =
+        this.feedbackService.generateFeedbackForOptions(correctOptions, options) ?? 'No feedback available.';
       option.feedback = feedbackMessage;
   
       const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;

@@ -308,6 +308,8 @@ export class QuizQuestionComponent
       // Call the parent class's ngOnInit method
       super.ngOnInit();
 
+      this.populateOptionsToDisplay();
+
       (window as any).applyFeedback = () =>
         this.applyOptionFeedbackToAllOptions();
 
