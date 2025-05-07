@@ -2507,17 +2507,16 @@ export class QuizQuestionComponent
     console.log('[🟡 Current Answered State]:', isAlreadyAnswered);
 
     // Update answered state only if not already set
-    if (!isAlreadyAnswered) {
     // Ensure answered state is set on first click
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
     this.quizStateService.setAnswered(true);
     this.selectedOptionService.setAnswered(true, true);
     console.log('[✅ setAnswered called]');
-    } else {
-      console.log('[🟡 setAnswered] No change – already answered');
-    }
+    console.log('[✅ Explanation text triggered on first click]');
+    console.log('[✅ Next button state evaluated on first click]');
 
     // Ensure next button state is synchronized
+    // Force sync next button state after setting answered state
     console.log('[🔄 Synchronizing next button state]');
     this.nextButtonStateService.syncNextButtonState();
   
