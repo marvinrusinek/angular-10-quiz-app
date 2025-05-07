@@ -2482,24 +2482,32 @@ export class QuizQuestionComponent
   }): Promise<void> {
     console.log('[🔥 onOptionClicked] method triggered');
     console.log('[🧪 onOptionClicked] event received:', event);
+  
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-
+  
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    console.log('[🔒 lockedIndex]:', lockedIndex);
+  
     this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
     const isMultipleAnswer = await firstValueFrom(
       this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
-    // if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
-
+  
+    // Update option selection state
     this.updateOptionSelection(event, option);
-
-    // Update the answered state only if not already set
+  
+    // Verify the current answered state
     const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
+    console.log('[🟡 Current Answered State]:', isAlreadyAnswered);
+  
+    // Update answered state only if not already set
     if (!isAlreadyAnswered) {
+      console.log('[🧪 onOptionClicked → setting answered to TRUE]');
       this.quizStateService.setAnswered(true);
       this.selectedOptionService.setAnswered(true, true);
       this.nextButtonStateService.syncNextButtonState();
@@ -2512,10 +2520,10 @@ export class QuizQuestionComponent
       this.prepareQuestionText();
       const explanationToUse = await this.updateExplanationText(lockedIndex);
       await this.emitExplanationIfNeeded(explanationToUse);
-
+  
       await this.applyFeedbackIfNeeded(option);
       this.markAsAnsweredAndShowExplanation(lockedIndex);
-
+  
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.finalizeAfterClick(option, event.index);
