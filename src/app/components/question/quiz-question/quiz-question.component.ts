@@ -2552,12 +2552,16 @@ export class QuizQuestionComponent
     console.log('[🔄 handleRefreshExplanation called]');
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const rawExplanation = await this.fetchAndUpdateExplanationText(lockedIndex);
-    
-    console.log('[🛠️ handleRefreshExplanation] Raw Explanation:', rawExplanation);
   
-    if (rawExplanation) {
-      await this.emitExplanationIfNeeded(rawExplanation);
+    try {
+      const rawExplanation = await this.fetchAndUpdateExplanationText(lockedIndex);
+      console.log('[🛠️ handleRefreshExplanation] Raw Explanation:', rawExplanation);
+  
+      if (rawExplanation.trim()) {
+        await this.emitExplanationIfNeeded(rawExplanation);
+      }
+    } catch (error) {
+      console.error('[handleRefreshExplanation] ❌ Error:', error);
     }
   }
   
