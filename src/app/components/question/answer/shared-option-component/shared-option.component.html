@@ -15,7 +15,7 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (click)="onOptionClicked(b.option, i)">
+        (click)="onOptionClicked({ option: option, index: i, checked: true })">
 
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
@@ -41,7 +41,7 @@
             [value]="b.option.optionId"
             [checked]="b.option.selected"
             (change)="onMatCheckboxChanged(b, i, $event)"
-            (click)="onOptionClicked(b.option, i)">
+            (click)="onOptionClicked({ option: option, index: i, checked: true })">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}
