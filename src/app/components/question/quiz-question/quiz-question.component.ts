@@ -2482,6 +2482,7 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log('[🔥 onOptionClicked] CLICK EVENT RECEIVED');
     console.log('[🔥 onOptionClicked] method triggered');
     console.log('[🧪 onOptionClicked] event received:', event);
   
