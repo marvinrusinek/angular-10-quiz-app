@@ -2492,9 +2492,9 @@ export class QuizQuestionComponent
 
     this.quizStateService.setAnswered(true);
 
-    console.log('[🧪 Before setAnswered] Current answered state:', this.selectedOptionService.getAnsweredState());
+    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
     this.selectedOptionService.setAnswered(true, true);
-    console.log('[🧪 After setAnswered] New answered state:', this.selectedOptionService.getAnsweredState());
+    console.log('[✅ setAnswered called]');
 
     this.nextButtonStateService.syncNextButtonState();
 

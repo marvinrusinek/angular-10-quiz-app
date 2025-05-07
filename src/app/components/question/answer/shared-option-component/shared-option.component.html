@@ -15,7 +15,8 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (click)="onOptionClicked({ option: b.option, index: i, checked: true })">
+        (change)="onMatRadioChanged(b, i, $event)"
+        (click)="onOptionClicked({ option: option, index: i, checked: true })">
 
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
@@ -38,7 +39,6 @@
                [isCorrect]="b.isCorrect">
 
           <mat-checkbox
-            [value]="b.option.optionId"
             [checked]="b.option.selected"
             (change)="onMatCheckboxChanged(b, i, $event)"
             (click)="onOptionClicked({ option: b.option, index: i, checked: $event.checked })">
