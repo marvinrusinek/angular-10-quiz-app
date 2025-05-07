@@ -3675,9 +3675,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
     }
   
-    // Trigger change detection
-    this.cdRef.detectChanges();
-  
     return true;
   }
 

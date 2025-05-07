@@ -2477,63 +2477,6 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): Promise<void> {
-    console.log('[🔥 onOptionClicked] CLICK EVENT RECEIVED');
-    console.log('[🔥 onOptionClicked] method triggered');
-    console.log('[🧪 onOptionClicked] event received:', event);
-  
-    const option = event.option;
-    if (!option) {
-      console.warn('[⚠️ onOptionClicked] option is null, skipping');
-      return;
-    }
-
-    // Update option selection state
-    this.updateOptionSelection(event, option);
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    console.log('[🔒 lockedIndex]:', lockedIndex);
-  
-    this.quizService.setCurrentQuestionIndex(lockedIndex);
-  
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-    );
-  
-    // Verify the current answered state
-    const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
-    console.log('[🟡 Current Answered State]:', isAlreadyAnswered);
-  
-    // Update answered state only if not already set
-    if (!isAlreadyAnswered) {
-      console.log('[🧪 onOptionClicked → setting answered to TRUE]');
-      this.quizStateService.setAnswered(true);
-      this.selectedOptionService.setAnswered(true, true);
-      this.nextButtonStateService.syncNextButtonState();
-      console.log('[✅ setAnswered called]');
-    } else {
-      console.log('[🟡 setAnswered] No change – already answered');
-    }
-  
-    try {
-      this.prepareQuestionText();
-      const explanationToUse = await this.updateExplanationText(lockedIndex);
-      await this.emitExplanationIfNeeded(explanationToUse);
-  
-      await this.applyFeedbackIfNeeded(option);
-      this.markAsAnsweredAndShowExplanation(lockedIndex);
-  
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-      this.finalizeAfterClick(option, event.index);
-    } catch (error) {
-      console.error('[onOptionClicked] ❌ Error:', error);
-    }
-  } */
   public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -2553,15 +2496,30 @@ export class QuizQuestionComponent
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     console.log('[🔒 lockedIndex]:', lockedIndex);
-  
     this.quizService.setCurrentQuestionIndex(lockedIndex);
-  
+
+    const isMultipleAnswer = await firstValueFrom(
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
+    );
+
+    // Verify the current answered state
+    const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
+    console.log('[🟡 Current Answered State]:', isAlreadyAnswered);
+
+    // Update answered state only if not already set
+    if (!isAlreadyAnswered) {
     // Ensure answered state is set on first click
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
     this.quizStateService.setAnswered(true);
     this.selectedOptionService.setAnswered(true, true);
-    this.nextButtonStateService.syncNextButtonState();
     console.log('[✅ setAnswered called]');
+    } else {
+      console.log('[🟡 setAnswered] No change – already answered');
+    }
+
+    // Ensure next button state is synchronized
+    console.log('[🔄 Synchronizing next button state]');
+    this.nextButtonStateService.syncNextButtonState();
   
     try {
       this.prepareQuestionText();
