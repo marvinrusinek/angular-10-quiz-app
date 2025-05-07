@@ -1508,14 +1508,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   initializeOptionBindings(): void {
+    console.log('[🚀 initializeOptionBindings STARTED]');
+  
     // Fetch the current question by index
     this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
       next: (question) => {
         if (!question) {
-          console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
+          console.error('[initializeOptionBindings] ❌ No current question found. Aborting initialization.');
           return;
         }
-
+  
         if (this.optionBindings?.some(o => o.isSelected)) {
           console.warn('[🛡️ Skipped initializeOptionBindings — selection already exists]');
           return;
@@ -1527,67 +1529,85 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
   
         if (!correctOptions || correctOptions.length === 0) {
-          console.warn('[initializeOptionBindings] No correct options defined. Skipping feedback generation.');
+          console.warn('[initializeOptionBindings] ⚠️ No correct options defined. Skipping feedback generation.');
           return;
         }
   
         // Ensure optionsToDisplay is defined and populated
         if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
+          console.warn('[⚠️ optionsToDisplay is empty or undefined. Attempting to repopulate...]');
+          
+          // Attempt to repopulate optionsToDisplay
+          this.quizService.getOptionsForCurrentQuestion(this.currentQuestion).subscribe({
+            next: (options) => {
+              if (!options || options.length === 0) {
+                console.warn('[initializeOptionBindings] ❌ No options available after repopulation attempt.');
+                return;
+              }
+  
+              this.optionsToDisplay = options;
+              console.log('[✅ optionsToDisplay repopulated]:', this.optionsToDisplay);
+              this.initializeOptionBindings(); // Retry initialization with the new options
+            },
+            error: (err) => {
+              console.error('[initializeOptionBindings] ❌ Error repopulating optionsToDisplay:', err);
+            },
+          });
+  
           return;
         }
   
-        // Map optionsToDisplay to initialize optionBindings
+        // Proceed with optionBindings generation
         const existingSelectionMap = new Map(
           (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
         );
-
+  
         if (this.freezeOptionBindings) {
-          throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
+          throw new Error('[💣 ABORTED optionBindings reassignment after user click]');
         }
-
+  
         this.optionBindings = this.optionsToDisplay.map((option, idx) => {
           const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
           option.feedback = feedbackMessage;
-        
+  
           const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
           const optionBinding = this.getOptionBindings(option, idx, isSelected);
-
+  
           // Highlight selected or previously highlighted options
           if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
             option.highlight = true;
           }
-        
+  
           return optionBinding;
         });
-        
+  
         this.updateHighlighting();
-
+  
         setTimeout(() => {
           this.cdRef.detectChanges(); // ensure the DOM updates
-        }, 0);        
-
+        }, 0);
+  
         console.warn('[🧨 optionBindings REASSIGNED]', {
-          stackTrace: new Error().stack
-        });        
-
+          stackTrace: new Error().stack,
+        });
+  
         setTimeout(() => {
           this.ngZone.run(() => {
             this.optionsReady = true;
             console.log('[🟢 optionsReady = true]');
           });
-        }, 100); // delay rendering to avoid event fire during init
-
+        }, 100);
+  
         this.viewReady = true;
         this.cdRef.detectChanges();
-
-        console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
+  
+        console.log('[initializeOptionBindings] ✅ Final optionBindings:', this.optionBindings);
       },
       error: (err) => {
-        console.error('[initializeOptionBindings] Error fetching current question:', err);
+        console.error('[initializeOptionBindings] ❌ Error fetching current question:', err);
       },
     });
-
+  
     this.markRenderReady();
   }
 
