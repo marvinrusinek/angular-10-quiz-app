@@ -2477,7 +2477,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2518,6 +2518,50 @@ export class QuizQuestionComponent
     } else {
       console.log('[🟡 setAnswered] No change – already answered');
     }
+  
+    try {
+      this.prepareQuestionText();
+      const explanationToUse = await this.updateExplanationText(lockedIndex);
+      await this.emitExplanationIfNeeded(explanationToUse);
+  
+      await this.applyFeedbackIfNeeded(option);
+      this.markAsAnsweredAndShowExplanation(lockedIndex);
+  
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      this.finalizeAfterClick(option, event.index);
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    console.log('[🔥 onOptionClicked] method triggered');
+    console.log('[🧪 onOptionClicked] event received:', event);
+  
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    // Update option selection state immediately
+    this.updateOptionSelection(event, option);
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    console.log('[🔒 lockedIndex]:', lockedIndex);
+  
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    // Ensure answered state is set on first click
+    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
+    this.quizStateService.setAnswered(true);
+    this.selectedOptionService.setAnswered(true, true);
+    this.nextButtonStateService.syncNextButtonState();
+    console.log('[✅ setAnswered called]');
   
     try {
       this.prepareQuestionText();
