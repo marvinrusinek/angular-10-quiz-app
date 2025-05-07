@@ -29,7 +29,7 @@ export class NextButtonStateService {
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
   ) {
-    console.log(`[ComponentName] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
+    console.log(`[NextButtonStateService] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
   }
 
   public syncNextButtonState(): void {
