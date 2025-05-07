@@ -2753,7 +2753,7 @@ export class QuizQuestionComponent
         this.optionsToDisplay = this.currentQuestion.options.map(
           (option, index) => ({
             ...option,
-            optionId: option.optionId ?? index
+            optionId: option.optionId ?? index,
             correct: option.correct ?? false
           })
         );
