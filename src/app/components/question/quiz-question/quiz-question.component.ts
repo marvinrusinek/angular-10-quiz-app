@@ -2549,22 +2549,20 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
   }
 
-  public async handleRefreshExplanation(): Promise<void> {
-    console.log('[🔄 handleRefreshExplanation called]');
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+  private async handleRefreshExplanation(): Promise<void> {
+    console.log('[🔄 handleRefreshExplanation] called');
   
     try {
-      const rawExplanation = await this.fetchAndUpdateExplanationText(lockedIndex);
-      console.log('[🛠️ handleRefreshExplanation] Raw Explanation:', rawExplanation);
+      const explanationText = await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
+      console.log('[✅ handleRefreshExplanation] Fetched Explanation:', explanationText);
   
-      if (rawExplanation.trim()) {
-        await this.emitExplanationIfNeeded(rawExplanation);
+      if (explanationText) {
+        await this.emitExplanationIfNeeded(explanationText);
       }
     } catch (error) {
-      console.error('[handleRefreshExplanation] ❌ Error:', error);
+      console.error('[❌ handleRefreshExplanation] Error handling explanation:', error);
     }
-  }
+  }  
   
   private async emitExplanationIfNeeded(rawExplanation: string): Promise<void> {
     const trimmed = rawExplanation?.trim() || 'No explanation available';
