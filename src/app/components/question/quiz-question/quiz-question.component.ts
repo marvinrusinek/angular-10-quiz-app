@@ -189,7 +189,6 @@ export class QuizQuestionComponent
   isExplanationLocked = true;
   currentExplanationText = '';
 
-  private lastLoggedOptions = ''; // store last logged options to prevent redundant logs
   private lastSerializedOptions = '';
   private lastSerializedPayload = '';
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
