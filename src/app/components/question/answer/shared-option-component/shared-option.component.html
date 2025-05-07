@@ -41,7 +41,7 @@
             [value]="b.option.optionId"
             [checked]="b.option.selected"
             (change)="onMatCheckboxChanged(b, i, $event)"
-            (click)="onOptionClicked({ option: option, index: i, checked: true })">
+            (click)="onOptionClicked({ option: b.option, index: i, checked: $event.checked })">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}

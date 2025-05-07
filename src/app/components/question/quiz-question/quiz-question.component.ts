@@ -2491,7 +2491,11 @@ export class QuizQuestionComponent
     this.updateOptionSelection(event, option);
 
     this.quizStateService.setAnswered(true);
+
+    console.log('[🧪 Before setAnswered] Current answered state:', this.selectedOptionService.getAnsweredState());
     this.selectedOptionService.setAnswered(true, true);
+    console.log('[🧪 After setAnswered] New answered state:', this.selectedOptionService.getAnsweredState());
+
     this.nextButtonStateService.syncNextButtonState();
 
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
