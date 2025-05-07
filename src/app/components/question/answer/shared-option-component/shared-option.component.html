@@ -15,13 +15,12 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (change)="onMatRadioChanged(b, i, $event)"
-        (click)="onOptionClicked({ option: option, index: i, checked: true })">
+        (click)="onOptionClicked({ option: b.option, index: i, checked: true })">
 
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
         </span>
-        
+
         <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
           {{ getOptionIcon(b.option) }}
         </mat-icon>
