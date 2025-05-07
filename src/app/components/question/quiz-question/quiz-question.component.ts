@@ -2526,6 +2526,7 @@ export class QuizQuestionComponent
       await this.emitExplanationIfNeeded(explanationToUse);
   
       await this.applyFeedbackIfNeeded(option);
+      await this.handleRefreshExplanation(); // await explanation handling
       this.markAsAnsweredAndShowExplanation(lockedIndex);
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
