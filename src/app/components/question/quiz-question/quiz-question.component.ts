@@ -106,7 +106,6 @@ export class QuizQuestionComponent
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
   @Input() passedOptions: Option[] | null = null;
-  private _questionPayload: QuestionPayload | null = null;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -115,6 +114,7 @@ export class QuizQuestionComponent
   questionForm: FormGroup = new FormGroup({});
   questionRenderComplete = new EventEmitter<void>();
   questionToDisplay = '';
+  private _questionPayload: QuestionPayload | null = null;
   totalQuestions!: number;
   private lastProcessedQuestionIndex: number | null = null;
   explanationsCache: { [index: number]: string } = {};
