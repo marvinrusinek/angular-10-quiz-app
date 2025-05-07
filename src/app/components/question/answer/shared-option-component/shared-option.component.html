@@ -41,7 +41,7 @@
           <mat-checkbox
             [checked]="b.option.selected"
             (change)="onMatCheckboxChanged(b, i, $event)"
-            (click)="onOptionClicked({ option: b.option, index: i, checked: true }); console.log('Checkbox Clicked:', b.option)">
+            (click)="onOptionClicked({ option: b.option, index: i, checked: checked }); console.log('Checkbox Clicked:', b.option)">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}
