@@ -55,7 +55,10 @@ export class NextButtonStateService {
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>
   ): void {
-    if (this.initialized) return;
+    if (this.initialized) {
+      console.warn('[🛑 initializeNextButtonStateStream] Already initialized');
+      return;
+    }
     this.initialized = true;
 
     this.nextButtonStateSubscription = combineLatest([isAnswered$, isLoading$, isNavigating$])
