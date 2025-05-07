@@ -127,6 +127,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.initializeDisplay();
     });
 
+    if (!this.optionBindings || this.optionBindings.length === 0) {
+      console.log('[🚀 Calling initializeOptionBindings()]');
+      this.initializeOptionBindings();
+    } else {
+      console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
+    }
+
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
         this.finalRenderReady = ready;
