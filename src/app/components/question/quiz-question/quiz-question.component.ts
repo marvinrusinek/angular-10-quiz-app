@@ -2547,6 +2547,19 @@ export class QuizQuestionComponent
     this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
     this.cdRef.detectChanges();
   }
+
+  public async handleRefreshExplanation(): Promise<void> {
+    console.log('[🔄 handleRefreshExplanation called]');
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const rawExplanation = await this.fetchAndUpdateExplanationText(lockedIndex);
+    
+    console.log('[🛠️ handleRefreshExplanation] Raw Explanation:', rawExplanation);
+  
+    if (rawExplanation) {
+      await this.emitExplanationIfNeeded(rawExplanation);
+    }
+  }
   
   private async emitExplanationIfNeeded(rawExplanation: string): Promise<void> {
     const trimmed = rawExplanation?.trim() || 'No explanation available';
@@ -2603,18 +2616,18 @@ export class QuizQuestionComponent
 
   private async fetchAndUpdateExplanationText(
     questionIndex: number
-  ): Promise<void> {
+  ): Promise<string> {
     // Lock the question index at the time of call
     const lockedQuestionIndex = this.currentQuestionIndex;
-
+  
     // Early exit if question index has changed
     if (lockedQuestionIndex !== questionIndex) {
       console.warn(
         `[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`
       );
-      return;
+      return '';
     }
-
+  
     try {
       // Check session storage
       const storedExplanation = sessionStorage.getItem(
@@ -2622,24 +2635,24 @@ export class QuizQuestionComponent
       );
       if (storedExplanation) {
         this.applyExplanation(storedExplanation);
-        return;
+        return storedExplanation; // ✅ Return the explanation text
       }
-
+  
       // Check service cache
       const cachedExplanation =
         this.explanationTextService.formattedExplanations[questionIndex]
           ?.explanation;
       if (cachedExplanation) {
         this.applyExplanation(cachedExplanation);
-
+  
         // Store in session storage for future use
         sessionStorage.setItem(
           `explanationText_${questionIndex}`,
           cachedExplanation
         );
-        return;
+        return cachedExplanation; // ✅ Return the cached explanation text
       }
-
+  
       // Fetch explanation from service, only if initialized
       const explanationText = this.explanationTextService
         .explanationsInitialized
@@ -2649,21 +2662,22 @@ export class QuizQuestionComponent
             )
           )
         : 'No explanation available';
-
+  
       if (!explanationText?.trim()) {
         console.warn(
           `[fetchAndUpdateExplanationText] ⚠️ No explanation text found for Q${questionIndex}`
         );
+        return '';
       }
-
+  
       // Confirm the question index hasn’t changed during async fetch
       if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(
           `[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`
         );
-        return;
+        return '';
       }
-
+  
       // Cache and display
       this.explanationTextService.formattedExplanations[questionIndex] = {
         questionIndex,
@@ -2671,16 +2685,20 @@ export class QuizQuestionComponent
       };
       sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
       this.applyExplanation(explanationText);
+  
+      return explanationText; // ensure the fetched explanation text is returned
     } catch (error) {
       console.error(
         `[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
         error
       );
-
+  
       if (this.shouldDisplayExplanation && this.isAnswered) {
         this.explanationToDisplayChange.emit('Error loading explanation.');
         this.showExplanationChange.emit(true);
       }
+  
+      return ''; // return an empty string in case of error
     }
   }
 
