@@ -276,6 +276,7 @@ export class QuizQuestionComponent
       selectedOptionService,
       cdRef
     );
+    console.log(`[ComponentName] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
   }
 
   @Input() set questionPayload(value: QuestionPayload | null) {

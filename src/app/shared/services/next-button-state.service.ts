@@ -28,7 +28,9 @@ export class NextButtonStateService {
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
-  ) {}
+  ) {
+    console.log(`[ComponentName] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
+  }
 
   public syncNextButtonState(): void {
     const isAnswered = this.selectedOptionService.getAnsweredState();

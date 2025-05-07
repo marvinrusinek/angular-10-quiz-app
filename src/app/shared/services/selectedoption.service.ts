@@ -8,6 +8,7 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
+  private instanceId = Math.random();
   selectedOption: SelectedOption | SelectedOption[] = null;
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
@@ -46,7 +47,9 @@ export class SelectedOptionService {
 
   constructor(
     private ngZone: NgZone,
-  ) {}
+  ) {
+    console.log(`[SelectedOptionService] Instance ID: ${this.instanceId}`);
+  }
 
   setQuestionText(text: string): void {
     const trimmed = (text ?? '').trim();
