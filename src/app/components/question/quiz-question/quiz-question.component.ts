@@ -2492,6 +2492,11 @@ export class QuizQuestionComponent
     // if (this.handleSingleAnswerLock(isMultipleAnswer)) return;
   
     this.updateOptionSelection(event, option);
+
+    this.quizStateService.setAnswered(true);
+    this.selectedOptionService.setAnswered(true, true);
+    this.nextButtonStateService.syncNextButtonState();
+
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
   
     try {
@@ -2502,9 +2507,6 @@ export class QuizQuestionComponent
       await this.applyFeedbackIfNeeded(option);
       this.markAsAnsweredAndShowExplanation(lockedIndex);
 
-      this.quizStateService.setAnswered(true);
-      this.selectedOptionService.setAnswered(true, true);
-      this.nextButtonStateService.syncNextButtonState();
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.finalizeAfterClick(option, event.index);
