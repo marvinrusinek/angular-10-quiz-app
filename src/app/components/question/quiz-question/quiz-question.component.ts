@@ -2512,11 +2512,13 @@ export class QuizQuestionComponent
       console.log('[🧪 onOptionClicked → setting answered to TRUE]');
       this.quizStateService.setAnswered(true);
       this.selectedOptionService.setAnswered(true, true);
-      this.nextButtonStateService.syncNextButtonState();
       console.log('[✅ setAnswered called]');
     } else {
       console.log('[🟡 setAnswered] No change – already answered');
     }
+
+    // Sync the button state
+    this.nextButtonStateService.syncNextButtonState();
   
     try {
       this.prepareQuestionText();
