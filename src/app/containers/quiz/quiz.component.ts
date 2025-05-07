@@ -3754,6 +3754,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   restartQuiz(): void {
     this.timerService.stopTimer?.();
+
+    // Cleanup the previous stream before resetting
+    this.nextButtonStateService.cleanupNextButtonStateStream();
   
     // Reset current question index
     this.currentQuestionIndex = 0;
