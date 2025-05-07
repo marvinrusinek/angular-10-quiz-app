@@ -296,6 +296,9 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
+    console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
+
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     this.currentQuestionIndex = routeIndex; // ensures correct index
@@ -390,6 +393,8 @@ export class QuizQuestionComponent
     }, 50);
   } */
   async ngAfterViewInit(): Promise<void> {
+    console.log('[🔄 ngAfterViewInit] optionBindings:', this.optionBindings);
+    console.log('[🔄 ngAfterViewInit] optionsToDisplay:', this.optionsToDisplay);
     super.ngAfterViewInit ? super.ngAfterViewInit() : null;
     console.log('[🔄 ngAfterViewInit] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
 
