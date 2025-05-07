@@ -3618,8 +3618,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   
-    this.cdRef.detectChanges();
-  
     if (
       this.quizQuestionComponent &&
       this.currentQuestion?.questionText &&
