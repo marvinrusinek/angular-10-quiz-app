@@ -2526,9 +2526,12 @@ export class QuizQuestionComponent
       await this.emitExplanationIfNeeded(explanationToUse);
   
       await this.applyFeedbackIfNeeded(option);
-      await this.handleRefreshExplanation(); // await explanation handling
-      this.markAsAnsweredAndShowExplanation(lockedIndex);
-  
+      const explanationText = await this.handleRefreshExplanation();
+      
+      if (explanationText) {
+        this.markAsAnsweredAndShowExplanation(lockedIndex);
+      }
+
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.finalizeAfterClick(option, event.index);
@@ -2549,7 +2552,7 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
   }
 
-  private async handleRefreshExplanation(): Promise<void> {
+  private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
   
     try {
@@ -2559,8 +2562,11 @@ export class QuizQuestionComponent
       if (explanationText) {
         await this.emitExplanationIfNeeded(explanationText);
       }
+  
+      return explanationText;
     } catch (error) {
       console.error('[❌ handleRefreshExplanation] Error handling explanation:', error);
+      return '';
     }
   }  
   
