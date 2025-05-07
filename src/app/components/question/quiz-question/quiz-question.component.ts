@@ -50,8 +50,8 @@ export class QuizQuestionComponent
   @Output() answer = new EventEmitter<number>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
-    question: QuizQuestion;
-    selectedOptions: Option[];
+    question: QuizQuestion,
+    selectedOptions: Option[]
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
