@@ -2483,9 +2483,16 @@ export class QuizQuestionComponent
       return;
     }
 
-    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
-    this.selectedOptionService.setAnswered(true, true);
-    console.log('[✅ setAnswered called]');
+    // Update the answered state only if not already set
+    const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
+    if (!isAlreadyAnswered) {
+      this.selectedOptionService.setAnswered(true, true);
+      console.log('[✅ setAnswered called]');
+    } else {
+      console.log('[🟡 setAnswered] No change – already answered');
+    }
+
+    this.nextButtonStateService.syncNextButtonState();
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.quizService.setCurrentQuestionIndex(lockedIndex);
