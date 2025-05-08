@@ -886,6 +886,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       correctMessage: '',
       idx: index
     };
+
+    // Trigger explanation text sync after highlight update
+    this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
   
     // Trigger directive repaint for highlight + feedback
     this.forceHighlightRefresh(optionId);
@@ -965,6 +968,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.selectedOptionId = optionId;
     this.selectedOption = optionBinding.option;
     this.isOptionSelected = true;
+
+    // Force explanation text display after highlighting
+    this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
 
     // Force sync update to directive highlight
     this.forceHighlightRefresh(optionId);
