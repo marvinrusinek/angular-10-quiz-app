@@ -2522,16 +2522,18 @@ export class QuizQuestionComponent
   
     try {
       this.prepareQuestionText();
-      const explanationToUse = await this.updateExplanationText(lockedIndex);
-      await this.emitExplanationIfNeeded(explanationToUse);
+
+      console.log('[🔄 Fetching explanation for Q' + lockedIndex + ']');
+      const explanationText = await this.fetchAndUpdateExplanationText(lockedIndex);
+      console.log('[✅ Explanation fetched and displayed for Q' + lockedIndex + ']:', explanationText);
+
+      await this.emitExplanationIfNeeded(explanationText);
+
+      this.markAsAnsweredAndShowExplanation(lockedIndex);
   
       await this.applyFeedbackIfNeeded(option);
-      const explanationText = await this.handleRefreshExplanation();
+      //const explanationText = await this.handleRefreshExplanation();
       
-      if (explanationText) {
-        this.markAsAnsweredAndShowExplanation(lockedIndex);
-      }
-
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       this.finalizeAfterClick(option, event.index);
@@ -2623,7 +2625,7 @@ export class QuizQuestionComponent
     this.cdRef.markForCheck();
   }
 
-  private async fetchAndUpdateExplanationText(
+  /*  private async fetchAndUpdateExplanationText(
     questionIndex: number
   ): Promise<void> {
     console.log('[🔄 fetchAndUpdateExplanationText] called for Q' + questionIndex);
@@ -2688,7 +2690,89 @@ export class QuizQuestionComponent
       this.applyExplanation('Error loading explanation.');
       this.emitExplanationIfNeeded('Error loading explanation.');
     }
+  } */
+  private async fetchAndUpdateExplanationText(
+    questionIndex: number
+  ): Promise<string> {
+    // Lock the question index at the time of call
+    const lockedQuestionIndex = this.currentQuestionIndex;
+  
+    // Early exit if question index has changed
+    if (lockedQuestionIndex !== questionIndex) {
+      console.warn(
+        `[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`
+      );
+      return ''; // return empty string to ensure consistent return type
+    }
+  
+    try {
+      // Check session storage
+      const storedExplanation = sessionStorage.getItem(
+        `explanationText_${questionIndex}`
+      );
+      if (storedExplanation) {
+        this.applyExplanation(storedExplanation);
+        return storedExplanation; // return the explanation text
+      }
+  
+      // Check service cache
+      const cachedExplanation =
+        this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
+  
+      if (cachedExplanation) {
+        this.applyExplanation(cachedExplanation);
+  
+        // Store in session storage for future use
+        sessionStorage.setItem(
+          `explanationText_${questionIndex}`,
+          cachedExplanation
+        );
+        return cachedExplanation; // return the cached explanation text
+      }
+  
+      // Fetch explanation from service, only if initialized
+      const explanationText = this.explanationTextService.explanationsInitialized
+        ? await firstValueFrom(
+            this.explanationTextService.getFormattedExplanationTextForQuestion(
+              questionIndex
+            )
+          )
+        : 'No explanation available';
+  
+      if (!explanationText?.trim()) {
+        console.warn(
+          `[fetchAndUpdateExplanationText] ⚠️ No explanation text found for Q${questionIndex}`
+        );
+        return ''; // return empty string to ensure consistent return type
+      }
+  
+      // Confirm the question index hasn’t changed during async fetch
+      if (lockedQuestionIndex !== this.currentQuestionIndex) {
+        console.warn(
+          `[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`
+        );
+        return '';
+      }
+  
+      // Cache and display
+      this.explanationTextService.formattedExplanations[questionIndex] = {
+        questionIndex,
+        explanation: explanationText
+      };
+      sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
+      this.applyExplanation(explanationText);
+  
+      return explanationText; // ✅ Return the fetched explanation text
+  
+    } catch (error) {
+      console.error(
+        `[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
+        error
+      );
+      return ''; // Return empty string in case of error
+    }
   }
+  
 
   private applyExplanation(explanation: string): void {
     this.explanationToDisplay = explanation;
