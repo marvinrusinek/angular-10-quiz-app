@@ -845,8 +845,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
 
+    // Immediate explanation update before highlighting
+    this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
+
     // Trigger explanation text sync after highlight update
-    this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
+    // this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
   
     // Apply selection and visuals
     optionBinding.option.highlight = checked;
@@ -958,8 +961,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return false;
     }
 
+    // Immediate explanation update before highlighting
+    this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
+
     // Force explanation text display after highlighting
-    this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
+    // this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
 
     this.handleOptionClick(optionBinding.option as SelectedOption, index, checked);
   
@@ -1163,6 +1169,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }  
 
+  private immediateExplanationUpdate(questionIndex: number): void {
+    console.log('[⚡️ immediateExplanationUpdate] Triggered for Q' + questionIndex);
+  
+    const explanationEntry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = explanationEntry?.explanation?.trim() ?? 'No explanation available';
+  
+    // Immediately set the explanation text
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation text immediately set for Q${questionIndex}]`, explanationText);
+  
+    // Trigger immediate UI update
+    this.cdRef.detectChanges();
+  }
+  
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
     if (!option || typeof option !== 'object') {
