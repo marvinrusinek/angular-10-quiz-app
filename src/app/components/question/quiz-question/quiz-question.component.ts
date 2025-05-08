@@ -2568,7 +2568,7 @@ export class QuizQuestionComponent
       console.error('[❌ handleRefreshExplanation] Error handling explanation:', error);
       return '';
     }
-  }  
+  }
   
   private async emitExplanationIfNeeded(rawExplanation: string): Promise<void> {
     const trimmed = rawExplanation?.trim() || 'No explanation available';
