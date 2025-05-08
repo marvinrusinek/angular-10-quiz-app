@@ -7,4 +7,3 @@ export interface QuizMetadata {
   correctAnswersCount$: Observable<number>;
   completionTime: number;
 }
-  

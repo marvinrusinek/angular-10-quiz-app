@@ -25,5 +25,4 @@ export interface OptionBindings {
   disabled: boolean;
   ariaLabel: string
   directiveInstance?: HighlightOptionDirective;
-
 }
