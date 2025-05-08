@@ -2484,71 +2484,61 @@ export class QuizQuestionComponent
   }): Promise<void> {
     console.log('[🔥 onOptionClicked] method triggered');
     console.log('[🧪 onOptionClicked] event received:', event);
-  
+    
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
   
-    // Update option selection state immediately
-    this.updateOptionSelection(event, option);
-  
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     console.log('[🔒 lockedIndex]:', lockedIndex);
     this.quizService.setCurrentQuestionIndex(lockedIndex);
-
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-    );
-
+  
+    // Update option selection state immediately
+    this.updateOptionSelection(event, option);
+  
     // Verify the current answered state
     const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
     console.log('[🟡 Current Answered State]:', isAlreadyAnswered);
-
-    // Update answered state only if not already set
-    // Ensure answered state is set on first click
+  
+    // Always set answered state on first click
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
     this.quizStateService.setAnswered(true);
     this.selectedOptionService.setAnswered(true, true);
     console.log('[✅ setAnswered called]');
-    console.log('[✅ Explanation text triggered on first click]');
-    console.log('[✅ Next button state evaluated on first click]');
-
-    // Ensure next button state is synchronized
-    // Force sync next button state after setting answered state
-    console.log('[🔄 Synchronizing next button state]');
-    this.nextButtonStateService.syncNextButtonState();
   
     try {
-      this.prepareQuestionText();
-
+      // Fetch explanation and update UI
       console.log('[🔄 Fetching explanation for Q' + lockedIndex + ']');
       const explanationText = await this.fetchAndUpdateExplanationText(lockedIndex);
-      console.log('[✅ Explanation fetched and displayed for Q' + lockedIndex + ']:', explanationText);
-
-      await this.emitExplanationIfNeeded(explanationText);
-
-      this.markAsAnsweredAndShowExplanation(lockedIndex);
-
-      this.nextButtonStateService.syncNextButtonState();
+      console.log('[✅ Explanation fetched for Q' + lockedIndex + ']:', explanationText);
   
+      await this.emitExplanationIfNeeded(explanationText);
+      console.log('[✅ Explanation emitted for Q' + lockedIndex + ']');
+  
+      // Mark as answered and update display state
+      this.markAsAnsweredAndShowExplanation(lockedIndex);
+  
+      // Apply feedback after explanation is displayed
       await this.applyFeedbackIfNeeded(option);
-      //const explanationText = await this.handleRefreshExplanation();
       
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      this.finalizeAfterClick(option, event.index);
+      // Synchronize next button state after all async operations are complete
+      this.nextButtonStateService.syncNextButtonState();
+      console.log('[✅ Next button state synchronized after explanation and feedback]');
+    
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
-
-    // Final state sync to ensure everything is up-to-date
+  
+    // Ensure final sync of next button state and UI update
     setTimeout(() => {
       this.nextButtonStateService.syncNextButtonState();
       this.cdRef.detectChanges();
       console.log('[✅ Final state sync after first click]');
-    }, 0);
+    }, 50);
   }
 
   private prepareQuestionText(): void {
