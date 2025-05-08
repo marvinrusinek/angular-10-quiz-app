@@ -2640,19 +2640,21 @@ export class QuizQuestionComponent
     }
   
     try {
-      // Check session storage
+      // Check session storage first
       const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
       if (storedExplanation) {
-        console.log('[✅ fetchAndUpdateExplanationText] Retrieved from session storage:', storedExplanation);
+        console.log('[✅ Retrieved from session storage]:', storedExplanation);
         this.applyExplanation(storedExplanation);
+        this.emitExplanationIfNeeded(storedExplanation); // Emit immediately
         return storedExplanation;
       }
   
-      // Check service cache
+      // Check service cache next
       const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
       if (cachedExplanation) {
-        console.log('[✅ fetchAndUpdateExplanationText] Retrieved from cache:', cachedExplanation);
+        console.log('[✅ Retrieved from cache]:', cachedExplanation);
         this.applyExplanation(cachedExplanation);
+        this.emitExplanationIfNeeded(cachedExplanation); // Emit immediately
   
         // Store in session storage for future use
         sessionStorage.setItem(`explanationText_${questionIndex}`, cachedExplanation);
@@ -2667,31 +2669,34 @@ export class QuizQuestionComponent
         : 'No explanation available';
   
       if (!explanationText.trim()) {
-        console.warn(`[⚠️ fetchAndUpdateExplanationText] No explanation text found for Q${questionIndex}`);
+        console.warn(`[⚠️ No explanation text found for Q${questionIndex}`);
         return '';
       }
   
       // Confirm the question index hasn’t changed during async fetch
       if (lockedQuestionIndex !== this.currentQuestionIndex) {
-        console.warn(
-          `[⚠️ fetchAndUpdateExplanationText] Explanation index mismatch after fetch! Skipping update.`
-        );
+        console.warn(`[⚠️ Explanation index mismatch after fetch! Skipping update.`);
         return '';
       }
   
-      // Cache and display
-      console.log('[✅ fetchAndUpdateExplanationText] Fetched from service:', explanationText);
+      console.log('[✅ Fetched from service]:', explanationText);
+  
+      // Apply and emit immediately
+      this.applyExplanation(explanationText);
+      this.emitExplanationIfNeeded(explanationText); // Emit immediately
+  
+      // Cache and store in session
       this.explanationTextService.formattedExplanations[questionIndex] = {
         questionIndex,
         explanation: explanationText,
       };
       sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
-      this.applyExplanation(explanationText);
   
       return explanationText;
+  
     } catch (error) {
       console.error(
-        `[❌ fetchAndUpdateExplanationText] Error fetching explanation for Q${questionIndex}:`,
+        `[❌ Error fetching explanation for Q${questionIndex}:`,
         error
       );
   
