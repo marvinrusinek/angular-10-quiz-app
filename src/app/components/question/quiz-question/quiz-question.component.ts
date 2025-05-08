@@ -2498,37 +2498,33 @@ export class QuizQuestionComponent
     // Update option selection state immediately
     this.updateOptionSelection(event, option);
   
-    // Verify the current answered state
-    const isAlreadyAnswered = this.selectedOptionService.getAnsweredState();
-    console.log('[🟡 Current Answered State]:', isAlreadyAnswered);
-  
     // Always set answered state on first click
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
+    this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswered(true);
-    this.selectedOptionService.setAnswered(true, true);
-    console.log('[✅ setAnswered called]');
   
     try {
-      // Fetch explanation and update UI
-      console.log('[🔄 Fetching explanation for Q' + lockedIndex + ']');
-      const explanationText = await this.fetchAndUpdateExplanationText(lockedIndex);
-      console.log('[✅ Explanation fetched for Q' + lockedIndex + ']:', explanationText);
+      // Fetch explanation and update UI before proceeding
+      console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
   
+      // Mark as answered and emit explanation
       await this.emitExplanationIfNeeded(explanationText);
-      console.log('[✅ Explanation emitted for Q' + lockedIndex + ']');
-  
-      // Mark as answered and update display state
-      this.markAsAnsweredAndShowExplanation(lockedIndex);
+      console.log(`[✅ Explanation emitted for Q${lockedIndex}]`);
   
       // Apply feedback after explanation is displayed
       await this.applyFeedbackIfNeeded(option);
-      
+  
+      // Set display state to explanation mode after feedback
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // Synchronize next button state after all async operations are complete
+      console.log('[✅ Display state set to explanation mode]');
+  
+      // Synchronize next button state after all operations are complete
       this.nextButtonStateService.syncNextButtonState();
-      console.log('[✅ Next button state synchronized after explanation and feedback]');
-    
+      console.log('[✅ Next button state synchronized]');
+      
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
@@ -3775,34 +3771,38 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(index: number): Promise<string> {
-    const entry = this.explanationTextService.formattedExplanations[index];
-    const explanationText = entry?.explanation?.trim();
+    console.log(`[🔄 updateExplanationText] Fetching explanation for Q${index}`);
     
-    if (!explanationText) {
-      console.warn(`[❌ updateExplanationText] No explanation found for Q${index}`);
-      return 'No explanation available';
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    
+    if (!explanationText || explanationText === 'No explanation available') {
+      console.warn(`[❌ updateExplanationText] No valid explanation found for Q${index}`);
+      return explanationText;
     }
-
+  
     // Cache to quiz state if not already stored
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
-    if (qState && (!qState.explanationDisplayed || !qState.explanationText?.trim())) {
+    const isAlreadyDisplayed = qState?.explanationDisplayed;
+    const existingText = qState?.explanationText?.trim();
+  
+    // Update state and emit only if not already displayed or if the text differs
+    const shouldEmit = !isAlreadyDisplayed || existingText !== explanationText;
+  
+    if (shouldEmit) {
+      console.log(`[📤 Emitting explanation for Q${index}]`, explanationText);
+      
+      // Emit the explanation
+      this.explanationTextService.setExplanationText(explanationText);
+  
+      // Update quiz state to prevent re-emission
       this.quizStateService.setQuestionState(this.quizId, index, {
         ...qState,
         explanationDisplayed: true,
-        explanationText
+        explanationText,
       });
-    }
-    
-    // Defensive emit check
-    const latest = this.explanationTextService.latestExplanation?.trim();
-    const currentFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-    const shouldEmit = explanationText !== latest || !currentFormatted;
-    
-    if (shouldEmit) {
-      console.log(`[📤 Emitting explanation for Q${index}]`, explanationText, performance.now());
-      this.explanationTextService.setExplanationText(explanationText);
     } else {
-      console.log(`[🛡️ Skipped explanation emit for Q${index}] Already current`);
+      console.log(`[🛡️ Skipped explanation emit for Q${index}] Already displayed or unchanged`);
     }
   
     return explanationText;
