@@ -165,7 +165,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isCurrentQuestionAnswered = false;
 
   previousIndex: number | null = null;
-  isQuestionIndexChanged = false;
   isQuestionDisplayed = false;
   
   isNavigating = false;
