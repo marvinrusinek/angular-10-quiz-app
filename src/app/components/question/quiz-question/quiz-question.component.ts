@@ -2556,7 +2556,7 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
   }
 
-  private async handleRefreshExplanation(): Promise<string> {
+  /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
   
     try {
@@ -2572,7 +2572,7 @@ export class QuizQuestionComponent
       console.error('[❌ handleRefreshExplanation] Error handling explanation:', error);
       return '';
     }
-  }
+  } */
   
   private async emitExplanationIfNeeded(rawExplanation: string): Promise<void> {
     const trimmed = rawExplanation?.trim() || 'No explanation available';
@@ -2585,7 +2585,7 @@ export class QuizQuestionComponent
       alreadySet,
       alreadyFormatted
     });
-    
+
     if (!alreadySet || !alreadyFormatted) {
       this.explanationTextService.setExplanationText(trimmed);
       this.explanationTextService.setShouldDisplayExplanation(true);
