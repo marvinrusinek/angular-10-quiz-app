@@ -1175,11 +1175,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const explanationEntry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = explanationEntry?.explanation?.trim() ?? 'No explanation available';
   
-    // Immediately set the explanation text
-    this.explanationTextService.setExplanationText(explanationText);
-    console.log(`[✅ Explanation text immediately set for Q${questionIndex}]`, explanationText);
+    console.log(`[✅ Explanation text determined for Q${questionIndex}]`, explanationText);
   
-    // Trigger immediate UI update
+    // Emit the explanation text to both observable and direct state
+    this.explanationTextService.formattedExplanationSubject.next(explanationText);
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    console.log(`[📤 Explanation text emitted and set for Q${questionIndex}]`, explanationText);
+  
+    // Force immediate change detection
     this.cdRef.detectChanges();
   }
   
