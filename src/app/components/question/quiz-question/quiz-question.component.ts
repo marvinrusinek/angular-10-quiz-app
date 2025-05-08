@@ -2530,6 +2530,8 @@ export class QuizQuestionComponent
       await this.emitExplanationIfNeeded(explanationText);
 
       this.markAsAnsweredAndShowExplanation(lockedIndex);
+
+      this.nextButtonStateService.syncNextButtonState();
   
       await this.applyFeedbackIfNeeded(option);
       //const explanationText = await this.handleRefreshExplanation();
@@ -2577,6 +2579,13 @@ export class QuizQuestionComponent
   
     const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
     const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+
+    console.log('[🔍 emitExplanationIfNeeded] Checking explanation state:', {
+      trimmed,
+      alreadySet,
+      alreadyFormatted
+    });
+    
     if (!alreadySet || !alreadyFormatted) {
       this.explanationTextService.setExplanationText(trimmed);
       this.explanationTextService.setShouldDisplayExplanation(true);
