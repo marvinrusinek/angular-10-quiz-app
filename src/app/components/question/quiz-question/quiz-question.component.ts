@@ -2477,7 +2477,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2530,6 +2530,65 @@ export class QuizQuestionComponent
     }
   
     // Ensure final sync of next button state and UI update
+    setTimeout(() => {
+      this.nextButtonStateService.syncNextButtonState();
+      this.cdRef.detectChanges();
+      console.log('[✅ Final state sync after first click]');
+    }, 50);
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    console.log('[🔥 onOptionClicked] method triggered');
+    console.log('[🧪 onOptionClicked] event received:', event);
+  
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    console.log('[🔒 lockedIndex]:', lockedIndex);
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    // Update option selection state and immediately emit explanation text
+    this.updateOptionSelection(event, option);
+  
+    // Set answered state immediately
+    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
+    this.selectedOptionService.setAnswered(true);
+    this.quizStateService.setAnswered(true);
+  
+    try {
+      console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
+  
+      // Emit explanation text immediately, without awaiting
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      console.log(`[✅ Immediate Explanation Emitted for Q${lockedIndex}]`, explanationText);
+  
+      if (explanationText !== 'No explanation available') {
+        console.log(`[📤 Emitting explanation for Q${lockedIndex}]`);
+        this.explanationTextService.setExplanationText(explanationText);
+      }
+  
+      // Apply feedback logic simultaneously
+      this.applyFeedbackIfNeeded(option);
+  
+      // Set display state to explanation mode immediately
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      // Sync next button state immediately
+      this.nextButtonStateService.syncNextButtonState();
+      console.log('[✅ Next button state synchronized]');
+  
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  
+    // Final state sync to ensure all updates are applied
     setTimeout(() => {
       this.nextButtonStateService.syncNextButtonState();
       this.cdRef.detectChanges();
