@@ -2626,6 +2626,8 @@ export class QuizQuestionComponent
   private async fetchAndUpdateExplanationText(
     questionIndex: number
   ): Promise<string> {
+    console.log('[🔄 fetchAndUpdateExplanationText] called for Q' + questionIndex);
+  
     // Lock the question index at the time of call
     const lockedQuestionIndex = this.currentQuestionIndex;
   
@@ -2639,66 +2641,57 @@ export class QuizQuestionComponent
   
     try {
       // Check session storage
-      const storedExplanation = sessionStorage.getItem(
-        `explanationText_${questionIndex}`
-      );
+      const storedExplanation = sessionStorage.getItem(`explanationText_${questionIndex}`);
       if (storedExplanation) {
+        console.log('[✅ fetchAndUpdateExplanationText] Retrieved from session storage:', storedExplanation);
         this.applyExplanation(storedExplanation);
-        return storedExplanation; // ✅ Return the explanation text
+        return storedExplanation;
       }
   
       // Check service cache
-      const cachedExplanation =
-        this.explanationTextService.formattedExplanations[questionIndex]
-          ?.explanation;
+      const cachedExplanation = this.explanationTextService.formattedExplanations[questionIndex]?.explanation;
       if (cachedExplanation) {
+        console.log('[✅ fetchAndUpdateExplanationText] Retrieved from cache:', cachedExplanation);
         this.applyExplanation(cachedExplanation);
   
         // Store in session storage for future use
-        sessionStorage.setItem(
-          `explanationText_${questionIndex}`,
-          cachedExplanation
-        );
-        return cachedExplanation; // ✅ Return the cached explanation text
+        sessionStorage.setItem(`explanationText_${questionIndex}`, cachedExplanation);
+        return cachedExplanation;
       }
   
       // Fetch explanation from service, only if initialized
-      const explanationText = this.explanationTextService
-        .explanationsInitialized
+      const explanationText = this.explanationTextService.explanationsInitialized
         ? await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(
-              questionIndex
-            )
+            this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
           )
         : 'No explanation available';
   
-      if (!explanationText?.trim()) {
-        console.warn(
-          `[fetchAndUpdateExplanationText] ⚠️ No explanation text found for Q${questionIndex}`
-        );
+      if (!explanationText.trim()) {
+        console.warn(`[⚠️ fetchAndUpdateExplanationText] No explanation text found for Q${questionIndex}`);
         return '';
       }
   
       // Confirm the question index hasn’t changed during async fetch
       if (lockedQuestionIndex !== this.currentQuestionIndex) {
         console.warn(
-          `[fetchAndUpdateExplanationText] ⚠️ Explanation index mismatch after fetch! Skipping update.`
+          `[⚠️ fetchAndUpdateExplanationText] Explanation index mismatch after fetch! Skipping update.`
         );
         return '';
       }
   
       // Cache and display
+      console.log('[✅ fetchAndUpdateExplanationText] Fetched from service:', explanationText);
       this.explanationTextService.formattedExplanations[questionIndex] = {
         questionIndex,
-        explanation: explanationText
+        explanation: explanationText,
       };
       sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
       this.applyExplanation(explanationText);
   
-      return explanationText; // ensure the fetched explanation text is returned
+      return explanationText;
     } catch (error) {
       console.error(
-        `[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
+        `[❌ fetchAndUpdateExplanationText] Error fetching explanation for Q${questionIndex}:`,
         error
       );
   
@@ -2707,7 +2700,7 @@ export class QuizQuestionComponent
         this.showExplanationChange.emit(true);
       }
   
-      return ''; // return an empty string in case of error
+      return 'Error loading explanation.';
     }
   }
 
