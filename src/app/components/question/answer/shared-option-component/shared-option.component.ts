@@ -12,6 +12,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuestionType } from '../../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
@@ -110,6 +111,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   onDestroy$ = new Subject<void>();
 
   constructor(
+    private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService,
@@ -1136,6 +1138,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[⚠️ No matching directive found for optionId]', optionId);
     }
   }
+
+  private forceExplanationRefresh(questionIndex: number): void {
+    console.log('[⚡️ forceExplanationRefresh] Triggered for Q' + questionIndex);
+  
+    const explanationText = this.explanationTextService.formattedExplanations[questionIndex]?.explanation?.trim();
+    
+    if (!explanationText) {
+      console.warn(`[⚠️ No explanation found for Q${questionIndex}]`);
+      return;
+    }
+  
+    // Update explanation text immediately
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation text set for Q${questionIndex}]`, explanationText);
+  
+    // Force immediate DOM update
+    this.cdRef.detectChanges();
+  }  
 
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
