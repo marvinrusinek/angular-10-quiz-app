@@ -2632,20 +2632,36 @@ export class QuizQuestionComponent
   private async emitExplanationIfNeeded(rawExplanation: string): Promise<void> {
     const trimmed = rawExplanation?.trim() || 'No explanation available';
   
-    const alreadySet = this.explanationTextService.latestExplanation?.trim() === trimmed;
-    const alreadyFormatted = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-
+    const latestExplanation = this.explanationTextService.latestExplanation?.trim();
+    const formattedExplanation = this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+  
     console.log('[🔍 emitExplanationIfNeeded] Checking explanation state:', {
       trimmed,
-      alreadySet,
-      alreadyFormatted
+      latestExplanation,
+      formattedExplanation
     });
-
-    if (!alreadySet || !alreadyFormatted) {
+  
+    const shouldEmit = trimmed !== latestExplanation || !formattedExplanation;
+  
+    if (shouldEmit) {
+      console.log('[📤 Emitting explanation immediately:', trimmed);
+  
+      // Emit to observable first
+      this.explanationTextService.formattedExplanationSubject.next(trimmed);
+  
+      // Immediately set the explanation text in state
       this.explanationTextService.setExplanationText(trimmed);
+  
+      // Ensure the explanation is displayed and locked
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
+  
+      console.log('[✅ Explanation emitted and locked:', trimmed);
+  
+      // Immediate UI update
       this.cdRef.detectChanges();
+    } else {
+      console.log('[🛑 Explanation already set and formatted, skipping emit');
     }
   }
   
