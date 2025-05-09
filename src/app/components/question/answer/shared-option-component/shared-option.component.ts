@@ -33,6 +33,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
+  @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
@@ -1201,6 +1202,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Set last selected index for feedback targeting
     this.lastSelectedOptionIndex = index;
+
+    // Emit the explanation update event
+    this.explanationUpdate.emit(index);
   
     // Safely access optionId, or fallback to index
     const optionId = this.quizService.getSafeOptionId(clonedOption, index);

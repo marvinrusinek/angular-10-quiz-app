@@ -2562,6 +2562,7 @@ export class QuizQuestionComponent
 
     // Display explanation text immediately
     // this.immediateExplanationUpdate(questionIndex);
+    
 
     // Enable the Next button immediately
     this.nextButtonState.emit(true);
