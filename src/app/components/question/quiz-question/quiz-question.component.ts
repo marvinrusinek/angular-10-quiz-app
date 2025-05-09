@@ -2583,6 +2583,8 @@ export class QuizQuestionComponent
         console.log(`[📤 Emitting explanation for Q${lockedIndex}]`);
         this.explanationTextService.setExplanationText(explanationText);
       }
+
+      this.explanationTextService.emitExplanationIfNeeded(explanationText);
   
       // Apply feedback logic simultaneously
       this.applyFeedbackIfNeeded(option);
