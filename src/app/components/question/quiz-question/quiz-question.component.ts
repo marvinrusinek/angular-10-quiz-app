@@ -2574,31 +2574,26 @@ export class QuizQuestionComponent
   
     try {
       console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
-  
-      // Emit explanation text immediately, without awaiting
+    
+      // Fetch explanation text
       const explanationText = await this.updateExplanationText(lockedIndex);
-      console.log(`[✅ Immediate Explanation Emitted for Q${lockedIndex}]`, explanationText);
-  
-      if (explanationText !== 'No explanation available') {
-        console.log(`[📤 Emitting explanation for Q${lockedIndex}]`);
-        this.explanationTextService.setExplanationText(explanationText);
-      }
-
+      console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
+    
+      // Emit explanation text immediately
       this.explanationTextService.emitExplanationIfNeeded(explanationText);
-  
-      // Apply feedback logic simultaneously
+    
+      // Apply feedback logic
       this.applyFeedbackIfNeeded(option);
-  
-      // Set display state to explanation mode immediately
+    
+      // Set display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
+    
       // Sync next button state immediately
       this.nextButtonStateService.syncNextButtonState();
       console.log('[✅ Next button state synchronized]');
-  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
-    }
+    }    
   
     // Final state sync to ensure all updates are applied
     setTimeout(() => {
