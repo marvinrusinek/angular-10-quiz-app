@@ -2570,13 +2570,10 @@ export class QuizQuestionComponent
       // Emit explanation text immediately
       this.explanationTextService.emitExplanationIfNeeded(explanationText);
   
-      // Set answer state and emit the 'answer' event
+      // Emit 'answered' state and enable the Next button simultaneously
       this.answer.emit(1);
-      console.log('[✅ Answer state emitted]');
-  
-      // Enable the Next button
       this.nextButtonState.emit(true);
-      console.log('[✅ Next button enabled]');
+      console.log('[✅ Answer state emitted and Next button enabled]');
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
