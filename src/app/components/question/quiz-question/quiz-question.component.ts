@@ -2556,6 +2556,15 @@ export class QuizQuestionComponent
   
     // Update option selection state and immediately emit explanation text
     this.updateOptionSelection(event, option);
+
+    // Set answer state immediately
+    this.answer.emit(1);
+
+    // Display explanation text immediately
+    // this.immediateExplanationUpdate(questionIndex);
+
+    // Enable the Next button immediately
+    this.nextButtonState.emit(true);
   
     // Set answered state immediately
     console.log('[🧪 onOptionClicked → setting answered to TRUE]');
