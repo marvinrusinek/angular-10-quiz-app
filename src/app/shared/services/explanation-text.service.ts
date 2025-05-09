@@ -318,6 +318,35 @@ export class ExplanationTextService {
     return of(explanations);
   }
 
+  emitExplanationIfNeeded(rawExplanation: string): void {
+    const trimmed = rawExplanation?.trim() || 'No explanation available';
+  
+    const latestExplanation = this.latestExplanation?.trim();
+    const formattedExplanation = this.formattedExplanationSubject.getValue()?.trim();
+  
+    console.log('[🔍 emitExplanationIfNeeded] Checking explanation state:', {
+      trimmed,
+      latestExplanation,
+      formattedExplanation
+    });
+  
+    const shouldEmit = trimmed !== latestExplanation || !formattedExplanation;
+  
+    if (shouldEmit) {
+      console.log('[📤 Emitting explanation immediately:', trimmed);
+  
+      // Emit to observable and update state
+      this.formattedExplanationSubject.next(trimmed);
+      this.setExplanationText(trimmed);
+      this.setShouldDisplayExplanation(true);
+      this.lockExplanation();
+  
+      console.log('[✅ Explanation emitted and locked:', trimmed);
+    } else {
+      console.log('[🛑 Explanation already set and formatted, skipping emit');
+    }
+  }
+
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
