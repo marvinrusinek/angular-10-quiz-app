@@ -2553,54 +2553,41 @@ export class QuizQuestionComponent
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     console.log('[🔒 lockedIndex]:', lockedIndex);
     this.quizService.setCurrentQuestionIndex(lockedIndex);
-
-    // Set answer state immediately
-    this.answer.emit(1);
-
-    // Display explanation text immediately
-    // this.immediateExplanationUpdate(questionIndex);
-    
-
-    // Enable the Next button immediately
-    this.nextButtonState.emit(true);
-  
-    // Set answered state immediately
-    console.log('[🧪 onOptionClicked → setting answered to TRUE]');
-    this.selectedOptionService.setAnswered(true);
-    this.quizStateService.setAnswered(true);
   
     try {
       console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
-      
-      // Update option selection state and immediately emit explanation text
+  
+      // Immediately update the option selection state
       this.updateOptionSelection(event, option);
-    
-      // Fetch explanation text
+  
+      // Apply feedback logic immediately
+      this.applyFeedbackIfNeeded(option);
+  
+      // Fetch explanation text immediately
       const explanationText = await this.updateExplanationText(lockedIndex);
       console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
-    
+  
       // Emit explanation text immediately
       this.explanationTextService.emitExplanationIfNeeded(explanationText);
-    
-      // Apply feedback logic
-      this.applyFeedbackIfNeeded(option);
-    
-      // Set display state to explanation mode
+  
+      // Set answer state and emit the 'answer' event
+      this.answer.emit(1);
+      console.log('[✅ Answer state emitted]');
+  
+      // Enable the Next button
+      this.nextButtonState.emit(true);
+      console.log('[✅ Next button enabled]');
+  
+      // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    
-      // Sync next button state immediately
-      this.nextButtonStateService.syncNextButtonState();
-      console.log('[✅ Next button state synchronized]');
+  
+      // Final state sync to ensure all updates are applied
+      this.cdRef.detectChanges();
+      console.log('[✅ State synchronized after first click]');
+  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
-    }    
-  
-    // Final state sync to ensure all updates are applied
-    setTimeout(() => {
-      this.nextButtonStateService.syncNextButtonState();
-      this.cdRef.detectChanges();
-      console.log('[✅ Final state sync after first click]');
-    }, 50);
+    }
   }
 
   private prepareQuestionText(): void {
