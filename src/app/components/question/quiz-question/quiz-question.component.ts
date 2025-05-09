@@ -2553,9 +2553,6 @@ export class QuizQuestionComponent
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     console.log('[🔒 lockedIndex]:', lockedIndex);
     this.quizService.setCurrentQuestionIndex(lockedIndex);
-  
-    // Update option selection state and immediately emit explanation text
-    this.updateOptionSelection(event, option);
 
     // Set answer state immediately
     this.answer.emit(1);
@@ -2574,6 +2571,9 @@ export class QuizQuestionComponent
   
     try {
       console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
+      
+      // Update option selection state and immediately emit explanation text
+      this.updateOptionSelection(event, option);
     
       // Fetch explanation text
       const explanationText = await this.updateExplanationText(lockedIndex);
