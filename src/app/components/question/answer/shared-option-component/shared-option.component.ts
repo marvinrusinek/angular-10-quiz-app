@@ -1097,12 +1097,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   updateHighlighting(): void {
+    console.log(`[🎯 updateHighlighting] Starting at ${Date.now()}`);
+  
     if (!this.highlightDirectives?.length) {
       console.warn('[❌ updateHighlighting] No highlightDirectives available.');
       return;
     }
-  
-    console.log('[🎯 updateHighlighting] Updating option highlights and feedback states...');
   
     this.highlightDirectives.forEach((directive, index) => {
       const binding = this.optionBindings[index];
@@ -1113,6 +1113,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       const option = binding.option;
   
+      console.log(`[🛠️ Applying Highlight - Option ${option.optionId} - Index ${index} at ${Date.now()}`);
+  
       // Sync state flags to directive
       directive.option = option;
       directive.isSelected = binding.isSelected || !!option.selected;
@@ -1121,22 +1123,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
                                this.showFeedbackForOption[option.optionId ?? index];
       directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
   
-      // Force option to retain highlight if previously selected
-      if (binding.isSelected || option.selected || option.highlight) {
-        option.highlight = true;
-      }
-  
-      // Icon shows for selected options
+      // Apply highlight and icon state
+      option.highlight = binding.isSelected || option.selected || option.highlight;
       option.showIcon = directive.isSelected && this.showFeedback;
   
-      // Trigger directive to apply highlight immediately
+      console.log(`[✅ Highlight Applied - Option ${option.optionId}] at ${Date.now()}`);
+  
+      // Trigger directive update
       directive.updateHighlight();
     });
   
-    console.log('[✅ updateHighlighting] Highlighting and feedback applied.');
+    console.log(`[✅ updateHighlighting Complete] at ${Date.now()}`);
   
-    // Emit explanation text immediately after highlighting is applied
-    console.log('[📢 Emitting Explanation Text for Q' + this.quizService.currentQuestionIndex);
+    // Immediately trigger explanation text and navigation update
     this.emitExplanationAndSyncNavigation();
   }
 
