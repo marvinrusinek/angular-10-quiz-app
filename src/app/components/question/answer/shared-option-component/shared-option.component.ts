@@ -1069,7 +1069,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log(`[✅ Final State Update for Option ${optionId}]`);
   
         // Centralized Explanation Emission, Feedback Application, and Next Button Sync
-        this.emitExplanationAndSyncNavigation(questionIndex);
+        this.emitExplanationAndSyncNavigation();
   
         // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
