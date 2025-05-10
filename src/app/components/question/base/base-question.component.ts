@@ -150,7 +150,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   private updateQuizStateService(): void {
     if (this.quizStateService) {
       try {
-        this.quizStateService.setCurrentQuestion(this.question);
+        this.quizService.setCurrentQuestion(this.question);
       } catch (error) {
         console.error('Error updating current question:', error);
       }
