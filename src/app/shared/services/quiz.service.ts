@@ -924,13 +924,21 @@ export class QuizService implements OnDestroy {
       console.error('Attempted to set a null or undefined question.');
       return;
     }
-
+  
     const previousQuestion = this.currentQuestion.getValue();
-
-    // Avoid unnecessary updates if the question is the same
-    // Perform a deep comparison to check for differences
-    if (this.areQuestionsEqual(previousQuestion, question)) return;
-
+    
+    console.log('[QuizService] Previous Question:', previousQuestion);
+    console.log('[QuizService] New Question:', question);
+  
+    // Check for deep comparison result
+    const isEqual = this.areQuestionsEqual(previousQuestion, question);
+    console.log('[QuizService] areQuestionsEqual:', isEqual);
+  
+    if (isEqual) {
+      console.warn('[QuizService] Question is considered identical to the previous one. Skipping update.');
+      return;
+    }
+  
     // Ensure options have correct properties
     const updatedQuestion: QuizQuestion = {
       ...question,
@@ -940,7 +948,9 @@ export class QuizService implements OnDestroy {
         correct: option.correct ?? false
       })) || []
     };
-
+  
+    console.log('[QuizService] Emitting updated question:', updatedQuestion);
+  
     // Emit the new question
     this.currentQuestion.next({ ...updatedQuestion });
   }
