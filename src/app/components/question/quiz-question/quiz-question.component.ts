@@ -188,7 +188,7 @@ export class QuizQuestionComponent
   isExplanationReady = false;
   isExplanationLocked = true;
   currentExplanationText = '';
-  private explanationEmitted = false;
+  explanationEmitted = false;
 
   private lastSerializedOptions = '';
   private lastSerializedPayload = '';
