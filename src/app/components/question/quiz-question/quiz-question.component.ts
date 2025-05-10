@@ -2681,30 +2681,44 @@ export class QuizQuestionComponent
   }
   
   private async applyFeedbackIfNeeded(option: SelectedOption): Promise<void> {
+    console.log(`[📝 applyFeedbackIfNeeded] Triggered for Option ${option.optionId}`);
+  
     if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ applyFeedbackIfNeeded] Options not populated. Attempting to repopulate...');
       await new Promise((res) => setTimeout(res, 50));
       this.optionsToDisplay = this.populateOptionsToDisplay();
     }
   
     const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
-    if (!foundOption) return;
+    if (!foundOption) {
+      console.warn(`[⚠️ applyFeedbackIfNeeded] Option ${option.optionId} not found in optionsToDisplay`);
+      return;
+    }
+  
+    console.log(`[✅ applyFeedbackIfNeeded] Found Option: ${foundOption.optionId}`);
   
     if (!this.isFeedbackApplied) {
+      console.log(`[🛠️ Applying Feedback for Option ${foundOption.optionId}]`);
       await this.applyOptionFeedback(foundOption);
     }
   
-    this.showFeedbackForOption[option.optionId || 0] = true;
+    this.showFeedbackForOption[option.optionId] = true;
+    console.log(`[✅ Feedback applied for Option ${option.optionId}]`);
   
-    setTimeout(() => {
-      const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
-      const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
+    // Trigger explanation evaluation immediately after feedback application
+    const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
+    const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
   
-      if (ready && show) {
-        this.explanationTextService.triggerExplanationEvaluation();
-      } else {
-        console.log('[onOptionClicked] ⏭️ Explanation trigger skipped – not ready');
-      }
-    }, 30);
+    if (ready && show) {
+      console.log('[📢 Triggering Explanation Evaluation]');
+      this.explanationTextService.triggerExplanationEvaluation();
+    } else {
+      console.warn('[⏭️ Explanation trigger skipped – not ready or not set to display]');
+    }
+  
+    // Immediate change detection to ensure UI update
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied after Feedback for Option ${option.optionId}]`);
   }
   
   private finalizeAfterClick(option: SelectedOption, index: number): void {

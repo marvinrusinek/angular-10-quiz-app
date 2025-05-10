@@ -1095,6 +1095,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private synchronizeStateAndUI(questionIndex: number): void {
     console.log(`[🛠️ synchronizeStateAndUI] Triggered for Q${questionIndex}`);
   
+    const selectedOptionId = this.selectedOptionMap.get(questionIndex);
+  
+    console.log(`[🔍 Selected Option ID for Q${questionIndex}]: ${selectedOptionId}`);
+  
+    if (typeof selectedOptionId !== 'number') {
+      console.warn(`[⚠️ Invalid selectedOptionId: Expected number but got ${typeof selectedOptionId}`);
+      return;
+    }
+  
     // Fetch explanation text
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
@@ -1105,13 +1114,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.explanationTextService.setExplanationText(explanationText);
   
     // Apply feedback for the selected option
-    const selectedOptionId = this.selectedOptionMap.get(questionIndex);
-    if (selectedOptionId !== undefined) {
-      console.log(`[📝 Applying Feedback for Option ${selectedOptionId}]`);
-      const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
-      if (selectedOption) {
-        this.applyFeedbackIfNeeded(selectedOption);
-      }
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
+    if (selectedOption) {
+      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+      this.applyFeedbackIfNeeded(selectedOption);
+    } else {
+      console.warn(`[⚠️ No matching option found for ID: ${selectedOptionId}`);
     }
   
     // Enable the Next button immediately
@@ -1121,7 +1129,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Immediate change detection
     this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
-  }  
+  }
   
   private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
