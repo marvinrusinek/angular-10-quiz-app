@@ -1,7 +1,7 @@
 <ng-container 
   *ngIf="renderReady && canDisplayOptions && optionsToDisplay?.length > 0; else noOptions"
   [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
-  [style.minHeight]="'1rem'">
+  [style.minHeight]="'1rem'"> <!-- for flickering -->
 
   <form [formGroup]="form">
 
