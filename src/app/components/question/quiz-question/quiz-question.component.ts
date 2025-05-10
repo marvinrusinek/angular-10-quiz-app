@@ -2537,7 +2537,7 @@ export class QuizQuestionComponent
       console.log('[✅ Final state sync after first click]');
     }, 50);
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2590,6 +2590,59 @@ export class QuizQuestionComponent
       // Final state sync to ensure all updates are applied
       this.cdRef.detectChanges();
       console.log('[✅ State synchronized after first click]');
+  
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    console.log('[🔥 onOptionClicked] method triggered');
+    console.log('[🧪 onOptionClicked] event received:', event);
+  
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    console.log('[🔒 lockedIndex]:', lockedIndex);
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    try {
+      console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
+  
+      // Fetch explanation text
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
+  
+      // 🚀 Delay the explanation emission to align with Material's internal update cycle
+      setTimeout(() => {
+        if (!this.explanationEmitted) {
+          this.explanationTextService.emitExplanationIfNeeded(explanationText);
+          this.explanationEmitted = true;
+          console.log('[✅ Explanation emitted after slight delay]');
+        }
+  
+        // 🚀 Immediate UI update after emitting explanation
+        this.cdRef.detectChanges();
+        console.log('[✅ UI updated after explanation emission] Timestamp:', Date.now());
+  
+        // Apply feedback logic
+        this.applyFeedbackIfNeeded(option);
+  
+        // Emit 'answered' state and enable the Next button simultaneously
+        this.answer.emit(1);
+        this.nextButtonState.emit(true);
+        console.log('[✅ Answer state emitted and Next button enabled]');
+      }, 10);  // Slight delay to align with Material's event propagation timing
+  
+      // Update display state to explanation mode
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
