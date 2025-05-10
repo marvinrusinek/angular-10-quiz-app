@@ -1097,44 +1097,43 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private processSelectionAndSync(optionId: number, questionIndex: number): void {
-    this.ngZone.run(() => {
-      console.log(`[🛠️ processSelectionAndSync] Triggered for Q${questionIndex} - Option ${optionId}`);
+    console.log(`[🛠️ processSelectionAndSync] Triggered for Q${questionIndex} - Option ${optionId}`);
   
-      const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
-      if (!selectedOption) {
-        console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
-        return;
-      }
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
+    if (!selectedOption) {
+      console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
+      return;
+    }
   
-      console.log(`[✅ Option Found]:`, selectedOption);
+    console.log(`[✅ Selected Option]:`, selectedOption);
   
-      // Emit explanation text immediately
-      const entry = this.explanationTextService.formattedExplanations[questionIndex];
-      const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
-      console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+    // Emit explanation text immediately
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
   
-      this.explanationTextService.setExplanationText(explanationText);
-      console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
   
-      // Apply feedback
-      if (this.quizQuestionComponent) {
-        console.log(`[📝 Delegating Feedback for Option ${selectedOption.optionId}] to QQC`);
-        this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
-      }
+    // Apply feedback
+    if (this.quizQuestionComponent) {
+      console.log(`[📝 Delegating Feedback for Option ${selectedOption.optionId}] to QQC`);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+    } else {
+      console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+    }
   
-      // Trigger explanation evaluation immediately after feedback
-      console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
-      this.explanationTextService.triggerExplanationEvaluation();
+    // Trigger explanation evaluation immediately after feedback
+    console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+    this.explanationTextService.triggerExplanationEvaluation();
   
-      // Enable the Next button immediately
-      console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
-      this.nextButtonStateService.syncNextButtonState();
+    // Enable the Next button immediately
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
   
-      // Immediate change detection
-      this.cdRef.detectChanges();
-      console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
-    });
-  }  
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  }
 
   private synchronizeStateAndUI(questionIndex: number): void {
     console.log(`[🛠️ synchronizeStateAndUI] Triggered for Q${questionIndex}`);
