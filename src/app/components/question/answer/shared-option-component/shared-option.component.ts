@@ -455,7 +455,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private synchronizeOptionBindings(): void {
     if (!this.optionsToDisplay?.length) {
       console.warn('[synchronizeOptionBindings] No options to synchronize.');
-    
+  
       const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
       if (!hasSelection) {
         if (this.freezeOptionBindings) return;
@@ -463,33 +463,41 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       } else {
         console.warn('[🛡️ Skipped clearing optionBindings in sync — selection exists]');
       }
-    
+  
       return;
     }
-
+  
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-
+    console.log('[🔍 synchronizeOptionBindings] isMultipleAnswer:', isMultipleAnswer);
+  
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
-
+  
+    console.log('[🔍 Existing Selection Map]', existingSelectionMap);
+  
     if (this.freezeOptionBindings) {
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
   
     this.optionBindings = this.optionsToDisplay.map(option => {
-      // Restore highlight for previously selected options
-      if (this.highlightedOptionIds.has(option.optionId)) {
-        option.highlight = true;
-      }
-    
+      const isSelected = existingSelectionMap.get(option.optionId) ?? option.selected ?? false;
+      const feedback = option.feedback ?? 'No feedback available.';
+      const highlight = this.highlightedOptionIds.has(option.optionId);
+  
+      console.log(`[🔄 Synchronizing Option ${option.optionId}]`, {
+        isSelected,
+        highlight,
+        type: isMultipleAnswer ? 'multiple' : 'single'
+      });
+  
       return {
         type: isMultipleAnswer ? 'multiple' : 'single',
-        option: option,
-        feedback: option.feedback ?? 'No feedback available.',
-        isSelected: existingSelectionMap.get(option.optionId) ?? !!option.selected,
+        option,
+        feedback,
+        isSelected,
         active: option.active ?? true,
-        appHighlightOption: option.highlight,
+        appHighlightOption: highlight,
         isCorrect: !!option.correct,
         showFeedback: false,
         showFeedbackForOption: {},
@@ -501,15 +509,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         ariaLabel: `Option ${option.text}`,
         appResetBackground: false,
         optionsToDisplay: [...this.optionsToDisplay],
-        checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
+        checked: isSelected,
         change: () => {}
       };
     });
+  
+    // Apply highlighting after reassignment
     this.updateHighlighting();
-
-    console.warn('[🧨 optionBindings REASSIGNED]', {
-      stackTrace: new Error().stack
-    });
+  
+    console.warn('[🧨 optionBindings REASSIGNED]', JSON.stringify(this.optionBindings, null, 2));
   }
 
   /* onRadioClick(binding: OptionBindings, index: number): void {
