@@ -1140,25 +1140,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private emitExplanationAndSyncNavigation(): void {
-    console.log('[📢 emitExplanationAndSyncNavigation] Triggered for Q' + this.quizService.currentQuestionIndex);
+    const questionIndex = this.currentQuestionIndex;
+    console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex} at ${Date.now()}`);
   
-    const questionIndex = this.quizService.currentQuestionIndex;
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
-    console.log('[📤 Emitting explanation:', explanationText);
+    console.log(`[📤 Emitting explanation at ${Date.now()}:`, explanationText);
   
     // Emit explanation text immediately
     this.explanationTextService.setExplanationText(explanationText);
   
-    // Update next button state immediately
-    console.log('[🚀 Enabling Next Button for Q' + questionIndex);
+    // Verify emission status
+    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[📢 Explanation Text Emitted]: ${emittedText} at ${Date.now()}`);
+  
+    // Sync Next button state immediately
+    console.log(`[🚀 Enabling Next Button at ${Date.now()}`);
     this.nextButtonStateService.syncNextButtonState();
   
-    // Trigger immediate change detection
+    // Immediate change detection
     this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied at ${Date.now()}`);
   }
-  
 
   private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
