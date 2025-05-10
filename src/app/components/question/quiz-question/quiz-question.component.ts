@@ -2922,7 +2922,13 @@ export class QuizQuestionComponent
   }
 
   public populateOptionsToDisplay(): Option[] {
-    // Ensure optionsToDisplay is properly populated before applying feedback
+    console.log('[🚀 populateOptionsToDisplay] Attempting to populate optionsToDisplay...');
+  
+    if (!this.currentQuestion) {
+      console.warn('[populateOptionsToDisplay] ⚠️ currentQuestion is null or undefined. Skipping population.');
+      return [];
+    }
+  
     if (
       !Array.isArray(this.optionsToDisplay) ||
       this.optionsToDisplay.length === 0
@@ -2930,31 +2936,32 @@ export class QuizQuestionComponent
       console.warn(
         '[populateOptionsToDisplay] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.'
       );
-
-      if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-        // Repopulating options from currentQuestion
-
+  
+      if (Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length > 0) {
         this.optionsToDisplay = this.currentQuestion.options.map(
           (option, index) => ({
             ...option,
             optionId: option.optionId ?? index,
-            correct: option.correct ?? false
+            correct: option.correct ?? false,
           })
         );
-
+  
+        console.log('[✅ populateOptionsToDisplay] optionsToDisplay populated:', this.optionsToDisplay);
+  
         // Reset feedback state when repopulating options
         this.isFeedbackApplied = false;
-
-        return this.optionsToDisplay; // return the updated options
+  
+        return this.optionsToDisplay;
       } else {
         console.error(
-          '[populateOptionsToDisplay] ❌ Failed to repopulate optionsToDisplay. Returning empty array.'
+          '[populateOptionsToDisplay] ❌ currentQuestion.options is not a valid array. Returning empty array.'
         );
-        return []; // return an empty array instead of void
+        return [];
       }
     }
-
-    return this.optionsToDisplay; // return existing options if already populated
+  
+    console.log('[✅ populateOptionsToDisplay] Returning existing optionsToDisplay:', this.optionsToDisplay);
+    return this.optionsToDisplay;
   }
 
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
