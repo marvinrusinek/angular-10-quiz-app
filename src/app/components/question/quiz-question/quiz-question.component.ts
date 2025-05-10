@@ -2720,6 +2720,12 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied after Feedback for Option ${option.optionId}]`);
   }
+
+  public applyFeedbackForOption(selectedOption: SelectedOption): void {
+    console.log(`[📝 applyFeedbackForOption] Applying feedback for Option ${selectedOption.optionId}`);
+    this.applyFeedbackIfNeeded(selectedOption);
+  }
+  
   
   private finalizeAfterClick(option: SelectedOption, index: number): void {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
