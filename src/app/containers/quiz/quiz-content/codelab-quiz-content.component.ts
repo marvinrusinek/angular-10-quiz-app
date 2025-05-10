@@ -428,7 +428,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         this.explanationTextService.resetExplanationState();
         this.explanationTextService.resetExplanationText();
 
-        this.quizStateService.setCurrentQuestion(question);
+        this.quizService.setCurrentQuestion(question);
 
         /* setTimeout(() => {
           this.questionRendered.next(true); // Use BehaviorSubject

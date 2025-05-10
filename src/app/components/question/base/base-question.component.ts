@@ -406,7 +406,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
   protected setCurrentQuestion(question: QuizQuestion): void {
     if (this.quizStateService) {
-      this.quizStateService.setCurrentQuestion(question);
+      this.quizService.setCurrentQuestion(question);
     } else {
       console.warn(
         'quizStateService is not available. Unable to set current question.'

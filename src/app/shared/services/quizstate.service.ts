@@ -67,10 +67,6 @@ export class QuizStateService {
     this.questionStates = new Map<number, QuestionState>();
   }
 
-  setCurrentQuestion(question: QuizQuestion): void {
-    this.currentQuestionSubject.next(question);
-  }
-
   setQuestionText(text: string): void {
     const trimmed = (text ?? '').trim();
   
