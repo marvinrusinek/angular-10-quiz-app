@@ -319,7 +319,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  handleRadioGroupChange(event: MatRadioChange): void {
+  /* remove??? handleRadioGroupChange(event: MatRadioChange): void {
     console.log('[✅ handleRadioGroupChange]', event);
   
     const selectedId = event.value;
@@ -343,7 +343,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     console.log('🔍 Form value after selection:', this.form.value);
-  }
+  } */
 
     /**
    * Push the newly‐clicked option into history, then synchronise every binding’s
@@ -950,7 +950,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log(`[✅ Final State Update for Option ${optionId}]`);
   
         // Centralized Explanation Emission, Feedback Application, and Next Button Sync
-        this.emitExplanationAndSyncNavigation(questionIndex);
+        this.emitExplanationAndSyncNavigation();
   
         // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
@@ -1148,7 +1148,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private emitExplanationAndSyncNavigation(): void {
-    const questionIndex = this.currentQuestionIndex;
+    const questionIndex = this.quizService.currentQuestionIndex;
     console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex} at ${Date.now()}`);
   
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
