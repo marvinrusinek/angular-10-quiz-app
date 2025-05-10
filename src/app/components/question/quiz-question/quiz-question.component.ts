@@ -2568,7 +2568,13 @@ export class QuizQuestionComponent
       console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
   
       // Emit explanation text immediately
+      console.log('[🚀 Before Explanation Emission] Timestamp:', Date.now());
       this.explanationTextService.emitExplanationIfNeeded(explanationText);
+      console.log('[✅ After Explanation Emission] Timestamp:', Date.now());
+
+      // 🚀 Force immediate UI update after emitting explanation
+      this.cdRef.detectChanges();
+      console.log('[✅ UI updated after explanation emission] Timestamp:', Date.now());
   
       // Emit 'answered' state and enable the Next button simultaneously
       this.answer.emit(1);
