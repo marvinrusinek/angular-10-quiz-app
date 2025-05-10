@@ -845,6 +845,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    console.log("MY TEST UPDATE");
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
@@ -870,12 +871,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.lastClickTimestamp = now;
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
-
+  
     // Immediate explanation update before highlighting
+    console.log(`[📢 Immediate Explanation Update for Q${this.quizService.currentQuestionIndex}]`);
     this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
-
-    // Trigger explanation text sync after highlight update
-    // this.forceExplanationRefresh(this.quizService.currentQuestionIndex);
   
     // Apply selection and visuals
     optionBinding.option.highlight = checked;
@@ -889,7 +888,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId; // only move feedback anchor if this is new
+      this.lastFeedbackOptionId = optionId; 
       console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
       console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
@@ -916,10 +915,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       question: this.currentQuestion,
       selectedOption: optionBinding.option,
       correctMessage: '',
-      idx: index
+      idx: index,
     };
   
+    console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
+  
     // Trigger directive repaint for highlight + feedback
+    console.log(`[🎯 Applying Highlight for Option ${optionId}]`);
     this.forceHighlightRefresh(optionId);
   
     // Enforce single-answer behavior if applicable
@@ -945,6 +947,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.emitOptionSelectedEvent(optionBinding, index, checked);
         this.finalizeOptionSelection(optionBinding, checked);
   
+        console.log(`[✅ Final State Update for Option ${optionId}]`);
+  
+        // Centralized Explanation Emission, Feedback Application, and Next Button Sync
+        this.emitExplanationAndSyncNavigation(questionIndex);
+  
+        // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
       } catch (error) {
         console.error('[❌ updateOptionAndUI error]', error);
