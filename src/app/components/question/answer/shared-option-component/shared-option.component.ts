@@ -968,17 +968,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-
-    // Verify and log the current question index
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    console.log(`[🔍 Current Question Index]: ${currentIndex}`);
-
-    // Update current question index to ensure alignment
-    this.quizService.setCurrentQuestionIndex(currentIndex);
-
-    // Immediate explanation update with corrected index
-    console.log(`[📢 Immediate Explanation Update for Q${currentIndex}] at ${now}`);
-    this.immediateExplanationUpdate(currentIndex);
   
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
@@ -1012,6 +1001,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.option.selected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
+
+    // Synchronize state and UI
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    console.log(`[📍 Current Question Index]: ${currentIndex}`);
+
+    // Update current question index to ensure alignment
+    this.quizService.setCurrentQuestionIndex(currentIndex);
+
+    // Immediate explanation update with corrected index
+    console.log(`[📢 Immediate Explanation Update for Q${currentIndex}] at ${now}`);
+    this.immediateExplanationUpdate(currentIndex);
+
+    this.synchronizeStateAndUI(currentIndex);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1089,6 +1091,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
+
+  private synchronizeStateAndUI(questionIndex: number): void {
+    console.log(`[🛠️ synchronizeStateAndUI] Triggered for Q${questionIndex}`);
+  
+    // Fetch explanation text
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+  
+    console.log(`[📢 Explanation Text for Q${questionIndex}]:`, explanationText);
+  
+    // Emit explanation text immediately
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Apply feedback for the selected option
+    const selectedOptionId = this.selectedOptionMap.get(questionIndex);
+    if (selectedOptionId !== undefined) {
+      console.log(`[📝 Applying Feedback for Option ${selectedOptionId}]`);
+      const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
+      if (selectedOption) {
+        this.applyFeedbackIfNeeded(selectedOption);
+      }
+    }
+  
+    // Enable the Next button immediately
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Immediate change detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  }  
   
   private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
