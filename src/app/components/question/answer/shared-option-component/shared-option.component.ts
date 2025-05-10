@@ -1010,6 +1010,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.quizService.setCurrentQuestionIndex(currentIndex);
 
     this.processSelectionAndSync(optionId, currentIndex);
+    this.synchronizeStateAndRender(optionId, currentIndex);
     this.synchronizeAllStates(optionId, currentIndex);
 
     this.executeStateSync(currentIndex);
@@ -1095,6 +1096,49 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
+  }
+
+  private synchronizeStateAndRender(optionId: number, questionIndex: number): void {
+    console.log(`[🛠️ synchronizeStateAndRender] Triggered for Q${questionIndex} - Option ${optionId}`);
+  
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
+  
+    if (!selectedOption) {
+      console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
+      return;
+    }
+  
+    console.log(`[✅ Selected Option Found]:`, selectedOption);
+  
+    // Emit explanation text immediately
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+  
+    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+  
+    // Emit explanation text
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
+  
+    // Apply feedback
+    if (this.quizQuestionComponent) {
+      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+    } else {
+      console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+    }
+  
+    // Immediately trigger explanation evaluation
+    console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+    this.explanationTextService.triggerExplanationEvaluation();
+  
+    // Enable the Next button immediately
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Immediate change detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }
 
   private synchronizeAllStates(optionId: number, questionIndex: number): void {
