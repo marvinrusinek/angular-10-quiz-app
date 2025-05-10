@@ -2139,14 +2139,19 @@ export class QuizQuestionComponent
   }
 
   private async initializeQuiz(): Promise<void> {
-    if (this.initialized) return; // prevent re-initialization
+    if (this.initialized) {
+      console.warn('[🛑 QQC initializeQuiz] Already initialized. Skipping...');
+      return;
+    }
+  
     this.initialized = true;
-
-    // Initialize selected quiz and questions
+    console.log('[✅ QQC initializeQuiz] Initializing questions and answers...');
+  
+    // Initialize selected questions and answers without affecting the index
     this.initializeSelectedQuiz();
     await this.initializeQuizQuestionsAndAnswers();
-
-    console.info('Quiz questions and answers initialized.');
+  
+    console.info('[✅ QQC initializeQuiz] Questions and answers initialized.');
   }
 
   // might need later
