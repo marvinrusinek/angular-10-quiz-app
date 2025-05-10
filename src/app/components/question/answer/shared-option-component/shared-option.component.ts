@@ -35,7 +35,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
-  @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
@@ -1110,20 +1109,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
   
-    // Emit explanation text immediately and ensure immediate rendering
+    // Emit explanation text immediately
     this.explanationTextService.setExplanationText(explanationText);
     console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
   
-    // Apply feedback for the selected option
+    // Delegate feedback application to QQC
     const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
     if (selectedOption) {
-      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
-      this.applyFeedbackIfNeeded(selectedOption);
+      console.log(`[📝 Delegating Feedback for Option ${selectedOption.optionId}] to QQC`);
+  
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+      } else {
+        console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+      }
     } else {
       console.warn(`[⚠️ No matching option found for ID: ${selectedOptionId}`);
     }
   
-    // Trigger immediate explanation evaluation
+    // Trigger explanation evaluation immediately
     console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
     this.explanationTextService.triggerExplanationEvaluation();
   
