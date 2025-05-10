@@ -319,6 +319,9 @@ export class ExplanationTextService {
   }
 
   emitExplanationIfNeeded(rawExplanation: string): void {
+    console.log('[🔍 Checking explanation state before emission]', Date.now());
+    console.log('[📤 Emitting explanation immediately:', rawExplanation, Date.now());
+
     const trimmed = rawExplanation?.trim() || 'No explanation available';
   
     const latestExplanation = this.latestExplanation?.trim();
