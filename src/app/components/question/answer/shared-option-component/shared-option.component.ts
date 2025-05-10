@@ -840,7 +840,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return option.showIcon === true;
   }
 
-  updateOptionAndUI(
+  /* updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -951,6 +951,125 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
         // Centralized Explanation Emission, Feedback Application, and Next Button Sync
         this.emitExplanationAndSyncNavigation();
+  
+        // Force immediate change detection to ensure UI updates
+        this.cdRef.detectChanges();
+      } catch (error) {
+        console.error('[❌ updateOptionAndUI error]', error);
+      }
+    });
+  } */
+  updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    console.log("MY TEST UPDATE");
+    const optionId = optionBinding.option.optionId;
+    const now = Date.now();
+    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+  
+    // Block re-click on already selected option
+    if (optionBinding.option.selected && checked === true) {
+      console.warn('[🔒 Already selected — skipping update]', optionId);
+      return;
+    }
+  
+    // Block rapid duplicate unselect toggle
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Duplicate false event]', optionId);
+      return;
+    }
+  
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
+    this.freezeOptionBindings ??= true;
+    this.hasUserClicked = true;
+  
+    // Immediate explanation update before highlighting
+    console.log(`[📢 Immediate Explanation Update for Q${this.quizService.currentQuestionIndex}]`);
+    this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
+  
+    // Apply selection and visuals
+    optionBinding.option.highlight = checked;
+    optionBinding.isSelected = checked;
+    optionBinding.option.selected = checked;
+    optionBinding.option.showIcon = checked;
+    this.selectedOptionMap.set(optionId, checked);
+  
+    // Track selection history and feedback anchor
+    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
+  
+    if (!isAlreadyVisited) {
+      this.selectedOptionHistory.push(optionId);
+      this.lastFeedbackOptionId = optionId; 
+      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
+    } else {
+      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
+    }
+  
+    // Clear all feedback visibility
+    Object.keys(this.showFeedbackForOption).forEach((key) => {
+      this.showFeedbackForOption[+key] = false;
+    });
+  
+    // Show feedback for current anchor only
+    if (this.lastFeedbackOptionId !== -1) {
+      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+      this.updateFeedbackState(this.lastFeedbackOptionId);
+    }
+  
+    this.showFeedback = true;
+  
+    // Set feedback config for current option
+    this.feedbackConfigs[optionId] = {
+      feedback: optionBinding.option.feedback,
+      showFeedback: true,
+      options: this.optionsToDisplay,
+      question: this.currentQuestion,
+      selectedOption: optionBinding.option,
+      correctMessage: '',
+      idx: index,
+    };
+  
+    console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
+  
+    // Trigger directive repaint for highlight + feedback
+    console.log(`[🎯 Applying Highlight for Option ${optionId}]`);
+    this.forceHighlightRefresh(optionId);
+  
+    // Enforce single-answer behavior if applicable
+    if (this.type === 'single') {
+      this.enforceSingleSelection(optionBinding);
+    }
+  
+    if (!this.isValidOptionBinding(optionBinding)) return;
+  
+    // Final state updates inside Angular zone
+    this.ngZone.run(() => {
+      try {
+        const questionIndex = this.quizService.currentQuestionIndex;
+  
+        this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
+        this.selectedOptionService.setOptionSelected(true);
+  
+        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
+  
+        this.updateOptionActiveStates(optionBinding);
+        this.applyOptionAttributes(optionBinding, event);
+  
+        this.emitOptionSelectedEvent(optionBinding, index, checked);
+        this.finalizeOptionSelection(optionBinding, checked);
+  
+        console.log(`[✅ Final State Update for Option ${optionId}]`);
+  
+        // Centralized Explanation Emission, Feedback Application, and Next Button Sync
+        this.emitExplanationAndSyncNavigation(questionIndex);
   
         // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
