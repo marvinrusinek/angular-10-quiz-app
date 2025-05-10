@@ -362,14 +362,27 @@ export class ExplanationTextService {
   }
   
   triggerExplanationEvaluation(): void {
-    const currentExplanation = this.formattedExplanationSubject.getValue();
+    console.log('[📢 triggerExplanationEvaluation] Triggered');
+  
+    const currentExplanation = this.formattedExplanationSubject.getValue()?.trim();
     const shouldShow = this.shouldDisplayExplanationSource.getValue();
   
-    if (shouldShow && currentExplanation?.trim()) {
+    console.log('[🔍 Explanation Evaluation State]', {
+      currentExplanation,
+      shouldShow
+    });
+  
+    if (shouldShow && currentExplanation) {
+      console.log(`[✅ Explanation Ready to Display]: "${currentExplanation}"`);
       this.explanationTrigger.next();
+      
+      // Immediately emit the explanation to ensure it renders without delay
+      this.setExplanationText(currentExplanation);
     } else {
-      console.warn('[triggerExplanationEvaluation] ⛔️ Skipped — missing explanation or display flag');
+      console.warn('[⛔️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag');
     }
+    
+    console.log('[✅ Change Detection Applied after Explanation Evaluation]');
   }
 
   private isQuestionValid(question: QuizQuestion): boolean {
