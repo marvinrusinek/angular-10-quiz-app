@@ -123,6 +123,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
+    console.log('[✅ SOC - OnInit]');
+    console.log('[✅ OnInit] optionBindings:', this.optionBindings);
     this.initializeFromConfig();
 
     // Delay rendering until all setup is confirmed
@@ -243,6 +245,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
+
+    const radioGroup = document.querySelector('mat-radio-group');
+    console.log('[🔥 Radio Group Found]', !!radioGroup);
+
+    if (radioGroup) {
+      radioGroup.addEventListener('change', (event) => {
+        console.log('[🔥 Direct Event Listener Triggered]', event);
+      });
+    }
   }
 
   ngAfterViewChecked(): void {
