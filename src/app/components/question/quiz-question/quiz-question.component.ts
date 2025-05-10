@@ -188,6 +188,7 @@ export class QuizQuestionComponent
   isExplanationReady = false;
   isExplanationLocked = true;
   currentExplanationText = '';
+  private explanationEmitted = false;
 
   private lastSerializedOptions = '';
   private lastSerializedPayload = '';
@@ -2568,9 +2569,11 @@ export class QuizQuestionComponent
       console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
   
       // Emit explanation text immediately
-      console.log('[🚀 Before Explanation Emission] Timestamp:', Date.now());
-      this.explanationTextService.emitExplanationIfNeeded(explanationText);
-      console.log('[✅ After Explanation Emission] Timestamp:', Date.now());
+      // 🚀 Emit explanation text once and only once
+      if (!this.explanationEmitted) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText);
+        this.explanationEmitted = true;  // Prevents duplicate emission
+      }
 
       // 🚀 Force immediate UI update after emitting explanation
       this.cdRef.detectChanges();
