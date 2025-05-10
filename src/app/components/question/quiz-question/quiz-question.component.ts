@@ -2614,39 +2614,37 @@ export class QuizQuestionComponent
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
     try {
+      // Emit explanation text immediately before any state synchronization
       console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
   
-      // Fetch explanation text
       const explanationText = await this.updateExplanationText(lockedIndex);
       console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
   
-      // 🚀 Delay the explanation emission to align with Material's internal update cycle
-      setTimeout(() => {
-        if (!this.explanationEmitted) {
-          this.explanationTextService.emitExplanationIfNeeded(explanationText);
-          this.explanationEmitted = true;
-          console.log('[✅ Explanation emitted after slight delay]');
-        }
+      // Immediate emission of explanation text
+      this.explanationTextService.emitExplanationIfNeeded(explanationText);
   
-        // 🚀 Immediate UI update after emitting explanation
-        this.cdRef.detectChanges();
-        console.log('[✅ UI updated after explanation emission] Timestamp:', Date.now());
+      console.log('[✅ Explanation emitted immediately on first click]');
   
-        // Apply feedback logic
-        this.applyFeedbackIfNeeded(option);
-  
-        // Emit 'answered' state and enable the Next button simultaneously
-        this.answer.emit(1);
-        this.nextButtonState.emit(true);
-        console.log('[✅ Answer state emitted and Next button enabled]');
-      }, 10);  // Slight delay to align with Material's event propagation timing
+      // Proceed with state synchronization and feedback application
+      this.updateOptionSelection(event, option);
+      this.applyFeedbackIfNeeded(option);
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
+      // Sync the Next button state
+      this.nextButtonStateService.syncNextButtonState();
+      console.log('[✅ Next button state synchronized]');
+  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
+  
+    // Ensure final UI update
+    setTimeout(() => {
+      this.cdRef.detectChanges();
+      console.log('[✅ UI updated after explanation emission]');
+    }, 50);
   }
 
   private prepareQuestionText(): void {
