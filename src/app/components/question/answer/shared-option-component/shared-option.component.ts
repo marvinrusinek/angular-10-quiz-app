@@ -1096,7 +1096,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[🛠️ synchronizeStateAndUI] Triggered for Q${questionIndex}`);
   
     const selectedOptionId = this.selectedOptionMap.get(questionIndex);
-  
     console.log(`[🔍 Selected Option ID for Q${questionIndex}]: ${selectedOptionId}`);
   
     if (typeof selectedOptionId !== 'number') {
@@ -1108,10 +1107,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
-    console.log(`[📢 Explanation Text for Q${questionIndex}]:`, explanationText);
+    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
   
-    // Emit explanation text immediately
+    // Emit explanation text immediately and ensure immediate rendering
     this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
   
     // Apply feedback for the selected option
     const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
@@ -1121,6 +1121,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.warn(`[⚠️ No matching option found for ID: ${selectedOptionId}`);
     }
+  
+    // Trigger immediate explanation evaluation
+    console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+    this.explanationTextService.triggerExplanationEvaluation();
   
     // Enable the Next button immediately
     console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
