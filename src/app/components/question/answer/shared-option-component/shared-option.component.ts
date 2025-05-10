@@ -1009,6 +1009,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Update current question index to ensure alignment
     this.quizService.setCurrentQuestionIndex(currentIndex);
 
+    this.executeStateSync(currentIndex);
+
     // Immediate explanation update with corrected index
     console.log(`[📢 Immediate Explanation Update for Q${currentIndex}] at ${now}`);
     this.immediateExplanationUpdate(currentIndex);
@@ -1139,6 +1141,54 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }
+
+  private executeStateSync(questionIndex: number): void {
+    console.log(`[🛠️ executeStateSync] Triggered for Q${questionIndex}`);
+  
+    const selectedOptionId = this.selectedOptionMap.get(questionIndex);
+    console.log(`[🔍 Selected Option ID for Q${questionIndex}]: ${selectedOptionId}`);
+  
+    if (typeof selectedOptionId !== 'number') {
+      console.warn(`[⚠️ Invalid selectedOptionId: Expected number but got ${typeof selectedOptionId}`);
+      return;
+    }
+  
+    // Fetch explanation text
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+  
+    // Emit explanation text immediately
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
+  
+    // Apply feedback for the selected option
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
+    if (selectedOption) {
+      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+      
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+      } else {
+        console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+      }
+    } else {
+      console.warn(`[⚠️ No matching option found for ID: ${selectedOptionId}`);
+    }
+  
+    // Trigger explanation evaluation immediately after feedback application
+    console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+    this.explanationTextService.triggerExplanationEvaluation();
+  
+    // Enable the Next button immediately
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Immediate change detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  }
+  
   
   private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
