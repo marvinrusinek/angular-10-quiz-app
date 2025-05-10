@@ -3029,11 +3029,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNavigating = true;
     this.quizStateService.setLoading(true);
     this.quizStateService.setNavigating(true);
-    this.quizQuestionComponent.explanationEmitted = false;
   
     try {
       // Start animation
       this.animationState$.next('animationStarted');
+
+      this.quizQuestionComponent.explanationEmitted = false;
 
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const nextIndex = currentIndex + 1;
