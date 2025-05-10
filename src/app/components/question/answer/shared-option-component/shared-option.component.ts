@@ -1010,6 +1010,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.quizService.setCurrentQuestionIndex(currentIndex);
 
     this.processSelectionAndSync(optionId, currentIndex);
+    this.synchronizeAllStates(optionId, questionIndex);
 
     this.executeStateSync(currentIndex);
 
