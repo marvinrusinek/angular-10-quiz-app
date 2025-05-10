@@ -369,17 +369,15 @@ export class ExplanationTextService {
   
     console.log('[🔍 Explanation Evaluation State]', {
       currentExplanation,
-      shouldShow
+      shouldShow,
     });
   
     if (shouldShow && currentExplanation) {
       console.log(`[✅ Explanation Ready to Display]: "${currentExplanation}"`);
       this.explanationTrigger.next();
-      
-      // Immediately emit the explanation to ensure it renders without delay
       this.setExplanationText(currentExplanation);
     } else {
-      console.warn('[⛔️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag');
+      console.warn('[⏭️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag');
     }
     
     console.log('[✅ Change Detection Applied after Explanation Evaluation]');
