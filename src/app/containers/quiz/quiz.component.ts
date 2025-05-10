@@ -1278,7 +1278,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private initializeQuiz(): void {
+  private async initializeQuiz(): Promise<void> {
     if (this.quizAlreadyInitialized) {
       console.warn('[🛑 initializeQuiz] Already initialized. Skipping...');
       return;
@@ -1287,9 +1287,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[✅ initializeQuiz] Starting quiz init...');
     this.quizAlreadyInitialized = true;
   
+    // Initialize quiz session, dependencies, and routing
     this.prepareQuizSession();
     this.initializeQuizDependencies();
     this.initializeQuizBasedOnRouteParams();
+  
+    // Set index to the first question
+    const initialIndex = 1;  // Assuming index 1 is the first question
+    console.log(`[📍 Setting Initial Index to Q${initialIndex}]`);
+    this.quizService.setCurrentQuestionIndex(initialIndex);
+  
+    // Load the first question
+    const firstQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(initialIndex));
+    if (firstQuestion) {
+      console.log(`[✅ First Question Loaded for Q${initialIndex}]:`, firstQuestion);
+      this.quizService.setCurrentQuestion(firstQuestion);
+    } else {
+      console.warn(`[⚠️ No question found at index ${initialIndex}]`);
+    }
   }
 
   private async prepareQuizSession(): Promise<void> {
@@ -3013,6 +3028,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const nextIndex = currentIndex + 1;
+
+    console.log(`[➡️ Navigating to Q${nextIndex}] from Q${currentIndex}`);
+
     console.log('[➡️ advanceToNextQuestion] Clicked!');
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
