@@ -1121,7 +1121,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Apply feedback for the selected option
     if (this.quizQuestionComponent) {
       console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}] in QQC`);
-      this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
     } else {
       console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
     }
