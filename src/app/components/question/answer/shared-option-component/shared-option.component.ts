@@ -14,6 +14,7 @@ import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
+import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
@@ -114,6 +115,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
+    private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
@@ -1095,7 +1097,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   updateHighlighting(): void {
-    if (!this.highlightDirectives?.length) return;
+    if (!this.highlightDirectives?.length) {
+      console.warn('[❌ updateHighlighting] No highlightDirectives available.');
+      return;
+    }
+  
+    console.log('[🎯 updateHighlighting] Updating option highlights and feedback states...');
   
     this.highlightDirectives.forEach((directive, index) => {
       const binding = this.optionBindings[index];
@@ -1106,7 +1113,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       const option = binding.option;
   
-      // Sync all state flags to directive
+      // Sync state flags to directive
       directive.option = option;
       directive.isSelected = binding.isSelected || !!option.selected;
       directive.isCorrect = !!option.correct;
@@ -1125,7 +1132,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Trigger directive to apply highlight immediately
       directive.updateHighlight();
     });
+  
+    console.log('[✅ updateHighlighting] Highlighting and feedback applied.');
+  
+    // Emit explanation text immediately after highlighting is applied
+    console.log('[📢 Emitting Explanation Text for Q' + this.quizService.currentQuestionIndex);
+    this.emitExplanationAndSyncNavigation();
   }
+
+  private emitExplanationAndSyncNavigation(): void {
+    console.log('[📢 emitExplanationAndSyncNavigation] Triggered for Q' + this.quizService.currentQuestionIndex);
+  
+    const questionIndex = this.quizService.currentQuestionIndex;
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+  
+    console.log('[📤 Emitting explanation:', explanationText);
+  
+    // Emit explanation text immediately
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Update next button state immediately
+    console.log('[🚀 Enabling Next Button for Q' + questionIndex);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Trigger immediate change detection
+    this.cdRef.detectChanges();
+  }
+  
 
   private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
