@@ -952,7 +952,7 @@ export class QuizService implements OnDestroy {
     console.log('[QuizService] Emitting updated question:', updatedQuestion);
   
     // Emit the new question
-    this.currentQuestion.next({ ...updatedQuestion });
+    this.currentQuestion.next(updatedQuestion);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
