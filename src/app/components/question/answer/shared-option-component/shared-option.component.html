@@ -7,7 +7,7 @@
 
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group
-      *ngIf="optionBindings[0]?.option?.type === 'single'"
+      *ngIf="optionBindings[0]?.type === 'single'"  
       formControlName="selectedOptionId"
       (change)="handleRadioGroupChange($event)">
 
@@ -28,7 +28,7 @@
     </mat-radio-group>
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="optionBindings[0]?.option?.type === 'multiple'">
+    <div *ngIf="optionBindings[0]?.type === 'multiple'">
       <div
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
