@@ -1010,7 +1010,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.quizService.setCurrentQuestionIndex(currentIndex);
 
     this.processSelectionAndSync(optionId, currentIndex);
-    this.synchronizeStateAndRender(optionId, currentIndex);
+    this.syncStateAndRender(optionId, currentIndex);
     this.synchronizeAllStates(optionId, currentIndex);
 
     this.executeStateSync(currentIndex);
@@ -1098,7 +1098,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  private synchronizeStateAndRender(optionId: number, questionIndex: number): void {
+  private syncStateAndRender(optionId: number, questionIndex: number): void {
     console.log(`[🛠️ synchronizeStateAndRender] Triggered for Q${questionIndex} - Option ${optionId}`);
   
     const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
