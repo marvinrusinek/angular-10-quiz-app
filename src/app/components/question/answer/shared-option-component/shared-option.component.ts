@@ -1686,6 +1686,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[❌ updateHighlighting] No highlightDirectives available.');
       return;
     }
+
+    const questionIndex = this.quizService.getCurrentQuestionIndex();
   
     this.highlightDirectives.forEach((directive, index) => {
       const binding = this.optionBindings[index];
@@ -1718,48 +1720,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[✅ updateHighlighting Complete] at ${Date.now()}`);
   
     // Immediately trigger explanation text and navigation update
-    this.emitExplanationAndSyncNavigation();
+    this.emitExplanationAndSyncNavigation(questionIndex);
   }
 
-  private emitExplanationAndSyncNavigation(): void {
-    const questionIndex = this.quizService.getCurrentQuestionIndex();
-    console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex} at ${Date.now()}`);
+  private emitExplanationAndSyncNavigation(questionIndex: number): void {
+    console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex}`);
   
+    // Fetch explanation text
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📤 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
   
-    console.log(`[📤 Emitting explanation at ${Date.now()}:`, explanationText);
-  
-    // Emit explanation text immediately
+    // Emit explanation text
     this.explanationTextService.setExplanationText(explanationText);
   
-    // Verify emission status
+    // Confirm emission
     const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
-    console.log(`[📢 Explanation Text Emitted]: ${emittedText} at ${Date.now()}`);
-
-    // If explanation text is not emitted as expected, log a warning
+    console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
+  
+    // Check for mismatch
     if (explanationText !== emittedText) {
       console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
     }
   
-    // Apply Feedback immediately
-    const selectedOptionId = this.selectedOptionMap.get(questionIndex);
-    if (typeof selectedOptionId === 'number') {
-      const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
-      if (selectedOption && this.quizQuestionComponent) {
-        console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
-        this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
-      }
-    }
-
-    // Sync Next button state immediately after feedback and explanation text
-    console.log(`[🚀 Enabling Next Button at ${Date.now()}`);
+    // Sync Next Button State
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
     this.nextButtonStateService.syncNextButtonState();
   
-    // Final state sync and immediate change detection
+    // Immediate Change Detection
     this.cdRef.detectChanges();
-    console.log(`[✅ Change Detection Applied at ${Date.now()}`);
-  }
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  }  
 
   private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
