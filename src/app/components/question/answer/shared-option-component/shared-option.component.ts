@@ -178,6 +178,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[🔄 Synchronizing option bindings...');
     this.synchronizeOptionBindings();
 
+    this.ensureOptionsToDisplay();
+
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
         this.finalRenderReady = ready;
@@ -484,32 +486,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-
   private ensureOptionsToDisplay(): void {
     console.log('[🔍 ensureOptionsToDisplay] Checking optionsToDisplay...');
+  
+    console.log('[🔍 Current Question Object]:', this.currentQuestion);
   
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
       
-      console.log('[🔍 Current Question Object]:', this.currentQuestion);
+      if (this.currentQuestion) {
+        console.log('[✅ currentQuestion is defined]:', this.currentQuestion);
   
-      if (this.currentQuestion?.options?.length) {
-        console.log('[✅ Options found in current question. Populating optionsToDisplay...');
-        
-        this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
-          ...option,
-          optionId: option.optionId ?? index,
-          active: option.active ?? true,
-          feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false,
-          selected: option.selected ?? false,
-          correct: option.correct ?? false,
-        }));
+        if (Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length) {
+          console.log('[✅ Options found in currentQuestion. Populating optionsToDisplay...');
+          
+          this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
+            ...option,
+            optionId: option.optionId ?? index,
+            active: option.active ?? true,
+            feedback: option.feedback ?? 'No feedback available',
+            showIcon: option.showIcon ?? false,
+            selected: option.selected ?? false,
+            correct: option.correct ?? false,
+          }));
   
-        console.log('[✅ Options Populated]:', this.optionsToDisplay);
+          console.log('[✅ Options Populated]:', this.optionsToDisplay);
+  
+        } else {
+          console.error('[🚨 No options array or empty options array in currentQuestion]', this.currentQuestion);
+        }
   
       } else {
-        console.error('[SharedOptionComponent] No options available in the current question.');
+        console.error('[🚨 currentQuestion is undefined. Cannot populate optionsToDisplay]');
       }
     } else {
       console.log('[✅ optionsToDisplay is already populated]', this.optionsToDisplay);
