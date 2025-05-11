@@ -2554,25 +2554,66 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   initializeOptionBindings(): void {
-    console.log('[🚀 initializeOptionBindings STARTED]');
+    console.log('[🔄 initializeOptionBindings] Attempting to initialize option bindings...');
   
-    if (this.optionBindingsInitialized) {
-      console.warn('[🛑 initializeOptionBindings already called, skipping]');
+    if (!this.quizQuestionComponent) {
+      console.warn('[⚠️ initializeOptionBindings] quizQuestionComponent is undefined. Skipping option population.');
       return;
     }
   
-    this.optionBindingsInitialized = true;
+    console.log('[✅ quizQuestionComponent is defined. Proceeding with options population...]');
   
     const options = this.quizQuestionComponent.populateOptionsToDisplay();
   
-    if (!options.length) {
-      console.warn('[⚠️ initializeOptionBindings] No options available. Exiting initialization.');
-      this.optionBindingsInitialized = false;
+    if (!options?.length) {
+      console.warn('[🚨 initializeOptionBindings] No options returned from populateOptionsToDisplay.');
       return;
     }
   
-    this.processOptionBindings();
+    console.log('[✅ Options Populated]:', options);
+
+    this.optionBindings = options.map((option, index) => {
+      const selectedOption: SelectedOption = {
+        ...option,
+        questionIndex: this.quizService.getCurrentQuestionIndex(),
+      };
+  
+      const showFeedbackMap: { [key: number]: boolean } = {};
+      showFeedbackMap[option.optionId] = false;
+  
+      return {
+        option: selectedOption,
+        index,
+        isSelected: option.selected || false,
+        isCorrect: option.correct || false,
+        showFeedback: false,
+        feedback: option.feedback ?? 'No feedback available',
+        showFeedbackForOption: showFeedbackMap,
+        highlightCorrectAfterIncorrect: false,
+        highlightIncorrect: false,
+        highlightCorrect: false,
+        styleClass: '',
+        disabled: false,
+        type: this.type,
+        appHighlightOption: false,
+        appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+        allOptions: options,
+        appHighlightReset: false,
+        optionsToDisplay: options,
+        appResetBackground: false,
+        active: option.active ?? true,
+        checked: option.selected ?? false,
+        change: (element: MatCheckbox | MatRadioButton) => {
+          console.log('[🖱️ Option Clicked]', selectedOption.optionId);
+          this.handleOptionClick(selectedOption, index, element.checked);
+        },
+        ariaLabel: `Option ${index + 1}`,
+      };
+    });  
+  
+    console.log('[✅ Option Bindings Initialized]:', this.optionBindings);
   }
+ 
 
   private processOptionBindings(): void {
     console.log('[⚡ processOptionBindings STARTED]');
