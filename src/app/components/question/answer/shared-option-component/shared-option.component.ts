@@ -1008,7 +1008,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     // this.syncAndConfirmState(optionId, questionIndex);
-    this.syncStateAndRender(optionId, questionIndex);
+    this.renderStateSync(optionId, questionIndex);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1086,6 +1086,72 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
+
+  private renderStateSync(optionId: number | null, questionIndex: number): void {
+    console.log(`[🛠️ renderStateSync] Triggered for Q${questionIndex}, Option ${optionId}`);
+  
+    // Step 1: Verify State Before Updates
+    const currentExplanation = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[🔍 Pre-Render State Check] Explanation: "${currentExplanation}"`);
+  
+    // Step 2: Update Highlighting and Icons
+    if (this.highlightDirectives?.length) {
+      console.log('[🔥 Updating Highlighting and Icons]');
+      this.highlightDirectives.forEach((directive, index) => {
+        const binding = this.optionBindings[index];
+        if (!binding) return;
+  
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected || !!binding.option.selected;
+        directive.isCorrect = !!binding.option.correct;
+        directive.showFeedback = this.showFeedbackForOption[binding.option.optionId] ?? false;
+  
+        directive.updateHighlight();
+      });
+    }
+  
+    console.log('[✅ Highlighting and Icons Updated]');
+  
+    // Step 3: Emit Explanation Text
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📢 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+  
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Confirm Explanation Emission
+    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
+  
+    if (explanationText !== emittedText) {
+      console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
+    }
+  
+    // Step 4: Apply Feedback
+    if (optionId !== null) {
+      const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
+  
+      if (selectedOption && this.quizQuestionComponent) {
+        console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+        this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
+      } else {
+        console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
+      }
+    }
+  
+    // Step 5: Enable Next Button
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Step 6: Immediate Change Detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  
+    // Final Verification After Render
+    const postRenderExplanation = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[🔍 Post-Render State Check] Explanation: "${postRenderExplanation}"`);
+  }
+  
 
   private syncRenderingAndNavigation(optionId: number, questionIndex: number): void {
     console.log(`[🛠️ syncRenderingAndNavigation] Triggered for Q${questionIndex} - Option ${optionId}`);
