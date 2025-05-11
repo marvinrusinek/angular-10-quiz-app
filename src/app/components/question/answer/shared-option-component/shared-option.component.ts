@@ -273,21 +273,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     setTimeout(() => {
       const radioGroup = document.querySelector('mat-radio-group');
-      console.log('[🔥 Delayed Check - Radio Group Exists]', !!radioGroup);
-  
+      console.log('[⏳ Delayed Check - Radio Group Exists]', !!radioGroup);
+    
       const radioButtons = document.querySelectorAll('mat-radio-button');
-      console.log('[🔥 Delayed Check - Radio Buttons Count]', radioButtons.length);
-  
+      console.log('[⏳ Delayed Check - Radio Buttons Count]', radioButtons.length);
+    
       if (radioGroup) {
         radioGroup.addEventListener('click', (event) => {
           console.log('[🖱️ Native Click Detected]', event);
         });
-  
+    
         radioGroup.addEventListener('change', (event) => {
           console.log('[🔄 Native Change Detected]', event);
         });
       }
-    }, 100); // Adjust the delay if necessary
+    }, 100);
   }
 
   ngAfterViewChecked(): void {
