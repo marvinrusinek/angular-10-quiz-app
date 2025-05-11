@@ -723,8 +723,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
-    console.log('[🔄 initializeFromConfig] Populating optionsToDisplay...');
-    this.optionsToDisplay = this.quizQuestionComponent.populateOptionsToDisplay();
+    console.log('[🔄 initializeFromConfig] Checking quizQuestionComponent presence...');
+  
+    // Check if quizQuestionComponent is defined
+    if (!this.quizQuestionComponent) {
+      console.warn('[⚠️ initializeFromConfig] quizQuestionComponent is undefined. Skipping options population.');
+    } else {
+      console.log('[✅ quizQuestionComponent is defined. Proceeding with options population...]');
+      this.optionsToDisplay = this.quizQuestionComponent.populateOptionsToDisplay();
+    }
   
     console.log('[✅ Options Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
   
@@ -770,14 +777,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Determine question type only after options are populated
     console.log('[🔄 Determining question type...');
   
-    // Determine the question type safely
-    let qTypeInput: QuizQuestion | QuestionType = QuestionType.SingleAnswer;
-  
-    if (this.currentQuestion) {
-      qTypeInput = this.currentQuestion;
-    } else if (this.config && 'type' in this.config) {
-      qTypeInput = this.config.type as QuestionType;
-    }
+    const qTypeInput: QuizQuestion | QuestionType = this.currentQuestion ?? QuestionType.SingleAnswer;
   
     console.log('[🔍 Type Determination Input]:', JSON.stringify(qTypeInput));
   
@@ -792,8 +792,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.shouldResetBackground = this.config.shouldResetBackground || false;
   
     // Initialize feedback bindings
-    this.initializeFeedbackBindings();
+    this.initializeFeedbackBindings(); 
   }
+  
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;
