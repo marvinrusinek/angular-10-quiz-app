@@ -693,9 +693,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         optionId: last.optionId
       });
     }
-
+  
     // Full reset ─- clear bindings, selection, flags
     if (this.freezeOptionBindings) return;
+  
+    console.log('[🔄 initializeFromConfig] Starting initialization process...');
+    
+    // Reset State
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -706,54 +710,77 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionsRestored = false;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-
+  
     // GUARD ─ config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
-
+  
+    // Skip initialization if options are already selected
     if (this.optionBindings?.some(opt => opt.isSelected)) {
       console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
       return;
     }
-
+  
+    console.log('[🔄 initializeFromConfig] Populating optionsToDisplay...');
+    this.optionsToDisplay = this.quizQuestionComponent.populateOptionsToDisplay();
+  
+    console.log('[✅ Options Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+    if (!this.optionsToDisplay.length) {
+      console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after population.');
+      return;
+    }
+  
+    // Assign current question
     this.currentQuestion = this.config.currentQuestion;
-    this.optionsToDisplay = [...this.config.optionsToDisplay];
-
+    console.log('[🔍 Current Question Assigned]:', JSON.stringify(this.currentQuestion, null, 2));
+  
     // Generate/patch feedback for every option
     const correctOpts = this.optionsToDisplay.filter(o => o.correct);
     const fallbackFeedback =
       this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
-
+  
     const existingSelectionMap = new Map(
-      (this.optionsToDisplay ?? []).map(opt => [opt.optionId, opt.selected])
+      this.optionsToDisplay.map(opt => [opt.optionId, opt.selected])
     );
-
+  
     // Ensure IDs/flags/feedback are present on every option
-    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
-      ...opt,
-      optionId: opt.optionId ?? idx,
-      correct: opt.correct ?? false,
-      feedback: opt.feedback ?? fallbackFeedback,
-      selected: existingSelectionMap.get(opt.optionId) ?? false,
-      active: true,
-      showIcon: false
-    }));
-
+    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => {
+      const assignedOption = {
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? fallbackFeedback,
+        selected: existingSelectionMap.get(opt.optionId) ?? false,
+        active: true,
+        showIcon: false
+      };
+  
+      console.log(`[🛠️ Option Processed - ID ${assignedOption.optionId}]:`, assignedOption);
+      return assignedOption;
+    });
+  
+    console.log('[✅ Final optionsToDisplay after processing]:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
     // Initialize bindings and feedback maps
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
-
-    const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
-    this.type = this.determineQuestionType(qType);
-
+  
+    // Determine question type only after options are populated
+    console.log('[🔄 Determining question type...');
+    this.type = this.determineQuestionType(this.currentQuestion);
+    console.log(`[✅ Final Type Determined]: ${this.type}`);
+  
+    // Assign config values
     this.showFeedback = this.config.showFeedback || false;
     this.showFeedbackForOption = this.config.showFeedbackForOption || {};
     this.correctMessage = this.config.correctMessage || '';
     this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
     this.shouldResetBackground = this.config.shouldResetBackground || false;
-
-    this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
+  
+    // Initialize feedback bindings
+    this.initializeFeedbackBindings(); 
   }
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
