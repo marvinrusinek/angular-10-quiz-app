@@ -690,7 +690,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (last) {
       console.warn(`[🕵️‍♂️ initializeFromConfig triggered AFTER click]`, {
         timeSinceClick: Date.now() - last.time,
-        optionId: last.optionId
+        optionId: last.optionId,
       });
     }
   
@@ -755,7 +755,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         feedback: opt.feedback ?? fallbackFeedback,
         selected: existingSelectionMap.get(opt.optionId) ?? false,
         active: true,
-        showIcon: false
+        showIcon: false,
       };
   
       console.log(`[🛠️ Option Processed - ID ${assignedOption.optionId}]:`, assignedOption);
@@ -769,7 +769,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Determine question type only after options are populated
     console.log('[🔄 Determining question type...');
-    this.type = this.determineQuestionType(this.currentQuestion);
+  
+    // Determine the question type safely
+    let qTypeInput: QuizQuestion | QuestionType = QuestionType.SingleAnswer;
+  
+    if (this.currentQuestion) {
+      qTypeInput = this.currentQuestion;
+    } else if (this.config && 'type' in this.config) {
+      qTypeInput = this.config.type as QuestionType;
+    }
+  
+    console.log('[🔍 Type Determination Input]:', JSON.stringify(qTypeInput));
+  
+    this.type = this.determineQuestionType(qTypeInput);
     console.log(`[✅ Final Type Determined]: ${this.type}`);
   
     // Assign config values
@@ -780,7 +792,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.shouldResetBackground = this.config.shouldResetBackground || false;
   
     // Initialize feedback bindings
-    this.initializeFeedbackBindings(); 
+    this.initializeFeedbackBindings();
   }
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
@@ -2720,7 +2732,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return binding.option?.optionId ?? index;
   }
 
-  private determineQuestionType(input: QuizQuestion | undefined): 'single' | 'multiple' {
+  private determineQuestionType(input: QuizQuestion | QuestionType | undefined): 'single' | 'multiple' {
     console.log(`[🔍 determineQuestionType] Input:`, JSON.stringify(input, null, 2));
   
     if (!input) {
@@ -2728,13 +2740,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return 'single';
     }
   
-    const optionsCheck = input.options?.length ?? 0;
-    console.log(`[🔍 Options Length Before Type Calculation]: ${optionsCheck}`);
+    if (typeof input === 'number') {
+      console.log(`[🔍 determineQuestionType] Input is a QuestionType enum: ${input}`);
+      return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
+    }
   
-    const correctOptionsCount = input.options?.filter(opt => opt.correct === true).length ?? 0;
+    if (typeof input === 'object' && Array.isArray(input.options)) {
+      console.log(`[✅ Options Before Type Calculation]:`, JSON.stringify(input.options, null, 2));
   
-    console.log(`[🔍 Correct Options Count: ${correctOptionsCount}`);
+      const correctOptionsCount = input.options.filter(opt => opt.correct === true).length;
+      console.log(`[🔍 Correct Options Count: ${correctOptionsCount}`);
   
-    return correctOptionsCount > 1 ? 'multiple' : 'single';
-  }  
+      return correctOptionsCount > 1 ? 'multiple' : 'single';
+    }
+  
+    console.warn(`[⚠️ determineQuestionType] Invalid input type. Defaulting to 'single'.`);
+    return 'single';
+  }     
 }
