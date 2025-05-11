@@ -276,7 +276,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngAfterViewInit(): void {
-    console.log('form value:', this.form.value);
+    console.log('[✅ ngAfterViewInit - SharedOptionComponent]');
+  
+    if (!this.form) {
+      console.warn('[⚠️ SharedOptionComponent] Form is not initialized. Skipping form value log.');
+    } else {
+      console.log('[🔍 Form Value in AfterViewInit]:', this.form.value);
+    }
+  
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
       // this.generateOptionBindings();
@@ -284,38 +291,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
-
-    console.log('[✅ AfterViewInit - SharedOptionComponent]');
+  
     console.log(`[🔍 AfterViewInit - renderReady]: ${this.renderReady}`);
     console.log(`[🔍 AfterViewInit - canDisplayOptions]: ${this.canDisplayOptions}`);
     console.log(`[🔍 AfterViewInit - optionsToDisplay Length]: ${this.optionsToDisplay?.length}`);
-
-    console.log('[✅ SharedOptionComponent - AfterViewInit]');
-
+  
     const radioGroup = document.querySelector('mat-radio-group');
     console.log('[🔥 AfterViewInit - Radio Group Exists]', !!radioGroup);
-
+  
     const radioButtons = document.querySelectorAll('mat-radio-button');
     console.log('[🔥 AfterViewInit - Radio Buttons Count]', radioButtons.length);
-
+  
     setTimeout(() => {
-      const radioGroup = document.querySelector('mat-radio-group');
-      console.log('[⏳ Delayed Check - Radio Group Exists]', !!radioGroup);
+      const delayedRadioGroup = document.querySelector('mat-radio-group');
+      console.log('[⏳ Delayed Check - Radio Group Exists]', !!delayedRadioGroup);
     
-      const radioButtons = document.querySelectorAll('mat-radio-button');
-      console.log('[⏳ Delayed Check - Radio Buttons Count]', radioButtons.length);
+      const delayedRadioButtons = document.querySelectorAll('mat-radio-button');
+      console.log('[⏳ Delayed Check - Radio Buttons Count]', delayedRadioButtons.length);
     
-      if (radioGroup) {
-        radioGroup.addEventListener('click', (event) => {
+      if (delayedRadioGroup) {
+        delayedRadioGroup.addEventListener('click', (event) => {
           console.log('[🖱️ Native Click Detected]', event);
         });
     
-        radioGroup.addEventListener('change', (event) => {
+        delayedRadioGroup.addEventListener('change', (event) => {
           console.log('[🔄 Native Change Detected]', event);
         });
       }
     }, 100);
   }
+  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
