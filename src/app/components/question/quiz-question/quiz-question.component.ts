@@ -2962,10 +2962,12 @@ export class QuizQuestionComponent
     console.log('[🔍 Before Population - currentQuestion.options]:', JSON.stringify(this.currentQuestion.options, null, 2));
   
     this.optionsToDisplay = this.currentQuestion.options.map((option, index) => {
+      const assignedCorrect = option.correct !== undefined ? option.correct : false;
+  
       const assignedOption = {
         ...option,
         optionId: option.optionId ?? index,
-        correct: option.correct ?? false,
+        correct: assignedCorrect,
       };
   
       console.log(`[🛠️ Assigned Option - ID ${assignedOption.optionId}]:`, assignedOption);
@@ -2973,9 +2975,6 @@ export class QuizQuestionComponent
     });
   
     console.log('[✅ After Population - optionsToDisplay]:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
-    // Reset feedback state when repopulating options
-    this.isFeedbackApplied = false;
   
     return this.optionsToDisplay;
   }
