@@ -256,8 +256,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[🔥 Radio Group Found]', !!radioGroup);
 
     if (radioGroup) {
+      radioGroup.addEventListener('click', (event) => {
+        console.log('[🖱️ Native Click Detected]', event);
+      });
+  
       radioGroup.addEventListener('change', (event) => {
-        console.log('[🔥 Direct Event Listener Triggered]', event);
+        console.log('[🔄 Native Change Detected]', event);
       });
     }
   }
