@@ -160,6 +160,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
     }
 
+    console.log('[🔍 optionsToDisplay Structure]:', JSON.stringify(this.optionsToDisplay, null, 2));
+    console.log('[🔍 optionBindings Structure]:', JSON.stringify(this.optionBindings, null, 2));
+
+
     setTimeout(() => {
       this.initializeOptionBindings();
       this.renderReady = this.optionsToDisplay?.length > 0;
@@ -2678,15 +2682,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return binding.option?.optionId ?? index;
   }
 
-  convertQuestionType(type: QuestionType): 'single' | 'multiple' {
-    switch (type) {
-      case QuestionType.SingleAnswer:
-        return 'single';
-      case QuestionType.MultipleAnswer:
-        return 'multiple';
-      default:
-        console.warn(`Unexpected question type: ${type}. Defaulting to 'single'.`);
-        return 'single';
+  private convertQuestionType(question: QuizQuestion): 'single' | 'multiple' {
+    if (!question || !question.options?.length) {
+      console.warn('Invalid question structure. Defaulting to single.');
+      return 'single';
     }
-  }
+  
+    const correctOptionsCount = question.options.filter(opt => opt.correct).length;
+  
+    console.log(`[🔍 convertQuestionType] Correct Options Count: ${correctOptionsCount}`);
+  
+    if (correctOptionsCount > 1) {
+      return 'multiple';
+    } else if (correctOptionsCount === 1) {
+      return 'single';
+    } else {
+      console.warn('No correct options found. Defaulting to single.');
+      return 'single';
+    }
+  }  
 }
