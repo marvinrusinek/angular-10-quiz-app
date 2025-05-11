@@ -486,18 +486,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
 
   private ensureOptionsToDisplay(): void {
+    console.log('[🔍 ensureOptionsToDisplay] Checking optionsToDisplay...');
+  
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
-      if (this.currentQuestion?.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+      
+      console.log('[🔍 Current Question Object]:', this.currentQuestion);
+  
+      if (this.currentQuestion?.options?.length) {
+        console.log('[✅ Options found in current question. Populating optionsToDisplay...');
+        
+        this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
           ...option,
+          optionId: option.optionId ?? index,
           active: option.active ?? true,
           feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false
+          showIcon: option.showIcon ?? false,
+          selected: option.selected ?? false,
+          correct: option.correct ?? false,
         }));
+  
+        console.log('[✅ Options Populated]:', this.optionsToDisplay);
+  
       } else {
         console.error('[SharedOptionComponent] No options available in the current question.');
       }
+    } else {
+      console.log('[✅ optionsToDisplay is already populated]', this.optionsToDisplay);
     }
   }
 
