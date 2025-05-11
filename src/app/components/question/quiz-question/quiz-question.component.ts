@@ -2950,42 +2950,38 @@ export class QuizQuestionComponent
     console.log('[🚀 populateOptionsToDisplay] Attempting to populate optionsToDisplay...');
   
     if (!this.currentQuestion) {
-      console.warn('[populateOptionsToDisplay] ⚠️ currentQuestion is null or undefined. Skipping population.');
+      console.warn('[⚠️ populateOptionsToDisplay] currentQuestion is null or undefined. Skipping population.');
       return [];
     }
   
-    if (
-      !Array.isArray(this.optionsToDisplay) ||
-      this.optionsToDisplay.length === 0
-    ) {
-      console.warn(
-        '[populateOptionsToDisplay] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.'
-      );
-  
-      if (Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length > 0) {
-        this.optionsToDisplay = this.currentQuestion.options.map(
-          (option, index) => ({
-            ...option,
-            optionId: option.optionId ?? index,
-            correct: option.correct ?? false,
-          })
-        );
-  
-        console.log('[✅ populateOptionsToDisplay] optionsToDisplay populated:', this.optionsToDisplay);
-  
-        // Reset feedback state when repopulating options
-        this.isFeedbackApplied = false;
-  
-        return this.optionsToDisplay;
-      } else {
-        console.error(
-          '[populateOptionsToDisplay] ❌ currentQuestion.options is not a valid array. Returning empty array.'
-        );
-        return [];
-      }
+    if (!Array.isArray(this.currentQuestion.options) || this.currentQuestion.options.length === 0) {
+      console.warn('[⚠️ populateOptionsToDisplay] currentQuestion.options is not a valid array. Returning empty array.');
+      return [];
     }
   
-    console.log('[✅ populateOptionsToDisplay] Returning existing optionsToDisplay:', this.optionsToDisplay);
+    if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
+      console.log('[✅ populateOptionsToDisplay] Returning existing optionsToDisplay:', this.optionsToDisplay);
+      return this.optionsToDisplay;
+    }
+  
+    console.warn('[⚠️ optionsToDisplay is empty. Populating from currentQuestion options...');
+  
+    this.optionsToDisplay = this.currentQuestion.options.map((option, index) => {
+      const assignedOption = {
+        ...option,
+        optionId: option.optionId ?? index,
+        correct: option.correct ?? false,
+      };
+  
+      console.log(`[🛠️ Option ${index} - Assigned]`, assignedOption);
+      return assignedOption;
+    });
+  
+    console.log('[✅ populateOptionsToDisplay] optionsToDisplay populated:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+    // Reset feedback state when repopulating options
+    this.isFeedbackApplied = false;
+  
     return this.optionsToDisplay;
   }
 
