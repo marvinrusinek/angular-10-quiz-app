@@ -1559,8 +1559,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       directive.option = option;
       directive.isSelected = binding.isSelected || !!option.selected;
       directive.isCorrect = !!option.correct;
-      directive.showFeedback = this.showFeedback &&
-                               this.showFeedbackForOption[option.optionId ?? index];
+      directive.showFeedback = this.showFeedbackForOption[option.optionId] ?? false;
       directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
   
       // Apply highlight and icon state
@@ -1580,7 +1579,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private emitExplanationAndSyncNavigation(): void {
-    const questionIndex = this.quizService.currentQuestionIndex;
+    const questionIndex = this.quizService.getCurrentQuestionIndex();
     console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex} at ${Date.now()}`);
   
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
@@ -1594,12 +1593,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Verify emission status
     const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
     console.log(`[📢 Explanation Text Emitted]: ${emittedText} at ${Date.now()}`);
+
+    // If explanation text is not emitted as expected, log a warning
+    if (explanationText !== emittedText) {
+      console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
+    }
   
-    // Sync Next button state immediately
+    // Apply Feedback immediately
+    const selectedOptionId = this.selectedOptionMap.get(questionIndex);
+    if (typeof selectedOptionId === 'number') {
+      const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === selectedOptionId);
+      if (selectedOption && this.quizQuestionComponent) {
+        console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+        this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
+      }
+    }
+
+    // Sync Next button state immediately after feedback and explanation text
     console.log(`[🚀 Enabling Next Button at ${Date.now()}`);
     this.nextButtonStateService.syncNextButtonState();
   
-    // Immediate change detection
+    // Final state sync and immediate change detection
     this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied at ${Date.now()}`);
   }
