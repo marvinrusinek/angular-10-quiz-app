@@ -1019,7 +1019,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[📢 Immediate Explanation Update for Q${currentIndex}] at ${now}`);
     this.immediateExplanationUpdate(currentIndex);
 
-    this.synchronizeStateAndUI(currentIndex);
+    this.syncStateAndUI(currentIndex);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1102,7 +1102,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[🛠️ synchronizeStateAndRender] Triggered for Q${questionIndex} - Option ${optionId}`);
   
     const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
-  
     if (!selectedOption) {
       console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
       return;
@@ -1123,7 +1122,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Apply feedback
     if (this.quizQuestionComponent) {
       console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
-      this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
     } else {
       console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
     }
@@ -1222,7 +1221,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }
 
-  private synchronizeStateAndUI(questionIndex: number): void {
+  private syncStateAndUI(questionIndex: number): void {
     console.log(`[🛠️ synchronizeStateAndUI] Triggered for Q${questionIndex}`);
   
     const selectedOptionId = this.selectedOptionMap.get(questionIndex);
