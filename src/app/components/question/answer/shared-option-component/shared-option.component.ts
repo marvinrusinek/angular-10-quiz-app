@@ -132,8 +132,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     console.log('[✅ OnInit - SharedOptionComponent]');
     console.log(`[🔍 Initial optionsToDisplay]:`, this.optionsToDisplay);
-    console.log(`[🔍 Initial renderReady]: ${this.renderReady}`);
-    console.log(`[🔍 Initial canDisplayOptions]: ${this.canDisplayOptions}`);
+
+    // Ensure rendering flags are set based on data availability
+    this.renderReady = this.optionsToDisplay?.length > 0;
+    this.canDisplayOptions = this.optionsToDisplay?.length > 0;
+
+    console.log(`[🔍 Updated renderReady]: ${this.renderReady}`);
+    console.log(`[🔍 Updated canDisplayOptions]: ${this.canDisplayOptions}`);
+
+    // Attach event listeners after rendering flags are updated
+    this.initializeEventListeners();
 
     // Delay rendering until all setup is confirmed
     setTimeout(() => {
@@ -372,6 +380,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('🔍 Form value after selection:', this.form.value);
   } */
+
+  private initializeEventListeners(): void {
+    setTimeout(() => {
+      const radioGroup = document.querySelector('mat-radio-group');
+      console.log('[🔥 Event Listener Check - Radio Group Exists]', !!radioGroup);
+  
+      const radioButtons = document.querySelectorAll('mat-radio-button');
+      console.log('[🔥 Event Listener Check - Radio Buttons Count]', radioButtons.length);
+  
+      if (radioGroup) {
+        radioGroup.addEventListener('click', (event) => {
+          console.log('[🖱️ Native Click Detected]', event);
+        });
+  
+        radioGroup.addEventListener('change', (event) => {
+          console.log('[🔄 Native Change Detected]', event);
+        });
+      }
+    }, 200); // Adjust delay as necessary
+  }  
 
     /**
    * Push the newly‐clicked option into history, then synchronise every binding’s
