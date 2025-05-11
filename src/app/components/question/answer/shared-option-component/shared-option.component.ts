@@ -2391,6 +2391,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   getOptionBindings(option: Option, idx: number, isSelected: boolean = false): OptionBindings {
+    // Calculate the type based on the number of correct options
+    const correctOptionsCount = this.optionsToDisplay?.filter(opt => opt.correct).length ?? 0;
+    const type = correctOptionsCount > 1 ? 'multiple' : 'single';
+  
+    console.log(`[🔍 getOptionBindings] Correct Options Count: ${correctOptionsCount}, Determined Type: ${type}`);
+  
     return {
       option: {
         ...option,
@@ -2402,20 +2408,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
-      type: this.type,
+      type: type, // dynamically determined type
       appHighlightOption: false,
-      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+      appHighlightInputType: type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
       active: option.active,
-      change: (element: MatCheckbox | MatRadioButton) => this.handleOptionClick(option as SelectedOption, idx, element.checked),
+      change: (element: MatCheckbox | MatRadioButton) => 
+        this.handleOptionClick(option as SelectedOption, idx, element.checked),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
       checked: this.isSelectedOption(option)
     };
-  }
+  } 
 
   private generateOptionBindings(): void {
     // Guard: don't allow reassignment after user click
