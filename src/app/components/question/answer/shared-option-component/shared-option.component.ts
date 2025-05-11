@@ -1008,7 +1008,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     // this.syncAndConfirmState(optionId, questionIndex);
-    this.syncRenderingAndNavigation(optionId, questionIndex);
+    this.syncStateAndRender(optionId, questionIndex);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1233,44 +1233,61 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }
 
-  private syncStateAndRender(optionId: number, questionIndex: number): void {
-    console.log(`[🛠️ synchronizeStateAndRender] Triggered for Q${questionIndex} - Option ${optionId}`);
+  private syncStateAndRender(optionId: number | null, questionIndex: number): void {
+    console.log(`[🛠️ syncStateAndRender] Triggered for Q${questionIndex}, Option ${optionId}`);
   
-    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
-    if (!selectedOption) {
-      console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
-      return;
+    // Step 1: Highlighting and Icons
+    if (this.highlightDirectives?.length) {
+      console.log('[🔍 Updating Highlighting and Icons]');
+      this.highlightDirectives.forEach((directive, index) => {
+        const binding = this.optionBindings[index];
+        if (!binding) return;
+  
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected || !!binding.option.selected;
+        directive.isCorrect = !!binding.option.correct;
+        directive.showFeedback = this.showFeedbackForOption[binding.option.optionId] ?? false;
+  
+        directive.updateHighlight();
+      });
+    } else {
+      console.warn('[⚠️ No highlightDirectives available]');
     }
   
-    console.log(`[✅ Selected Option Found]:`, selectedOption);
+    console.log('[✅ Highlighting and Icons Updated]');
   
-    // Emit explanation text immediately
+    // Step 2: Apply Feedback
+    const selectedOption = optionId !== null
+      ? this.optionsToDisplay?.find(opt => opt.optionId === optionId)
+      : null;
+  
+    if (selectedOption && this.quizQuestionComponent) {
+      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
+    } else if (optionId !== null) {
+      console.warn(`[⚠️ Feedback not applied - No option found for ID: ${optionId}`);
+    }
+  
+    // Step 3: Emit Explanation Text
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
-    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
-  
-    // Emit explanation text
+    console.log(`[📢 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
     this.explanationTextService.setExplanationText(explanationText);
-    console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
   
-    // Apply feedback
-    if (this.quizQuestionComponent) {
-      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
-      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
-    } else {
-      console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+    // Confirm Explanation Emission
+    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
+  
+    if (explanationText !== emittedText) {
+      console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
     }
   
-    // Immediately trigger explanation evaluation
-    console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
-    this.explanationTextService.triggerExplanationEvaluation();
-  
-    // Enable the Next button immediately
+    // Step 4: Enable Next Button
     console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
     this.nextButtonStateService.syncNextButtonState();
   
-    // Immediate change detection
+    // Step 5: Apply Immediate Change Detection
     this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }
