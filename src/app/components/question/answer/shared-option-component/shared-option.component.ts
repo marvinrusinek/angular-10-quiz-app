@@ -130,6 +130,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[✅ OnInit] optionBindings:', this.optionBindings);
     this.initializeFromConfig();
 
+    console.log('[✅ OnInit - SharedOptionComponent]');
+    console.log(`[🔍 Initial optionsToDisplay]:`, this.optionsToDisplay);
+    console.log(`[🔍 Initial renderReady]: ${this.renderReady}`);
+    console.log(`[🔍 Initial canDisplayOptions]: ${this.canDisplayOptions}`);
+
     // Delay rendering until all setup is confirmed
     setTimeout(() => {
       this.initializeDisplay();
@@ -253,10 +258,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.viewInitialized = true;
     this.viewReady = true;
 
-    console.log('[✅ SharedOptionComponent - AfterViewInit]');
-    console.log(`[🔍 renderReady]: ${this.renderReady}`);
-    console.log(`[🔍 canDisplayOptions]: ${this.canDisplayOptions}`);
-    console.log(`[🔍 optionsToDisplay Length]: ${this.optionsToDisplay?.length}`);
+    console.log('[✅ AfterViewInit - SharedOptionComponent]');
+    console.log(`[🔍 AfterViewInit - renderReady]: ${this.renderReady}`);
+    console.log(`[🔍 AfterViewInit - canDisplayOptions]: ${this.canDisplayOptions}`);
+    console.log(`[🔍 AfterViewInit - optionsToDisplay Length]: ${this.optionsToDisplay?.length}`);
 
     console.log('[✅ SharedOptionComponent - AfterViewInit]');
 
