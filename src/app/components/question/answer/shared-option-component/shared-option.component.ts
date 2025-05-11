@@ -1007,7 +1007,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[📍 Current Question Index]: ${currentIndex}`);
 
     const questionIndex = this.quizService.getCurrentQuestionIndex();
-    this.handleSelectionAndSync(optionId, questionIndex);
+    this.syncAndConfirmState(optionId, questionIndex);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1084,6 +1084,49 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
+  }
+
+  private syncAndConfirmState(optionId: number, questionIndex: number): void {
+    console.log(`[🛠️ syncAndConfirmState] Triggered for Q${questionIndex} - Option ${optionId}`);
+  
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
+  
+    if (!selectedOption) {
+      console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
+      return;
+    }
+  
+    console.log(`[✅ Selected Option Found]:`, selectedOption);
+  
+    // Step 1: Emit Explanation Text First
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+  
+    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation Text Emitted]: "${explanationText}"`);
+  
+    // Step 2: Apply Feedback (with a slight delay to confirm explanation text rendering)
+    setTimeout(() => {
+      if (this.quizQuestionComponent) {
+        console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+        this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
+      } else {
+        console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+      }
+  
+      // Step 3: Trigger Explanation Evaluation After Feedback
+      console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+      this.explanationTextService.triggerExplanationEvaluation();
+  
+      // Step 4: Enable Next Button After Confirmation
+      console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+      this.nextButtonStateService.syncNextButtonState();
+  
+      // Step 5: Apply Change Detection to finalize the state update
+      this.cdRef.detectChanges();
+      console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+    }, 50); // Short delay to ensure the explanation text has rendered
   }
 
   private handleSelectionAndSync(optionId: number, questionIndex: number): void {
