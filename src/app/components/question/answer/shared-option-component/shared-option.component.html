@@ -15,7 +15,7 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (click)="console.log('[🖱️ Click Detected]', option.optionId, $event);onOptionClicked({ option: b.option, index: i, checked: true }); console.log('Radio Clicked:', b.option)">
+        (click)="onOptionClicked({ option: b.option, index: i, checked: true })">
 
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
