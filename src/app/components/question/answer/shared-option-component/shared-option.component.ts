@@ -2701,12 +2701,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return 'single';
     }
   
-    console.log(`[✅ Options Before Type Calculation]:`, JSON.stringify(input.options, null, 2));
+    const optionsCheck = input.options?.length ?? 0;
+    console.log(`[🔍 Options Length Before Type Calculation]: ${optionsCheck}`);
   
-    const correctOptionsCount = input.options?.filter(opt => opt.correct === true).length || 0;
+    const correctOptionsCount = input.options?.filter(opt => opt.correct === true).length ?? 0;
   
     console.log(`[🔍 Correct Options Count: ${correctOptionsCount}`);
   
     return correctOptionsCount > 1 ? 'multiple' : 'single';
-  }      
+  }  
 }

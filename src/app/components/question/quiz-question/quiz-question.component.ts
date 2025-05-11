@@ -2959,15 +2959,18 @@ export class QuizQuestionComponent
       return [];
     }
   
-    console.log('[🔍 Before Population - currentQuestion.options]:', JSON.stringify(this.currentQuestion.options, null, 2));
+    if (this.optionsToDisplay?.length) {
+      console.log('[✅ populateOptionsToDisplay] optionsToDisplay already populated:', this.optionsToDisplay);
+      return this.optionsToDisplay;
+    }
+  
+    console.log('[🚀 Populating optionsToDisplay from currentQuestion.options...');
   
     this.optionsToDisplay = this.currentQuestion.options.map((option, index) => {
-      const assignedCorrect = option.correct !== undefined ? option.correct : false;
-  
       const assignedOption = {
         ...option,
         optionId: option.optionId ?? index,
-        correct: assignedCorrect,
+        correct: option.correct ?? false,
       };
   
       console.log(`[🛠️ Assigned Option - ID ${assignedOption.optionId}]:`, assignedOption);
@@ -2978,6 +2981,7 @@ export class QuizQuestionComponent
   
     return this.optionsToDisplay;
   }
+  
 
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
     if (!selectedOption) {
