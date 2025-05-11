@@ -1774,8 +1774,7 @@ export class QuizQuestionComponent
   
       if (isReady) {
         this.shouldRenderOptions = true; 
-        this._canRenderFinalOptions = true;
-        this.cdRef.detectChanges();       
+        this._canRenderFinalOptions = true;      
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
           optionBindings: instance.optionBindings?.length,
