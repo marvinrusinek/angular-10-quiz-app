@@ -113,4 +113,13 @@ export class NextButtonStateService {
       };
     });
   }
+
+  public setNextButtonState(enabled: boolean): void {
+    console.log(`[🚀 setNextButtonState] Setting to: ${enabled}`);
+    this.isButtonEnabledSubject.next(enabled);
+  }
+
+  public getNextButtonState(): Observable<boolean> {
+    return this.isButtonEnabledSubject.asObservable();
+  }
 }

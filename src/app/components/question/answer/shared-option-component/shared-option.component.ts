@@ -1009,6 +1009,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const questionIndex = this.quizService.getCurrentQuestionIndex();
     // this.syncAndConfirmState(optionId, questionIndex);
     this.renderAllStates(optionId, questionIndex);
+
+    // Set explanation text
+    this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).subscribe({
+      next: (explanationText) => {
+        console.log(`[📢 Explanation Text Received]: "${explanationText}"`);
+        this.explanationTextService.setExplanationText(explanationText);
+      },
+      error: (err) => {
+        console.error(`[❌ Error Fetching Explanation Text]: ${err}`);
+      }
+    });
+
+    // Enable "Next" button
+    this.nextButtonStateService.setNextButtonState(true);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
