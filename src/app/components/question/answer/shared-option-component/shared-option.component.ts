@@ -955,7 +955,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
       } catch (error) {
-        console.error('[❌ updateOptionAndUI error]', error);
+        console.error('[❌ updatecOptionAndUI error]', error);
       }
     });
   } */
@@ -1006,20 +1006,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     console.log(`[📍 Current Question Index]: ${currentIndex}`);
 
-    // Update current question index to ensure alignment
-    this.quizService.setCurrentQuestionIndex(currentIndex);
-
-    this.processSelectionAndSync(optionId, currentIndex);
-    this.syncStateAndRender(optionId, currentIndex);
-    this.synchronizeAllStates(optionId, currentIndex);
-
-    this.executeStateSync(currentIndex);
-
-    // Immediate explanation update with corrected index
-    console.log(`[📢 Immediate Explanation Update for Q${currentIndex}] at ${now}`);
-    this.immediateExplanationUpdate(currentIndex);
-
-    this.syncStateAndUI(currentIndex);
+    const questionIndex = this.quizService.getCurrentQuestionIndex();
+    this.handleSelectionAndSync(optionId, questionIndex);
   
     // Track selection history and feedback anchor
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1096,6 +1084,50 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[❌ updateOptionAndUI error]', error);
       }
     });
+  }
+
+  private handleSelectionAndSync(optionId: number, questionIndex: number): void {
+    console.log(`[🛠️ handleSelectionAndSync] Triggered for Q${questionIndex} - Option ${optionId}`);
+  
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
+  
+    if (!selectedOption) {
+      console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
+      return;
+    }
+  
+    console.log(`[✅ Selected Option Found]:`, selectedOption);
+  
+    // Lock state to prevent re-emission
+    this.explanationTextService.lockExplanation();
+  
+    // Emit explanation text
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📢 Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+  
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation Text Emitted and Locked]: "${explanationText}"`);
+  
+    // Apply feedback for the selected option
+    if (this.quizQuestionComponent) {
+      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
+    } else {
+      console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
+    }
+  
+    // Trigger explanation evaluation
+    console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+    this.explanationTextService.triggerExplanationEvaluation();
+  
+    // Enable the Next button
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Apply immediate change detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }
 
   private syncStateAndRender(optionId: number, questionIndex: number): void {
