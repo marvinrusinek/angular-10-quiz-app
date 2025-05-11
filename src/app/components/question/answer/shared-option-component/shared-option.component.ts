@@ -2694,14 +2694,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private determineQuestionType(input: QuizQuestion | QuestionType | undefined): 'single' | 'multiple' {
-    console.log(`[🔍 determineQuestionType] Input:`, input);
+    console.log(`[🔍 determineQuestionType] Input:`, JSON.stringify(input, null, 2));
   
     if (!input) {
       console.warn(`[⚠️ determineQuestionType] Input is undefined. Defaulting to 'single'.`);
       return 'single';
     }
   
-    // Type Guard to Check if Input is QuizQuestion
     const isQuizQuestion = (obj: any): obj is QuizQuestion => {
       return typeof obj === 'object' && 'options' in obj;
     };
@@ -2712,6 +2711,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     if (isQuizQuestion(input)) {
+      console.log(`[✅ determineQuestionType] Current Question Text: "${input.questionText}"`);
+      console.log(`[✅ determineQuestionType] Options:`, JSON.stringify(input.options, null, 2));
+  
       const correctOptionsCount = input.options.filter(opt => opt.correct).length;
       console.log(`[🔍 Correct Options Count: ${correctOptionsCount}`);
   
