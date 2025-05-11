@@ -125,6 +125,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
+    console.log('[✅ SharedOptionComponent - OnInit]');
     console.log('[✅ SOC - OnInit]');
     console.log('[✅ OnInit] optionBindings:', this.optionBindings);
     this.initializeFromConfig();
@@ -252,18 +253,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.viewInitialized = true;
     this.viewReady = true;
 
-    const radioGroup = document.querySelector('mat-radio-group');
-    console.log('[🔥 Radio Group Found]', !!radioGroup);
+    console.log('[✅ SharedOptionComponent - AfterViewInit]');
+    console.log(`[🔍 renderReady]: ${this.renderReady}`);
+    console.log(`[🔍 canDisplayOptions]: ${this.canDisplayOptions}`);
+    console.log(`[🔍 optionsToDisplay Length]: ${this.optionsToDisplay?.length}`);
 
-    if (radioGroup) {
-      radioGroup.addEventListener('click', (event) => {
-        console.log('[🖱️ Native Click Detected]', event);
-      });
+    console.log('[✅ SharedOptionComponent - AfterViewInit]');
+
+    const radioGroup = document.querySelector('mat-radio-group');
+    console.log('[🔥 AfterViewInit - Radio Group Exists]', !!radioGroup);
+
+    const radioButtons = document.querySelectorAll('mat-radio-button');
+    console.log('[🔥 AfterViewInit - Radio Buttons Count]', radioButtons.length);
+
+    setTimeout(() => {
+      const radioGroup = document.querySelector('mat-radio-group');
+      console.log('[🔥 Delayed Check - Radio Group Exists]', !!radioGroup);
   
-      radioGroup.addEventListener('change', (event) => {
-        console.log('[🔄 Native Change Detected]', event);
-      });
-    }
+      const radioButtons = document.querySelectorAll('mat-radio-button');
+      console.log('[🔥 Delayed Check - Radio Buttons Count]', radioButtons.length);
+  
+      if (radioGroup) {
+        radioGroup.addEventListener('click', (event) => {
+          console.log('[🖱️ Native Click Detected]', event);
+        });
+  
+        radioGroup.addEventListener('change', (event) => {
+          console.log('[🔄 Native Change Detected]', event);
+        });
+      }
+    }, 100); // Adjust the delay if necessary
   }
 
   ngAfterViewChecked(): void {
