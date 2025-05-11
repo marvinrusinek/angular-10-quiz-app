@@ -2959,12 +2959,7 @@ export class QuizQuestionComponent
       return [];
     }
   
-    if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
-      console.log('[✅ populateOptionsToDisplay] Returning existing optionsToDisplay:', this.optionsToDisplay);
-      return this.optionsToDisplay;
-    }
-  
-    console.warn('[⚠️ optionsToDisplay is empty. Populating from currentQuestion options...');
+    console.log('[🔍 Before Population - currentQuestion.options]:', JSON.stringify(this.currentQuestion.options, null, 2));
   
     this.optionsToDisplay = this.currentQuestion.options.map((option, index) => {
       const assignedOption = {
@@ -2973,11 +2968,11 @@ export class QuizQuestionComponent
         correct: option.correct ?? false,
       };
   
-      console.log(`[🛠️ Option ${index} - Assigned]`, assignedOption);
+      console.log(`[🛠️ Assigned Option - ID ${assignedOption.optionId}]:`, assignedOption);
       return assignedOption;
     });
   
-    console.log('[✅ populateOptionsToDisplay] optionsToDisplay populated:', JSON.stringify(this.optionsToDisplay, null, 2));
+    console.log('[✅ After Population - optionsToDisplay]:', JSON.stringify(this.optionsToDisplay, null, 2));
   
     // Reset feedback state when repopulating options
     this.isFeedbackApplied = false;
