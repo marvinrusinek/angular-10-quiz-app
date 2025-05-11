@@ -920,8 +920,10 @@ export class QuizService implements OnDestroy {
   }
 
   public setCurrentQuestion(question: QuizQuestion): void {
+    console.log('[QuizService] setCurrentQuestion called with:', question);
+  
     if (!question) {
-      console.error('Attempted to set a null or undefined question.');
+      console.error('[QuizService] Attempted to set a null or undefined question.');
       return;
     }
   
@@ -939,14 +941,28 @@ export class QuizService implements OnDestroy {
       return;
     }
   
-    // Ensure options have correct properties
+    // Verify options structure
+    if (!Array.isArray(question.options) || question.options.length === 0) {
+      console.error('[QuizService] No valid options array found in the provided question:', question);
+      return;
+    }
+  
+    // Populate options ensuring necessary properties are present
+    const updatedOptions = question.options.map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index,
+      correct: option.correct ?? false,
+      selected: option.selected ?? false,
+      active: option.active ?? true,
+      showIcon: option.showIcon ?? false,
+    }));
+  
+    console.log('[QuizService] Updated Options:', updatedOptions);
+  
+    // Construct the updated question object
     const updatedQuestion: QuizQuestion = {
       ...question,
-      options: question.options?.map((option, index) => ({
-        ...option,
-        optionId: option.optionId ?? index + 1,
-        correct: option.correct ?? false
-      })) || []
+      options: updatedOptions,
     };
   
     console.log('[QuizService] Emitting updated question:', updatedQuestion);
