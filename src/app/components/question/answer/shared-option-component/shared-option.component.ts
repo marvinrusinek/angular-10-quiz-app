@@ -1007,7 +1007,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[📍 Current Question Index]: ${currentIndex}`);
 
     const questionIndex = this.quizService.getCurrentQuestionIndex();
-    this.syncAndConfirmState(optionId, questionIndex);
+    // this.syncAndConfirmState(optionId, questionIndex);
     this.syncRenderingAndNavigation(optionId, questionIndex);
   
     // Track selection history and feedback anchor
