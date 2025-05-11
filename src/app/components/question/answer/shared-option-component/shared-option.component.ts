@@ -488,7 +488,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   private ensureOptionsToDisplay(): void {
     console.log('[🔍 ensureOptionsToDisplay] Checking optionsToDisplay...');
-  
     console.log('[🔍 Current Question Object]:', this.currentQuestion);
   
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
