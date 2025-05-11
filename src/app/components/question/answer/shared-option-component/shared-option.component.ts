@@ -167,7 +167,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     setTimeout(() => {
       this.initializeOptionBindings();
       this.renderReady = this.optionsToDisplay?.length > 0;
-      this.canDisplayOptions = this.optionsToDisplay?.length > 0;
+      // this.canDisplayOptions = this.optionsToDisplay?.length > 0;
   
       this.cdRef.detectChanges();
       console.log('[✅ Flags Updated - Triggering Render]');
@@ -2391,11 +2391,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   getOptionBindings(option: Option, idx: number, isSelected: boolean = false): OptionBindings {
+    console.log(`[🔍 getOptionBindings] Called for Option ${option.optionId}`);
+    console.log(`[🔍 optionsToDisplay]:`, this.optionsToDisplay);
+  
     // Calculate the type based on the number of correct options
     const correctOptionsCount = this.optionsToDisplay?.filter(opt => opt.correct).length ?? 0;
     const type = correctOptionsCount > 1 ? 'multiple' : 'single';
   
-    console.log(`[🔍 getOptionBindings] Correct Options Count: ${correctOptionsCount}, Determined Type: ${type}`);
+    console.log(`[🔍 Correct Options Count: ${correctOptionsCount}]`);
+    console.log(`[✅ Determined Type: ${type}]`);
   
     return {
       option: {
@@ -2408,7 +2412,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
-      type: type, // dynamically determined type
+      type: type,
       appHighlightOption: false,
       appHighlightInputType: type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
@@ -2416,14 +2420,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
       active: option.active,
-      change: (element: MatCheckbox | MatRadioButton) => 
+      change: (element: MatCheckbox | MatRadioButton) =>
         this.handleOptionClick(option as SelectedOption, idx, element.checked),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
       checked: this.isSelectedOption(option)
     };
-  } 
-
+  }
+  
   private generateOptionBindings(): void {
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
