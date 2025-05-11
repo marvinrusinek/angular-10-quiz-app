@@ -125,9 +125,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
-    console.log('[✅ SharedOptionComponent - OnInit]');
-    console.log('[✅ SOC - OnInit]');
-    console.log('[✅ OnInit] optionBindings:', this.optionBindings);
+    console.log('[✅ OnInit - SharedOptionComponent]');
+    console.log(`[🔍 Initial optionsToDisplay]:`, this.optionsToDisplay);
+    console.log(`[🔍 Initial optionBindings]:`, this.optionBindings);
+    console.log(`[🔍 Initial renderReady]: ${this.renderReady}`);
+    console.log(`[🔍 Initial canDisplayOptions]: ${this.canDisplayOptions}`);
+    
     this.initializeFromConfig();
 
     console.log('[✅ OnInit - SharedOptionComponent]');
@@ -156,6 +159,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
     }
+
+    setTimeout(() => {
+      this.initializeOptionBindings();
+      this.renderReady = this.optionsToDisplay?.length > 0;
+      this.canDisplayOptions = this.optionsToDisplay?.length > 0;
+  
+      this.cdRef.detectChanges();
+      console.log('[✅ Flags Updated - Triggering Render]');
+    }, 100);
+    console.log(`[🔍 optionBindings]:`, this.optionBindings);
 
     // Always synchronize to ensure data consistency
     console.log('[🔄 Synchronizing option bindings...');

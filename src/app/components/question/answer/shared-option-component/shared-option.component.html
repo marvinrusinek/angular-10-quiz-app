@@ -3,6 +3,8 @@
   [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
   [style.minHeight]="'1rem'"> <!-- for flickering -->
 
+  <p>[🔍 Option Type Check]: {{ optionBindings[0]?.type }}</p>
+
   <form [formGroup]="form">
 
     <!-- SINGLE-ANSWER (radio) -->
