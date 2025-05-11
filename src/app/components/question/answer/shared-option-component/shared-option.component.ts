@@ -745,7 +745,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
 
     const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
-    this.type = this.convertQuestionType(qType);
+    this.type = this.determineQuestionType(qType);
 
     this.showFeedback = this.config.showFeedback || false;
     this.showFeedbackForOption = this.config.showFeedbackForOption || {};
@@ -865,7 +865,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     if (this.currentQuestion && this.currentQuestion.type) {
-      this.type = this.convertQuestionType(this.currentQuestion.type);
+      this.type = this.determineQuestionType(this.currentQuestion.type);
     }
   
     this.updateHighlighting();
@@ -2693,24 +2693,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return binding.option?.optionId ?? index;
   }
 
-  private convertQuestionType(input: QuizQuestion | QuestionType): 'single' | 'multiple' {
-    let correctOptionsCount = 0;
+  private determineQuestionType(input: QuizQuestion | QuestionType | undefined): 'single' | 'multiple' {
+    console.log(`[🔍 determineQuestionType] Input:`, input);
   
-    if (typeof input === 'object' && input.options?.length) {
-      correctOptionsCount = input.options.filter(opt => opt.correct).length;
-      console.log(`[🔍 convertQuestionType] Correct Options Count: ${correctOptionsCount}`);
-    } else if (typeof input === 'number') {
-      console.log(`[🔍 convertQuestionType] Input is QuestionType enum: ${input}`);
+    if (!input) {
+      console.warn(`[⚠️ determineQuestionType] Input is undefined. Defaulting to 'single'.`);
+      return 'single';
+    }
+  
+    // Type Guard to Check if Input is QuizQuestion
+    const isQuizQuestion = (obj: any): obj is QuizQuestion => {
+      return typeof obj === 'object' && 'options' in obj;
+    };
+  
+    if (typeof input === 'number') {
+      console.log(`[🔍 determineQuestionType] Input is a QuestionType enum: ${input}`);
       return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
     }
   
-    if (correctOptionsCount > 1) {
-      return 'multiple';
-    } else if (correctOptionsCount === 1) {
-      return 'single';
-    } else {
-      console.warn(`[⚠️ convertQuestionType] No correct options found or invalid input. Defaulting to 'single'.`);
-      return 'single';
+    if (isQuizQuestion(input)) {
+      const correctOptionsCount = input.options.filter(opt => opt.correct).length;
+      console.log(`[🔍 Correct Options Count: ${correctOptionsCount}`);
+  
+      return correctOptionsCount > 1 ? 'multiple' : 'single';
     }
+  
+    console.warn(`[⚠️ determineQuestionType] Invalid structure. Defaulting to 'single'.`);
+    return 'single';
   }  
 }
