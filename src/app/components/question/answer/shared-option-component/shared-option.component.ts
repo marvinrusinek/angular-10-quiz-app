@@ -1190,7 +1190,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log(`[✅ Final State Update for Option ${optionId}]`);
   
         // Centralized Explanation Emission, Feedback Application, and Next Button Sync
-        this.emitExplanationAndSyncNavigation();
+        this.emitExplanationAndSyncNavigation(questionIndex);
   
         // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
@@ -1651,7 +1651,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Apply feedback
     if (this.quizQuestionComponent) {
       console.log(`[📝 Delegating Feedback for Option ${selectedOption.optionId}] to QQC`);
-      this.quizQuestionComponent.applyFeedbackForOption(selectedOption);
+      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
     } else {
       console.warn(`[⚠️ QQC instance not available - Feedback not applied for Option ${selectedOption.optionId}]`);
     }
@@ -2693,22 +2693,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return binding.option?.optionId ?? index;
   }
 
-  private convertQuestionType(question: QuizQuestion): 'single' | 'multiple' {
-    if (!question || !question.options?.length) {
-      console.warn('Invalid question structure. Defaulting to single.');
-      return 'single';
+  private convertQuestionType(input: QuizQuestion | QuestionType): 'single' | 'multiple' {
+    let correctOptionsCount = 0;
+  
+    if (typeof input === 'object' && input.options?.length) {
+      correctOptionsCount = input.options.filter(opt => opt.correct).length;
+      console.log(`[🔍 convertQuestionType] Correct Options Count: ${correctOptionsCount}`);
+    } else if (typeof input === 'number') {
+      console.log(`[🔍 convertQuestionType] Input is QuestionType enum: ${input}`);
+      return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
     }
-  
-    const correctOptionsCount = question.options.filter(opt => opt.correct).length;
-  
-    console.log(`[🔍 convertQuestionType] Correct Options Count: ${correctOptionsCount}`);
   
     if (correctOptionsCount > 1) {
       return 'multiple';
     } else if (correctOptionsCount === 1) {
       return 'single';
     } else {
-      console.warn('No correct options found. Defaulting to single.');
+      console.warn(`[⚠️ convertQuestionType] No correct options found or invalid input. Defaulting to 'single'.`);
       return 'single';
     }
   }  
