@@ -1134,11 +1134,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[📍 Current Question Index]: ${this.quizService.currentQuestionIndex}`);
   
-    // Immediate explanation update before highlighting
-    console.log(`[📢 Immediate Explanation Update for Q${this.quizService.currentQuestionIndex}]`);
-    this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
-  
-    // Apply selection state
+    // Update selection state
     optionBinding.option.selected = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
@@ -1149,27 +1145,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Sync Next button state
     this.nextButtonStateService.setNextButtonState(true);
   
-    // Track selection history and feedback anchor
-    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
-  
-    if (!isAlreadyVisited) {
+    // Track selection history
+    if (!this.selectedOptionHistory.includes(optionId)) {
       this.selectedOptionHistory.push(optionId);
       this.lastFeedbackOptionId = optionId;
-      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
-    } else {
-      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
   
-    // Clear feedback visibility for all options
+    // Clear all feedback visibility
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    // Show feedback only for the current option
+    // Show feedback only for the selected option
     this.showFeedbackForOption[optionId] = true;
-    this.updateFeedbackState(optionId);
+    this.showFeedback = true;
   
     console.log(`[✅ Feedback State Updated for Option ${optionId}]`);
+  
+    // Apply feedback and highlight immediately
+    this.applyFeedback(optionBinding);
+    this.applyHighlighting(optionBinding);
   
     // Set feedback config for current option
     this.feedbackConfigs[optionId] = {
@@ -1184,23 +1179,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
   
-    // Apply highlight and feedback
-    console.log(`[🎯 Applying Highlight for Option ${optionId}]`);
-    this.applyHighlighting(optionBinding);
-  
     // Enforce single-answer behavior if applicable
     if (this.type === 'single') {
-      console.log('[🔄 Enforcing Single Selection Behavior]');
       this.enforceSingleSelection(optionBinding);
     }
   
-    // Validate option binding
-    if (!this.isValidOptionBinding(optionBinding)) {
-      console.warn('[⚠️ Invalid Option Binding - Aborting Update]', optionId);
-      return;
-    }
-  
-    // Centralized Explanation Emission, Feedback Application, and Next Button Sync
+    // Centralized Explanation Emission and Next Button Sync
     console.log(`[📢 Synchronizing Explanation and Navigation for Q${this.quizService.currentQuestionIndex}]`);
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
   
@@ -1210,25 +1194,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         const questionIndex = this.quizService.currentQuestionIndex;
         console.log(`[🚀 Executing Render Cycle for Q${questionIndex}]`);
   
-        // Add selected option index
-        this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-        this.selectedOptionService.setOptionSelected(true);
-  
-        if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-  
-        // Apply option attributes and state updates
-        this.updateOptionActiveStates(optionBinding);
-        this.applyOptionAttributes(optionBinding, event);
-  
         // Emit option selected event
         this.emitOptionSelectedEvent(optionBinding, index, checked);
   
-        // Finalize option selection
-        this.finalizeOptionSelection(optionBinding, checked);
-  
-        console.log(`[✅ Final State Update for Option ${optionId}]`);
-  
-        // Ensure immediate change detection for UI update
+        // Force change detection for UI update
         this.cdRef.detectChanges();
       } catch (error) {
         console.error('[❌ updateOptionAndUI error]', error);
