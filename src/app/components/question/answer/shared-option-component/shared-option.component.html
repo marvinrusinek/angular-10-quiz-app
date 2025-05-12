@@ -62,7 +62,7 @@
 
         <codelab-quiz-feedback
           *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]">
+          [feedbackConfig]="feedbackConfigs[i]">{{ feedbackConfigs[b.option.optionId]?.feedback }}
         </codelab-quiz-feedback>
       </div>
     </div>
