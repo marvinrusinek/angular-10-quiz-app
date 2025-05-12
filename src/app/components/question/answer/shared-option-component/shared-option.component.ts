@@ -1159,13 +1159,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId; 
+      this.lastFeedbackOptionId = optionId;
       console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
       console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
   
-    // Clear all feedback visibility
+    // Clear all feedback visibility before setting the new one
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
@@ -1178,7 +1178,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.showFeedback = true;
   
-    // Set feedback config for the current option
+    // **Set feedback config for the current option**
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -1191,20 +1191,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
   
-    // Apply highlight and feedback
+    // **Apply highlight and feedback**
     console.log(`[🎯 Applying Highlight and Feedback for Option ${optionId}]`);
     this.applyHighlighting(optionBinding);
     this.applyFeedback(optionBinding);
   
-    // Enforce single-answer behavior if applicable
+    // **Enforce single-answer behavior if applicable**
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
     }
   
-    // Emit explanation text and synchronize UI state
+    // **Emit explanation text and synchronize UI state**
+    console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
   
-    // Force immediate change detection to ensure UI updates
+    // **Trigger immediate change detection**
     this.cdRef.detectChanges();
     console.log(`[✅ Final State Update for Option ${optionId}]`);
   }
