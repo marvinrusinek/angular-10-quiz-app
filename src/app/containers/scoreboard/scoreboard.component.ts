@@ -61,8 +61,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe((totalQuestions: number | null) => {
         if (totalQuestions !== null) {
-          this.totalQuestions = totalQuestions;
-          console.log('[handleRouteParameters] Total Questions:', this.totalQuestions);
+          this.totalQuestions = totalQuestions;\
   
           const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
   
