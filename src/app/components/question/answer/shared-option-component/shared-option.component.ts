@@ -677,6 +677,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateOptionAndUI(optionBinding, index, event);
   }
 
+  handleClick(optionBinding: OptionBindings, index: number): void {
+    console.log('[🖱️ Click Detected]:', optionBinding.option.optionId);
+  
+    // Ensure the click is only processed once
+    if (optionBinding.option.selected) {
+      console.warn('[⚠️ Option already selected - skipping click handler]');
+      return;
+    }
+  
+    this.updateOptionAndUI(optionBinding, index, {
+      checked: true,
+      source: { value: optionBinding.option.optionId }
+    } as MatRadioChange);
+  }
+  
+  handleChange(optionBinding: OptionBindings, index: number): void {
+    console.log('[🔄 Change Detected]:', optionBinding.option.optionId);
+  
+    this.updateOptionAndUI(optionBinding, index, {
+      checked: true,
+      source: { value: optionBinding.option.optionId }
+    } as MatRadioChange);
+  }
+  
+
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
@@ -686,10 +711,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   initializeFromConfig(): void {
-    console.log('[🔄 initializeFromConfig] Starting initialization process...');
+    console.log('[🚀 initializeFromConfig] Initialization process started.');
   
-    if (this.freezeOptionBindings) return;
+    if (this.freezeOptionBindings) {
+      console.warn('[🛡️ initializeFromConfig] Skipping initialization - option bindings frozen.');
+      return;
+    }
   
+    // Full reset
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -701,52 +730,72 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.currentQuestion = null;
     this.optionsToDisplay = [];
   
+    console.log('[🔄 State Reset Completed]');
+  
+    // GUARD - Config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
   
-    console.log('[🔄 Assigning current question...');
+    console.log('[✅ Config detected]', this.config);
+  
+    // Assign current question
     this.currentQuestion = this.config.currentQuestion;
+    console.log('[🔍 Current Question Assigned]:', this.currentQuestion);
   
-    console.log('[🔍 Current Question Assigned]:', JSON.stringify(this.currentQuestion, null, 2));
-  
+    // Validate currentQuestion before proceeding
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
       console.error('[🚨 initializeFromConfig] Invalid or missing currentQuestion options.');
       return;
     }
   
     console.log('[🔄 Populating optionsToDisplay...');
-    this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => ({
-      ...opt,
-      optionId: opt.optionId ?? idx,
-      correct: opt.correct ?? false,
-      feedback: opt.feedback ?? 'No feedback available',
-      selected: opt.selected ?? false,
-      active: true,
-      showIcon: false
-    }));
+    
+    // Populate optionsToDisplay with structured data
+    this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => {
+      const processedOption = {
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? 'No feedback available',
+        selected: opt.selected ?? false,
+        active: true,
+        showIcon: false
+      };
+      
+      console.log(`[✅ Option Processed - ID ${processedOption.optionId}]:`, processedOption);
+      return processedOption;
+    });
   
-    console.log('[✅ optionsToDisplay Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
+    console.log('[✅ optionsToDisplay Populated]:', this.optionsToDisplay);
   
     if (!this.optionsToDisplay.length) {
       console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after processing.');
       return;
     }
   
+    // Determine question type based on options
     console.log('[🔄 Determining question type...');
     this.type = this.determineQuestionType(this.currentQuestion);
     console.log(`[✅ Final Type Determined]: ${this.type}`);
   
+    // Initialize bindings and feedback maps
     console.log('[🔄 Initializing option bindings...');
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
-    console.log('[✅ Option Bindings Initialized]:', JSON.stringify(this.optionBindings, null, 2));
   
     console.log('[🔄 Initializing feedback bindings...');
     this.initializeFeedbackBindings();
   
-    console.log('[✅ Initialization complete.]');
+    console.log('[🔄 Finalizing option population...');
+    this.finalizeOptionPopulation();
+  
+    console.log('[✅ initializeFromConfig] Initialization complete.');
   }
+  
+  
+  
+  
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;
@@ -1059,6 +1108,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
+    console.log(`[📍 Option ID: ${optionId}] - Checked: ${checked}`);
+  
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
       console.warn('[🔒 Already selected — skipping update]', optionId);
@@ -1103,24 +1154,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId; 
+      this.lastFeedbackOptionId = optionId;
       console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
       console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
   
-    // Clear all feedback visibility
+    // Clear feedback visibility for all options
     Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
-    // Show feedback for current anchor only
-    if (this.lastFeedbackOptionId !== -1) {
-      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
-      this.updateFeedbackState(this.lastFeedbackOptionId);
-    }
+    // Show feedback only for the current option
+    this.showFeedbackForOption[optionId] = true;
+    this.updateFeedbackState(optionId);
   
-    this.showFeedback = true;
+    console.log(`[✅ Feedback State Updated for Option ${optionId}]`);
   
     // Set feedback config for current option
     this.feedbackConfigs[optionId] = {
@@ -1137,16 +1186,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Apply highlight and feedback
     console.log(`[🎯 Applying Highlight for Option ${optionId}]`);
-    this.forceHighlightRefresh(optionId);
+    this.applyHighlighting(optionBinding);
   
     // Enforce single-answer behavior if applicable
     if (this.type === 'single') {
+      console.log('[🔄 Enforcing Single Selection Behavior]');
       this.enforceSingleSelection(optionBinding);
     }
   
-    if (!this.isValidOptionBinding(optionBinding)) return;
+    // Validate option binding
+    if (!this.isValidOptionBinding(optionBinding)) {
+      console.warn('[⚠️ Invalid Option Binding - Aborting Update]', optionId);
+      return;
+    }
   
     // Centralized Explanation Emission, Feedback Application, and Next Button Sync
+    console.log(`[📢 Synchronizing Explanation and Navigation for Q${this.quizService.currentQuestionIndex}]`);
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
   
     // Final state updates inside Angular zone
@@ -1155,20 +1210,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         const questionIndex = this.quizService.currentQuestionIndex;
         console.log(`[🚀 Executing Render Cycle for Q${questionIndex}]`);
   
+        // Add selected option index
         this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
         this.selectedOptionService.setOptionSelected(true);
   
         if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
   
+        // Apply option attributes and state updates
         this.updateOptionActiveStates(optionBinding);
         this.applyOptionAttributes(optionBinding, event);
   
+        // Emit option selected event
         this.emitOptionSelectedEvent(optionBinding, index, checked);
+  
+        // Finalize option selection
         this.finalizeOptionSelection(optionBinding, checked);
   
         console.log(`[✅ Final State Update for Option ${optionId}]`);
   
-        // Force immediate change detection to ensure UI updates
+        // Ensure immediate change detection for UI update
         this.cdRef.detectChanges();
       } catch (error) {
         console.error('[❌ updateOptionAndUI error]', error);

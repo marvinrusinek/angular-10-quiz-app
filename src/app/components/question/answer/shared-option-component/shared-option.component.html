@@ -16,10 +16,12 @@
 
       <mat-radio-button 
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
+        appHighlightOption
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (click)="console.log('[🖱️ Click - Single Option]:', b.option.optionId)"
-        (change)="console.log('[🔄 Change - Single Option]:', b.option.optionId)">
+        (click)="handleClick(b, i)"
+        (change)="handleChange(b, i)"
+      >
 
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
