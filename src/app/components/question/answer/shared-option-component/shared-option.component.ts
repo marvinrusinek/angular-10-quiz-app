@@ -579,29 +579,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
   
-    this.optionBindings = this.optionsToDisplay.map(option => {
+    this.optionBindings = this.optionsToDisplay.map((option, index) => {
       const isSelected = existingSelectionMap.get(option.optionId) ?? option.selected ?? false;
       const feedback = option.feedback ?? 'No feedback available.';
       const highlight = this.highlightedOptionIds.has(option.optionId);
-  
+    
       console.log(`[🔄 Synchronizing Option ${option.optionId}]`, {
         isSelected,
         highlight,
         type: isMultipleAnswer ? 'multiple' : 'single'
       });
-  
+    
       return {
-        type: isMultipleAnswer ? 'multiple' : 'single',
         option,
+        index, // include index for tracking and feedback application
+        type: isMultipleAnswer ? 'multiple' : 'single',
         feedback,
         isSelected,
-        active: option.active ?? true,
-        appHighlightOption: highlight,
         isCorrect: !!option.correct,
         showFeedback: false,
-        showFeedbackForOption: {},
+        showFeedbackForOption: false,
         highlightCorrectAfterIncorrect: false,
-        allOptions: [...this.optionsToDisplay],
+        highlightIncorrect: false,
+        highlightCorrect: false,
+        styleClass: '', // this will be updated based on state
+        active: option.active ?? true,
+        appHighlightOption: highlight,
         appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
         appHighlightReset: false,
         disabled: false,
@@ -609,9 +612,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         appResetBackground: false,
         optionsToDisplay: [...this.optionsToDisplay],
         checked: isSelected,
-        change: () => {}
+        change: () => {},
       };
-    });
+    });    
   
     // Apply highlighting after reassignment
     this.updateHighlighting();
@@ -2487,7 +2490,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ])
     );
   
-    // Build fresh bindings using retained selection state
+    // Build fresh bindings using retained selection                                 state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
