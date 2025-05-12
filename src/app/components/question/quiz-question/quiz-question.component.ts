@@ -3929,7 +3929,7 @@ export class QuizQuestionComponent
     currentQuestion: QuizQuestion
   ): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
-
+  
     // Ensure that the option and optionIndex are valid
     if (!option || optionIndex < 0) {
       console.error(
@@ -3939,20 +3939,23 @@ export class QuizQuestionComponent
       );
       return;
     }
-
+  
     // Ensure the question index is valid
     if (typeof questionIndex !== 'number' || questionIndex < 0) {
       console.error(`Invalid question index: ${questionIndex}`);
       return;
     }
-
+  
     try {
+      console.log(`[🖱️ Option Selected]:`, { optionId: option.optionId, optionIndex });
+  
       // Toggle option selection state
       option.selected = !option.selected;
-
+  
       // Process the selected option and update states
       this.processOptionSelection(currentQuestion, option, optionIndex);
-
+  
+      // Update selected option service
       this.selectedOptionService.setAnsweredState(true);
       this.selectedOptionService.setSelectedOption(option);
       this.selectedOptionService.toggleSelectedOption(
@@ -3965,24 +3968,28 @@ export class QuizQuestionComponent
         optionIndex,
         'add'
       );
-
+  
+      // Immediate state synchronization and feedback application
       this.selectedOption = { ...option, correct: option.correct };
       this.showFeedback = true;
-
-      // Ensure the explanation text is only set after the option is selected
-      const explanationText = await this.getExplanationText(
-        this.currentQuestionIndex
-      );
+  
+      // Apply feedback immediately for the selected option
+      console.log(`[📝 Applying Feedback for Option]: ${option.optionId}`);
+      this.applyFeedbackForOption(option);
+  
+      // Emit explanation text immediately after feedback
+      const explanationText = await this.getExplanationText(this.currentQuestionIndex);
+      console.log(`[📢 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+      
       this.explanationTextService.setExplanationText(explanationText);
       this.explanationText = explanationText;
-
+  
       // Update the answers and check if the selection is correct
       this.quizService.updateAnswersForOption(option);
       this.checkAndHandleCorrectAnswer();
-
-      const totalCorrectAnswers =
-        this.quizService.getTotalCorrectAnswers(currentQuestion);
-
+  
+      const totalCorrectAnswers = this.quizService.getTotalCorrectAnswers(currentQuestion);
+  
       // Update the question state in the QuizStateService
       this.quizStateService.updateQuestionState(
         this.quizId,
@@ -3993,24 +4000,23 @@ export class QuizQuestionComponent
         },
         totalCorrectAnswers
       );
-
-      // Display explanation text only if an option has been selected
-      if (this.isAnswered || this.isOptionSelected) {
-        await firstValueFrom(
-          of(this.conditionallyShowExplanation(this.currentQuestionIndex))
-        );
-      }
-
-      console.log('After option selection:', {
-        selected: this.selectedOption,
-        isAnswered: this.isAnswered,
-        currentSelectedState:
-          this.selectedOptionService.getCurrentOptionSelectedState(),
-      });
+  
+      // Trigger explanation evaluation immediately
+      console.log(`[📢 Triggering Explanation Evaluation for Q${questionIndex}]`);
+      this.explanationTextService.triggerExplanationEvaluation();
+  
+      // Enable the Next button immediately
+      console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+      this.nextButtonStateService.setButtonEnabled(true);
+  
+      // Immediate change detection
+      this.cdRef.detectChanges();
+      console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  
     } catch (error) {
       console.error('Error during option selection:', error);
     } finally {
-      // Reset the answered state when a new option is selected
+      // Reset the answered state after processing
       this.isAnswered = false;
     }
   }
