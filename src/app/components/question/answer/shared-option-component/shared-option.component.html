@@ -1,7 +1,7 @@
 <ng-container 
   *ngIf="renderReady && canDisplayOptions && optionsToDisplay?.length > 0; else noOptions"
   [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
-  [style.minHeight]="'1rem'"> <!-- for flickering -->
+  [style.minHeight]="'1rem'">
 
   <p>[🔍 Option Type Check]: {{ type }}</p>
 
@@ -9,17 +9,19 @@
 
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group
-      *ngIf="type === 'single'" class="options-group options single-option"
+      *ngIf="type === 'single'" 
+      class="options-group options single-option"
       formControlName="selectedOptionId"
-      (selectionChange)="updateOptionAndUI($event)">
+      (selectionChange)="handleSelectionChange($event)">
 
       <mat-radio-button 
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (click)="onOptionClicked({ option: b.option, index: i, checked: true })">
+        (click)="onOptionClicked({ option: b.option, index: i, checked: true }); console.log('[🖱️ Click - Single Option]:', b.option)"
+        (change)="console.log('[🔄 Change - Single Option]:', b.option)">
 
-        <span class="option-text" >
+        <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
         </span>
 
@@ -42,8 +44,8 @@
 
           <mat-checkbox
             [checked]="b.option.selected"
-            (change)="onMatCheckboxChanged(b, i, $event)"
-            (click)="onOptionClicked({ option: b.option, index: i, checked: checked })">
+            (change)="onMatCheckboxChanged(b, i, $event); console.log('[🔄 Checkbox Change]:', b.option)"
+            (click)="onOptionClicked({ option: b.option, index: i, checked: $event.checked }); console.log('[🖱️ Checkbox Click]:', b.option)">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}
