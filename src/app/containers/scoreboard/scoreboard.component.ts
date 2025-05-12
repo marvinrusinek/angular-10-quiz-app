@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { ReplaySubject, of, Observable, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -46,24 +46,34 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleRouteParameters(): void {
-    this.activatedRoute.params.pipe(
-      takeUntil(this.unsubscribe$),
-      switchMap((params: Params) => this.processRouteParams(params)), // ensures correct params
-      catchError((error: Error) => this.handleError(error))
-    ).subscribe((totalQuestions: number) => {
-      if (totalQuestions !== null) {
-        this.totalQuestions = totalQuestions;
-
-        // Ensure badge updates correctly without skipping numbers
-        const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
-
-        if (this.badgeText !== newBadgeText) {
-          this.badgeText = newBadgeText; // ensure immediate UI update
-        } else {
-          console.log(`[handleRouteParameters] 🔵 Badge already correct: ${newBadgeText}`);
+    this.activatedRoute.params
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        switchMap((params: Params) => {
+          console.log('[handleRouteParameters] Params received:', params);
+          return this.processRouteParams(params);
+        }),
+        catchError((error: Error) => {
+          console.error('[handleRouteParameters] Error processing route params:', error);
+          return of(null);
+        })
+      )
+      .subscribe((totalQuestions: number | null) => {
+        if (totalQuestions !== null) {
+          this.totalQuestions = totalQuestions;
+          console.log('[handleRouteParameters] Total Questions:', this.totalQuestions);
+  
+          const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
+  
+          if (this.badgeText !== newBadgeText) {
+            console.log(`[handleRouteParameters] 🔵 Updating Badge Text to: ${newBadgeText}`);
+            this.badgeText = newBadgeText;
+          } else {
+            console.log(`[handleRouteParameters] 🔵 Badge already correct, skipping update.`);
+          }
         }
-      }
-    });
+      });
   }
 
   private processRouteParams(params: Params): Observable<number> {
