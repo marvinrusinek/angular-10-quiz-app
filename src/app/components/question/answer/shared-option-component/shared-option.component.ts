@@ -2695,6 +2695,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private determineQuestionType(question: QuizQuestion | undefined): 'single' | 'multiple' {
+    console.log('[🔍 determineQuestionType] Question Object:', question);
+  
     if (!question || !question.options?.length) {
       console.warn('[determineQuestionType] No question or options provided. Defaulting to "single".');
       return 'single';
@@ -2704,14 +2706,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[🔍 determineQuestionType] Correct Count: ${correctCount}`);
   
     if (correctCount > 1) {
+      console.log(`[🔍 determineQuestionType] Type set to "multiple"`);
       return 'multiple';
     } else if (correctCount === 1) {
+      console.log(`[🔍 determineQuestionType] Type set to "single"`);
       return 'single';
     } else {
       console.warn('[determineQuestionType] No correct options found. Defaulting to "single".');
       return 'single';
     }
-  }     
+  }
   
   private finalizeOptionPopulation(): void {
     console.log('[🚀 finalizeOptionPopulation] Checking optionsToDisplay...');
