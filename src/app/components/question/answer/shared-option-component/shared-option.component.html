@@ -3,23 +3,23 @@
   [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
   [style.minHeight]="'1rem'"> <!-- for flickering -->
 
-  <p>[🔍 Option Type Check]: {{ optionBindings[0]?.type }}</p>
+  <p>[🔍 Option Type Check]: {{ type }}</p>
 
   <form [formGroup]="form" class="options-form">
-!
+
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group
       *ngIf="type === 'single'" class="options-group single-option"
       formControlName="selectedOptionId"
       (selectionChange)="updateOptionAndUI($event)">
 
-      <mat-radio-button
+      <mat-radio-button 
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
         (click)="onOptionClicked({ option: b.option, index: i, checked: true })">
 
-        <span class="option-text">
+        <span class="option-text options" >
           {{ getOptionDisplayText(b.option, i) }}
         </span>
 
@@ -30,7 +30,7 @@
     </mat-radio-group>
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="type === 'multiple'">
+    <div *ngIf="type === 'multiple'" class="options-group multiple-option">
       <div
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
