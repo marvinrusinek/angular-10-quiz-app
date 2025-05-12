@@ -12,14 +12,14 @@
       *ngIf="type === 'single'" 
       class="options-group options single-option"
       formControlName="selectedOptionId"
-      (selectionChange)="handleSelectionChange($event)">
+      (selectionChange)="updateOptionAndUI($event)">
 
       <mat-radio-button 
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         [value]="b.option.optionId"
         name="selectedOptionId"
-        (click)="onOptionClicked({ option: b.option, index: i, checked: true }); console.log('[🖱️ Click - Single Option]:', b.option)"
-        (change)="console.log('[🔄 Change - Single Option]:', b.option)">
+        (click)="console.log('[🖱️ Click - Single Option]:', b.option.optionId)"
+        (change)="console.log('[🔄 Change - Single Option]:', b.option.optionId)">
 
         <span class="option-text">
           {{ getOptionDisplayText(b.option, i) }}
@@ -44,8 +44,9 @@
 
           <mat-checkbox
             [checked]="b.option.selected"
-            (change)="onMatCheckboxChanged(b, i, $event); console.log('[🔄 Checkbox Change]:', b.option)"
-            (click)="onOptionClicked({ option: b.option, index: i, checked: $event.checked }); console.log('[🖱️ Checkbox Click]:', b.option)">
+            [value]="b.option.optionId"
+            (change)="updateOptionAndUI($event)"
+            (click)="console.log('[🖱️ Checkbox Click]:', b.option.optionId)">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}
