@@ -2631,6 +2631,7 @@ export class QuizQuestionComponent
   
       // Proceed with state synchronization and feedback application
       this.updateOptionSelection(event, option);
+      this.handleOptionSelection(event.option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
   
       // Update display state to explanation mode
