@@ -579,42 +579,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
   
-    this.optionBindings = this.optionsToDisplay.map((option, index) => {
-      const isSelected = existingSelectionMap.get(option.optionId) ?? option.selected ?? false;
-      const feedback = option.feedback ?? 'No feedback available.';
-      const highlight = this.highlightedOptionIds.has(option.optionId);
-    
-      console.log(`[🔄 Synchronizing Option ${option.optionId}]`, {
-        isSelected,
-        highlight,
-        type: isMultipleAnswer ? 'multiple' : 'single'
-      });
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const isCorrect = option.correct ?? false;
     
       return {
         option,
-        index, // include index for tracking and feedback application
-        type: isMultipleAnswer ? 'multiple' : 'single',
-        feedback,
+        index: idx,
         isSelected,
-        isCorrect: !!option.correct,
+        isCorrect,
         showFeedback: false,
+        feedback: option.feedback ?? 'No feedback available',
         showFeedbackForOption: false,
         highlightCorrectAfterIncorrect: false,
-        highlightIncorrect: false,
-        highlightCorrect: false,
-        styleClass: '', // this will be updated based on state
-        active: option.active ?? true,
-        appHighlightOption: highlight,
-        appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
-        appHighlightReset: false,
+        highlightIncorrect: isSelected && !isCorrect,
+        highlightCorrect: isSelected && isCorrect,
+        styleClass: isSelected ? 'highlighted' : '',
         disabled: false,
-        ariaLabel: `Option ${option.text}`,
+        type: this.type ?? 'single',
+        appHighlightOption: isSelected,
+        appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+        allOptions: [...this.optionsToDisplay],
+        appHighlightReset: false,
+        ariaLabel: `Option ${idx + 1}`,
         appResetBackground: false,
         optionsToDisplay: [...this.optionsToDisplay],
         checked: isSelected,
-        change: () => {},
+        change: () => {}
       };
-    });    
+    });        
   
     // Apply highlighting after reassignment
     this.updateHighlighting();
