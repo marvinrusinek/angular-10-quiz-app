@@ -1204,6 +1204,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
+  
 
   private executeRenderCycle(optionId: number, questionIndex: number): void {
     const timestamp = Date.now();
