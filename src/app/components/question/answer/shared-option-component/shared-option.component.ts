@@ -678,18 +678,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
-    console.log('[🖱️ Click Detected]:', optionBinding.option.optionId);
-  
+    console.log('[🖱️ handleClick] Option Clicked:', optionBinding.option.optionId);
+
     // Ensure the click is only processed once
     if (optionBinding.option.selected) {
       console.warn('[⚠️ Option already selected - skipping click handler]');
       return;
     }
   
-    this.updateOptionAndUI(optionBinding, index, {
-      checked: true,
-      source: { value: optionBinding.option.optionId }
-    } as MatRadioChange);
+    const simulatedEvent: MatRadioChange = {
+      source: {
+        value: optionBinding.option.optionId,
+        checked: true,
+        // Add other required properties or cast as any for now
+      } as unknown as MatRadioButton,
+      value: optionBinding.option.optionId,
+    };
+  
+    this.updateOptionAndUI(optionBinding, index, simulatedEvent);
   }
   
   handleChange(optionBinding: OptionBindings, index: number): void {
