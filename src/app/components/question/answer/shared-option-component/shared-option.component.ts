@@ -2413,7 +2413,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
       allOptions: this.optionsToDisplay,
-      type: type,
+      type: this.type,
       appHighlightOption: false,
       appHighlightInputType: type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
@@ -2701,7 +2701,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     const correctCount = question.options.filter(opt => opt.correct).length;
-  
     console.log(`[🔍 determineQuestionType] Correct Count: ${correctCount}`);
   
     if (correctCount > 1) {
@@ -2712,7 +2711,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[determineQuestionType] No correct options found. Defaulting to "single".');
       return 'single';
     }
-  }   
+  }     
   
   private finalizeOptionPopulation(): void {
     console.log('[🚀 finalizeOptionPopulation] Checking optionsToDisplay...');
