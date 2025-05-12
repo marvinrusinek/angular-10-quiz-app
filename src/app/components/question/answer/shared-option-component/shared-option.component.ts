@@ -1108,8 +1108,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
   
-    console.log(`[📍 Option ID: ${optionId}] - Checked: ${checked}`);
-  
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
       console.warn('[🔒 Already selected — skipping update]', optionId);
@@ -1134,7 +1132,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[📍 Current Question Index]: ${this.quizService.currentQuestionIndex}`);
   
-    // Update selection state
+    // Immediate explanation update before highlighting
+    console.log(`[📢 Immediate Explanation Update for Q${this.quizService.currentQuestionIndex}]`);
+    this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
+  
+    // Apply selection state
     optionBinding.option.selected = checked;
     optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
@@ -1145,10 +1147,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Sync Next button state
     this.nextButtonStateService.setNextButtonState(true);
   
-    // Track selection history
-    if (!this.selectedOptionHistory.includes(optionId)) {
+    // Track selection history and feedback anchor
+    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
+  
+    if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
-      this.lastFeedbackOptionId = optionId;
+      this.lastFeedbackOptionId = optionId; 
+      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
+    } else {
+      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
   
     // Clear all feedback visibility
@@ -1156,54 +1163,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption[+key] = false;
     });
   
-    // Show feedback only for the selected option
-    this.showFeedbackForOption[optionId] = true;
-    this.showFeedback = true;
-  
-    console.log(`[✅ Feedback State Updated for Option ${optionId}]`);
-  
-    // Apply feedback and highlight immediately
-    this.applyFeedback(optionBinding);
-    this.applyHighlighting(optionBinding);
-  
-    // Set feedback config for current option
-    this.feedbackConfigs[optionId] = {
-      feedback: optionBinding.option.feedback,
-      showFeedback: true,
-      options: this.optionsToDisplay,
-      question: this.currentQuestion,
-      selectedOption: optionBinding.option,
-      correctMessage: '',
-      idx: index,
-    };
-  
-    console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
-  
-    // Enforce single-answer behavior if applicable
-    if (this.type === 'single') {
-      this.enforceSingleSelection(optionBinding);
+    // Show feedback for current anchor only
+    if (this.lastFeedbackOptionId !== -1) {
+      this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
     }
   
-    // Centralized Explanation Emission and Next Button Sync
-    console.log(`[📢 Synchronizing Explanation and Navigation for Q${this.quizService.currentQuestionIndex}]`);
-    this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
+    this.showFeedback = true;
   
-    // Final state updates inside Angular zone
-    this.ngZone.run(() => {
-      try {
-        const questionIndex = this.quizService.currentQuestionIndex;
-        console.log(`[🚀 Executing Render Cycle for Q${questionIndex}]`);
+    // Apply feedback and highlighting using parent component or service
+    if (this.quizQuestionComponent) {
+      console.log(`[🎯 Applying Highlighting and Feedback for Option ${optionId}]`);
   
-        // Emit option selected event
-        this.emitOptionSelectedEvent(optionBinding, index, checked);
+      this.applyFeedbackAndHighlighting(optionBinding);
+    } else {
+      console.warn('[⚠️ QuizQuestionComponent not available. Skipping feedback and highlighting.');
+    }
   
-        // Force change detection for UI update
-        this.cdRef.detectChanges();
-      } catch (error) {
-        console.error('[❌ updateOptionAndUI error]', error);
-      }
-    });
+    // Force immediate change detection to ensure UI updates
+    this.cdRef.detectChanges();
   }
+
+  public applyFeedbackAndHighlighting(optionBinding: OptionBindings): void {
+    console.log(`[🎯 Applying Feedback and Highlighting for Option ${optionBinding.option.optionId}]`);
+  
+    // Apply Feedback
+    optionBinding.showFeedback = true;
+  
+    // Apply Highlighting
+    if (optionBinding.isSelected) {
+      optionBinding.styleClass = optionBinding.isCorrect ? 'correct' : 'incorrect';
+    } else {
+      optionBinding.styleClass = '';
+    }
+  
+    console.log(`[✅ Feedback and Highlighting Applied for Option ${optionBinding.option.optionId}]`);
+  }
+  
   
 
   private executeRenderCycle(optionId: number, questionIndex: number): void {
