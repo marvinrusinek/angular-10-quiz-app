@@ -1048,12 +1048,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   } */
-  updateOptionAndUI(
+  public updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
-    console.log("MY TEST UPDATE");
+    console.log("[🔥 updateOptionAndUI] Event received:", event);
+  
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
     const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
@@ -1080,40 +1081,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
+    console.log(`[📍 Current Question Index]: ${this.quizService.currentQuestionIndex}`);
+  
     // Immediate explanation update before highlighting
     console.log(`[📢 Immediate Explanation Update for Q${this.quizService.currentQuestionIndex}]`);
     this.immediateExplanationUpdate(this.quizService.currentQuestionIndex);
   
-    // Apply selection and visuals
-    optionBinding.option.highlight = checked;
-    optionBinding.isSelected = checked;
+    // Apply selection state
     optionBinding.option.selected = checked;
+    optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
-
-    // Synchronize state and UI
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    console.log(`[📍 Current Question Index]: ${currentIndex}`);
-
-    const questionIndex = this.quizService.getCurrentQuestionIndex();
-    // this.syncAndConfirmState(optionId, questionIndex);
-    // this.renderAllStates(optionId, questionIndex);
-    // this.syncAllStates(optionId, questionIndex);
-    this.quizQuestionComponent.handleOptionSelection(selectedOption, questionIndex);
-    this.executeRenderCycle(optionId, questionIndex);
-
-    // Set explanation text
-    this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).subscribe({
-      next: (explanationText) => {
-        console.log(`[📢 Explanation Text Received]: "${explanationText}"`);
-        this.explanationTextService.setExplanationText(explanationText);
-      },
-      error: (err) => {
-        console.error(`[❌ Error Fetching Explanation Text]: ${err}`);
-      }
-    });
-
-    // Enable "Next" button
+  
+    console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
+  
+    // Sync Next button state
     this.nextButtonStateService.setNextButtonState(true);
   
     // Track selection history and feedback anchor
@@ -1153,7 +1135,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
   
-    // Trigger directive repaint for highlight + feedback
+    // Apply highlight and feedback
     console.log(`[🎯 Applying Highlight for Option ${optionId}]`);
     this.forceHighlightRefresh(optionId);
   
@@ -1164,10 +1146,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if (!this.isValidOptionBinding(optionBinding)) return;
   
+    // Centralized Explanation Emission, Feedback Application, and Next Button Sync
+    this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
+  
     // Final state updates inside Angular zone
     this.ngZone.run(() => {
       try {
         const questionIndex = this.quizService.currentQuestionIndex;
+        console.log(`[🚀 Executing Render Cycle for Q${questionIndex}]`);
   
         this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
         this.selectedOptionService.setOptionSelected(true);
@@ -1181,9 +1167,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.finalizeOptionSelection(optionBinding, checked);
   
         console.log(`[✅ Final State Update for Option ${optionId}]`);
-  
-        // Centralized Explanation Emission, Feedback Application, and Next Button Sync
-        this.emitExplanationAndSyncNavigation(questionIndex);
   
         // Force immediate change detection to ensure UI updates
         this.cdRef.detectChanges();
