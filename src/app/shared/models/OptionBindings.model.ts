@@ -6,6 +6,7 @@ import { HighlightOptionDirective } from '../../../app/directives/highlight-opti
 
 export interface OptionBindings {
   appHighlightOption: boolean;
+  index: number;
   option: Option;
   isCorrect: boolean;
   feedback: string;
