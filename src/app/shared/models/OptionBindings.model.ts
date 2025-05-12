@@ -13,6 +13,8 @@ export interface OptionBindings {
   showFeedback: boolean;
   showFeedbackForOption: { [key: number]: boolean };
   highlightCorrectAfterIncorrect: boolean;
+  highlightIncorrect: boolean;
+  highlightCorrect: boolean;
   allOptions: Option[];
   type: 'single' | 'multiple';
   appHighlightInputType: 'checkbox' | 'radio';
