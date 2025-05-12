@@ -9,7 +9,7 @@
 
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group
-      *ngIf="type === 'single'" class="options-group single-option"
+      *ngIf="type === 'single'" class="options-group options single-option"
       formControlName="selectedOptionId"
       (selectionChange)="updateOptionAndUI($event)">
 
@@ -30,7 +30,7 @@
     </mat-radio-group>
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="type === 'multiple'" class="options-group multiple-option">
+    <div *ngIf="type === 'multiple'" class="options-group options multiple-option">
       <div
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
