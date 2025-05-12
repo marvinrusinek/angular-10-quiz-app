@@ -744,8 +744,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Initialize bindings and feedback maps
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
 
-    const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
-    this.type = this.determineQuestionType(qType);
+    if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+      console.log('[🔍 Current Question Object Before Type Determination]:', this.currentQuestion);
+      console.log('[🔍 Options in Current Question]:', this.currentQuestion.options);
+    
+      this.type = this.determineQuestionType(this.currentQuestion);
+      console.log(`[✅ Final Type Determined]: ${this.type}`);
+    } else {
+      console.warn('[⚠️ Current Question or Options are not defined. Defaulting to "single".');
+      this.type = 'single';
+    }
 
     this.showFeedback = this.config.showFeedback || false;
     this.showFeedbackForOption = this.config.showFeedbackForOption || {};
@@ -2694,27 +2702,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return binding.option?.optionId ?? index;
   }
 
-  private determineQuestionType(question: QuizQuestion | undefined): 'single' | 'multiple' {
-    console.log('[🔍 determineQuestionType] Question Object:', question);
-  
-    if (!question || !question.options?.length) {
-      console.warn('[determineQuestionType] No question or options provided. Defaulting to "single".');
-      return 'single';
+  private determineQuestionType(input: QuizQuestion | QuestionType): 'single' | 'multiple' {
+    if (typeof input === 'number') {
+      console.log(`[🔍 determineQuestionType] Received QuestionType enum: ${input}`);
+      return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
     }
   
-    const correctCount = question.options.filter(opt => opt.correct).length;
-    console.log(`[🔍 determineQuestionType] Correct Count: ${correctCount}`);
+    if (typeof input === 'object' && Array.isArray(input.options)) {
+      const correctOptionsCount = input.options.filter(opt => opt.correct).length;
+      console.log(`[🔍 determineQuestionType] Correct Options Count: ${correctOptionsCount}`);
   
-    if (correctCount > 1) {
-      console.log(`[🔍 determineQuestionType] Type set to "multiple"`);
-      return 'multiple';
-    } else if (correctCount === 1) {
-      console.log(`[🔍 determineQuestionType] Type set to "single"`);
-      return 'single';
-    } else {
-      console.warn('[determineQuestionType] No correct options found. Defaulting to "single".');
-      return 'single';
+      if (correctOptionsCount > 1) {
+        return 'multiple';
+      }
+      if (correctOptionsCount === 1) {
+        return 'single';
+      }
     }
+  
+    console.warn(`[⚠️ determineQuestionType] No valid options or input detected. Defaulting to 'single'.`);
+    return 'single';
   }
   
   private finalizeOptionPopulation(): void {
