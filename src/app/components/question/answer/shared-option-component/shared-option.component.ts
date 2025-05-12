@@ -178,8 +178,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[🔄 Synchronizing option bindings...');
     this.synchronizeOptionBindings();
 
-    this.ensureOptionsToDisplay();
-
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
         this.finalRenderReady = ready;
@@ -278,14 +276,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   ngAfterViewInit(): void {
-    console.log('[✅ ngAfterViewInit - SharedOptionComponent]');
-  
-    if (!this.form) {
-      console.warn('[⚠️ SharedOptionComponent] Form is not initialized. Skipping form value log.');
-    } else {
-      console.log('[🔍 Form Value in AfterViewInit]:', this.form.value);
-    }
-  
+    console.log('form value:', this.form.value);
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
       // this.generateOptionBindings();
@@ -293,36 +284,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
-  
+
+    console.log('[✅ AfterViewInit - SharedOptionComponent]');
     console.log(`[🔍 AfterViewInit - renderReady]: ${this.renderReady}`);
     console.log(`[🔍 AfterViewInit - canDisplayOptions]: ${this.canDisplayOptions}`);
     console.log(`[🔍 AfterViewInit - optionsToDisplay Length]: ${this.optionsToDisplay?.length}`);
-  
+
+    console.log('[✅ SharedOptionComponent - AfterViewInit]');
+
     const radioGroup = document.querySelector('mat-radio-group');
     console.log('[🔥 AfterViewInit - Radio Group Exists]', !!radioGroup);
-  
+
     const radioButtons = document.querySelectorAll('mat-radio-button');
     console.log('[🔥 AfterViewInit - Radio Buttons Count]', radioButtons.length);
-  
+
     setTimeout(() => {
-      const delayedRadioGroup = document.querySelector('mat-radio-group');
-      console.log('[⏳ Delayed Check - Radio Group Exists]', !!delayedRadioGroup);
+      const radioGroup = document.querySelector('mat-radio-group');
+      console.log('[⏳ Delayed Check - Radio Group Exists]', !!radioGroup);
     
-      const delayedRadioButtons = document.querySelectorAll('mat-radio-button');
-      console.log('[⏳ Delayed Check - Radio Buttons Count]', delayedRadioButtons.length);
+      const radioButtons = document.querySelectorAll('mat-radio-button');
+      console.log('[⏳ Delayed Check - Radio Buttons Count]', radioButtons.length);
     
-      if (delayedRadioGroup) {
-        delayedRadioGroup.addEventListener('click', (event) => {
+      if (radioGroup) {
+        radioGroup.addEventListener('click', (event) => {
           console.log('[🖱️ Native Click Detected]', event);
         });
     
-        delayedRadioGroup.addEventListener('change', (event) => {
+        radioGroup.addEventListener('change', (event) => {
           console.log('[🔄 Native Change Detected]', event);
         });
       }
     }, 100);
   }
-  
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
@@ -486,40 +479,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
+
   private ensureOptionsToDisplay(): void {
-    console.log('[🔍 ensureOptionsToDisplay] Checking optionsToDisplay...');
-    console.log('[🔍 Current Question Object]:', this.currentQuestion);
-  
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
-      
-      if (this.currentQuestion) {
-        console.log('[✅ currentQuestion is defined]:', this.currentQuestion);
-  
-        if (Array.isArray(this.currentQuestion.options) && this.currentQuestion.options.length) {
-          console.log('[✅ Options found in currentQuestion. Populating optionsToDisplay...');
-          
-          this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
-            ...option,
-            optionId: option.optionId ?? index,
-            active: option.active ?? true,
-            feedback: option.feedback ?? 'No feedback available',
-            showIcon: option.showIcon ?? false,
-            selected: option.selected ?? false,
-            correct: option.correct ?? false,
-          }));
-  
-          console.log('[✅ Options Populated]:', this.optionsToDisplay);
-  
-        } else {
-          console.error('[🚨 No options array or empty options array in currentQuestion]', this.currentQuestion);
-        }
-  
+      if (this.currentQuestion?.options) {
+        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
+          ...option,
+          active: option.active ?? true,
+          feedback: option.feedback ?? undefined,
+          showIcon: option.showIcon ?? false
+        }));
       } else {
-        console.error('[🚨 currentQuestion is undefined. Cannot populate optionsToDisplay]');
+        console.error('[SharedOptionComponent] No options available in the current question.');
       }
-    } else {
-      console.log('[✅ optionsToDisplay is already populated]', this.optionsToDisplay);
     }
   }
 
@@ -717,16 +690,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (last) {
       console.warn(`[🕵️‍♂️ initializeFromConfig triggered AFTER click]`, {
         timeSinceClick: Date.now() - last.time,
-        optionId: last.optionId,
+        optionId: last.optionId
       });
     }
-  
+
     // Full reset ─- clear bindings, selection, flags
     if (this.freezeOptionBindings) return;
-  
-    console.log('[🔄 initializeFromConfig] Starting initialization process...');
-    
-    // Reset State
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -737,91 +706,56 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionsRestored = false;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-  
+
     // GUARD ─ config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
-  
-    // Skip initialization if options are already selected
+
     if (this.optionBindings?.some(opt => opt.isSelected)) {
       console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
       return;
     }
-  
-    console.log('[🔄 initializeFromConfig] Checking quizQuestionComponent presence...');
-  
-    // Check if quizQuestionComponent is defined
-    if (!this.quizQuestionComponent) {
-      console.warn('[⚠️ initializeFromConfig] quizQuestionComponent is undefined. Skipping options population.');
-    } else {
-      console.log('[✅ quizQuestionComponent is defined. Proceeding with options population...]');
-      this.optionsToDisplay = this.quizQuestionComponent.populateOptionsToDisplay();
-    }
-  
-    console.log('[✅ Options Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
-    if (!this.optionsToDisplay.length) {
-      console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after population.');
-      return;
-    }
-  
-    // Assign current question
+
     this.currentQuestion = this.config.currentQuestion;
-    console.log('[🔍 Current Question Assigned]:', JSON.stringify(this.currentQuestion, null, 2));
-  
+    this.optionsToDisplay = [...this.config.optionsToDisplay];
+
     // Generate/patch feedback for every option
     const correctOpts = this.optionsToDisplay.filter(o => o.correct);
     const fallbackFeedback =
       this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
-  
+
     const existingSelectionMap = new Map(
-      this.optionsToDisplay.map(opt => [opt.optionId, opt.selected])
+      (this.optionsToDisplay ?? []).map(opt => [opt.optionId, opt.selected])
     );
-  
+
     // Ensure IDs/flags/feedback are present on every option
-    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => {
-      const assignedOption = {
-        ...opt,
-        optionId: opt.optionId ?? idx,
-        correct: opt.correct ?? false,
-        feedback: opt.feedback ?? fallbackFeedback,
-        selected: existingSelectionMap.get(opt.optionId) ?? false,
-        active: true,
-        showIcon: false,
-      };
-  
-      console.log(`[🛠️ Option Processed - ID ${assignedOption.optionId}]:`, assignedOption);
-      return assignedOption;
-    });
-  
-    console.log('[✅ Final optionsToDisplay after processing]:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
+    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
+      ...opt,
+      optionId: opt.optionId ?? idx,
+      correct: opt.correct ?? false,
+      feedback: opt.feedback ?? fallbackFeedback,
+      selected: existingSelectionMap.get(opt.optionId) ?? false,
+      active: true,
+      showIcon: false
+    }));
+
     // Initialize bindings and feedback maps
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
-  
-    // Determine question type only after options are populated
-    console.log('[🔄 Determining question type...');
-  
-    const qTypeInput: QuizQuestion | QuestionType = this.currentQuestion ?? QuestionType.SingleAnswer;
-  
-    console.log('[🔍 Type Determination Input]:', JSON.stringify(qTypeInput));
-  
-    this.type = this.determineQuestionType(qTypeInput);
-    console.log(`[✅ Final Type Determined]: ${this.type}`);
-  
-    // Assign config values
+
+    const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
+    this.type = this.determineQuestionType(qType);
+
     this.showFeedback = this.config.showFeedback || false;
     this.showFeedbackForOption = this.config.showFeedbackForOption || {};
     this.correctMessage = this.config.correctMessage || '';
     this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
     this.shouldResetBackground = this.config.shouldResetBackground || false;
-  
-    // Initialize feedback bindings
-    this.initializeFeedbackBindings(); 
+
+    this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
+    this.finalizeOptionPopulation();
   }
-  
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;
@@ -2576,66 +2510,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   initializeOptionBindings(): void {
-    console.log('[🔄 initializeOptionBindings] Attempting to initialize option bindings...');
+    console.log('[🚀 initializeOptionBindings STARTED]');
   
-    if (!this.quizQuestionComponent) {
-      console.warn('[⚠️ initializeOptionBindings] quizQuestionComponent is undefined. Skipping option population.');
+    if (this.optionBindingsInitialized) {
+      console.warn('[🛑 initializeOptionBindings already called, skipping]');
       return;
     }
   
-    console.log('[✅ quizQuestionComponent is defined. Proceeding with options population...]');
+    this.optionBindingsInitialized = true;
   
     const options = this.quizQuestionComponent.populateOptionsToDisplay();
   
-    if (!options?.length) {
-      console.warn('[🚨 initializeOptionBindings] No options returned from populateOptionsToDisplay.');
+    if (!options.length) {
+      console.warn('[⚠️ initializeOptionBindings] No options available. Exiting initialization.');
+      this.optionBindingsInitialized = false;
       return;
     }
   
-    console.log('[✅ Options Populated]:', options);
-
-    this.optionBindings = options.map((option, index) => {
-      const selectedOption: SelectedOption = {
-        ...option,
-        questionIndex: this.quizService.getCurrentQuestionIndex(),
-      };
-  
-      const showFeedbackMap: { [key: number]: boolean } = {};
-      showFeedbackMap[option.optionId] = false;
-  
-      return {
-        option: selectedOption,
-        index,
-        isSelected: option.selected || false,
-        isCorrect: option.correct || false,
-        showFeedback: false,
-        feedback: option.feedback ?? 'No feedback available',
-        showFeedbackForOption: showFeedbackMap,
-        highlightCorrectAfterIncorrect: false,
-        highlightIncorrect: false,
-        highlightCorrect: false,
-        styleClass: '',
-        disabled: false,
-        type: this.type,
-        appHighlightOption: false,
-        appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
-        allOptions: options,
-        appHighlightReset: false,
-        optionsToDisplay: options,
-        appResetBackground: false,
-        active: option.active ?? true,
-        checked: option.selected ?? false,
-        change: (element: MatCheckbox | MatRadioButton) => {
-          console.log('[🖱️ Option Clicked]', selectedOption.optionId);
-          this.handleOptionClick(selectedOption, index, element.checked);
-        },
-        ariaLabel: `Option ${index + 1}`,
-      };
-    });  
-  
-    console.log('[✅ Option Bindings Initialized]:', this.optionBindings);
+    this.processOptionBindings();
   }
- 
 
   private processOptionBindings(): void {
     console.log('[⚡ processOptionBindings STARTED]');
@@ -2801,29 +2694,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return binding.option?.optionId ?? index;
   }
 
-  private determineQuestionType(input: QuizQuestion | QuestionType | undefined): 'single' | 'multiple' {
-    console.log(`[🔍 determineQuestionType] Input:`, JSON.stringify(input, null, 2));
-  
-    if (!input) {
-      console.warn(`[⚠️ determineQuestionType] Input is undefined. Defaulting to 'single'.`);
+  private determineQuestionType(question: QuizQuestion | undefined): 'single' | 'multiple' {
+    if (!question || !question.options?.length) {
+      console.warn('[determineQuestionType] No question or options provided. Defaulting to "single".');
       return 'single';
     }
   
-    if (typeof input === 'number') {
-      console.log(`[🔍 determineQuestionType] Input is a QuestionType enum: ${input}`);
-      return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
+    const correctCount = question.options.filter(opt => opt.correct).length;
+  
+    console.log(`[🔍 determineQuestionType] Correct Count: ${correctCount}`);
+  
+    if (correctCount > 1) {
+      return 'multiple';
+    } else if (correctCount === 1) {
+      return 'single';
+    } else {
+      console.warn('[determineQuestionType] No correct options found. Defaulting to "single".');
+      return 'single';
+    }
+  }   
+  
+  private finalizeOptionPopulation(): void {
+    console.log('[🚀 finalizeOptionPopulation] Checking optionsToDisplay...');
+  
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[🚨 No options to display. Skipping type determination.');
+      return;
     }
   
-    if (typeof input === 'object' && Array.isArray(input.options)) {
-      console.log(`[✅ Options Before Type Calculation]:`, JSON.stringify(input.options, null, 2));
+    console.log('[✅ Options Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-      const correctOptionsCount = input.options.filter(opt => opt.correct === true).length;
-      console.log(`[🔍 Correct Options Count: ${correctOptionsCount}`);
+    // Determine type based on the populated options
+    const calculatedType = this.determineQuestionType(this.currentQuestion);
+    console.log(`[🔍 Calculated Type]: ${calculatedType}`);
   
-      return correctOptionsCount > 1 ? 'multiple' : 'single';
-    }
+    this.type = calculatedType;
   
-    console.warn(`[⚠️ determineQuestionType] Invalid input type. Defaulting to 'single'.`);
-    return 'single';
-  }     
+    console.log(`[🔍 Final Option Type Check]: ${this.type}`);
+  }  
 }
