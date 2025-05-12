@@ -693,7 +693,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         optionId: last.optionId
       });
     }
-
+  
     // Full reset ─- clear bindings, selection, flags
     if (this.freezeOptionBindings) return;
     this.optionBindings = [];
@@ -706,64 +706,60 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionsRestored = false;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-
+  
+    console.log('[🔄 initializeFromConfig] Starting initialization process...');
+  
     // GUARD ─ config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
-
+  
     if (this.optionBindings?.some(opt => opt.isSelected)) {
       console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
       return;
     }
-
+  
+    // Assign current question
     this.currentQuestion = this.config.currentQuestion;
-    this.optionsToDisplay = [...this.config.optionsToDisplay];
-
-    // Generate/patch feedback for every option
-    const correctOpts = this.optionsToDisplay.filter(o => o.correct);
-    const fallbackFeedback =
-      this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
-
-    const existingSelectionMap = new Map(
-      (this.optionsToDisplay ?? []).map(opt => [opt.optionId, opt.selected])
-    );
-
-    // Ensure IDs/flags/feedback are present on every option
-    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
+    console.log('[🔍 Current Question Assigned]:', JSON.stringify(this.currentQuestion, null, 2));
+  
+    // Populate optionsToDisplay with additional validation and logging
+    console.log('[🔄 Populating optionsToDisplay...');
+    this.optionsToDisplay = this.currentQuestion.options?.map((opt, idx) => ({
       ...opt,
       optionId: opt.optionId ?? idx,
       correct: opt.correct ?? false,
-      feedback: opt.feedback ?? fallbackFeedback,
-      selected: existingSelectionMap.get(opt.optionId) ?? false,
+      feedback: opt.feedback ?? 'No feedback available',
+      selected: opt.selected ?? false,
       active: true,
       showIcon: false
-    }));
-
-    // Initialize bindings and feedback maps
-    this.setOptionBindingsIfChanged(this.optionsToDisplay);
-
-    if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
-      console.log('[🔍 Current Question Object Before Type Determination]:', this.currentQuestion);
-      console.log('[🔍 Options in Current Question]:', this.currentQuestion.options);
-    
-      this.type = this.determineQuestionType(this.currentQuestion);
-      console.log(`[✅ Final Type Determined]: ${this.type}`);
-    } else {
-      console.warn('[⚠️ Current Question or Options are not defined. Defaulting to "single".');
-      this.type = 'single';
+    })) ?? [];
+  
+    console.log('[✅ optionsToDisplay Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+    // Check for missing or empty options
+    if (!this.optionsToDisplay.length) {
+      console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after population.');
+      return;
     }
-
-    this.showFeedback = this.config.showFeedback || false;
-    this.showFeedbackForOption = this.config.showFeedbackForOption || {};
-    this.correctMessage = this.config.correctMessage || '';
-    this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
-    this.shouldResetBackground = this.config.shouldResetBackground || false;
-
-    this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
+  
+    // Determine question type based on options
+    console.log('[🔄 Determining question type...');
+    this.type = this.determineQuestionType(this.currentQuestion);
+    console.log(`[✅ Final Type Determined]: ${this.type}`);
+  
+    // Initialize bindings and feedback maps
+    console.log('[🔄 Initializing option bindings...');
+    this.setOptionBindingsIfChanged(this.optionsToDisplay);
+  
+    console.log('[🔄 Initializing feedback bindings...');
+    this.initializeFeedbackBindings(); 
+  
+    console.log('[🔄 Finalizing option population...');
     this.finalizeOptionPopulation();
   }
+  
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;

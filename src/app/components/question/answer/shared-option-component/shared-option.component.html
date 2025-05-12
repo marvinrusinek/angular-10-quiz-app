@@ -5,11 +5,11 @@
 
   <p>[🔍 Option Type Check]: {{ optionBindings[0]?.type }}</p>
 
-  <form [formGroup]="form">
+  <form [formGroup]="form" class="options-form">
 !
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group
-      *ngIf="optionBindings[0]?.type === 'single'"  
+      *ngIf="type === 'single'" class="options-group single-option"
       formControlName="selectedOptionId"
       (selectionChange)="updateOptionAndUI($event)">
 
@@ -30,7 +30,7 @@
     </mat-radio-group>
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="optionBindings[0]?.type === 'multiple'">
+    <div *ngIf="type === 'multiple'">
       <div
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
