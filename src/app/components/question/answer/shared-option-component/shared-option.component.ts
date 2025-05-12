@@ -686,17 +686,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   initializeFromConfig(): void {
-    const last = (console as any).lastOptionClicked;
-    if (last) {
-      console.warn(`[🕵️‍♂️ initializeFromConfig triggered AFTER click]`, {
-        timeSinceClick: Date.now() - last.time,
-        optionId: last.optionId
-      });
-    }
-  
     console.log('[🔄 initializeFromConfig] Starting initialization process...');
-    
-    // Full reset ─- clear bindings, selection, flags
+  
     if (this.freezeOptionBindings) return;
   
     this.optionBindings = [];
@@ -710,14 +701,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.currentQuestion = null;
     this.optionsToDisplay = [];
   
-    // GUARD ─ config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
-      return;
-    }
-  
-    if (this.optionBindings?.some(opt => opt.isSelected)) {
-      console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
       return;
     }
   
@@ -726,30 +711,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('[🔍 Current Question Assigned]:', JSON.stringify(this.currentQuestion, null, 2));
   
-    // Validate currentQuestion before proceeding
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
       console.error('[🚨 initializeFromConfig] Invalid or missing currentQuestion options.');
       return;
     }
   
     console.log('[🔄 Populating optionsToDisplay...');
-    
-    // Populate optionsToDisplay
-    this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => {
-      const processedOption = {
-        ...opt,
-        optionId: opt.optionId ?? idx,
-        correct: opt.correct ?? false,
-        feedback: opt.feedback ?? 'No feedback available',
-        selected: opt.selected ?? false,
-        active: true,
-        showIcon: false
-      };
-      
-      console.log(`[✅ Option Processed - ID ${processedOption.optionId}]:`, processedOption);
-      
-      return processedOption;
-    });
+    this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => ({
+      ...opt,
+      optionId: opt.optionId ?? idx,
+      correct: opt.correct ?? false,
+      feedback: opt.feedback ?? 'No feedback available',
+      selected: opt.selected ?? false,
+      active: true,
+      showIcon: false
+    }));
   
     console.log('[✅ optionsToDisplay Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
   
@@ -758,25 +734,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
-    // Determine question type based on options
     console.log('[🔄 Determining question type...');
     this.type = this.determineQuestionType(this.currentQuestion);
     console.log(`[✅ Final Type Determined]: ${this.type}`);
   
-    // Initialize bindings and feedback maps
     console.log('[🔄 Initializing option bindings...');
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
+    console.log('[✅ Option Bindings Initialized]:', JSON.stringify(this.optionBindings, null, 2));
   
     console.log('[🔄 Initializing feedback bindings...');
     this.initializeFeedbackBindings();
   
-    console.log('[🔄 Finalizing option population...');
-    this.finalizeOptionPopulation();
-  
-    console.log('[✅ initializeFromConfig] Initialization complete.');
+    console.log('[✅ Initialization complete.]');
   }
-  
-  
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
     if (!newOptions?.length) return;
@@ -1129,6 +1099,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // this.syncAndConfirmState(optionId, questionIndex);
     // this.renderAllStates(optionId, questionIndex);
     // this.syncAllStates(optionId, questionIndex);
+    this.quizQuestionComponent.handleOptionSelection(selectedOption, questionIndex);
     this.executeRenderCycle(optionId, questionIndex);
 
     // Set explanation text
