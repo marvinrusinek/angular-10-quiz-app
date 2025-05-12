@@ -694,8 +694,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     }
   
+    console.log('[🔄 initializeFromConfig] Starting initialization process...');
+    
     // Full reset ─- clear bindings, selection, flags
     if (this.freezeOptionBindings) return;
+  
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -706,8 +709,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionsRestored = false;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-  
-    console.log('[🔄 initializeFromConfig] Starting initialization process...');
   
     // GUARD ─ config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
@@ -720,27 +721,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
-    // Assign current question
+    console.log('[🔄 Assigning current question...');
     this.currentQuestion = this.config.currentQuestion;
+  
     console.log('[🔍 Current Question Assigned]:', JSON.stringify(this.currentQuestion, null, 2));
   
-    // Populate optionsToDisplay with additional validation and logging
+    // Validate currentQuestion before proceeding
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+      console.error('[🚨 initializeFromConfig] Invalid or missing currentQuestion options.');
+      return;
+    }
+  
     console.log('[🔄 Populating optionsToDisplay...');
-    this.optionsToDisplay = this.currentQuestion.options?.map((opt, idx) => ({
-      ...opt,
-      optionId: opt.optionId ?? idx,
-      correct: opt.correct ?? false,
-      feedback: opt.feedback ?? 'No feedback available',
-      selected: opt.selected ?? false,
-      active: true,
-      showIcon: false
-    })) ?? [];
+    
+    // Populate optionsToDisplay
+    this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => {
+      const processedOption = {
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: opt.feedback ?? 'No feedback available',
+        selected: opt.selected ?? false,
+        active: true,
+        showIcon: false
+      };
+      
+      console.log(`[✅ Option Processed - ID ${processedOption.optionId}]:`, processedOption);
+      
+      return processedOption;
+    });
   
     console.log('[✅ optionsToDisplay Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
   
-    // Check for missing or empty options
     if (!this.optionsToDisplay.length) {
-      console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after population.');
+      console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after processing.');
       return;
     }
   
@@ -754,11 +768,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
   
     console.log('[🔄 Initializing feedback bindings...');
-    this.initializeFeedbackBindings(); 
+    this.initializeFeedbackBindings();
   
     console.log('[🔄 Finalizing option population...');
     this.finalizeOptionPopulation();
+  
+    console.log('[✅ initializeFromConfig] Initialization complete.');
   }
+  
   
 
   /* private setOptionBindingsIfChanged(newOptions: Option[]): void {
