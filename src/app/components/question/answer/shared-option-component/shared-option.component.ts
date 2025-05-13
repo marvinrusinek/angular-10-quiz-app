@@ -1204,15 +1204,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   private applyHighlighting(optionBinding: OptionBindings): void {
-    console.log(`[🎯 Applying Highlighting for Option ${optionBinding.option.optionId}]`);
+    const optionId = optionBinding.option.optionId;
+    console.log(`[🎯 Applying Highlighting for Option ${optionId}]`);
   
-    optionBinding.styleClass = optionBinding.isSelected ? 'highlighted' : '';
-    console.log(`[✅ Highlighting applied for Option ${optionBinding.option.optionId}] - Class: ${optionBinding.styleClass}`);
+    const isSelected = optionBinding.isSelected;
+    const isCorrect = optionBinding.isCorrect;
   
-    // Apply highlight style to the DOM element (if applicable)
-    const optionElement = document.querySelector(`[data-option-id="${optionBinding.option.optionId}"]`);
+    // Set highlight state flags
+    optionBinding.highlightCorrect = isSelected && isCorrect;
+    optionBinding.highlightIncorrect = isSelected && !isCorrect;
+  
+    // Apply style class for Angular template (CSS binding)
+    optionBinding.styleClass = isSelected
+      ? (isCorrect ? 'highlight-correct' : 'highlight-incorrect')
+      : '';
+  
+    console.log(`[✅ Highlighting state set]`, {
+      optionId,
+      isSelected,
+      isCorrect,
+      styleClass: optionBinding.styleClass,
+    });
+  
+    // DOM-level fallback (optional but useful if templates don't react to styleClass)
+    const optionElement = document.querySelector(`[data-option-id="${optionId}"]`);
     if (optionElement) {
-      optionElement.classList.toggle('highlighted', optionBinding.isSelected);
+      optionElement.classList.remove('highlight-correct', 'highlight-incorrect');
+      if (isSelected) {
+        optionElement.classList.add(isCorrect ? 'highlight-correct' : 'highlight-incorrect');
+      }
+      console.log(`[✅ DOM class applied for Option ${optionId}]`);
+    } else {
+      console.warn(`[⚠️ DOM element not found for Option ${optionId}]`);
     }
   }
   
