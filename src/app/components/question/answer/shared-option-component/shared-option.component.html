@@ -42,7 +42,10 @@
         <label class="option-row options"
                appHighlightOption
                [optionBinding]="b"
-               [isCorrect]="b.isCorrect">
+               [isCorrect]="b.isCorrect"
+               [attr.data-option-id]="b.option.optionId"
+               [ngClass]="b.styleClass"
+        >
 
           <mat-checkbox
             [checked]="b.option.selected"
