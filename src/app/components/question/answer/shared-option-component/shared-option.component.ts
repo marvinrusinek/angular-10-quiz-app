@@ -1110,6 +1110,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     console.log("[🔥 updateOptionAndUI] Event received:", event);
+    console.log("[🔥 updateOptionAndUI] Event received:", event);
   
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
@@ -1144,6 +1145,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
+
+    console.log('[✅ isSelected updated]:', optionBinding.isSelected);
   
     console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
   
