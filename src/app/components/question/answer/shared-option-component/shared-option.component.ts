@@ -1215,14 +1215,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const isSelected = optionBinding.isSelected;
     const isCorrect = optionBinding.isCorrect;
   
-    // Set highlight state flags
+    // ✅ Set highlight flags (can be used by directive or other logic)
     optionBinding.highlightCorrect = isSelected && isCorrect;
     optionBinding.highlightIncorrect = isSelected && !isCorrect;
   
-    // Apply style class for Angular template (CSS binding)
-    optionBinding.styleClass = isSelected
-      ? (isCorrect ? 'highlight-correct' : 'highlight-incorrect')
-      : '';
+    // ✅ Apply style class used in [ngClass] binding
+    if (isSelected) {
+      optionBinding.styleClass = isCorrect ? 'highlight-correct' : 'highlight-incorrect';
+    } else {
+      optionBinding.styleClass = '';
+    }
   
     console.log(`[✅ Highlighting state set]`, {
       optionId,
@@ -1231,7 +1233,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       styleClass: optionBinding.styleClass,
     });
   
-    // DOM-level fallback (optional but useful if templates don't react to styleClass)
+    // ✅ Direct DOM fallback (for defensive rendering, optional)
     const optionElement = document.querySelector(`[data-option-id="${optionId}"]`);
     if (optionElement) {
       optionElement.classList.remove('highlight-correct', 'highlight-incorrect');
