@@ -14,14 +14,27 @@
       formControlName="selectedOptionId"
       (selectionChange)="updateOptionAndUI($event)">
 
-      <mat-radio-button 
+      <mat-radio-button
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         appHighlightOption
-        [value]="b.option.optionId"
+        [option]="b.option"
+        [optionBinding]="b"
+        [isSelected]="b.isSelected"
+        [isCorrect]="b.isCorrect"
+        [showFeedback]="showFeedback"
+        [showFeedbackForOption]="showFeedbackForOption"
+        [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+        [allOptions]="optionsToDisplay"
+        [optionsToDisplay]="optionsToDisplay"
+        [attr.data-option-id]="b.option.optionId"
         [ngClass]="b.styleClass"
+        [appHighlightInputType]="'radio'"
+        [appHighlightReset]="shouldResetBackground"
+        [appResetBackground]="shouldResetBackground"
+        name="selectedOptionId"
+        [value]="b.option.optionId"
         (click)="handleClick(b, i)"
         (change)="handleChange(b, i)"
-        name="selectedOptionId"
       >
 
         <span class="option-text">
@@ -40,12 +53,23 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
 
-        <label class="option-row options"
-               appHighlightOption
-               [optionBinding]="b"
-               [isCorrect]="b.isCorrect"
-               [attr.data-option-id]="b.option.optionId"
-               [ngClass]="b.styleClass"
+        <label
+          class="option-row options"
+          appHighlightOption
+          [option]="b.option"
+          [optionBinding]="b"
+          [isSelected]="b.isSelected"
+          [isCorrect]="b.isCorrect"
+          [showFeedback]="showFeedback"
+          [showFeedbackForOption]="showFeedbackForOption"
+          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+          [allOptions]="optionsToDisplay"
+          [optionsToDisplay]="optionsToDisplay"
+          [attr.data-option-id]="b.option.optionId"
+          [ngClass]="b.styleClass"
+          [appHighlightInputType]="'checkbox'"
+          [appHighlightReset]="shouldResetBackground"
+          [appResetBackground]="shouldResetBackground"
         >
 
           <mat-checkbox
@@ -65,9 +89,9 @@
         </label>
 
         <codelab-quiz-feedback
-          *ngIf="shouldShowFeedback(i)"
-          [feedbackConfig]="feedbackConfigs[i]">
-        </codelab-quiz-feedback>
+        *ngIf="showFeedbackForOption[b.option.optionId]"
+        [feedbackConfig]="feedbackConfigs[b.option.optionId]">
+      </codelab-quiz-feedback>
       </div>
     </div>
   </form>
