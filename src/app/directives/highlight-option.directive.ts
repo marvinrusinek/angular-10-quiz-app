@@ -507,14 +507,16 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    const target: HTMLElement = this.el.nativeElement; // ✅ use full element
+    const target: HTMLElement = this.el.nativeElement;
     const opt = this.optionBinding.option;
     const id = opt.optionId;
-    const isChosen = this.isSelected;
+  
+    const isSelected = this.isSelected || opt.selected;
+    const isCorrect = this.isCorrect ?? false;
     let color = 'white';
   
-    if (isChosen) {
-      color = this.isCorrect ? '#43f756' : '#ff0000'; // green / red
+    if (isSelected) {
+      color = isCorrect ? '#43f756' : '#ff0000'; // green / red
       this.setBackgroundColor(target, color);
   
       opt.showIcon = true;
@@ -526,7 +528,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    if (!this.isCorrect && opt.active === false) {
+    if (!isCorrect && opt.active === false) {
       color = '#a3a3a3'; // grey
       this.setBackgroundColor(target, color);
   
@@ -548,6 +550,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   }
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
