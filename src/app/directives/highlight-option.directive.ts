@@ -507,48 +507,44 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    const paintTarget: HTMLElement =
-      (this.el.nativeElement.firstElementChild as HTMLElement) ?? this.el.nativeElement;
-  
-    const setBG = (c: string) =>
-      this.renderer.setStyle(paintTarget, 'background', c);
-  
+    const target: HTMLElement = this.el.nativeElement; // ✅ use full element
     const opt = this.optionBinding.option;
     const id = opt.optionId;
-    const isChosen = this.isSelected || opt.selected || opt.highlight;
-    const isCorrect = this.isCorrect ?? false;
-  
+    const isChosen = this.isSelected;
     let color = 'white';
   
     if (isChosen) {
-      color = isCorrect ? '#43f756' : '#ff0000'; // green or red
-      setBG(color);
+      color = this.isCorrect ? '#43f756' : '#ff0000'; // green / red
+      this.setBackgroundColor(target, color);
   
       opt.showIcon = true;
       this.showFeedbackForOption[id] = true;
   
-      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-      this.setPointerEvents(paintTarget, 'auto');
-      this.setCursor('pointer');
+      this.renderer.removeClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'pointer');
+      this.setPointerEvents(target, 'auto');
       return;
     }
   
-    if (!isCorrect && opt.active === false) {
-      color = '#a3a3a3'; // grey for inactive incorrect
-      setBG(color);
-      this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
-      this.setPointerEvents(paintTarget, 'none');
-      this.setCursor('not-allowed');
+    if (!this.isCorrect && opt.active === false) {
+      color = '#a3a3a3'; // grey
+      this.setBackgroundColor(target, color);
+  
+      this.renderer.addClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'not-allowed');
+      this.setPointerEvents(target, 'none');
+  
       opt.showIcon = false;
       this.showFeedbackForOption[id] = false;
       return;
     }
   
-    // Default unselected state
-    setBG(color);
-    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-    this.setPointerEvents(paintTarget, 'auto');
-    this.setCursor('pointer');
+    // default
+    this.setBackgroundColor(target, color);
+    this.renderer.removeClass(target, 'deactivated-option');
+    this.renderer.setStyle(target, 'cursor', 'pointer');
+    this.setPointerEvents(target, 'auto');
+  
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   }
