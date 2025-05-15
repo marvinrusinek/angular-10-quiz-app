@@ -507,44 +507,48 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    const target: HTMLElement = this.el.nativeElement; // ✅ use full element
+    const paintTarget: HTMLElement =
+      (this.el.nativeElement.firstElementChild as HTMLElement) ?? this.el.nativeElement;
+  
+    const setBG = (c: string) =>
+      this.renderer.setStyle(paintTarget, 'background', c);
+  
     const opt = this.optionBinding.option;
     const id = opt.optionId;
-    const isChosen = this.isSelected;
+    const isChosen = this.isSelected || opt.selected || opt.highlight;
+    const isCorrect = this.isCorrect ?? false;
+  
     let color = 'white';
   
     if (isChosen) {
-      color = this.isCorrect ? '#43f756' : '#ff0000'; // green / red
-      this.setBackgroundColor(target, color);
+      color = isCorrect ? '#43f756' : '#ff0000'; // green or red
+      setBG(color);
   
       opt.showIcon = true;
       this.showFeedbackForOption[id] = true;
   
-      this.renderer.removeClass(target, 'deactivated-option');
-      this.renderer.setStyle(target, 'cursor', 'pointer');
-      this.setPointerEvents(target, 'auto');
+      this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+      this.setPointerEvents('auto');
+      this.setCursor('pointer');
       return;
     }
   
-    if (!this.isCorrect && opt.active === false) {
-      color = '#a3a3a3'; // grey
-      this.setBackgroundColor(target, color);
-  
-      this.renderer.addClass(target, 'deactivated-option');
-      this.renderer.setStyle(target, 'cursor', 'not-allowed');
-      this.setPointerEvents(target, 'none');
-  
+    if (!isCorrect && opt.active === false) {
+      color = '#a3a3a3'; // grey for inactive incorrect
+      setBG(color);
+      this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
+      this.setPointerEvents('none');
+      this.setCursor('not-allowed');
       opt.showIcon = false;
       this.showFeedbackForOption[id] = false;
       return;
     }
   
-    // default
-    this.setBackgroundColor(target, color);
-    this.renderer.removeClass(target, 'deactivated-option');
-    this.renderer.setStyle(target, 'cursor', 'pointer');
-    this.setPointerEvents(target, 'auto');
-  
+    // Default unselected state
+    setBG(color);
+    this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
+    this.setPointerEvents('auto');
+    this.setCursor('pointer');
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   }
