@@ -1188,6 +1188,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
+
+    // Refresh highlight for ALL option bindings
+    this.optionBindings.forEach(binding => {
+      binding.directiveInstance?.paintNow?.(); // forces DOM repaint
+    });
   
     // **Apply highlight and feedback**
     console.log(`[🎯 Applying Highlight and Feedback for Option ${optionId}]`);
