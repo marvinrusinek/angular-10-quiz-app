@@ -113,11 +113,22 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   } */
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['optionBinding'] && this.optionBinding) {
-      console.log('[🧩 HighlightOptionDirective] Detected optionBinding change');
+    const optionBindingChanged = changes['optionBinding'];
+    const isSelectedChanged = changes['isSelected'];
+  
+    if ((optionBindingChanged || isSelectedChanged) && this.optionBinding) {
+      console.log('[🧩 HighlightOptionDirective] ngOnChanges triggered with:', {
+        optionBindingChanged,
+        isSelectedChanged,
+        currentOptionId: this.optionBinding.option?.optionId,
+        isSelected: this.isSelected,
+      });
+  
       this.updateHighlight();
+    } else {
+      console.log('[🛑 HighlightOptionDirective] ngOnChanges — no relevant changes detected');
     }
-  }  
+  }
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
