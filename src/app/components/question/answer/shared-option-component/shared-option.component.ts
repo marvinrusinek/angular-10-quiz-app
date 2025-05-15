@@ -1225,13 +1225,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Refresh highlight for ALL option bindings
     if (this.optionBindings?.length) {
       this.optionBindings.forEach(binding => {
-        const isSelected = this.selectedOptionHistory.includes(binding.option.optionId);
-        binding.isSelected = isSelected; // sync state
-        if (isSelected && binding.directiveInstance) {
-          binding.directiveInstance?.paintNow?.(); // repaint via directive
+        const optionId = binding.option.optionId;
+    
+        // If the option is selected either in memory or now, keep it selected
+        const isSelected =
+          this.selectedOptionMap.get(optionId) === true ||
+          this.selectedOptionHistory.includes(optionId);
+    
+        binding.isSelected = isSelected;
+        binding.option.selected = isSelected; // sync both ways
+    
+        if (binding.directiveInstance) {
+          binding.directiveInstance.paintNow?.(); //repaint via directive
         }
       });
     }
+    
 
     // Trigger immediate change detection
     this.cdRef.detectChanges();
