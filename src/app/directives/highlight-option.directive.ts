@@ -528,7 +528,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       this.showFeedbackForOption[id] = true;
   
       this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-      this.setPointerEvents('auto');
+      this.setPointerEvents(paintTarget, 'auto');
       this.setCursor('pointer');
       return;
     }
@@ -537,7 +537,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       color = '#a3a3a3'; // grey for inactive incorrect
       setBG(color);
       this.renderer.addClass(this.el.nativeElement, 'deactivated-option');
-      this.setPointerEvents('none');
+      this.setPointerEvents(paintTarget, 'none');
       this.setCursor('not-allowed');
       opt.showIcon = false;
       this.showFeedbackForOption[id] = false;
@@ -547,7 +547,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     // Default unselected state
     setBG(color);
     this.renderer.removeClass(this.el.nativeElement, 'deactivated-option');
-    this.setPointerEvents('auto');
+    this.setPointerEvents(paintTarget, 'auto');
     this.setCursor('pointer');
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
