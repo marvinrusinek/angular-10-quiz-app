@@ -537,8 +537,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   }
-  
-  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
@@ -546,10 +544,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
         if (opt.correct) {
           this.showFeedbackForOption[opt.optionId] = true;
           if (opt.optionId === this.option.optionId) {
-            this.setBackgroundColor('#43f756'); // set green
+            this.setBackgroundColor(this.paintTarget, '#43f756'); // green
           }
         } else if (opt.optionId === this.option.optionId) {
-          this.setBackgroundColor('#ff0000'); // set red
+          this.setBackgroundColor(this.paintTarget, '#ff0000'); // red
         }
       }
     } else {
@@ -560,9 +558,9 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   private setBackgroundColor(el: HTMLElement, color: string): void {
     this.renderer.setStyle(el, 'background-color', color);
   }
-
-  private setPointerEvents(value: string): void {
-    this.renderer.setStyle(this.el.nativeElement, 'pointer-events', value);
+  
+  private setPointerEvents(el: HTMLElement, value: string): void {
+    this.renderer.setStyle(el, 'pointer-events', value);
   }
 
   private setCursor(value: string): void {
@@ -581,7 +579,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
         opt.active = true; // reset all options to active
       }
     }
-    this.setBackgroundColor('transparent');
+    this.setBackgroundColor(this.paintTarget, 'transparent');
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     this.resetBackground.emit(true); // emit event to notify the reset
   }
