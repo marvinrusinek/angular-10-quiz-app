@@ -437,7 +437,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon                = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -489,7 +489,55 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    const target: HTMLElement = this.el.nativeElement; // ✅ use full element
+    const opt = this.optionBinding.option;
+    const id = opt.optionId;
+    const isChosen = this.isSelected;
+    let color = 'white';
+  
+    if (isChosen) {
+      color = this.isCorrect ? '#43f756' : '#ff0000'; // green / red
+      this.setBackgroundColor(target, color);
+  
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      this.renderer.removeClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'pointer');
+      this.setPointerEvents(target, 'auto');
+      return;
+    }
+  
+    if (!this.isCorrect && opt.active === false) {
+      color = '#a3a3a3'; // grey
+      this.setBackgroundColor(target, color);
+  
+      this.renderer.addClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'not-allowed');
+      this.setPointerEvents(target, 'none');
+  
+      opt.showIcon = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    // default
+    this.setBackgroundColor(target, color);
+    this.renderer.removeClass(target, 'deactivated-option');
+    this.renderer.setStyle(target, 'cursor', 'pointer');
+    this.setPointerEvents(target, 'auto');
+  
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
   }
+  
   
 
   private highlightCorrectAnswers(): void {
@@ -509,8 +557,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
-  private setBackgroundColor(color: string): void {
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+  private setBackgroundColor(el: HTMLElement, color: string): void {
+    this.renderer.setStyle(el, 'background-color', color);
   }
 
   private setPointerEvents(value: string): void {
