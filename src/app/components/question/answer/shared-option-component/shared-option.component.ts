@@ -1164,7 +1164,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     // Clear all feedback visibility before setting the new one
-    Object.keys(this.showFeedbackForOption).forEach((key) => {
+    /* Object.keys(this.showFeedbackForOption).forEach((key) => {
       this.showFeedbackForOption[+key] = false;
     });
   
@@ -1172,11 +1172,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (this.lastFeedbackOptionId !== -1) {
       this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
       console.log(`[✅ Feedback displayed for option ${this.lastFeedbackOptionId}]`);
-    }
+    } */
+    // Iterate over all selected options and show feedback
+    this.optionBindings.forEach((binding) => {
+      const optId = binding.option.optionId;
+      const isSelected = binding.isSelected;
+      this.showFeedbackForOption[optId] = isSelected;
+
+      if (isSelected) {
+        this.feedbackConfigs[optId] = {
+          feedback: binding.option.feedback,
+          showFeedback: true,
+          options: this.optionsToDisplay,
+          question: this.currentQuestion,
+          selectedOption: binding.option,
+          correctMessage: binding.option.feedback ?? '',
+          idx: index,
+        };
+      }
+    });
+
   
     this.showFeedback = true;
   
-    // **Set feedback config for the current option**
+    // Set feedback config for the current option
     this.feedbackConfigs[optionId] = {
       feedback: optionBinding.option.feedback,
       showFeedback: true,
@@ -1189,7 +1208,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
   
-    // **Apply highlight and feedback**
+    // Apply highlight and feedback
     console.log(`[🎯 Applying Highlight and Feedback for Option ${optionId}]`);
     this.applyHighlighting(optionBinding);
     this.applyFeedback(optionBinding);
@@ -1199,7 +1218,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.enforceSingleSelection(optionBinding);
     }
   
-    // **Emit explanation text and synchronize UI state**
+    // Emit explanation text and synchronize UI state
     console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
   
@@ -1210,7 +1229,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
     }
 
-    // **Trigger immediate change detection**
+    // Trigger immediate change detection
     this.cdRef.detectChanges();
     console.log(`[✅ Final State Update for Option ${optionId}]`);
   }
