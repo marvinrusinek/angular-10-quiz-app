@@ -501,7 +501,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void {
+  updateHighlight(): void { 
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -511,11 +511,12 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id = opt.optionId;
   
-    const isSelected = this.isSelected || opt.selected;
     const isCorrect = this.isCorrect ?? false;
+    const isChosen = this.isSelected || opt.selected; // centralized selection logic
     let color = 'white';
   
-    if (isSelected) {
+    // ── CHOSEN or SELECTED ──────────────────────────────
+    if (isChosen) {
       color = isCorrect ? '#43f756' : '#ff0000'; // green / red
       this.setBackgroundColor(target, color);
   
@@ -528,6 +529,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
+    // ── GREYED-OUT INCORRECT ─────────────────────────────
     if (!isCorrect && opt.active === false) {
       color = '#a3a3a3'; // grey
       this.setBackgroundColor(target, color);
@@ -541,7 +543,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    // default
+    // ── DEFAULT RESET ─────────────────────────────────────
     this.setBackgroundColor(target, color);
     this.renderer.removeClass(target, 'deactivated-option');
     this.renderer.setStyle(target, 'cursor', 'pointer');
