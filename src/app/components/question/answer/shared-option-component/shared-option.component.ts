@@ -1225,6 +1225,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Refresh highlight for ALL option bindings
     if (this.optionBindings?.length) {
       this.optionBindings.forEach(binding => {
+        console.log(`[🎨 paintNow()] for optionId: ${binding.option.optionId}`);
         binding.directiveInstance?.paintNow?.();
       });
     }
