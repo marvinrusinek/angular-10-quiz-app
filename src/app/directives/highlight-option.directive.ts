@@ -123,7 +123,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
         currentOptionId: this.optionBinding.option?.optionId,
         isSelected: this.isSelected,
       });
-  
+      this.optionBinding.directiveInstance = this;
       this.updateHighlight();
     } else {
       console.log('[🛑 HighlightOptionDirective] ngOnChanges — no relevant changes detected');
