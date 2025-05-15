@@ -1188,11 +1188,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     console.log(`[✅ Feedback Config Updated for Option ${optionId}]`);
-
-    // Refresh highlight for ALL option bindings
-    this.optionBindings.forEach(binding => {
-      binding.directiveInstance?.paintNow?.(); // forces DOM repaint
-    });
   
     // **Apply highlight and feedback**
     console.log(`[🎯 Applying Highlight and Feedback for Option ${optionId}]`);
@@ -1208,6 +1203,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
   
+    // Refresh highlight for ALL option bindings
+    this.optionBindings.forEach(binding => {
+      binding.directiveInstance?.paintNow?.(); // forces DOM repaint
+    });
+
     // **Trigger immediate change detection**
     this.cdRef.detectChanges();
     console.log(`[✅ Final State Update for Option ${optionId}]`);
