@@ -1228,7 +1228,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.log(`[🎨 paintNow()] for optionId: ${binding.option.optionId}`);
         const selected = binding.option.selected || binding.isSelected;
         binding.isSelected = selected;
-        binding.directiveInstance?.paintNow?.();
+
+        if (binding.directiveInstance) {
+          binding.directiveInstance.paintNow();
+        }
       });
     }
 
