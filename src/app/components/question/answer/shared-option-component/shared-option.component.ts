@@ -1204,9 +1204,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
   
     // Refresh highlight for ALL option bindings
-    this.optionBindings.forEach(binding => {
-      binding.directiveInstance?.paintNow?.(); // forces DOM repaint
-    });
+    if (this.optionBindings?.length) {
+      this.optionBindings.forEach(binding => {
+        binding.directiveInstance?.paintNow?.();
+      });
+    }
 
     // **Trigger immediate change detection**
     this.cdRef.detectChanges();
