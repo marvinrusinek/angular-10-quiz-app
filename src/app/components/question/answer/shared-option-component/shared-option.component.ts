@@ -1175,7 +1175,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } */
 
     this.showFeedbackForOption[optionId] = true;
-    
+    this.cdRef.detectChanges();
+
     // Iterate over all selected options and show feedback
     this.optionBindings.forEach((binding) => {
       const optId = binding.option.optionId;
