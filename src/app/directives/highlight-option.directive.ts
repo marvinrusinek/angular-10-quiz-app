@@ -563,7 +563,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id = opt.optionId;
   
-    // ✅ NEW — compute based on either binding state or history
+    // compute based on binding state or history
     const isChosen =
       this.isSelected ||
       opt.selected ||
@@ -579,8 +579,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       opt.showIcon = true;
       this.showFeedbackForOption[id] = true;
 
-      // 🔥 NEW: force immediate change detection if icon didn't show before
-      this.cdRef.detectChanges(); // ✅ ensure UI updates on first click
+      this.cdRef.detectChanges(); // ensure UI updates on first click
   
       this.renderer.removeClass(target, 'deactivated-option');
       this.renderer.setStyle(target, 'cursor', 'pointer');
