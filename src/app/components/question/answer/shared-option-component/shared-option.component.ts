@@ -1294,7 +1294,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     console.log('[✅ isSelected updated]:', optionBinding.isSelected);
     console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
-  
+
+    this.showFeedback = true;
+    console.log('[✅ showFeedback set to true]');
+    
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
     if (!isAlreadyVisited) {
