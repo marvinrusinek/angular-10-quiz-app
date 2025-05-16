@@ -553,7 +553,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -607,9 +607,64 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.setPointerEvents(target, 'auto');
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
-  }
-   
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
   
+    const target: HTMLElement = this.el.nativeElement;
+    const opt = this.optionBinding.option;
+    const id = opt.optionId;
+  
+    const isChosen =
+      this.isSelected ||
+      opt.selected ||
+      this.selectedOptionHistory?.includes(id);
+  
+    const isCorrect = this.isCorrect ?? false;
+    let color = 'white';
+  
+    if (isChosen) {
+      color = isCorrect ? '#43f756' : '#ff0000';
+  
+      this.setBackgroundColor(target, color);
+      this.renderer.removeClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'pointer');
+      this.setPointerEvents(target, 'auto');
+  
+      // Mark visual states
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      // ✅ Trigger repaint on first click
+      queueMicrotask(() => this.cdRef.detectChanges());
+      return;
+    }
+  
+    // Deactivated incorrect option
+    if (!isCorrect && opt.active === false) {
+      color = '#a3a3a3';
+      this.setBackgroundColor(target, color);
+      this.renderer.addClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'not-allowed');
+      this.setPointerEvents(target, 'none');
+  
+      opt.showIcon = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    // Default (unselected)
+    this.setBackgroundColor(target, color);
+    this.renderer.removeClass(target, 'deactivated-option');
+    this.renderer.setStyle(target, 'cursor', 'pointer');
+    this.setPointerEvents(target, 'auto');
+  
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
+  }
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
