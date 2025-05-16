@@ -21,6 +21,7 @@
         [optionBinding]="b"
         [isSelected]="b.isSelected"
         [isCorrect]="b.isCorrect"
+        [selectedOptionHistory]="selectedOptionHistory"
         [showFeedback]="showFeedback"
         [showFeedbackForOption]="showFeedbackForOption"
         [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
@@ -76,6 +77,7 @@
             [checked]="b.option.selected"
             [value]="b.option.optionId"
             (change)="updateOptionAndUI($event)"
+            [selectedOptionHistory]="selectedOptionHistory"
             (click)="console.log('[🖱️ Checkbox Click]:', b.option.optionId)">
 
             <span class="option-text">
