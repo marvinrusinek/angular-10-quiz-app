@@ -501,7 +501,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void { 
+  /* updateHighlight(): void { 
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -551,7 +551,59 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    const target: HTMLElement = this.el.nativeElement;
+    const opt = this.optionBinding.option;
+    const id = opt.optionId;
+  
+    // ✅ NEW — compute based on either binding state or history
+    const isChosen =
+      this.isSelected ||
+      opt.selected ||
+      this.selectedOptionHistory.includes(id);
+  
+    const isCorrect = this.isCorrect ?? false;
+    let color = 'white';
+  
+    if (isChosen) {
+      color = isCorrect ? '#43f756' : '#ff0000';
+      this.setBackgroundColor(target, color);
+  
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      this.renderer.removeClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'pointer');
+      this.setPointerEvents(target, 'auto');
+      return;
+    }
+  
+    if (!isCorrect && opt.active === false) {
+      color = '#a3a3a3';
+      this.setBackgroundColor(target, color);
+      this.renderer.addClass(target, 'deactivated-option');
+      this.renderer.setStyle(target, 'cursor', 'not-allowed');
+      this.setPointerEvents(target, 'none');
+      opt.showIcon = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    // default
+    this.setBackgroundColor(target, color);
+    this.renderer.removeClass(target, 'deactivated-option');
+    this.renderer.setStyle(target, 'cursor', 'pointer');
+    this.setPointerEvents(target, 'auto');
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
   }
+  
   
 
   private highlightCorrectAnswers(): void {
