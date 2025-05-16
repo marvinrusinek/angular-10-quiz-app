@@ -567,7 +567,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const isChosen =
       this.isSelected ||
       opt.selected ||
-      this.selectedOptionHistory.includes(id);
+      this.selectedOptionHistory?.includes(id);
   
     const isCorrect = this.isCorrect ?? false;
     let color = 'white';
@@ -583,6 +583,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       this.renderer.setStyle(target, 'cursor', 'pointer');
       this.setPointerEvents(target, 'auto');
       return;
+    } else {
+      opt.showIcon = false;
     }
   
     if (!isCorrect && opt.active === false) {
