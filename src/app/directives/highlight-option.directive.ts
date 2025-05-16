@@ -604,7 +604,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   }
-  
+   
   
 
   private highlightCorrectAnswers(): void {
