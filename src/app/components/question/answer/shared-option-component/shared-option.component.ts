@@ -1297,7 +1297,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.showFeedback = true;
     console.log('[✅ showFeedback set to true]');
-    
+
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
     if (!isAlreadyVisited) {
@@ -1310,6 +1310,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Update showFeedback flag for current option
     this.showFeedbackForOption[optionId] = true;
+
+    console.log('[🔍 optionId]', optionId);
+    console.log('[🔍 optionBinding]', optionBinding);
   
     // Build feedback config for current option
     this.feedbackConfigs[optionId] = {
@@ -1319,8 +1322,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       question: this.currentQuestion,
       selectedOption: optionBinding.option,
       correctMessage: optionBinding.option.feedback ?? '',
-      idx: index,
+      idx: index
     };
+    console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
   
     // Iterate through ALL optionBindings and sync selected state + feedback
     this.optionBindings.forEach((binding) => {
@@ -2878,9 +2882,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return optionId === this.lastFeedbackOptionId;
   } */
-  shouldShowFeedback(index: number): boolean {
+  /* shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return this.showFeedbackForOption?.[optionId] === true;
+  } */
+  shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return (
+      this.showFeedback &&
+      optionId !== undefined &&
+      this.showFeedbackForOption?.[optionId] === true
+    );
   }  
  
   isAnswerCorrect(): boolean {

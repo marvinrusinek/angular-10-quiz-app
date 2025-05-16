@@ -91,7 +91,7 @@
         </label>
 
         <codelab-quiz-feedback
-          *ngIf="showFeedbackForOption[b.option.optionId]"
+          *ngIf="shouldShowFeedback(i)"
           [feedbackConfig]="feedbackConfigs[b.option.optionId]">
         </codelab-quiz-feedback>
       </div>
