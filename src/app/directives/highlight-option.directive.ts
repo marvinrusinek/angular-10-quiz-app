@@ -27,6 +27,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() isCorrect: boolean;
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
+  @Input() selectedOptionHistory: number[] = [];
   private areAllCorrectAnswersSelected = false;
 
   private get paintTarget(): HTMLElement {
