@@ -765,9 +765,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
-        feedback: opt.feedback && opt.feedback.trim() !== '' 
-          ? opt.feedback 
-          : 'No feedback available',
+        feedback: typeof opt.feedback === 'string' ? opt.feedback.trim() : '',
         selected: opt.selected ?? false,
         active: true,
         showIcon: false
