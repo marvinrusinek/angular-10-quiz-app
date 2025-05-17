@@ -9,8 +9,7 @@
     <mat-radio-group
       *ngIf="type === 'single'" 
       class="options-group options single-option"
-      formControlName="selectedOptionId"
-      (selectionChange)="updateOptionAndUI($event)">
+      formControlName="selectedOptionId">
 
       <mat-radio-button
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
@@ -33,7 +32,7 @@
         name="selectedOptionId"
         [value]="b.option.optionId"
         (click)="handleClick(b, i)"
-        (change)="handleChange(b, i)"
+        (change)="updateOptionAndUI(b, i, $event)"
       >
 
         <span class="option-text">
@@ -83,7 +82,7 @@
             (change)="updateOptionAndUI($event)"
             [selectedOptionHistory]="selectedOptionHistory"
             (click)="handleClick(b, i)"
-            (change)="handleChange(b, i)">
+            (change)="updateOptionAndUI(b, i, $event)">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}
