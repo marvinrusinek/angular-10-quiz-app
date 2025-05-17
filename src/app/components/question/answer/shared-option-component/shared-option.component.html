@@ -82,8 +82,8 @@
             [value]="b.option.optionId"
             (change)="updateOptionAndUI($event)"
             [selectedOptionHistory]="selectedOptionHistory"
-            (click)="console.log('[🖱️ Checkbox Click]:', b.option.optionId)"
-            [selectedOptionHistory]="selectedOptionHistory">
+            (click)="handleClick(b, i)"
+            (change)="handleChange(b, i)">
 
             <span class="option-text">
               {{ getOptionDisplayText(b.option, i) }}
