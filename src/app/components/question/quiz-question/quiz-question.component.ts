@@ -227,7 +227,7 @@ export class QuizQuestionComponent
 
   private containerReady = new Subject<void>();
 
-  private _ready = new ReplaySubject<ViewContainerRef>(1);
+  private _ready = new ReplaySubject<ViewContainerRef>(1); 
 
   // Define audio list array
   audioList: AudioItem[] = [];
