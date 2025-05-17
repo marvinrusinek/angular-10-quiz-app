@@ -43,6 +43,10 @@
         <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
           {{ getOptionIcon(b.option) }}
         </mat-icon>
+
+        <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-debug" style="color: blue">
+          FEEDBACK: {{ feedbackConfigs[b.option.optionId]?.feedback }}
+        </div>
       </mat-radio-button>
     </mat-radio-group>
 
