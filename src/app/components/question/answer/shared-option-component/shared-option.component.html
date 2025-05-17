@@ -44,9 +44,10 @@
           {{ getOptionIcon(b.option) }}
         </mat-icon>
 
-        <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-debug" style="color: blue">
-          FEEDBACK: {{ feedbackConfigs[b.option.optionId]?.feedback }}
-        </div>
+        <p class="feedback-text"
+          *ngIf="feedbackConfigs[b.option.optionId]?.feedback !== 'No feedback available'">
+        {{ feedbackConfigs[b.option.optionId]?.feedback }}
+      </p>
       </mat-radio-button>
     </mat-radio-group>
 
@@ -112,9 +113,11 @@
           [feedbackConfig]="feedbackConfigs[b.option.optionId]">
         </codelab-quiz-feedback>-->
 
-        <p *ngIf="true">
-        This is a test feedback message
-        </p>
+        <div class="feedback-text"
+          *ngIf="feedbackConfigs[b.option.optionId]?.feedback !== 'No feedback available'">
+        {{ feedbackConfigs[b.option.optionId]?.feedback }}
+        </div>
+
       
         
         <codelab-quiz-feedback
