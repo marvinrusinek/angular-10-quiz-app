@@ -2746,28 +2746,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[🚀 initializeOptionBindings STARTED]');
   
     if (this.optionBindingsInitialized) {
-      console.warn('[🛑 initializeOptionBindings already called, skipping]');
+      console.warn('[🛑 Already initialized]');
       return;
     }
   
     this.optionBindingsInitialized = true;
-
-    if (!this.quizQuestionComponent) {
-      console.error('[❌ quizQuestionComponent is undefined]');
-      this.optionBindingsInitialized = false;
-      return;
-    }
   
-    const options = this.quizQuestionComponent.populateOptionsToDisplay();
+    const options = this.optionsToDisplay;
   
-    if (!options.length) {
-      console.warn('[⚠️ initializeOptionBindings] No options available. Exiting initialization.');
+    if (!options?.length) {
+      console.warn('[⚠️ No options available]');
       this.optionBindingsInitialized = false;
       return;
     }
   
     this.processOptionBindings();
-  }
+  }  
 
   private processOptionBindings(): void {
     console.log('[⚡ processOptionBindings STARTED]');
