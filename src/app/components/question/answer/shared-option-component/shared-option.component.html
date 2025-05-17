@@ -90,8 +90,26 @@
           </mat-checkbox>
         </label>
 
-        <codelab-quiz-feedback
+        <!-- TEMP DEBUG -->
+        <p *ngIf="feedbackConfigs[b.option.optionId]">[🧪 Feedback Raw]: {{ feedbackConfigs[b.option.optionId]?.feedback }}</p>
+
+        <div class="feedback-text" *ngIf="feedbackConfig?.feedback">
+          {{ feedbackConfig.feedback }}
+        </div>
+
+        <p style="color: red;">
+          DEBUG: {{ feedbackConfigs[b.option.optionId]?.feedback }}
+        </p>
+        
+        
+
+        <!--<codelab-quiz-feedback
           *ngIf="shouldShowFeedback(i)"
+          [feedbackConfig]="feedbackConfigs[b.option.optionId]">
+        </codelab-quiz-feedback>-->
+        
+        <codelab-quiz-feedback
+          *ngIf="showFeedbackForOption[b.option.optionId]"
           [feedbackConfig]="feedbackConfigs[b.option.optionId]">
         </codelab-quiz-feedback>
       </div>
