@@ -2766,7 +2766,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private processOptionBindings(): void {
     console.log('[⚡ processOptionBindings STARTED]');
   
-    const options = this.quizQuestionComponent.populateOptionsToDisplay();
+    const options = this.optionsToDisplay ?? [];
   
     if (!options.length) {
       console.warn('[⚠️ processOptionBindings] No options to process. Exiting.');
