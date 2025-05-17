@@ -1316,12 +1316,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Build feedback config for current option
     this.feedbackConfigs[optionId] = {
-      feedback: optionBinding.option.feedback,
+      feedback: optionBinding.option.feedback?.trim() || 'No feedback available',
       showFeedback: true,
       options: this.optionsToDisplay,
       question: this.currentQuestion,
       selectedOption: optionBinding.option,
-      correctMessage: optionBinding.option.feedback ?? '',
+      correctMessage: optionBinding.option.feedback?.trim() || '',
       idx: index
     };
     console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
@@ -2751,6 +2751,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     this.optionBindingsInitialized = true;
+
+    if (!this.quizQuestionComponent) {
+      console.error('[❌ quizQuestionComponent is undefined]');
+      this.optionBindingsInitialized = false;
+      return;
+    }
   
     const options = this.quizQuestionComponent.populateOptionsToDisplay();
   
