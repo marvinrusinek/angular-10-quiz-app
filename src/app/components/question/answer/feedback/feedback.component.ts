@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 
@@ -8,13 +8,22 @@ import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
   styleUrls: ['./feedback.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeedbackComponent implements OnChanges {
+export class FeedbackComponent implements OnInit, OnChanges {
   @Input() feedbackConfig: FeedbackProps;
   feedbackMessageClass: string;
   feedbackPrefix: string;
   displayMessage = '';
 
   constructor(private cdRef: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    console.log('[🧪 FeedbackComponent Init]', this.feedbackConfig);
+    if (this.feedbackConfig?.feedback?.trim()) {
+      this.displayMessage = this.feedbackConfig.feedback.trim();
+    } else {
+      this.displayMessage = 'No feedback available';
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.shouldUpdateFeedback(changes)) {

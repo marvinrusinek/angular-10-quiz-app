@@ -122,6 +122,13 @@
           [feedbackConfig]="feedbackConfigs[b.option.optionId]">
         </codelab-quiz-feedback>-->
 
+        <ng-container *ngIf="feedbackConfigs[b.option.optionId]">
+          <div *ngIf="feedbackConfigs[b.option.optionId]?.showFeedback" style="color: blue">
+            FEEDBACK: {{ feedbackConfigs[b.option.optionId]?.feedback || 'No feedback set' }}
+          </div>
+        </ng-container>
+        
+
       <div *ngIf="showFeedbackForOption[b.option.optionId] && feedbackConfigs[b.option.optionId]?.feedback">
       <p class="feedback-text">
         {{ feedbackConfigs[b.option.optionId].feedback }}
