@@ -27,11 +27,24 @@ export class FeedbackComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.shouldUpdateFeedback(changes)) {
-      this.updateFeedback();
-      this.cdRef.markForCheck();
+    const feedbackChange = changes['feedbackConfig'];
+  
+    // ✅ Log any change to feedbackConfig
+    if (feedbackChange) {
+      console.log('[🧪 ngOnChanges] feedbackConfig changed:', feedbackChange);
     }
-  }
+  
+    // ✅ Your original conditional logic preserved
+    if (this.shouldUpdateFeedback(changes)) {
+      console.log('[🧪 shouldUpdateFeedback returned true]');
+      this.updateFeedback();
+  
+      // ✅ Force view update
+      this.cdRef.markForCheck();
+    } else {
+      console.log('[🛑 No relevant changes for updateFeedback]');
+    }
+  }  
 
   private shouldUpdateFeedback(changes: SimpleChanges): boolean {
     return 'feedbackConfig' in changes && !!changes['feedbackConfig'].currentValue;
