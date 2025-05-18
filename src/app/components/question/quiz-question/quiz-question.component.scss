@@ -31,7 +31,7 @@
 .option-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  //gap: 0.5rem;
 }
 
 .options {
@@ -48,7 +48,7 @@
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
-    padding: 10px 15px 5px 35px; 
+    padding: 15px 10px 0px 20px; 
     margin-left: -20px !important;
     padding-left: -25px !important;
     overflow: unset !important;
