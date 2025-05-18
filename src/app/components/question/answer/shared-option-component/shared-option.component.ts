@@ -1297,7 +1297,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.showFeedback = true;
     console.log('[✅ showFeedback set to true]');
-
+    
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
     if (!isAlreadyVisited) {

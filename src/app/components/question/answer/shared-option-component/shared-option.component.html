@@ -49,7 +49,7 @@
         </label>
       </mat-radio-button>
   
-      <!-- ✅ Feedback shown below the radio button -->
+      <!-- Feedback shown below the radio button -->
       <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
         <codelab-quiz-feedback
           *ngIf="b.option.optionId === lastFeedbackOptionId"
@@ -157,12 +157,13 @@
         </ng-container>
         
 
-      <div *ngIf="showFeedbackForOption[b.option.optionId] && feedbackConfigs[b.option.optionId]?.feedback">
-      <p class="feedback-text">
-        {{ feedbackConfigs[b.option.optionId].feedback }}
-      </p>
-      </div>
-
+        <!-- Feedback shown below the checkbox -->
+        <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
+          <codelab-quiz-feedback
+            *ngIf="b.option.optionId === lastFeedbackOptionId"
+            [feedbackConfig]="feedbackConfigs[b.option.optionId]"
+          ></codelab-quiz-feedback>
+        </div>
       </div>
     </div>
   </form>
