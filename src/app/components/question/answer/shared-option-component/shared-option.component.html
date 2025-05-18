@@ -43,9 +43,9 @@
           {{ getOptionIcon(b.option) }}
         </mat-icon>
 
-        <div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]">
+        <!--<div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]">
           {{ feedbackConfigs[b.option.optionId]?.feedback }}
-        </div>
+        </div>-->
 
         <!--<p class="feedback-text"
           *ngIf="feedbackConfigs[b.option.optionId]?.feedback !== 'No feedback available'">
@@ -53,6 +53,7 @@
       </p>-->
       </mat-radio-button>
     </mat-radio-group>
+
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
     <div *ngIf="type === 'multiple'" class="options-group options multiple-option">
