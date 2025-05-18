@@ -608,7 +608,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -664,7 +664,62 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
-  }
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    const host: HTMLElement = this.el.nativeElement;
+    const container = host.querySelector('.option-content') || host;
+  
+    const opt = this.optionBinding.option;
+    const id = opt.optionId;
+  
+    const isChosen =
+      this.isSelected ||
+      opt.selected ||
+      this.selectedOptionHistory?.includes(id);
+  
+    const isCorrect = this.isCorrect ?? false;
+    let color = 'white';
+  
+    if (isChosen) {
+      color = isCorrect ? '#43f756' : '#ff0000';
+  
+      this.setBackgroundColor(container, color);
+      this.renderer.removeClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'pointer');
+      this.setPointerEvents(container, 'auto');
+  
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+      return;
+    }
+  
+    if (!isCorrect && opt.active === false) {
+      color = '#a3a3a3';
+      this.setBackgroundColor(container, color);
+      this.renderer.addClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'not-allowed');
+      this.setPointerEvents(container, 'none');
+  
+      opt.showIcon = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    this.setBackgroundColor(container, color);
+    this.renderer.removeClass(container, 'deactivated-option');
+    this.renderer.setStyle(container, 'cursor', 'pointer');
+    this.setPointerEvents(container, 'auto');
+  
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
+  }  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
@@ -683,16 +738,16 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
-  private setBackgroundColor(el: HTMLElement, color: string): void {
-    this.renderer.setStyle(el, 'background-color', color);
+  private setBackgroundColor(element: HTMLElement, color: string): void {
+    this.renderer.setStyle(element, 'background-color', color);
   }
   
   private setPointerEvents(el: HTMLElement, value: string): void {
     this.renderer.setStyle(el, 'pointer-events', value);
   }
 
-  private setCursor(value: string): void {
-    this.renderer.setStyle(this.el.nativeElement, 'cursor', value);
+  private setCursor(element: HTMLElement, value: string): void {
+    this.renderer.setStyle(element, 'cursor', value);
   }
 
   public paintNow(): void {
