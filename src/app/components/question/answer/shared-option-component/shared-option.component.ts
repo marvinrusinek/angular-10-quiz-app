@@ -1307,9 +1307,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
     }
-  
+
+    // Reset all feedback visibility
+    Object.keys(this.showFeedbackForOption).forEach((key) => {
+      this.showFeedbackForOption[+key] = false;
+    });
+ 
     // Update showFeedback flag for current option
     this.showFeedbackForOption[optionId] = true;
+    this.lastFeedbackOptionId = optionId;
 
     console.log('[🔍 optionId]', optionId);
     console.log('[🔍 optionBinding]', optionBinding);
