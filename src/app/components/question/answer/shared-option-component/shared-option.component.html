@@ -43,11 +43,11 @@
           {{ getOptionIcon(b.option) }}
         </mat-icon>
 
-        <!--<div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]">
+        <div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]" style="padding-bottom: -100px">
           {{ feedbackConfigs[b.option.optionId]?.feedback }}
-        </div>-->
+        </div>
 
-        <!--<p class="feedback-text"
+        <!--<p class="feedback-text" style="margin-bottom: 30px"
           *ngIf="feedbackConfigs[b.option.optionId]?.feedback !== 'No feedback available'">
         {{ feedbackConfigs[b.option.optionId]?.feedback }}
       </p>-->
