@@ -688,6 +688,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     } */
     const container = this.el.nativeElement as HTMLElement;
+    if (!(container instanceof HTMLElement)) {
+      console.warn('[❌ container is not an HTMLElement]');
+      return;
+    }
       
   
     const isCorrect = this.isCorrect ?? false;
