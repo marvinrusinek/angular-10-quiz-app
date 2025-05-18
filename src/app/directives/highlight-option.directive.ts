@@ -682,11 +682,12 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       opt.selected ||
       this.selectedOptionHistory?.includes(id);
     
-    const container = this.el.nativeElement.querySelector('.option-wrapper');
+    /* const container = this.el.nativeElement.querySelector('.option-wrapper');
     if (!(container instanceof HTMLElement)) {
       console.warn('[❌ container is not an HTMLElement]');
       return;
-    }
+    } */
+    const container = this.el.nativeElement as HTMLElement;
       
   
     const isCorrect = this.isCorrect ?? false;
