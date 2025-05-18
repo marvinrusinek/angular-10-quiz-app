@@ -43,14 +43,10 @@
           {{ getOptionIcon(b.option) }}
         </mat-icon>
 
-        <div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]" style="padding-bottom: -100px">
-          {{ feedbackConfigs[b.option.optionId]?.feedback }}
-        </div>
-
-        <!--<p class="feedback-text" style="margin-bottom: 30px"
-          *ngIf="feedbackConfigs[b.option.optionId]?.feedback !== 'No feedback available'">
-        {{ feedbackConfigs[b.option.optionId]?.feedback }}
-      </p>-->
+        <codelab-quiz-feedback
+          *ngIf="showFeedbackForOption[b.option.optionId]"
+          [feedbackConfig]="feedbackConfigs[b.option.optionId]">
+        </codelab-quiz-feedback>
       </mat-radio-button>
     </mat-radio-group>
 
