@@ -18,6 +18,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     console.log('[🧪 FeedbackComponent Init]', this.feedbackConfig);
+    this.updateFeedback();
     if (this.feedbackConfig?.feedback?.trim()) {
       this.displayMessage = this.feedbackConfig.feedback.trim();
     } else {
