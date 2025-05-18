@@ -61,7 +61,7 @@
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
     <div *ngIf="type === 'multiple'" class="options-group options multiple-option">
-      <div
+      <div class="option-wrapper"
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
 
