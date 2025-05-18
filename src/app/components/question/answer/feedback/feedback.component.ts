@@ -60,10 +60,15 @@ export class FeedbackComponent implements OnInit, OnChanges {
 
   private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
+      const prefix = this.determineFeedbackPrefix();
       const feedbackText = this.feedbackConfig.feedback ?? '';
-      this.displayMessage = `${this.determineFeedbackPrefix()}${feedbackText}`;
+      this.displayMessage = `${prefix}${feedbackText}`;
+      console.log('[🧪 updateDisplayMessage] Prefix:', prefix);
+      console.log('[🧪 updateDisplayMessage] Feedback:', feedbackText);
+      console.log('[🧪 updateDisplayMessage] Display Message:', this.displayMessage);
     } else {
       this.displayMessage = '';
+      console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
     }
   }   
 }
