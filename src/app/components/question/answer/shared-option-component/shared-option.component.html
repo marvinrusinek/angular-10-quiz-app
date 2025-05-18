@@ -43,6 +43,10 @@
           {{ getOptionIcon(b.option) }}
         </mat-icon>
 
+        <div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]">
+          {{ feedbackConfigs[b.option.optionId]?.feedback }}
+        </div>
+
         <!--<p class="feedback-text"
           *ngIf="feedbackConfigs[b.option.optionId]?.feedback !== 'No feedback available'">
         {{ feedbackConfigs[b.option.optionId]?.feedback }}
@@ -91,6 +95,10 @@
             <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
               {{ getOptionIcon(b.option) }}
             </mat-icon>
+
+            <div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]">
+              {{ feedbackConfigs[b.option.optionId]?.feedback }}
+            </div>
           </mat-checkbox>
         </label>
 
@@ -105,10 +113,22 @@
           DEBUG: {{ feedbackConfigs[b.option.optionId]?.feedback }}
         </p>-->
         
-         <codelab-quiz-feedback
+        
+          <!-- ✅ FORCED TEST RENDER -->
+          <!--<codelab-quiz-feedback
+            *ngIf="true"
+            [feedbackConfig]="{
+              feedback: '✅ TEST MESSAGE',
+              showFeedback: true,
+              selectedOption: { correct: true }
+            }">
+          </codelab-quiz-feedback>-->
+
+
+         <!--<codelab-quiz-feedback
           *ngIf="showFeedbackForOption[b.option.optionId]"
           [feedbackConfig]="feedbackConfigs[b.option.optionId]">
-        </codelab-quiz-feedback>        
+        </codelab-quiz-feedback>-->     
 
         <!--<codelab-quiz-feedback
           *ngIf="shouldShowFeedback(i)"
