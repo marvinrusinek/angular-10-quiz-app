@@ -105,7 +105,10 @@
           DEBUG: {{ feedbackConfigs[b.option.optionId]?.feedback }}
         </p>-->
         
-        
+         <codelab-quiz-feedback
+          *ngIf="showFeedbackForOption[b.option.optionId]"
+          [feedbackConfig]="feedbackConfigs[b.option.optionId]">
+        </codelab-quiz-feedback>        
 
         <!--<codelab-quiz-feedback
           *ngIf="shouldShowFeedback(i)"
