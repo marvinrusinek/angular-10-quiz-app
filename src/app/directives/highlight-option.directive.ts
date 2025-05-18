@@ -672,7 +672,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   
     const host: HTMLElement = this.el.nativeElement;
-    const container = host.querySelector('.option-content') || host;
+    // const container = host.querySelector('.option-content') || host;
   
     const opt = this.optionBinding.option;
     const id = opt.optionId;
@@ -681,6 +681,13 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       this.isSelected ||
       opt.selected ||
       this.selectedOptionHistory?.includes(id);
+    
+    const container = this.el.nativeElement.querySelector('.option-wrapper');
+    if (!(container instanceof HTMLElement)) {
+      console.warn('[❌ container is not an HTMLElement]');
+      return;
+    }
+      
   
     const isCorrect = this.isCorrect ?? false;
     let color = 'white';
