@@ -11,52 +11,48 @@
     class="options-group options single-option"
     formControlName="selectedOptionId"
   >
-    <div
-      *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
-      class="option-container"
+  <div
+  *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
+  class="option-container"
+>
+  <label
+    class="option-wrapper"
+    appHighlightOption
+    [option]="b.option"
+    [optionBinding]="b"
+    [isSelected]="b.isSelected"
+    [isCorrect]="b.isCorrect"
+    [selectedOptionHistory]="selectedOptionHistory"
+    [showFeedback]="showFeedback"
+    [showFeedbackForOption]="showFeedbackForOption"
+    [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+    [allOptions]="optionsToDisplay"
+    [optionsToDisplay]="optionsToDisplay"
+    [attr.data-option-id]="b.option.optionId"
+    [appHighlightInputType]="'radio'"
+    [appHighlightReset]="shouldResetBackground"
+    [appResetBackground]="shouldResetBackground"
+  >
+    <mat-radio-button
+      [value]="b.option.optionId"
+      name="selectedOptionId"
+      (click)="handleClick(b, i)"
+      (change)="updateOptionAndUI(b, i, $event)"
     >
-      <mat-radio-button
-        [value]="b.option.optionId"
-        class="option-radio"
-        (click)="handleClick(b, i)"
-        (change)="updateOptionAndUI(b, i, $event)"
-      >
-        <label class="option-wrapper"
-          appHighlightOption
-          [option]="b.option"
-          [optionBinding]="b"
-          [isSelected]="b.isSelected"
-          [isCorrect]="b.isCorrect"
-          [selectedOptionHistory]="selectedOptionHistory"
-          [showFeedback]="showFeedback"
-          [showFeedbackForOption]="showFeedbackForOption"
-          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
-          [allOptions]="optionsToDisplay"
-          [optionsToDisplay]="optionsToDisplay"
-          [attr.data-option-id]="b.option.optionId"
-          [ngClass]="b.styleClass"
-          [appHighlightInputType]="'radio'"
-          [appHighlightReset]="shouldResetBackground"
-          [appResetBackground]="shouldResetBackground"
-        >
-          <span class="option-text">
-            {{ getOptionDisplayText(b.option, i) }}
-          </span>
-  
-          <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
-            {{ getOptionIcon(b.option) }}
-          </mat-icon>
-        </label>
-      </mat-radio-button>
-  
-      <!-- Feedback shown below the radio button -->
-      <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
-        <codelab-quiz-feedback
-          *ngIf="b.option.optionId === lastFeedbackOptionId"
-          [feedbackConfig]="feedbackConfigs[b.option.optionId]"
-        ></codelab-quiz-feedback>
-      </div>
-    </div>
+      <span class="option-text">{{ getOptionDisplayText(b.option, i) }}</span>
+      <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
+        {{ getOptionIcon(b.option) }}
+      </mat-icon>
+    </mat-radio-button>
+  </label>
+
+  <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
+    <codelab-quiz-feedback
+      [feedbackConfig]="feedbackConfigs[b.option.optionId]"
+    ></codelab-quiz-feedback>
+  </div>
+</div>
+
   </mat-radio-group>
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
