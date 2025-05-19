@@ -8,7 +8,7 @@
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group
     *ngIf="type === 'single'"
-    class="options-group options single-option"
+    class="options-group options"
     formControlName="selectedOptionId"
   >
     <div
@@ -17,7 +17,7 @@
     >
       <mat-radio-button
         [value]="b.option.optionId"
-        class="option-radio"
+        class="option-radio single-option"
         (click)="handleClick(b, i)"
         (change)="updateOptionAndUI(b, i, $event)"
       >
@@ -60,13 +60,13 @@
   </mat-radio-group>
 
     <!-- MULTIPLE-ANSWER (checkbox) -->
-    <div *ngIf="type === 'multiple'" class="options-group options multiple-option">
+    <div *ngIf="type === 'multiple'" class="options-group options">
       <div class="option-wrapper"
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-row">
 
         <label
-          class="option-row options"
+          class="option-row multiple-option"
           appHighlightOption
           [option]="b.option"
           [optionBinding]="b"
