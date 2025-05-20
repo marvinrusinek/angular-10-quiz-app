@@ -4,26 +4,23 @@
   [style.minHeight]="'1rem'">
 
   <form [formGroup]="form" class="options-form">
-  <div class="options-group">
+  <div class="options-group options">
     <ng-container *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId">
-      <!-- Wrapping container where highlight directive applies -->
-      <div
-        class="option-row options"
-        appHighlightOption
-        [option]="b.option"
-        [optionBinding]="b"
-        [isSelected]="b.isSelected"
-        [isCorrect]="b.isCorrect"
-        [selectedOptionHistory]="selectedOptionHistory"
-        [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
-        [appHighlightInputType]="type"
-        [appHighlightReset]="shouldResetBackground"
-      >
-        <!-- SINGLE-ANSWER -->
+      <div class="option-row">
+        <!-- SINGLE-ANSWER (radio) -->
         <mat-radio-button
           *ngIf="type === 'single'"
           class="option-control option"
+          appHighlightOption
           [value]="b.option.optionId"
+          [option]="b.option"
+          [optionBinding]="b"
+          [isSelected]="b.isSelected"
+          [isCorrect]="b.isCorrect"
+          [selectedOptionHistory]="selectedOptionHistory"
+          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+          [appHighlightInputType]="'radio'"
+          [appHighlightReset]="shouldResetBackground"
           (click)="handleClick(b, i)"
           (change)="updateOptionAndUI(b, i, $event)"
         >
@@ -35,12 +32,21 @@
           </div>
         </mat-radio-button>
 
-        <!-- MULTIPLE-ANSWER -->
+        <!-- MULTIPLE-ANSWER (checkbox) -->
         <mat-checkbox
           *ngIf="type === 'multiple'"
           class="option-control option"
+          appHighlightOption
           [checked]="b.option.selected"
           [value]="b.option.optionId"
+          [option]="b.option"
+          [optionBinding]="b"
+          [isSelected]="b.isSelected"
+          [isCorrect]="b.isCorrect"
+          [selectedOptionHistory]="selectedOptionHistory"
+          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+          [appHighlightInputType]="'checkbox'"
+          [appHighlightReset]="shouldResetBackground"
           (click)="handleClick(b, i)"
           (change)="updateOptionAndUI(b, i, $event)"
         >
@@ -52,7 +58,7 @@
           </div>
         </mat-checkbox>
 
-        <!-- Feedback below both -->
+        <!-- Feedback shared for both types -->
         <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
           <codelab-quiz-feedback
             *ngIf="b.option.optionId === lastFeedbackOptionId"

@@ -13,12 +13,17 @@
   gap: 0.5rem;
 }
 
+.option-control {
+  width: 100%;
+}
+
 .option-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   transition: background-color 0.5s ease;
+  margin-bottom: 25px;
 }
 
 .single-option {
@@ -36,7 +41,7 @@
 }
 
 .options {
-  margin: 0 0 25px 6.5px;
+  margin: 0 0 35px 6.5px;
   padding: 5px;
 
   mat-checkbox,
@@ -53,6 +58,8 @@
     margin-left: -20px !important;
     padding-left: -25px !important;
     overflow: unset !important;
+    margin-bottom: 20px !important;
+    padding-bottom: -30px !important;
 
     &:hover {
       border: 2px solid $vivid-blue;
