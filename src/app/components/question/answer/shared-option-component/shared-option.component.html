@@ -21,7 +21,6 @@
       (click)="handleClick(b, i)"
       (change)="updateOptionAndUI(b, i, $event)"
     >
-      <!-- 🔥 Apply the directive HERE, so it highlights just the option area -->
       <div
         class="option-wrapper"
         appHighlightOption
@@ -51,7 +50,7 @@
       </div>
     </mat-radio-button>
 
-    <!-- ✅ Feedback is now *outside* the highlighted area -->
+    <!-- Feedback is now outside the highlighted area -->
     <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
       <codelab-quiz-feedback
         *ngIf="b.option.optionId === lastFeedbackOptionId"
