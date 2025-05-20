@@ -4,7 +4,6 @@
   [style.minHeight]="'1rem'">
 
   <form [formGroup]="form" class="options-form">
-
     <!-- SINGLE-ANSWER (radio) -->
     <mat-radio-group *ngIf="type === 'single'" class="options-group options" formControlName="selectedOptionId">
       <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId" class="option-container">
