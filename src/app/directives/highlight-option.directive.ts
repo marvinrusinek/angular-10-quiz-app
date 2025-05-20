@@ -116,15 +116,22 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const optionBindingChanged = changes['optionBinding'];
     const isSelectedChanged = changes['isSelected'];
+    const resetChanged = changes['appHighlightReset'];
   
-    if ((optionBindingChanged || isSelectedChanged) && this.optionBinding) {
+    // Check explicitly for relevant changes
+    if ((optionBindingChanged || isSelectedChanged || resetChanged) && this.optionBinding) {
       console.log('[🧩 HighlightOptionDirective] ngOnChanges triggered', {
         optionId: this.optionBinding.option?.optionId,
         isSelected: this.isSelected,
         hasOptionBindingChanged: !!optionBindingChanged,
         hasIsSelectedChanged: !!isSelectedChanged,
-      });      
+        hasResetChanged: !!resetChanged
+      });
+  
+      // Update the directive instance reference
       this.optionBinding.directiveInstance = this;
+  
+      // Apply updated highlighting logic
       this.updateHighlight();
     } else {
       console.log('[🛑 HighlightOptionDirective] ngOnChanges — no relevant changes detected');
