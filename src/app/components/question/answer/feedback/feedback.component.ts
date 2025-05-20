@@ -17,13 +17,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
   constructor(private cdRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    console.log('[🧪 FeedbackComponent Init]', this.feedbackConfig);
     this.updateFeedback();
-    /* if (this.feedbackConfig?.feedback?.trim()) {
-      this.displayMessage = this.feedbackConfig.feedback.trim();
-    } else {
-      this.displayMessage = 'No feedback available';
-    } */
   }
 
   ngOnChanges(changes: SimpleChanges): void {
