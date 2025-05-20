@@ -114,6 +114,17 @@ export class NextButtonStateService {
     });
   }
 
+  public setButtonEnabled(enabled: boolean): void {
+    console.log(`[✅ setButtonEnabled] Forcing state to: ${enabled}`);
+    this.ngZone.run(() => {
+      this.isButtonEnabledSubject.next(enabled);
+      this.nextButtonStyle = {
+        opacity: enabled ? '1' : '0.5',
+        'pointer-events': enabled ? 'auto' : 'none'
+      };
+    });
+  }
+
   public setNextButtonState(enabled: boolean): void {
     console.log(`[🚀 setNextButtonState] Setting to: ${enabled}`);
     this.isButtonEnabledSubject.next(enabled);
