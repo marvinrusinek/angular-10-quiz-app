@@ -2632,6 +2632,9 @@ export class QuizQuestionComponent
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(event.option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
+
+      // Set answered so the Next button becomes active
+      this.selectedOptionService.setAnswered(true);
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
