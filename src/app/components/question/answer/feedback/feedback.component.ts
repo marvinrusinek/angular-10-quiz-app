@@ -57,7 +57,6 @@ export class FeedbackComponent implements OnInit, OnChanges {
   private determineFeedbackPrefix(): string {
     const isCorrect = this.feedbackConfig?.selectedOption?.correct ?? false;
     const prefix = isCorrect ? "You're right! " : "That's wrong. ";
-    console.log('[🧪 determineFeedbackPrefix]', { isCorrect, prefix });
     return prefix;
   }
 
@@ -71,9 +70,6 @@ export class FeedbackComponent implements OnInit, OnChanges {
       const prefix = this.determineFeedbackPrefix();
       const feedbackText = this.feedbackConfig.feedback ?? '';
       this.displayMessage = `${prefix}${feedbackText}`;
-      console.log('[🧪 updateDisplayMessage] Prefix:', prefix);
-      console.log('[🧪 updateDisplayMessage] Feedback:', feedbackText);
-      console.log('[🧪 updateDisplayMessage] Display Message:', this.displayMessage);
     } else {
       this.displayMessage = '';
       console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
