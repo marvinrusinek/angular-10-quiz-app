@@ -3203,7 +3203,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  public async advanceAndProcessNextQuestion(): Promise<void> {
+  /* remove probably 
+    public async advanceAndProcessNextQuestion(): Promise<void> {
     try {
       console.log('Advancing to the next question...');
   
@@ -3220,7 +3221,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('Error advancing to the next question:', error);
     }
-  }
+  } */
 
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
