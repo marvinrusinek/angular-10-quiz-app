@@ -4,14 +4,12 @@
   [style.minHeight]="'1rem'">
 
   <form [formGroup]="form" class="options-form">
-  <div class="options-group options">
-    <ng-container *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId">
-      <div class="option-row">
-        <!-- SINGLE-ANSWER (radio) -->
+    <!-- SINGLE-ANSWER (radio) -->
+    <mat-radio-group *ngIf="type === 'single'" class="options-group options" formControlName="selectedOptionId">
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId" class="option-container">
         <mat-radio-button
-          *ngIf="type === 'single'"
-          class="option-control option"
           appHighlightOption
+          class="option-radio single-option"
           [value]="b.option.optionId"
           [option]="b.option"
           [optionBinding]="b"
@@ -24,41 +22,12 @@
           (click)="handleClick(b, i)"
           (change)="updateOptionAndUI(b, i, $event)"
         >
-          <div class="option-wrapper">
-            <span class="option-text">{{ getOptionDisplayText(b.option, i) }}</span>
-            <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
-              {{ getOptionIcon(b.option) }}
-            </mat-icon>
-          </div>
+          <span class="option-text">{{ getOptionDisplayText(b.option, i) }}</span>
+          <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
+            {{ getOptionIcon(b.option) }}
+          </mat-icon>
         </mat-radio-button>
-
-        <!-- MULTIPLE-ANSWER (checkbox) -->
-        <mat-checkbox
-          *ngIf="type === 'multiple'"
-          class="option-control option"
-          appHighlightOption
-          [checked]="b.option.selected"
-          [value]="b.option.optionId"
-          [option]="b.option"
-          [optionBinding]="b"
-          [isSelected]="b.isSelected"
-          [isCorrect]="b.isCorrect"
-          [selectedOptionHistory]="selectedOptionHistory"
-          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
-          [appHighlightInputType]="'checkbox'"
-          [appHighlightReset]="shouldResetBackground"
-          (click)="handleClick(b, i)"
-          (change)="updateOptionAndUI(b, i, $event)"
-        >
-          <div class="option-wrapper">
-            <span class="option-text">{{ getOptionDisplayText(b.option, i) }}</span>
-            <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
-              {{ getOptionIcon(b.option) }}
-            </mat-icon>
-          </div>
-        </mat-checkbox>
-
-        <!-- Feedback shared for both types -->
+    
         <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
           <codelab-quiz-feedback
             *ngIf="b.option.optionId === lastFeedbackOptionId"
@@ -66,10 +35,65 @@
           ></codelab-quiz-feedback>
         </div>
       </div>
-    </ng-container>
-  </div>
-</form>
+    </mat-radio-group>
+  
+    <!-- MULTIPLE-ANSWER (checkbox) -->
+    <div *ngIf="type === 'multiple'" class="options-group options">
+      <div class="option-wrapper"
+        *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
+        class="option-row">
 
+        <label
+          class="option-row multiple-option"
+          appHighlightOption
+          [option]="b.option"
+          [optionBinding]="b"
+          [isSelected]="b.isSelected"
+          [isCorrect]="b.isCorrect"
+          [selectedOptionHistory]="selectedOptionHistory"
+          [showFeedback]="showFeedback"
+          [showFeedbackForOption]="showFeedbackForOption"
+          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+          [allOptions]="optionsToDisplay"
+          [optionsToDisplay]="optionsToDisplay"
+          [attr.data-option-id]="b.option.optionId"
+          [ngClass]="b.styleClass"
+          [appHighlightInputType]="'checkbox'"
+          [appHighlightReset]="shouldResetBackground"
+          [appResetBackground]="shouldResetBackground"
+        >
+          <mat-checkbox
+            [checked]="b.option.selected"
+            [value]="b.option.optionId"
+            (change)="updateOptionAndUI($event)"
+            [selectedOptionHistory]="selectedOptionHistory"
+            (click)="handleClick(b, i)"
+            (change)="updateOptionAndUI(b, i, $event)">
+
+            <span class="option-text">
+              {{ getOptionDisplayText(b.option, i) }}
+            </span>
+
+            <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
+              {{ getOptionIcon(b.option) }}
+            </mat-icon>
+
+            <div class="feedback-text" *ngIf="showFeedbackForOption[b.option.optionId]">
+              {{ feedbackConfigs[b.option.optionId]?.feedback }}
+            </div>
+          </mat-checkbox>
+        </label>
+
+        <!-- Feedback shown below the checkbox -->
+        <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
+          <codelab-quiz-feedback
+            *ngIf="b.option.optionId === lastFeedbackOptionId"
+            [feedbackConfig]="feedbackConfigs[b.option.optionId]"
+          ></codelab-quiz-feedback>
+        </div>
+      </div>
+    </div>
+  </form>
 </ng-container>
 
 <ng-template #noOptions>
