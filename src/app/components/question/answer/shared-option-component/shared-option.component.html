@@ -50,31 +50,21 @@
         *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
         class="option-container"
       >
-        <label
-          class="option-row multiple-option"
-          appHighlightOption
-          [option]="b.option"
-          [optionBinding]="b"
-          [isSelected]="b.isSelected"
-          [isCorrect]="b.isCorrect"
-          [selectedOptionHistory]="selectedOptionHistory"
-          [showFeedback]="showFeedback"
-          [showFeedbackForOption]="showFeedbackForOption"
-          [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
-          [allOptions]="optionsToDisplay"
-          [optionsToDisplay]="optionsToDisplay"
-          [attr.data-option-id]="b.option.optionId"
-          [ngClass]="b.styleClass"
-          [appHighlightInputType]="'checkbox'"
-          [appHighlightReset]="shouldResetBackground"
-          [appResetBackground]="shouldResetBackground"
-        >
+        <label class="option-row multiple-option">
           <mat-checkbox
+            appHighlightOption
+            [option]="b.option"
+            [optionBinding]="b"
+            [isSelected]="b.isSelected"
+            [isCorrect]="b.isCorrect"
+            [selectedOptionHistory]="selectedOptionHistory"
+            [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+            [appHighlightInputType]="'checkbox'"
+            [appHighlightReset]="shouldResetBackground"
             [checked]="b.option.selected"
             [value]="b.option.optionId"
             (click)="handleClick(b, i)"
             (change)="updateOptionAndUI(b, i, $event)"
-            [selectedOptionHistory]="selectedOptionHistory"
           >
             <div class="option-wrapper">
               <span class="option-text">{{ getOptionDisplayText(b.option, i) }}</span>
@@ -82,10 +72,10 @@
                 {{ getOptionIcon(b.option) }}
               </mat-icon>
             </div>
-          </mat-checkbox>
-        </label>
+        </mat-checkbox>
+      </label>
 
-        <!-- Feedback block (outside the checkbox) -->
+      <!-- Feedback block (outside the checkbox) -->
         <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
           <codelab-quiz-feedback
             *ngIf="b.option.optionId === lastFeedbackOptionId"
