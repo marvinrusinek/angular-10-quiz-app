@@ -10,11 +10,16 @@
 .options-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .option-control {
   width: 100%;
+}
+
+.option-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .option-wrapper {
@@ -23,7 +28,8 @@
   align-items: center;
   width: 100%;
   transition: background-color 0.5s ease;
-  margin-bottom: 25px;
+  padding: 0.5rem 0.75rem; // tightened
+  min-height: auto;
 }
 
 .single-option {
