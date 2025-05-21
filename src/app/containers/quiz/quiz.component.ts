@@ -3677,7 +3677,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   
-    // ✅ Badge update - moved after index synchronization
+    // Badge update - moved after index synchronization
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const total = this.totalQuestions;
   
