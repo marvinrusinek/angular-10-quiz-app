@@ -3081,6 +3081,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const success = await this.navigateToQuestion(nextIndex);
       if (success && this.quizQuestionComponent) {
         this.quizQuestionComponent.containerInitialized = false;
+
+        // Reset answered state so Next button disables again for next question
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
       } else {
         console.warn('[❌] Navigation failed to Q' + nextIndex);
       }
@@ -3094,13 +3098,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
-  
-      // Small delay to allow async visual updates
-      setTimeout(() => {
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-        this.cdRef.detectChanges();
-      }, 200);
     }
   }
   
