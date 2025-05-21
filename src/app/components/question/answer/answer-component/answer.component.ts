@@ -187,6 +187,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   
     // Emit the option selected event
+    this.optionClicked.emit(event);
     this.optionSelected.emit(event);
     // this.optionSelected.emit({ option, index, checked });
     console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
