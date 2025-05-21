@@ -23,6 +23,7 @@ export class SelectedOptionService {
 
   isAnsweredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
+  public answered$ = this.isAnswered$;
 
   private questionTextSubject = new BehaviorSubject<string>('');
   questionText$ = this.questionTextSubject.asObservable();
