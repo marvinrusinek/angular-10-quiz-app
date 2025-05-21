@@ -640,6 +640,7 @@ export class SelectedOptionService {
 
     const current = this.isAnsweredSubject.getValue();
     if (force || current !== isAnswered) {
+      console.log('[🧪 EMIT CHECK] About to emit answered:', isAnswered);
       this.isAnsweredSubject.next(isAnswered);
       sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
       console.log('[✅ setAnswered] Emitted new answered state:', isAnswered);
