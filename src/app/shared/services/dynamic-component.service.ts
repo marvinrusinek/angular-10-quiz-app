@@ -24,6 +24,7 @@ export class DynamicComponentService {
     // Subscribe to optionClicked and forward it
     (componentRef.instance as any).optionClicked.subscribe((event: any) => {
       console.log('[⚡ DynamicComponentService] Forwarding optionClicked');
+      console.log('[⚡ DCS] optionClicked event received from AnswerComponent:', event);
       onOptionClicked(event);
     });
   
