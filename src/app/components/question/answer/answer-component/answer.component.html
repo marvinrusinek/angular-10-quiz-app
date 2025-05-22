@@ -1,4 +1,7 @@
 <app-shared-option
+  *ngFor="let b of optionBindings; let i = index"
+  [option]="b.option"
+  [index]="i"
   [type]="type"
   [config]="sharedOptionConfig"
   (optionSelected)="onOptionClicked($event)"
