@@ -1685,7 +1685,11 @@ export class QuizQuestionComponent
       await Promise.resolve();
     
       const componentRef: ComponentRef<BaseQuestionComponent> =
-        await this.dynamicComponentService.loadComponent(this.dynamicAnswerContainer, isMultipleAnswer);
+        await this.dynamicComponentService.loadComponent(
+          this.dynamicAnswerContainer, 
+          isMultipleAnswer,
+          (event) => this.onOptionClicked(event)
+        );
       if (!componentRef) {
         console.warn('[⚠️ Early return E] loadComponent returned undefined');
         return;
