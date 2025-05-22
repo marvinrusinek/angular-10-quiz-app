@@ -6,7 +6,8 @@ export class DynamicComponentService {
 
   public async loadComponent<T>(
     container: ViewContainerRef,
-    multipleAnswer: boolean
+    multipleAnswer: boolean,
+    onOptionClicked: (event: any) => void
   ): Promise<ComponentRef<T>> {
     // Load AnswerComponent dynamically
     const { AnswerComponent } = await this.importComponent('answer');
@@ -19,6 +20,12 @@ export class DynamicComponentService {
   
     // Pass the 'multipleAnswer' input to the dynamically created AnswerComponent
     (componentRef.instance as any).isMultipleAnswer = multipleAnswer;
+    
+    // Subscribe to optionClicked and forward it
+    (componentRef.instance as any).optionClicked.subscribe((event: any) => {
+      console.log('[⚡ DynamicComponentService] Forwarding optionClicked');
+      onOptionClicked(event);
+    });
   
     return componentRef;
   }  
