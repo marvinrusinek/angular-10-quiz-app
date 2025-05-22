@@ -7,6 +7,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
+import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
@@ -48,6 +49,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
+    protected nextButtonStateService: NextButtonStateService,
     protected quizService: QuizService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected quizStateService: QuizStateService,
