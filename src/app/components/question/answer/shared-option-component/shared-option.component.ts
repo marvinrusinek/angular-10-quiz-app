@@ -713,6 +713,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     this.updateOptionAndUI(optionBinding, index, simulatedEvent);
+
+    this.optionClicked.emit({
+      option: optionBinding.option,
+      index,
+      checked: true
+    });
   }
 
   preserveOptionHighlighting(): void {
