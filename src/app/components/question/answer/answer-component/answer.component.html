@@ -1,7 +1,4 @@
 <app-shared-option
-  *ngFor="let b of optionBindings; let i = index"
-  [index]="i"
-  [type]="type"
   [config]="sharedOptionConfig"
   (optionClicked)="onOptionClicked($event)"
 ></app-shared-option>
