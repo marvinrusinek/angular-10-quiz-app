@@ -2526,8 +2526,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       questionIndex: this.quizService.currentQuestionIndex
     };
 
-    this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
-    this.feedbackConfig[index] = this.currentFeedbackConfig;
+    // this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+    // this.feedbackConfig[index] = this.currentFeedbackConfig;
+
+    this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+    this.feedbackConfigs[index] = this.currentFeedbackConfig;
   
     this.selectedOptionService.updateAnsweredState();
   
@@ -2552,6 +2555,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       options: this.optionsToDisplay ?? [],
       question: this.currentQuestion ?? null
     };
+
+    console.log('[🧪 Option Feedback]', option.feedback);
   
     return config;
   }
