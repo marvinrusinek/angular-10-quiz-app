@@ -4344,7 +4344,7 @@ export class QuizQuestionComponent
 
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    this.quizStateService.setCurrentQuestion(currentQuestion);
+    this.quizService.setCurrentQuestion(currentQuestion);
 
     // Update the selected option in the quiz service and mark the question as answered
     this.selectedOptionService.updateSelectedOptions(
