@@ -163,6 +163,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   public override async onOptionClicked(
     event: { option: SelectedOption; index: number; checked: boolean }
   ): Promise<void> {
+    console.log('[✅ AnswerComponent] optionClicked.emit firing');
     console.log('[🔥 QQC] onOptionClicked fired:', event);
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.syncNextButtonState();
