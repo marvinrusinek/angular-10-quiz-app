@@ -2639,6 +2639,7 @@ export class QuizQuestionComponent
 
       // Set answered so the Next button becomes active
       this.selectedOptionService.setAnswered(true);
+      this.quizStateService.setAnswered(true);
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
@@ -2646,7 +2647,10 @@ export class QuizQuestionComponent
       // Sync the Next button state
       this.nextButtonStateService.syncNextButtonState();
       console.log('[✅ Next button state synchronized]');
-  
+
+      setTimeout(() => {
+        this.cdRef.detectChanges(); // ensure UI update
+      }, 50);  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
