@@ -32,7 +32,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
-  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
+  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
@@ -691,6 +691,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     this.updateOptionAndUI(optionBinding, index, simulatedEvent);
+
+    this.optionClicked.emit({
+      option: optionBinding.option,
+      index,
+      checked: true
+    });
   }
   
   handleChange(optionBinding: OptionBindings, index: number): void {
