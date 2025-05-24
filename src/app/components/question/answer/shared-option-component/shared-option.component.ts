@@ -2515,7 +2515,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (!option) return;
 
     // Ensure feedback maps to the correct option
-    this.lastFeedbackOptionId = selectedOption.optionId;
+    this.lastFeedbackOptionId = option.optionId;
 
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
