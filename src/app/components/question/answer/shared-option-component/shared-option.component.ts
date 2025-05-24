@@ -2566,6 +2566,12 @@ private displayFeedbackForOption(option: SelectedOption, index: number, optionId
   this.showFeedback = true;
   this.showFeedbackForOption[optionId] = true;
 
+  console.log('[🔥 Q2 setAnswered call]', {
+    questionIndex: this.quizService.getCurrentQuestionIndex(),
+    value: true
+  });
+  this.selectedOptionService.setAnswered(true, true);
+
   // Retrieve the hydrated option data
   const hydratedOption = this.optionsToDisplay?.[index];
   if (!hydratedOption) {
