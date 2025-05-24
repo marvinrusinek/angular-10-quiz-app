@@ -2514,37 +2514,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
     if (!option) return;
   
+    // Set the last option selected (used to show only one feedback block)
+    this.lastFeedbackOptionId = option.optionId;
+  
+    // Ensure feedback visibility state is updated
+    this.showFeedback = true;
+    this.showFeedbackForOption[optionId] = true;
+  
+    // Retrieve the hydrated option data
     const hydratedOption = this.optionsToDisplay?.[index];
     if (!hydratedOption) {
       console.warn('[⚠️ FeedbackGen] No option found at index', index);
       return;
     }
   
+    // Construct SelectedOption object
     const selectedOption: SelectedOption = {
       ...hydratedOption,
       selected: true,
       questionIndex: this.quizService.currentQuestionIndex
     };
   
-    // Set key states correctly
-    this.lastFeedbackOptionId = selectedOption.optionId;
-  
+    // Store the config using optionId as the key (not index!)
     this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
-    this.feedbackConfigs[selectedOption.optionId] = this.currentFeedbackConfig;
-  
-    this.showFeedbackForOption = {
-      ...this.showFeedbackForOption,
-      [selectedOption.optionId]: true
-    };
-  
-    console.log('[✅ Feedback Config Stored]', {
-      optionId: selectedOption.optionId,
-      config: this.currentFeedbackConfig
-    });
-  
+    this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
+
+    console.log('[🧪 Stored feedback]', this.feedbackConfigs[optionId]?.feedback);
+
+    // Force Angular to re-render
+    queueMicrotask(() => this.cdRef.detectChanges());
+   
+    // Update the answered state
     this.selectedOptionService.updateAnsweredState();
   
-    queueMicrotask(() => this.cdRef.detectChanges());
+    console.log('[✅ displayFeedbackForOption]', {
+      optionId,
+      feedback: this.currentFeedbackConfig.feedback,
+      showFeedbackForOption: this.showFeedbackForOption,
+      lastFeedbackOptionId: this.lastFeedbackOptionId,
+      selectedOptions: this.selectedOptionService.selectedOptionsMap
+    });
   }
 
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
