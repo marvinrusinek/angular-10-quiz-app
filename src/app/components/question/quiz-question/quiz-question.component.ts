@@ -2643,6 +2643,9 @@ export class QuizQuestionComponent
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+
+      // Force button to enable manually
+      this.nextButtonStateService.setButtonEnabled(true);
   
       // Sync the Next button state
       this.nextButtonStateService.syncNextButtonState();
