@@ -2587,7 +2587,7 @@ private displayFeedbackForOption(option: SelectedOption, index: number, optionId
   };
 
   // Store the config using optionId as the key (not index!)
-  this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+  this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
   this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
 
   console.log('[🧪 Stored feedback]', this.feedbackConfigs[optionId]?.feedback);
