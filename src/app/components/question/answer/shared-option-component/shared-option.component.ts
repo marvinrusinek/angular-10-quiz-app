@@ -2538,7 +2538,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Store the config using optionId as the key (not index!)
     this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
     this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
-  
+
+    console.log('[🧪 Stored feedback]', this.feedbackConfigs[optionId]?.feedback);
+
+    // Force Angular to re-render
+    queueMicrotask(() => this.cdRef.detectChanges());
+   
     // Update the answered state
     this.selectedOptionService.updateAnsweredState();
   
