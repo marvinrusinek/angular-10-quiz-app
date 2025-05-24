@@ -2638,7 +2638,7 @@ export class QuizQuestionComponent
       this.applyFeedbackIfNeeded(option);
 
       // Set answered so the Next button becomes active
-      this.selectedOptionService.setAnswered(true);
+      this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
   
       // Update display state to explanation mode
