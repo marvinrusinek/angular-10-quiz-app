@@ -2527,6 +2527,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       questionIndex: this.quizService.currentQuestionIndex
     };
 
+    this.lastFeedbackOptionId = selectedOption.optionId;
+
     // this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
     // this.feedbackConfig[index] = this.currentFeedbackConfig;
 
