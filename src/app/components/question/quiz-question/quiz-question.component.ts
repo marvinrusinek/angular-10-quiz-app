@@ -4019,9 +4019,6 @@ export class QuizQuestionComponent
   
     } catch (error) {
       console.error('Error during option selection:', error);
-    } finally {
-      // Reset the answered state after processing
-      this.isAnswered = false;
     }
   }
 
