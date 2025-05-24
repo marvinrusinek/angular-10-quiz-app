@@ -635,6 +635,7 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean, force = false): void {
+    console.log('[✅ setAnswered]', { isAnswered, force, current: this.isAnsweredSubject.getValue() });
     console.log('[🧠 setAnswered] Incoming:', isAnswered, 'Current:', this.isAnsweredSubject.getValue(), 'Force:', force);
     console.trace("SET ANSWERED TRACE");
 
