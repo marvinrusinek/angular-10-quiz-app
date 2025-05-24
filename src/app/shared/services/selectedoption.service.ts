@@ -646,6 +646,8 @@ export class SelectedOptionService {
       console.log('[✅ setAnswered] Emitted new answered state:', isAnswered);
     } else {
       console.log('[🟡 setAnswered] No change needed (already', current + ')');
+      // Force re-emit even if value didn't change
+      this.isAnsweredSubject.next(isAnswered);
     }
   }
   
