@@ -2640,16 +2640,13 @@ export class QuizQuestionComponent
       // Set answered so the Next button becomes active
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
+      this.nextButtonStateService.syncNextButtonState();
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
 
       // Force button to enable manually
-      this.nextButtonStateService.setButtonEnabled(true);
-  
-      // Sync the Next button state
-      this.nextButtonStateService.syncNextButtonState();
-      console.log('[✅ Next button state synchronized]');
+      // this.nextButtonStateService.setButtonEnabled(true);
 
       setTimeout(() => {
         this.cdRef.detectChanges(); // ensure UI update
