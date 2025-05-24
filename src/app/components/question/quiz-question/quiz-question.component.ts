@@ -2602,7 +2602,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   } */
-  /* public override async onOptionClicked(event: {
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2660,59 +2660,8 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
       console.log('[✅ UI updated after explanation emission]');
     }, 50);
-  } */
-  public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): Promise<void> {
-    console.log('[🔥 onOptionClicked] method triggered');
-    console.log('[🧪 onOptionClicked] event received:', event);
-  
-    const option = event.option;
-    if (!option) {
-      console.warn('[⚠️ onOptionClicked] option is null, skipping');
-      return;
-    }
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    console.log('[🔒 lockedIndex]:', lockedIndex);
-    this.quizService.setCurrentQuestionIndex(lockedIndex);
-  
-    try {
-      console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
-  
-      const explanationText = await this.updateExplanationText(lockedIndex);
-      console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
-  
-      this.explanationTextService.emitExplanationIfNeeded(explanationText);
-      console.log('[✅ Explanation emitted immediately on first click]');
-  
-      // ✅ State sync
-      this.updateOptionSelection(event, option);
-      this.handleOptionSelection(option, event.index, this.currentQuestion);
-      this.applyFeedbackIfNeeded(option);
-  
-      // ✅ Set answered state and sync next button
-      this.selectedOptionService.setAnswered(true, true);
-      this.quizStateService.setAnswered(true);
-      this.nextButtonStateService.syncNextButtonState();
-  
-      // ✅ Update display state
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
-  
-      // ✅ Final UI update
-      setTimeout(() => {
-        this.cdRef.detectChanges();
-        console.log('[✅ UI updated after explanation emission]');
-      }, 50);
-    } catch (error) {
-      console.error('[onOptionClicked] ❌ Error:', error);
-    }
   }
+  
   
 
   private prepareQuestionText(): void {
