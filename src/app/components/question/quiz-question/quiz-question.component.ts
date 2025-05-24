@@ -2926,23 +2926,14 @@ export class QuizQuestionComponent
 
       // Update options state
       this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
-        if (option.correct) {
-          // Disable incorrect options and update feedback
-          return {
-            ...opt,
-            feedback: opt.correct ? undefined : 'x', // feedback for incorrect options
-            showIcon: true, // ensure icons are displayed
-            active: opt.correct, // only correct options remain active
-          };
-        } else if (opt === option) {
-          // Handle feedback for the selected incorrect option
-          return {
-            ...opt,
-            feedback: 'x', // add 'x' feedback
-            showIcon: true, // ensure icon is displayed
-          };
-        }
-        return opt; // leave other options unchanged
+        const isSelected = opt.optionId === option.optionId;
+      
+        return {
+          ...opt,
+          feedback: isSelected && !opt.correct ? 'x' : opt.feedback,
+          showIcon: isSelected,
+          active: true // keep all options active unless you're enforcing lockout
+        };
       });
 
       // Stop the timer if all correct options are selected
