@@ -63,8 +63,8 @@ export class NextButtonStateService {
 
     this.nextButtonStateSubscription = combineLatest([isAnswered$, isLoading$, isNavigating$])
       .pipe(
-        distinctUntilChanged((prev, curr) =>
-          JSON.stringify(prev) === JSON.stringify(curr)
+        distinctUntilChanged(([a1, b1, c1], [a2, b2, c2]) => 
+          a1 === a2 && b1 === b2 && c1 === c2
         )
       )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
