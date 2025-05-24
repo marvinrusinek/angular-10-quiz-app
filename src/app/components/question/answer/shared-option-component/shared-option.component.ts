@@ -2516,6 +2516,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Set the last option selected (used to show only one feedback block)
     this.lastFeedbackOptionId = option.optionId;
+
+    console.log('[🧪 Option Feedback]', option.optionId, '→', option.feedback);
   
     // Ensure feedback visibility state is updated
     this.showFeedback = true;
