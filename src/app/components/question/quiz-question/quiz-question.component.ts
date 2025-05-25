@@ -2606,11 +2606,7 @@ export class QuizQuestionComponent
     option: SelectedOption | null;
     index: number;
     checked: boolean;
-  }): Promise<void> {
-    console.log("MYTEST");
-    console.log('[🔥 onOptionClicked] method triggered');
-    console.log('[🧪 onOptionClicked] event received:', event);
-  
+  }): Promise<void> {  
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
@@ -2634,13 +2630,13 @@ export class QuizQuestionComponent
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
   
-      // ✅ SET ANSWERED AND SYNC NEXT BUTTON (DO NOT GATE BY CORRECTNESS!)
+      // Set answered and sync next button (do not gate by correctness!)
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
       this.nextButtonStateService.syncNextButtonState();
       console.log('[✅ Next button state synced — should now be enabled]');
   
-      // ✅ Display state toggle
+      // Display state toggle
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       queueMicrotask(() => this.cdRef.detectChanges());
@@ -2649,7 +2645,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
-  
   
 
   private prepareQuestionText(): void {
