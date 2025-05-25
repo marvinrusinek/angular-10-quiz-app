@@ -2622,46 +2622,32 @@ export class QuizQuestionComponent
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
     try {
-      // Emit explanation text immediately before any state synchronization
+      // Explanation
       console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
-  
       const explanationText = await this.updateExplanationText(lockedIndex);
       console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
-  
-      // Immediate emission of explanation text
       this.explanationTextService.emitExplanationIfNeeded(explanationText);
+      console.log('[✅ Explanation emitted]');
   
-      console.log('[✅ Explanation emitted immediately on first click]');
-  
-      // Proceed with state synchronization and feedback application
+      // Feedback + Option Handling
       this.updateOptionSelection(event, option);
-      this.handleOptionSelection(event.option, event.index, this.currentQuestion);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
-
-      // Set answered so the Next button becomes active
+  
+      // ✅ SET ANSWERED AND SYNC NEXT BUTTON (DO NOT GATE BY CORRECTNESS!)
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
       this.nextButtonStateService.syncNextButtonState();
-      this.cdRef.detectChanges();
+      console.log('[✅ Next button state synced — should now be enabled]');
   
-      // Update display state to explanation mode
+      // ✅ Display state toggle
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-
-      // Force button to enable manually
-      // this.nextButtonStateService.setButtonEnabled(true);
-
-      setTimeout(() => {
-        this.cdRef.detectChanges(); // ensure UI update
-      }, 50);  
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
-  
-    // Ensure final UI update
-    setTimeout(() => {
-      this.cdRef.detectChanges();
-      console.log('[✅ UI updated after explanation emission]');
-    }, 50);
   }
   
   
