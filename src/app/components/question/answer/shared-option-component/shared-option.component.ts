@@ -2555,8 +2555,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       selectedOptions: this.selectedOptionService.selectedOptionsMap
     });
   } */
-  
-  private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
+  displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
     if (!option) return;
   
     // Confirm feedback function is triggered

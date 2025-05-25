@@ -2699,7 +2699,8 @@ export class QuizQuestionComponent
     console.log(`[✅ applyFeedbackIfNeeded] Found Option at index ${index}:`, foundOption);
   
     // Always apply feedback for the clicked option — even if previously applied
-    this.displayFeedbackForOption(foundOption, index, foundOption.optionId);
+    this.sharedOptionComponentRef?.displayFeedbackForOption(option, index, option.optionId);
+    // this.displayFeedbackForOption(foundOption, index, foundOption.optionId);
   
     // Flag that feedback has been applied at least once (optional guard)
     this.isFeedbackApplied = true;
