@@ -2616,8 +2616,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
   
-
-  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+  /* generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     const correctMessage = this.feedbackService.setCorrectMessage(
       this.optionsToDisplay?.filter(o => o.correct),
       this.optionsToDisplay
@@ -2634,6 +2633,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
 
     console.log('[🧪 Option Feedback]', option.feedback);
+  
+    return config;
+  } */
+  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+    const correctMessage = this.feedbackService.setCorrectMessage(
+      this.optionsToDisplay?.filter(o => o.correct),
+      this.optionsToDisplay
+    );
+  
+    const isCorrect = option.correct ?? false;
+    const fallbackFeedback = isCorrect ? correctMessage : 'No feedback available.';
+    const finalFeedback = option.feedback?.trim()
+      ? `${isCorrect ? "You're right! " : "That's wrong. "}${option.feedback.trim()}`
+      : fallbackFeedback;
+  
+    const config: FeedbackProps = {
+      selectedOption: option,
+      correctMessage,
+      feedback: finalFeedback,
+      showFeedback: true,
+      idx: selectedIndex,
+      options: this.optionsToDisplay ?? [],
+      question: this.currentQuestion ?? null
+    };
+  
+    console.log('[🧪 generateFeedbackConfig]', {
+      optionId: option.optionId,
+      isCorrect,
+      rawFeedback: option.feedback,
+      finalFeedback
+    });
   
     return config;
   }
