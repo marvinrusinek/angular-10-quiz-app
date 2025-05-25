@@ -2638,6 +2638,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return config;
   } */
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+    if (!option) {
+      console.warn('[⚠️ generateFeedbackConfig] option is null or undefined');
+      return {
+        selectedOption: null,
+        correctMessage: '',
+        feedback: 'Feedback unavailable.',
+        showFeedback: false,
+        idx: selectedIndex,
+        options: this.optionsToDisplay ?? [],
+        question: this.currentQuestion ?? null
+      };
+    }
+  
     const correctMessage = this.feedbackService.setCorrectMessage(
       this.optionsToDisplay?.filter(o => o.correct),
       this.optionsToDisplay
@@ -2646,15 +2659,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const isCorrect = option.correct ?? false;
     const hasRawFeedback = !!option.feedback?.trim();
   
-    const fallbackFeedback = `${isCorrect ? "You're right! " : "That's wrong. "}${correctMessage || "No feedback available."}`;
     const finalFeedback = hasRawFeedback
       ? `${isCorrect ? "You're right! " : "That's wrong. "}${option.feedback.trim()}`
-      : fallbackFeedback;
+      : `${isCorrect ? "You're right! " : "That's wrong. "}${correctMessage || "No feedback available."}`;
   
     const config: FeedbackProps = {
       selectedOption: option,
       correctMessage,
-      feedback: option.feedback?.trim() || '',
+      feedback: finalFeedback,
       showFeedback: true,
       idx: selectedIndex,
       options: this.optionsToDisplay ?? [],
