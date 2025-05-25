@@ -222,12 +222,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     this.ensureOptionIds();
 
-    if (this.option) {
+    if (this.selectedOption) {
       console.log('[🔍 Option Data]', {
-        optionId: this.option.optionId,
-        feedback: this.option.feedback,
-        correct: this.option.correct,
-        fullOption: this.option
+        optionId: this.selectedOption.optionId,
+        feedback: this.selectedOption.feedback,
+        correct: this.selectedOption.correct,
+        fullOption: this.selectedOption
       });
     } else {
       console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
@@ -284,6 +284,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
+    }
+
+    // DEBUG: Log selected option if available
+    if (this.selectedOption) {
+      console.log('[🔍 SOC selectedOption]', {
+        optionId: this.selectedOption.optionId,
+        text: this.selectedOption.text,
+        correct: this.selectedOption.correct,
+        feedback: this.selectedOption.feedback
+      });
+    } else {
+      console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
   }
 
