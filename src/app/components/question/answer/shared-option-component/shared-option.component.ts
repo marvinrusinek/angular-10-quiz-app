@@ -222,6 +222,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     this.ensureOptionIds();
 
+    if (this.option) {
+      console.log('[🔍 Option Data]', {
+        optionId: this.option.optionId,
+        feedback: this.option.feedback,
+        correct: this.option.correct,
+        fullOption: this.option
+      });
+    } else {
+      console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
+    }
+
     this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
 
     if (
