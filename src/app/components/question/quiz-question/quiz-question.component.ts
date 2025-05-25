@@ -2607,6 +2607,7 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log("MYTEST");
     console.log('[🔥 onOptionClicked] method triggered');
     console.log('[🧪 onOptionClicked] event received:', event);
   
@@ -2641,6 +2642,7 @@ export class QuizQuestionComponent
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
       this.nextButtonStateService.syncNextButtonState();
+      this.cdRef.detectChanges();
   
       // Update display state to explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
