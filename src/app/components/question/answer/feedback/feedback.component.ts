@@ -26,6 +26,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
     // Log any change to feedbackConfig
     if (feedbackChange) {
       console.log('[🧪 ngOnChanges] feedbackConfig changed:', feedbackChange);
+      console.log('[🧪 ngOnChanges] new feedbackConfig:', feedbackChange.currentValue);
     }
   
     if (this.shouldUpdateFeedback(changes)) {
@@ -37,7 +38,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
     } else {
       console.log('[🛑 No relevant changes for updateFeedback]');
     }
-  }  
+  }
 
   private shouldUpdateFeedback(changes: SimpleChanges): boolean {
     return 'feedbackConfig' in changes && !!changes['feedbackConfig'].currentValue;
