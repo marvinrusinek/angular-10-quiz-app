@@ -3999,7 +3999,10 @@ export class QuizQuestionComponent
   
       // Enable the Next button immediately
       console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
-      this.nextButtonStateService.setButtonEnabled(true);
+      // this.nextButtonStateService.setButtonEnabled(true);
+      this.selectedOptionService.setAnswered(true, true); // always emit
+      this.quizStateService.setAnswered(true);            // update quiz-level answered state
+      this.nextButtonStateService.syncNextButtonState();  // let the observable handle enable logic
   
       // Immediate change detection
       this.cdRef.detectChanges();
