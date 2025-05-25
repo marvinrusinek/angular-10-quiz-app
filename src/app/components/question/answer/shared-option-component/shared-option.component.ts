@@ -2643,8 +2643,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     );
   
     const isCorrect = option.correct ?? false;
-    const fallbackFeedback = isCorrect ? correctMessage : 'No feedback available.';
-    const finalFeedback = option.feedback?.trim()
+    const hasRawFeedback = !!option.feedback?.trim();
+  
+    const fallbackFeedback = `${isCorrect ? "You're right! " : "That's wrong. "}${correctMessage || "No feedback available."}`;
+    const finalFeedback = hasRawFeedback
       ? `${isCorrect ? "You're right! " : "That's wrong. "}${option.feedback.trim()}`
       : fallbackFeedback;
   
@@ -2662,6 +2664,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       optionId: option.optionId,
       isCorrect,
       rawFeedback: option.feedback,
+      correctMessage,
       finalFeedback
     });
   
