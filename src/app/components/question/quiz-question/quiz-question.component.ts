@@ -2686,23 +2686,23 @@ export class QuizQuestionComponent
       this.optionsToDisplay = this.populateOptionsToDisplay();
     }
   
-    const foundOption = this.optionsToDisplay.find(opt => opt.optionId === option.optionId);
-    if (!foundOption) {
-      console.warn(`[⚠️ applyFeedbackIfNeeded] Option ${option.optionId} not found in optionsToDisplay`);
+    const index = this.optionsToDisplay.findIndex(opt => opt.optionId === option.optionId);
+    if (index === -1) {
+      console.warn(`[⚠️ Option ${option.optionId} not found in optionsToDisplay`);
       return;
     }
   
-    console.log(`[✅ applyFeedbackIfNeeded] Found Option: ${foundOption.optionId}`);
+    const foundOption = this.optionsToDisplay[index];
   
-    if (!this.isFeedbackApplied) {
-      console.log(`[🛠️ Applying Feedback for Option ${foundOption.optionId}]`);
-      await this.applyOptionFeedback(foundOption);
-    }
+    console.log(`[✅ applyFeedbackIfNeeded] Found Option at index ${index}:`, foundOption);
   
-    this.showFeedbackForOption[option.optionId] = true;
-    console.log(`[✅ Feedback applied for Option ${option.optionId}]`);
+    // Always apply feedback for the clicked option — even if previously applied
+    this.displayFeedbackForOption(foundOption, index, foundOption.optionId);
   
-    // Trigger explanation evaluation immediately after feedback application
+    // Flag that feedback has been applied at least once (optional guard)
+    this.isFeedbackApplied = true;
+  
+    // Explanation evaluation (optional)
     const ready = !!this.explanationTextService.formattedExplanationSubject.getValue()?.trim();
     const show = this.explanationTextService.shouldDisplayExplanationSource.getValue();
   
@@ -2713,16 +2713,15 @@ export class QuizQuestionComponent
       console.warn('[⏭️ Explanation trigger skipped – not ready or not set to display]');
     }
   
-    // Immediate change detection to ensure UI update
+    // Ensure change detection
     this.cdRef.detectChanges();
-    console.log(`[✅ Change Detection Applied after Feedback for Option ${option.optionId}]`);
+    console.log(`[✅ CD Applied after Feedback for Option ${option.optionId}]`);
   }
 
   public applyFeedbackForOption(selectedOption: SelectedOption): void {
     console.log(`[📝 applyFeedbackForOption] Applying feedback for Option ${selectedOption.optionId}`);
     this.applyFeedbackIfNeeded(selectedOption);
   }
-  
   
   private finalizeAfterClick(option: SelectedOption, index: number): void {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
