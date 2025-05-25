@@ -35,7 +35,6 @@ import { SharedVisibilityService } from '../../../shared/services/shared-visibil
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
-import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -48,7 +47,6 @@ export class QuizQuestionComponent
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   private vcRef!: ViewContainerRef;
-  @ViewChild(SharedOptionComponent) sharedOptionComponentRef: SharedOptionComponent;
   @Output() answer = new EventEmitter<number>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
@@ -2699,8 +2697,7 @@ export class QuizQuestionComponent
     console.log(`[✅ applyFeedbackIfNeeded] Found Option at index ${index}:`, foundOption);
   
     // Always apply feedback for the clicked option — even if previously applied
-    this.sharedOptionComponentRef?.displayFeedbackForOption(option, index, option.optionId);
-    // this.displayFeedbackForOption(foundOption, index, foundOption.optionId);
+    this.displayFeedbackForOption(foundOption, index, foundOption.optionId);
   
     // Flag that feedback has been applied at least once (optional guard)
     this.isFeedbackApplied = true;
