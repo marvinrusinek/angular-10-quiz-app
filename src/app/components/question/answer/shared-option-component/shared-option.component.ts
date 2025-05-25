@@ -2556,56 +2556,66 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   } */
   
-private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
-  if (!option) return;
-
-  // Set the last option selected (used to show only one feedback block)
-  this.lastFeedbackOptionId = option.optionId;
-
-  // Ensure feedback visibility state is updated
-  this.showFeedback = true;
-  this.showFeedbackForOption[optionId] = true;
-
-  console.log('[🔥 Q2 setAnswered call]', {
-    questionIndex: this.quizService.getCurrentQuestionIndex(),
-    value: true
-  });
-  this.selectedOptionService.setAnswered(true, true);
-
-  // Retrieve the hydrated option data
-  const hydratedOption = this.optionsToDisplay?.[index];
-  if (!hydratedOption) {
-    console.warn('[⚠️ FeedbackGen] No option found at index', index);
-    return;
+  private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
+    if (!option) return;
+  
+    // Confirm feedback function is triggered
+    const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+    console.log('[🚨 Feedback Fired]', { currentQuestionIndex });
+  
+    // Set the last option selected (used to show only one feedback block)
+    this.lastFeedbackOptionId = option.optionId;
+  
+    // Ensure feedback visibility state is updated
+    this.showFeedback = true;
+    this.showFeedbackForOption[optionId] = true;
+  
+    // Log that we're emitting answered=true for this question
+    console.log('[🔥 Q2 setAnswered call]', {
+      questionIndex: currentQuestionIndex,
+      value: true
+    });
+    this.selectedOptionService.setAnswered(true, true);
+  
+    // Verify we retrieved a valid hydrated option
+    const hydratedOption = this.optionsToDisplay?.[index];
+    if (!hydratedOption) {
+      console.warn('[⚠️ FeedbackGen] No option found at index', index);
+      return;
+    }
+  
+    // Construct SelectedOption object
+    const selectedOption: SelectedOption = {
+      ...hydratedOption,
+      selected: true,
+      questionIndex: currentQuestionIndex
+    };
+  
+    // Confirm feedback config is generated properly
+    this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+    this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
+  
+    console.log('[🧪 Storing Feedback Config]', {
+      optionId,
+      feedbackConfig: this.feedbackConfigs[optionId]
+    });
+  
+    // Force Angular to re-render
+    queueMicrotask(() => this.cdRef.detectChanges());
+  
+    // Update the answered state
+    this.selectedOptionService.updateAnsweredState();
+  
+    // Final debug state
+    console.log('[✅ displayFeedbackForOption]', {
+      optionId,
+      feedback: this.currentFeedbackConfig.feedback,
+      showFeedbackForOption: this.showFeedbackForOption,
+      lastFeedbackOptionId: this.lastFeedbackOptionId,
+      selectedOptions: this.selectedOptionService.selectedOptionsMap
+    });
   }
-
-  // Construct SelectedOption object
-  const selectedOption: SelectedOption = {
-    ...hydratedOption,
-    selected: true,
-    questionIndex: this.quizService.currentQuestionIndex
-  };
-
-  // Store the config using optionId as the key (not index!)
-  this.currentFeedbackConfig = this.generateFeedbackConfig(option, index);
-  this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
-
-  console.log('[🧪 Stored feedback]', this.feedbackConfigs[optionId]?.feedback);
-
-  // Force Angular to re-render
-  queueMicrotask(() => this.cdRef.detectChanges());
- 
-  // Update the answered state
-  this.selectedOptionService.updateAnsweredState();
-
-  console.log('[✅ displayFeedbackForOption]', {
-    optionId,
-    feedback: this.currentFeedbackConfig.feedback,
-    showFeedbackForOption: this.showFeedbackForOption,
-    lastFeedbackOptionId: this.lastFeedbackOptionId,
-    selectedOptions: this.selectedOptionService.selectedOptionsMap
-  });
-}
+  
 
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     const correctMessage = this.feedbackService.setCorrectMessage(
@@ -2616,7 +2626,7 @@ private displayFeedbackForOption(option: SelectedOption, index: number, optionId
     const config: FeedbackProps = {
       selectedOption: option,
       correctMessage,
-      feedback: option.feedback ?? correctMessage,
+      feedback: correctMessage,
       showFeedback: true,
       idx: selectedIndex,
       options: this.optionsToDisplay ?? [],
