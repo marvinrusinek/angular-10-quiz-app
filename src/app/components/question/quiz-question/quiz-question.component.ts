@@ -2613,12 +2613,6 @@ export class QuizQuestionComponent
       return;
     }
   
-    // Prevent re-processing if option already selected
-    if (option.selected) {
-      console.log('[🛑 onOptionClicked] Option already selected, skipping');
-      return;
-    }
-  
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     console.log('[🔒 lockedIndex]:', lockedIndex);
     this.quizService.setCurrentQuestionIndex(lockedIndex);
