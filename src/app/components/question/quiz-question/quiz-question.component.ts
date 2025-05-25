@@ -2717,11 +2717,6 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
     console.log(`[✅ CD Applied after Feedback for Option ${option.optionId}]`);
   }
-
-  public applyFeedbackForOption(selectedOption: SelectedOption): void {
-    console.log(`[📝 applyFeedbackForOption] Applying feedback for Option ${selectedOption.optionId}`);
-    this.applyFeedbackIfNeeded(selectedOption);
-  }
   
   private finalizeAfterClick(option: SelectedOption, index: number): void {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
@@ -3963,7 +3958,7 @@ export class QuizQuestionComponent
   
       // Apply feedback immediately for the selected option
       console.log(`[📝 Applying Feedback for Option]: ${option.optionId}`);
-      this.applyFeedbackForOption(option);
+      this.applyFeedbackIfNeeded(option);
   
       // Emit explanation text immediately after feedback
       const explanationText = await this.getExplanationText(this.currentQuestionIndex);
