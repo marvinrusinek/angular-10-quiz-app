@@ -65,11 +65,19 @@ export class FeedbackComponent implements OnInit, OnChanges {
     return isCorrect ? 'correct-message' : 'wrong-message';
   }
 
-  private updateDisplayMessage(): void {
+  /* private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
       const prefix = this.determineFeedbackPrefix();
       const feedbackText = this.feedbackConfig.feedback ?? '';
       this.displayMessage = `${prefix}${feedbackText}`;
+    } else {
+      this.displayMessage = '';
+      console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
+    }
+  } */
+  private updateDisplayMessage(): void {
+    if (this.feedbackConfig) {
+      this.displayMessage = this.feedbackConfig.feedback?.trim() || 'No feedback available.';
     } else {
       this.displayMessage = '';
       console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
