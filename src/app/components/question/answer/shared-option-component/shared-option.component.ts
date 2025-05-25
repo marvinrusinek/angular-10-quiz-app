@@ -2588,7 +2588,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const selectedOption: SelectedOption = {
       ...hydratedOption,
       selected: true,
-      questionIndex: currentQuestionIndex
+      questionIndex: currentQuestionIndex,
+      feedback: hydratedOption.feedback ?? ''
     };
   
     // Confirm feedback config is generated properly
