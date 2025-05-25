@@ -67,9 +67,9 @@ export class FeedbackComponent implements OnInit, OnChanges {
 
   private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
+      console.log('[🧪 FeedbackComponent] feedbackConfig received:', this.feedbackConfig);
       const prefix = this.determineFeedbackPrefix();
       const feedbackText = this.feedbackConfig.feedback ?? '';
-      console.log('[🧪 DisplayMessage parts]', { prefix, feedbackText });
       this.displayMessage = `${prefix}${feedbackText}`;
     } else {
       this.displayMessage = '';
