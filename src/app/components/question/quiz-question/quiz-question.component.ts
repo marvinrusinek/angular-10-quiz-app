@@ -2606,10 +2606,16 @@ export class QuizQuestionComponent
     option: SelectedOption | null;
     index: number;
     checked: boolean;
-  }): Promise<void> {  
+  }): Promise<void> {
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    // Prevent re-processing if option already selected
+    if (option.selected) {
+      console.log('[🛑 onOptionClicked] Option already selected, skipping');
       return;
     }
   
@@ -2618,13 +2624,6 @@ export class QuizQuestionComponent
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
     try {
-      // Explanation
-      console.log(`[🔄 Fetching explanation for Q${lockedIndex}]`);
-      const explanationText = await this.updateExplanationText(lockedIndex);
-      console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
-      this.explanationTextService.emitExplanationIfNeeded(explanationText);
-      console.log('[✅ Explanation emitted]');
-  
       // Feedback + Option Handling
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
@@ -2639,13 +2638,22 @@ export class QuizQuestionComponent
       // Display state toggle
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      queueMicrotask(() => this.cdRef.detectChanges());
+      // Delay explanation emission to avoid flickering
+      setTimeout(async () => {
+        console.log(`[🔄 Delayed explanation fetch for Q${lockedIndex}]`);
+        const explanationText = await this.updateExplanationText(lockedIndex);
+        console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
+        this.explanationTextService.emitExplanationIfNeeded(explanationText);
+        console.log('[✅ Explanation emitted after feedback + UI sync]');
   
+        this.cdRef.detectChanges();
+      }, 100); // Allow CD + UI feedback rendering before explanation
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
-  
 
   private prepareQuestionText(): void {
     this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
