@@ -3482,7 +3482,8 @@ export class QuizQuestionComponent
       this.selectedOptions = [
         { ...option, questionIndex: this.currentQuestionIndex },
       ];
-      this.selectedOption = { ...option, optionId: index + 1 };
+      // this.selectedOption = { ...option, optionId: index + 1 };
+      this.selectedOption = { ...option };
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
 
