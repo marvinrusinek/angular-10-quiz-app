@@ -3063,9 +3063,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return (
       this.showFeedback &&
       optionId !== undefined &&
-      this.showFeedbackForOption?.[optionId] === true
+      this.showFeedbackForOption?.[optionId] === true &&
+      !!this.optionBindings?.[index]?.option?.feedback
     );
-  }  
+  }
  
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
@@ -3149,5 +3150,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.type = calculatedType;
   
     console.log(`[🔍 Final Option Type Check]: ${this.type}`);
-  }  
+  }
+
+  isLastSelectedOption(option: Option): boolean {
+    return this.lastSelectedOptionId === option.optionId;
+  }
 }
