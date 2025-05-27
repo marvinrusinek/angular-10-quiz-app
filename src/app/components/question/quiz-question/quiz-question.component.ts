@@ -2718,7 +2718,7 @@ export class QuizQuestionComponent
     console.log(`[✅ CD Applied after Feedback for Option ${option.optionId}]`);
   }
   
-  private finalizeAfterClick(option: SelectedOption, index: number): void {
+  public finalizeAfterClick(option: SelectedOption, index: number): void {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.markQuestionAsAnswered(lockedIndex);
     this.finalizeSelection(option, index);
