@@ -2636,6 +2636,14 @@ export class QuizQuestionComponent
   
         this.cdRef.detectChanges();
       }, 100); // Allow CD + UI feedback rendering before explanation
+
+      console.log('[🎯 QQC.onOptionClicked]', event);
+
+      // Insert this to activate feedback for the selected option
+      // await this.handleOptionProcessingAndFeedback(option, event.index, event.checked);
+      await this.processSelectedOption(option, event.index, event.checked);
+
+      await this.finalizeAfterClick(event.option, event.index);
   
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
@@ -3475,7 +3483,7 @@ export class QuizQuestionComponent
     index: number,
     checked: boolean
   ): Promise<void> {
-    console.log('[🧪 START handleOptionProcessingAndFeedback]', {
+    console.log('[🧪 Clicked Option]', {
       currentQuestionIndex: this.currentQuestionIndex,
       optionId: option.optionId,
       feedback: option.feedback
