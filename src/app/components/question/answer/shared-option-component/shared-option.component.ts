@@ -698,6 +698,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
+    console.log('[🖱️ handleClick]', {
+      questionIndex: this.quizService.currentQuestionIndex,
+      optionId: optionBinding.option.optionId
+    });
+    
     console.log('[🖱️ handleClick] Option Clicked:', optionBinding.option.optionId);
 
     // Ensure the click is only processed once

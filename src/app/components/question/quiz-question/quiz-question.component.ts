@@ -2111,12 +2111,6 @@ export class QuizQuestionComponent
     return !this.data?.options || this.data.options.length === 0;
   }
 
-  public shouldShowFeedback(option: Option): boolean {
-    return (
-      this.showFeedback && this.selectedOption?.optionId === option.optionId
-    );
-  }
-
   handleQuestionUpdate(newQuestion: QuizQuestion): void {
     if (!newQuestion.selectedOptions) {
       newQuestion.selectedOptions = [];
