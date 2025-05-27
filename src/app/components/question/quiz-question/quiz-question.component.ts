@@ -2713,6 +2713,12 @@ export class QuizQuestionComponent
   }
   
   public finalizeAfterClick(option: SelectedOption, index: number): void {
+    console.log('[✅ finalizeAfterClick]', {
+      index,
+      optionId: option.optionId,
+      questionIndex: this.currentQuestionIndex
+    });    
+
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.markQuestionAsAnswered(lockedIndex);
     this.finalizeSelection(option, index);
