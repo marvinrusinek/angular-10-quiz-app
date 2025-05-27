@@ -721,6 +721,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       index,
       checked: true
     });
+
+    this.quizQuestionComponent.finalizeAfterClick(optionBinding.option as SelectedOption, index);
   }
   
   handleChange(optionBinding: OptionBindings, index: number): void {
