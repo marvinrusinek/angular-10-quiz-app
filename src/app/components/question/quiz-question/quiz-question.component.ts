@@ -3475,6 +3475,12 @@ export class QuizQuestionComponent
     index: number,
     checked: boolean
   ): Promise<void> {
+    console.log('[🧪 START handleOptionProcessingAndFeedback]', {
+      currentQuestionIndex: this.currentQuestionIndex,
+      optionId: option.optionId,
+      feedback: option.feedback
+    });
+    
     try {
       const event = { option, index, checked };
       await super.onOptionClicked(event);
