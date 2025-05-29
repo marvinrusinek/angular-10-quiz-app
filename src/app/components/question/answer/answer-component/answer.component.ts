@@ -28,7 +28,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   @Output() optionClicked = new EventEmitter<{
-    option: SelectedOption;
+    option: SelectedOption | null;
     index: number;
     checked: boolean;
   }>();
