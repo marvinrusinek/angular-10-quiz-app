@@ -702,34 +702,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       questionIndex: this.quizService.currentQuestionIndex,
       optionId: optionBinding.option.optionId
     });
-    
-    console.log('[🖱️ handleClick] Option Clicked:', optionBinding.option.optionId);
-
-    // Ensure the click is only processed once
-    if (optionBinding.option.selected) {
-      console.warn('[⚠️ Option already selected - skipping click handler]');
-      return;
+  
+    // If already selected, skip UI update but still emit to trigger feedback
+    const alreadySelected = optionBinding.option.selected;
+    if (alreadySelected) {
+      console.warn('[⚠️ Option already selected - skipping UI update but emitting for feedback]');
+    } else {
+      const simulatedEvent: MatRadioChange = {
+        source: {
+          value: optionBinding.option.optionId,
+          checked: true
+        } as unknown as MatRadioButton,
+        value: optionBinding.option.optionId,
+      };
+  
+      this.updateOptionAndUI(optionBinding, index, simulatedEvent);
     }
   
-    const simulatedEvent: MatRadioChange = {
-      source: {
-        value: optionBinding.option.optionId,
-        checked: true
-      } as unknown as MatRadioButton,
-      value: optionBinding.option.optionId,
-    };
-  
-    this.updateOptionAndUI(optionBinding, index, simulatedEvent);
-
+    // 🧠 Always emit — ensures feedback logic runs even if option was already selected
     this.optionClicked.emit({
       option: optionBinding.option as SelectedOption,
       index,
       checked: true
     });
-
+  
+    // 🔁 Optional: move finalizeAfterClick here if needed
     // this.quizQuestionComponent?.finalizeAfterClick(optionBinding.option as SelectedOption, index);
   }
-  
+
   handleChange(optionBinding: OptionBindings, index: number): void {
     console.log('[🖱️ handleChange] Option Clicked:', optionBinding.option.optionId);
   
