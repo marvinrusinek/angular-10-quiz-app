@@ -713,20 +713,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           value: optionBinding.option.optionId,
           checked: true
         } as unknown as MatRadioButton,
-        value: optionBinding.option.optionId,
+        value: optionBinding.option.optionId
       };
   
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
     }
   
-    // 🧠 Always emit — ensures feedback logic runs even if option was already selected
+    // Always emit — ensures feedback logic runs even if option was already selected
     this.optionClicked.emit({
       option: optionBinding.option as SelectedOption,
       index,
       checked: true
     });
   
-    // 🔁 Optional: move finalizeAfterClick here if needed
+    // Optional: move finalizeAfterClick here if needed
     // this.quizQuestionComponent?.finalizeAfterClick(optionBinding.option as SelectedOption, index);
   }
 
