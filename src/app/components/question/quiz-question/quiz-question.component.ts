@@ -1649,6 +1649,12 @@ export class QuizQuestionComponent
 
   async loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void> {
     try {  
+      console.log('[📥 loadDynamicComponent START]', {
+        question: question?.questionText,
+        optionsLength: options?.length,
+        currentIndex: this.currentQuestionIndex
+      });
+  
       // Guard –- missing question or options
       if (!question || !Array.isArray(options) || options.length === 0) {
         console.warn('[⚠️ Early return A] Missing question or options', {
@@ -1675,15 +1681,17 @@ export class QuizQuestionComponent
         isMultipleAnswer = await firstValueFrom(
           this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
         );
+        console.log('[🔎 isMultipleAnswer]', isMultipleAnswer);
       } catch (err) {
         console.error('[❌ isMultipleAnswerQuestion failed]', err);
         console.warn('[⚠️ Early return D] Failed to get isMultipleAnswer');
         return;
       }
   
+      console.log('[🧹 Clearing container]');
       this.dynamicAnswerContainer.clear();
       await Promise.resolve();
-    
+  
       const componentRef: ComponentRef<BaseQuestionComponent> =
         await this.dynamicComponentService.loadComponent(
           this.dynamicAnswerContainer, 
@@ -1694,14 +1702,19 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Early return E] loadComponent returned undefined');
         return;
       }
-
+  
       const instance = componentRef.instance;
       if (!instance) {
         console.warn('[⚠️ Early return F] ComponentRef has no instance');
         return;
       }
   
+      console.log('[🧪 Component instance created]', {
+        componentType: componentRef.componentType?.name ?? '[Unknown]',
+      });
+  
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
+      console.log('[📋 Options cloned]', clonedOptions);
   
       try {
         instance.question = { ...question };
@@ -1735,6 +1748,10 @@ export class QuizQuestionComponent
         ariaLabel: opt.text ?? `Option ${idx + 1}`
       }));
   
+      console.log('[🔗 Option bindings set]', {
+        count: instance.optionBindings.length
+      });
+  
       instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
         type: isMultipleAnswer ? 'multiple' : 'single',
@@ -1757,15 +1774,19 @@ export class QuizQuestionComponent
         feedback: '',
         idx: this.currentQuestionIndex
       };
-
+  
+      console.log('[🧠 SharedOptionConfig set]');
+  
       this.questionData = { ...instance.question, options: clonedOptions };
       this.sharedOptionConfig = instance.sharedOptionConfig;
       this.cdRef.markForCheck();
   
       await instance.initializeSharedOptionConfig?.(clonedOptions);
+      console.log('[✅ initializeSharedOptionConfig complete]');
   
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
+        console.log('[🔁 Bound onOptionClicked to instance]');
       }
   
       const isReady =
@@ -1777,7 +1798,8 @@ export class QuizQuestionComponent
   
       if (isReady) {
         this.shouldRenderOptions = true; 
-        this._canRenderFinalOptions = true;      
+        this._canRenderFinalOptions = true;   
+        console.log('[✅ Component is ready — options will be rendered]');
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
           optionBindings: instance.optionBindings?.length,
