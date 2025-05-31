@@ -1411,33 +1411,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       // Build missing feedback config
       if (isSelected && !this.feedbackConfigs[id]) {
+        const isCorrect = binding.option.correct === true;
+        const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+        const dynamicFeedback = isCorrect
+          ? `The correct answer is ${correctOptions[0]?.text ?? '[unknown]'}.`
+          : `The correct answer is ${correctOptions[0]?.text ?? '[unknown]'}.`;
+      
+        console.log('[🧪 Feedback Generation]', {
+          optionId: id,
+          isCorrect,
+          correctOptions: correctOptions.map(o => o.text),
+          dynamicFeedback
+        });
+      
         this.feedbackConfigs[id] = {
-          feedback: binding.option.feedback,
+          feedback: binding.option.feedback?.trim() || dynamicFeedback,
           showFeedback: true,
           options: this.optionsToDisplay,
           question: this.currentQuestion,
           selectedOption: binding.option,
-          correctMessage: binding.option.feedback ?? '',
-          idx: index,
+          correctMessage: dynamicFeedback,
+          idx: index
         };
-      }
+      }      
   
       // Refresh highlight for each option
       if (binding.directiveInstance) {
         binding.directiveInstance.paintNow?.();
       }
     });
-
-    this.feedbackConfigs[optionId] = {
-      ...this.feedbackConfigs[optionId],
-      feedback: optionBinding.option.feedback?.trim() || dynamicFeedback,
-      showFeedback: true,
-      options: this.optionsToDisplay,
-      question: this.currentQuestion,
-      selectedOption: optionBinding.option,
-      correctMessage: dynamicFeedback,
-      idx: index
-    };
   
     // Apply highlight and feedback for this specific option again
     this.applyHighlighting(optionBinding);
