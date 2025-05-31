@@ -2647,6 +2647,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Confirm feedback function is triggered
     const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
     console.log('[🚨 Feedback Fired]', { currentQuestionIndex });
+    this.lastFeedbackOptionMap[currentQuestionIndex] = optionId;
   
     // Set the last option selected (used to show only one feedback block)
     this.lastFeedbackOptionId = option.optionId;
