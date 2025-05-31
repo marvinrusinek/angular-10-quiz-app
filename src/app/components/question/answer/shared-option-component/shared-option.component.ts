@@ -1312,10 +1312,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         current: currentIndex
       });
     
-      this.feedbackConfigs = {};
+      /* this.feedbackConfigs = {};
       this.showFeedbackForOption = {};
-      this.lastFeedbackOptionId = -1;
+      this.lastFeedbackOptionId = -1; */
+      // Clear only feedback for current question index
+      delete this.feedbackConfigs[currentIndex];
+      delete this.showFeedbackForOption[currentIndex];
+      delete this.lastFeedbackOptionMap[currentIndex];
     
+      this.lastFeedbackOptionId = -1;
+
       setTimeout(() => {
         this.lastFeedbackQuestionIndex = currentIndex;
       });
