@@ -1439,10 +1439,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           dynamicFeedback
         });
 
-        const feedbackText = binding.option.feedback?.trim() || `The correct answer is ${binding.option.text}`;
+        const feedbackText = binding.option.feedback?.trim() || dynamicFeedback;
       
-        this.feedbackConfigs[optionId] = {
-          feedback: dynamicFeedback,
+        this.feedbackConfigs[id] = {
+          feedback: feedbackText,
           showFeedback: true,
           options: this.optionsToDisplay,
           question: this.currentQuestion,
