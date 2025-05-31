@@ -126,6 +126,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
+    console.log('[🔍 feedbackConfigs]', this.feedbackConfigs);
+    console.log('[🔍 showFeedbackForOption]', this.showFeedbackForOption);
+    console.log('[🔍 lastFeedbackOptionId]', this.lastFeedbackOptionId);
+    
+
     console.log('[✅ OnInit - SharedOptionComponent]');
     console.log(`[🔍 Initial optionsToDisplay]:`, this.optionsToDisplay);
     console.log(`[🔍 Initial optionBindings]:`, this.optionBindings);
@@ -1298,6 +1303,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    console.log('[🛠️ updateOptionAndUI START]', {
+      questionIndex: this.quizService.getCurrentQuestionIndex(),
+      optionId: optionBinding.option.optionId,
+    });
+    
     console.log("[🔥 updateOptionAndUI] Event received:", event);
   
     const optionId = optionBinding.option.optionId;
