@@ -1430,9 +1430,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       if (isSelected && !this.feedbackConfigs[id]) {
         const isCorrect = binding.option.correct === true;
         const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
-        const dynamicFeedback = isCorrect
-          ? `The correct answer is ${correctOptions[0]?.text ?? '[unknown]'}.`
-          : `The correct answer is ${correctOptions[0]?.text ?? '[unknown]'}.`;
+        const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
       
         console.log('[🧪 Feedback Generation]', {
           optionId: id,
