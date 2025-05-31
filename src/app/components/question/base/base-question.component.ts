@@ -135,7 +135,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
     try {
       this.dynamicAnswerContainer.clear();
-      this.loadDynamicComponent(this.question, this.optionsToDisplay);
+      this.loadDynamicComponent(this.question, this.optionsToDisplay, this.quizService.currentQuestionIndex);
       this.containerInitialized = true;
       this.cdRef.markForCheck();
     } catch (error) {
@@ -327,7 +327,11 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     });
   }
 
-  protected abstract loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void>;
+  protected abstract loadDynamicComponent(
+    question: QuizQuestion,
+    options: Option[],
+    questionIndex: number
+  ): Promise<void>;  
 
   public async onOptionClicked(event: { option: SelectedOption; index: number; checked: boolean }): Promise<void> {
     const { option, index, checked } = event;
