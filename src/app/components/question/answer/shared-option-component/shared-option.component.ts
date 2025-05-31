@@ -1341,6 +1341,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Apply selection state
     optionBinding.option.selected = checked;
+    console.log('[🧪 Q2 FEEDBACK CHECK]', {
+      optionId,
+      feedbackRaw: optionBinding.option.feedback,
+      questionIndex: this.quizService.currentQuestionIndex,
+      optionText: optionBinding.option.text
+    });
+    
     optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
@@ -1420,6 +1427,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         binding.directiveInstance.paintNow?.();
       }
     });
+
+    this.feedbackConfigs[optionId] = {
+      ...this.feedbackConfigs[optionId],
+      feedback: optionBinding.option.feedback?.trim() || dynamicFeedback,
+      showFeedback: true,
+      options: this.optionsToDisplay,
+      question: this.currentQuestion,
+      selectedOption: optionBinding.option,
+      correctMessage: dynamicFeedback,
+      idx: index
+    };
   
     // Apply highlight and feedback for this specific option again
     this.applyHighlighting(optionBinding);
