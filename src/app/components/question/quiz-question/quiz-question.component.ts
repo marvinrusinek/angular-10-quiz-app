@@ -1648,6 +1648,12 @@ export class QuizQuestionComponent
   }
 
   async loadDynamicComponent(question: QuizQuestion, options: Option[]): Promise<void> {
+    console.log('[📥 loadDynamicComponent START]', {
+      questionIndex: this.currentQuestionIndex,
+      question: question?.questionText,
+      optionsLength: options?.length,
+    });
+    
     try {  
       console.log('[📥 loadDynamicComponent START]', {
         question: question?.questionText,
@@ -1702,6 +1708,11 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Early return E] loadComponent returned undefined');
         return;
       }
+
+      console.log('[🧪 Component instance created]', {
+        componentType: componentRef?.instance?.constructor?.name,
+        index: this.currentQuestionIndex
+      });
   
       const instance = componentRef.instance;
       if (!instance) {
