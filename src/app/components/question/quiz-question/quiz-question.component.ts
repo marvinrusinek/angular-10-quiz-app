@@ -2484,6 +2484,12 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    console.log('[📥 onOptionClicked RECEIVED]', {
+      index: event.index,
+      optionId: event.option?.optionId,
+      currentQuestionIndex: this.currentQuestionIndex
+    });
+    
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');

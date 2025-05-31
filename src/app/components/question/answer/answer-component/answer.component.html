@@ -1,4 +1,10 @@
-<app-shared-option
+<!--<app-shared-option
+  [config]="sharedOptionConfig"
+  (optionClicked)="onOptionClicked($event)"
+></app-shared-option>-->
+<app-shared-option 
+  [optionBinding]="option"
   [config]="sharedOptionConfig"
   (optionClicked)="onOptionClicked($event)"
 ></app-shared-option>
+
