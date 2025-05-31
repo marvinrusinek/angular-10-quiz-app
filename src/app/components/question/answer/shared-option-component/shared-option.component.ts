@@ -1453,6 +1453,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Sync explanation and navigation state
     console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
+
+    console.log('[🧪 FINAL FEEDBACK CHECK Q2]', {
+      questionIndex: this.quizService.getCurrentQuestionIndex(),
+      feedbackConfigs: this.feedbackConfigs,
+      showFeedbackForOption: this.showFeedbackForOption,
+      lastFeedbackOptionId: this.lastFeedbackOptionId,
+      displayTarget: this.feedbackConfigs[this.lastFeedbackOptionId]?.feedback
+    });    
   
     // Final UI change detection
     this.cdRef.detectChanges();
