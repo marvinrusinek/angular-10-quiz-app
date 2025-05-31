@@ -1306,7 +1306,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
-      console.log('[♻️ Resetting feedback state for new question]', currentIndex);
+      console.log('[♻️ New question detected — clearing feedback state]', {
+        prev: this.lastFeedbackQuestionIndex,
+        current: currentIndex
+      });
     
       this.feedbackConfigs = {};
       this.showFeedbackForOption = {};
