@@ -77,6 +77,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
+  private lastFeedbackQuestionIndex = -1;
   lastFeedbackOptionId = -1;
   secondToLastFeedbackOptionId = -1;
   highlightedOptionIds: Set<number> = new Set();
@@ -1303,6 +1304,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    if (this.lastFeedbackQuestionIndex !== currentIndex) {
+      console.log('[♻️ Resetting feedback state for new question]', currentIndex);
+    
+      this.feedbackConfigs = {};
+      this.showFeedbackForOption = {};
+      this.lastFeedbackOptionId = -1;
+      this.lastFeedbackQuestionIndex = currentIndex;
+    }
+
     console.log('[🛠️ updateOptionAndUI START]', {
       questionIndex: this.quizService.getCurrentQuestionIndex(),
       optionId: optionBinding.option.optionId,
