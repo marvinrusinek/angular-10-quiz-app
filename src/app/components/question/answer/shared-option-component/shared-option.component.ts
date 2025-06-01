@@ -283,11 +283,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.handleQuestionChange(changes.currentQuestion);
     }
 
-    if (changes.optionsToDisplay) {
-      //this.initializeOptionBindings(); // resets optionBindings
+    if (changes.optionsToDisplay && incomingConfig?.optionsToDisplay?.length) {
+      console.log('[🔁 Regenerating optionBindings for new options]');
+      this.optionsToDisplay = [...incomingConfig.optionsToDisplay]; // ensure it's set
+      this.initializeOptionBindings(); // resets bindings
+      this.generateOptionBindings();   // builds new bindings
       this.initializeFeedbackBindings(); // resets feedback
-      // this.generateOptionBindings(); // fills optionBindings
-    }
+    }    
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
