@@ -255,9 +255,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const incomingConfig: SharedOptionConfig | undefined =
-      changes.config?.currentValue;
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
 
     console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
 
@@ -273,9 +272,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const questionChanged = incomingQText !== currentQText;
     const optsMissing = !this.optionsToDisplay?.length;
 
-    const allQuestions = this.quizService.getAllQuestions(); // however you retrieve them
+    let incomingIndex = -1;
     const incomingText = incomingConfig?.currentQuestion?.questionText?.trim();
-    const incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingText);
+
+    try {
+      const allQuestions = await firstValueFrom(this.quizService.getAllQuestions()); // ✅ unwrap Observable
+      incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingText);
+    } catch (err) {
+      console.warn('[❌ Failed to get all questions]', err);
+    }
 
     if (
       incomingConfig &&
@@ -299,7 +304,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.initializeOptionBindings(); // resets bindings
       this.generateOptionBindings();   // builds new bindings
       this.initializeFeedbackBindings(); // resets feedback
-    }    
+    }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
@@ -317,6 +322,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
   }
+
 
   ngAfterViewInit(): void {
     console.log('form value:', this.form.value);
