@@ -1393,15 +1393,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedbackForOption[optionId] = true;
     this.lastFeedbackOptionId = optionId;
 
-    console.log('[✅ Feedback Assigned]', {
-      questionIndex: currentIndex,
-      optionId,
-      feedback: dynamicFeedback,
-      showFeedbackForOption: this.showFeedbackForOption,
-      lastFeedbackOptionId: this.lastFeedbackOptionId,
-      feedbackConfig: this.feedbackConfigs[optionId]
-    });
-
     console.log('[🔍 optionId]', optionId);
     console.log('[🔍 optionBinding]', optionBinding);
   
@@ -1438,33 +1429,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       if (isSelected && !this.feedbackConfigs[id]) {
         const isCorrect = binding.option.correct === true;
         const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+        const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
       
-        const generatedFeedback = this.feedbackService.generateFeedbackForOptions(
-          correctOptions,
-          this.optionsToDisplay
-        );
-      
-        console.log('[✅ Feedback Generation]', {
-          questionIndex: this.quizService.getCurrentQuestionIndex(),
+        console.log('[🧪 Feedback Generation]', {
           optionId: id,
           isCorrect,
           correctOptions: correctOptions.map(o => o.text),
-          generatedFeedback
+          dynamicFeedback
         });
+
+        const feedbackText = binding.option.feedback?.trim() || dynamicFeedback;
       
         this.feedbackConfigs[id] = {
-          feedback: generatedFeedback,
+          feedback: feedbackText,
           showFeedback: true,
           options: this.optionsToDisplay,
           question: this.currentQuestion,
-          selectedOption: binding.option,
-          correctMessage: generatedFeedback,
+          selectedOption: optionBinding.option,
+          correctMessage: dynamicFeedback,
           idx: index
         };
-      
-        this.showFeedbackForOption[id] = true;
-        this.lastFeedbackOptionId = id;
-      }
+      }      
   
       // Refresh highlight for each option
       if (binding.directiveInstance) {
