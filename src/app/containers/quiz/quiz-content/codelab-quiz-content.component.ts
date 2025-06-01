@@ -260,7 +260,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       distinctUntilChanged()
     );        
   } */
-  private getCombinedDisplayTextStream(): void {
+  /* private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -282,6 +282,30 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     );
+  } */
+  private getCombinedDisplayTextStream(): void {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$,
+      this.explanationTextService.shouldDisplayExplanation$ // 👈 Add this
+    ]).pipe(
+      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
+        const explanation = explanationText?.trim();
+        const question = questionText;
+        const showExplanation = state.mode === 'explanation' && !!explanation && shouldDisplayExplanation;
+    
+        if (showExplanation) {
+          return explanation;
+        }
+    
+        return correctText?.trim()
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
+      }),
+      distinctUntilChanged()
+    );    
   }
 
   private emitContentAvailableState(): void {
