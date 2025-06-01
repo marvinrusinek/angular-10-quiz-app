@@ -1305,6 +1305,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    console.log('[🚨 updateOptionAndUI triggered]', {
+      questionIndex: this.quizService.getCurrentQuestionIndex(),
+      option: optionBinding.option
+    });
+    
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
       console.log('[♻️ New question detected — clearing feedback state]', {
@@ -1429,6 +1434,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const isCorrect = binding.option.correct === true;
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+      console.log('[🧠 Dynamic Feedback Generated]', {
+        dynamicFeedback,
+        correctOptions: correctOptions.map(o => o.text),
+        currentIndex: currentIndex,
+        optionId
+      });      
 
       this.feedbackConfigs[optionId] = {
         feedback: dynamicFeedback,
