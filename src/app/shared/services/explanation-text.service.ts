@@ -350,18 +350,18 @@ export class ExplanationTextService {
     }
   }
 
-  setIsExplanationTextDisplayed(isDisplayed: boolean): void {
+  public setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
-  setShouldDisplayExplanation(shouldDisplay: boolean): void {
+  public setShouldDisplayExplanation(shouldDisplay: boolean): void {
     const current = this.shouldDisplayExplanationSource.getValue();
   
     if (current === shouldDisplay) return;
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
   
-  triggerExplanationEvaluation(): void {
+  public triggerExplanationEvaluation(): void {
     console.log('[📢 triggerExplanationEvaluation] Triggered');
   
     const currentExplanation = this.formattedExplanationSubject.getValue()?.trim();
