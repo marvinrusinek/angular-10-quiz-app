@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, firstValueFrom, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -322,7 +322,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
   }
-
 
   ngAfterViewInit(): void {
     console.log('form value:', this.form.value);
