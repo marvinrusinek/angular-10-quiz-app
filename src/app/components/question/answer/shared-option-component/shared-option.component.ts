@@ -259,6 +259,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const incomingConfig: SharedOptionConfig | undefined =
       changes.config?.currentValue;
 
+    console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
+
     if (incomingConfig) {
       const qTxt   = incomingConfig.currentQuestion?.questionText ?? '[–]';
       const optTxt = incomingConfig.optionsToDisplay?.map(o => o.text) ?? [];
@@ -271,7 +273,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const questionChanged = incomingQText !== currentQText;
     const optsMissing = !this.optionsToDisplay?.length;
 
-    if (incomingConfig && (configChanged || questionChanged || optsMissing)) {
+    const allQuestions = this.quizService.getAllQuestions(); // however you retrieve them
+    const incomingText = incomingConfig?.currentQuestion?.questionText?.trim();
+    const incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingText);
+
+    if (
+      incomingConfig &&
+      (configChanged || questionChanged || optsMissing) &&
+      incomingIndex === this.quizService.getCurrentQuestionIndex()
+    ) {
       console.log('[🔁 Reinit] Forcing reinit due to config / question / missing opts');
       this.currentQuestion = { ...incomingConfig.currentQuestion };
       this.initializeFromConfig();
