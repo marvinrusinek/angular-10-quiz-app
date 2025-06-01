@@ -1315,7 +1315,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.feedbackConfigs = {};
       this.showFeedbackForOption = {};
       this.lastFeedbackOptionId = -1;
-
       this.lastFeedbackQuestionIndex = currentIndex;
     } 
 
@@ -1426,6 +1425,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption[id] = isSelected;
   
       // Build missing feedback config
+      const optionId = optionBinding.option.optionId;
       const isCorrect = binding.option.correct === true;
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
