@@ -3721,6 +3721,7 @@ export class QuizQuestionComponent
   ): Promise<void> {
     if (shouldDisplay) {
       // Set the display flag first so UI binds update properly
+      this.explanationTextService.setResetComplete(true);
       this.explanationTextService.setShouldDisplayExplanation(true);
 
       // Lock to prevent accidental resets from other places
@@ -4117,6 +4118,7 @@ export class QuizQuestionComponent
         const explanationText = await this.getExplanationText(questionIndex);
 
         // Set and lock explanation to prevent accidental overrides
+        this.explanationTextService.setResetComplete(true);
         this.explanationTextService.setExplanationText(explanationText);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationTextService.lockExplanation();
@@ -4353,6 +4355,7 @@ export class QuizQuestionComponent
       // Update the explanation display properties
       this.explanationToDisplay = explanationText;
       this.explanationTextService.updateFormattedExplanation(explanationText);
+      this.explanationTextService.setResetComplete(true);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
       this.explanationToDisplayChange.emit(explanationText);
@@ -4387,6 +4390,7 @@ export class QuizQuestionComponent
     } finally {
       // Ensure these flags are always set, even if an error occurs
       if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setResetComplete(true);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationTextService.lockExplanation();
       }
