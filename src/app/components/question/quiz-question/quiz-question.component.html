@@ -2,7 +2,9 @@
   <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
 
     <!-- Dynamic component container -->
-    <div #dynamicAnswerContainer></div>
+    <div *ngIf="isContentAvailable$ | async">
+      <div #dynamicAnswerContainer></div>
+    </div>
 
     <!-- Loading spinner -->
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
