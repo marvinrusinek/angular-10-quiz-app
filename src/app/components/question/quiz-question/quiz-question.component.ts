@@ -321,21 +321,24 @@ export class QuizQuestionComponent
         this.currentQuestion$,
         this.currentQuestion$.pipe(
           switchMap((q) =>
-            this.quizService.getOptions(q?.index ?? 0)
+            this.quizService.getOptionsForQuestion(q?.index ?? 0)
           )
         )
       ]).pipe(
-        tap(([question, options]) => {
-          console.log('[🔍 Dynamic isContentAvailable$]', {
-            question,
-            options
-          });
-        }),
         map(([question, options]) => !!question && options.length > 0),
         distinctUntilChanged(),
         startWith(false)
       );
       
+      this.isContentAvailable$.subscribe((isAvailable) => {
+        if (isAvailable && !this.containerInitialized) {
+          console.log('[✅ Content available. Loading dynamic component]');
+          this.loadDynamicComponent(); // your existing method
+          this.containerInitialized = true;
+        } else {
+          console.log('[⏳ Waiting for content to become available]');
+        }
+      });
 
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
