@@ -3337,7 +3337,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetQuestionState();
       this.resetQuestionDisplayState();
       this.explanationTextService.resetExplanationState();
-      this.explanationTextService.blockUntilReset();
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
 
@@ -3763,7 +3762,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectedOptionService.clearOptions();
   
     if (!this.explanationTextService.isExplanationLocked()) {
-      this.explanationTextService.blockUntilReset();
       this.explanationTextService.resetExplanationState();
     } else {
       console.log('[resetUI] 🛡️ Skipping explanation reset — lock is active.');
