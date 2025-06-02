@@ -144,7 +144,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.explanationText$.next('');
-    //this.displayStateSubject.next({ mode: 'question', answered: false });
+    
     this.getCombinedDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
@@ -237,40 +237,55 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.explanationText$,
       this.questionToDisplay$,
       this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.explanationTextService.resetComplete$
     ]).pipe(
       debounceTime(30),
-      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
+      map((
+        [state, explanationText, questionText, correctText, shouldDisplayExplanation, resetComplete]
+      ) => {
+        const question = questionText?.trim();
+        const explanation = explanationText?.trim();
+  
+        const showExplanation =
+          state.mode === 'explanation' &&
+          !!explanation &&
+          shouldDisplayExplanation &&
+          resetComplete;
+  
+        const showQuestion =
+          state.mode === 'question' &&
+          !!question;
+  
         console.log('[combinedText$ emission]', {
           mode: state.mode,
           shouldDisplayExplanation,
           explanationText,
           questionText,
-          correctText
-        });        
-  
-        const explanation = shouldDisplayExplanation ? explanationText?.trim() : '';
-        const question = questionText?.trim();
-  
-        const showExplanation =
-        state.mode === 'explanation' &&
-        shouldDisplayExplanation === true &&
-        !!explanation;
-        console.log('[🧪 Decision]', { showExplanation });
+          correctText,
+          resetComplete,
+          showExplanation,
+          showQuestion
+        });
   
         if (showExplanation) {
           console.log('[📢 Displaying EXPLANATION]');
           return explanation;
         }
   
-        console.log('[📢 Displaying QUESTION]');
-        return correctText?.trim()
-          ? `${question} <span class="correct-count">${correctText}</span>`
-          : question;
+        if (showQuestion) {
+          console.log('[📢 Displaying QUESTION]');
+          return correctText?.trim()
+            ? `${question} <span class="correct-count">${correctText}</span>`
+            : question;
+        }
+  
+        console.log('[❌ BLOCKED] Neither explanation nor question can be displayed yet');
+        return ''; // fallback to prevent flashing
       }),
       distinctUntilChanged()
     );
-  }  
+  }    
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
