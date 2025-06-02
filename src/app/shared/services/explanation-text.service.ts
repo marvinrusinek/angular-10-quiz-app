@@ -29,8 +29,8 @@ export class ExplanationTextService {
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
 
-  private resetComplete$ = new BehaviorSubject<boolean>(false);
-  public isResetComplete$ = this.resetComplete$.asObservable();
+  private isResetCompleteSubject = new BehaviorSubject<boolean>(false);
+  isResetComplete$ = this.isResetCompleteSubject.asObservable();
 
   shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
@@ -399,7 +399,7 @@ export class ExplanationTextService {
   resetExplanationText(): void {
     this.isExplanationDisplayedSource.next(false); // set to false when explanation is hidden
     this.explanationText$.next('');
-    this.resetComplete$.next(true);
+    this.isResetCompleteSubject.next(true);
   }
 
   resetStateBetweenQuestions(): void {
@@ -420,6 +420,6 @@ export class ExplanationTextService {
   } 
 
   public blockUntilReset(): void {
-    this.resetComplete$.next(false); // block emissions
+    this.isResetCompleteSubject.next(false); // block emissions
   }
 }
