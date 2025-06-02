@@ -46,7 +46,8 @@ export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
-  private vcRef!: ViewContainerRef;
+  dynamicAnswerContainer!: ViewContainerRef;
+  // private vcRef!: ViewContainerRef;
   @Output() answer = new EventEmitter<number>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
@@ -335,7 +336,7 @@ export class QuizQuestionComponent
           this.loadDynamicComponent(currentQuestion, options, index);
           this.containerInitialized = true;
         }
-      });        
+      });
 
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
@@ -418,25 +419,27 @@ export class QuizQuestionComponent
   async ngAfterViewInit(): Promise<void> {
     console.log('[🔄 ngAfterViewInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngAfterViewInit] optionsToDisplay:', this.optionsToDisplay);
-    super.ngAfterViewInit ? super.ngAfterViewInit() : null;
+    super.ngAfterViewInit?.();
+  
     console.log('[🔄 ngAfterViewInit] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
-
+  
     this.containerReady.next();
     this.containerReady.complete();
-
-    this._ready.next(this.vcRef);
+  
+    this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
-
+  
+    // Hydrate from payload
     this.payloadSubject
       .pipe(
-        filter((payload): payload is QuestionPayload => !!payload), // strong type guard
+        filter((payload): payload is QuestionPayload => !!payload),
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
       )
       .subscribe((payload: QuestionPayload) => {
         if (this.hydrationInProgress) return;
         this.renderReady = false;
         this.hydrationInProgress = true;
-
+  
         setTimeout(() => {
           requestAnimationFrame(() => {
             const { question, options, explanation } = payload;
@@ -444,40 +447,59 @@ export class QuizQuestionComponent
             this.explanationToDisplay = explanation?.trim() || '';
             this.optionsToDisplay = [...options];
             this.cdRef.detectChanges();
-        
+  
             requestAnimationFrame(() => {
               this.renderReady = true;
               this.hydrationInProgress = false;
               this.cdRef.detectChanges();
             });
           });
-        }, 0);      
+        }, 0);
       });
-
-
+  
     const index = this.currentQuestionIndex;
-
+  
     // Wait until questions are available
     if (!this.questionsArray || this.questionsArray.length <= index) {
       setTimeout(() => this.ngAfterViewInit(), 50); // retry after a short delay
       return;
     }
-
+  
     const question = this.questionsArray[index];
-
+  
     if (question) {
       this.quizService.setCurrentQuestion(question);
       this.loadOptionsForQuestion(question);
-
+  
       setTimeout(() => {
-        const explanationText =
-          question.explanation || 'No explanation available';
+        const explanationText = question.explanation || 'No explanation available';
         this.updateExplanationUI(index, explanationText);
       }, 50);
     } else {
       console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
     }
-  }
+  
+    // 🔄 Load dynamic component when content is available and container is ready
+    this.isContentAvailable$
+      .pipe(distinctUntilChanged())
+      .subscribe((isAvailable) => {
+        if (isAvailable && !this.containerInitialized) {
+          // Ensure view has initialized
+          setTimeout(() => {
+            if (this.dynamicAnswerContainer) {
+              const currentQuestion = this.currentQuestion;
+              const options = this.optionsToDisplay;
+              const currentIndex = this.currentQuestionIndex;
+  
+              this.loadDynamicComponent(currentQuestion, options, currentIndex);
+              this.containerInitialized = true;
+            } else {
+              console.warn('[⚠️ dynamicAnswerContainer not available]');
+            }
+          });
+        }
+      });
+  }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.log('[🔄 ngOnChanges] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
