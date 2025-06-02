@@ -267,7 +267,14 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
           showExplanation,
           showQuestion
         });
-  
+
+        console.log('[🧪 Debug Flags]', {
+          mode: state.mode,
+          explanationExists: !!explanation,
+          shouldDisplayExplanation,
+          resetComplete
+        });
+          
         if (showExplanation) {
           console.log('[📢 Displaying EXPLANATION]');
           return explanation;
