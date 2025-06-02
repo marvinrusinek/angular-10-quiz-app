@@ -143,6 +143,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       });
     
     this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.explanationText$.next('');
     this.getCombinedDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
@@ -241,11 +242,11 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
         const explanation = explanationText?.trim() ?? '';
         const question = questionText?.trim() ?? '';
+
+        if (!question) return '';
+
         const showExplanation = 
-          state.mode === 'explanation' && 
-          shouldDisplayExplanation && 
-          explanation.length > 0 && 
-          !!explanation;
+          state.mode === 'explanation' && !!explanation && shouldDisplayExplanation;
     
         if (showExplanation) {
           return explanation;

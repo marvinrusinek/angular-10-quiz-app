@@ -3377,6 +3377,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       /* ───────────────────  Process question text  ──────────── */
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.explanationText$.next('');
+      
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.questionToDisplay$.next(trimmedText);
