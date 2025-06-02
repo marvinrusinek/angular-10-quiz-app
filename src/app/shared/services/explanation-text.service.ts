@@ -35,8 +35,8 @@ export class ExplanationTextService {
   private explanationTrigger = new Subject<void>();
   explanationTrigger$ = this.explanationTrigger.asObservable();
 
-  private resetCompleteSource = new BehaviorSubject<boolean>(false);
-  resetComplete$ = this.resetCompleteSource.asObservable();
+  private resetCompleteSubject = new BehaviorSubject<boolean>(false);
+  resetComplete$ = this.resetCompleteSubject.asObservable();
 
   processedQuestions: Set<string> = new Set<string>();
   currentQuestionExplanation: string | null = null;
@@ -419,6 +419,6 @@ export class ExplanationTextService {
   }
 
   setResetComplete(value: boolean): void {
-    this.resetCompleteSource.next(value);
+    this.resetCompleteSubject.next(value);
   }
 }
