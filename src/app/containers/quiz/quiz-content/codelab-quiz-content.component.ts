@@ -240,25 +240,33 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ]).pipe(
       debounceTime(30),
       map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
-        const explanation = explanationText?.trim() ?? '';
-        const question = questionText?.trim() ?? '';
-
-        if (!question) return '';
-
-        const showExplanation = 
-          state.mode === 'explanation' && !!explanation && shouldDisplayExplanation;
-    
+        console.log('[🧪 combinedText$ inputs]', {
+          mode: state.mode,
+          explanationText,
+          questionText,
+          correctText,
+          shouldDisplayExplanation
+        });
+  
+        const explanation = explanationText?.trim();
+        const question = questionText?.trim();
+  
+        const showExplanation = state.mode === 'explanation' && !!explanation && shouldDisplayExplanation;
+        console.log('[🧪 Decision]', { showExplanation });
+  
         if (showExplanation) {
+          console.log('[📢 Displaying EXPLANATION]');
           return explanation;
         }
-    
+  
+        console.log('[📢 Displaying QUESTION]');
         return correctText?.trim()
           ? `${question} <span class="correct-count">${correctText}</span>`
           : question;
       }),
       distinctUntilChanged()
-    );       
-  }
+    );
+  }  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
