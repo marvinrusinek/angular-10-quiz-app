@@ -409,6 +409,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.progressPercentage.next(progressValue);
     });
     this.progressBarService.setProgress(0);
+
+    combineLatest([
+      this.quizService.currentQuestionIndex$, // emits on navigation
+      this.quizService.getTotalQuestionsCount()
+    ]).subscribe(([index, total]) => {
+      this.currentQuestionIndex = index;
+      const progress = total > 0 ? (index / total) * 100 : 0;
+      this.progressBarService.setProgress(progress);
+    });
   
     // Answer state and navigation setup
     this.subscribeToOptionSelection();
