@@ -144,6 +144,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.explanationText$.next('');
+    //this.displayStateSubject.next({ mode: 'question', answered: false });
     this.getCombinedDisplayTextStream();
 
     /* this.isContentAvailable$ = combineLatest([
@@ -240,15 +241,15 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     ]).pipe(
       debounceTime(30),
       map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
-        console.log('[🧪 combinedText$ inputs]', {
+        console.log('[combinedText$ emission]', {
           mode: state.mode,
+          shouldDisplayExplanation,
           explanationText,
           questionText,
           correctText,
-          shouldDisplayExplanation
-        });
+        });        
   
-        const explanation = explanationText?.trim();
+        const explanation = shouldDisplayExplanation ? explanationText?.trim() : '';
         const question = questionText?.trim();
   
         const showExplanation =
