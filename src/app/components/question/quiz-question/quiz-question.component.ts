@@ -319,11 +319,7 @@ export class QuizQuestionComponent
 
       this.isContentAvailable$ = combineLatest([
         this.currentQuestion$,
-        this.currentQuestion$.pipe(
-          switchMap((q) =>
-            this.quizService.getOptionsForQuestion(q?.index ?? 0)
-          )
-        )
+        this.quizService.options$
       ]).pipe(
         map(([question, options]) => !!question && options.length > 0),
         distinctUntilChanged(),
@@ -332,13 +328,14 @@ export class QuizQuestionComponent
       
       this.isContentAvailable$.subscribe((isAvailable) => {
         if (isAvailable && !this.containerInitialized) {
-          console.log('[✅ Content available. Loading dynamic component]');
-          this.loadDynamicComponent(); // your existing method
+          const currentQuestion = this.currentQuestion;
+          const currentOptions = this.quizService.optionsSubject.getValue();
+          const index = this.currentQuestionIndex;
+      
+          this.loadDynamicComponent(currentQuestion, currentOptions, index);
           this.containerInitialized = true;
-        } else {
-          console.log('[⏳ Waiting for content to become available]');
         }
-      });
+      });        
 
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
