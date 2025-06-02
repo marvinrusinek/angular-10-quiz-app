@@ -2598,6 +2598,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Only allow disabling if explanation is not locked
       if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.setResetComplete(false);
         this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
       } else {
@@ -3377,6 +3378,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       /* ───────────────────  Process question text  ──────────── */
+      this.explanationTextService.setResetComplete(false);
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
       
@@ -3814,6 +3816,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizService.updateBadgeText(1, this.totalQuestions);
   
           // Reset explanation state
+          this.explanationTextService.setResetComplete(false);
           this.explanationTextService.resetExplanationText();
           this.explanationTextService.unlockExplanation();
           this.explanationTextService.setShouldDisplayExplanation(false);
