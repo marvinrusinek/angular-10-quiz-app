@@ -329,10 +329,10 @@ export class QuizQuestionComponent
       this.isContentAvailable$.subscribe((isAvailable) => {
         if (isAvailable && !this.containerInitialized) {
           const currentQuestion = this.currentQuestion;
-          const currentOptions = this.quizService.optionsSubject.getValue();
+          const options = this.optionsToDisplay;
           const index = this.currentQuestionIndex;
       
-          this.loadDynamicComponent(currentQuestion, currentOptions, index);
+          this.loadDynamicComponent(currentQuestion, options, index);
           this.containerInitialized = true;
         }
       });        
