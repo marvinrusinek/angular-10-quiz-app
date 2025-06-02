@@ -1350,6 +1350,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Check and set explanation display for the first question if needed
         const firstQuestionState = storedStates.get(0);
         if (firstQuestionState && firstQuestionState.isAnswered) {
+          this.explanationTextService.setResetComplete(true);
           this.explanationTextService.setShouldDisplayExplanation(true);
         }
       } else {
@@ -2589,6 +2590,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       // Always lock and enable explanation AFTER setting the text
+      this.explanationTextService.setResetComplete(true);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
       this.showExplanation = true;
@@ -3834,6 +3836,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             );
   
             // Now allow explanation to display
+            this.explanationTextService.setResetComplete(true);
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.lockExplanation();
             setTimeout(() => {
@@ -3863,6 +3866,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         : 'No explanation available';
   
       if (explanation && explanation.trim()) {
+        this.explanationTextService.setResetComplete(true);
         this.explanationTextService.setExplanationText(explanation);
         this.explanationTextService.setShouldDisplayExplanation(true);
         this.explanationTextService.lockExplanation();

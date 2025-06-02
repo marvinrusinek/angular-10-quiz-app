@@ -237,40 +237,40 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.explanationText$,
       this.questionToDisplay$,
       this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.explanationTextService.resetComplete$
     ]).pipe(
       debounceTime(30),
-      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
-        console.log('[combinedText$ emission]', {
-          mode: state.mode,
-          shouldDisplayExplanation,
-          explanationText,
-          questionText,
-          correctText
-        });        
-  
-        const explanation = shouldDisplayExplanation ? explanationText?.trim() : '';
+      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, resetComplete]) => {
+        const explanation = explanationText?.trim();
         const question = questionText?.trim();
   
         const showExplanation =
-        state.mode === 'explanation' &&
-        shouldDisplayExplanation === true &&
-        !!explanation;
-        console.log('[🧪 Decision]', { showExplanation });
+          state.mode === 'explanation' &&
+          !!explanation &&
+          shouldDisplayExplanation &&
+          resetComplete;
+  
+        console.log('[🧪 Debug Flags]', {
+          mode: state.mode,
+          explanationExists: !!explanation,
+          shouldDisplayExplanation,
+          resetComplete,
+          showExplanation
+        });
   
         if (showExplanation) {
-          console.log('[📢 Displaying EXPLANATION]');
           return explanation;
         }
   
-        console.log('[📢 Displaying QUESTION]');
         return correctText?.trim()
           ? `${question} <span class="correct-count">${correctText}</span>`
           : question;
       }),
       distinctUntilChanged()
     );
-  }  
+  }
+  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
