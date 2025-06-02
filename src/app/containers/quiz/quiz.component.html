@@ -140,9 +140,9 @@
           type="success"
           [striped]="true"
           [animated]="true"
-          [value]="progressPercentage | async"
+          [value]="progress$ | async"
         >
-          <strong>{{ (progressPercentage | async)?.toFixed(0) }}%</strong>
+          <strong>{{ (progress$ | async)?.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
