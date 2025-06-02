@@ -3729,6 +3729,7 @@ export class QuizQuestionComponent
       // Only reset if explanation is not locked (to avoid override)
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.setExplanationText(''); // clear stored explanation
+        this.explanationTextService.setResetComplete(false);
         this.explanationTextService.setShouldDisplayExplanation(false); // signal no explanation should show
         this.explanationToDisplay = ''; // clear internal reference
         this.explanationToDisplayChange.emit(''); // emit cleared state
@@ -3797,6 +3798,7 @@ export class QuizQuestionComponent
     this.explanationToDisplayChange.emit('');
     this.explanationTextService.explanationText$.next('');
     this.explanationTextService.updateFormattedExplanation('');
+    this.explanationTextService.setResetComplete(false);
     this.explanationTextService.unlockExplanation();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.showExplanationChange.emit(false);
@@ -4135,6 +4137,7 @@ export class QuizQuestionComponent
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.setExplanationText(''); // also clear stored explanation
         this.explanationTextService.setShouldDisplayExplanation(false);
+        this.explanationTextService.setResetComplete(false);
       } else {
         console.warn(
           '[handleQuestionData] 🛡️ Explanation locked — skipping clear.'
@@ -4407,6 +4410,7 @@ export class QuizQuestionComponent
     // Only disable explanation display flag if it's not locked
     if (!this.explanationTextService.isExplanationLocked()) {
       this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setResetComplete(false);
     } else {
       console.log(
         '[🛡️ resetExplanation] Blocked explanation reset — lock is active.'
