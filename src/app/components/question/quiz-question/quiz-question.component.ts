@@ -2,8 +2,8 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -178,6 +178,7 @@ export class QuizQuestionComponent
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
   shouldDisplayExplanation = false;
+  isContentAvailable$: Observable<boolean>;
   private isRestoringState = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
@@ -315,6 +316,26 @@ export class QuizQuestionComponent
 
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
+
+      this.isContentAvailable$ = combineLatest([
+        this.currentQuestion$,
+        this.currentQuestion$.pipe(
+          switchMap((q) =>
+            this.quizService.getOptions(q?.index ?? 0)
+          )
+        )
+      ]).pipe(
+        tap(([question, options]) => {
+          console.log('[🔍 Dynamic isContentAvailable$]', {
+            question,
+            options
+          });
+        }),
+        map(([question, options]) => !!question && options.length > 0),
+        distinctUntilChanged(),
+        startWith(false)
+      );
+      
 
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
