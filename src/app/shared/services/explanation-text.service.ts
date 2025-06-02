@@ -418,4 +418,8 @@ export class ExplanationTextService {
   resetProcessedQuestionsState(): void {
     this.processedQuestions = new Set<string>();
   } 
+
+  public blockUntilReset(): void {
+    this.resetComplete$.next(false); // block emissions
+  }
 }
