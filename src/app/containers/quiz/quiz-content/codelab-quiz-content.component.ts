@@ -237,10 +237,16 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.explanationText$,
       this.questionToDisplay$,
       this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.explanationTextService.resetComplete$
     ]).pipe(
       debounceTime(30),
-      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
+      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, resetComplete]) => {
+        if (!resetComplete) {
+          console.log('[❌ BLOCKED] Reset not complete');
+          return ''; // Show nothing until safe to render
+        }
+        
         console.log('[combinedText$ emission]', {
           mode: state.mode,
           shouldDisplayExplanation,
