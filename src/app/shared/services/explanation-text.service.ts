@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -394,8 +394,8 @@ export class ExplanationTextService {
   }
 
   resetExplanationText(): void {
+    // this.explanationText$.next('');
     this.isExplanationDisplayedSource.next(false); // set to false when explanation is hidden
-    this.explanationText$.next('');
   }
 
   resetStateBetweenQuestions(): void {
