@@ -35,6 +35,9 @@ export class ExplanationTextService {
   private explanationTrigger = new Subject<void>();
   explanationTrigger$ = this.explanationTrigger.asObservable();
 
+  private resetCompleteSource = new BehaviorSubject<boolean>(false);
+  resetComplete$ = this.resetCompleteSource.asObservable();
+
   processedQuestions: Set<string> = new Set<string>();
   currentQuestionExplanation: string | null = null;
   latestExplanation = '';
@@ -413,5 +416,9 @@ export class ExplanationTextService {
 
   resetProcessedQuestionsState(): void {
     this.processedQuestions = new Set<string>();
-  } 
+  }
+
+  setResetComplete(value: boolean): void {
+    this.resetCompleteSource.next(value);
+  }
 }
