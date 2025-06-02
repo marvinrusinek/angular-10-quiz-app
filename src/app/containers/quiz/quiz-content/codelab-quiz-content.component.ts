@@ -237,62 +237,40 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       this.explanationTextService.explanationText$,
       this.questionToDisplay$,
       this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.explanationTextService.resetComplete$
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       debounceTime(30),
-      map((
-        [state, explanationText, questionText, correctText, shouldDisplayExplanation, resetComplete]
-      ) => {
-        const question = questionText?.trim();
-        const explanation = explanationText?.trim();
-  
-        const showExplanation =
-          state.mode === 'explanation' &&
-          !!explanation &&
-          shouldDisplayExplanation &&
-          resetComplete;
-  
-        const showQuestion =
-          state.mode === 'question' &&
-          !!question;
-  
+      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
         console.log('[combinedText$ emission]', {
           mode: state.mode,
           shouldDisplayExplanation,
           explanationText,
           questionText,
-          correctText,
-          resetComplete,
-          showExplanation,
-          showQuestion
-        });
-
-        console.log('[🧪 Debug Flags]', {
-          mode: state.mode,
-          explanationExists: !!explanation,
-          shouldDisplayExplanation,
-          resetComplete
-        });
-          
+          correctText
+        });        
+  
+        const explanation = shouldDisplayExplanation ? explanationText?.trim() : '';
+        const question = questionText?.trim();
+  
+        const showExplanation =
+        state.mode === 'explanation' &&
+        shouldDisplayExplanation === true &&
+        !!explanation;
+        console.log('[🧪 Decision]', { showExplanation });
+  
         if (showExplanation) {
           console.log('[📢 Displaying EXPLANATION]');
           return explanation;
         }
   
-        if (showQuestion) {
-          console.log('[📢 Displaying QUESTION]');
-          return correctText?.trim()
-            ? `${question} <span class="correct-count">${correctText}</span>`
-            : question;
-        }
-  
-        console.log('[❌ BLOCKED] Neither explanation nor question can be displayed yet');
-        return ''; // fallback to prevent flashing
+        console.log('[📢 Displaying QUESTION]');
+        return correctText?.trim()
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
       }),
       distinctUntilChanged()
     );
-  }    
+  }  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
