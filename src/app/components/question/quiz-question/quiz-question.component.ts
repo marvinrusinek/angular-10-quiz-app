@@ -318,26 +318,6 @@ export class QuizQuestionComponent
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
 
-      this.isContentAvailable$ = combineLatest([
-        this.currentQuestion$,
-        this.quizService.options$
-      ]).pipe(
-        map(([question, options]) => !!question && options.length > 0),
-        distinctUntilChanged(),
-        startWith(false)
-      );
-      
-      this.isContentAvailable$.subscribe((isAvailable) => {
-        if (isAvailable && !this.containerInitialized) {
-          const currentQuestion = this.currentQuestion;
-          const options = this.optionsToDisplay;
-          const index = this.currentQuestionIndex;
-      
-          this.loadDynamicComponent(currentQuestion, options, index);
-          this.containerInitialized = true;
-        }
-      });
-
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
         auditTime(30), // batch rapid changes
