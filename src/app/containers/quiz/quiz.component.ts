@@ -1554,6 +1554,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Set the current index and badge (only now that it's confirmed valid)
       this.currentQuestionIndex = questionIndex;
       this.quizService.setCurrentQuestionIndex(questionIndex);
+
+      this.timerService.resetTimer();
+      this.timerService.startTimer();
       this.quizService.updateBadgeText(questionIndex + 1, this.quiz.questions.length);
   
       this.resetFeedbackState();
