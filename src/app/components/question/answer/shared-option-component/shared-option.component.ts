@@ -1413,9 +1413,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Update showFeedback flag for current option
     this.showFeedbackForOption[optionId] = true;
     this.lastFeedbackOptionId = optionId;
-
-    console.log('[🔍 optionId]', optionId);
-    console.log('[🔍 optionBinding]', optionBinding);
   
     // Build feedback config for current option
     this.feedbackConfigs = {
