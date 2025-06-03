@@ -638,7 +638,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         isCorrect,
         showFeedback: false,
         feedback: option.feedback ?? 'No feedback available',
-        showFeedbackForOption: false,
+        showFeedbackForOption: { [idx]: false },
         highlightCorrectAfterIncorrect: false,
         highlightIncorrect: isSelected && !isCorrect,
         highlightCorrect: isSelected && isCorrect,
