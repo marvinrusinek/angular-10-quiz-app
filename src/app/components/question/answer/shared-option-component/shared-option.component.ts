@@ -653,7 +653,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         appResetBackground: false,
         optionsToDisplay: [...this.optionsToDisplay],
         checked: isSelected,
-        change: () => {}
+        change: () => {},
+        active: true
       };
     });        
   
