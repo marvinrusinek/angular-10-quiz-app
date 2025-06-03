@@ -3046,10 +3046,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateHighlighting();
   
     setTimeout(() => {
-      this.cdRef.detectChanges();
-    }, 0);
-  
-    setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
         console.log('[🟢 optionsReady = true]');
