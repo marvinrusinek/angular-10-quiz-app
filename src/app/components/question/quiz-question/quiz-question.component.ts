@@ -397,11 +397,7 @@ export class QuizQuestionComponent
     }, 50);
   } */
   async ngAfterViewInit(): Promise<void> {
-    console.log('[🔄 ngAfterViewInit] optionBindings:', this.optionBindings);
-    console.log('[🔄 ngAfterViewInit] optionsToDisplay:', this.optionsToDisplay);
     super.ngAfterViewInit?.();
-  
-    console.log('[🔄 ngAfterViewInit] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
   
     this.containerReady.next();
     this.containerReady.complete();
