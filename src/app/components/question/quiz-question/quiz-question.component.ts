@@ -2544,12 +2544,6 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
-    console.log('[📥 onOptionClicked RECEIVED]', {
-      index: event.index,
-      optionId: event.option?.optionId,
-      currentQuestionIndex: this.currentQuestionIndex
-    });
-    
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
@@ -2557,7 +2551,6 @@ export class QuizQuestionComponent
     }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    console.log('[🔒 lockedIndex]:', lockedIndex);
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
     try {
@@ -2565,6 +2558,7 @@ export class QuizQuestionComponent
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
+
 
       // Selection Message Update Logic
       const options = this.optionsToDisplay ?? [];
@@ -2581,11 +2575,9 @@ export class QuizQuestionComponent
           true
         );
         this.selectionMessageService.updateSelectionMessage(msg);
-        console.log('[✅ All correct selected — showing "Next" message]');
       } else {
         const msg = this.selectionMessageService.getRemainingAnswersMessage(options);
         this.selectionMessageService.updateSelectionMessage(msg);
-        console.log('[ℹ️ Still waiting for correct selections — updated remaining message]');
       }
 
   
@@ -2593,26 +2585,21 @@ export class QuizQuestionComponent
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
       this.nextButtonStateService.syncNextButtonState();
-      console.log('[✅ Next button state synced — should now be enabled]');
   
       // Display state toggle
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Delay explanation emission to avoid flickering
       setTimeout(async () => {
-        console.log(`[🔄 Delayed explanation fetch for Q${lockedIndex}]`);
         const explanationText = await this.updateExplanationText(lockedIndex);
-        console.log(`[✅ Explanation fetched for Q${lockedIndex}]:`, explanationText);
         this.explanationTextService.emitExplanationIfNeeded(explanationText);
-        console.log('[✅ Explanation emitted after feedback + UI sync]');
   
         this.cdRef.detectChanges();
-      }, 100); // Allow CD + UI feedback rendering before explanation
+      }, 100); // allow CD + UI feedback rendering before explanation
 
       console.log('[🎯 QQC.onOptionClicked]', event);
 
       // Insert this to activate feedback for the selected option
-      // await this.handleOptionProcessingAndFeedback(option, event.index, event.checked);
       await this.processSelectedOption(option, event.index, event.checked);
 
       await this.finalizeAfterClick(event.option, event.index);
