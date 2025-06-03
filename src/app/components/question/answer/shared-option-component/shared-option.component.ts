@@ -1416,6 +1416,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };    
     console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
     console.log('[🧪 Final feedbackConfigs]', JSON.stringify(this.feedbackConfigs, null, 2));
+
+    this.forceHighlightRefresh(optionId);
   
     // Iterate through ALL optionBindings and sync selected state + feedback
     this.optionBindings.forEach((binding) => {
