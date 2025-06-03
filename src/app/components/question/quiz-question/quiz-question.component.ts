@@ -375,27 +375,6 @@ export class QuizQuestionComponent
     }
   }
 
-  /* async ngAfterViewInit(): Promise<void> {
-    super.ngAfterViewInit ? super.ngAfterViewInit() : null;
-
-    const index = this.currentQuestionIndex;
-    const question = this.questionsArray[index];
-
-    if (question) {
-      this.quizService.setCurrentQuestion(question);
-      this.loadOptionsForQuestion(question);
-    } else {
-      console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
-      return;
-    }
-
-    setTimeout(() => {
-      const explanationText = question.explanation || 'No explanation available';
-      if (this.questionsArray && this.questionsArray.length > 0) {
-        this.updateExplanationUI(index, explanationText);
-      }
-    }, 50);
-  } */
   async ngAfterViewInit(): Promise<void> {
     super.ngAfterViewInit?.();
   
@@ -455,7 +434,7 @@ export class QuizQuestionComponent
       console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
     }
   
-    // 🔄 Load dynamic component when content is available and container is ready
+    // Load dynamic component when content is available and container is ready
     this.isContentAvailable$
       .pipe(distinctUntilChanged())
       .subscribe((isAvailable) => {
