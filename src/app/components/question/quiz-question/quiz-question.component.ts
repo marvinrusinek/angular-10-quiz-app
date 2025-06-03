@@ -2534,27 +2534,8 @@ export class QuizQuestionComponent
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
 
-
       // Selection Message Update Logic
-      const options = this.optionsToDisplay ?? [];
-      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
-        options,
-        this.currentQuestionIndex
-      );
-
-      if (allCorrectSelected) {
-        this.selectedOptionService.setAnswered(true, true);
-        const msg = this.selectionMessageService.determineSelectionMessage(
-          this.currentQuestionIndex,
-          this.totalQuestions,
-          true
-        );
-        this.selectionMessageService.updateSelectionMessage(msg);
-      } else {
-        const msg = this.selectionMessageService.getRemainingAnswersMessage(options);
-        this.selectionMessageService.updateSelectionMessage(msg);
-      }
-
+      this.handleSelectionMessageUpdate();
   
       // Set answered and sync next button (do not gate by correctness!)
       this.selectedOptionService.setAnswered(true, true);
@@ -2652,6 +2633,27 @@ export class QuizQuestionComponent
     // Ensure change detection
     this.cdRef.detectChanges();
     console.log(`[✅ CD Applied after Feedback for Option ${option.optionId}]`);
+  }
+
+  handleSelectionMessageUpdate(): void {
+    const options = this.optionsToDisplay ?? [];
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+      options,
+      this.currentQuestionIndex
+    );
+
+    if (allCorrectSelected) {
+      this.selectedOptionService.setAnswered(true, true);
+      const msg = this.selectionMessageService.determineSelectionMessage(
+        this.currentQuestionIndex,
+        this.totalQuestions,
+        true
+      );
+      this.selectionMessageService.updateSelectionMessage(msg);
+    } else {
+      const msg = this.selectionMessageService.getRemainingAnswersMessage(options);
+      this.selectionMessageService.updateSelectionMessage(msg);
+    }
   }
   
   public finalizeAfterClick(option: SelectedOption, index: number): void {
