@@ -1006,6 +1006,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedback: optionBinding.showFeedback,
       showFeedbackForOption: optionBinding.showFeedbackForOption,
       highlightCorrectAfterIncorrect: optionBinding.highlightCorrectAfterIncorrect,
+      highlightIncorrect: optionBinding.highlightIncorrect,
+      highlightCorrect: optionBinding.highlightCorrect,
       type: optionBinding.type,
       checked: optionBinding.isSelected,
       disabled: optionBinding.disabled,
@@ -1016,7 +1018,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       allOptions: optionBinding.allOptions,
       appHighlightInputType: optionBinding.appHighlightInputType,
       appHighlightReset: optionBinding.appHighlightReset,
-      appResetBackground: optionBinding.appResetBackground
+      appResetBackground: optionBinding.appResetBackground,
+      index: optionBinding.index
     };
   }
 
