@@ -1668,12 +1668,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
     }
   
-    // === Step 3: Apply Feedback ===
-    if (this.quizQuestionComponent) {
-      console.log(`[📝 Applying Feedback for Option ${selectedOption.optionId}]`);
-      this.quizQuestionComponent.applyFeedbackForOption(selectedOption as SelectedOption);
-    }
-  
     // Enable Next Button
     console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
     this.nextButtonStateService.syncNextButtonState();
@@ -2203,11 +2197,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         ...option,
         feedback: option.feedback
       },
+      index: idx,
       feedback: option.feedback,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      highlightIncorrect: isSelected && !option.correct,
+      highlightCorrect: isSelected && !!option.correct,
       allOptions: this.optionsToDisplay,
       type: this.type,
       appHighlightOption: false,
