@@ -1700,10 +1700,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Sync Next Button State
     console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
     this.nextButtonStateService.syncNextButtonState();
-  
-    // Immediate Change Detection
-    this.cdRef.detectChanges();
-    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }  
 
   private forceHighlightRefresh(optionId: number): void {
