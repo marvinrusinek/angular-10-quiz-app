@@ -2527,14 +2527,6 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-
-    if (option.selected) {
-      console.warn(`[🔒 Locked] Option ${option.optionId} already selected. Ignoring re-selection.`);
-      return; // ❌ Do not process again
-    }
-  
-    // Proceed with selection and feedback logic
-    this.processOptionSelection(this.currentQuestion, option, event.index);
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.quizService.setCurrentQuestionIndex(lockedIndex);
