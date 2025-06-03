@@ -2565,6 +2565,29 @@ export class QuizQuestionComponent
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
+
+      // Selection Message Update Logic
+      const options = this.optionsToDisplay ?? [];
+      const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
+        options,
+        this.currentQuestionIndex
+      );
+
+      if (allCorrectSelected) {
+        this.selectedOptionService.setAnswered(true, true);
+        const msg = this.selectionMessageService.determineSelectionMessage(
+          this.currentQuestionIndex,
+          this.totalQuestions,
+          true
+        );
+        this.selectionMessageService.updateSelectionMessage(msg);
+        console.log('[✅ All correct selected — showing "Next" message]');
+      } else {
+        const msg = this.selectionMessageService.getRemainingAnswersMessage(options);
+        this.selectionMessageService.updateSelectionMessage(msg);
+        console.log('[ℹ️ Still waiting for correct selections — updated remaining message]');
+      }
+
   
       // Set answered and sync next button (do not gate by correctness!)
       this.selectedOptionService.setAnswered(true, true);
