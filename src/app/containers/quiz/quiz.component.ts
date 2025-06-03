@@ -1539,7 +1539,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       
       if (isNaN(routeIndex) || routeIndex < 1 || routeIndex > this.quiz.questions.length) {
         console.warn('[loadQuestionByRouteIndex] ⚠️ Invalid route index:', routeIndex);
-        this.router.navigate(['/quiz/1']); // or redirect to the first question
+        this.router.navigate(['/question/', this.quizId, 1]); // or redirect to the first question
         return;
       }
 
