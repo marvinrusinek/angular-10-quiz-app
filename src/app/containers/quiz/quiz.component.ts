@@ -1532,6 +1532,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // This function loads the question corresponding to the provided index.
   async loadQuestionByRouteIndex(routeIndex: number): Promise<void> {
     try {
+      if (!this.quiz) {
+        console.error('[loadQuestionByRouteIndex] ❌ Quiz data is missing.');
+        return;
+      }
+      
+      if (isNaN(routeIndex) || routeIndex < 1 || routeIndex > this.quiz.questions.length) {
+        console.warn('[loadQuestionByRouteIndex] ⚠️ Invalid route index:', routeIndex);
+        this.router.navigate(['/quiz/1']); // or redirect to the first question
+        return;
+      }
+
       const questionIndex = routeIndex - 1; // convert 1-based URL index to 0-based
       console.log(`[loadQuestionByRouteIndex] 🚀 Navigating to Q${questionIndex}`);
   
