@@ -435,25 +435,28 @@ export class QuizQuestionComponent
     }
   
     // Load dynamic component when content is available and container is ready
-    this.isContentAvailable$
-      .pipe(distinctUntilChanged())
-      .subscribe((isAvailable) => {
-        if (isAvailable && !this.containerInitialized) {
-          // Ensure view has initialized
-          setTimeout(() => {
-            if (this.dynamicAnswerContainer) {
-              const currentQuestion = this.currentQuestion;
-              const options = this.optionsToDisplay;
-              const currentIndex = this.currentQuestionIndex;
-  
-              this.loadDynamicComponent(currentQuestion, options, currentIndex);
-              this.containerInitialized = true;
-            } else {
-              console.warn('[⚠️ dynamicAnswerContainer not available]');
-            }
-          });
+    if (this.isContentAvailable$) {
+      this.isContentAvailable$
+        .pipe(distinctUntilChanged())
+        .subscribe((isAvailable) => {
+          if (isAvailable && !this.containerInitialized) {
+            // Ensure view has initialized
+            setTimeout(() => {
+              if (this.dynamicAnswerContainer) {
+                const currentQuestion = this.currentQuestion;
+                const options = this.optionsToDisplay;
+                const currentIndex = this.currentQuestionIndex;
+    
+                this.loadDynamicComponent(currentQuestion, options, currentIndex);
+                this.containerInitialized = true;
+              } else {
+                console.warn('[⚠️ dynamicAnswerContainer not available]');
+              }
+            });
+          }
         }
-      });
+      );
+    }
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
