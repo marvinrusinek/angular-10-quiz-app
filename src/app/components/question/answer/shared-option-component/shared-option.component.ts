@@ -128,28 +128,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) {}
 
   ngOnInit(): void {
-    console.log('[🔍 feedbackConfigs]', this.feedbackConfigs);
-    console.log('[🔍 showFeedbackForOption]', this.showFeedbackForOption);
-    console.log('[🔍 lastFeedbackOptionId]', this.lastFeedbackOptionId);
-    
-
-    console.log('[✅ OnInit - SharedOptionComponent]');
-    console.log(`[🔍 Initial optionsToDisplay]:`, this.optionsToDisplay);
-    console.log(`[🔍 Initial optionBindings]:`, this.optionBindings);
-    console.log(`[🔍 Initial renderReady]: ${this.renderReady}`);
-    console.log(`[🔍 Initial canDisplayOptions]: ${this.canDisplayOptions}`);
-    
     this.initializeFromConfig();
-
-    console.log('[✅ OnInit - SharedOptionComponent]');
-    console.log(`[🔍 Initial optionsToDisplay]:`, this.optionsToDisplay);
 
     // Ensure rendering flags are set based on data availability
     this.renderReady = this.optionsToDisplay?.length > 0;
     //this.canDisplayOptions = this.optionsToDisplay?.length > 0;
-
-    console.log(`[🔍 Updated renderReady]: ${this.renderReady}`);
-    console.log(`[🔍 Updated canDisplayOptions]: ${this.canDisplayOptions}`);
 
     this.verifyDOMStructure();
 
@@ -168,10 +151,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
     }
 
-    console.log('[🔍 optionsToDisplay Structure]:', JSON.stringify(this.optionsToDisplay, null, 2));
-    console.log('[🔍 optionBindings Structure]:', JSON.stringify(this.optionBindings, null, 2));
-
-
     setTimeout(() => {
       this.initializeOptionBindings();
       this.renderReady = this.optionsToDisplay?.length > 0;
@@ -183,7 +162,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log(`[🔍 optionBindings]:`, this.optionBindings);
 
     // Always synchronize to ensure data consistency
-    console.log('[🔄 Synchronizing option bindings...');
     this.synchronizeOptionBindings();
 
     if (this.finalRenderReady$) {
@@ -333,13 +311,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.viewInitialized = true;
     this.viewReady = true;
 
-    console.log('[✅ AfterViewInit - SharedOptionComponent]');
-    console.log(`[🔍 AfterViewInit - renderReady]: ${this.renderReady}`);
-    console.log(`[🔍 AfterViewInit - canDisplayOptions]: ${this.canDisplayOptions}`);
-    console.log(`[🔍 AfterViewInit - optionsToDisplay Length]: ${this.optionsToDisplay?.length}`);
-
-    console.log('[✅ SharedOptionComponent - AfterViewInit]');
-
     const radioGroup = document.querySelector('mat-radio-group');
     console.log('[🔥 AfterViewInit - Radio Group Exists]', !!radioGroup);
 
@@ -422,32 +393,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  /* remove??? handleRadioGroupChange(event: MatRadioChange): void {
-    console.log('[✅ handleRadioGroupChange]', event);
-  
-    const selectedId = event.value;
-    const idx = this.optionBindings.findIndex(b => b.option.optionId === selectedId);
-    if (idx === -1) {
-      console.warn('[❌ No matching option found for ID]', selectedId);
-      return;
-    }
-  
-    const selectedBinding = this.optionBindings[idx];
-    const selectedOption = {
-      optionId: selectedBinding.option.optionId,
-      questionIndex: this.quizService.currentQuestionIndex,
-      text: selectedBinding.option.text
-    };
-  
-    this.quizQuestionComponent.onOptionClicked({
-      option: selectedOption,
-      index: idx,
-      checked: true
-    });
-  
-    console.log('🔍 Form value after selection:', this.form.value);
-  } */
-
   private verifyDOMStructure(): void {
     console.log('[🔍 Verifying DOM Structure]');
   
@@ -467,7 +412,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           console.log('[🔄 Native Change Detected]', event);
         });
       }
-    }, 100); // Slight delay to ensure DOM stability
+    }, 100); // slight delay to ensure DOM stability
   }
 
   private initializeEventListeners(): void {
