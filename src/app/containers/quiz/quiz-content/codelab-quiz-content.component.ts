@@ -53,7 +53,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
-  private latestQuestionText = '';
+  latestQuestionText = '';
 
   displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
@@ -129,13 +129,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       console.log('[🧪 explanationText$ EMITTED]:', text);
     });
 
-    /* this.questionToDisplay$.pipe(
-      filter(text => !!text?.trim()),
-      take(1)
-    ).subscribe(firstQuestion => {
-      console.log('[✅ Init] First question received:', firstQuestion);
-      this.getCombinedDisplayTextStream();
-    }); */
     this.questionToDisplay$
       .pipe(distinctUntilChanged())
       .subscribe((text: string) => {
