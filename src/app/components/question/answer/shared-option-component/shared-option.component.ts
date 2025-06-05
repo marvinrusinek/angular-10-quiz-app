@@ -432,12 +432,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           console.log('[🔄 Native Change Detected]', event);
         });
       }
-    }, 200); // Adjust delay as necessary
+    }, 200);
   }  
 
     /**
-   * Push the newly‐clicked option into history, then synchronise every binding’s
-   * visual state (selected, highlight, icon, feedback) in *one* synchronous pass.
+   * Push the newly‐clicked option into history, then synchronize every binding’s
+   * visual state (selected, highlight, icon, feedback) in one synchronous pass.
    */
    private updateSelections(selectedId: number): void {
 
