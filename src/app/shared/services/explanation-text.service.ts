@@ -477,4 +477,23 @@ export class ExplanationTextService {
   setResetComplete(value: boolean): void {
     this.resetCompleteSubject.next(value);
   }
+
+  emitExplanationSafely(
+    explanationText: string,
+    lockedIndex: number,
+    lockedQuestionText: string,
+    currentQuestion: QuizQuestion | null,
+    emitFn: (text: string, index: number) => void
+  ): void {
+    const currentText = currentQuestion?.questionText?.trim();
+    if (!currentText || currentText !== lockedQuestionText) {
+      console.warn(
+        `[⛔ Skipping stale explanation for Q${lockedIndex}]`,
+        `Expected: "${lockedQuestionText}", Got: "${currentText}"`
+      );
+      return;
+    }
+  
+    emitFn(explanationText, lockedIndex);
+  }  
 }
