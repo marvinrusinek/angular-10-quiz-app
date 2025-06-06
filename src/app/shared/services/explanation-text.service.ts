@@ -382,7 +382,7 @@ export class ExplanationTextService {
       console.log('[🛑 Explanation already emitted or same, skipping]');
     }
   } */
-  /* emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
+  emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
     const trimmed = rawExplanation?.trim();
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
       console.log('[⏭️ Skipping empty or default explanation]');
@@ -406,25 +406,7 @@ export class ExplanationTextService {
     } else {
       console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
     }
-  } */
-  emitExplanationIfNeeded(explanation: string, index: number): void {
-    const trimmed = explanation?.trim();
-    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') return;
-  
-    // Abort if the current index has changed
-    if (this.quizService.currentQuestionIndexSource.getValue() !== index) {
-      console.warn(`[⏭️ Skipping emit] Current index does not match locked index Q${index}`);
-      return;
-    }
-  
-    // Emit explanation
-    this.formattedExplanationSubject.next(trimmed);
-    this.setExplanationText(trimmed);
-    this.setShouldDisplayExplanation(true);
-    this.lockExplanation();
   }
-  
-  
 
   public setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
