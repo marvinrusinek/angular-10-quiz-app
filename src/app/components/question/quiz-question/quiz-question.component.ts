@@ -2568,7 +2568,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2613,8 +2613,46 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[❌ onOptionClicked Error]', error);
     }
-  }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) return;
   
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+  
+    // Lock index early to prevent race
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    try {
+      this.updateOptionSelection(event, option);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
+      this.applyFeedbackIfNeeded(option);
+      this.handleSelectionMessageUpdate();
+  
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setAnswered(true);
+      this.nextButtonStateService.syncNextButtonState();
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      // Small delay to wait for rendering + lock
+      setTimeout(async () => {
+        console.log('[⏳ Waiting before explanation fetch for Q', lockedIndex, ']');
+        const explanationText = await this.updateExplanationText(lockedIndex);
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      }, 100);
+  
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(event.option, event.index);
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  }
 
   private prepareQuestionText(): void {
     this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
