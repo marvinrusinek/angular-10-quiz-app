@@ -359,21 +359,6 @@ export class ExplanationTextService {
     const latestExplanation = this.latestExplanation?.trim();
     const formattedExplanation = this.formattedExplanationSubject.getValue()?.trim();
   
-    const currentIndex = this.quizService.currentQuestionIndexSource.getValue();
-  
-    console.log('[🔍 emitExplanationIfNeeded] Details:', {
-      trimmed,
-      latestExplanation,
-      formattedExplanation,
-      emitIndex: index,
-      currentIndex
-    });
-  
-    if (index !== currentIndex) {
-      console.warn(`[🚫 MISMATCH] Skipping explanation emit. Index ${index} !== current ${currentIndex}`);
-      return;
-    }
-  
     const shouldEmit = trimmed !== latestExplanation || !formattedExplanation;
   
     if (shouldEmit) {
