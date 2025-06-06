@@ -485,6 +485,15 @@ export class ExplanationTextService {
     emitFn: (text: string, index: number) => void
   ): void {
     const currentText = currentQuestion?.questionText?.trim();
+  
+    // Guard against invalid explanation
+    const trimmed = explanationText?.trim();
+    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
+      console.log(`[⏭️ emitExplanationSafely] Skipping empty/default explanation for Q${lockedIndex}`);
+      return;
+    }
+  
+    // Prevent cross-question leakage
     if (!currentText || currentText !== lockedQuestionText) {
       console.warn(
         `[⛔ Skipping stale explanation for Q${lockedIndex}]`,
@@ -493,6 +502,8 @@ export class ExplanationTextService {
       return;
     }
   
-    emitFn(explanationText, lockedIndex);
+    // ✅ Safe to emit
+    console.log(`[✅ Emitting safe explanation for Q${lockedIndex}]`, trimmed);
+    emitFn(trimmed, lockedIndex);
   }  
 }
