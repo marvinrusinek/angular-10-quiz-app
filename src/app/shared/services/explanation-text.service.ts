@@ -359,15 +359,17 @@ export class ExplanationTextService {
       return;
     }
   
-    const latestExplanation = this.latestExplanation?.trim();
+    // Check if the current explanation text for this index is already set
+    const existingExplanation = this.explanationTexts[questionIndex]?.trim();
     const formattedExplanation = this.formattedExplanationSubject.getValue()?.trim();
   
-    const shouldEmit = trimmed !== latestExplanation || !formattedExplanation;
+    // Emit only if the new explanation differs or we haven't emitted yet
+    const shouldEmit = trimmed !== existingExplanation || !formattedExplanation;
   
     if (shouldEmit) {
-      console.log('[📤 Emitting explanation for Q', questionIndex, ':', trimmed);
+      console.log('[📤 Emitting explanation for Q' + questionIndex + ']:', trimmed);
   
-      // Store explanation for this index (to fix cross-question issues)
+      // Save the explanation for this specific question index
       this.explanationTexts[questionIndex] = trimmed;
   
       this.formattedExplanationSubject.next(trimmed);
@@ -380,7 +382,6 @@ export class ExplanationTextService {
       console.log('[🛑 Explanation already emitted or same, skipping]');
     }
   }
-  
 
   public setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
