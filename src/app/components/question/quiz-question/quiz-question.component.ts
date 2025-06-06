@@ -2665,7 +2665,7 @@ export class QuizQuestionComponent
     }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedQuestionText = this.currentQuestion?.questionText?.trim();
+    const lockedText = this.currentQuestion?.questionText?.trim();
   
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
@@ -2684,19 +2684,17 @@ export class QuizQuestionComponent
   
       // 2. Delay explanation emission
       setTimeout(async () => {
-        const currentQuestion = this.currentQuestion;
-        const currentText = currentQuestion?.questionText?.trim();
-  
-        if (currentText !== lockedQuestionText) {
-          console.warn(`[⏭️ Skipping stale explanation for: "${lockedQuestionText}" — now at "${currentText}"`);
-          return;
-        }
-  
         const explanationText = await this.updateExplanationText(lockedIndex);
+      
+        const currentText = this.currentQuestion?.questionText?.trim();
+        if (currentText !== lockedText) {
+          console.warn(`[⚠️ Skipped stale explanation for Q${lockedIndex}] Still expecting: "${lockedText}", but now at "${currentText}"`);
+          return; // ❌ Don’t emit stale explanation
+        }
+      
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
-  
         this.cdRef.detectChanges();
-      }, 100); // adjust delay if needed
+      }, 100);
   
       // 3. Finalize
       await this.processSelectedOption(option, event.index, event.checked);
