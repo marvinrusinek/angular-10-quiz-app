@@ -2529,14 +2529,13 @@ export class QuizQuestionComponent
     }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    this.quizService.setCurrentQuestionIndex(lockedIndex);
   
     try {
       // Feedback + Option Handling
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
-
+  
       // Selection Message Update Logic
       this.handleSelectionMessageUpdate();
   
@@ -2548,19 +2547,18 @@ export class QuizQuestionComponent
       // Display state toggle
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // Delay explanation emission to avoid flickering
-      setTimeout(async () => {
-        const explanationText = await this.updateExplanationText(lockedIndex);
-        this.explanationTextService.emitExplanationIfNeeded(explanationText);
+      // Update explanation BEFORE index is changed
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      this.explanationTextService.emitExplanationIfNeeded(explanationText);
   
-        this.cdRef.detectChanges();
-      }, 100); // allow CD + UI feedback rendering before explanation
-
+      // NOW safe to update current index
+      this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
       console.log('[🎯 QQC.onOptionClicked]', event);
-
+  
       // Insert this to activate feedback for the selected option
       await this.processSelectedOption(option, event.index, event.checked);
-
+  
       await this.finalizeAfterClick(event.option, event.index);
   
       queueMicrotask(() => this.cdRef.detectChanges());
