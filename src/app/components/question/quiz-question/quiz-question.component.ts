@@ -3959,7 +3959,7 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     console.log(`[🔄 updateExplanationText] Fetching explanation for Q${index}`);
     
     const entry = this.explanationTextService.formattedExplanations[index];
@@ -3995,7 +3995,36 @@ export class QuizQuestionComponent
     }
   
     return explanationText;
-  }
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    console.log(`[🔄 updateExplanationText] Fetching explanation for Q${index}`);
+  
+    const entry = this.explanationTextService.formattedExplanations[index];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+  
+    // Validate that this explanation is for the correct index
+    if (this.currentQuestionIndex !== index) {
+      console.warn(`[🛑 Mismatch] Current index (${this.currentQuestionIndex}) !== locked index (${index}), skipping.`);
+      return '';
+    }
+  
+    const qState = this.quizStateService.getQuestionState(this.quizId, index);
+    const isAlreadyDisplayed = qState?.explanationDisplayed;
+    const existingText = qState?.explanationText?.trim();
+  
+    const shouldEmit = !isAlreadyDisplayed || existingText !== explanationText;
+  
+    if (shouldEmit) {
+      this.explanationTextService.setExplanationText(explanationText);
+      this.quizStateService.setQuestionState(this.quizId, index, {
+        ...qState,
+        explanationDisplayed: true,
+        explanationText,
+      });
+    }
+  
+    return explanationText;
+  }  
 
   public async handleOptionSelection(
     option: SelectedOption,
