@@ -2614,7 +2614,7 @@ export class QuizQuestionComponent
       console.error('[❌ onOptionClicked Error]', error);
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2647,6 +2647,59 @@ export class QuizQuestionComponent
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(event.option, event.index);
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const lockedQuestionId = this.currentQuestion?.questionId ?? this.currentQuestion?.questionText;
+  
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    try {
+      // 1. Immediate feedback and selection handling
+      this.updateOptionSelection(event, option);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
+      this.applyFeedbackIfNeeded(option);
+      this.handleSelectionMessageUpdate();
+  
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setAnswered(true);
+      this.nextButtonStateService.syncNextButtonState();
+  
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      // 2. Delay explanation emission to avoid flicker
+      setTimeout(async () => {
+        const activeQuestion = this.quizService.getCurrentQuestion();
+        const activeQuestionId = activeQuestion?.questionId ?? activeQuestion?.questionText;
+  
+        if (activeQuestionId !== lockedQuestionId) {
+          console.warn(`[⏭️ Skipping stale explanation emit: current=${activeQuestionId}, expected=${lockedQuestionId}]`);
+          return;
+        }
+  
+        const explanationText = await this.updateExplanationText(lockedIndex);
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+        this.cdRef.detectChanges();
+      }, 100); // Adjustable delay if needed
+  
+      // 3. Feedback trigger
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(option, event.index);
   
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
