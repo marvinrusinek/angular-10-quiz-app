@@ -2517,7 +2517,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2567,7 +2567,54 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    try {
+      // Handle selection and feedback
+      this.updateOptionSelection(event, option);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
+      this.applyFeedbackIfNeeded(option);
+      this.handleSelectionMessageUpdate();
+  
+      // Update answered state and next button
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setAnswered(true);
+      this.nextButtonStateService.syncNextButtonState();
+  
+      // Set display mode to explanation
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
+  
+      // ✅ Emit explanation immediately — no delay
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+  
+      // Feedback and UI update
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(event.option, event.index);
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+      console.log('[🎯 QQC.onOptionClicked]', event);
+    } catch (error) {
+      console.error('[❌ onOptionClicked Error]', error);
+    }
   }
+  
 
   private prepareQuestionText(): void {
     this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
