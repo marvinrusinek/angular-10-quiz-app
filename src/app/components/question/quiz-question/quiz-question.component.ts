@@ -2551,7 +2551,7 @@ export class QuizQuestionComponent
       // Delay explanation emission to avoid flickering
       setTimeout(async () => {
         const explanationText = await this.updateExplanationText(lockedIndex);
-        this.explanationTextService.emitExplanationIfNeeded(explanationText);
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
   
         this.cdRef.detectChanges();
       }, 100); // allow CD + UI feedback rendering before explanation
