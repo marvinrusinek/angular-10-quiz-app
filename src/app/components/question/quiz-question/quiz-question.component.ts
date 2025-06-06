@@ -2665,12 +2665,12 @@ export class QuizQuestionComponent
     }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedQuestionId = this.currentQuestion?.questionId ?? this.currentQuestion?.questionText;
+    const lockedQuestionText = this.currentQuestion?.questionText?.trim();
   
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
     try {
-      // 1. Immediate feedback and selection handling
+      // 1. Handle option selection and feedback
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
@@ -2682,22 +2682,23 @@ export class QuizQuestionComponent
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // 2. Delay explanation emission to avoid flicker
+      // 2. Delay explanation emission
       setTimeout(async () => {
-        const activeQuestion = this.quizService.getCurrentQuestion();
-        const activeQuestionId = activeQuestion?.questionId ?? activeQuestion?.questionText;
+        const currentQuestion = this.currentQuestion;
+        const currentText = currentQuestion?.questionText?.trim();
   
-        if (activeQuestionId !== lockedQuestionId) {
-          console.warn(`[⏭️ Skipping stale explanation emit: current=${activeQuestionId}, expected=${lockedQuestionId}]`);
+        if (currentText !== lockedQuestionText) {
+          console.warn(`[⏭️ Skipping stale explanation for: "${lockedQuestionText}" — now at "${currentText}"`);
           return;
         }
   
         const explanationText = await this.updateExplanationText(lockedIndex);
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
-        this.cdRef.detectChanges();
-      }, 100); // Adjustable delay if needed
   
-      // 3. Feedback trigger
+        this.cdRef.detectChanges();
+      }, 100); // adjust delay if needed
+  
+      // 3. Finalize
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
   
