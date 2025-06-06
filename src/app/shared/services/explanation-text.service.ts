@@ -352,7 +352,7 @@ export class ExplanationTextService {
       console.log('[🛑 Explanation already set and formatted, skipping emit');
     }
   } */
-  emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
+  /* emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
     const trimmed = rawExplanation?.trim();
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
       console.log('[⏭️ Skipping empty or default explanation]');
@@ -381,7 +381,33 @@ export class ExplanationTextService {
     } else {
       console.log('[🛑 Explanation already emitted or same, skipping]');
     }
+  } */
+  emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
+    const trimmed = rawExplanation?.trim();
+    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
+      console.log('[⏭️ Skipping empty or default explanation]');
+      return;
+    }
+  
+    // Use the passed questionIndex ONLY — don't call quizService
+    const latest = this.explanationTexts[questionIndex];
+    const isSame = latest === trimmed;
+  
+    if (!isSame) {
+      console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
+  
+      this.explanationTexts[questionIndex] = trimmed;
+      this.formattedExplanationSubject.next(trimmed);
+      this.setExplanationText(trimmed);
+      this.setShouldDisplayExplanation(true);
+      this.lockExplanation();
+  
+      this.latestExplanation = trimmed;
+    } else {
+      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
+    }
   }
+  
 
   public setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
