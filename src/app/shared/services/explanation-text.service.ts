@@ -17,7 +17,7 @@ export class ExplanationTextService {
   
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
-  formattedExplanationSubject = new BehaviorSubject<string>('');
+  formattedExplanationSubject = new BehaviorSubject<string | null>(null);
   formattedExplanation$: Observable<string> = this.formattedExplanationSubject.asObservable();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
@@ -321,7 +321,7 @@ export class ExplanationTextService {
     return of(explanations);
   }
 
-  /* emitExplanationIfNeeded(rawExplanation: string): void {
+  emitExplanationIfNeeded(rawExplanation: string): void {
     console.log('[🔍 Checking explanation state before emission]', Date.now());
     console.log('[📤 Emitting explanation immediately:', rawExplanation, Date.now());
 
@@ -350,28 +350,6 @@ export class ExplanationTextService {
       console.log('[✅ Explanation emitted and locked:', trimmed);
     } else {
       console.log('[🛑 Explanation already set and formatted, skipping emit');
-    }
-  } */
-  emitExplanationIfNeeded(index: number, rawExplanation: string): void {
-    console.log('[🔍 Checking explanation state before emission]', { index, time: Date.now() });
-  
-    const trimmed = rawExplanation?.trim() || 'No explanation available';
-    const latestExplanation = this.latestExplanation?.trim();
-    const formattedExplanation = this.formattedExplanationSubject.getValue()?.trim();
-  
-    const shouldEmit = trimmed !== latestExplanation || !formattedExplanation;
-  
-    if (shouldEmit) {
-      console.log('[📤 Emitting explanation:', trimmed);
-  
-      this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed);
-      this.setShouldDisplayExplanation(true);
-      this.lockExplanation();
-  
-      console.log('[✅ Explanation emitted and locked:', trimmed);
-    } else {
-      console.log('[🛑 Explanation already set and formatted, skipping emit]');
     }
   }
 
