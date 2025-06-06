@@ -2708,11 +2708,6 @@ export class QuizQuestionComponent
     }
   }
 
-  private prepareQuestionText(): void {
-    this.questionToDisplay = this.currentQuestion?.questionText?.trim() || 'No question available';
-    this.cdRef.detectChanges();
-  }
-
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
   
