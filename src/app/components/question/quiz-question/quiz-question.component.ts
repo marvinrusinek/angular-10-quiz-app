@@ -2690,6 +2690,27 @@ export class QuizQuestionComponent
   
       // Delay explanation emission
       const explanationText = await this.updateExplanationText(lockedIndex);
+
+      // Check again that we're still on the same question before emitting
+      const currentQuestion = this.currentQuestion;
+      const currentText = currentQuestion?.questionText?.trim() || '';
+      const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+
+      const isValid =
+      currentIndex === lockedIndex &&
+      currentText === lockedQuestionText &&
+      currentQuestion?.questionText === lockedQuestionSnapshot?.questionText;
+
+      if (isValid) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      } else {
+        console.warn('[⛔ Skipping explanation emit — stale question detected]', {
+          lockedIndex,
+          currentIndex,
+          lockedQuestionText,
+          currentText
+        });
+      }
       
       /* this.explanationTextService.emitExplanationSafely(
         explanationText,
@@ -2699,13 +2720,13 @@ export class QuizQuestionComponent
         (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
       ); */
       // Emit only if current state matches snapshot
-      this.explanationTextService.emitExplanationIfValid(
+      /* this.explanationTextService.emitExplanationIfValid(
         explanationText,
         lockedIndex,
         lockedQuestionText,
         lockedQuestionSnapshot,
         lockedTimestamp
-      );
+      ); */
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
