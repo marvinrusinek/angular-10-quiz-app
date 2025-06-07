@@ -2693,10 +2693,11 @@ export class QuizQuestionComponent
         currentQuestionSnapshot,
         (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
       ); */
-      this.explanationTextService.emitExplanationIfNeededForLockedQuestion({
+      // Emit using fully locked values – pass in text and index manually
+      this.explanationTextService.emitExplanationIfNeededStrict({
         explanationText,
         questionIndex: lockedIndex,
-        questionText: lockedQuestionText
+        questionText: lockedQuestionText,
       });
   
       // Finalize
