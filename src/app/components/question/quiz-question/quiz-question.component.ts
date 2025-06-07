@@ -119,7 +119,7 @@ export class QuizQuestionComponent
   totalQuestions!: number;
   private lastProcessedQuestionIndex: number | null = null;
   fixedQuestionIndex = 0;
-  
+
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -230,7 +230,8 @@ export class QuizQuestionComponent
 
   private containerReady = new Subject<void>();
 
-  private _ready = new ReplaySubject<ViewContainerRef>(1); 
+  private _ready = new ReplaySubject<ViewContainerRef>(1);
+  private latestOptionClickTimestamp = 0;
 
   // Define audio list array
   audioList: AudioItem[] = [];
