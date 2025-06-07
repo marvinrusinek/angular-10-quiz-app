@@ -232,6 +232,7 @@ export class QuizQuestionComponent
 
   private _ready = new ReplaySubject<ViewContainerRef>(1);
   private latestOptionClickTimestamp = 0;
+  private latestExplanationRequestId = 0;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -2778,9 +2779,21 @@ export class QuizQuestionComponent
       this.nextButtonStateService.syncNextButtonState();
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+
+      const currentRequestId = ++this.latestExplanationRequestId;
   
       // Delay explanation emission
       const explanationText = await this.updateExplanationText(lockedIndex);
+
+      // Only emit if the request is still the latest
+      if (currentRequestId === this.latestExplanationRequestId) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      } else {
+        console.warn('[⛔ Skipping stale explanation emission]', {
+          currentRequestId,
+          latest: this.latestExplanationRequestId
+        });
+      }
   
       // Check again that we're still on the same question before emitting
       const currentQuestion = this.currentQuestion;
