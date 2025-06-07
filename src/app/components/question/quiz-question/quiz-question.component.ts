@@ -2736,9 +2736,6 @@ export class QuizQuestionComponent
         lockedQuestionSnapshot,
         lockedTimestamp
       ); */
-
-      // Safe to emit
-      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
