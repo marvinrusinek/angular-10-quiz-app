@@ -119,6 +119,7 @@ export class QuizQuestionComponent
   totalQuestions!: number;
   private lastProcessedQuestionIndex: number | null = null;
   fixedQuestionIndex = 0;
+  
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -2658,6 +2659,10 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
+    const lockedTimestamp = Date.now();
+    this.latestOptionClickTimestamp = lockedTimestamp; // store on component
+
+
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
