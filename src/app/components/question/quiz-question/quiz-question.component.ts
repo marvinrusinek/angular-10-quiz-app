@@ -2666,7 +2666,7 @@ export class QuizQuestionComponent
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const lockedQuestionText = this.currentQuestion?.questionText?.trim() ?? '[Unknown Q]';
-    const currentQuestionSnapshot = this.currentQuestion;
+    const lockedQuestionSnapshot = structuredClone(this.currentQuestion);
   
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
@@ -2698,7 +2698,7 @@ export class QuizQuestionComponent
         explanationText,
         lockedIndex,
         lockedQuestionText,
-        currentQuestionSnapshot
+        lockedQuestionSnapshot
       );
   
       // Finalize
