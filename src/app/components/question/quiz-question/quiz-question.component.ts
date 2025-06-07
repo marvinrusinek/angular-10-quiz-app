@@ -2779,33 +2779,54 @@ export class QuizQuestionComponent
       this.nextButtonStateService.syncNextButtonState();
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+
+      const currentRequestId = ++this.latestExplanationRequestId;
   
-      // ✅ Step 1: Track unique explanation request ID
-      const requestId = ++this.explanationRequestId;
-  
-      // ✅ Step 2: Fetch explanation text (async)
+      // Delay explanation emission
       const explanationText = await this.updateExplanationText(lockedIndex);
-  
-      // ✅ Step 3: Only emit if this request is still valid
-      if (requestId !== this.explanationRequestId) {
-        console.warn('[⛔ Skipping stale explanation emit — newer request detected]', {
-          requestId,
-          current: this.explanationRequestId,
+
+      // Only emit if the request is still the latest
+      if (currentRequestId === this.latestExplanationRequestId) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      } else {
+        console.warn('[⛔ Skipping stale explanation emission]', {
+          currentRequestId,
+          latest: this.latestExplanationRequestId
         });
-        return;
       }
   
-      // Final check against question identity
+      // Check again that we're still on the same question before emitting
       const currentQuestion = this.currentQuestion;
       const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       const currentText = currentQuestion?.questionText?.trim() || '';
-  
-      const isValid =
-        currentIndex === lockedIndex &&
-        currentText === lockedQuestionText &&
+
+      // Compare locked vs current values
+      const isSameIndex = currentIndex === lockedIndex;
+      const isSameText = currentText === lockedQuestionText;
+      const isSameQuestion =
         currentQuestion?.questionText === lockedQuestionSnapshot?.questionText;
+
+      if (isSameIndex && isSameText && isSameQuestion) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      } else {
+        console.warn('[⛔ Skipping explanation emit — mismatch detected]', {
+          lockedIndex,
+          currentIndex,
+          lockedQuestionText,
+          currentText
+        });
+      }
   
-      if (isValid) {
+      const shouldEmit = this.explanationTextService.shouldEmitExplanation(
+        lockedIndex,
+        lockedQuestionText,
+        currentIndex,
+        currentText,
+        lockedTimestamp,
+        this.latestOptionClickTimestamp
+      );
+  
+      if (shouldEmit) {
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
       } else {
         console.warn('[⛔ Skipping explanation emit — stale question detected]', {
@@ -2813,6 +2834,8 @@ export class QuizQuestionComponent
           currentIndex,
           lockedQuestionText,
           currentText,
+          lockedTimestamp,
+          latestTimestamp: this.latestOptionClickTimestamp
         });
       }
   
