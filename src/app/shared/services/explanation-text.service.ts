@@ -609,5 +609,19 @@ export class ExplanationTextService {
     }
   
     this.emitExplanationIfNeeded(explanationText, lockedIndex);
-  }  
+  }
+
+  public shouldEmitExplanation(
+    lockedIndex: number,
+    lockedText: string,
+    currentIndex: number,
+    currentText: string,
+    lockedTimestamp: number,
+    latestTimestamp: number
+  ): boolean {
+    if (lockedIndex !== currentIndex) return false;
+    if (lockedText !== currentText) return false;
+    if (lockedTimestamp !== latestTimestamp) return false;
+    return true;
+  }
 }
