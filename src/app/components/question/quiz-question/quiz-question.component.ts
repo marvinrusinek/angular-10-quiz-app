@@ -2684,19 +2684,15 @@ export class QuizQuestionComponent
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // Delay explanation emission
-      setTimeout(async () => {
-        const explanationText = await this.updateExplanationText(lockedIndex);
+      const explanationText = await this.updateExplanationText(lockedIndex);
       
-        this.explanationTextService.emitExplanationSafely(
-          explanationText,
-          lockedIndex,
-          lockedQuestionText!,
-          currentQuestionSnapshot,
-          (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
-        );
-      
-        this.cdRef.detectChanges();
-      }, 100);
+      this.explanationTextService.emitExplanationSafely(
+        explanationText,
+        lockedIndex,
+        lockedQuestionText!,
+        currentQuestionSnapshot,
+        (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
+      );
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
