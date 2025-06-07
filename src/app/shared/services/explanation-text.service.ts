@@ -506,18 +506,28 @@ export class ExplanationTextService {
     console.log(`[✅ Emitting safe explanation for Q${lockedIndex}]`, trimmed);
     emitFn(trimmed, lockedIndex);
   } */
-  emitExplanationIfNeededForLockedQuestion({
+  emitExplanationIfNeededStrict({
     explanationText,
     questionIndex,
-    questionText
+    questionText,
+    expectedQuestionText
   }: {
     explanationText: string;
     questionIndex: number;
-    questionText: string;
+    questionText: string;              // From the locked current question
+    expectedQuestionText: string;     // From the component calling this
   }): void {
     const trimmed = explanationText?.trim();
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.log('[⏭️ Skipping empty/default explanation]');
+      console.warn(`[⏭️ Skipping empty/default explanation for Q${questionIndex}]`);
+      return;
+    }
+  
+    // Compare directly without needing external services
+    if (questionText !== expectedQuestionText) {
+      console.warn(`[❌ Skipping explanation emit for Q${questionIndex}] Mismatched text.`);
+      console.warn(`Expected: "${expectedQuestionText}"`);
+      console.warn(`Received: "${questionText}"`);
       return;
     }
   
