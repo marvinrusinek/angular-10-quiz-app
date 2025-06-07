@@ -2779,37 +2779,33 @@ export class QuizQuestionComponent
       this.nextButtonStateService.syncNextButtonState();
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-
-      const currentRequestId = ++this.latestExplanationRequestId;
   
-      // Delay explanation emission
+      // ✅ Step 1: Track unique explanation request ID
+      const requestId = ++this.explanationRequestId;
+  
+      // ✅ Step 2: Fetch explanation text (async)
       const explanationText = await this.updateExplanationText(lockedIndex);
-
-      // Only emit if the request is still the latest
-      if (currentRequestId === this.latestExplanationRequestId) {
-        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
-      } else {
-        console.warn('[⛔ Skipping stale explanation emission]', {
-          currentRequestId,
-          latest: this.latestExplanationRequestId
+  
+      // ✅ Step 3: Only emit if this request is still valid
+      if (requestId !== this.explanationRequestId) {
+        console.warn('[⛔ Skipping stale explanation emit — newer request detected]', {
+          requestId,
+          current: this.explanationRequestId,
         });
+        return;
       }
   
-      // Check again that we're still on the same question before emitting
+      // Final check against question identity
       const currentQuestion = this.currentQuestion;
       const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       const currentText = currentQuestion?.questionText?.trim() || '';
   
-      const shouldEmit = this.explanationTextService.shouldEmitExplanation(
-        lockedIndex,
-        lockedQuestionText,
-        currentIndex,
-        currentText,
-        lockedTimestamp,
-        this.latestOptionClickTimestamp
-      );
+      const isValid =
+        currentIndex === lockedIndex &&
+        currentText === lockedQuestionText &&
+        currentQuestion?.questionText === lockedQuestionSnapshot?.questionText;
   
-      if (shouldEmit) {
+      if (isValid) {
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
       } else {
         console.warn('[⛔ Skipping explanation emit — stale question detected]', {
@@ -2817,8 +2813,6 @@ export class QuizQuestionComponent
           currentIndex,
           lockedQuestionText,
           currentText,
-          lockedTimestamp,
-          latestTimestamp: this.latestOptionClickTimestamp
         });
       }
   
