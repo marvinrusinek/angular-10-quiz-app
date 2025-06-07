@@ -233,6 +233,7 @@ export class QuizQuestionComponent
   private _ready = new ReplaySubject<ViewContainerRef>(1);
   private latestOptionClickTimestamp = 0;
   private latestExplanationRequestId = 0;
+  private explanationRequestId = 0;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -2781,9 +2782,19 @@ export class QuizQuestionComponent
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
 
       const currentRequestId = ++this.latestExplanationRequestId;
+      const requestId = ++this.explanationRequestId; // generate a unique ID
   
       // Delay explanation emission
       const explanationText = await this.updateExplanationText(lockedIndex);
+
+      // Cancel if a newer request was issued
+      if (requestId !== this.explanationRequestId) {
+        console.warn('[⛔ Explanation emission cancelled — stale request]', {
+          requestId,
+          latest: this.explanationRequestId,
+        });
+        return;
+      }
 
       // Only emit if the request is still the latest
       if (currentRequestId === this.latestExplanationRequestId) {
