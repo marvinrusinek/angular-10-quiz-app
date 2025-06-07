@@ -547,5 +547,40 @@ export class ExplanationTextService {
     } else {
       console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
     }
-  }    
+  }
+
+  emitExplanationIfValid(
+    explanationText: string,
+    questionIndex: number,
+    lockedQuestionText: string,
+    currentQuestion: QuizQuestion | null
+  ): void {
+    const trimmed = explanationText?.trim();
+    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
+      console.warn(`[⏭️ Skipping empty/default explanation for Q${questionIndex}]`);
+      return;
+    }
+  
+    const currentText = currentQuestion?.questionText?.trim();
+    if (!currentText || currentText !== lockedQuestionText) {
+      console.warn(`[⛔ Skipping stale explanation for Q${questionIndex}]`);
+      console.warn(`Expected: "${lockedQuestionText}", Got: "${currentText}"`);
+      return;
+    }
+  
+    const latest = this.explanationTexts[questionIndex];
+    const isSame = latest === trimmed;
+  
+    if (!isSame) {
+      console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
+      this.explanationTexts[questionIndex] = trimmed;
+      this.formattedExplanationSubject.next(trimmed);
+      this.setExplanationText(trimmed);
+      this.setShouldDisplayExplanation(true);
+      this.lockExplanation();
+      this.latestExplanation = trimmed;
+    } else {
+      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
+    }
+  }  
 }
