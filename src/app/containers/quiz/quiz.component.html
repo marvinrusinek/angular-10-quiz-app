@@ -6,7 +6,6 @@
     <codelab-quiz-header></codelab-quiz-header>
 
     <mat-card-content *ngIf="combinedQuestionData$ | async as combined">
-     <ng-container *ngIf="isQuizRenderReady">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
@@ -52,7 +51,7 @@
         <ng-template #errorTemplate>
           <p>Error loading question. Please try again.</p>
         </ng-template>
-      </ng-container></ng-container>
+      </ng-container>
     </mat-card-content>
 
     <mat-card-footer [ngClass]="cardFooterClass">
