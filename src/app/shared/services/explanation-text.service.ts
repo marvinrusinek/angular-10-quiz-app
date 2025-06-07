@@ -619,9 +619,10 @@ export class ExplanationTextService {
     lockedTimestamp: number,
     latestTimestamp: number
   ): boolean {
-    if (lockedIndex !== currentIndex) return false;
-    if (lockedText !== currentText) return false;
-    if (lockedTimestamp !== latestTimestamp) return false;
-    return true;
-  }
+    return (
+      lockedIndex === currentIndex &&
+      lockedText === currentText &&
+      lockedTimestamp === latestTimestamp
+    );
+  }  
 }
