@@ -2665,7 +2665,7 @@ export class QuizQuestionComponent
     }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedQuestionText = this.currentQuestion?.questionText?.trim();
+    const lockedQuestionText = this.currentQuestion?.questionText?.trim() ?? '[Unknown Q]';
     const currentQuestionSnapshot = this.currentQuestion;
   
     this.quizService.setCurrentQuestionIndex(lockedIndex);
@@ -2686,13 +2686,18 @@ export class QuizQuestionComponent
       // Delay explanation emission
       const explanationText = await this.updateExplanationText(lockedIndex);
       
-      this.explanationTextService.emitExplanationSafely(
+      /* this.explanationTextService.emitExplanationSafely(
         explanationText,
         lockedIndex,
         lockedQuestionText!,
         currentQuestionSnapshot,
         (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
-      );
+      ); */
+      this.explanationTextService.emitExplanationIfNeededForLockedQuestion({
+        explanationText,
+        questionIndex: lockedIndex,
+        questionText: lockedQuestionText
+      });
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
