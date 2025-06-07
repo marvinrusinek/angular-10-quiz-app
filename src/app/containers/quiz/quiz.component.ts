@@ -465,22 +465,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngAfterViewInit(): void {
     this.loadQuestionContents(this.currentQuestionIndex);
-    
-    if (this.quizQuestionComponent) {
-      if (this.pendingOptions) {
-        this.quizQuestionComponent.updateOptionsSafely(this.pendingOptions);
-        this.pendingOptions = null;
-      }
-    
-      this.quizQuestionComponent.renderReady$
-        .pipe(debounceTime(10)) // smoothing UI updates
-        .subscribe((isReady: boolean) => {
-          // Show next button or update UI when true
-          this.isQuizRenderReady = isReady;
-        });
-    } else {
-      console.warn('[⚠️ quizQuestionComponent not available in ngAfterViewInit]');
-    }
+    this.waitForQuizQuestionComponent();
   }
     
   initializeDisplayVariables(): void {
@@ -3905,5 +3890,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.shouldRenderChild = true;
       this.cdRef.detectChanges(); // force update if needed
     });
+  }
+  
+  private waitForQuizQuestionComponent(): void {
+    const intervalId = setInterval(() => {
+      if (this.quizQuestionComponent) {
+        clearInterval(intervalId);
+  
+        this.quizQuestionComponent.renderReady$
+          .pipe(debounceTime(10))
+          .subscribe((isReady: boolean) => {
+            this.isQuizRenderReady = isReady;
+          });
+      }
+    }, 50); // check every 50ms
   }  
 }
