@@ -2696,6 +2696,15 @@ export class QuizQuestionComponent
       const currentText = currentQuestion?.questionText?.trim() || '';
       const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
 
+      const isSameQuestion = currentText === lockedQuestionText;
+      if (!isSameQuestion) {
+        console.warn(`[⛔ Skipping explanation emit — question changed]`, {
+          expected: lockedQuestionText,
+          got: currentText,
+        });
+        return;
+      }
+
       const isValid =
       currentIndex === lockedIndex &&
       currentText === lockedQuestionText &&
@@ -2727,6 +2736,9 @@ export class QuizQuestionComponent
         lockedQuestionSnapshot,
         lockedTimestamp
       ); */
+
+      // Safe to emit
+      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
