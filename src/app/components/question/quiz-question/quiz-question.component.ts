@@ -2661,8 +2661,7 @@ export class QuizQuestionComponent
     checked: boolean;
   }): Promise<void> {
     const lockedTimestamp = Date.now();
-    this.latestOptionClickTimestamp = lockedTimestamp; // store on component
-
+    this.latestOptionClickTimestamp = lockedTimestamp;
 
     const option = event.option;
     if (!option) {
@@ -2704,7 +2703,8 @@ export class QuizQuestionComponent
         explanationText,
         lockedIndex,
         lockedQuestionText,
-        lockedQuestionSnapshot
+        lockedQuestionSnapshot,
+        lockedTimestamp
       );
   
       // Finalize
