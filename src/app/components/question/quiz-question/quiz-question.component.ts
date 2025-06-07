@@ -2753,23 +2753,26 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
   }): Promise<void> {
-    const lockedTimestamp = Date.now();
-    this.latestOptionClickTimestamp = lockedTimestamp;
-  
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
   
+    const lockedTimestamp = Date.now();
+    this.latestOptionClickTimestamp = lockedTimestamp;
+  
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedQuestionText = this.currentQuestion?.questionText?.trim() || '';
-    const lockedQuestionSnapshot = structuredClone(this.currentQuestion);
+    const lockedText = this.currentQuestion?.questionText?.trim() || '';
+    const lockedSnapshot = structuredClone(this.currentQuestion);
   
     this.quizService.setCurrentQuestionIndex(lockedIndex);
   
+    // 🔐 Lock explanation request
+    const requestId = ++this.explanationRequestId;
+  
     try {
-      // Handle option selection and feedback
+      // ✅ Option handling
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
@@ -2781,57 +2784,46 @@ export class QuizQuestionComponent
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // 🔒 Explanation Request Locking
-      const requestId = ++this.explanationRequestId;
-  
-      // Delay explanation emission
+      // 🧠 Wait for async explanation (may resolve after question changes)
       const explanationText = await this.updateExplanationText(lockedIndex);
   
-      // Cancel if a newer request was issued
+      // 🔄 Validate current state before emitting
       if (requestId !== this.explanationRequestId) {
-        console.warn('[⛔ Explanation emission cancelled — stale request]', {
-          requestId,
-          latest: this.explanationRequestId,
-        });
+        console.warn('[🛑 Explanation request is outdated]', { requestId, latest: this.explanationRequestId });
         return;
       }
   
-      // ✅ Still on the same question?
       const currentQuestion = this.currentQuestion;
       const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       const currentText = currentQuestion?.questionText?.trim() || '';
   
-      const shouldEmit = this.explanationTextService.shouldEmitExplanation(
-        lockedIndex,
-        lockedQuestionText,
-        currentIndex,
-        currentText,
-        lockedTimestamp,
-        this.latestOptionClickTimestamp
-      );
+      const isSame =
+        currentIndex === lockedIndex &&
+        currentText === lockedText &&
+        currentQuestion?.questionText === lockedSnapshot?.questionText &&
+        this.latestOptionClickTimestamp === lockedTimestamp;
   
-      if (shouldEmit) {
+      if (isSame) {
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
       } else {
-        console.warn('[⛔ Skipping explanation emit — stale question detected]', {
+        console.warn('[⛔ Skipping explanation emit — mismatch detected]', {
           lockedIndex,
           currentIndex,
-          lockedQuestionText,
+          lockedText,
           currentText,
           lockedTimestamp,
-          latestTimestamp: this.latestOptionClickTimestamp,
+          latest: this.latestOptionClickTimestamp,
         });
       }
   
-      // Finalize
+      // 🔚 Finalization
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
-  
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
-  }  
+  }
 
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
