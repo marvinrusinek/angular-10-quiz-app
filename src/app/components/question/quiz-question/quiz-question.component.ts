@@ -2655,7 +2655,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2693,8 +2693,8 @@ export class QuizQuestionComponent
 
       // Check again that we're still on the same question before emitting
       const currentQuestion = this.currentQuestion;
-      const currentText = currentQuestion?.questionText?.trim() || '';
       const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      const currentText = currentQuestion?.questionText?.trim() || '';
 
       const isSameQuestion = currentText === lockedQuestionText;
       if (!isSameQuestion) {
@@ -2721,13 +2721,13 @@ export class QuizQuestionComponent
         });
       }
       
-      /* this.explanationTextService.emitExplanationSafely(
+      // this.explanationTextService.emitExplanationSafely(
         explanationText,
         lockedIndex,
         lockedQuestionText!,
         currentQuestionSnapshot,
         (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
-      ); */
+      );
       // Emit only if current state matches snapshot
       /* this.explanationTextService.emitExplanationIfValid(
         explanationText,
@@ -2735,7 +2735,79 @@ export class QuizQuestionComponent
         lockedQuestionText,
         lockedQuestionSnapshot,
         lockedTimestamp
-      ); */
+      );
+  
+      // Finalize
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(option, event.index);
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const lockedTimestamp = Date.now();
+    this.latestOptionClickTimestamp = lockedTimestamp;
+  
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const lockedQuestionText = this.currentQuestion?.questionText?.trim() || '';
+    const lockedQuestionSnapshot = structuredClone(this.currentQuestion);
+  
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+  
+    try {
+      // Handle option selection and feedback
+      this.updateOptionSelection(event, option);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
+      this.applyFeedbackIfNeeded(option);
+      this.handleSelectionMessageUpdate();
+  
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setAnswered(true);
+      this.nextButtonStateService.syncNextButtonState();
+  
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      // Delay explanation emission
+      const explanationText = await this.updateExplanationText(lockedIndex);
+  
+      // Check again that we're still on the same question before emitting
+      const currentQuestion = this.currentQuestion;
+      const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      const currentText = currentQuestion?.questionText?.trim() || '';
+  
+      const shouldEmit = this.explanationTextService.shouldEmitExplanation(
+        lockedIndex,
+        lockedQuestionText,
+        currentIndex,
+        currentText,
+        lockedTimestamp,
+        this.latestOptionClickTimestamp
+      );
+  
+      if (shouldEmit) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      } else {
+        console.warn('[⛔ Skipping explanation emit — stale question detected]', {
+          lockedIndex,
+          currentIndex,
+          lockedQuestionText,
+          currentText,
+          lockedTimestamp,
+          latestTimestamp: this.latestOptionClickTimestamp
+        });
+      }
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
