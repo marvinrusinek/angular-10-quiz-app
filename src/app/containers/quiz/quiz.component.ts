@@ -154,6 +154,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
   isQuizRenderReady = false;
+  public isQuizRenderReady$ = new BehaviorSubject<boolean>(false);
   private quizAlreadyInitialized = false;
   questionInitialized = false;
   questionTextLoaded = false;
@@ -3900,7 +3901,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizQuestionComponent.renderReady$
           .pipe(debounceTime(10))
           .subscribe((isReady: boolean) => {
-            this.isQuizRenderReady = isReady;
+            this.isQuizRenderReady$.next(isReady);
           });
       }
     }, 50); // check every 50ms
