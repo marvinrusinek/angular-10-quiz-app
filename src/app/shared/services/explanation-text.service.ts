@@ -585,27 +585,35 @@ export class ExplanationTextService {
   } */
   emitExplanationIfValid(
     explanationText: string,
-    lockedIndex: number,
+    questionIndex: number,
     lockedQuestionText: string,
-    lockedQuestionSnapshot: QuizQuestion | null
+    lockedSnapshot: QuizQuestion | null,
+    lockedTimestamp: number
   ): void {
-    const snapshotText = lockedQuestionSnapshot?.questionText?.trim() ?? '';
-    const snapshotIndex = lockedIndex;
+    const currentTime = Date.now();
+    const isExpired = currentTime - lockedTimestamp > 1000; // 1 second threshold
   
-    if (snapshotText !== lockedQuestionText) {
-      console.warn(`[⛔ Skipping emit — stale Q${lockedIndex}]`, {
-        lockedQuestionText,
-        snapshotText
-      });
+    if (isExpired) {
+      console.warn(`[⏱️ Skipping stale explanation for Q${questionIndex}] Took too long`);
+      return;
+    }
+  
+    const snapshotText = lockedSnapshot?.questionText?.trim() ?? '';
+    const isSameText = snapshotText === lockedQuestionText;
+  
+    if (!isSameText) {
+      console.warn(`[⛔ Question mismatch. Skipping explanation for Q${questionIndex}]`);
       return;
     }
   
     // Proceed with emit
-    this.explanationTexts[lockedIndex] = explanationText;
+    this.explanationTexts[questionIndex] = explanationText;
     this.formattedExplanationSubject.next(explanationText);
     this.setExplanationText(explanationText);
     this.setShouldDisplayExplanation(true);
     this.lockExplanation();
     this.latestExplanation = explanationText;
-  }    
+  
+    console.log(`[📤 Explanation emitted for Q${questionIndex}]`);
+  }
 }
