@@ -477,7 +477,7 @@ export class ExplanationTextService {
     this.resetCompleteSubject.next(value);
   }
 
-  emitExplanationSafely(
+  /* emitExplanationSafely(
     explanationText: string,
     lockedIndex: number,
     lockedQuestionText: string,
@@ -505,5 +505,37 @@ export class ExplanationTextService {
     // ✅ Safe to emit
     console.log(`[✅ Emitting safe explanation for Q${lockedIndex}]`, trimmed);
     emitFn(trimmed, lockedIndex);
-  }  
+  } */
+  emitExplanationIfNeededForLockedQuestion({
+    explanationText,
+    questionIndex,
+    questionText
+  }: {
+    explanationText: string;
+    questionIndex: number;
+    questionText: string;
+  }): void {
+    const trimmed = explanationText?.trim();
+    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
+      console.log('[⏭️ Skipping empty/default explanation]');
+      return;
+    }
+  
+    const latest = this.explanationTexts[questionIndex];
+    const isSame = latest === trimmed;
+  
+    if (!isSame) {
+      console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
+  
+      this.explanationTexts[questionIndex] = trimmed;
+      this.formattedExplanationSubject.next(trimmed);
+      this.setExplanationText(trimmed);
+      this.setShouldDisplayExplanation(true);
+      this.lockExplanation();
+  
+      this.latestExplanation = trimmed;
+    } else {
+      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
+    }
+  }    
 }
