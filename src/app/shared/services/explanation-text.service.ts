@@ -389,7 +389,6 @@ export class ExplanationTextService {
       return;
     }
   
-    // Use the passed questionIndex ONLY — don't call quizService
     const latest = this.explanationTexts[questionIndex];
     const isSame = latest === trimmed;
   
@@ -401,12 +400,11 @@ export class ExplanationTextService {
       this.setExplanationText(trimmed);
       this.setShouldDisplayExplanation(true);
       this.lockExplanation();
-  
       this.latestExplanation = trimmed;
     } else {
       console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
     }
-  }
+  }  
 
   public setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
@@ -583,37 +581,33 @@ export class ExplanationTextService {
       console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
     }
   } */
-  emitExplanationIfValid(
-    explanationText: string,
-    questionIndex: number,
-    lockedQuestionText: string,
-    lockedSnapshot: QuizQuestion | null,
-    lockedTimestamp: number
-  ): void {
-    const currentTime = Date.now();
-    const isExpired = currentTime - lockedTimestamp > 1000; // 1 second threshold
+  emitExplanationIfValid({
+    explanationText,
+    lockedIndex,
+    lockedQuestionText,
+    lockedQuestionSnapshot
+  }: {
+    explanationText: string;
+    lockedIndex: number;
+    lockedQuestionText: string;
+    lockedQuestionSnapshot: QuizQuestion | null;
+  }): void {
+    const activeQuestion = this.questionStateService.getQuestionByIndex(lockedIndex); // or injected source
+    const activeText = activeQuestion?.questionText?.trim();
   
-    if (isExpired) {
-      console.warn(`[⏱️ Skipping stale explanation for Q${questionIndex}] Took too long`);
+    const isValid =
+      activeText === lockedQuestionText &&
+      activeQuestion?.questionText === lockedQuestionSnapshot?.questionText;
+  
+    if (!isValid) {
+      console.warn('[🚫 stale emit blocked]', {
+        lockedIndex,
+        lockedQuestionText,
+        activeText
+      });
       return;
     }
   
-    const snapshotText = lockedSnapshot?.questionText?.trim() ?? '';
-    const isSameText = snapshotText === lockedQuestionText;
-  
-    if (!isSameText) {
-      console.warn(`[⛔ Question mismatch. Skipping explanation for Q${questionIndex}]`);
-      return;
-    }
-  
-    // Proceed with emit
-    this.explanationTexts[questionIndex] = explanationText;
-    this.formattedExplanationSubject.next(explanationText);
-    this.setExplanationText(explanationText);
-    this.setShouldDisplayExplanation(true);
-    this.lockExplanation();
-    this.latestExplanation = explanationText;
-  
-    console.log(`[📤 Explanation emitted for Q${questionIndex}]`);
-  }
+    this.emitExplanationIfNeeded(explanationText, lockedIndex);
+  }  
 }
