@@ -2693,12 +2693,13 @@ export class QuizQuestionComponent
         currentQuestionSnapshot,
         (text, index) => this.explanationTextService.emitExplanationIfNeeded(text, index)
       ); */
-      // Emit using fully locked values – pass in text and index manually
-      this.explanationTextService.emitExplanationIfNeededStrict({
+      // Emit only if current state matches snapshot
+      this.explanationTextService.emitExplanationIfValid(
         explanationText,
-        questionIndex: lockedIndex,
-        questionText: lockedQuestionText,
-      });
+        lockedIndex,
+        lockedQuestionText,
+        currentQuestionSnapshot
+      );
   
       // Finalize
       await this.processSelectedOption(option, event.index, event.checked);
