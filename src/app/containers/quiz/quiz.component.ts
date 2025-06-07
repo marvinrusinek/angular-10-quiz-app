@@ -466,7 +466,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngAfterViewInit(): void {
     this.loadQuestionContents(this.currentQuestionIndex);
-    this.waitForQuizQuestionComponent();
+
+    setTimeout(() => {
+      if (this.quizQuestionComponent?.renderReady$) {
+        this.quizQuestionComponent.renderReady$
+          .pipe(debounceTime(10))
+          .subscribe((isReady: boolean) => {
+            this.isQuizRenderReady$.next(isReady);
+          });
+      } else {
+        console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
+      }
+    }, 0);    
   }
     
   initializeDisplayVariables(): void {
@@ -3892,18 +3903,4 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges(); // force update if needed
     });
   }
-  
-  private waitForQuizQuestionComponent(): void {
-    const intervalId = setInterval(() => {
-      if (this.quizQuestionComponent) {
-        clearInterval(intervalId);
-  
-        this.quizQuestionComponent.renderReady$
-          .pipe(debounceTime(10))
-          .subscribe((isReady: boolean) => {
-            this.isQuizRenderReady$.next(isReady);
-          });
-      }
-    }, 50); // check every 50ms
-  }  
 }
