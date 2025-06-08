@@ -145,6 +145,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
+  public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   explanationToDisplay = '';
   displayVariables: { question: string; explanation: string };
 
@@ -491,7 +492,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         combineLatest([
           this.quizQuestionComponent.renderReady$.pipe(filter(Boolean)),
           this.quizService.questionData$.pipe(filter(q => !!q)),
-          this.quizStateService.optionsToDisplay$.pipe(filter(opts => opts.length > 0)),
+          this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
         ])
           .pipe(take(1))
           .subscribe(() => {
@@ -611,6 +612,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
+        this.optionsToDisplay$.next([...updatedOptions]);
         this.hasOptionsLoaded = true;
   
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
