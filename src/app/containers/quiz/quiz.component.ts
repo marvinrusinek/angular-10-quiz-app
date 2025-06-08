@@ -3942,14 +3942,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     combineLatest([
-      this.quizQuestionComponent.renderReady$.pipe(filter(Boolean)),
-      this.quizService.questionData$.pipe(filter(q => !!q)),
-      this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
+      this.quizQuestionComponent.renderReady$.pipe(
+        startWith(false),
+        filter(Boolean)
+      ),
+      this.quizService.questionData$.pipe(
+        filter(q => !!q)
+      ),
+      this.optionsToDisplay$.pipe(
+        filter(opts => Array.isArray(opts) && opts.length > 0)
+      )
     ])
-      .pipe(take(1))
-      .subscribe(() => {
-        console.log('[✅ renderGate] All conditions met via combineLatest');
-        this.renderGateSubject.next(true);
+      .pipe(take(1)) // only trigger once when all are ready
+      .subscribe(([_, question, options]) => {
+        const combined = { question, options };
+        console.log('[✅ All ready: pushing to combinedQuestionDataSubject]', combined);
+        this.combinedQuestionDataSubject.next(combined); // push only when ALL are ready
+        this.renderGateSubject.next(true); // Optional: if still using a render gate
       });
-  }    
+  }      
 }
