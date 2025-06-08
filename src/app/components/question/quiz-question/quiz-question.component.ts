@@ -488,7 +488,7 @@ export class QuizQuestionComponent
       );
     }
   
-    // ✅ New logic: emit renderReady when both question and options are valid
+    // Emit renderReady when both question and options are valid
     const hasValidQuestion =
       !!this.questionData?.questionText?.trim?.() ||
       !!this.currentQuestion?.questionText?.trim?.();
