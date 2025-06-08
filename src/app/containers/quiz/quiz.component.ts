@@ -478,7 +478,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizQuestionComponent.renderReady$
             .pipe(debounceTime(10))
             .subscribe((isReady: boolean) => {
-              console.log('[📡 QuizComponent] renderReady$ emitted:', isReady);
+              console.log('[📡 renderReady$ emitted]', isReady); // ✅ Confirm this logs TRUE
               this.isQuizRenderReady$.next(isReady);
     
               if (isReady) {
@@ -3934,7 +3934,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private setupRenderGateSync(): void {
+  /* private setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent not ready');
       return;
@@ -3950,5 +3950,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[✅ renderGate] All conditions met via combineLatest');
         this.renderGateSubject.next(true);
       });
-  }  
+  } */
+  private setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[❌] QQC renderReady$ not ready');
+      return;
+    }
+  
+    console.log('[📦] Setting up renderGateSync');
+  
+    combineLatest([
+      this.quizQuestionComponent.renderReady$.pipe(
+        tap(val => console.log('[👀] renderReady$', val)),
+        filter(Boolean)
+      ),
+      this.quizService.questionData$.pipe(
+        tap(val => console.log('[👀] questionData$', val)),
+        filter(q => !!q)
+      ),
+      this.optionsToDisplay$.pipe(
+        tap(val => console.log('[👀] optionsToDisplay$', val)),
+        filter(opts => opts.length > 0)
+      )
+    ])
+      .pipe(take(1))
+      .subscribe(() => {
+        console.log('[✅] All renderGate conditions met!');
+        this.renderGateSubject.next(true);
+      });
+  }    
 }
