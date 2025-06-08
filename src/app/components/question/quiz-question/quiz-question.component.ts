@@ -789,12 +789,13 @@ export class QuizQuestionComponent
   }
 
   private triggerRenderReady(reason: string = ''): void {
-    if (reason) console.log(reason);
+    if (reason) console.log('[🚀 triggerRenderReady]', reason);
   
     this.finalRenderReady = true;
     this.renderReady = true;
-    this.renderReadySubject.next(true);
-    this.cdRef.detectChanges();
+  
+    this.renderReadySubject.next(true); // triggers observable
+    this.cdRef.detectChanges(); // optional, only if UI is not reacting
   }
   
   private resetOptionsDueToInvalidData(reason: string): void {
