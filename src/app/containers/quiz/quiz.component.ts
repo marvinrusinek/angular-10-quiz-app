@@ -619,7 +619,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         this.questionData = data.question ?? ({} as QuizQuestion);
         console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
-        this.tryRenderGate();        
+        this.tryRenderGate();
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
@@ -3947,5 +3947,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       console.warn('[⛔ renderGate] Conditions not met');
     }
+  }
+
+  private setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent not ready');
+      return;
+    }
+  
+    combineLatest([
+      this.quizQuestionComponent.renderReady$.pipe(filter(Boolean)),
+      this.quizService.questionData$.pipe(filter(q => !!q)),
+      this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
+    ])
+      .pipe(take(1))
+      .subscribe(() => {
+        console.log('[✅ renderGate] All conditions met via combineLatest');
+        this.renderGateSubject.next(true);
+      });
   }  
 }
