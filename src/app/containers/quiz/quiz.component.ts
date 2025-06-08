@@ -470,26 +470,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       startWith(false)
     ); */
 
-    ngAfterViewInit(): void {
-      this.loadQuestionContents(this.currentQuestionIndex);
+  ngAfterViewInit(): void {
+    this.loadQuestionContents(this.currentQuestionIndex);
     
-      setTimeout(() => {
-        if (this.quizQuestionComponent?.renderReady$) {
-          this.quizQuestionComponent.renderReady$
-            .pipe(debounceTime(10))
-            .subscribe((isReady: boolean) => {
-              console.log('[📡 renderReady$ emitted]', isReady); // ✅ Confirm this logs TRUE
-              this.isQuizRenderReady$.next(isReady);
-    
-              if (isReady) {
-                this.setupRenderGateSync(); // 🔑 Wait for child to emit readiness
-              }
-            });
-        } else {
-          console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
-        }
-      }, 0);
-    }    
+    setTimeout(() => {
+      if (this.quizQuestionComponent?.renderReady$) {
+        console.log('[✅ QQC found] Setting up render gate sync...');
+        this.setupRenderGateSync();
+      } else {
+        console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
+      }
+    }, 50); // give enough time for @ViewChild to initialize
+  }      
     
   initializeDisplayVariables(): void {
     this.displayVariables = {
