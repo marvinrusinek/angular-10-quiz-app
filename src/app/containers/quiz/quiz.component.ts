@@ -218,6 +218,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   shouldRenderQuestionComponent = false;
 
+  private readonly renderGateSubject = new BehaviorSubject<boolean>(false);
+  renderGate$ = this.renderGateSubject.asObservable();
+
+  public finalRenderReady = false;
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -478,6 +483,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
       }
+
+      this.tryRenderGate(); // triggers after view is initialized
     }, 0);    
   }
     
@@ -3904,4 +3911,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges(); // force update if needed
     });
   }
+
+  private tryRenderGate(): void {
+    if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
+      console.log('[✅ renderGate] All render conditions met');
+      this.renderGateSubject.next(true);
+    }
+  }  
 }
