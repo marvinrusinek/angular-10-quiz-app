@@ -474,7 +474,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     setTimeout(() => {
       if (this.quizQuestionComponent?.renderReady$) {
-        // Step 1: emit render readiness
+        // Emit render readiness
         this.quizQuestionComponent.renderReady$
           .pipe(debounceTime(10))
           .subscribe((isReady: boolean) => {
@@ -487,10 +487,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
           });
   
-        // Step 2: wait for all conditions (question, options, render flag)
+        // Wait for all conditions (question, options, render flag)
         combineLatest([
           this.quizQuestionComponent.renderReady$.pipe(filter(Boolean)),
-          this.quizStateService.questionData$.pipe(filter(q => !!q)),
+          this.quizService.questionData$.pipe(filter(q => !!q)),
           this.quizStateService.optionsToDisplay$.pipe(filter(opts => opts.length > 0)),
         ])
           .pipe(take(1))
