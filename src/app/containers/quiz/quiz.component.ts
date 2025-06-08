@@ -479,13 +479,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           .subscribe((isReady: boolean) => {
             console.log('[📡 QuizComponent] renderReady$ emitted:', isReady);
             this.isQuizRenderReady$.next(isReady);
+
+            if (isReady) {
+              this.tryRenderGate(); // only trigger after confirmed ready
+            }
           });
       } else {
         console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
       }
-
-      this.tryRenderGate(); // triggers after view is initialized
-    }, 0);    
+    }, 0);
   }
     
   initializeDisplayVariables(): void {
