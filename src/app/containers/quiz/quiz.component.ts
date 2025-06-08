@@ -122,8 +122,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion,
     options: Option[]
-  }>(null);
-  combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
+  } | null>(null);
+  combinedQuestionData$: Observable<{
+    question: QuizQuestion,
+    options: Option[]
+  } | null> = this.combinedQuestionDataSubject.asObservable();
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
