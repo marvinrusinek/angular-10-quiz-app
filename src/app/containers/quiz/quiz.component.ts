@@ -3945,7 +3945,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private setupRenderGateSync(): void {
+  /* private setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent not ready');
       return;
@@ -3970,5 +3970,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.combinedQuestionDataSubject.next(combined); // push only when ALL are ready
         this.renderGateSubject.next(true); // optional: if still using a render gate
       });
-  }       
+  } */
+  private setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$.pipe(
+      filter(Boolean),
+      withLatestFrom(
+        this.quizService.questionData$.pipe(filter(q => !!q)),
+        this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
+      ),
+      take(1), // only take the first time all are ready
+      tap(([_, question, options]) => {
+        console.log('[✅ RenderGate Sync via renderReady$]', { question, options });
+        this.combinedQuestionDataSubject.next({ question, options }); // push into subject
+        this.renderGateSubject.next(true); // signal ready to render
+      })
+    ).subscribe();
+  }
 }
