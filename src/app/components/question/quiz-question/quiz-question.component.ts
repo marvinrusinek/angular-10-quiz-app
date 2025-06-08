@@ -465,6 +465,7 @@ export class QuizQuestionComponent
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.log('[🔄 ngOnChanges] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
+  
     if (changes.questionPayload && this.questionPayload) {
       const serialized = JSON.stringify(this.questionPayload);
   
@@ -485,6 +486,28 @@ export class QuizQuestionComponent
         changes['currentQuestion'],
         changes['selectedOptions']
       );
+    }
+  
+    // ✅ New logic: emit renderReady when both question and options are valid
+    const hasValidQuestion =
+      !!this.questionData?.questionText?.trim?.() ||
+      !!this.currentQuestion?.questionText?.trim?.();
+  
+    const hasValidOptions =
+      Array.isArray(this.options) && this.options.length > 0;
+  
+    if (hasValidQuestion && hasValidOptions) {
+      // Use setTimeout to allow DOM update cycle
+      setTimeout(() => {
+        console.log('[✅ renderReady] Conditions met, emitting true');
+        this.renderReadySubject.next(true);
+      }, 0);
+    } else {
+      console.warn('[⏸️ renderReady] Conditions not met:', {
+        hasValidQuestion,
+        hasValidOptions,
+      });
+      this.renderReadySubject.next(false);
     }
   }
   
