@@ -218,7 +218,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   shouldRenderQuestionComponent = false;
 
-  private readonly renderGateSubject = new BehaviorSubject<boolean>(false);
+  private renderGateSubject = new BehaviorSubject<boolean>(false);
   renderGate$ = this.renderGateSubject.asObservable();
 
   public finalRenderReady = false;
