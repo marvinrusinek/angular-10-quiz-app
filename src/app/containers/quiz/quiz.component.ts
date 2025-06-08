@@ -470,41 +470,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       startWith(false)
     ); */
 
-  ngAfterViewInit(): void {
-    this.loadQuestionContents(this.currentQuestionIndex);
-  
-    setTimeout(() => {
-      if (this.quizQuestionComponent?.renderReady$) {
-        // Emit render readiness
-        this.quizQuestionComponent.renderReady$
-          .pipe(debounceTime(10))
-          .subscribe((isReady: boolean) => {
-            console.log('[📡 QuizComponent] renderReady$ emitted:', isReady);
-            this.isQuizRenderReady$.next(isReady);
-
-            if (isReady) {
-              this.finalRenderReady = true;  // required for tryRenderGate condition
-              this.tryRenderGate(); // only trigger after confirmed ready
-            }
-          });
-  
-        // Wait for all conditions (question, options, render flag)
-        combineLatest([
-          this.quizQuestionComponent.renderReady$.pipe(filter(Boolean)),
-          this.quizService.questionData$.pipe(filter(q => !!q)),
-          this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
-        ])
-          .pipe(take(1))
-          .subscribe(() => {
-            console.log('[✅ renderGate] All conditions met via combineLatest');
-            this.renderGateSubject.next(true);
-          });
-  
-      } else {
-        console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
-      }
-    }, 0);
-  }  
+    ngAfterViewInit(): void {
+      this.loadQuestionContents(this.currentQuestionIndex);
+    
+      setTimeout(() => {
+        if (this.quizQuestionComponent?.renderReady$) {
+          this.quizQuestionComponent.renderReady$
+            .pipe(debounceTime(10))
+            .subscribe((isReady: boolean) => {
+              console.log('[📡 QuizComponent] renderReady$ emitted:', isReady);
+              this.isQuizRenderReady$.next(isReady);
+    
+              if (isReady) {
+                this.setupRenderGateSync(); // 🔑 Wait for child to emit readiness
+              }
+            });
+        } else {
+          console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
+        }
+      }, 0);
+    }    
     
   initializeDisplayVariables(): void {
     this.displayVariables = {
