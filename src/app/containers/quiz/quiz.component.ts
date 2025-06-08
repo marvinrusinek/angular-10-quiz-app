@@ -602,6 +602,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
   
         this.questionData = data.question ?? ({} as QuizQuestion);
+        console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
+        this.tryRenderGate();        
+
         this.isQuestionDisplayed = true;
         this.isLoading = false;
       } catch (error) {
