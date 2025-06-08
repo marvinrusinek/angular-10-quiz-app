@@ -794,7 +794,7 @@ export class QuizQuestionComponent
     this.finalRenderReady = true;
     this.renderReady = true;
   
-    this.renderReadySubject.next(true); // triggers observable
+    this.renderReadySubject.next(true); // triggers the stream
     this.cdRef.detectChanges(); // optional, only if UI is not reacting
   }
   
