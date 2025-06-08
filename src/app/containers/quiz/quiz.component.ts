@@ -3953,12 +3953,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         filter(opts => Array.isArray(opts) && opts.length > 0)
       )
     ])
-      .pipe(take(1)) // only trigger once when all are ready
+      .pipe(take(1)) // Only trigger once when all are ready
       .subscribe(([_, question, options]) => {
         const combined = { question, options };
         console.log('[✅ All ready: pushing to combinedQuestionDataSubject]', combined);
         this.combinedQuestionDataSubject.next(combined); // push only when ALL are ready
-        this.renderGateSubject.next(true); // Optional: if still using a render gate
+        this.renderGateSubject.next(true); // optional: if still using a render gate
       });
-  }      
+  }       
 }
