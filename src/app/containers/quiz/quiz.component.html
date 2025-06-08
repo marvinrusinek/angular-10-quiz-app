@@ -6,43 +6,42 @@
     <codelab-quiz-header></codelab-quiz-header>
 
     <mat-card-content *ngIf="combinedQuestionData$ | async as combined">
-    <!-- the scoreboard -->
-    <codelab-scoreboard></codelab-scoreboard>
+      <!-- the scoreboard -->
+      <codelab-scoreboard></codelab-scoreboard>
+    
+      <ng-container *ngIf="shouldDisplayContent">
+        <!-- the question and options -->
+        <codelab-quiz-content
+          [questionToDisplay]="questionToDisplay"
+          [questionToDisplay$]="questionToDisplay$"
+          [explanationToDisplay]="explanationToDisplay"
+          [displayState$]="displayState$"
+        ></codelab-quiz-content>
+    
+        <ng-content></ng-content>
+    
+        <codelab-quiz-question
+          [questionPayload]="questionPayload"
+          [quizData]="quizComponentData"
+          [questionData]="combined.question"
+          [options]="combined.options"
+          [currentQuestionIndex]="currentQuestionIndex"
+          [explanationToDisplay]="explanationToDisplay"
+          [displayState$]="displayState$"
+          [shouldRenderOptions]="shouldRenderOptions"
+          (answer)="selectedAnswer($event)"
+          (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
+          (feedbackTextChange)="feedbackText = $event"
+          (nextButtonState)="nextButtonStateService.updateAndSyncNextButtonState($event)"
+          (optionSelected)="onOptionSelected($event)"
+        ></codelab-quiz-question>
+      </ng-container>
+    </mat-card-content>
   
-    <ng-container *ngIf="shouldDisplayContent">
-      <!-- the question and options -->
-      <codelab-quiz-content
-        [questionToDisplay]="questionToDisplay"
-        [questionToDisplay$]="questionToDisplay$"
-        [explanationToDisplay]="explanationToDisplay"
-        [displayState$]="displayState$"
-      ></codelab-quiz-content>
+    <ng-template #errorTemplate>
+      <p>Error loading question. Please try again.</p>
+    </ng-template>
   
-      <ng-content></ng-content>
-  
-      <codelab-quiz-question
-        [questionPayload]="questionPayload"
-        [quizData]="quizComponentData"
-        [questionData]="combined.question"
-        [options]="combined.options"
-        [currentQuestionIndex]="currentQuestionIndex"
-        [explanationToDisplay]="explanationToDisplay"
-        [displayState$]="displayState$"
-        [shouldRenderOptions]="shouldRenderOptions"
-        (answer)="selectedAnswer($event)"
-        (displayStateChange)="updateDisplayState($event.mode, $event.answered)"
-        (feedbackTextChange)="feedbackText = $event"
-        (nextButtonState)="nextButtonStateService.updateAndSyncNextButtonState($event)"
-        (optionSelected)="onOptionSelected($event)"
-      ></codelab-quiz-question>
-    </ng-container>
-  </mat-card-content>
-  
-  <ng-template #errorTemplate>
-    <p>Error loading question. Please try again.</p>
-  </ng-template>
-  
-
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- instructions message -->
       <h5 class="instructions-message"
