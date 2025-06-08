@@ -3927,9 +3927,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         hasQuestion,
         hasOptions,
         isFinalReady,
-        questionData: this.questionData,
-        optionsToDisplayLength: this.optionsToDisplay?.length,
       });
     }
-  }  
+  }   
 }
