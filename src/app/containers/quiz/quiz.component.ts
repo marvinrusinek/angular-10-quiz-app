@@ -3916,24 +3916,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private tryRenderGate(): void {
-    const hasQuestion = !!this.questionData;
-    const hasOptions = this.optionsToDisplay.length > 0;
-    const isRenderReady = this.finalRenderReady;
+    const allConditionsMet =
+      this.questionData &&
+      this.optionsToDisplay.length > 0 &&
+      this.finalRenderReady;
   
-    console.log('[🔍 tryRenderGate Check]', {
-      hasQuestion,
-      hasOptions,
-      isRenderReady
+    console.log('[🧪 tryRenderGate check]', {
+      questionData: !!this.questionData,
+      optionsCount: this.optionsToDisplay.length,
+      finalRenderReady: this.finalRenderReady,
+      allConditionsMet
     });
   
-    if (hasQuestion && hasOptions && isRenderReady) {
-      console.log('[✅ tryRenderGate] All conditions met. Emitting renderGateSubject.');
+    if (allConditionsMet) {
+      console.log('[✅ renderGate] All render conditions met');
       this.renderGateSubject.next(true);
     } else {
-      console.warn('[⏸️ tryRenderGate] Conditions not met:', {
-        hasQuestion,
-        hasOptions,
-        isRenderReady
+      console.warn('[⛔ renderGate blocked]', {
+        question: !!this.questionData,
+        options: this.optionsToDisplay.length,
+        ready: this.finalRenderReady
       });
     }
   }  
