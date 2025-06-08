@@ -481,6 +481,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.isQuizRenderReady$.next(isReady);
 
             if (isReady) {
+              this.finalRenderReady = true;  // required for tryRenderGate condition
               this.tryRenderGate(); // only trigger after confirmed ready
             }
           });
