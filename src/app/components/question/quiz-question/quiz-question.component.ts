@@ -1676,7 +1676,7 @@ export class QuizQuestionComponent
     }
   }
 
-  protected override async loadDynamicComponent(
+  public override async loadDynamicComponent(
     question: QuizQuestion,
     options: Option[],
     questionIndex: number
