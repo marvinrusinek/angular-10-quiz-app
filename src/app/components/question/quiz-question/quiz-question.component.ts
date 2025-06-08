@@ -1678,8 +1678,7 @@ export class QuizQuestionComponent
 
   public override async loadDynamicComponent(
     question: QuizQuestion,
-    options: Option[],
-    questionIndex: number
+    options: Option[]
   ): Promise<void> {
     console.log('[📥 loadDynamicComponent START]', {
       questionIndex: this.currentQuestionIndex,
