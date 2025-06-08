@@ -475,12 +475,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     
     setTimeout(() => {
       if (this.quizQuestionComponent?.renderReady$) {
-        console.log('[✅ QQC found] Setting up render gate sync...');
-        this.setupRenderGateSync();
-      } else {
-        console.warn('[⚠️] quizQuestionComponent.renderReady$ not available');
+        this.quizQuestionComponent.renderReady$
+          .pipe(debounceTime(10))
+          .subscribe((isReady: boolean) => {
+            console.log('[📡 renderReady$ emitted]', isReady);
+            this.isQuizRenderReady$.next(isReady);
+    
+            if (isReady) {
+              this.setupRenderGateSync(); // 🧠 This waits for question + options + child ready
+            }
+          });
       }
-    }, 50); // give enough time for @ViewChild to initialize
+    }, 0);    
   }      
     
   initializeDisplayVariables(): void {
@@ -589,7 +595,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Set values only after ensuring correct mapping
         this.optionsToDisplay = [...updatedOptions];
-        this.optionsToDisplay$.next([...updatedOptions]);
+        this.optionsToDisplay$.next(this.optionsToDisplay);
         this.hasOptionsLoaded = true;
   
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);

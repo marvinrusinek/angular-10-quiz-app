@@ -22,6 +22,7 @@
         <ng-content></ng-content>
 
         <ng-container *ngIf="isContentAvailable || (isContentAvailable$ | async); else noQuestion" class="options">
+          <ng-container *ngIf="renderGate$ | async">
           <codelab-quiz-question
             *ngIf="shouldRenderQuestionComponent && isQuestionDisplayed && questionData"
             [questionPayload]="questionPayload"
@@ -37,7 +38,7 @@
             (feedbackTextChange)="feedbackText = $event"
             (nextButtonState)="nextButtonStateService.updateAndSyncNextButtonState($event)"
             (optionSelected)="onOptionSelected($event)"
-          ></codelab-quiz-question>
+          ></codelab-quiz-question></ng-container>
         </ng-container>
 
         <ng-template #noQuestion>
