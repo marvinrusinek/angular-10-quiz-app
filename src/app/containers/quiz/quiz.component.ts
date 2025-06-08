@@ -2146,22 +2146,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }  
 
-  createQuestionData(): void { 
+  createQuestionData(): void {
+    // Internal fallback question to ensure consistent type
+    const fallbackQuestion: QuizQuestion = {
+      questionText: 'No question available',
+      type: QuestionType.SingleAnswer,
+      explanation: '',
+      options: []
+    };
+  
     const createQuestionData = (
       question: QuizQuestion | null,
       options: Option[] | null
-    ) => ({
-      questionText: question?.questionText ?? null,
-      correctAnswersText: null,
-      options: Array.isArray(options) // Ensure options is an array before mapping
+    ): { question: QuizQuestion; options: Option[] } => {
+      const safeOptions = Array.isArray(options)
         ? options.map(option => ({
             ...option,
-            correct: option.correct ?? false, // Ensure `correct` property is set
+            correct: option.correct ?? false,
           }))
-        : [], // Fallback to an empty array if options is null or not an array
-    });
+        : [];
   
-    // Combine nextQuestion$ and nextOptions$ using combineLatest
+      return {
+        question: question ?? fallbackQuestion,
+        options: safeOptions,
+      };
+    };
+  
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$.pipe(
         map(value => {
@@ -2179,13 +2189,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.warn('nextOptions$ emitted undefined, defaulting to empty array');
             return [];
           }
-          // Ensure options include `correct` property
-          return Array.isArray(value) // Ensure value is an array before mapping
+  
+          return Array.isArray(value)
             ? value.map(option => ({
                 ...option,
-                correct: option.correct ?? false, // Default `correct` to false if undefined
+                correct: option.correct ?? false,
               }))
-            : []; // Fallback to an empty array if value is not an array
+            : [];
         }),
         distinctUntilChanged()
       )
@@ -2211,13 +2221,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   console.warn('previousOptions$ emitted undefined, defaulting to empty array');
                   return [];
                 }
-                // Ensure options include `correct` property
-                return Array.isArray(value) // Ensure value is an array before mapping
+  
+                return Array.isArray(value)
                   ? value.map(option => ({
                       ...option,
-                      correct: option.correct ?? false, // Default `correct` to false if undefined
+                      correct: option.correct ?? false,
                     }))
-                  : []; // Fallback to an empty array if value is not an array
+                  : [];
               }),
               distinctUntilChanged()
             )
@@ -2230,10 +2240,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       catchError(error => {
         console.error('Error in createQuestionData:', error);
-        return of(createQuestionData(null, [])); // Fallback if an error occurs
+        return of(createQuestionData(null, [])); // fallback with dummy question
       })
     );
-  }  
+  }    
 
   private async getQuestion(): Promise<void | null> {
     try {
