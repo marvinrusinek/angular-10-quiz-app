@@ -11,6 +11,7 @@ import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
+import { ExplanationTextService } from './explanation-text.service';
 import { ProgressBarService } from './progress-bar.service';
 
 @Injectable({ providedIn: 'root' })
