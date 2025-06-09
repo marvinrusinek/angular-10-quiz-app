@@ -28,6 +28,8 @@ export class QuizNavigationService {
   totalQuestions = 0;
 
   isNavigating = false;
+  private navigatingToResults = false;
+  
   isButtonEnabled$: Observable<boolean>;
   
   constructor(
