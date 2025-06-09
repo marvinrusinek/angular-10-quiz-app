@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Injectable } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
@@ -30,6 +30,7 @@ export class QuizQuestionLoaderService {
   questionToDisplay = '';
   questionToDisplay$ = new BehaviorSubject<string>('');
   questionTextLoaded = false;
+  questionInitialized = false;
   explanationToDisplay = '';
 
   showFeedbackForOption: { [key: number]: boolean } = {};
@@ -44,6 +45,7 @@ export class QuizQuestionLoaderService {
   public isLoading = false;
   isQuestionDisplayed = false;
   isNextButtonEnabled = false;
+  isAnswered$: Observable<boolean>;
   
   totalQuestions = 0;
   shouldRenderQuestionComponent = false;
