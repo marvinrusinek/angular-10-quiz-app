@@ -5,9 +5,11 @@ import { catchError, map, switchMap, takeUntil, tap, throwError } from 'rxjs/ope
 
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
+import { NextButtonStateService } from './next-button-state.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
+import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
 
 @Injectable({ providedIn: 'root' })
@@ -16,15 +18,18 @@ export class QuizNavigationService {
   // quizQuestionComponent!: QuizQuestionComponent;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
+  currentQuestionIndex = 0;
   totalQuestions = 0;
 
   isNavigating = false;
   isButtonEnabled$: Observable<boolean>;
   
   constructor(
+    private nextButtonStateService: NextButtonStateService,
     private quizDataService: QuizDataService,
     private quizService: QuizService,
     private quizStateService: QuizStateService,
+    private selectedOptionService: SelectedOptionService,
     private timerService: TimerService, 
     private router: Router
   ) {}
