@@ -9,10 +9,10 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { Injectable } from '@angular/core';
 import { ExplanationTextService } from './explanation-text.service';
 import { ProgressBarService } from './progress-bar.service';
-import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizNavigationService } from './quiz-navigation.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
+import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
 
 
