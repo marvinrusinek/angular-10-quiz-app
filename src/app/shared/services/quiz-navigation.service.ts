@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Injectable, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
