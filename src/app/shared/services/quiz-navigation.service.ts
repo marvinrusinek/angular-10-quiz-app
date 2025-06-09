@@ -7,15 +7,18 @@ import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { QuizDataService } from './quizdata.service';
 import { QuizService } from './quiz.service';
+import { QuizStateService } from './quizstate.service';
 import { TimerService } from './timer.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
   isNavigating = false;
+  isButtonEnabled$: Observable<boolean>;
   
   constructor(
     private quizDataService: QuizDataService,
     private quizService: QuizService,
+    private quizStateService: QuizStateService,
     private timerService: TimerService
   ) {}
 
@@ -229,10 +232,103 @@ export class QuizNavigationService {
   }
 
   /**
-   * Optional helper if you want to navigate programmatically to a question
+   * Optional helper to navigate programmatically to a question
    */
-  public navigateToQuestion(index: number, quizId: string): void {
-    // Add logic to update route if needed
-    // this.router.navigate([`/quiz/${quizId}/${index + 1}`]);
+   private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
+    console.log(`[🚀 navigateToQuestion] Initiated for Q${questionIndex}`);
+  
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.renderReady = false;
+    }
+    this.sharedOptionComponent?.resetUIForNewQuestion();
+  
+    // Bounds check
+    if (
+      typeof questionIndex !== 'number' ||
+      isNaN(questionIndex) ||
+      questionIndex < 0 ||
+      questionIndex >= this.totalQuestions
+    ) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      return false;
+    }
+  
+    console.log(`[✅ Index Synchronization - Setting Index to Q${questionIndex}]`);
+  
+    // Set the index immediately to prevent race conditions
+    this.currentQuestionIndex = questionIndex;
+    this.quizService.setCurrentQuestionIndex(questionIndex);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+  
+    // Fetch and assign question data
+    const fetched = await this.fetchAndSetQuestionData(questionIndex);
+    if (!fetched) {
+      console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
+      return false;
+    }
+  
+    // Update route
+    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    console.log(`[🛣️ Route Update]: ${routeUrl}`);
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
+    if (!navSuccess) {
+      console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+      return false;
+    }
+  
+    // Handle dynamic component rendering
+    if (
+      this.quizQuestionComponent &&
+      this.currentQuestion?.questionText &&
+      this.optionsToDisplay?.length
+    ) {
+      console.log(`[🛠️ Loading Dynamic Component for Q${questionIndex}]`);
+      this.quizQuestionComponent.containerInitialized = false;
+      this.quizQuestionComponent.sharedOptionConfig = undefined;
+      this.quizQuestionComponent.shouldRenderFinalOptions = false;
+  
+      this.quizQuestionComponent.loadDynamicComponent(
+        this.currentQuestion!,
+        this.optionsToDisplay!
+      );
+  
+      this.cdRef.detectChanges();
+    } else {
+      console.warn('[🚫 Dynamic injection skipped]', {
+        component: !!this.quizQuestionComponent,
+        questionText: this.currentQuestion?.questionText,
+        optionsLength: this.optionsToDisplay?.length
+      });
+    }
+  
+    if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+      console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay
+      });
+      return false;
+    }
+  
+    // Badge update - moved after index synchronization
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const total = this.totalQuestions;
+  
+    if (
+      typeof currentIndex === 'number' &&
+      typeof total === 'number' &&
+      currentIndex >= 0 &&
+      currentIndex < total
+    ) {
+      console.log(`[🏷️ Badge Update - Index: ${currentIndex + 1} of ${total}]`);
+      this.quizService.updateBadgeText(currentIndex + 1, total);
+    } else {
+      console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions', {
+        currentIndex,
+        total
+      });
+    }
+  
+    console.log(`[✅ navigateToQuestion] Completed for Q${questionIndex}`);
+    return true;
   }
 }

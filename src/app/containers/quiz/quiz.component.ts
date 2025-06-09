@@ -3679,6 +3679,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
   
+  // REMOVE!!
   private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
     console.log(`[🚀 navigateToQuestion] Initiated for Q${questionIndex}`);
   
