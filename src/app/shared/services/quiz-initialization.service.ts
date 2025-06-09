@@ -272,6 +272,59 @@ export class QuizInitializationService {
       });
   }
 
+  private initializeQuizState(): void {
+    // Call findQuizByQuizId and subscribe to the observable to get the quiz data
+    this.quizService.findQuizByQuizId(this.quizId).subscribe({
+      next: (currentQuiz) => {
+        if (!currentQuiz) {
+          console.error(`Quiz not found: Quiz ID ${this.quizId}`);
+          return;
+        }
+
+        // Check if the questions property exists, is an array, and is not empty
+        if (
+          !Array.isArray(currentQuiz.questions) ||
+          currentQuiz.questions.length === 0
+        ) {
+          console.error(
+            `Questions data is invalid or not loaded for Quiz ID ${this.quizId}`
+          );
+          return;
+        }
+
+        // Ensure the currentQuestionIndex is valid for the currentQuiz's questions array
+        if (
+          !this.quizService.isValidQuestionIndex(
+            this.currentQuestionIndex,
+            currentQuiz.questions
+          )
+        ) {
+          console.error(
+            `Invalid question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`
+          );
+          return;
+        }
+
+        // Retrieve the current question using the valid index
+        const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
+
+        // Check if the currentQuestion is defined before proceeding
+        if (!currentQuestion) {
+          console.error(
+            `Current question is undefined: Quiz ID ${this.quizId}, Question Index ${this.currentQuestionIndex}`
+          );
+          return;
+        }
+
+        // Proceed to update the UI for the new question if all checks pass
+        this.updateQuizUIForNewQuestion(currentQuestion);
+      },
+      error: (error) => {
+        console.error(`Error retrieving quiz: ${error.message}`);
+      },
+    });
+  }
+
   loadQuestionData(index: number, updateFn: (q: QuizQuestion, opts: Option[]) => void): void {
     forkJoin({
       question: this.quizService.getQuestionByIndex(index),

@@ -2500,6 +2500,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.createDefaultQuestionState();
   }
 
+  // REMOVE!!
   private initializeQuizState(): void {
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
