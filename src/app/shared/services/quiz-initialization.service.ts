@@ -18,6 +18,9 @@ import { ProgressBarService } from './progress-bar.service';
 export class QuizInitializationService {
   currentQuiz: Quiz;
   questionIndex: number;
+  currentQuestionIndex = 0;
+  questions: QuizQuestion[];
+  quizId = '';
   private alreadyInitialized = false;
 
   constructor(
