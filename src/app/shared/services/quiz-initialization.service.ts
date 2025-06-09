@@ -7,12 +7,13 @@ import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 
 import { Injectable } from '@angular/core';
-import { QuizService } from './quiz.service';
-import { QuizDataService } from './quizdata.service';
-import { QuizStateService } from './quizstate.service';
-import { QuizQuestionManagerService } from './quizquestionmgr.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { ProgressBarService } from './progress-bar.service';
+import { QuizService } from './quiz.service';
+import { QuizDataService } from './quizdata.service';
+import { QuizQuestionManagerService } from './quizquestionmgr.service';
+import { QuizStateService } from './quizstate.service';
+
 
 @Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
