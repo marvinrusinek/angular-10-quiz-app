@@ -27,6 +27,8 @@ export class QuizInitializationService {
   numberOfCorrectAnswers: number;
   quizId = '';
   private alreadyInitialized = false;
+  selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
+  
   private destroy$ = new Subject<void>();
 
   constructor(
