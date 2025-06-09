@@ -4,6 +4,7 @@ import { BehaviorSubject, EMPTY, firstValueFrom, Observable, throwError } from '
 import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
+import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { NextButtonStateService } from './next-button-state.service';
@@ -13,24 +14,33 @@ import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
+import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 
 type AnimationState = 'animationStarted' | 'none';
 
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
   private quizQuestionComponent!: QuizQuestionComponent;
+  private sharedOptionComponent!: SharedOptionComponent;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
 
   quizId = '';
+  question!: QuizQuestion;
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   totalQuestions = 0;
 
+  optionsToDisplay: Option[] = [];
+
   isNavigating = false;
   private navigatingToResults = false;
+
+  isOptionSelected = false;
   
   isButtonEnabled$: Observable<boolean>;
+
+  elapsedTimeDisplay = 0;
   
   constructor(
     private nextButtonStateService: NextButtonStateService,
