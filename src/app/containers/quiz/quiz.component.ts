@@ -2554,6 +2554,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
+  // REMOVE!!
   private updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
     if (!question) {
         console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
