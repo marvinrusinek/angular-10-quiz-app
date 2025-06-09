@@ -8,6 +8,7 @@ import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
+import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizService } from './quiz.service';
@@ -50,6 +51,7 @@ export class QuizNavigationService {
   private resetComplete = false;
   
   constructor(
+    private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
     private quizDataService: QuizDataService,
     private quizService: QuizService,
