@@ -9,6 +9,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { Injectable } from '@angular/core';
 import { ExplanationTextService } from './explanation-text.service';
 import { ProgressBarService } from './progress-bar.service';
+import { QuizNavigationService } from './quiz-navigation.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
@@ -28,7 +29,7 @@ export class QuizInitializationService {
   quizId = '';
   private alreadyInitialized = false;
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -37,6 +38,7 @@ export class QuizInitializationService {
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private explanationTextService: ExplanationTextService,
+    private quizNavigationService: QuizNavigationService,
     private progressBarService: ProgressBarService,
     private activatedRoute: ActivatedRoute
   ) {}
