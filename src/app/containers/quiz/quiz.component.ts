@@ -3945,32 +3945,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  /* private setupRenderGateSync(): void {
-    if (!this.quizQuestionComponent?.renderReady$) {
-      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent not ready');
-      return;
-    }
-  
-    combineLatest([
-      this.quizQuestionComponent.renderReady$.pipe(
-        startWith(false),
-        filter(Boolean)
-      ),
-      this.quizService.questionData$.pipe(
-        filter(q => !!q)
-      ),
-      this.optionsToDisplay$.pipe(
-        filter(opts => Array.isArray(opts) && opts.length > 0)
-      )
-    ])
-      .pipe(take(1)) // Only trigger once when all are ready
-      .subscribe(([_, question, options]) => {
-        const combined = { question, options };
-        console.log('[✅ All ready: pushing to combinedQuestionDataSubject]', combined);
-        this.combinedQuestionDataSubject.next(combined); // push only when ALL are ready
-        this.renderGateSubject.next(true); // optional: if still using a render gate
-      });
-  } */
   private setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
