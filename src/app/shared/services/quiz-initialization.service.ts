@@ -38,8 +38,7 @@ export class QuizInitializationService {
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private explanationTextService: ExplanationTextService,
-    private quizNavigationService: QuizNavigationService,
-    private progressBarService: ProgressBarService,
+    
     private activatedRoute: ActivatedRoute
   ) {}
   
@@ -361,7 +360,7 @@ export class QuizInitializationService {
     this.selectedOption$.next(null);
   }
 
-  loadQuestionData(index: number, updateFn: (q: QuizQuestion, opts: Option[]) => void): void {
+ loadQuestionData(index: number, updateFn: (q: QuizQuestion, opts: Option[]) => void): void {
     forkJoin({
       question: this.quizService.getQuestionByIndex(index),
       options: this.quizService.getOptions(index)
