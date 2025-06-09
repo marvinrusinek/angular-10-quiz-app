@@ -208,11 +208,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   currentQuestionAnswered = false;
 
-  private questionTextSubject = new BehaviorSubject<string>('');
-  public questionText$ = this.questionTextSubject.asObservable();
+  private questionTextSubject = new BehaviorSubject<string>(''); // remove
+  public questionText$ = this.questionTextSubject.asObservable(); // remove
 
-  private explanationTextSubject = new BehaviorSubject<string>('');
-  public explanationText$ = this.explanationTextSubject.asObservable();
+  private explanationTextSubject = new BehaviorSubject<string>(''); // remove
+  public explanationText$ = this.explanationTextSubject.asObservable(); // remove
 
   private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
     mode: 'question',
@@ -3807,6 +3807,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
+  // REMOVE!!
   // Reset UI immediately before navigating
   private resetUI(): void {
     // Clear current question reference and options
