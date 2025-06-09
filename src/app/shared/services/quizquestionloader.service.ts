@@ -39,6 +39,7 @@ export class QuizQuestionLoaderService {
   public hasContentLoaded = false;
   public isLoading = false;
   isQuestionDisplayed = false;
+  isNextButtonEnabled = false;
   
   totalQuestions = 0;
   shouldRenderQuestionComponent = false;
