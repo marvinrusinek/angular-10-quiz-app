@@ -48,6 +48,7 @@ import { NextButtonStateService } from './shared/services/next-button-state.serv
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizInitializationService } from './shared/services/quiz-initialization.service';
+import { QuizNavigationService } from './shared/services/quiz-navigation.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
 import { QuizResolverService } from './shared/services/quiz-resolver.service';
 import { QuizStateService } from './shared/services/quizstate.service';
@@ -129,6 +130,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizService,
     QuizDataService,
     QuizInitializationService,
+    QuizNavigationService,
     QuizQuestionManagerService,
     QuizResolverService,
     QuizStateService,
