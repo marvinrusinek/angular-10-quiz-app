@@ -451,7 +451,7 @@ export class QuizQuestionComponent
                 const options = this.optionsToDisplay;
                 const currentIndex = this.currentQuestionIndex;
     
-                this.loadDynamicComponent(currentQuestion, options, currentIndex);
+                this.loadDynamicComponent(currentQuestion, options);
                 this.containerInitialized = true;
               } else {
                 console.warn('[⚠️ dynamicAnswerContainer not available]');
