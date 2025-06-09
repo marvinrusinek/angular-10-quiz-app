@@ -103,7 +103,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   disabled = true;
 
   selectedOptions: Option[] = [];
-  selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
+  selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null); // REMOVE!!
   selectionMessage: string;
   selectionMessage$: Observable<string>;
   //public selectionMessage$: Observable<string> =
