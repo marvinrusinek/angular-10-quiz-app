@@ -7,6 +7,7 @@ import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
+import { FeedbackService } from './feedback.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
@@ -43,9 +44,10 @@ export class QuizQuestionLoaderService {
   resetComplete = false;
 
   constructor(
+    private explanationTextService: ExplanationTextService,
+    private feedbackService: FeedbackService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private explanationTextService: ExplanationTextService,
     private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
     private nextButtonStateService: NextButtonStateService,
