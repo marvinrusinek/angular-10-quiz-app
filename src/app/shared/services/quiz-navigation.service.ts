@@ -11,11 +11,13 @@ import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
+
+type AnimationState = 'animationStarted' | 'none';
 
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
-  // @ViewChild(QuizQuestionComponent, { static: false })
-  // quizQuestionComponent!: QuizQuestionComponent;
+  private quizQuestionComponent!: QuizQuestionComponent;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   currentQuestion: QuizQuestion | null = null;
