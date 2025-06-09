@@ -27,6 +27,7 @@ export class QuizQuestionLoaderService {
   questionPayload: QuestionPayload | null = null;
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
+  currentQuestionAnswered = false;
   questionToDisplay = '';
   questionToDisplay$ = new BehaviorSubject<string>('');
   questionTextLoaded = false;
@@ -35,6 +36,7 @@ export class QuizQuestionLoaderService {
 
   showFeedbackForOption: { [key: number]: boolean } = {};
 
+  selectedOptions: Option[] = [];
   optionsToDisplay: Option[] = [];
   public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   public hasOptionsLoaded = false;
@@ -45,6 +47,7 @@ export class QuizQuestionLoaderService {
   public isLoading = false;
   isQuestionDisplayed = false;
   isNextButtonEnabled = false;
+  isAnswered = false;
   isAnswered$: Observable<boolean>;
   
   totalQuestions = 0;
