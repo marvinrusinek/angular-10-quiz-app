@@ -1,4 +1,5 @@
 import { BehaviorSubject, forkJoin } from 'rxjs';
+import { firstValueFrom } from 'rxjs/operators';
 import { tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../models/QuizQuestion.model';
@@ -15,6 +16,7 @@ import { ProgressBarService } from './progress-bar.service';
   providedIn: 'root'
 })
 export class QuizInitializationService {
+  currentQuiz: Quiz;
   questionIndex: number;
   private alreadyInitialized = false;
 
@@ -184,9 +186,6 @@ export class QuizInitializationService {
         }
       });
   }
-
-
-
 
   loadQuestionData(index: number, updateFn: (q: QuizQuestion, opts: Option[]) => void): void {
     forkJoin({
