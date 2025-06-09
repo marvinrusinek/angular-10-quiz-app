@@ -2879,6 +2879,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
+  // REMOVE!!
   handleRouteParams(
     params: ParamMap
   ): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
@@ -3096,6 +3097,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
+  // REMOVE!!
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -3170,6 +3172,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
   
+  // REMOVE!!
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
@@ -3231,6 +3234,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   advanceToResults(): void {
     if (this.navigatingToResults) {
       console.warn('Navigation to results already in progress.');
