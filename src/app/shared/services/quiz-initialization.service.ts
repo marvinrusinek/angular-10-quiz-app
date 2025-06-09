@@ -33,12 +33,13 @@ export class QuizInitializationService {
   private destroy$ = new Subject<void>();
 
   constructor(
+    private explanationTextService: ExplanationTextService,
+    private progressBarService: ProgressBarService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizNavigationService: QuizNavigationService,
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
-    private explanationTextService: ExplanationTextService,
-    
     private activatedRoute: ActivatedRoute
   ) {}
   
