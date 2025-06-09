@@ -1,4 +1,4 @@
-import { Injectable, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Injectable, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, firstValueFrom, Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -37,7 +37,8 @@ export class QuizNavigationService {
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService, 
-    private router: Router
+    private router: Router,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   handleRouteParams(
