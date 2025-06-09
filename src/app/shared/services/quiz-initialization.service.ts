@@ -1,5 +1,5 @@
-import { BehaviorSubject, forkJoin } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { BehaviorSubject, forkJoin, of } from 'rxjs';
 import { catchError, EMPTY, firstValueFrom, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
