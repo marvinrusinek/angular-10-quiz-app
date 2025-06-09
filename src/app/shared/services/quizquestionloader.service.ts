@@ -1,27 +1,50 @@
-import { Injectable, ChangeDetectorRef } from '@angular/core';
-import { QuizService } from './quiz.service';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { take } from 'rxjs/operators';
+
+import { QuestionType } from '../models/question-type.enum';
+import { Option } from '../models/Option.model';
+import { QuestionPayload } from '../models/QuestionPayload.model';
+import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
+import { NextButtonStateService } from './next-button-state.service';
+import { QuizService } from './quiz.service';
+import { QuizDataService } from './quizdata.service';
+import { QuizStateService } from './quizstate.service';
+import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
-import { NextButtonStateService } from './next-button-state.service';
-import { SelectedOptionService } from './selected-option.service';
-import { QuizStateService } from './quizstate.service';
-import { Option } from '../models/Option.model';
-import { QuizQuestion } from '../models/QuizQuestion.model';
-import { QuestionType } from '../models/QuestionType.enum';
-import { firstValueFrom } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionLoaderService {
+  private quizQuestionComponent!: QuizQuestionComponent;
+  question!: QuizQuestion;
+  questionPayload: QuestionPayload | null = null;
+  currentQuestion: QuizQuestion | null = null;
+  currentQuestionIndex = 0;
+  questionToDisplay = '';
+  questionToDisplay$ = new BehaviorSubject<string>('');
+  questionTextLoaded = false;
+  explanationToDisplay = '';
+  public hasOptionsLoaded = false;
+  public isLoading = false;
+  public shouldRenderOptions = false;
+  private pendingOptions: Option[] | null = null;
+  totalQuestions = 0;
+  shouldRenderQuestionComponent = false;
+  resetComplete = false;
+
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private explanationTextService: ExplanationTextService,
     private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
     private nextButtonStateService: NextButtonStateService,
     private selectedOptionService: SelectedOptionService,
-    private quizStateService: QuizStateService
+    private quizStateService: QuizStateService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
@@ -174,5 +197,119 @@ export class QuizQuestionLoaderService {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
       return false;
     }
-  }  
+  }
+
+  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
+    try {
+      // Fetch and validate question text
+      const questionText = await firstValueFrom(this.quizService.getQuestionTextForIndex(questionIndex));
+      if (!questionText || typeof questionText !== 'string' || !questionText.trim()) {
+        console.error(`[❌ Q${questionIndex}] Missing or invalid question text`);
+        throw new Error(`Invalid question text for index ${questionIndex}`);
+      }
+  
+      const trimmedText = questionText.trim();
+  
+      // Fetch and validate options
+      const options = await this.quizService.getNextOptions(questionIndex);
+      if (!Array.isArray(options) || options.length === 0) {
+        console.error(`[❌ Q${questionIndex}] No valid options`);
+        throw new Error(`No options found for Q${questionIndex}`);
+      }
+    
+      // Fetch explanation text
+      let explanation = 'No explanation available';
+      if (this.explanationTextService.explanationsInitialized) {
+        const fetchedExplanation = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+        explanation = fetchedExplanation?.trim() || 'No explanation available';
+      } else {
+        console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
+      }
+  
+      // Determine question type
+      const correctCount = options.filter(opt => opt.correct).length;
+      const type = correctCount > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+  
+      const question: QuizQuestion = {
+        questionText: trimmedText,
+        options,
+        explanation,
+        type
+      };
+  
+      // Sync type with service
+      this.quizDataService.setQuestionType(question);
+      return question;
+    } catch (error) {
+      console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
+      throw error;
+    }
+  }
+
+  private setQuestionDetails(
+    questionText: string,
+    options: Option[],
+    explanationText: string
+  ): void {
+    // Use fallback if question text is empty
+    this.questionToDisplay = questionText?.trim() || 'No question text available';
+  
+    // Ensure options are a valid array
+    this.optionsToDisplay = Array.isArray(options) ? options : [];
+  
+    // Set explanation fallback
+    this.explanationToDisplay = explanationText?.trim() || 'No explanation available';
+  
+    // Emit latest values to any subscribers (template/UI)
+    this.questionTextSubject.next(this.questionToDisplay);
+    this.explanationTextSubject.next(this.explanationToDisplay);
+
+    if (!this.explanationToDisplay || this.explanationToDisplay === 'No explanation available') {
+      console.warn('[setQuestionDetails] ⚠️ Explanation fallback triggered');
+    }
+  }
+
+  private resetQuestionState(): void {
+    // Clear local UI state
+    this.questionInitialized = false; // block during reset
+    this.isAnswered = false;
+    this.selectedOptions = [];
+    this.currentQuestionAnswered = false;
+    this.isNextButtonEnabled = false;
+    this.isButtonEnabled = false;
+    this.isButtonEnabledSubject.next(false);
+    this.setSelectionMessage(false);
+  
+    // Defensive: only reset options if current question exists
+    if (this.currentQuestion?.options?.length) {
+      for (const option of this.currentQuestion.options) {
+        if (option.selected || option.highlight || !option.active) {
+          console.log(`[resetQuestionState] Clearing state for optionId: ${option.optionId}`);
+        }
+  
+        // Reset all option UI-related flags
+        option.selected = false;
+        option.highlight = false;
+        option.active = true;
+        option.showIcon = false;
+        option.feedback = undefined;
+      }
+    } else {
+      console.warn('[resetQuestionState] ⚠️ No current question options found to reset.');
+    }
+  
+    // 🧹 Reset internal selected options tracking
+    this.selectedOptionService.stopTimerEmitted = false;
+    this.selectedOptionService.selectedOptionsMap.clear();
+ 
+    this.cdRef.detectChanges();
+  }
+
+  private resetQuestionDisplayState(): void {
+    this.questionToDisplay = '';
+    this.explanationToDisplay = '';
+    this.optionsToDisplay = [];
+  }
 }
