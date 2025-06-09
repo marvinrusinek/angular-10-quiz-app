@@ -369,4 +369,32 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Completed for Q${questionIndex}`);
     return true;
   }
+
+  private async resetUIAndNavigate(questionIndex: number): Promise<void> {
+    try {
+      const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
+      if (currentBadgeNumber !== questionIndex) {
+        console.warn(
+          `Badge number (${currentBadgeNumber}) does not match question index (${questionIndex}). Correcting...`
+        );
+      }
+  
+      this.resetUI();
+  
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.resetStateBetweenQuestions();
+      } else {
+        console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
+      }
+  
+      this.optionsToDisplay = [];
+      this.currentQuestion = null;
+  
+      // Add navigation to load Q&A
+      await this.navigateToQuestion(questionIndex);
+  
+    } catch (error) {
+      console.error('Error during resetUIAndNavigate():', error);
+    }
+  }
 }
