@@ -1,7 +1,7 @@
 import { Injectable, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, firstValueFrom, Observable } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap, throwError } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable, throwError } from 'rxjs';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
