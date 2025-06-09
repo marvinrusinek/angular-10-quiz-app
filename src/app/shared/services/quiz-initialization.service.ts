@@ -1,6 +1,6 @@
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, forkJoin, of, Subject } from 'rxjs';
-import { catchError, EMPTY, firstValueFrom, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
