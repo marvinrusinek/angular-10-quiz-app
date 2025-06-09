@@ -60,6 +60,9 @@ export class QuizQuestionLoaderService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanationText$ = this.explanationTextSubject.asObservable();
 
+  isButtonEnabled = false;
+  private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -448,7 +451,7 @@ export class QuizQuestionLoaderService {
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.setSelectionMessage(false);
+    this.setSelectionMessage(false); // ATS??
   
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
