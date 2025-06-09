@@ -20,6 +20,7 @@ export class QuizInitializationService {
   currentQuiz: Quiz;
   selectedQuiz: Quiz = {} as Quiz;
   questionIndex: number;
+  currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   questions: QuizQuestion[];
   totalQuestions = 0;
