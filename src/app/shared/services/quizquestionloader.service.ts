@@ -36,6 +36,7 @@ export class QuizQuestionLoaderService {
   public shouldRenderOptions = false;
   private pendingOptions: Option[] | null = null;
   
+  public hasContentLoaded = false;
   public isLoading = false;
   isQuestionDisplayed = false;
   
