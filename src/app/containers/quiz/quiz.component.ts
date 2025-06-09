@@ -1394,6 +1394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!! 
   private initializeQuizDependencies(): void {
     this.initializeSelectedQuiz();
     this.initializeObservables();
