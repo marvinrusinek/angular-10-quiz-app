@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Injectable, ViewChild } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, firstValueFrom, Observable, throwError } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { ParamMap, Router } from '@angular/router';
+import { BehaviorSubject, firstValueFrom, Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { Option } from '../models/Option.model';
