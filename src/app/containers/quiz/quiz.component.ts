@@ -3379,6 +3379,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   private async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log('[🚩 ENTERED fetchAndSetQuestionData]', { questionIndex });
     // Reset loading state for options
