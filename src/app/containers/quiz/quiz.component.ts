@@ -3989,16 +3989,4 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (total > 0) this.quizService.updateBadgeText(this.currentQuestionIndex + 1, total);
     });
   }
-
-  private initNextButton(): void {
-    this.nextButtonStateService.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnswered$,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
-
-    this.selectedOptionService.isNextButtonEnabled$.subscribe(
-      (enabled) => this.isNextButtonEnabled = enabled
-    );
-  }
 }
