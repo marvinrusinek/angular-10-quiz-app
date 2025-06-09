@@ -18,6 +18,7 @@ export class QuizNavigationService {
   // quizQuestionComponent!: QuizQuestionComponent;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
+  currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   totalQuestions = 0;
 
