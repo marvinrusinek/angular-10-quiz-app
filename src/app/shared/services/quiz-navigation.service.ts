@@ -46,6 +46,8 @@ export class QuizNavigationService {
   elapsedTimeDisplay = 0;
 
   shouldRenderQuestionComponent = false;
+
+  private resetComplete = false;
   
   constructor(
     private nextButtonStateService: NextButtonStateService,
