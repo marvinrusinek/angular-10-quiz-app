@@ -12,8 +12,8 @@ import { TimerService } from './timer.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
-  @ViewChild(QuizQuestionComponent, { static: false })
-  quizQuestionComponent!: QuizQuestionComponent;
+  // @ViewChild(QuizQuestionComponent, { static: false })
+  // quizQuestionComponent!: QuizQuestionComponent;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   totalQuestions = 0;
