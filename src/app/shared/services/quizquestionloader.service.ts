@@ -27,10 +27,15 @@ export class QuizQuestionLoaderService {
   questionToDisplay$ = new BehaviorSubject<string>('');
   questionTextLoaded = false;
   explanationToDisplay = '';
+
+  optionsToDisplay: Option[] = [];
+  public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   public hasOptionsLoaded = false;
-  public isLoading = false;
   public shouldRenderOptions = false;
   private pendingOptions: Option[] | null = null;
+  
+  public isLoading = false;
+  
   totalQuestions = 0;
   shouldRenderQuestionComponent = false;
   resetComplete = false;
