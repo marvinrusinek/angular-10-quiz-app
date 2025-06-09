@@ -1,9 +1,9 @@
 import { BehaviorSubject, forkJoin } from 'rxjs';
-import { firstValueFrom } from 'rxjs/operators';
-import { tap } from 'rxjs/operators';
+import { EMPTY, firstValueFrom, switchMap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { Option } from '../models/Option.model';
+import { Quiz } from '../models/Quiz.model';
 
 import { Injectable } from '@angular/core';
 import { QuizService } from './quiz.service';
