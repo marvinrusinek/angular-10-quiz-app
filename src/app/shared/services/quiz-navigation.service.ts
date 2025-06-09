@@ -34,6 +34,7 @@ export class QuizNavigationService {
   totalQuestions = 0;
 
   optionsToDisplay: Option[] = [];
+  explanationToDisplay = '';
 
   isNavigating = false;
   private navigatingToResults = false;
