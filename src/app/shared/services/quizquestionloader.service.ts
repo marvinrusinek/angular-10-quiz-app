@@ -20,6 +20,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 export class QuizQuestionLoaderService {
   private quizQuestionComponent!: QuizQuestionComponent;
   question!: QuizQuestion;
+  questionData!: QuizQuestion;
   questionPayload: QuestionPayload | null = null;
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
