@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
-import { EMPTY, firstValueFrom, Observable } from 'rxjs';
+import { Injectable, ViewChild } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { BehaviorSubject, EMPTY, firstValueFrom, Observable } from 'rxjs';
 import { catchError, map, switchMap, takeUntil, tap, throwError } from 'rxjs/operators';
 
 import { Quiz } from '../models/Quiz.model';
@@ -12,6 +12,12 @@ import { TimerService } from './timer.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
+  @ViewChild(QuizQuestionComponent, { static: false })
+  quizQuestionComponent!: QuizQuestionComponent;
+
+  animationState$ = new BehaviorSubject<AnimationState>('none');
+  totalQuestions = 0;
+
   isNavigating = false;
   isButtonEnabled$: Observable<boolean>;
   
@@ -19,7 +25,8 @@ export class QuizNavigationService {
     private quizDataService: QuizDataService,
     private quizService: QuizService,
     private quizStateService: QuizStateService,
-    private timerService: TimerService
+    private timerService: TimerService, 
+    private router: Router
   ) {}
 
   handleRouteParams(
@@ -82,7 +89,7 @@ export class QuizNavigationService {
       // Start animation
       this.animationState$.next('animationStarted');
 
-      this.quizQuestionComponent.explanationEmitted = false;
+      // this.quizQuestionComponent.explanationEmitted = false; KEEP???
 
       // const currentIndex = this.quizService.getCurrentQuestionIndex();
       // const nextIndex = currentIndex + 1;
