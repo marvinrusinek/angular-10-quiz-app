@@ -1,6 +1,6 @@
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { catchError, EMPTY, firstValueFrom, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, EMPTY, firstValueFrom, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
@@ -18,9 +18,12 @@ import { QuizStateService } from './quizstate.service';
 @Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
   currentQuiz: Quiz;
+  selectedQuiz: Quiz = {} as Quiz;
   questionIndex: number;
   currentQuestionIndex = 0;
   questions: QuizQuestion[];
+  totalQuestions = 0;
+  numberOfCorrectAnswers: number;
   quizId = '';
   private alreadyInitialized = false;
 
@@ -154,6 +157,45 @@ export class QuizInitializationService {
         console.error(error);
       },
     });
+  }
+
+  private fetchQuestionAndOptions(): void {
+    if (document.hidden) {
+      console.log('Document is hidden, not loading question');
+      return;
+    }
+
+    if (!this.quizId || this.quizId.trim() === '') {
+      console.error('Quiz ID is required but not provided.');
+      return;
+    }
+
+    if (
+      typeof this.questionIndex !== 'number' || 
+      isNaN(this.questionIndex) || 
+      this.questionIndex < 0
+    ) {
+      console.error(`❌ Invalid question index: ${this.questionIndex}`);
+      return;
+    }
+
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map((data) => (Array.isArray(data) ? data : [null, null])),
+        map(([question, options]) => [question || null, options || null]),
+        catchError((error) => {
+          console.error('Error fetching question and options:', error);
+          return of([null, null]);
+        })
+      )
+      .subscribe(([question, options]) => {
+        if (question && options) {
+          this.quizStateService.updateCurrentQuizState(of(question));
+        } else {
+          console.log('Question or options not found');
+        }
+      });
   }
 
   private initializeObservables(): void {
