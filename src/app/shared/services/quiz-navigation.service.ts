@@ -158,7 +158,7 @@ export class QuizNavigationService {
       }
   
       // Re-evaluate Next button state
-      const shouldEnableNext = this.isAnyOptionSelected();
+      const shouldEnableNext = this.isAnyOptionSelected(); // ATS?
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
     } catch (error) {
       console.error('[advanceToNextQuestion] ❌ Unexpected error:', error);
