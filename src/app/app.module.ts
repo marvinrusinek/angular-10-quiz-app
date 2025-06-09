@@ -47,6 +47,7 @@ import { ResetBackgroundDirective } from './directives/reset-background.directiv
 import { NextButtonStateService } from './shared/services/next-button-state.service';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
+import { QuizInitializationService } from './shared/services/quiz-initialization.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
 import { QuizResolverService } from './shared/services/quiz-resolver.service';
 import { QuizStateService } from './shared/services/quizstate.service';
@@ -127,6 +128,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizGuard,
     QuizService,
     QuizDataService,
+    QuizInitializationService,
     QuizQuestionManagerService,
     QuizResolverService,
     QuizStateService,
