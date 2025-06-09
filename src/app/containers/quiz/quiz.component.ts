@@ -391,65 +391,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     this.registerVisibilityChangeHandler();
-    this.initializeDisplayVariables();
-  
-    // Centralized routing and quiz setup
     this.initializeQuizData();
-  
-    // Total questions and badge setup
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions;
-    
-        const currentIndex = this.quizService.getCurrentQuestionIndex();
-        const validIndex = currentIndex >= 0 && currentIndex < totalQuestions ? currentIndex : 0;
-    
-        if (!this.hasInitializedBadge) {
-          this.quizService.updateBadgeText(validIndex + 1, totalQuestions);
-          this.hasInitializedBadge = true;
-        } else {
-          console.log('[Badge] Skipping duplicate badge initialization.');
-        }
-      } else {
-        console.warn('[Badge] Total questions not available yet.');
-      }
-    });
-  
-    // Progress bar sync
-    this.progressBarService.progress$.subscribe((progressValue) => {
-      this.progressPercentage.next(progressValue);
-    });
-    this.progressBarService.setProgress(0);
-
-    this.quizService.currentQuestionIndex$.subscribe(index => {
-      this.currentQuestionIndex = index;
-      this.updateProgressPercentage();
-    });
-
-    // Answer state and navigation setup
+    this.trackProgress();
+    this.syncBadge();
     this.subscribeToOptionSelection();
-    this.handleNavigationToQuestion(this.currentQuestionIndex);
-    
-    this.nextButtonStateService.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnswered$,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
-    this.initializeTooltip();
-    this.resetOptionState();
-    // this.selectedOptionService.setAnswered(false);
-    this.resetQuestionState();
-    this.subscribeToSelectionMessage();
-  
-    // Explanation text subscription
-    this.quizService.nextExplanationText$.subscribe((text) => {
-      this.explanationToDisplay = text;
-    });
-  
-    // Initialize any quiz-specific data
+    this.initNextButton();
     this.initializeQuestions();
-    this.initializeCurrentQuestion();
-    this.checkIfAnswerSelected();
   }
 
   /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
@@ -2958,6 +2905,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.setAnswers(options);
   }
 
+  private trackProgress(): void {
+    this.quizService.currentQuestionIndex$.subscribe(index => this.currentQuestionIndex = index);
+    this.progressBarService.progress$.subscribe(progress => this.progressBarService.setProgress(progress));
+  }
+
   updateProgressPercentage(): void {
     this.quizService.getTotalQuestionsCount().subscribe({
       next: (total) => this.handleProgressUpdate(total),
@@ -3964,5 +3916,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.renderGateSubject.next(true); // signal ready to render
       })
     ).subscribe();
+  }
+
+  private syncBadge(): void {
+    this.quizService.getTotalQuestionsCount().subscribe(total => {
+      if (total > 0) this.quizService.updateBadgeText(this.currentQuestionIndex + 1, total);
+    });
+  }
+
+  private initNextButton(): void {
+    this.nextButtonStateService.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnswered$,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
+
+    this.selectedOptionService.isNextButtonEnabled$.subscribe(
+      (enabled) => this.isNextButtonEnabled = enabled
+    );
   }
 }
