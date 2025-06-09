@@ -32,6 +32,8 @@ export class QuizQuestionLoaderService {
   questionTextLoaded = false;
   explanationToDisplay = '';
 
+  showFeedbackForOption: { [key: number]: boolean } = {};
+
   optionsToDisplay: Option[] = [];
   public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   public hasOptionsLoaded = false;
