@@ -391,13 +391,79 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     this.registerVisibilityChangeHandler();
-    this.initializeQuizData();
-    this.trackProgress();
-    this.syncBadge();
-    this.subscribeToOptionSelection();
-    this.initNextButton();
-    this.initializeQuestions();
+    this.initializeDisplayVariables();
+  
+    this.setupQuiz();
+    this.initializeProgressSync();
+    this.initializeAnswerSync();
+    this.initializeTooltip();
+    this.resetStateHandlers();
+    this.initializeExplanationText();
   }
+
+  private setupQuiz(): void {
+    this.initializeQuizData();
+    this.initializeQuestions();
+    this.initializeCurrentQuestion();
+    this.handleNavigationToQuestion(this.currentQuestionIndex);
+  }
+  
+  private initializeProgressSync(): void {
+    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+      if (totalQuestions > 0) {
+        this.totalQuestions = totalQuestions;
+        const currentIndex = this.quizService.getCurrentQuestionIndex();
+        const validIndex = currentIndex >= 0 && currentIndex < totalQuestions ? currentIndex : 0;
+  
+        if (!this.hasInitializedBadge) {
+          this.quizService.updateBadgeText(validIndex + 1, totalQuestions);
+          this.hasInitializedBadge = true;
+        }
+      }
+    });
+  
+    this.progressBarService.progress$.subscribe(progressValue => {
+      this.progressPercentage.next(progressValue);
+    });
+    this.progressBarService.setProgress(0);
+  
+    this.quizService.currentQuestionIndex$.subscribe(index => {
+      this.currentQuestionIndex = index;
+      this.updateProgressPercentage();
+    });
+  }
+  
+  private initializeAnswerSync(): void {
+    this.subscribeToOptionSelection();
+  
+    this.nextButtonStateService.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnswered$,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
+  
+    this.selectedOptionService.isNextButtonEnabled$.subscribe(enabled => {
+      this.isNextButtonEnabled = enabled;
+    });
+  
+    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
+      this.isCurrentQuestionAnswered = isSelected;
+    });
+  
+    this.subscribeToSelectionMessage();
+  }
+  
+  private resetStateHandlers(): void {
+    this.resetOptionState();
+    this.resetQuestionState();
+  }
+  
+  private initializeExplanationText(): void {
+    this.quizService.nextExplanationText$.subscribe((text) => {
+      this.explanationToDisplay = text;
+    });
+  }
+ 
 
   /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
       tap((options) => console.log('options$ emitted:::::', options)),
