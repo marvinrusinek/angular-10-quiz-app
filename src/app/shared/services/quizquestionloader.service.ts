@@ -47,6 +47,107 @@ export class QuizQuestionLoaderService {
     private cdRef: ChangeDetectorRef
   ) {}
 
+  async loadQuestionContents(questionIndex: number): Promise<void> {
+    try {
+      // Prevent stale rendering
+      this.hasContentLoaded = false;
+      this.hasOptionsLoaded = false;
+      this.shouldRenderOptions = false;
+      this.isLoading = true;
+      this.isQuestionDisplayed = false;
+      this.isNextButtonEnabled = false;
+  
+      // Reset state before fetching new data
+      this.optionsToDisplay = [];
+      this.explanationToDisplay = '';
+      this.questionData = null;
+  
+      const quizId = this.quizService.getCurrentQuizId();
+      if (!quizId) {
+        console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
+        return;
+      }
+  
+      try {
+        type FetchedData = {
+          question: QuizQuestion | null;
+          options: Option[] | null;
+          explanation: string | null;
+        };
+  
+        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+        const explanation$ = this.explanationTextService.explanationsInitialized
+          ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
+          : of('');
+  
+        const data: FetchedData = await lastValueFrom(
+          forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
+            catchError(error => {
+              console.error(
+                `[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`,
+                error
+              );
+              return of({ question: null, options: [], explanation: '' } as FetchedData);
+            })
+          )
+        );
+  
+        // All‑or‑nothing guard: require questionText + at least one option
+        if (
+          !data.question?.questionText?.trim() ||
+          !Array.isArray(data.options) ||
+          data.options.length === 0
+        ) {
+          console.warn(
+            `[QuizComponent] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`
+          );
+          this.isLoading = false;
+          return;
+        }
+  
+        // Extract correct options **for the current question
+        const correctOptions = data.options.filter(opt => opt.correct);
+  
+        // Ensure `generateFeedbackForOptions` receives correct data for each question
+        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(
+          correctOptions,
+          data.options
+        );
+  
+        // Apply the same feedback message to all options
+        const updatedOptions = data.options.map(opt => ({
+          ...opt,
+          feedback: feedbackMessage
+        }));
+  
+        // Set values only after ensuring correct mapping
+        this.optionsToDisplay = [...updatedOptions];
+        this.optionsToDisplay$.next(this.optionsToDisplay);
+        this.hasOptionsLoaded = true;
+  
+        console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
+  
+        this.questionData = data.question ?? ({} as QuizQuestion);
+        console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
+        this.tryRenderGate();
+
+        this.isQuestionDisplayed = true;
+        this.isLoading = false;
+      } catch (error) {
+        console.error(
+          `[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`,
+          error
+        );
+        this.isLoading = false;
+      }
+    } catch (error) {
+      console.error(`[QuizComponent] ❌ Unexpected error:`, error);
+      this.isLoading = false;
+      this.cdRef.detectChanges();
+    }
+  }
+
   async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
     console.log('[🚩 ENTERED fetchAndSetQuestionData]', { questionIndex });
     

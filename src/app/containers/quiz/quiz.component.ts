@@ -535,6 +535,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
       // Prevent stale rendering
