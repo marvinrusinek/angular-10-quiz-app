@@ -1,4 +1,5 @@
 import { BehaviorSubject, forkJoin } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { EMPTY, firstValueFrom, switchMap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
@@ -12,9 +13,7 @@ import { QuizStateService } from './quizstate.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
 import { ProgressBarService } from './progress-bar.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
   currentQuiz: Quiz;
   questionIndex: number;
@@ -28,7 +27,9 @@ export class QuizInitializationService {
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
-    private progressBarService: ProgressBarService
+    private explanationTextService: ExplanationTextService,
+    private progressBarService: ProgressBarService,
+    private activatedRoute: ActivatedRoute
   ) {}
   
   public async initializeQuiz(): Promise<void> {
