@@ -161,7 +161,7 @@ export class QuizQuestionLoaderService {
   
         this.questionData = data.question ?? ({} as QuizQuestion);
         console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
-        this.tryRenderGate();
+        this.tryRenderGate(); // RSS
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
