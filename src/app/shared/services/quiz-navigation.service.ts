@@ -143,7 +143,7 @@ export class QuizNavigationService {
       }
 
       // Clear current question state *before* navigating
-      this.resetUI();
+      this.resetUI(); // QQLS
   
       // Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
@@ -201,7 +201,7 @@ export class QuizNavigationService {
       // Start animation
       this.animationState$.next('animationStarted');
 
-      this.resetOptionState();
+      this.resetOptionState(); // AnswerTrackingService
       this.isOptionSelected = false;
       
       const currentIndex = this.quizService.getCurrentQuestionIndex();
@@ -217,7 +217,7 @@ export class QuizNavigationService {
       }
 
       this.quizQuestionComponent?.resetExplanation();
-      this.resetUI();
+      this.resetUI(); //QQLS
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -256,7 +256,7 @@ export class QuizNavigationService {
       this.quizService.checkIfAnsweredCorrectly()
         .then(() => {
           console.log('All answers checked, navigating to results...');
-          this.handleQuizCompletion();
+          this.handleQuizCompletion(); //QuizNavigationService
           this.quizService.navigateToResults();
         })
         .catch((error) => {
@@ -301,7 +301,7 @@ export class QuizNavigationService {
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
     // Fetch and assign question data
-    const fetched = await this.fetchAndSetQuestionData(questionIndex);
+    const fetched = await this.fetchAndSetQuestionData(questionIndex); // QQLS
     if (!fetched) {
       console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
       return false;
@@ -381,7 +381,7 @@ export class QuizNavigationService {
         );
       }
   
-      this.resetUI();
+      this.resetUI(); // QQLS
   
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.resetStateBetweenQuestions();
