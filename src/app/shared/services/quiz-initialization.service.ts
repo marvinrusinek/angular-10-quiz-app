@@ -1,5 +1,5 @@
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, of, Subject } from 'rxjs';
 import { catchError, EMPTY, firstValueFrom, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
@@ -26,6 +26,7 @@ export class QuizInitializationService {
   numberOfCorrectAnswers: number;
   quizId = '';
   private alreadyInitialized = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
