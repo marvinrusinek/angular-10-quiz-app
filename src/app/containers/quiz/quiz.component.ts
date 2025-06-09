@@ -1408,6 +1408,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   private initializeSelectedQuiz(): void {
     this.quizDataService.getQuiz(this.quizId).subscribe({
       next: (quiz: Quiz) => {
@@ -1436,6 +1437,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
+  // REMOVE!!
   private initializeObservables(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
