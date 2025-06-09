@@ -3,6 +3,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, firstValueFrom, Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
+import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { NextButtonStateService } from './next-button-state.service';
@@ -20,6 +21,8 @@ export class QuizNavigationService {
   private quizQuestionComponent!: QuizQuestionComponent;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
+
+  quizId = '';
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   totalQuestions = 0;
