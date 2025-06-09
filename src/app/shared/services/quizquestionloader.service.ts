@@ -12,6 +12,8 @@ import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
+import { ResetBackgroundService } from './reset-background.service';
+import { ResetStateService } from './reset-state.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
@@ -56,6 +58,8 @@ export class QuizQuestionLoaderService {
     private feedbackService: FeedbackService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private resetBackgroundService: ResetBackgroundService,
+    private resetStateService: ResetStateService,
     private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
     private nextButtonStateService: NextButtonStateService,
