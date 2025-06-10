@@ -22,6 +22,7 @@ import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.mo
 import { FeedbackService } from '../../../shared/services/feedback.service';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
+import { QuizNavigationService } from '../../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
@@ -253,6 +254,7 @@ export class QuizQuestionComponent
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
+    protected quizNavigationService: QuizNavigationService,
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected dynamicComponentService: DynamicComponentService,
@@ -301,9 +303,47 @@ export class QuizQuestionComponent
     return this._questionPayload;
   }
 
+  private resetUIForNewQuestion(): void {
+    console.log('[QQC] ✅ Running resetUIForNewQuestion()');
+    this.sharedOptionComponent?.resetUIForNewQuestion();
+    // Add any additional resets needed here
+  }
+
+  private resetExplanation(): void {
+    console.log('[QQC] 💬 Resetting explanation');
+    // Your internal logic to reset explanation view/state
+  }
+
   async ngOnInit(): Promise<void> {
     console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
+
+    this.quizNavigationService.navigationSubject$.subscribe(() => {
+      console.log('[QQC] 📦 navigationSubject$ received — general navigation');
+      this.resetUIForNewQuestion();
+    }),
+
+    this.quizNavigationService.navigatingBackSubject$.subscribe(() => {
+      console.log('[QQC] 🔙 navigatingBackSubject$ received');
+      if (this.sharedOptionComponent) {
+        this.sharedOptionComponent.isNavigatingBackwards = true;
+      }
+      this.resetUIForNewQuestion();
+    }),
+
+    this.quizNavigationService.explanationResetSubject$.subscribe(() => {
+      console.log('[QQC] 🔁 explanationResetSubject$ received');
+      this.resetExplanation();
+    });
+
+    this.quizNavigationService.renderReset$.subscribe(() => {
+      this.renderReady = false;
+    });
+  
+    this.quizNavigationService.resetUIForNewQuestion$.subscribe(() => {
+      this.resetUIForNewQuestion();
+    });
+
 
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
