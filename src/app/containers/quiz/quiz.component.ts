@@ -955,6 +955,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.cdRef.detectChanges();
   }
 
+  // REMOVE!!
   private resetOptionState(): void {
     this.isOptionSelected = false;
   
