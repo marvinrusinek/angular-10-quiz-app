@@ -675,6 +675,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const index = this.currentQuestionIndex;

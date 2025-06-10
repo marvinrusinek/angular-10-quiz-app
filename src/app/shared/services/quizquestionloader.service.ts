@@ -451,7 +451,7 @@ export class QuizQuestionLoaderService {
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.setSelectionMessage(false); // ATS??
+    this.setSelectionMessage(false);
   
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
