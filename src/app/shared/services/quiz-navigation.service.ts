@@ -144,15 +144,16 @@ export class QuizNavigationService {
     try {
       // Start animation
       this.animationState$.next('animationStarted');
+
+      await this.router.navigate(['/question/', nextIndex]);
+      this.quizService.setCurrentQuestionIndex(nextIndex);
   
       // Prevent going out of bounds
-      if (nextIndex >= this.totalQuestions) {
+      /* if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
         await this.router.navigate(['/results/', this.quizId]);
         return;
-      }
-
-      await this.router.navigate(['question', nextIndex]);
+      } */
   
       // Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
       if (isNaN(nextIndex) || nextIndex < 0) {
