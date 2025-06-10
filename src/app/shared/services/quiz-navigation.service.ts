@@ -8,6 +8,7 @@ import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
+import { AnswerTrackingService } from './answer-tracking.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizDataService } from './quizdata.service'; // remove??
@@ -54,6 +55,7 @@ export class QuizNavigationService {
   private resetComplete = false;
   
   constructor(
+    private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
     private quizDataService: QuizDataService,
@@ -205,7 +207,7 @@ export class QuizNavigationService {
       // Start animation
       this.animationState$.next('animationStarted');
 
-      this.resetOptionState(); // AnswerTrackingService
+      this.answerTrackingService.resetOptionState();
       this.isOptionSelected = false;
       
       const currentIndex = this.quizService.getCurrentQuestionIndex();
