@@ -25,6 +25,7 @@ export class QuizInitializationService {
   data: QuizQuestion;
   currentQuiz: Quiz;
   selectedQuiz: Quiz = {} as Quiz;
+  question!: QuizQuestion;
   questionIndex: number;
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
@@ -217,6 +218,36 @@ export class QuizInitializationService {
           console.log('Question or options not found');
         }
       });
+  }
+
+  private async fetchQuestionData(
+    quizId: string,
+    questionIndex: number
+  ): Promise<any> {
+    try {
+      const rawData = await firstValueFrom(
+        of(this.quizService.getQuestionData(quizId, questionIndex))
+      );
+
+      // Get the explanation as an Observable
+      const explanationObservable = this.explanationTextService.explanationsInitialized
+        ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        : of('');
+
+      // Convert the Observable to a Promise and await its value
+      const explanation = await firstValueFrom(explanationObservable);
+
+      const transformedData: QuizQuestion = {
+        questionText: rawData.questionText ?? '',
+        options: [],
+        explanation: explanation ?? '',
+        type: this.quizDataService.questionType as QuestionType,
+      };
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching question data:', error);
+      throw error;
+    }
   }
 
   private initializeObservables(): void {

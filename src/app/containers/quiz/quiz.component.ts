@@ -1791,6 +1791,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   private async fetchQuestionData(
     quizId: string,
     questionIndex: number
