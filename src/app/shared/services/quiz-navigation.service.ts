@@ -105,9 +105,6 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
 
-    console.log(`[➡️ Navigating to Q${nextIndex}] from Q${currentIndex}`);
-
-    console.log('[➡️ advanceToNextQuestion] Clicked!');
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
       firstValueFrom(this.quizStateService.isNavigating$),
@@ -127,13 +124,6 @@ export class QuizNavigationService {
     try {
       // Start animation
       this.animationState$.next('animationStarted');
-
-      // this.quizQuestionComponent.explanationEmitted = false; KEEP???
-
-      // const currentIndex = this.quizService.getCurrentQuestionIndex();
-      // const nextIndex = currentIndex + 1;
-
-      console.log(`[🔄 advanceToNextQuestion] current: ${currentIndex}, next: ${nextIndex}`);
   
       // Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
@@ -212,7 +202,6 @@ export class QuizNavigationService {
       
       const currentIndex = this.quizService.getCurrentQuestionIndex();
       const prevIndex = currentIndex - 1;
-      // this.currentQuestionIndex = prevIndex;
 
       const success = await this.navigateToQuestion(prevIndex);
       if (success && this.quizQuestionComponent) {
@@ -280,9 +269,7 @@ export class QuizNavigationService {
   /**
    * Optional helper to navigate programmatically to a question
    */
-   private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
-    console.log(`[🚀 navigateToQuestion] Initiated for Q${questionIndex}`);
-  
+  private async navigateToQuestion(questionIndex: number): Promise<boolean> {   
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.renderReady = false;
     }
@@ -299,8 +286,6 @@ export class QuizNavigationService {
       return false;
     }
   
-    console.log(`[✅ Index Synchronization - Setting Index to Q${questionIndex}]`);
-  
     // Set the index immediately to prevent race conditions
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
@@ -315,7 +300,6 @@ export class QuizNavigationService {
   
     // Update route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
-    console.log(`[🛣️ Route Update]: ${routeUrl}`);
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
@@ -328,7 +312,6 @@ export class QuizNavigationService {
       this.currentQuestion?.questionText &&
       this.optionsToDisplay?.length
     ) {
-      console.log(`[🛠️ Loading Dynamic Component for Q${questionIndex}]`);
       this.quizQuestionComponent.containerInitialized = false;
       this.quizQuestionComponent.sharedOptionConfig = undefined;
       this.quizQuestionComponent.shouldRenderFinalOptions = false;
@@ -365,7 +348,6 @@ export class QuizNavigationService {
       currentIndex >= 0 &&
       currentIndex < total
     ) {
-      console.log(`[🏷️ Badge Update - Index: ${currentIndex + 1} of ${total}]`);
       this.quizService.updateBadgeText(currentIndex + 1, total);
     } else {
       console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions', {
