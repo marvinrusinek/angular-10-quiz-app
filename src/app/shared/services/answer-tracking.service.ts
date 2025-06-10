@@ -2,13 +2,17 @@ import { Injectable } from '@angular/core';
 
 import { Option } from '.shared/models/Option.model';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
+import { SelectionMessageService } from '../../shared/services/selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class AnswerTrackingService {
   selectedOptions: Option[] = [];
   isOptionSelected = false;
 
-  constructor(private selectedOptionService: SelectedOptionService) {}
+  constructor(
+    private selectedOptionService: SelectedOptionService,
+    private selectionMessageService: SelectionMessageService
+  ) {}
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
