@@ -18,6 +18,14 @@ export class AnswerTrackingService {
     private selectionMessageService: SelectionMessageService
   ) {}
 
+  public updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
+    if (checked) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== option.optionId);
+    }
+  }
+
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const index = this.currentQuestionIndex;
@@ -38,14 +46,6 @@ export class AnswerTrackingService {
       }
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
-    }
-  }
-
-  public updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
-    if (checked) {
-      this.selectedOptions.push(option);
-    } else {
-      this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== option.optionId);
     }
   }
 
