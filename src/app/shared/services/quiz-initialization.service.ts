@@ -52,7 +52,7 @@ export class QuizInitializationService {
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
-    private activatedRoute: ActivatedRoute,
+    private activatedRoute: ActivatedRoute
   ) {}
   
   public async initializeQuiz(): Promise<void> {
