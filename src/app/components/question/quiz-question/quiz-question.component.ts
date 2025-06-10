@@ -1794,8 +1794,8 @@ export class QuizQuestionComponent
           isMultipleAnswer,
           this.onOptionClicked.bind(this)
         );
-      if (!componentRef) {
-        console.warn('[⚠️ Early return E] loadComponent returned undefined');
+      if (!componentRef || !componentRef.instance) {
+        console.warn('[❌ loadDynamicComponent] ComponentRef or instance is undefined');
         return;
       }
 
