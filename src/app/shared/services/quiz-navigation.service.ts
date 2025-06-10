@@ -17,8 +17,6 @@ import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
-import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
-import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 
 type AnimationState = 'animationStarted' | 'none';
 
@@ -156,7 +154,7 @@ export class QuizNavigationService {
   
     try {
       // Ensure quizId is defined
-      this.quizId = this.quizId || this.quizService.quizId || this.route.snapshot.paramMap.get('quizId') || '';
+      this.quizId = this.quizId || this.quizService.quizId || this.activatedRoute.snapshot.paramMap.get('quizId') || '';
   
       if (!this.quizId) {
         console.error('[🚫] Missing quizId – cannot navigate');
@@ -252,7 +250,6 @@ export class QuizNavigationService {
         console.warn('[❌] Navigation failed to Q' + prevIndex);
       }      
 
-      // this.quizQuestionComponent?.resetExplanation();
       this.quizQuestionLoaderService.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
