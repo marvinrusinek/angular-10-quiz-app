@@ -5,6 +5,7 @@ import { filter, take, tap, withLatestFrom } from 'rxjs/operators';
 import { Option } from '../models/Option.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { QuizService } from './quiz.service';
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
 @Injectable({ providedIn: 'root' })
 export class RenderStateService {
