@@ -442,7 +442,7 @@ export class QuizComponent
 
     this.setupQuiz();
     this.initializeProgressSync();
-    this.quizInitializationService.initializeAnswerSync();
+    this.initializeAnswerSync();
     this.initializeTooltip();
     this.resetStateHandlers();
     this.initializeExplanationText();

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -7,7 +7,6 @@ import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 
-import { Injectable } from '@angular/core';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { ProgressBarService } from './progress-bar.service';
@@ -54,7 +53,6 @@ export class QuizInitializationService {
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
     private activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
   ) {}
   
   public async initializeQuiz(): Promise<void> {
@@ -193,31 +191,6 @@ export class QuizInitializationService {
     });
   
     this.subscribeToSelectionMessage();
-  }
-
-  private subscribeToOptionSelection(): void {
-    this.optionSelectedSubscription = this.selectedOptionService
-      .isOptionSelected$()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isSelected: boolean) => {
-        this.isOptionSelected = isSelected;
-        this.isNextButtonEnabled = isSelected;
-        this.cdRef.detectChanges();
-      });
-  }
-
-  private subscribeToSelectionMessage(): void {
-    this.selectionMessageService.selectionMessage$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(), // Added distinctUntilChanged to prevent redundant updates
-        takeUntil(this.destroy$)
-      )
-      .subscribe((message: string) => {
-        if (this.selectionMessage !== message) {
-          this.selectionMessage = message;
-        }
-      });
   }
 
   private fetchQuestionAndOptions(): void {
