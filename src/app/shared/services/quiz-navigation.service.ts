@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Injectable } from '@angular/core';
+import { Injectable, ViewChild } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, take } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -24,9 +24,6 @@ type AnimationState = 'animationStarted' | 'none';
 
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
-  private quizQuestionComponent!: QuizQuestionComponent;
-  private sharedOptionComponent!: SharedOptionComponent;
-
   animationState$ = new BehaviorSubject<AnimationState>('none');
 
   quizId = '';
@@ -52,6 +49,21 @@ export class QuizNavigationService {
 
   shouldRenderQuestionComponent = false;
 
+  private navigationSuccessSubject = new Subject<void>();
+  public navigationSuccess$ = this.navigationSuccessSubject.asObservable();
+
+  private navigatingBackSubject = new Subject<boolean>();
+  public navigatingBack$ = this.navigatingBackSubject.asObservable();
+
+  private explanationResetSubject = new Subject<void>();
+  public explanationReset$ = this.explanationResetSubject.asObservable();
+
+  private resetUIForNewQuestionSubject = new Subject<void>();
+  resetUIForNewQuestion$ = this.resetUIForNewQuestionSubject.asObservable();
+
+  private renderResetSubject = new Subject<void>();
+  renderReset$ = this.renderResetSubject.asObservable();
+
   private resetComplete = false;
   
   constructor(
@@ -65,7 +77,7 @@ export class QuizNavigationService {
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService, 
     private router: Router,
-    private cdRef: ChangeDetectorRef
+    //private cdRef: ChangeDetectorRef
   ) {}
 
   handleRouteParams(
@@ -143,8 +155,10 @@ export class QuizNavigationService {
   
       // Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
-      if (success && this.quizQuestionComponent) {
-        this.quizQuestionComponent.containerInitialized = false;
+
+      if (success) {
+        // Notify component to reset ViewChild properties
+        this.notifyNavigationSuccess();
 
         // Reset answered state so Next button disables again for next question
         this.selectedOptionService.setAnswered(false);
@@ -186,13 +200,6 @@ export class QuizNavigationService {
     this.isNavigating = true;
     this.quizService.setIsNavigatingToPrevious(true);
 
-    if (this.sharedOptionComponent) {
-      console.log('SharedOptionComponent initialized.');
-      this.sharedOptionComponent.isNavigatingBackwards = true;
-    } else {
-      console.info('SharedOptionComponent not initialized, but proceeding with navigation.');
-    }  
-
     try {
       // Start animation
       this.animationState$.next('animationStarted');
@@ -204,14 +211,16 @@ export class QuizNavigationService {
       const prevIndex = currentIndex - 1;
 
       const success = await this.navigateToQuestion(prevIndex);
-      if (success && this.quizQuestionComponent) {
-        this.quizQuestionComponent.containerInitialized = false;
+      if (success) {
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
         this.currentQuestionIndex = prevIndex;
       } else {
         console.warn('[❌] Navigation failed to Q' + prevIndex);
-      }
+      }      
 
-      this.quizQuestionComponent?.resetExplanation();
+      // this.quizQuestionComponent?.resetExplanation();
       this.quizQuestionLoaderService.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
@@ -221,7 +230,7 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
       this.quizService.setIsNavigatingToPrevious(false);
       this.nextButtonStateService.updateAndSyncNextButtonState(false);
-      this.cdRef.detectChanges();
+      //this.cdRef.detectChanges();
     }
   }
 
@@ -321,7 +330,7 @@ export class QuizNavigationService {
         this.optionsToDisplay!
       );
   
-      this.cdRef.detectChanges();
+      //this.cdRef.detectChanges();
     } else {
       console.warn('[🚫 Dynamic injection skipped]', {
         component: !!this.quizQuestionComponent,
@@ -392,5 +401,17 @@ export class QuizNavigationService {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
       this.router.navigate(['quiz', 'result']);
     });
+  }
+
+  public notifyNavigationSuccess(): void {
+    this.navigationSuccessSubject.next();
+  }
+
+  private notifyNavigatingBackwards(): void {
+    this.navigatingBackSubject.next(true);
+  }
+
+  private notifyResetExplanation(): void {
+    this.explanationResetSubject.next();
   }
 }

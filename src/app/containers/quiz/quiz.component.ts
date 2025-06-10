@@ -24,6 +24,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
@@ -231,6 +232,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizNavigationService: QuizNavigationService,
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private timerService: TimerService,
@@ -3111,140 +3113,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   // REMOVE!!
   public async advanceToNextQuestion(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const nextIndex = currentIndex + 1;
-
-    console.log(`[➡️ Navigating to Q${nextIndex}] from Q${currentIndex}`);
-
-    console.log('[➡️ advanceToNextQuestion] Clicked!');
-    const [isLoading, isNavigating, isEnabled] = await Promise.all([
-      firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$),
-      firstValueFrom(this.isButtonEnabled$)
-    ]);
-
-    // Prevent navigation if any blocking conditions are met
-    if (isLoading || isNavigating || !isEnabled) {
-      console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
-      return;
-    }
-  
-    this.isNavigating = true;
-    this.quizStateService.setLoading(true);
-    this.quizStateService.setNavigating(true);
-  
-    try {
-      // Start animation
-      this.animationState$.next('animationStarted');
-
-      this.quizQuestionComponent.explanationEmitted = false;
-
-      // const currentIndex = this.quizService.getCurrentQuestionIndex();
-      // const nextIndex = currentIndex + 1;
-
-      console.log(`[🔄 advanceToNextQuestion] current: ${currentIndex}, next: ${nextIndex}`);
-  
-      // Prevent going out of bounds
-      if (nextIndex >= this.totalQuestions) {
-        console.log('[🏁 Reached end of quiz – navigating to results]');
-        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-        return;
-      }
-  
-      // Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
-      if (isNaN(nextIndex) || nextIndex < 0) {
-        console.error(`[❌ advanceToNextQuestion] Invalid next index: ${nextIndex}`);
-        return;
-      }
-
-      // Clear current question state *before* navigating
-      this.resetUI();
-  
-      // Attempt to navigate to next question
-      const success = await this.navigateToQuestion(nextIndex);
-      if (success && this.quizQuestionComponent) {
-        this.quizQuestionComponent.containerInitialized = false;
-
-        // Reset answered state so Next button disables again for next question
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-      } else {
-        console.warn('[❌] Navigation failed to Q' + nextIndex);
-      }
-  
-      // Re-evaluate Next button state
-      const shouldEnableNext = this.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-    } catch (error) {
-      console.error('[advanceToNextQuestion] ❌ Unexpected error:', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-    }
+    await this.quizNavigationService.advanceToNextQuestion();
   }
   
   // REMOVE!!
-  async advanceToPreviousQuestion(): Promise<void> {
-    const [isLoading, isNavigating, isEnabled] = await Promise.all([
-      firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$),
-      firstValueFrom(this.isButtonEnabled$)
-    ]);
-
-    // Prevent navigation if any blocking conditions are met
-    if (isLoading || isNavigating || !isEnabled) {
-      console.warn('Cannot advance - One of the conditions is blocking navigation.');
-      return;
-    }
-
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-
-    this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(true);
-
-    if (this.sharedOptionComponent) {
-      console.log('SharedOptionComponent initialized.');
-      this.sharedOptionComponent.isNavigatingBackwards = true;
-    } else {
-      console.info('SharedOptionComponent not initialized, but proceeding with navigation.');
-    }  
-
-    try {
-      // Start animation
-      this.animationState$.next('animationStarted');
-
-      this.resetOptionState();
-      this.isOptionSelected = false;
-      
-      const currentIndex = this.quizService.getCurrentQuestionIndex();
-      const prevIndex = currentIndex - 1;
-      // this.currentQuestionIndex = prevIndex;
-
-      const success = await this.navigateToQuestion(prevIndex);
-      if (success && this.quizQuestionComponent) {
-        this.quizQuestionComponent.containerInitialized = false;
-        this.currentQuestionIndex = prevIndex;
-      } else {
-        console.warn('[❌] Navigation failed to Q' + prevIndex);
-      }
-
-      this.quizQuestionComponent?.resetExplanation();
-      this.resetUI();
-    } catch (error) {
-      console.error('Error occurred while navigating to the previous question:', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-      this.quizService.setIsNavigatingToPrevious(false);
-      this.nextButtonStateService.updateAndSyncNextButtonState(false);
-      this.cdRef.detectChanges();
-    }
-  }
+  public async advanceToPreviousQuestion(): Promise<void> {
+    await this.quizNavigationService.advanceToPreviousQuestion();
+  }  
 
   // REMOVE!!
   advanceToResults(): void {
