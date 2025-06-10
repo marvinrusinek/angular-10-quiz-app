@@ -145,7 +145,7 @@ export class QuizNavigationService {
       }
 
       // Clear current question state *before* navigating
-      this.resetUI(); // QQLS
+      this.quizQuestionLoaderService.resetUI();
   
       // Attempt to navigate to next question
       const success = await this.navigateToQuestion(nextIndex);
