@@ -15,6 +15,7 @@ import { QuizNavigationService } from './quiz-navigation.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
 import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
+import { SelectedOptionService } from './selectedoption.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
@@ -41,6 +42,7 @@ export class QuizInitializationService {
     private quizNavigationService: QuizNavigationService,
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
+    private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute
   ) {}
   
