@@ -374,7 +374,7 @@ export class QuizNavigationService {
 
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
-      this.router.navigate(['quiz', 'result']);
+      this.router.navigate(['results', this.quizService.getQuizId()]);
     });
   }
 
