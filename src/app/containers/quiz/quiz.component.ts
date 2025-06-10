@@ -3131,7 +3131,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    this.navigatingToResults = true; // Prevent multiple clicks
+    this.navigatingToResults = true; // prevent multiple clicks
   
     // Reset quiz state
     this.quizService.resetAll();
