@@ -51,7 +51,7 @@ export class QuizQuestionComponent
   dynamicAnswerContainer!: ViewContainerRef;
   // private vcRef!: ViewContainerRef;
 
-  @ViewChild('sharedOptionComponent', { static: false })
+  @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
 
   @Output() answer = new EventEmitter<number>();

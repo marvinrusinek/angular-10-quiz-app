@@ -30,8 +30,9 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @ViewChild(QuizQuestionComponent, { static: false })
-  quizQuestionComponent!: QuizQuestionComponent;
+  //@ViewChild(QuizQuestionComponent, { static: false })
+  //quizQuestionComponent!: QuizQuestionComponent;
+  @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
@@ -51,6 +52,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
+  @Input() isNavigatingBackwards: boolean = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
