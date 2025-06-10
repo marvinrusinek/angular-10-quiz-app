@@ -58,7 +58,7 @@
               mat-icon-button
               routerLinkActive="active"
               (click)="quizNavigationService.advanceToPreviousQuestion()"
-              (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
+              (window:keydown.ArrowLeft)="quizNavigationService.advanceToPreviousQuestion()"
               matTooltip="&laquo; Previous Question"
               matTooltipPosition="above"
               aria-label="Previous Question"
