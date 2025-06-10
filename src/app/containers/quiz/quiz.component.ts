@@ -337,26 +337,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  private registerVisibilityChangeHandler(): void {
-    document.addEventListener('visibilitychange', async () => {
-      if (document.visibilityState === 'visible') {
-        this.ngZone.run(() => {
-          setTimeout(() => {
-            const idx = this.quizService.getCurrentQuestionIndex();
-    
-            if (typeof idx === 'number' && idx >= 0 && idx < this.totalQuestions) {
-              this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
-            } else {
-              console.warn('[Visibility] Skipped badge update due to invalid index:', idx);
-            }
-    
-            queueMicrotask(() => this.injectDynamicComponent());
-          }, 50); // wait for state restore
-        });
-      }
-    });
-  }
-
   private async restoreStateAfterFocus(): Promise<void> {
     this.ngZone.run(async () => {
       if (this.isLoading || this.quizStateService.isLoading()) {
@@ -408,6 +388,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeQuestions();
     this.initializeCurrentQuestion();
     this.handleNavigationToQuestion(this.currentQuestionIndex);
+  }
+
+  private registerVisibilityChangeHandler(): void {
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible') {
+        this.ngZone.run(() => {
+          setTimeout(() => {
+            const idx = this.quizService.getCurrentQuestionIndex();
+    
+            if (typeof idx === 'number' && idx >= 0 && idx < this.totalQuestions) {
+              this.quizService.updateBadgeText(idx + 1, this.totalQuestions);
+            } else {
+              console.warn('[Visibility] Skipped badge update due to invalid index:', idx);
+            }
+    
+            queueMicrotask(() => this.injectDynamicComponent());
+          }, 50); // wait for state restore
+        });
+      }
+    });
   }
   
   private initializeProgressSync(): void {
