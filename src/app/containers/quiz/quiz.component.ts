@@ -28,6 +28,7 @@ import { QuizInitializationService } from '../../shared/services/quiz-navigation
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
+import { AnswerTrackingService } from '../../shared/services/answer-tracking.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../shared/services/feedback.service';
 import { NextButtonStateService } from '../../shared/services/next-button-state.service';
@@ -238,6 +239,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private timerService: TimerService,
+    private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
     private nextButtonStateService: NextButtonStateService,
@@ -841,7 +843,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
-      this.updateMultipleAnswerSelection(option, checked);
+      this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
     }
   
     // Mark as answered only once
