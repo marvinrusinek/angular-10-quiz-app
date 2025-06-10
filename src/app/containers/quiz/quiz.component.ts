@@ -886,15 +886,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[❌ setSelectionMessage failed]', err);
     }
   }
-  
-  // REMOVE!!
-  private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
-    if (checked) {
-      this.selectedOptions.push(option);
-    } else {
-      this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== option.optionId);
-    }
-  }
 
   // REMOVE!!
   private isAnyOptionSelected(): boolean {

@@ -41,7 +41,7 @@ export class AnswerTrackingService {
     }
   }
 
-  private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
+  public updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
       this.selectedOptions.push(option);
     } else {
