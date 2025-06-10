@@ -1555,7 +1555,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Prepare and display feedback
       setTimeout(() => {
-        this.prepareFeedback(); // Call after options are loaded
+        this.displayFeedback(); // Call after options are loaded
       }, 100); // Add slight delay to ensure options are loaded
 
       this.isNavigatedByUrl = false;
@@ -1897,7 +1897,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             .setCorrectAnswers(currentQuestion, correctAnswerOptions)
             .subscribe({
               next: () => {
-                this.prepareFeedback();
+                this.displayFeedback();
               },
               error: (err) => {
                 console.error('Error setting correct answers:', err);
@@ -1919,7 +1919,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  private prepareFeedback(): void {
+  // REMOVE!!
+  private displayFeedback(): void {
     console.log('[prepareFeedback] Triggered.');
   
     // Validate that options are available for feedback preparation
@@ -1933,9 +1934,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
   
-      console.log('[prepareFeedback] Feedback successfully prepared for options:', this.optionsToDisplay);
+      console.log('[displayFeedback] Feedback successfully prepared for options:', this.optionsToDisplay);
     } catch (error) {
-      console.error('[prepareFeedback] Error while applying feedback:', error);
+      console.error('[displayFeedback] Error while applying feedback:', error);
     }
   }
 

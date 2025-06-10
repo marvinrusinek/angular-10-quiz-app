@@ -32,8 +32,12 @@ export class QuizInitializationService {
   private alreadyInitialized = false;
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
 
+  optionsToDisplay: Option[] = [];
   isOptionSelected = false;
   isCurrentQuestionAnswered = false;
+
+  showFeedback = false;
+  
   isNextButtonEnabled = false;
 
   optionSelectedSubscription: Subscription;
@@ -360,7 +364,7 @@ export class QuizInitializationService {
             .setCorrectAnswers(currentQuestion, correctAnswerOptions)
             .subscribe({
               next: () => {
-                this.prepareFeedback();
+                this.displayFeedback();
               },
               error: (err) => {
                 console.error('Error setting correct answers:', err);
@@ -400,6 +404,21 @@ export class QuizInitializationService {
 
     // Initialize the quiz state for the current question
     this.quizStateService.createDefaultQuestionState();
+  }
+
+  private displayFeedback(): void {  
+    // Validate that options are available for feedback preparation
+    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) return;
+  
+    try {
+      // Apply feedback to options through QuizQuestionComponent
+      // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
+      this.showFeedback = true; // enable feedback display
+  
+      console.log('[displayFeedback] Feedback successfully prepared for options:', this.optionsToDisplay);
+    } catch (error) {
+      console.error('[displayFeedback] Error while applying feedback:', error);
+    }
   }
 
   private initializeQuizBasedOnRouteParams(): void {
