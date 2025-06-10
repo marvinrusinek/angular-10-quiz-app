@@ -35,6 +35,8 @@ export class QuizNavigationService {
   currentQuestionIndex = 0;
   totalQuestions = 0;
 
+  answers = [];
+
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
 
@@ -258,7 +260,7 @@ export class QuizNavigationService {
       this.quizService.checkIfAnsweredCorrectly()
         .then(() => {
           console.log('All answers checked, navigating to results...');
-          this.handleQuizCompletion(); //QuizNavigationService
+          this.handleQuizCompletion();
           this.quizService.navigateToResults();
         })
         .catch((error) => {
@@ -400,5 +402,11 @@ export class QuizNavigationService {
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
     }
+  }
+
+  private handleQuizCompletion(): void {
+    this.quizService.submitQuizScore(this.answers).subscribe(() => {
+      this.router.navigate(['quiz', 'result']);
+    });
   }
 }

@@ -3297,6 +3297,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
 
+  // REMOVE!!
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
       this.router.navigate(['quiz', 'result']);
