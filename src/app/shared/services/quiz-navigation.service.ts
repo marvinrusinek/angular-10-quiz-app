@@ -81,7 +81,9 @@ export class QuizNavigationService {
     private timerService: TimerService, 
     private router: Router,
     //private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.isButtonEnabled$ = this.nextButtonStateService.isButtonEnabled$;
+  }
 
   handleRouteParams(
     params: ParamMap
