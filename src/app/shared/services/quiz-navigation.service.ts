@@ -55,6 +55,9 @@ export class QuizNavigationService {
   private navigatingBackSubject = new Subject<boolean>();
   navigatingBack$ = this.navigatingBackSubject.asObservable();
 
+  private navigationToQuestionSubject = new Subject<{ question: QuizQuestion; options: Option[] }>();
+  public navigationToQuestion$ = this.navigationToQuestionSubject.asObservable();
+
   private explanationResetSubject = new Subject<void>();
   explanationReset$ = this.explanationResetSubject.asObservable();
 
@@ -313,30 +316,6 @@ export class QuizNavigationService {
       return false;
     }
   
-    // Handle dynamic component rendering
-    if (
-      this.quizQuestionComponent &&
-      this.currentQuestion?.questionText &&
-      this.optionsToDisplay?.length
-    ) {
-      this.quizQuestionComponent.containerInitialized = false;
-      this.quizQuestionComponent.sharedOptionConfig = undefined;
-      this.quizQuestionComponent.shouldRenderFinalOptions = false;
-  
-      this.quizQuestionComponent.loadDynamicComponent(
-        this.currentQuestion!,
-        this.optionsToDisplay!
-      );
-  
-      //this.cdRef.detectChanges();
-    } else {
-      console.warn('[🚫 Dynamic injection skipped]', {
-        component: !!this.quizQuestionComponent,
-        questionText: this.currentQuestion?.questionText,
-        optionsLength: this.optionsToDisplay?.length
-      });
-    }
-  
     if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
         question: this.question,
@@ -419,5 +398,9 @@ export class QuizNavigationService {
   
   private emitResetUI(): void {
     this.resetUIForNewQuestionSubject.next();
+  }
+
+  emitNavigationToQuestion(question: QuizQuestion, options: Option[]): void {
+    this.navigationToQuestionSubject.next({ question, options });
   }
 }

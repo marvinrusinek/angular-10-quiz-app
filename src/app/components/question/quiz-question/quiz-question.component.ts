@@ -331,6 +331,23 @@ export class QuizQuestionComponent
       this.resetUIForNewQuestion();
     }),
 
+    this.quizNavigationService.navigationToQuestion$.subscribe(({ question, options }) => {
+      if (question?.questionText && options?.length) {
+        this.containerInitialized = false;
+        this.sharedOptionConfig = undefined;
+        this.shouldRenderFinalOptions = false;
+    
+        this.loadDynamicComponent(question, options);
+    
+        console.log('[✅ Component injected dynamically from navigation]');
+      } else {
+        console.warn('[🚫 Dynamic injection skipped]', {
+          questionText: question?.questionText,
+          optionsLength: options?.length,
+        });
+      }
+    });
+    
     this.quizNavigationService.explanationResetSubject$.subscribe(() => {
       console.log('[QQC] 🔁 explanationResetSubject$ received');
       this.resetExplanation();
