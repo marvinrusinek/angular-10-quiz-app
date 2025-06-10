@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
@@ -17,6 +17,7 @@ import { QuizQuestionManagerService } from './quizquestionmgr.service';
 import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
+import { SelectionMessageService } from './selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
@@ -32,8 +33,12 @@ export class QuizInitializationService {
   private alreadyInitialized = false;
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
 
-  private isCurrentQuestionAnswered = false;
+  isOptionSelected = false;
+  isCurrentQuestionAnswered = false;
   isNextButtonEnabled = false;
+  
+  optionSelectedSubscription: Subscription;
+  selectionMessage: string;
 
   private destroy$ = new Subject<void>();
 
@@ -47,6 +52,7 @@ export class QuizInitializationService {
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
+    private selectionMessageService: SelectionMessageService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
   ) {}
