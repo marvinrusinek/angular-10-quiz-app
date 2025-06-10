@@ -1811,7 +1811,7 @@ export class QuizQuestionComponent
       }
 
       // Set backward nav flag if supported
-      (instance as AnswerComponent).isNavigatingBackwards = this.navigatingBackwards ?? false;
+      (instance as unknown as AnswerComponent).isNavigatingBackwards = this.navigatingBackwards ?? false;
       this.navigatingBackwards = false;
   
       console.log('[🧪 Component instance created]', {
