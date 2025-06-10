@@ -162,12 +162,12 @@ export class QuizNavigationService {
       }
   
       // If this is the last question, navigate to results
-      if (nextIndex >= this.totalQuestions) {
+      /* if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
         console.log('[🧭 Navigating to results]', this.quizId);
         await this.router.navigate(['/results', this.quizId]);
         return;
-      }
+      } */
   
       // Reset current state before navigation
       this.quizQuestionLoaderService.resetUI();
