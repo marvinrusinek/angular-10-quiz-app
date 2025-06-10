@@ -220,6 +220,188 @@ export class QuizInitializationService {
     });
   }
 
+  async fetchQuizData(): Promise<void> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndexParam = this.activatedRoute.snapshot.params['questionIndex'];
+      const questionIndex = parseInt(questionIndexParam, 10);
+  
+      if (isNaN(questionIndex)) {
+        console.error('Invalid question index:', questionIndexParam);
+        return;
+      }
+  
+      const zeroBasedQuestionIndex = questionIndex - 1;
+  
+      const selectedQuiz: Quiz | null = await firstValueFrom(
+        this.quizDataService.getQuiz(quizId).pipe(
+          takeUntil(this.destroy$),
+          catchError((err) => {
+            console.error('Error fetching quiz:', err);
+            return of(null); // Return null to handle the empty case
+          }),
+          filter((quiz) => !!quiz) // Ensure that only valid, non-null quizzes are passed
+        )
+      );
+  
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found for quizId:', quizId);
+        return;
+      }
+  
+      this.selectedQuiz = selectedQuiz;
+  
+      if (
+        zeroBasedQuestionIndex < 0 ||
+        zeroBasedQuestionIndex >= selectedQuiz.questions.length
+      ) {
+        console.error('Invalid question index:', zeroBasedQuestionIndex);
+        return;
+      }
+  
+      // Ensure the current question is set
+      const currentQuestion = selectedQuiz.questions[zeroBasedQuestionIndex];
+      if (!currentQuestion) {
+        console.error(
+          `Question not found at index ${zeroBasedQuestionIndex} for quizId ${quizId}`
+        );
+        return;
+      }
+      this.currentQuestion = currentQuestion;
+  
+      this.processQuizData(zeroBasedQuestionIndex, this.selectedQuiz);
+      this.quizService.initializeSelectedQuizData(this.selectedQuiz);
+  
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (!questionData) {
+        console.error('Question data could not be fetched.');
+        this.data = null;
+        return;
+      }
+  
+      this.initializeAndPrepareQuestion(questionData, quizId);
+    } catch (error) {
+      console.error('Error in fetchQuizData:', error);
+    }
+  }
+
+  private initializeAndPrepareQuestion(
+    questionData: CombinedQuestionDataType,
+    quizId: string
+  ): void {
+    if (!quizId) {
+      console.error('Quiz ID is not provided or is empty');
+      return;
+    }
+  
+    const data: QuizQuestion = { 
+      questionText: questionData.questionText,
+      explanation: questionData.explanation || '',  // ensure explanation exists
+      options: questionData.options || [],
+      type: (questionData.type as QuestionType) ?? QuestionType.SingleAnswer
+    };
+    
+    // ✅ Assign only valid `QuizQuestion` fields
+    this.data = data; // ✅ Now `this.data` is of type `QuizQuestion`
+  
+    // Set Quiz ID
+    this.quizService.setQuizId(quizId);
+  
+    // Fetch and set quiz questions
+    this.quizService
+      .fetchQuizQuestions(quizId)
+      .then((questions) => {
+        this.quizService.setQuestionData(questions);
+      })
+      .catch((error) => {
+        console.error('Error fetching questions:', error);
+      });
+  
+    // Log received questionData
+    console.log('Initializing question with data:', this.data);
+  
+    // Subscribe to current options with filter and take
+    this.quizStateService.currentOptions$
+      .pipe(
+        filter((options: Option[]) => options && options.length > 0), // Only process non-empty options
+        take(1) // Automatically unsubscribe after the first valid emission
+      )
+      .subscribe({
+        next: (options: Option[]) => {
+          console.log('Received options from currentOptions$:', options);
+  
+          // Create currentQuestion object
+          const currentQuestion: QuizQuestion = {
+            questionText: this.data.questionText,
+            options: options.map((option) => ({
+              ...option,
+              correct: option.correct ?? false, // Default to false if `correct` is undefined
+            })),
+            explanation: this.explanationTextService.formattedExplanationSubject.getValue(),
+            type: this.quizDataService.questionType as QuestionType,
+          };
+          this.question = currentQuestion;
+  
+          // Filter correct answers
+          const correctAnswerOptions = currentQuestion.options.filter(
+            (option: Option) => option.correct
+          );
+  
+          if (correctAnswerOptions.length === 0) {
+            console.error(
+              `No correct options found for question: "${currentQuestion.questionText}". Options:`,
+              currentQuestion.options
+            );
+            return; // Exit early to avoid setting invalid correct answers
+          }
+  
+          // Set correct answers if valid options are found
+          this.quizService
+            .setCorrectAnswers(currentQuestion, correctAnswerOptions)
+            .subscribe({
+              next: () => {
+                this.prepareFeedback();
+              },
+              error: (err) => {
+                console.error('Error setting correct answers:', err);
+              },
+            });
+  
+          // Mark correct answers as loaded
+          this.quizService.setCorrectAnswersLoaded(true);
+          this.quizService.correctAnswersLoadedSubject.next(true);
+  
+          console.log('Correct Answer Options:', correctAnswerOptions);
+        },
+        error: (err) => {
+          console.error('Error subscribing to currentOptions$:', err);
+        },
+        complete: () => {
+          console.log('Subscription to currentOptions$ completed after first valid emission.');
+        },
+      });
+  }
+
+  private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
+    if (
+      !selectedQuiz ||
+      !Array.isArray(selectedQuiz.questions) ||
+      selectedQuiz.questions.length === 0
+    ) {
+      console.error(`Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`);
+      return;
+    }
+
+    if (!this.quizService.isValidQuestionIndex(questionIndex, selectedQuiz.questions)
+    ) {
+      console.error(`Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`);
+      return;
+    }
+
+    // Initialize the quiz state for the current question
+    this.quizStateService.createDefaultQuestionState();
+  }
+
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(

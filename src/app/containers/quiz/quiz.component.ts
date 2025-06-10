@@ -1254,6 +1254,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
+  // REMOVE!!
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
@@ -1820,6 +1821,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   private initializeAndPrepareQuestion(
     questionData: CombinedQuestionDataType,
     quizId: string
