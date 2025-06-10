@@ -1,22 +1,36 @@
+import { Injectable } from '@angular/core';
+import { } from 'rxjs';
+import { filter, take, tap, withLatestFrom } from 'rxjs/operators';
 
+import { Option } from '../models/Option.model';
+import { QuizService } from './quiz.service';
 
-private setupRenderGateSync(): void {
-  if (!this.quizQuestionComponent?.renderReady$) {
-    console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
-    return;
+@Injectable({ providedIn: 'root' })
+export class RenderStateService {
+  private quizQuestionComponent: QuizQuestionComponent;
+
+  constructor(
+    private quizService: QuizService
+  ) {}
+
+  private setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$.pipe(
+      filter(Boolean),
+      withLatestFrom(
+        this.quizService.questionData$.pipe(filter(q => !!q)),
+        this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
+      ),
+      take(1), // only take the first time all are ready
+      tap(([_, question, options]) => {
+        console.log('[✅ RenderGate Sync via renderReady$]', { question, options });
+        this.combinedQuestionDataSubject.next({ question, options }); // push into subject
+        this.renderGateSubject.next(true); // signal ready to render
+      })
+    ).subscribe();
   }
-
-  this.quizQuestionComponent.renderReady$.pipe(
-    filter(Boolean),
-    withLatestFrom(
-      this.quizService.questionData$.pipe(filter(q => !!q)),
-      this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
-    ),
-    take(1), // only take the first time all are ready
-    tap(([_, question, options]) => {
-      console.log('[✅ RenderGate Sync via renderReady$]', { question, options });
-      this.combinedQuestionDataSubject.next({ question, options }); // push into subject
-      this.renderGateSubject.next(true); // signal ready to render
-    })
-  ).subscribe();
 }
