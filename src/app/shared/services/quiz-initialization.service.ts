@@ -36,7 +36,7 @@ export class QuizInitializationService {
   isOptionSelected = false;
   isCurrentQuestionAnswered = false;
   isNextButtonEnabled = false;
-  
+
   optionSelectedSubscription: Subscription;
   selectionMessage: string;
 
@@ -175,7 +175,7 @@ export class QuizInitializationService {
     });
   }
 
-  private initializeAnswerSync(): void {
+  public initializeAnswerSync(): void {
     this.subscribeToOptionSelection();
   
     this.nextButtonStateService.initializeNextButtonStateStream(
