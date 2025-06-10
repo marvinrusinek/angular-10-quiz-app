@@ -64,6 +64,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
@@ -278,6 +279,7 @@ export class QuizComponent
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizInitializationService: QuizInitializationService,
     private quizStateService: QuizStateService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private timerService: TimerService,
@@ -440,7 +442,7 @@ export class QuizComponent
 
     this.setupQuiz();
     this.initializeProgressSync();
-    this.initializeAnswerSync();
+    this.quizInitializationService.initializeAnswerSync();
     this.initializeTooltip();
     this.resetStateHandlers();
     this.initializeExplanationText();
