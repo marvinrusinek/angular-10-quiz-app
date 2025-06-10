@@ -3965,15 +3965,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private delayRenderChild(): void {
-    this.shouldRenderChild = false;
-  
-    requestAnimationFrame(() => {
-      this.shouldRenderChild = true;
-      this.cdRef.detectChanges(); // force update if needed
-    });
-  }
-
   private tryRenderGate(): void {
     console.log('[🧪 tryRenderGate check]', {
       questionData: !!this.questionData,
@@ -3987,33 +3978,5 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       console.warn('[⛔ renderGate] Conditions not met');
     }
-  }
-
-  // REMOVE!!
-  private setupRenderGateSync(): void {
-    if (!this.quizQuestionComponent?.renderReady$) {
-      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
-      return;
-    }
-  
-    this.quizQuestionComponent.renderReady$.pipe(
-      filter(Boolean),
-      withLatestFrom(
-        this.quizService.questionData$.pipe(filter(q => !!q)),
-        this.optionsToDisplay$.pipe(filter(opts => opts.length > 0))
-      ),
-      take(1), // only take the first time all are ready
-      tap(([_, question, options]) => {
-        console.log('[✅ RenderGate Sync via renderReady$]', { question, options });
-        this.combinedQuestionDataSubject.next({ question, options }); // push into subject
-        this.renderGateSubject.next(true); // signal ready to render
-      })
-    ).subscribe();
-  }
-
-  private syncBadge(): void {
-    this.quizService.getTotalQuestionsCount().subscribe(total => {
-      if (total > 0) this.quizService.updateBadgeText(this.currentQuestionIndex + 1, total);
-    });
   }
 }
