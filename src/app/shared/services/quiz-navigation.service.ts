@@ -145,7 +145,7 @@ export class QuizNavigationService {
       // Start animation
       this.animationState$.next('animationStarted');
 
-      await this.router.navigate(['/question/', nextIndex]);
+      await this.router.navigate(['/question', this.quizId, nextIndex]);
       this.quizService.setCurrentQuestionIndex(nextIndex);
   
       // Prevent going out of bounds
