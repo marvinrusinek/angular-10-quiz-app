@@ -44,6 +44,7 @@ import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/code
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { HighlightOptionDirective } from './directives/highlight-option.directive';
 import { ResetBackgroundDirective } from './directives/reset-background.directive';
+import { AnswerTrackingService } from './shared/services/answer-tracking.service';
 import { NextButtonStateService } from './shared/services/next-button-state.service';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
@@ -134,6 +135,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizQuestionManagerService,
     QuizResolverService,
     QuizStateService,
+    AnswerTrackingService,
     DynamicComponentService,
     ExplanationTextService,
     FeedbackService,
