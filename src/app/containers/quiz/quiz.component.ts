@@ -29,6 +29,7 @@ import { QuizQuestionManagerService } from '../../shared/services/quizquestionmg
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../shared/services/feedback.service';
 import { NextButtonStateService } from '../../shared/services/next-button-state.service';
+import { RenderStateService } from '../../shared/services/render-state.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -238,6 +239,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private nextButtonStateService: NextButtonStateService,
     private selectionMessageService: SelectionMessageService,
     private selectedOptionService: SelectedOptionService,
+    private renderStateService: RenderStateService,
     private resetStateService: ResetStateService,
     private resetBackgroundService: ResetBackgroundService,
     private sharedVisibilityService: SharedVisibilityService,
@@ -498,7 +500,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.isQuizRenderReady$.next(isReady);
     
             if (isReady) {
-              this.setupRenderGateSync(); // 🧠 This waits for question + options + child ready
+              this.renderStateService.setupRenderGateSync(); // this waits for question + options + child ready
             }
           });
       }
