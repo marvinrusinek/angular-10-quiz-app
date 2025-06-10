@@ -151,6 +151,9 @@ export class QuizNavigationService {
     try {
       // Start exit animation
       this.animationState$.next('animationStarted');
+
+      await this.router.navigate(['/question/', this.quizId, nextIndex]);
+      this.quizService.setCurrentQuestionIndex(nextIndex);
   
       // Prevent out-of-bounds access
       if (isNaN(nextIndex) || nextIndex < 0) {
@@ -158,7 +161,7 @@ export class QuizNavigationService {
         return;
       }
   
-      // ✅ If this is the last question, navigate to results
+      // If this is the last question, navigate to results
       if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
         console.log('[🧭 Navigating to results]', this.quizId);
