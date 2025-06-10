@@ -173,26 +173,6 @@ export class QuizInitializationService {
     });
   }
 
-  public initializeAnswerSync(): void {
-    this.subscribeToOptionSelection();
-  
-    this.nextButtonStateService.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnswered$,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
-  
-    this.selectedOptionService.isNextButtonEnabled$.subscribe(enabled => {
-      this.isNextButtonEnabled = enabled;
-    });
-  
-    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
-      this.isCurrentQuestionAnswered = isSelected;
-    });
-  
-    this.subscribeToSelectionMessage();
-  }
-
   private fetchQuestionAndOptions(): void {
     if (document.hidden) {
       console.log('Document is hidden, not loading question');
