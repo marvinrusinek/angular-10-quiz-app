@@ -3944,27 +3944,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  async setDisplayStateForExplanationsAfterRestart(): Promise<void> {
-    try {
-      const explanation = this.explanationTextService.explanationsInitialized
-        ? await firstValueFrom(
-            this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-          )
-        : 'No explanation available';
-  
-      if (explanation && explanation.trim()) {
-        this.explanationTextService.setResetComplete(true);
-        this.explanationTextService.setExplanationText(explanation);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        this.explanationTextService.lockExplanation();
-      } else {
-        console.warn('[setDisplayStateForExplanationsAfterRestart] ❌ No valid explanation after restart.');
-      }
-    } catch (error) {
-      console.error('[setDisplayStateForExplanationsAfterRestart] ❌ Error fetching explanation:', error);
-    }
-  }
-
   private tryRenderGate(): void {
     console.log('[🧪 tryRenderGate check]', {
       questionData: !!this.questionData,
