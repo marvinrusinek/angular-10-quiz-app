@@ -50,13 +50,13 @@ export class QuizNavigationService {
   shouldRenderQuestionComponent = false;
 
   private navigationSuccessSubject = new Subject<void>();
-  public navigationSuccess$ = this.navigationSuccessSubject.asObservable();
+  navigationSuccess$ = this.navigationSuccessSubject.asObservable();
 
   private navigatingBackSubject = new Subject<boolean>();
-  public navigatingBack$ = this.navigatingBackSubject.asObservable();
+  navigatingBack$ = this.navigatingBackSubject.asObservable();
 
   private explanationResetSubject = new Subject<void>();
-  public explanationReset$ = this.explanationResetSubject.asObservable();
+  explanationReset$ = this.explanationResetSubject.asObservable();
 
   private resetUIForNewQuestionSubject = new Subject<void>();
   resetUIForNewQuestion$ = this.resetUIForNewQuestionSubject.asObservable();
