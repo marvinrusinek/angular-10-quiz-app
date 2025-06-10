@@ -11,6 +11,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizDataService } from './quizdata.service'; // remove??
+import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
@@ -54,6 +55,7 @@ export class QuizNavigationService {
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
     private quizDataService: QuizDataService,
+    private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
@@ -381,7 +383,7 @@ export class QuizNavigationService {
         );
       }
   
-      this.resetUI(); // QQLS
+      this.quizQuestionLoaderService.resetUI();
   
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.resetStateBetweenQuestions();

@@ -404,7 +404,7 @@ export class QuizQuestionLoaderService {
   }
 
   // Reset UI immediately before navigating
-  private resetUI(): void {
+  resetUI(): void {
     // Clear current question reference and options
     this.question = null;
     this.currentQuestion = null;
