@@ -29,7 +29,7 @@ export class RenderStateService {
     private quizService: QuizService
   ) {}
 
-  private setupRenderGateSync(): void {
+  public setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
       return;
