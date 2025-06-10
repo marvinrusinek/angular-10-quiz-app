@@ -903,6 +903,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
   
+  // REMOVE!!
   private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
     if (checked) {
       this.selectedOptions.push(option);

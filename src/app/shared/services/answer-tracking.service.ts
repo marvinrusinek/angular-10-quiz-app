@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Option } from '../models/Option.model';
+import { SelectedOption } from '../models/SelectedOption.model';
 import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
 
@@ -37,6 +38,14 @@ export class AnswerTrackingService {
       }
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
+    }
+  }
+
+  private updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
+    if (checked) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions = this.selectedOptions.filter(o => o.optionId !== option.optionId);
     }
   }
 
