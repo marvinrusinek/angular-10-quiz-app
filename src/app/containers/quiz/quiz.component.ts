@@ -917,6 +917,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return result;
   }
   
+  // REMOVE!!
   private resetQuestionState(): void {
     // Clear local UI state
     this.questionInitialized = false; // block during reset
