@@ -11,7 +11,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
-// import { ProgressBarService } from './progress-bar.service';
+//import { ProgressBarService } from './progress-bar.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizNavigationService } from './quiz-navigation.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
