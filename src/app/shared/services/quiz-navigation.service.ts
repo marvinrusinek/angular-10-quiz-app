@@ -151,6 +151,8 @@ export class QuizNavigationService {
         await this.router.navigate(['/results/', this.quizId]);
         return;
       }
+
+      await this.router.navigate(['question', nextIndex]);
   
       // Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
       if (isNaN(nextIndex) || nextIndex < 0) {
