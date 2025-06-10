@@ -1811,6 +1811,7 @@ export class QuizQuestionComponent
       }
 
       // Set backward nav flag if supported
+      // Forced cast: we expect the dynamic component to be AnswerComponent at this point
       (instance as unknown as AnswerComponent).isNavigatingBackwards = this.navigatingBackwards ?? false;
       this.navigatingBackwards = false;
   
