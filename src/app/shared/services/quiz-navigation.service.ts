@@ -373,10 +373,18 @@ export class QuizNavigationService {
   }
 
   private handleQuizCompletion(): void {
-    this.quizService.submitQuizScore(this.answers).subscribe(() => {
-      this.router.navigate(['results', this.quizService.quizId]);
+    const quizId = this.quizService.quizId;
+    console.log('[📦 handleQuizCompletion] quizId =', quizId);
+    this.quizService.submitQuizScore(this.answers).subscribe({
+      next: () => {
+        console.log('[✅ Score submitted]');
+        this.router.navigate(['results', quizId]);
+      },
+      error: (err) => {
+        console.error('[❌ Error submitting score]', err);
+      }
     });
-  }
+  }  
 
   public notifyNavigationSuccess(): void {
     this.navigationSuccessSubject.next();
