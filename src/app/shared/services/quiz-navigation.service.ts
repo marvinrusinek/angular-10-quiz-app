@@ -122,24 +122,25 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<void> {
+    console.log('[⏭️ advanceToNextQuestion] Triggered');
+  
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
-
-    const [isLoading, isNavigating] = await Promise.all([
-      firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$)
-    ]);
-    
-    const isEnabled = await firstValueFrom(
-      this.isButtonEnabled$.pipe(
-        filter(Boolean), // ✅ Wait until it's actually true
-        take(1)
-      )
-    );
-
-    // Prevent navigation if any blocking conditions are met
+  
+    // Sync flags
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled(); // ✅ Cached sync value
+  
+    console.log('[🔍 Check] { isLoading, isNavigating, isEnabled }', {
+      isLoading,
+      isNavigating,
+      isEnabled,
+    });
+  
+    // Prevent navigation if blocked
     if (isLoading || isNavigating || !isEnabled) {
-      console.warn('Cannot advance: Loading or navigation in progress, or button is disabled.');
+      console.warn('[❌] Cannot navigate yet – state not ready.');
       return;
     }
   
@@ -148,43 +149,40 @@ export class QuizNavigationService {
     this.quizStateService.setNavigating(true);
   
     try {
-      // Start animation
+      // Start exit animation
       this.animationState$.next('animationStarted');
-
-      await this.router.navigate(['/question/', this.quizId, nextIndex]);
-      this.quizService.setCurrentQuestionIndex(nextIndex);
   
-      // Prevent going out of bounds
-      /* if (nextIndex >= this.totalQuestions) {
-        console.log('[🏁 Reached end of quiz – navigating to results]');
-        await this.router.navigate(['/results/', this.quizId]);
-        return;
-      } */
-  
-      // Guard against invalid `nextIndex` (e.g. NaN, corrupted index)
+      // Prevent out-of-bounds access
       if (isNaN(nextIndex) || nextIndex < 0) {
-        console.error(`[❌ advanceToNextQuestion] Invalid next index: ${nextIndex}`);
+        console.error(`[❌ Invalid index] nextIndex = ${nextIndex}`);
         return;
       }
-
-      // Clear current question state *before* navigating
+  
+      // ✅ If this is the last question, navigate to results
+      if (nextIndex >= this.totalQuestions) {
+        console.log('[🏁 Reached end of quiz – navigating to results]');
+        console.log('[🧭 Navigating to results]', this.quizId);
+        await this.router.navigate(['/results', this.quizId]);
+        return;
+      }
+  
+      // Reset current state before navigation
       this.quizQuestionLoaderService.resetUI();
   
-      // Attempt to navigate to next question
+      // Attempt navigation
       const success = await this.navigateToQuestion(nextIndex);
-
       if (success) {
-        // Notify component to reset ViewChild properties
+        this.quizService.setCurrentQuestionIndex(nextIndex);
         this.notifyNavigationSuccess();
-
-        // Reset answered state so Next button disables again for next question
+  
+        // Reset answered state
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
       } else {
-        console.warn('[❌] Navigation failed to Q' + nextIndex);
+        console.warn(`[❌] Navigation failed to Q${nextIndex}`);
       }
   
-      // Re-evaluate Next button state
+      // Re-evaluate button state after move
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
     } catch (error) {
@@ -194,7 +192,7 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }
+  }  
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
