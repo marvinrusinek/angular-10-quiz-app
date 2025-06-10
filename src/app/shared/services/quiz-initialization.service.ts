@@ -185,7 +185,7 @@ export class QuizInitializationService {
     });
   
     this.subscribeToSelectionMessage();
-  }
+  } 
 
   private fetchQuestionAndOptions(): void {
     if (document.hidden) {

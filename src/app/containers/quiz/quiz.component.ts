@@ -823,6 +823,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }, 0);
   }
 
+  // REMOVE!!
   private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
       .isOptionSelected$()
