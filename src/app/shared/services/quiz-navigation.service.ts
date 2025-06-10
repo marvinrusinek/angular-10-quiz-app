@@ -127,6 +127,12 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
   
+    // Debounce: prevent multiple rapid clicks
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress, ignoring extra click.');
+      return;
+    }
+  
     // Sync flags
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
@@ -149,9 +155,17 @@ export class QuizNavigationService {
     this.quizStateService.setNavigating(true);
   
     try {
+      // Ensure quizId is defined
+      this.quizId = this.quizId || this.quizService.quizId || this.route.snapshot.paramMap.get('quizId') || '';
+  
+      if (!this.quizId) {
+        console.error('[🚫] Missing quizId – cannot navigate');
+        return;
+      }
+  
       // Start exit animation
       this.animationState$.next('animationStarted');
-
+  
       await this.router.navigate(['/question/', this.quizId, nextIndex]);
       this.quizService.setCurrentQuestionIndex(nextIndex);
   
@@ -195,7 +209,7 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }  
+  }
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
