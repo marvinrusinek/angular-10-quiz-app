@@ -279,10 +279,8 @@ export class QuizNavigationService {
    * Optional helper to navigate programmatically to a question
    */
   private async navigateToQuestion(questionIndex: number): Promise<boolean> {   
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.renderReady = false;
-    }
-    this.sharedOptionComponent?.resetUIForNewQuestion();
+    this.emitRenderReset();
+    this.emitResetUI();
   
     // Bounds check
     if (
@@ -413,5 +411,13 @@ export class QuizNavigationService {
 
   private notifyResetExplanation(): void {
     this.explanationResetSubject.next();
+  }
+
+  private emitRenderReset(): void {
+    this.renderResetSubject.next();
+  }
+  
+  private emitResetUI(): void {
+    this.resetUIForNewQuestionSubject.next();
   }
 }
