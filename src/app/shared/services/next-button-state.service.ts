@@ -82,7 +82,6 @@ export class NextButtonStateService {
   }
 
   public cleanupNextButtonStateStream(): void {
-    console.log('[🧹 cleanupNextButtonStateStream] Cleaning up subscription');
     this.nextButtonStateSubscription?.unsubscribe();
     this.nextButtonStateSubscription = undefined;
     this.initialized = false;
@@ -94,12 +93,6 @@ export class NextButtonStateService {
     isNavigating: boolean
   ): boolean {
     const shouldEnable = isAnswered && !isLoading && !isNavigating;
-    console.log('[🧪 evaluateNextButtonState]', {
-      isAnswered,
-      isLoading,
-      isNavigating,
-      shouldEnable
-    });
     this.updateAndSyncNextButtonState(shouldEnable);
     return shouldEnable;
   }
@@ -115,7 +108,6 @@ export class NextButtonStateService {
   }
 
   public setButtonEnabled(enabled: boolean): void {
-    console.log(`[✅ setButtonEnabled] Forcing state to: ${enabled}`);
     this.ngZone.run(() => {
       this.isButtonEnabledSubject.next(enabled);
       this.nextButtonStyle = {
@@ -126,7 +118,6 @@ export class NextButtonStateService {
   }
 
   public setNextButtonState(enabled: boolean): void {
-    console.log(`[🚀 setNextButtonState] Setting to: ${enabled}`);
     this.isButtonEnabledSubject.next(enabled);
   }
 
