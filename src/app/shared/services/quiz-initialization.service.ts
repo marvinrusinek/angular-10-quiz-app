@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
 import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
@@ -179,6 +179,50 @@ export class QuizInitializationService {
         console.error(error);
       },
     });
+  }
+
+  private initializeAnswerSync(): void {
+    this.subscribeToOptionSelection();
+  
+    this.nextButtonStateService.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnswered$,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
+  
+    this.selectedOptionService.isNextButtonEnabled$.subscribe(enabled => {
+      this.isNextButtonEnabled = enabled;
+    });
+  
+    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
+      this.isCurrentQuestionAnswered = isSelected;
+    });
+  
+    this.subscribeToSelectionMessage();
+  }
+
+  private subscribeToOptionSelection(): void {
+    this.optionSelectedSubscription = this.selectedOptionService
+      .isOptionSelected$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isSelected: boolean) => {
+        this.isOptionSelected = isSelected;
+        this.isNextButtonEnabled = isSelected;
+      });
+  }
+
+  private subscribeToSelectionMessage(): void {
+    this.selectionMessageService.selectionMessage$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(), // Added distinctUntilChanged to prevent redundant updates
+        takeUntil(this.destroy$)
+      )
+      .subscribe((message: string) => {
+        if (this.selectionMessage !== message) {
+          this.selectionMessage = message;
+        }
+      });
   }
 
   private fetchQuestionAndOptions(): void {

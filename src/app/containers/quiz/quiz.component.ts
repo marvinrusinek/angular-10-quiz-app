@@ -384,7 +384,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.setupQuiz();
     this.initializeProgressSync();
-    this.initializeAnswerSync();
+    this.quizInitializationService.initializeAnswerSync(); 
     this.initializeTooltip();
     this.resetStateHandlers();
     this.initializeExplanationText();
@@ -442,25 +442,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  private initializeAnswerSync(): void {
-    this.subscribeToOptionSelection();
   
-    this.nextButtonStateService.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnswered$,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
-  
-    this.selectedOptionService.isNextButtonEnabled$.subscribe(enabled => {
-      this.isNextButtonEnabled = enabled;
-    });
-  
-    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
-      this.isCurrentQuestionAnswered = isSelected;
-    });
-  
-    this.subscribeToSelectionMessage();
-  }
   
   private resetStateHandlers(): void {
     this.resetOptionState();
@@ -827,17 +809,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn('Tooltip reference not available in QQC');
       }
     }, 0);
-  }
-
-  private subscribeToOptionSelection(): void {
-    this.optionSelectedSubscription = this.selectedOptionService
-      .isOptionSelected$()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isSelected: boolean) => {
-        this.isOptionSelected = isSelected;
-        this.isNextButtonEnabled = isSelected;
-        this.cdRef.detectChanges();
-      });
   }
   
   public async onOptionSelected(
@@ -2483,20 +2454,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private getCorrectAnswersText(options: Option[]): string {
     const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
     return this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-  }
-
-  private subscribeToSelectionMessage(): void {
-    this.selectionMessageService.selectionMessage$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(), // Added distinctUntilChanged to prevent redundant updates
-        takeUntil(this.destroy$)
-      )
-      .subscribe((message: string) => {
-        if (this.selectionMessage !== message) {
-          this.selectionMessage = message;
-        }
-      });
   }
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {
