@@ -10,7 +10,7 @@ export class AnswerTrackingService {
 
   constructor(private selectedOptionService: SelectedOptionService) {}
 
-  private resetOptionState(): void {
+  public resetOptionState(): void {
     this.isOptionSelected = false;
   
     // Clear both selection and answered state
