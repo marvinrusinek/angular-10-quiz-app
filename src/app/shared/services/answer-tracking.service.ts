@@ -30,16 +30,7 @@ export class AnswerTrackingService {
       const newMessage = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
       const current = this.selectionMessageService.getCurrentMessage();
   
-      console.log('[🧩 setSelectionMessage]', {
-        index,
-        total,
-        isAnswered,
-        current,
-        newMessage
-      });
-  
       if (newMessage !== current) {
-        console.log(`[📢 updateSelectionMessage TRIGGERED] from "${current}" → "${newMessage}"`);
         this.selectionMessageService.updateSelectionMessage(newMessage);
       } else {
         console.log(`[⏸️ Skipping update — message already "${current}"`);
@@ -54,7 +45,7 @@ export class AnswerTrackingService {
   
     // Clear both selection and answered state
     this.selectedOptionService.setOptionSelected(false);
-    // this.selectedOptionService.setAnswered(false);
+    this.selectedOptionService.setAnswered(false);
   }
 
   public isAnyOptionSelected(): boolean {
