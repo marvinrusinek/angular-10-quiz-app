@@ -31,6 +31,9 @@ export class QuizInitializationService {
   private alreadyInitialized = false;
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
 
+  private isCurrentQuestionAnswered = false;
+  isNextButtonEnabled = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
