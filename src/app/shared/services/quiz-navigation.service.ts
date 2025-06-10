@@ -145,7 +145,7 @@ export class QuizNavigationService {
       // Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
-        await this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+        await this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
         return;
       }
   
