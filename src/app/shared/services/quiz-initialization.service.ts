@@ -62,6 +62,11 @@ export class QuizInitializationService {
     private selectionMessageService: SelectionMessageService,
     private activatedRoute: ActivatedRoute
   ) {}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }  
   
   public async initializeQuiz(): Promise<void> {
     if (this.alreadyInitialized) {
@@ -184,22 +189,28 @@ export class QuizInitializationService {
   initializeAnswerSync(): void {
     this.subscribeToOptionSelection();
   
+    // Properly initialize next button state stream
     this.nextButtonStateService.initializeNextButtonStateStream(
       this.selectedOptionService.isAnswered$,
       this.quizStateService.isLoading$,
       this.quizStateService.isNavigating$
     );
   
-    this.selectedOptionService.isNextButtonEnabled$.subscribe(enabled => {
-      this.isNextButtonEnabled = enabled;
-    });
+    // Use takeUntil for cleanup
+    this.selectedOptionService.isNextButtonEnabled$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((enabled) => {
+        this.isNextButtonEnabled = enabled;
+      });
   
-    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
-      this.isCurrentQuestionAnswered = isSelected;
-    });
+    this.selectedOptionService.isOptionSelected$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isSelected) => {
+        this.isCurrentQuestionAnswered = isSelected;
+      });
   
     this.subscribeToSelectionMessage();
-  }
+  }  
 
   private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
