@@ -281,11 +281,8 @@ export class QuizNavigationService {
   /**
    * Optional helper to navigate programmatically to a question
    */
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> {   
-    this.emitRenderReset();
-    this.emitResetUI();
-  
-    // Bounds check
+   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    // Bounds check first
     if (
       typeof questionIndex !== 'number' ||
       isNaN(questionIndex) ||
@@ -296,17 +293,24 @@ export class QuizNavigationService {
       return false;
     }
   
-    // Set the index immediately to prevent race conditions
+    // Fetch and assign question data
+    const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(questionIndex);
+    if (!fetched || !this.question || !this.optionsToDisplay?.length) {
+      console.error(`[❌ Q${questionIndex}] Failed to fetch or assign question data`, {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay,
+      });
+      return false;
+    }
+  
+    // Emit UI reset events only after successful fetch
+    this.emitRenderReset();
+    this.emitResetUI();
+  
+    // Update index state
     this.currentQuestionIndex = questionIndex;
     this.quizService.setCurrentQuestionIndex(questionIndex);
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
-  
-    // Fetch and assign question data
-    const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(questionIndex);
-    if (!fetched) {
-      console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
-      return false;
-    }
   
     // Update route
     const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
@@ -316,15 +320,7 @@ export class QuizNavigationService {
       return false;
     }
   
-    if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
-        question: this.question,
-        optionsToDisplay: this.optionsToDisplay
-      });
-      return false;
-    }
-  
-    // Badge update - moved after index synchronization
+    // Update badge
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const total = this.totalQuestions;
   
@@ -338,7 +334,7 @@ export class QuizNavigationService {
     } else {
       console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions', {
         currentIndex,
-        total
+        total,
       });
     }
   
