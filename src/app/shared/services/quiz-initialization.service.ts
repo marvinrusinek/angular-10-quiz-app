@@ -181,7 +181,7 @@ export class QuizInitializationService {
     });
   }
 
-  private initializeAnswerSync(): void {
+  initializeAnswerSync(): void {
     this.subscribeToOptionSelection();
   
     this.nextButtonStateService.initializeNextButtonStateStream(
@@ -215,7 +215,7 @@ export class QuizInitializationService {
     this.selectionMessageService.selectionMessage$
       .pipe(
         debounceTime(300),
-        distinctUntilChanged(), // Added distinctUntilChanged to prevent redundant updates
+        distinctUntilChanged(), // added distinctUntilChanged to prevent redundant updates
         takeUntil(this.destroy$)
       )
       .subscribe((message: string) => {
