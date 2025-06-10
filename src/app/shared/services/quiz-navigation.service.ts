@@ -378,7 +378,7 @@ export class QuizNavigationService {
     return true;
   }
 
-  private async resetUIAndNavigate(questionIndex: number): Promise<void> {
+  public async resetUIAndNavigate(questionIndex: number): Promise<void> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
