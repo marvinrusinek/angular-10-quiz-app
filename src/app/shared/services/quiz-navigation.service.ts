@@ -1,5 +1,5 @@
 import { Injectable, ViewChild } from '@angular/core';
-import { ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, take } from 'rxjs/operators';
 
@@ -78,10 +78,13 @@ export class QuizNavigationService {
     private quizService: QuizService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
-    private timerService: TimerService, 
+    private timerService: TimerService,
+    private activatedRoute: ActivatedRoute, 
     private router: Router,
     //private cdRef: ChangeDetectorRef
   ) {
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
+
     this.isButtonEnabled$ = this.nextButtonStateService.isButtonEnabled$;
   }
 
@@ -145,7 +148,7 @@ export class QuizNavigationService {
       // Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
-        await this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
+        await this.router.navigate(['results', this.quizId]);
         return;
       }
   
