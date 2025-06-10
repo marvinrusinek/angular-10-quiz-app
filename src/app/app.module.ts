@@ -56,6 +56,7 @@ import { QuizStateService } from './shared/services/quizstate.service';
 import { DynamicComponentService } from './shared/services/dynamic-component.service';
 import { ExplanationTextService } from './shared/services/explanation-text.service';
 import { FeedbackService } from './shared/services/feedback.service';
+import { RenderStateService } from './shared/services/render-state.service';
 import { SelectedOptionService } from './shared/services/selectedoption.service';
 import { SelectionMessageService } from './shared/services/selection-message.service';
 import { TimerService } from './shared/services/timer.service';
@@ -140,6 +141,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     ExplanationTextService,
     FeedbackService,
     NextButtonStateService,
+    RenderStateService,
     ResetBackgroundService,
     ResetStateService,
     SelectedOptionService,
