@@ -173,7 +173,7 @@ export class QuizInitializationService {
     });
   }
 
-  /* public initializeAnswerSync(): void {
+  public initializeAnswerSync(): void {
     this.subscribeToOptionSelection();
   
     this.nextButtonStateService.initializeNextButtonStateStream(
@@ -191,7 +191,7 @@ export class QuizInitializationService {
     });
   
     this.subscribeToSelectionMessage();
-  } */
+  }
 
   private fetchQuestionAndOptions(): void {
     if (document.hidden) {
