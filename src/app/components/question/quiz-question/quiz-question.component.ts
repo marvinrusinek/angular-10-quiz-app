@@ -1808,6 +1808,10 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Early return F] ComponentRef has no instance');
         return;
       }
+
+      // Set backward nav flag if supported
+      (instance as AnswerComponent).isNavigatingBackwards = this.navigatingBackwards ?? false;
+      this.navigatingBackwards = false;
   
       console.log('[🧪 Component instance created]', {
         componentType: componentRef.componentType?.name ?? '[Unknown]',
