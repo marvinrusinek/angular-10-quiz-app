@@ -15,7 +15,6 @@ import { QuizQuestionManagerService } from './quizquestionmgr.service';
 import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
   currentQuiz: Quiz;
@@ -231,7 +230,7 @@ export class QuizInitializationService {
   
           this.quizId = quizId;
   
-          return this.handleRouteParams(params).pipe(
+          return this.quizNavigationService.handleRouteParams(params).pipe(
             switchMap(({ quizData }) => {
               if (!quizData || !Array.isArray(quizData.questions)) {
                 console.error('[Route Init] ❌ Invalid quiz data or missing questions array.');
@@ -269,7 +268,7 @@ export class QuizInitializationService {
           this.currentQuiz = this.quizService.getActiveQuiz();
           console.log(`[Route Init] ✅ Loaded Q${this.currentQuestionIndex}`);
   
-          await this.resetUIAndNavigate(this.currentQuestionIndex);
+          await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
