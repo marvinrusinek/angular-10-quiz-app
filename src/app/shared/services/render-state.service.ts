@@ -1,13 +1,28 @@
 import { Injectable } from '@angular/core';
-import { } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
+import { QuizQuestion } from '../models/QuizQuestion.model';
 import { QuizService } from './quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class RenderStateService {
   private quizQuestionComponent: QuizQuestionComponent;
+
+  public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
+
+  private combinedQuestionDataSubject = new BehaviorSubject<{
+    question: QuizQuestion,
+    options: Option[]
+  } | null>(null);
+  combinedQuestionData$: Observable<{
+    question: QuizQuestion,
+    options: Option[]
+  } | null> = this.combinedQuestionDataSubject.asObservable();
+
+  private renderGateSubject = new BehaviorSubject<boolean>(false);
+  renderGate$ = this.renderGateSubject.asObservable();
 
   constructor(
     private quizService: QuizService
