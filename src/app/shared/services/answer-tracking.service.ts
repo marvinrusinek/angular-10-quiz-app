@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { Option } from '.shared/models/Option.model';
-import { SelectedOptionService } from '../../shared/services/selectedoption.service';
-import { SelectionMessageService } from '../../shared/services/selection-message.service';
+import { Option } from '../models/Option.model';
+import { SelectedOptionService } from './selectedoption.service';
+import { SelectionMessageService } from './selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class AnswerTrackingService {
