@@ -26,7 +26,7 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizNavigationService {
   animationState$ = new BehaviorSubject<AnimationState>('none');
 
-  quizId = '';
+  private quizId = '';
   question!: QuizQuestion;
   questionPayload: QuestionPayload | null = null;
   currentQuestion: QuizQuestion | null = null;
@@ -148,7 +148,7 @@ export class QuizNavigationService {
       // Prevent going out of bounds
       if (nextIndex >= this.totalQuestions) {
         console.log('[🏁 Reached end of quiz – navigating to results]');
-        await this.router.navigate(['results', this.quizId]);
+        await this.router.navigate(['/results/', this.quizId]);
         return;
       }
   
@@ -411,5 +411,13 @@ export class QuizNavigationService {
 
   emitNavigationToQuestion(question: QuizQuestion, options: Option[]): void {
     this.navigationToQuestionSubject.next({ question, options });
+  }
+
+  setQuizId(id: string): void {
+    this.quizId = id;
+  }
+
+  getQuizId(): string {
+    return this.quizId;
   }
 }
