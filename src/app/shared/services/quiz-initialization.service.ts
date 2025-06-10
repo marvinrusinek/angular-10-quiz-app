@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
+import { QuestionType } from '../models/question-type.enum';
+import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
 import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
@@ -20,6 +22,7 @@ import { SelectionMessageService } from './selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizInitializationService {
+  data: QuizQuestion;
   currentQuiz: Quiz;
   selectedQuiz: Quiz = {} as Quiz;
   questionIndex: number;
@@ -37,7 +40,7 @@ export class QuizInitializationService {
   isCurrentQuestionAnswered = false;
 
   showFeedback = false;
-  
+
   isNextButtonEnabled = false;
 
   optionSelectedSubscription: Subscription;
