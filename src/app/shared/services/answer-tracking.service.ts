@@ -18,7 +18,7 @@ export class AnswerTrackingService {
     // this.selectedOptionService.setAnswered(false);
   }
 
-  private isAnyOptionSelected(): boolean {
+  public isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     return result;
   }
