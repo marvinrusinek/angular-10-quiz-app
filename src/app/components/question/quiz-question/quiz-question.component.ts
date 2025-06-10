@@ -314,11 +314,6 @@ export class QuizQuestionComponent
     // Add any additional resets needed here
   }
 
-  private resetExplanation(): void {
-    console.log('[QQC] 💬 Resetting explanation');
-    // Your internal logic to reset explanation view/state
-  }
-
   async ngOnInit(): Promise<void> {
     console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
