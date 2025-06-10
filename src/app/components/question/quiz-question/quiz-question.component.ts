@@ -36,6 +36,7 @@ import { SharedVisibilityService } from '../../../shared/services/shared-visibil
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
+import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -49,6 +50,10 @@ export class QuizQuestionComponent
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
   // private vcRef!: ViewContainerRef;
+
+  @ViewChild('sharedOptionComponent', { static: false })
+  sharedOptionComponent!: SharedOptionComponent;
+
   @Output() answer = new EventEmitter<number>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
@@ -318,18 +323,18 @@ export class QuizQuestionComponent
     console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
 
-    this.quizNavigationService.navigationSubject$.subscribe(() => {
-      console.log('[QQC] 📦 navigationSubject$ received — general navigation');
+    this.quizNavigationService.navigationSuccess$.subscribe(() => {
+      console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
       this.resetUIForNewQuestion();
-    }),
+    });
 
-    this.quizNavigationService.navigatingBackSubject$.subscribe(() => {
-      console.log('[QQC] 🔙 navigatingBackSubject$ received');
+    this.quizNavigationService.navigatingBack$.subscribe(() => {
+      console.log('[QQC] 🔙 navigatingBack$ received');
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.isNavigatingBackwards = true;
       }
       this.resetUIForNewQuestion();
-    }),
+    });
 
     this.quizNavigationService.navigationToQuestion$.subscribe(({ question, options }) => {
       if (question?.questionText && options?.length) {
@@ -348,8 +353,8 @@ export class QuizQuestionComponent
       }
     });
     
-    this.quizNavigationService.explanationResetSubject$.subscribe(() => {
-      console.log('[QQC] 🔁 explanationResetSubject$ received');
+    this.quizNavigationService.explanationReset$.subscribe(() => {
+      console.log('[QQC] 🔁 explanationReset$ received');
       this.resetExplanation();
     });
 
