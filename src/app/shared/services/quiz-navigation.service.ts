@@ -219,7 +219,7 @@ export class QuizNavigationService {
       }
 
       this.quizQuestionComponent?.resetExplanation();
-      this.resetUI(); //QQLS
+      this.quizQuestionLoaderService.resetUI();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -303,7 +303,7 @@ export class QuizNavigationService {
     localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
   
     // Fetch and assign question data
-    const fetched = await this.fetchAndSetQuestionData(questionIndex); // QQLS
+    const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(questionIndex);
     if (!fetched) {
       console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
       return false;
