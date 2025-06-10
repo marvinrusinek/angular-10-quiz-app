@@ -3983,6 +3983,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  // REMOVE!!
   private setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
