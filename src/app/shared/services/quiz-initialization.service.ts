@@ -8,6 +8,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 
 import { Injectable } from '@angular/core';
 import { ExplanationTextService } from './explanation-text.service';
+import { NextButtonStateService } from './next-button-state.service';
 import { ProgressBarService } from './progress-bar.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizNavigationService } from './quiz-navigation.service';
@@ -33,6 +34,7 @@ export class QuizInitializationService {
 
   constructor(
     private explanationTextService: ExplanationTextService,
+    private nextButtonStateService: NextButtonStateService,
     private progressBarService: ProgressBarService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -158,6 +160,26 @@ export class QuizInitializationService {
         console.error(error);
       },
     });
+  }
+
+  private initializeAnswerSync(): void {
+    this.subscribeToOptionSelection();
+  
+    this.nextButtonStateService.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnswered$,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
+  
+    this.selectedOptionService.isNextButtonEnabled$.subscribe(enabled => {
+      this.isNextButtonEnabled = enabled;
+    });
+  
+    this.selectedOptionService.isOptionSelected$().subscribe(isSelected => {
+      this.isCurrentQuestionAnswered = isSelected;
+    });
+  
+    this.subscribeToSelectionMessage();
   }
 
   private fetchQuestionAndOptions(): void {

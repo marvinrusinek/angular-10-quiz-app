@@ -435,6 +435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
+  // REMOVE!!
   private initializeAnswerSync(): void {
     this.subscribeToOptionSelection();
   
