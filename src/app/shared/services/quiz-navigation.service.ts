@@ -125,11 +125,17 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
 
-    const [isLoading, isNavigating, isEnabled] = await Promise.all([
+    const [isLoading, isNavigating] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$),
-      firstValueFrom(this.isButtonEnabled$)
+      firstValueFrom(this.quizStateService.isNavigating$)
     ]);
+    
+    const isEnabled = await firstValueFrom(
+      this.isButtonEnabled$.pipe(
+        filter(Boolean), // ✅ Wait until it's actually true
+        take(1)
+      )
+    );
 
     // Prevent navigation if any blocking conditions are met
     if (isLoading || isNavigating || !isEnabled) {
