@@ -49,7 +49,6 @@ export class AnswerTrackingService {
   }
 
   public isAnyOptionSelected(): boolean {
-    const result = this.selectedOptions.length > 0;
-    return result;
+    return this.selectedOptions.length > 0;
   }
 }
