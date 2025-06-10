@@ -9,6 +9,9 @@ export class AnswerTrackingService {
   selectedOptions: Option[] = [];
   isOptionSelected = false;
 
+  currentQuestionIndex = 0;
+  totalQuestions = 0;
+
   constructor(
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService
