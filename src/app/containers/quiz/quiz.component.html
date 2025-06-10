@@ -87,9 +87,9 @@
               #nextButton="matTooltip"
               mat-icon-button
               routerLinkActive="active"
-              (click)="advanceToNextQuestion()"
-              (window:keydown.ArrowRight)="advanceToNextQuestion()"
-              (window:keydown.Enter)="advanceToNextQuestion()"
+              (click)="quizNavigationService.advanceToNextQuestion()"
+              (window:keydown.ArrowRight)="quizNavigationService.advanceToNextQuestion()"
+              (window:keydown.Enter)="quizNavigationService.advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
               [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
