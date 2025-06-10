@@ -47,8 +47,6 @@ export class QuizInitializationService {
       console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
       return;
     }
-
-    console.log('[✅ QuizInitializationService] Starting quiz init...');
     this.alreadyInitialized = true;
 
     this.prepareQuizSession();
@@ -56,12 +54,10 @@ export class QuizInitializationService {
     this.initializeQuizBasedOnRouteParams();
 
     const initialIndex = 1;
-    console.log(`[📍 Setting Initial Index to Q${initialIndex}]`);
     this.quizService.setCurrentQuestionIndex(initialIndex);
 
     const firstQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(initialIndex));
     if (firstQuestion) {
-      console.log(`[✅ First Question Loaded for Q${initialIndex}]`, firstQuestion);
       this.quizService.setCurrentQuestion(firstQuestion);
     } else {
       console.warn(`[⚠️ No question found at index ${initialIndex}]`);
@@ -266,8 +262,6 @@ export class QuizInitializationService {
           }
   
           this.currentQuiz = this.quizService.getActiveQuiz();
-          console.log(`[Route Init] ✅ Loaded Q${this.currentQuestionIndex}`);
-  
           await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
         },
         complete: () => {
@@ -335,26 +329,16 @@ export class QuizInitializationService {
       return;
     }
 
-    console.log(`🔄 [updateQuizUIForNewQuestion] Looking for question:`, question.questionText);
-
     if (!this.selectedQuiz || !this.selectedQuiz.questions) {
       console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz or questions array is missing.');
       return;
     }
 
-    // Log all quiz questions before searching
-    console.log(`📋 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz.questions);
-
     const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
-
-    console.log(`🔍 [updateQuizUIForNewQuestion] Found question index:`, questionIndex);
-
     if (questionIndex < 0 || questionIndex >= this.selectedQuiz.questions.length) {
       console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
       return;
     }
-
-    console.log(`✅ [updateQuizUIForNewQuestion] Updating UI for question index: ${questionIndex}`);
 
     // Reset UI elements
     this.selectedOption$.next(null);
