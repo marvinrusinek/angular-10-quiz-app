@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 
@@ -74,8 +74,7 @@ export class QuizQuestionLoaderService {
     private timerService: TimerService,
     private nextButtonStateService: NextButtonStateService,
     private selectedOptionService: SelectedOptionService,
-    private quizStateService: QuizStateService,
-    private cdRef: ChangeDetectorRef
+    private quizStateService: QuizStateService
   ) {}
 
   async loadQuestionContents(questionIndex: number): Promise<void> {
@@ -175,7 +174,7 @@ export class QuizQuestionLoaderService {
     } catch (error) {
       console.error(`[QuizComponent] ❌ Unexpected error:`, error);
       this.isLoading = false;
-      this.cdRef.detectChanges();
+      // this.cdRef.detectChanges();
     }
   }
 
@@ -211,7 +210,7 @@ export class QuizQuestionLoaderService {
       this.explanationTextService.resetExplanationState();
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
-      this.cdRef.detectChanges();
+      // this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
   
       // ───── Answered state & parallel fetch ─────
