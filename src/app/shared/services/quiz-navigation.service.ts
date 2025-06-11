@@ -306,7 +306,7 @@ export class QuizNavigationService {
   /**
    * Optional helper to navigate programmatically to a question
    */
-   private async navigateToQuestion(questionIndex: number): Promise<boolean> {
+   public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     // Bounds check first
     if (
       typeof questionIndex !== 'number' ||
