@@ -1007,7 +1007,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }  
 
   /**** Initialize route parameters and subscribe to updates ****/
-  /* resolveQuizData(): void {
+  resolveQuizData(): void {
     this.activatedRoute.data
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((data: { quizData: Quiz }) => {
@@ -1033,7 +1033,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           });
         }
       });
-  } */
+  }
 
   // REMOVE!!
   async fetchQuizData(): Promise<void> {
