@@ -161,7 +161,6 @@ export class QuizQuestionLoaderService {
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
   
         this.questionData = data.question ?? ({} as QuizQuestion);
-        console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
         this.renderStateService.tryRenderGate();
 
         this.isQuestionDisplayed = true;
@@ -180,9 +179,7 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {
-    console.log('[🚩 ENTERED fetchAndSetQuestionData]', { questionIndex });
-    
+  async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {    
     // ───── Reset state flags ─────
     this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
@@ -212,7 +209,6 @@ export class QuizQuestionLoaderService {
       this.explanationTextService.resetExplanationState();
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
-      // this.cdRef.detectChanges();
       await new Promise(res => setTimeout(res, 30));
   
       // ───── Answered state & parallel fetch ─────
@@ -454,7 +450,7 @@ export class QuizQuestionLoaderService {
     this.isButtonEnabledSubject.next(false);
     this.selectionMessageService.setSelectionMessage(false);
   
-    // Defensive: only reset options if current question exists
+    // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
       for (const option of this.currentQuestion.options) {
         if (option.selected || option.highlight || !option.active) {
@@ -472,7 +468,7 @@ export class QuizQuestionLoaderService {
       console.warn('[resetQuestionState] ⚠️ No current question options found to reset.');
     }
   
-    // 🧹 Reset internal selected options tracking
+    // Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
   }
