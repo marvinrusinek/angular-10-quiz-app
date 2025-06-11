@@ -443,7 +443,7 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  private resetQuestionState(): void {
+  public resetQuestionState(): void {
     // Clear local UI state
     this.questionInitialized = false; // block during reset
     this.isAnswered = false;
