@@ -133,7 +133,7 @@ export class QuizNavigationService {
     // Sync flags
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled(); // ✅ Cached sync value
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled(); // cached sync value
   
     console.log('[🔍 Check] { isLoading, isNavigating, isEnabled }', {
       isLoading,
