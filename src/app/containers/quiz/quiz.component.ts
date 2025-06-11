@@ -694,39 +694,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  // REMOVE!!
-  async setSelectionMessage(isAnswered: boolean): Promise<void> {
-    try {
-      const index = this.currentQuestionIndex;
-      const total = this.totalQuestions;
-  
-      if (typeof index !== 'number' || isNaN(index) || total <= 0) {
-        console.warn('[❌ setSelectionMessage] Invalid index or totalQuestions');
-        return;
-      }
-  
-      const newMessage = this.selectionMessageService.determineSelectionMessage(index, total, isAnswered);
-      const current = this.selectionMessageService.getCurrentMessage();
-  
-      console.log('[🧩 setSelectionMessage]', {
-        index,
-        total,
-        isAnswered,
-        current,
-        newMessage
-      });
-  
-      if (newMessage !== current) {
-        console.log(`[📢 updateSelectionMessage TRIGGERED] from "${current}" → "${newMessage}"`);
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-      } else {
-        console.log(`[⏸️ Skipping update — message already "${current}"`);
-      }
-    } catch (error) {
-      console.error('[❌ setSelectionMessage ERROR]', error);
-    }
-  }
-
   private async evaluateSelectionMessage(): Promise<void> {
     const isMultipleAnswer = this.isMultipleAnswer(this.currentQuestion);
   
@@ -874,7 +841,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       setTimeout(async () => {
-        await this.setSelectionMessage(true);
+        await this.selectionMessageService.setSelectionMessage(true);
         this.evaluateSelectionMessage();
   
         this.nextButtonStateService.evaluateNextButtonState(
@@ -911,7 +878,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.setSelectionMessage(false);
+    this.selectionMessageService.setSelectionMessage(false);
   
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
