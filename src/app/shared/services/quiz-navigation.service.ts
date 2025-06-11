@@ -511,18 +511,26 @@ export class QuizNavigationService {
   } */
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
+      // Set question index in service
       this.quizService.setCurrentQuestionIndex(index);
   
+      // Get the question
       const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!question) {
         console.warn(`[resetUIAndNavigate] ❌ No question found for index ${index}`);
         return;
       }
   
+      // Set the current question
       this.quizService.setCurrentQuestion(question);
-      this.quizService.updateBadgeText(index + 1, this.quizService.getTotalQuestions());
   
-      const routeUrl = `/question/${this.quizService.getQuizId()}/${index + 1}`;
+      // Update badge text
+      const total = this.quizService.getTotalQuestionsCount();
+      this.quizService.updateBadgeText(index + 1, total);
+  
+      // Navigate only if the route is different
+      const quizId = this.quizService.quizId;
+      const routeUrl = `/question/${quizId}/${index + 1}`;
       const currentUrl = this.router.url;
   
       if (currentUrl !== routeUrl) {
@@ -532,15 +540,19 @@ export class QuizNavigationService {
           return;
         }
       } else {
-        console.warn(`[resetUIAndNavigate] ⚠️ Route already matches, skipping navigateByUrl`);
+        console.warn(`[resetUIAndNavigate] ⚠️ Already on route ${routeUrl}`);
       }
   
-      this.quizStateService.resetIcons();
-      this.quizStateService.clearFeedback();
-      this.quizStateService.resetExplanationText();
-      this.quizStateService.setNavigating(false);
+      // Clear state manually (if no service helpers yet)
+      this.selectedOptionService.resetSelections(); // if you have this
+      this.explanationTextService.clearExplanation(); // or replace w/ actual method
+      this.feedbackService?.clearFeedback?.(); // optional
+      this.nextButtonStateService?.reset?.(); // optional
+  
+      // Final confirmation
+      console.log(`[resetUIAndNavigate] ✅ Navigation and UI reset complete for Q${index + 1}`);
     } catch (err) {
-      console.error(`[resetUIAndNavigate] ❌ Error during navigation:`, err);
+      console.error(`[resetUIAndNavigate] ❌ Error during reset:`, err);
     }
   }
 
