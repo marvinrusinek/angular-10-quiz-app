@@ -23,6 +23,9 @@
         <codelab-quiz-question
           *ngIf="shouldRenderQuestionComponent"
           [questionPayload]="questionPayload"
+          [question]="questionPayload?.question"
+          [options]="questionPayload?.options"
+          [explanation]="questionPayload?.explanation"
           [quizData]="quizComponentData"
           [questionData]="combined.question"
           [options]="combined.options"
