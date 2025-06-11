@@ -409,14 +409,14 @@ export class QuizNavigationService {
     if (currentUrl === routeUrl) {
       console.warn(`[navigateToQuestion] ⚠️ Route unchanged (${routeUrl}) — manually loading question`);
   
-      const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
-      if (!fetched) {
-        console.error(`[navigateToQuestion] ❌ Failed to manually fetch question for index ${clampedIndex}`);
+      const success = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+      if (!success) {
+        console.error(`[navigateToQuestion] ❌ Manual fetch failed for Q${clampedIndex}`);
         return false;
       }
   
       this.quizService.setCurrentQuestionIndex(clampedIndex);
-      return true; // ✅ Success, even if route didn’t change
+      return true;
     }
   
     const navSuccess = await this.router.navigateByUrl(routeUrl);
@@ -427,6 +427,7 @@ export class QuizNavigationService {
   
     return true;
   }
+  
 
   public async resetUIAndNavigate(questionIndex: number): Promise<QuizQuestion | null> {
     try {
