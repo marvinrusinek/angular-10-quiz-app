@@ -90,7 +90,7 @@ export class QuizInitializationService {
       console.warn(`[⚠️ No question found at index ${initialIndex}]`);
     }
   } */
-  public async initializeQuiz(): Promise<void> {
+  /* public async initializeQuiz(): Promise<void> {
     if (this.alreadyInitialized) {
       console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
       return;
@@ -115,8 +115,36 @@ export class QuizInitializationService {
   
     const currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex - 1));
     this.quizService.setCurrentQuestion(currentQuestion);
-  }
-   
+  } */
+  public async initializeQuiz(): Promise<void> {
+    if (this.alreadyInitialized) {
+      console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
+      return;
+    }
+    this.alreadyInitialized = true;
+  
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const questionIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) || 1;
+  
+    const resolvedQuiz = this.activatedRoute.snapshot.data['quizData'];
+    if (!resolvedQuiz) {
+      console.error('[❌ Quiz Init] No quiz data found in resolver.');
+      this.router.navigate(['/select']);
+      return;
+    }
+  
+    this.quizService.setActiveQuiz(resolvedQuiz);
+    this.quizService.setCurrentQuestionIndex(questionIndex - 1);
+    this.quizService.updateBadgeText(questionIndex, resolvedQuiz.questions.length);
+    this.explanationTextService.initializeExplanationTexts(resolvedQuiz.questions.map(q => q.explanation));
+  
+    const currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex - 1));
+    if (currentQuestion) {
+      this.quizService.setCurrentQuestion(currentQuestion);
+    } else {
+      console.warn(`[⚠️ No question found at index ${questionIndex - 1}]`);
+    }
+  }   
 
   private async prepareQuizSession(): Promise<void> {
     try {
