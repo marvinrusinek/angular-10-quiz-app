@@ -6,7 +6,6 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { SelectedOption } from '../models/SelectedOption.model';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
-import { SelectionMessageService } from './selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class AnswerTrackingService {
@@ -18,8 +17,7 @@ export class AnswerTrackingService {
 
   constructor(
     private quizStateService: QuizStateService,
-    private selectedOptionService: SelectedOptionService,
-    private selectionMessageService: SelectionMessageService
+    private selectedOptionService: SelectedOptionService
   ) {}
 
   public updateMultipleAnswerSelection(option: SelectedOption, checked: boolean): void {
