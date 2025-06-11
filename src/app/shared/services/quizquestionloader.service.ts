@@ -58,6 +58,9 @@ export class QuizQuestionLoaderService {
   private questionTextSubject = new BehaviorSubject<string>('');
   public questionText$ = this.questionTextSubject.asObservable();
 
+  private questionPayloadReadySource = new BehaviorSubject<boolean>(false);
+  public questionPayloadReady$ = this.questionPayloadReadySource.asObservable();
+
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanationText$ = this.explanationTextSubject.asObservable();
 
@@ -299,19 +302,15 @@ export class QuizQuestionLoaderService {
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
-      this.shouldRenderQuestionComponent = false;
+      // this.shouldRenderQuestionComponent = false;
   
-      requestAnimationFrame(() => {
-        this.questionPayload = {
-          question: this.currentQuestion!,
-          options: clonedOptions,
-          explanation: explanationText
-        };
-        requestAnimationFrame(() => {
-          this.shouldRenderQuestionComponent = true;
-          console.log('[✅ shouldRenderQuestionComponent set to TRUE]');
-        });
-      });
+      this.questionPayload = {
+        question: this.currentQuestion!,
+        options: clonedOptions,
+        explanation: explanationText
+      };
+      this.shouldRenderQuestionComponent = true;
+      this.questionPayloadReadySource.next(true);
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);

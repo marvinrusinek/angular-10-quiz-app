@@ -3189,20 +3189,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
 
-      this.shouldRenderQuestionComponent = false;
-
-      requestAnimationFrame(() => {
-        this.questionPayload = {
-          question: this.currentQuestion!,
-          options: clonedOptions,
-          explanation: explanationText
-        };
-
-        // Now safely trigger rendering after payload is ready
-        requestAnimationFrame(() => {
-          this.shouldRenderQuestionComponent = true;
-        });
-      });
+      // this.shouldRenderQuestionComponent = false;
+      this.questionPayload = {
+        question: this.currentQuestion!,
+        options: clonedOptions,
+        explanation: explanationText
+      };
+      this.shouldRenderQuestionComponent = true;
+      this.cdRef.markForCheck();      
 
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
