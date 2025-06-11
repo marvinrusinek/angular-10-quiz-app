@@ -1846,19 +1846,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         },
       });
   }  
-  
-  private async handleNewQuestion(question: QuizQuestion): Promise<void> {
-    try {
-      this.currentQuestion = question;
-      this.options = question.options || []; // Initialize options safely
-      this.currentQuestionType = question.type;
-  
-      // Handle correct answers text update
-      await this.updateCorrectAnswersText(question, this.options);
-    } catch (error) {
-      console.error('Error handling new question:', error);
-    }
-  }
 
   private async isMultipleAnswer(question: QuizQuestion): Promise<boolean> {
     return await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(question));
@@ -1866,15 +1853,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   isLastQuestion(): boolean {
     return this.currentQuestionIndex === this.totalQuestions - 1;
-  }
-
-  // Helper method to reset the current question state
-  private resetCurrentQuestionState(): void {
-    this.currentQuestion = null;
-    this.options = [];
-    this.currentQuestionType = null; // Reset on error
-    this.correctAnswersTextSource.next(''); // Clear the correct answers text
-    console.warn('Resetting the current question state.');
   }
 
   private async updateCorrectAnswersText(

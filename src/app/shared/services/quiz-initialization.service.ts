@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
 import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
@@ -26,6 +26,7 @@ export class QuizInitializationService {
   currentQuiz: Quiz;
   selectedQuiz: Quiz = {} as Quiz;
   question!: QuizQuestion;
+  questions$: Observable<QuizQuestion[]>;
   questionIndex: number;
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
@@ -46,6 +47,19 @@ export class QuizInitializationService {
 
   optionSelectedSubscription: Subscription;
   selectionMessage: string;
+
+  private combinedQuestionDataSubject = new BehaviorSubject<{
+    question: QuizQuestion,
+    options: Option[]
+  } | null>(null);
+  combinedQuestionData$: Observable<{
+    question: QuizQuestion,
+    options: Option[]
+  } | null> = this.combinedQuestionDataSubject.asObservable();
+
+  correctAnswersText: string;
+  private correctAnswersTextSource = new BehaviorSubject<string>('');
+  correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   private destroy$ = new Subject<void>();
 
@@ -173,6 +187,64 @@ export class QuizInitializationService {
     });
   
     this.subscribeToCurrentQuestion();
+  }
+
+  // Function to subscribe to changes in the current question and update the currentQuestionType
+  private subscribeToCurrentQuestion(): void {
+    const combinedQuestionObservable = merge(
+      this.quizService.getCurrentQuestionObservable().pipe(
+        retry(2),
+        catchError((error: Error) => {
+          console.error(
+            'Error subscribing to current question from quizService:',
+            error
+          );
+          return of(null); // Emit null to continue the stream
+        })
+      ),
+      this.quizStateService.currentQuestion$
+    );
+  
+    combinedQuestionObservable
+      .pipe(
+        filter((question): question is QuizQuestion => question !== null),
+        map((question) => ({
+          ...question,
+          options: question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false,
+          })),
+        }))
+      )
+      .subscribe({
+        next: (question: QuizQuestion) => this.handleNewQuestion(question),
+        error: (error) => {
+          console.error('Error processing the question streams:', error);
+          this.resetCurrentQuestionState();
+        },
+      });
+  }
+
+  // Helper method to reset the current question state
+  private resetCurrentQuestionState(): void {
+    this.currentQuestion = null;
+    this.options = [];
+    this.currentQuestionType = null; // Reset on error
+    this.correctAnswersTextSource.next(''); // Clear the correct answers text
+    console.warn('Resetting the current question state.');
+  }
+
+  private async handleNewQuestion(question: QuizQuestion): Promise<void> {
+    try {
+      this.currentQuestion = question;
+      this.options = question.options || []; // Initialize options safely
+      this.currentQuestionType = question.type;
+  
+      // Handle correct answers text update
+      await this.updateCorrectAnswersText(question, this.options);
+    } catch (error) {
+      console.error('Error handling new question:', error);
+    }
   }
 
   initializeQuestionStreams(): void {
@@ -393,7 +465,17 @@ export class QuizInitializationService {
       return null;
     }
   }
+
+  handleQuestion(question: QuizQuestion | null): void {
+    if (!question) {
+      console.error('Invalid question provided.');
+      this.question = null; // Reset the question to avoid stale data
+      return;
+    }
   
+    this.question = question;
+  }
+
   
 
 
