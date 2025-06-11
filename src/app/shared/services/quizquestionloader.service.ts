@@ -309,6 +309,7 @@ export class QuizQuestionLoaderService {
         };
         requestAnimationFrame(() => {
           this.shouldRenderQuestionComponent = true;
+          console.log('[✅ shouldRenderQuestionComponent set to TRUE]');
         });
       });
   
