@@ -24,7 +24,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
-import { QuizInitializationService } from '../../shared/services/quiz-navigation.service';
+//import { QuizInitializationService } from '../../shared/services/quiz-navigation.service';
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
@@ -234,7 +234,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private quizInitializationService: QuizInitializationService,
+    // private quizInitializationService: QuizInitializationService,
     private quizNavigationService: QuizNavigationService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private quizStateService: QuizStateService,

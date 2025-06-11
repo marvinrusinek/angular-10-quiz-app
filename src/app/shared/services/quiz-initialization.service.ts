@@ -11,7 +11,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
-//import { ProgressBarService } from './progress-bar.service';
+import { ProgressBarService } from './progress-bar.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizNavigationService } from './quiz-navigation.service';
 import { QuizQuestionManagerService } from './quizquestionmgr.service';
@@ -52,7 +52,7 @@ export class QuizInitializationService {
   constructor(
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
-    // private progressBarService: ProgressBarService,
+    private progressBarService: ProgressBarService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
     private quizNavigationService: QuizNavigationService,
@@ -186,7 +186,7 @@ export class QuizInitializationService {
     });
   }
 
-  initializeAnswerSync(): void {
+  /* initializeAnswerSync(): void {
     this.subscribeToOptionSelection();
   
     // Properly initialize next button state stream
@@ -199,18 +199,46 @@ export class QuizInitializationService {
     // Use takeUntil for cleanup
     this.selectedOptionService.isNextButtonEnabled$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((enabled) => {
+      .subscribe((enabled: boolean) => {
         this.isNextButtonEnabled = enabled;
       });
   
     this.selectedOptionService.isOptionSelected$()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((isSelected) => {
+      .subscribe((isSelected: boolean) => {
         this.isCurrentQuestionAnswered = isSelected;
       });
   
     this.subscribeToSelectionMessage();
-  }  
+  } */
+  initializeAnswerSync(
+    onNextButtonEnabled: (enabled: boolean) => void,
+    onOptionSelected: (selected: boolean) => void,
+    onSelectionMessageChanged: (message: string) => void,
+    destroy$: Subject<void>
+  ): void {
+    // Initialize next button logic
+    this.nextButtonStateService.initializeNextButtonStateStream(
+      this.selectedOptionService.isAnswered$,
+      this.quizStateService.isLoading$,
+      this.quizStateService.isNavigating$
+    );
+  
+    // Next button enabled state
+    this.selectedOptionService.isNextButtonEnabled$
+      .pipe(takeUntil(destroy$))
+      .subscribe(onNextButtonEnabled);
+  
+    // Option selected state
+    this.selectedOptionService.isOptionSelected$()
+      .pipe(takeUntil(destroy$))
+      .subscribe(onOptionSelected);
+  
+    // Selection message
+    this.selectionMessageService.selectionMessage$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(destroy$))
+      .subscribe(onSelectionMessageChanged);
+  }
 
   private subscribeToOptionSelection(): void {
     this.optionSelectedSubscription = this.selectedOptionService
