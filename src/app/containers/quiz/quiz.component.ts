@@ -57,7 +57,7 @@ export interface LoadedQuestionData {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, QuizDataService, QuizInitializationService, UserPreferenceService]
+  providers: [QuizService, QuizDataService, UserPreferenceService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false })
@@ -388,7 +388,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.setupQuiz();
 
-    this.quizInitializationService.initializeAnswerSync(
+    /* this.quizInitializationService.initializeAnswerSync(
       (enabled) => (this.isNextButtonEnabled = enabled),
       (selected) => {
         this.isCurrentQuestionAnswered = selected;
@@ -399,6 +399,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.selectionMessage = message;
         }
       },
+      this.destroy$
+    ); */
+    this.quizInitializationService.initializeAnswerSync(
+      (enabled) => (this.isNextButtonEnabled = enabled),
+      (answered) => (this.isCurrentQuestionAnswered = answered),
+      (message) => (this.selectionMessage = message),
       this.destroy$
     );
     
