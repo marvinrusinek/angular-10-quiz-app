@@ -1451,13 +1451,12 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(total);
   }
 
-  getTotalQuestionsCount(): Observable<number> {
+  getTotalQuestionsCount(quizId: string): Observable<number> {
     return this.getQuizData().pipe(
       map((data: any) => {
-        const quiz = data.find((q) => q.quizId === this.quizId);
-        const quizLength = quiz?.questions?.length || 0;
-        this.totalQuestionsSubject.next(quizLength);
-        return quizLength;
+        const quiz = data.find((q) => q.quizId === quizId);
+        const count = quiz?.questions?.length || 0;
+        return count;
       })
     );
   }
