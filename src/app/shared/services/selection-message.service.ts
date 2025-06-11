@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
+import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -15,6 +16,10 @@ export class SelectionMessageService {
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
     distinctUntilChanged()
   );
+
+  constructor(
+    private quizService: QuizService
+  ) {}
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
@@ -56,6 +61,29 @@ export class SelectionMessageService {
     }
   
     return `Select ${remaining} more correct answer${remaining !== 1 ? 's' : ''} to continue...`;
+  }
+
+  async setSelectionMessage(isAnswered: boolean): Promise<void> {
+    try {
+      const index = this.quizService.currentQuestionIndex;
+      const total = this.quizService.totalQuestions;
+  
+      if (typeof index !== 'number' || isNaN(index) || total <= 0) {
+        console.warn('[❌ setSelectionMessage] Invalid index or totalQuestions');
+        return;
+      }
+  
+      const newMessage = this.determineSelectionMessage(index, total, isAnswered);
+      const current = this.getCurrentMessage();
+  
+      if (newMessage !== current) {
+        this.updateSelectionMessage(newMessage);
+      } else {
+        console.log(`[⏸️ Skipping update — message already "${current}"`);
+      }
+    } catch (error) {
+      console.error('[❌ setSelectionMessage ERROR]', error);
+    }
   }
 
   // Method to update the message
