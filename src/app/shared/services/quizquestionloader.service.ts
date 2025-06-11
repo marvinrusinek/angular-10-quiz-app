@@ -383,7 +383,7 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  private setQuestionDetails(
+  public setQuestionDetails(
     questionText: string,
     options: Option[],
     explanationText: string
