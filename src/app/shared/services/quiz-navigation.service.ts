@@ -467,7 +467,7 @@ export class QuizNavigationService {
       return null;
     }
   } */
-  public async resetUIAndNavigate(questionIndex: number): Promise<boolean> {
+  /* public async resetUIAndNavigate(questionIndex: number): Promise<boolean> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
@@ -508,7 +508,41 @@ export class QuizNavigationService {
       console.error('Error during resetUIAndNavigate():', error);
       return false;
     }
-  }  
+  } */
+  public async resetUIAndNavigate(index: number): Promise<void> {
+    try {
+      this.quizService.setCurrentQuestionIndex(index);
+  
+      const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+      if (!question) {
+        console.warn(`[resetUIAndNavigate] ❌ No question found for index ${index}`);
+        return;
+      }
+  
+      this.quizService.setCurrentQuestion(question);
+      this.quizService.updateBadgeText(index + 1, this.quizService.getTotalQuestions());
+  
+      const routeUrl = `/question/${this.quizService.getQuizId()}/${index + 1}`;
+      const currentUrl = this.router.url;
+  
+      if (currentUrl !== routeUrl) {
+        const navSuccess = await this.router.navigateByUrl(routeUrl);
+        if (!navSuccess) {
+          console.error(`[resetUIAndNavigate] ❌ Navigation failed for index ${index}`);
+          return;
+        }
+      } else {
+        console.warn(`[resetUIAndNavigate] ⚠️ Route already matches, skipping navigateByUrl`);
+      }
+  
+      this.quizStateService.resetIcons();
+      this.quizStateService.clearFeedback();
+      this.quizStateService.resetExplanationText();
+      this.quizStateService.setNavigating(false);
+    } catch (err) {
+      console.error(`[resetUIAndNavigate] ❌ Error during navigation:`, err);
+    }
+  }
 
   private handleQuizCompletion(): void {
     const quizId = this.quizService.quizId;
