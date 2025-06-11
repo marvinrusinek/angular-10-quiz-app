@@ -24,7 +24,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
-import { QuizInitializationService } from '../../shared/services/quiz-navigation.service';
+import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
@@ -636,7 +636,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         this.questionData = data.question ?? ({} as QuizQuestion);
         console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
-        this.tryRenderGate();
+        this.renderStateService.tryRenderGate();
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
@@ -3718,14 +3718,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   restartQuiz(): void {
+    // Reset current question index
+    this.currentQuestionIndex = 0;
+    this.quizService.setCurrentQuestionIndex(0);
+
     this.timerService.stopTimer?.();
 
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();
-  
-    // Reset current question index
-    this.currentQuestionIndex = 0;
-    this.quizService.setCurrentQuestionIndex(0);
   
     // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
