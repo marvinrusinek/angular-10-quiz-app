@@ -3526,7 +3526,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.explanationTextService.unlockExplanation();
           this.explanationTextService.setShouldDisplayExplanation(false);
   
-          // Delay to ensure view + component fully initialize before updating explanation
+          // Delay to ensure view and component fully initialize before updating explanation
           setTimeout(async () => {
             await this.quizQuestionComponent?.updateExplanationText(0);
   
@@ -3546,7 +3546,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               this.explanationTextService.triggerExplanationEvaluation();
             }, 10);
   
-            // Start timer only after UI + logic settle
+            // Start timer only after UI and logic settle
             this.timerService.startTimer(this.timerService.timePerQuestion);
             console.log('[QuizComponent] ✅ Timer restarted after quiz reset.');
   
