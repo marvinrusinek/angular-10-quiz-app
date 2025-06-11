@@ -307,21 +307,24 @@ export class QuizNavigationService {
    * Optional helper to navigate programmatically to a question
    */
    public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    // Clamp the index within bounds
+    const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
+  
     // Bounds check first
     if (
-      typeof questionIndex !== 'number' ||
-      isNaN(questionIndex) ||
-      questionIndex < 0 ||
-      questionIndex >= this.totalQuestions
+      typeof clampedIndex !== 'number' ||
+      isNaN(clampedIndex) ||
+      clampedIndex < 0 ||
+      clampedIndex >= this.totalQuestions
     ) {
-      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${clampedIndex}`);
       return false;
     }
   
     // Fetch and assign question data
-    const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(questionIndex);
+    const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
     if (!fetched || !this.question || !this.optionsToDisplay?.length) {
-      console.error(`[❌ Q${questionIndex}] Failed to fetch or assign question data`, {
+      console.error(`[❌ Q${clampedIndex}] Failed to fetch or assign question data`, {
         question: this.question,
         optionsToDisplay: this.optionsToDisplay,
       });
@@ -333,12 +336,12 @@ export class QuizNavigationService {
     this.emitResetUI();
   
     // Update index state
-    this.currentQuestionIndex = questionIndex;
-    this.quizService.setCurrentQuestionIndex(questionIndex);
-    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
+    this.currentQuestionIndex = clampedIndex;
+    this.quizService.setCurrentQuestionIndex(clampedIndex);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(clampedIndex));
   
     // Update route
-    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
+    const routeUrl = `/question/${this.quizId}/${clampedIndex + 1}`;
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
@@ -363,7 +366,7 @@ export class QuizNavigationService {
       });
     }
   
-    console.log(`[✅ navigateToQuestion] Completed for Q${questionIndex}`);
+    console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
   }
 
