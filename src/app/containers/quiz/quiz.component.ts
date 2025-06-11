@@ -474,7 +474,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private resetStateHandlers(): void {
     this.resetOptionState();
-    this.resetQuestionState();
+    this.quizQuestionLoaderService.resetQuestionState();
   }
   
   private initializeExplanationText(): void {
@@ -866,43 +866,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private isAnyOptionSelected(): boolean {
     const result = this.selectedOptions.length > 0;
     return result;
-  }
-  
-  // REMOVE!!
-  private resetQuestionState(): void {
-    // Clear local UI state
-    this.questionInitialized = false; // block during reset
-    this.isAnswered = false;
-    this.selectedOptions = [];
-    this.currentQuestionAnswered = false;
-    this.isNextButtonEnabled = false;
-    this.isButtonEnabled = false;
-    this.isButtonEnabledSubject.next(false);
-    this.selectionMessageService.setSelectionMessage(false);
-  
-    // Defensive: only reset options if current question exists
-    if (this.currentQuestion?.options?.length) {
-      for (const option of this.currentQuestion.options) {
-        if (option.selected || option.highlight || !option.active) {
-          console.log(`[resetQuestionState] Clearing state for optionId: ${option.optionId}`);
-        }
-  
-        // Reset all option UI-related flags
-        option.selected = false;
-        option.highlight = false;
-        option.active = true;
-        option.showIcon = false;
-        option.feedback = undefined;
-      }
-    } else {
-      console.warn('[resetQuestionState] ⚠️ No current question options found to reset.');
-    }
-  
-    // 🧹 Reset internal selected options tracking
-    this.selectedOptionService.stopTimerEmitted = false;
-    this.selectedOptionService.selectedOptionsMap.clear();
- 
-    this.cdRef.detectChanges();
   }
 
   // REMOVE!!
@@ -3117,7 +3080,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       /* ─────────────────────────  Reset Local State  ────────────────────── */
       this.currentQuestion = null;
-      this.resetQuestionState();
+      this.quizQuestionLoaderService.resetQuestionState();
       this.resetQuestionDisplayState();
       this.explanationTextService.resetExplanationState();
       this.selectionMessageService.updateSelectionMessage('');
