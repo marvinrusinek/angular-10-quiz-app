@@ -17,9 +17,7 @@ export class SelectionMessageService {
     distinctUntilChanged()
   );
 
-  constructor(
-    private quizService: QuizService
-  ) {}
+  constructor(private quizService: QuizService) {}
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
