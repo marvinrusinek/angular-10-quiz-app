@@ -447,7 +447,7 @@ export class QuizService implements OnDestroy {
     }
 
     return options.map((option, index) => {
-      // 🔥 Ensure option exists
+      // Ensure option exists
       if (!option) {
         console.error(
           `❌ [sanitizeOptions] Option is null or undefined at index ${index}`
@@ -461,11 +461,11 @@ export class QuizService implements OnDestroy {
           selected: false,
           showIcon: false,
           feedback: 'No feedback available',
-          styleClass: '',
+          styleClass: ''
         };
       }
 
-      // 🔥 Ensure optionId is a valid number
+      // Ensure optionId is a valid number
       if (!Number.isInteger(option.optionId) || option.optionId < 0) {
         console.warn(
           `⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`
@@ -473,12 +473,12 @@ export class QuizService implements OnDestroy {
         option.optionId = index; // Assign fallback optionId
       }
 
-      // 🔥 Ensure option text is present
+      // Ensure option text is present
       if (!option.text || option.text.trim() === '') {
         console.warn(
           `⚠️ [sanitizeOptions] Option text is missing at index ${index}. Assigning placeholder text.`
         );
-        option.text = `Option ${index + 1}`; // Provide default text if missing
+        option.text = `Option ${index + 1}`; // provide default text if missing
       }
 
       return {
@@ -490,7 +490,7 @@ export class QuizService implements OnDestroy {
         selected: option.selected ?? false,
         showIcon: option.showIcon ?? false,
         feedback: option.feedback ?? 'No feedback available',
-        styleClass: option.styleClass ?? '',
+        styleClass: option.styleClass ?? ''
       };
     });
   }
@@ -501,9 +501,7 @@ export class QuizService implements OnDestroy {
       return option.optionId;
     }
 
-    console.warn(
-      `Invalid or missing optionId. Falling back to index: ${index}`
-    );
+    console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
     return index;
   }
 
