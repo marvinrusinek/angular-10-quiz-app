@@ -3795,12 +3795,4 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('❌ Navigation error on restart:', error);
     });
   }
-
-  private tryRenderGate(): void {  
-    if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
-      this.renderGateSubject.next(true);
-    } else {
-      console.warn('[⛔ renderGate] Conditions not met');
-    }
-  }
 }

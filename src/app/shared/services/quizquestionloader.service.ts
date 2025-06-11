@@ -13,6 +13,7 @@ import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { ResetBackgroundService } from './reset-background.service';
+import { RenderStateService } from './render-state.service';
 import { ResetStateService } from './reset-state.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
@@ -160,7 +161,7 @@ export class QuizQuestionLoaderService {
   
         this.questionData = data.question ?? ({} as QuizQuestion);
         console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
-        this.tryRenderGate(); // RSS
+        this.renderStateService.tryRenderGate();
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
@@ -473,8 +474,6 @@ export class QuizQuestionLoaderService {
     // 🧹 Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
- 
-    this.cdRef.detectChanges();
   }
 
   private resetQuestionDisplayState(): void {
