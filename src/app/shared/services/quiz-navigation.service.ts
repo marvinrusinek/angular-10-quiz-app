@@ -426,8 +426,7 @@ export class QuizNavigationService {
     }
   
     return true;
-  }
-  
+  }  
 
   public async resetUIAndNavigate(questionIndex: number): Promise<QuizQuestion | null> {
     try {
