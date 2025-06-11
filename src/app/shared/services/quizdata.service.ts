@@ -38,6 +38,13 @@ export class QuizDataService implements OnDestroy {
     this.destroy$.complete();
   }
 
+  getQuizzes(): Observable<Quiz[]> {
+    return this.quizzes$.pipe(
+      filter(quizzes => quizzes.length > 0),  // Ensure data is loaded
+      take(1)  // Ensure it emits only once
+    );
+  }
+
   private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap(quizzes => this.quizzesSubject.next(quizzes)),
@@ -45,11 +52,18 @@ export class QuizDataService implements OnDestroy {
     ).subscribe();
   }
 
-  getQuizzes(): Observable<Quiz[]> {
-    return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),  // Ensure data is loaded
-      take(1)  // Ensure it emits only once
-    );
+  async loadQuizById(quizId: string): Promise<Quiz | null> {
+    try {
+      const quiz = await firstValueFrom(this.getQuiz(quizId).pipe(take(1))) as Quiz;
+      if (!quiz || !quiz.questions?.length) {
+        console.warn('[QuizDataService] Quiz invalid or empty:', quiz);
+        return null;
+      }
+      return quiz;
+    } catch (err) {
+      console.error('[QuizDataService] Failed to fetch quiz:', err);
+      return null;
+    }
   }
 
   isValidQuiz(quizId: string): Observable<boolean> {

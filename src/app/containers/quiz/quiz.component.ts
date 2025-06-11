@@ -1098,65 +1098,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async loadQuizData(): Promise<boolean> {
-    if (this.isQuizLoaded) {
-      console.log('Quiz data already loaded, skipping load.');
-      return true;
-    }
-
-    if (!this.quizId) {
-      console.error('Quiz ID is missing. Cannot fetch quiz data.');
-      return false;
-    }
-
-    try {
-      const quiz = await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId).pipe(take(1), takeUntil(this.destroy$))
-      ) as Quiz;
-
-      if (!quiz) {
-        console.error('Quiz is null or undefined. Failed to load quiz data.');
-        return false;
-      }
-
-      if (!quiz.questions || quiz.questions.length === 0) {
-        console.error('Quiz has no questions or questions array is missing:', quiz);
-        return false;
-      }
-
-      // Assign quiz data
-      this.quiz = quiz;
-      this.questions = quiz.questions;
-      this.currentQuestion = this.questions[this.currentQuestionIndex];
-      this.isQuizLoaded = true;
-
-      return true;
-    } catch (error) {
-      console.error('Error loading quiz data:', error);
-      return false;
-    } finally {
-      if (!this.isQuizLoaded) {
-        console.warn('Quiz loading failed. Resetting questions to an empty array.');
-        this.questions = [];
-      }
-    }
-  }
-
-  private async ensureQuestionsLoaded(): Promise<boolean> {
-    if (this.isQuizLoaded) {
-      return true; // Skip loading if already loaded
-    }
-
-    const loadedSuccessfully = await this.loadQuizData();
-    this.isQuizLoaded = loadedSuccessfully;
-    return loadedSuccessfully;
-  }
-
-  // Utility function to wait for questions to load
-  private async waitForQuestionsToLoad(): Promise<void> {
-    while (!Array.isArray(this.questions) || this.questions.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); // Check every 100ms
-    }
-  }
+    if (this.isQuizLoaded) return true;
+    if (!this.quizId) return false;
+  
+    const quiz = await this.quizDataService.loadQuizById(this.quizId);
+    if (!quiz) return false;
+  
+    this.quiz = quiz;
+    this.questions = quiz.questions;
+    this.currentQuestion = this.questions[this.currentQuestionIndex];
+    this.isQuizLoaded = true;
+  
+    return true;
+  }  
 
   /**** Initialize route parameters and subscribe to updates ****/
   resolveQuizData(): void {
