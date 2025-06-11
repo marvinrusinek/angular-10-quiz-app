@@ -2852,13 +2852,11 @@ export class QuizQuestionComponent
     const lockedText = this.currentQuestion?.questionText?.trim() || '';
     const lockedSnapshot = structuredClone(this.currentQuestion);
   
-    this.quizService.setCurrentQuestionIndex(lockedIndex);
-  
-    // 🔐 Lock explanation request
+    // Lock explanation request
     const requestId = ++this.explanationRequestId;
   
     try {
-      // ✅ Option handling
+      // Option handling
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
@@ -2870,10 +2868,10 @@ export class QuizQuestionComponent
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // 🧠 Wait for async explanation (may resolve after question changes)
+      // Wait for async explanation (may resolve after question changes)
       const explanationText = await this.updateExplanationText(lockedIndex);
   
-      // 🔄 Validate current state before emitting
+      // Validate current state before emitting
       if (requestId !== this.explanationRequestId) {
         console.warn('[🛑 Explanation request is outdated]', { requestId, latest: this.explanationRequestId });
         return;
@@ -2891,6 +2889,9 @@ export class QuizQuestionComponent
   
       if (isSame) {
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+
+        // Update the current index after explanation confirmation
+        this.quizService.setCurrentQuestionIndex(lockedIndex);
       } else {
         console.warn('[⛔ Skipping explanation emit — mismatch detected]', {
           lockedIndex,
@@ -2902,7 +2903,7 @@ export class QuizQuestionComponent
         });
       }
   
-      // 🔚 Finalization
+      // Finalization
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
       queueMicrotask(() => this.cdRef.detectChanges());
