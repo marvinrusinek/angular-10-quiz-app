@@ -855,12 +855,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.lastLoggedIndex = event.index;
   
-    console.log('[🟢 onOptionSelected triggered]', {
-      index: this.currentQuestionIndex,
-      option: event.option,
-      checked: event.checked
-    });
-  
     const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
   
     this.answerTrackingService.processOptionSelection(
