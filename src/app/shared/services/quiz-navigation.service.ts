@@ -1,7 +1,7 @@
-import { Injectable, ViewChild } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, take } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { Option } from '../models/Option.model';
@@ -78,8 +78,7 @@ export class QuizNavigationService {
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute, 
-    private router: Router,
-    //private cdRef: ChangeDetectorRef
+    private router: Router
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
 
