@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { QuizService } from './quiz.service'; 
 
@@ -16,15 +16,19 @@ export class ProgressBarService {
     this.progressPercentageSubject.next(progress); // emit the new progress value
   }
 
-  initializeProgressTracking(): void {
-    this.setProgress(0); // initialize to 0%
+  initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // always start at 0%
   
-    // Subscribe to index changes and update progress
-    this.quizService.currentQuestionIndex$.subscribe(index => {
-      const totalQuestions = this.quizService.getTotalQuestionsCountSync(); // synchronous getter or store a cached value
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$
+    ]).subscribe(([totalQuestions, index]) => {
       if (totalQuestions > 0) {
-        const percentage = Math.round(((index + 1) / totalQuestions) * 100);
-        this.progress$.next(percentage);
+        const raw = (index / totalQuestions) * 100;
+        const percentage = parseFloat(raw.toFixed(0)); // round properly
+        this.setProgress(percentage);
+      } else {
+        this.setProgress(0);
       }
     });
   }  
