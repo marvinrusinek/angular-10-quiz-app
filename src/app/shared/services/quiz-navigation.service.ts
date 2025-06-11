@@ -525,7 +525,7 @@ export class QuizNavigationService {
       this.quizService.setCurrentQuestion(question);
   
       // Update badge text
-      const total = this.quizService.getTotalQuestionsCount();
+      const total = this.quizService.getTotalQuestionsCount(this.quizId);
       this.quizService.updateBadgeText(index + 1, total);
   
       // Navigate only if the route is different
