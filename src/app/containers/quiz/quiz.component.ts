@@ -1847,40 +1847,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }  
 
-  private async isMultipleAnswer(question: QuizQuestion): Promise<boolean> {
-    return await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(question));
-  }
-
   isLastQuestion(): boolean {
     return this.currentQuestionIndex === this.totalQuestions - 1;
-  }
-
-  private async updateCorrectAnswersText(
-    question: QuizQuestion,
-    options: Option[]
-  ): Promise<void> {
-    try {
-      const [multipleAnswers, isExplanationDisplayed] = await Promise.all([
-        this.isMultipleAnswer(question),
-        this.explanationTextService.isExplanationTextDisplayedSource.getValue()
-      ]);
-  
-      const correctAnswersText = 
-        multipleAnswers && !isExplanationDisplayed
-          ? this.getCorrectAnswersText(options)
-          : '';
-  
-      // Emit the correct answers text to subscribers
-      this.correctAnswersTextSource.next(correctAnswersText);
-    } catch (error) {
-      console.error('Error updating correct answers text:', error);
-      this.correctAnswersTextSource.next(''); // Clear text on error
-    }
-  }
-  
-  private getCorrectAnswersText(options: Option[]): string {
-    const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-    return this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
   }
 
   private processQuizData(questionIndex: number, selectedQuiz: Quiz): void {

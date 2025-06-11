@@ -6,6 +6,7 @@ import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, 
 import { QuestionType } from '../models/question-type.enum';
 import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
 import { Option } from '../models/Option.model';
+import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 
@@ -26,20 +27,23 @@ export class QuizInitializationService {
   currentQuiz: Quiz;
   selectedQuiz: Quiz = {} as Quiz;
   question!: QuizQuestion;
+  questions: QuizQuestion[];
   questions$: Observable<QuizQuestion[]>;
   questionIndex: number;
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
-  questions: QuizQuestion[];
+  currentQuestionType: string;
   totalQuestions = 0;
   numberOfCorrectAnswers: number;
   quizId = '';
   private alreadyInitialized = false;
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
 
+  options: Option[] = [];
   optionsToDisplay: Option[] = [];
   isOptionSelected = false;
   isCurrentQuestionAnswered = false;
+  private isQuizDataLoaded = false;
 
   showFeedback = false;
 
@@ -245,6 +249,38 @@ export class QuizInitializationService {
     } catch (error) {
       console.error('Error handling new question:', error);
     }
+  }
+
+  private async updateCorrectAnswersText(
+    question: QuizQuestion,
+    options: Option[]
+  ): Promise<void> {
+    try {
+      const [multipleAnswers, isExplanationDisplayed] = await Promise.all([
+        this.isMultipleAnswer(question),
+        this.explanationTextService.isExplanationTextDisplayedSource.getValue()
+      ]);
+  
+      const correctAnswersText = 
+        multipleAnswers && !isExplanationDisplayed
+          ? this.getCorrectAnswersText(options)
+          : '';
+  
+      // Emit the correct answers text to subscribers
+      this.correctAnswersTextSource.next(correctAnswersText);
+    } catch (error) {
+      console.error('Error updating correct answers text:', error);
+      this.correctAnswersTextSource.next(''); // Clear text on error
+    }
+  }
+  
+  private getCorrectAnswersText(options: Option[]): string {
+    const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+    return this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+  }
+
+  private async isMultipleAnswer(question: QuizQuestion): Promise<boolean> {
+    return await firstValueFrom(this.quizQuestionManagerService.isMultipleAnswerQuestion(question));
   }
 
   initializeQuestionStreams(): void {
