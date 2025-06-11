@@ -305,7 +305,7 @@ export class QuizNavigationService {
   /**
    * Optional helper to navigate programmatically to a question
    */
-   public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+   /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log(`[➡️ Triggered navigateToQuestion(${questionIndex})]`);
     
     if (this.isNavigating) {
@@ -399,6 +399,32 @@ export class QuizNavigationService {
     this.isNavigating = false;
   
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
+    return true;
+  } */
+  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
+    const routeUrl = `/question/${this.quizId}/${clampedIndex + 1}`;
+    const currentUrl = this.router.url;
+  
+    if (currentUrl === routeUrl) {
+      console.warn(`[navigateToQuestion] ⚠️ Route unchanged (${routeUrl}) — manually loading question`);
+  
+      const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+      if (!fetched) {
+        console.error(`[navigateToQuestion] ❌ Failed to manually fetch question for index ${clampedIndex}`);
+        return false;
+      }
+  
+      this.quizService.setCurrentQuestionIndex(clampedIndex);
+      return true; // ✅ Success, even if route didn’t change
+    }
+  
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
+    if (!navSuccess) {
+      console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+      return false;
+    }
+  
     return true;
   }
 
