@@ -1822,7 +1822,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               this.initializeQuizState();
   
               // return this.quizService.getQuestionByIndex(adjustedIndex);
-              return from(this.quizNavigationService.resetUIAndNavigate(adjustedIndex)).pipe(mapTo(null));
+              return from(this.quizQuestionLoaderService.fetchAndSetQuestionData(adjustedIndex)).pipe(mapTo(null));
             }),
             catchError((error) => {
               console.error('[Route Init] ❌ Error during quiz initialization:', error);
