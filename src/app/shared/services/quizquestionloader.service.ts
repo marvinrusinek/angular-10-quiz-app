@@ -6,7 +6,6 @@ import { QuestionType } from '../models/question-type.enum';
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
-import { AnswerTrackingService } from './answer-tracking.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { FeedbackService } from './feedback.service';
 import { NextButtonStateService } from './next-button-state.service';
@@ -66,7 +65,6 @@ export class QuizQuestionLoaderService {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
   constructor(
-    private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
     private quizService: QuizService,
@@ -454,7 +452,7 @@ export class QuizQuestionLoaderService {
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.answerTrackingService.setSelectionMessage(false);
+    this.selectionMessageService.setSelectionMessage(false);
   
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
