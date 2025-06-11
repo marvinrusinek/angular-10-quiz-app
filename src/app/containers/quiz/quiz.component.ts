@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, from, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, mapTo, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -432,7 +432,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private initializeProgressSync(): void {
     // Initialize badge text once when quiz data is ready
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
+    this.quizService.getTotalQuestionsCount(this.quizId).subscribe(totalQuestions => {
       if (totalQuestions > 0) {
         this.totalQuestions = totalQuestions;
   
@@ -950,13 +950,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /*************** ngOnInit barrel functions ******************/
-  /* potentially remove: 
-    private initializeRouteParameters(): void {
-    this.fetchRouteParams();
-    this.subscribeRouterAndInit();
-    this.subscribeToRouteParams();
-    this.initializeRouteParams();
-  } */
 
   private initializeQuizData(): void {
     this.resolveQuizData();
@@ -1828,7 +1821,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
               this.initializeQuizState();
   
-              return this.quizService.getQuestionByIndex(adjustedIndex);
+              // return this.quizService.getQuestionByIndex(adjustedIndex);
+              return from(this.quizNavigationService.resetUIAndNavigate(adjustedIndex)).pipe(mapTo(null));
             }),
             catchError((error) => {
               console.error('[Route Init] ❌ Error during quiz initialization:', error);
@@ -1838,17 +1832,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         })
       )
       .subscribe({
-        next: async (question) => {
-          if (!question) {
-            console.error('[Route Init] ❌ No question returned.');
-            return;
-          }
-  
-          this.currentQuiz = this.quizService.getActiveQuiz();
-          console.log(`[Route Init] ✅ Loaded Q${this.currentQuestionIndex}`);
-  
-          await this.resetUIAndNavigate(this.currentQuestionIndex);
-        },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
         }
@@ -3281,133 +3264,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   
 
-  // REMOVE!! ???
-  private async resetUIAndNavigate(questionIndex: number): Promise<void> {
-    try {
-      const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
-      if (currentBadgeNumber !== questionIndex) {
-        console.warn(
-          `Badge number (${currentBadgeNumber}) does not match question index (${questionIndex}). Correcting...`
-        );
-      }
   
-      this.resetUI();
-  
-      if (!this.explanationTextService.isExplanationLocked()) {
-        this.explanationTextService.resetStateBetweenQuestions();
-      } else {
-        console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
-      }
-  
-      this.optionsToDisplay = [];
-      this.currentQuestion = null;
-  
-      // Add navigation to load Q&A
-      await this.navigateToQuestion(questionIndex);
-  
-    } catch (error) {
-      console.error('Error during resetUIAndNavigate():', error);
-    }
-  }
-
-  // REMOVE!! ???
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
-    console.log(`[🚀 navigateToQuestion] Initiated for Q${questionIndex}`);
-  
-    if (this.quizQuestionComponent) {
-      this.quizQuestionComponent.renderReady = false;
-    }
-    this.sharedOptionComponent?.resetUIForNewQuestion();
-  
-    // Bounds check
-    if (
-      typeof questionIndex !== 'number' ||
-      isNaN(questionIndex) ||
-      questionIndex < 0 ||
-      questionIndex >= this.totalQuestions
-    ) {
-      console.warn(`[navigateToQuestion] ❌ Invalid index: ${questionIndex}`);
-      return false;
-    }
-  
-    console.log(`[✅ Index Synchronization - Setting Index to Q${questionIndex}]`);
-  
-    // Set the index immediately to prevent race conditions
-    this.currentQuestionIndex = questionIndex;
-    this.quizService.setCurrentQuestionIndex(questionIndex);
-    localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex));
-  
-    // Fetch and assign question data
-    const fetched = await this.fetchAndSetQuestionData(questionIndex);
-    if (!fetched) {
-      console.error(`[❌ Q${questionIndex}] fetchAndSetQuestionData() failed`);
-      return false;
-    }
-  
-    // Update route
-    const routeUrl = `/question/${this.quizId}/${questionIndex + 1}`;
-    console.log(`[🛣️ Route Update]: ${routeUrl}`);
-    const navSuccess = await this.router.navigateByUrl(routeUrl);
-    if (!navSuccess) {
-      console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
-      return false;
-    }
-  
-    // Handle dynamic component rendering
-    if (
-      this.quizQuestionComponent &&
-      this.currentQuestion?.questionText &&
-      this.optionsToDisplay?.length
-    ) {
-      console.log(`[🛠️ Loading Dynamic Component for Q${questionIndex}]`);
-      this.quizQuestionComponent.containerInitialized = false;
-      this.quizQuestionComponent.sharedOptionConfig = undefined;
-      this.quizQuestionComponent.shouldRenderFinalOptions = false;
-  
-      this.quizQuestionComponent.loadDynamicComponent(
-        this.currentQuestion!,
-        this.optionsToDisplay!
-      );
-  
-      this.cdRef.detectChanges();
-    } else {
-      console.warn('[🚫 Dynamic injection skipped]', {
-        component: !!this.quizQuestionComponent,
-        questionText: this.currentQuestion?.questionText,
-        optionsLength: this.optionsToDisplay?.length
-      });
-    }
-  
-    if (!this.question || !this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.error(`[❌ Q${questionIndex}] Data not assigned after fetch:`, {
-        question: this.question,
-        optionsToDisplay: this.optionsToDisplay
-      });
-      return false;
-    }
-  
-    // Badge update - moved after index synchronization
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const total = this.totalQuestions;
-  
-    if (
-      typeof currentIndex === 'number' &&
-      typeof total === 'number' &&
-      currentIndex >= 0 &&
-      currentIndex < total
-    ) {
-      console.log(`[🏷️ Badge Update - Index: ${currentIndex + 1} of ${total}]`);
-      this.quizService.updateBadgeText(currentIndex + 1, total);
-    } else {
-      console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions', {
-        currentIndex,
-        total
-      });
-    }
-  
-    console.log(`[✅ navigateToQuestion] Completed for Q${questionIndex}`);
-    return true;
-  }
 
   private injectDynamicComponent(): void {
     // Only inject if the container is empty
