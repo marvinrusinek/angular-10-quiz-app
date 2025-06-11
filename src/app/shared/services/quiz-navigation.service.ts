@@ -306,6 +306,15 @@ export class QuizNavigationService {
    * Optional helper to navigate programmatically to a question
    */
    public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[➡️ Triggered navigateToQuestion(${questionIndex})]`);
+    
+    if (this.isNavigating) {
+      console.warn('[⏳ Navigation blocked: already navigating]');
+      return false;
+    }
+  
+    this.isNavigating = true;
+
     // Clamp the index within bounds
     const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
   
@@ -344,6 +353,7 @@ export class QuizNavigationService {
     const navSuccess = await this.router.navigateByUrl(routeUrl);
     if (!navSuccess) {
       console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+      this.isNavigating = false;
       return false;
     }
   
@@ -364,6 +374,9 @@ export class QuizNavigationService {
         total,
       });
     }
+
+    // Reset navigation flag once done
+    this.isNavigating = false;
   
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
