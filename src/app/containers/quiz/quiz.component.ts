@@ -447,7 +447,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   
     // Delegate progress handling to ProgressBarService
-    this.progressBarService.initializeProgressTracking();
+    this.progressBarService.initializeProgressTracking(this.quizId);
   }
   
   private resetStateHandlers(): void {
