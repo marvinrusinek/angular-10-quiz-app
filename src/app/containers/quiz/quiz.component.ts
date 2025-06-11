@@ -390,19 +390,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     this.setupQuiz();
 
-    /* this.quizInitializationService.initializeAnswerSync(
-      (enabled) => (this.isNextButtonEnabled = enabled),
-      (selected) => {
-        this.isCurrentQuestionAnswered = selected;
-        this.isOptionSelected = selected;
-      },
-      (message) => {
-        if (this.selectionMessage !== message) {
-          this.selectionMessage = message;
-        }
-      },
-      this.destroy$
-    ); */
     this.quizInitializationService.initializeAnswerSync(
       (enabled) => (this.isNextButtonEnabled = enabled),
       (answered) => (this.isCurrentQuestionAnswered = answered),
