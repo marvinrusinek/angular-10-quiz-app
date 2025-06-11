@@ -428,7 +428,7 @@ export class QuizNavigationService {
     return true;
   }  
 
-  public async resetUIAndNavigate(questionIndex: number): Promise<QuizQuestion | null> {
+  /* public async resetUIAndNavigate(questionIndex: number): Promise<QuizQuestion | null> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
@@ -465,6 +465,48 @@ export class QuizNavigationService {
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
       return null;
+    }
+  } */
+  public async resetUIAndNavigate(questionIndex: number): Promise<boolean> {
+    try {
+      const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
+      if (currentBadgeNumber !== questionIndex) {
+        console.warn(
+          `Badge number (${currentBadgeNumber}) does not match question index (${questionIndex}). Correcting...`
+        );
+      }
+  
+      this.quizQuestionLoaderService.resetUI();
+  
+      if (!this.explanationTextService.isExplanationLocked()) {
+        this.explanationTextService.resetStateBetweenQuestions();
+      } else {
+        console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
+      }
+  
+      this.optionsToDisplay = [];
+      this.currentQuestion = null;
+  
+      const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
+      const routeUrl = `/question/${this.quizId}/${clampedIndex + 1}`;
+      const currentUrl = this.router.url;
+  
+      if (currentUrl === routeUrl) {
+        console.warn(`[navigateToQuestion] ⚠️ Route unchanged (${routeUrl}) — directly calling fetch`);
+        // Force fetch Q&A if route is unchanged
+        const success = await this.fetchAndSetQuestionData(clampedIndex);
+        return success;
+      } else {
+        const navSuccess = await this.router.navigateByUrl(routeUrl);
+        if (!navSuccess) {
+          console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+          return false;
+        }
+        return true;
+      }
+    } catch (error) {
+      console.error('Error during resetUIAndNavigate():', error);
+      return false;
     }
   }  
 
