@@ -211,13 +211,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
   
     // Navigate to the quiz with preferences passed via state
-    this.router
-      .navigate(['/question', quizId, 1], {
-        state: {
-          shouldShuffleOptions,
-          feedbackMode
-        },
-      })
+    this.router.navigate(['/question', quizId, 1], {
+      queryParams: { quizId },
+      state: { shouldShuffleOptions, feedbackMode },
+    })
       .then((success) => {
         if (success) {
           console.log('Navigation successful');

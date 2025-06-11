@@ -68,7 +68,7 @@ export class QuizInitializationService {
     this.destroy$.complete();
   }  
   
-  public async initializeQuiz(): Promise<void> {
+  /* public async initializeQuiz(): Promise<void> {
     if (this.alreadyInitialized) {
       console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
       return;
@@ -88,7 +88,19 @@ export class QuizInitializationService {
     } else {
       console.warn(`[⚠️ No question found at index ${initialIndex}]`);
     }
-  }
+  } */
+  public async initializeQuiz(): Promise<void> {
+    if (this.alreadyInitialized) {
+      console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
+      return;
+    }
+  
+    this.alreadyInitialized = true;
+  
+    this.prepareQuizSession();
+    this.initializeQuizDependencies();
+    this.initializeQuizBasedOnRouteParams(); // 👈 Handles question index + loading
+  }  
 
   private async prepareQuizSession(): Promise<void> {
     try {
