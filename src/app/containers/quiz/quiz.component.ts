@@ -396,6 +396,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       (message) => (this.selectionMessage = message),
       this.destroy$
     );
+
+    this.quizQuestionLoaderService.questionPayloadReady$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((isReady) => {
+      if (isReady) {
+        this.cdRef.markForCheck();
+      }
+    });
     
     this.initializeProgressSync();
     this.initializeTooltip();
