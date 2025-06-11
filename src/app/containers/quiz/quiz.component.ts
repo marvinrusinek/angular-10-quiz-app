@@ -388,7 +388,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.registerVisibilityChangeHandler();
     this.initializeDisplayVariables();
   
-    this.quizInitializationService.initializeQuiz();
+    this.quizInitializationService.initializeQuiz(); // sets question & index correctly from resolver
     this.setupQuiz();
 
     this.quizInitializationService.initializeAnswerSync(

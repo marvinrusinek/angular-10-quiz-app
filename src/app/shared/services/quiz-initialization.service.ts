@@ -666,8 +666,24 @@ export class QuizInitializationService {
   
               this.initializeQuizState();
   
-              // ✅ Return question to trigger downstream rendering
-              return this.quizService.getQuestionByIndex(adjustedIndex);
+              return this.quizService.getQuestionByIndex(adjustedIndex).pipe(
+                switchMap(async (question) => {
+                  if (!question) {
+                    console.error('[Route Init] ❌ No question returned.');
+                    return EMPTY;
+                  }
+  
+                  this.quizService.setCurrentQuestion(question);
+                  this.currentQuiz = this.quizService.getActiveQuiz();
+  
+                  console.log('[✅ Route Init] Question and state set. Now resetting UI and navigating...');
+  
+                  // ✅ Safe to trigger UI reset now
+                  await this.quizNavigationService.resetUIAndNavigate(adjustedIndex);
+  
+                  return []; // dummy observable to satisfy return type
+                })
+              );
             }),
             catchError((error) => {
               console.error('[Route Init] ❌ Error during quiz initialization:', error);
@@ -677,24 +693,12 @@ export class QuizInitializationService {
         })
       )
       .subscribe({
-        next: (question) => {
-          if (!question) {
-            console.error('[Route Init] ❌ No question returned.');
-            return;
-          }
-  
-          console.log('[✅ Route Init] Setting currentQuestion:', question);
-          this.quizService.setCurrentQuestion(question); // ✅ Ensure rendering triggers
-          this.currentQuiz = this.quizService.getActiveQuiz();
-  
-          // 🔥 Only reset UI or navigate if you *absolutely* need to at this point
-          // await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
-        },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
         }
       });
   }
+  
 
   private initializeQuizState(): void {
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
