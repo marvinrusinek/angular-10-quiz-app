@@ -3671,46 +3671,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
-  // REMOVE!!
-  // Reset UI immediately before navigating
-  private resetUI(): void {
-    // Clear current question reference and options
-    this.question = null;
-    this.currentQuestion = null;
-    this.optionsToDisplay = [];
-  
-    // Reset question component state only if method exists
-    if (this.quizQuestionComponent) {
-      if (typeof this.quizQuestionComponent.resetFeedback === 'function') {
-        this.quizQuestionComponent.resetFeedback();
-      }
-      if (typeof this.quizQuestionComponent.resetState === 'function') {
-        this.quizQuestionComponent.resetState();
-      }
-    } else {
-      console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
-    }
-
-    // Reset visual selection state
-    this.showFeedbackForOption = {};
-  
-    // Background reset
-    this.resetBackgroundService.setShouldResetBackground(true);
-  
-    // Trigger global reset events
-    this.resetStateService.triggerResetFeedback();
-    this.resetStateService.triggerResetState();
-  
-    // Clear selected options tracking
-    this.selectedOptionService.clearOptions();
-  
-    if (!this.explanationTextService.isExplanationLocked()) {
-      this.explanationTextService.resetExplanationState();
-    } else {
-      console.log('[resetUI] 🛡️ Skipping explanation reset — lock is active.');
-    }
-  }
-
   private resetQuestionDisplayState(): void {
     this.questionToDisplay = '';
     this.explanationToDisplay = '';
