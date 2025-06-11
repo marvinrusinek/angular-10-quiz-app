@@ -111,7 +111,7 @@ export class QuizInitializationService {
       const questions = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.quizId)
       );
-      this.questions = questions; // Store the fetched questions in a component property
+      this.questions = questions; // store the fetched questions in a component property
 
       const question = questions[this.currentQuestionIndex];
 
