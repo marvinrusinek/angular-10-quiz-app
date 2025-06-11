@@ -362,7 +362,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         // Ensure the index is valid
-        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
         if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
           console.warn('Invalid restored index. Keeping latest valid index:', restoredIndex);
         }
@@ -520,7 +520,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.loadQuizData(); // ensure loading before proceeding
       }
 
-      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
 
       if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
         this.updateQuestionDisplay(currentIndex); // ensure question state is restored
@@ -2743,15 +2743,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.progressBarService.progress$.subscribe(progress => this.progressBarService.setProgress(progress));
   }
 
-  updateProgressPercentage(): void {
-    this.quizService.getTotalQuestionsCount().subscribe({
+  // REMOVE most likely
+  /* updateProgressPercentage(): void {
+    this.quizService.getTotalQuestionsCount(this.quizId).subscribe({
       next: (total) => this.handleProgressUpdate(total),
       error: (error) => {
         console.error('Error fetching total questions:', error);
         this.progressBarService.setProgress(0); // ensure progress is reset on error
       },
     });
-  }
+  } */
   
   private handleProgressUpdate(total: number): void {
     this.totalQuestions = total;
@@ -2994,7 +2995,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.updateQuestionStateAndExplanation(this.currentQuestionIndex);
 
     // Update the progress percentage based on the new current question index
-    this.updateProgressPercentage();
+    // this.updateProgressPercentage();
   }
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
