@@ -37,11 +37,11 @@
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
-  
+
     <ng-template #errorTemplate>
       <p>Error loading question. Please try again.</p>
     </ng-template>
-  
+
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- instructions message -->
       <h5 class="instructions-message"
@@ -128,9 +128,9 @@
           type="success"
           [striped]="true"
           [animated]="true"
-          [value]="progressBarService.progress$ | async as progress"
+          [value]="progress$ | async"
         >
-          <strong>{{ progress.toFixed(0) }}%</strong>
+          <strong>{{ (progress$ | async)?.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
