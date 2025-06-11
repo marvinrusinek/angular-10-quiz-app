@@ -39,7 +39,7 @@ export class AnswerTrackingService {
     alreadyAnswered: boolean
   ): void {
     if (type === QuestionType.SingleAnswer) {
-      this.selectedOptionService.setSelectedOptions(checked ? [option] : []);
+      this.selectedOptionService.setSelectedOption(checked ? option : null);
     } else {
       this.updateMultipleAnswerSelection(option, checked);
     }
