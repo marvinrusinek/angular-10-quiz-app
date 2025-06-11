@@ -258,7 +258,6 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
       this.quizService.setIsNavigatingToPrevious(false);
       this.nextButtonStateService.updateAndSyncNextButtonState(false);
-      //this.cdRef.detectChanges();
     }
   }
 
