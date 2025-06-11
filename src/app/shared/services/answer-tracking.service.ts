@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../models/Option.model';
+import { QuizQuestion } from '../models/QuizQuestion.model';
 import { SelectedOption } from '../models/SelectedOption.model';
+import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
 
@@ -14,6 +17,7 @@ export class AnswerTrackingService {
   totalQuestions = 0;
 
   constructor(
+    private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService
   ) {}
@@ -26,6 +30,36 @@ export class AnswerTrackingService {
     }
   }
 
+  public processOptionSelection(
+    option: SelectedOption,
+    checked: boolean,
+    currentQuestion: QuizQuestion,
+    questionIndex: number,
+    type: QuestionType,
+    alreadyAnswered: boolean
+  ): void {
+    if (type === QuestionType.SingleAnswer) {
+      this.selectedOptionService.setSelectedOptions(checked ? [option] : []);
+    } else {
+      this.updateMultipleAnswerSelection(option, checked);
+    }
+  
+    if (!alreadyAnswered) {
+      this.selectedOptionService.setAnswered(true);
+      console.log('[✅ processOptionSelection] Marked as answered');
+    } else {
+      console.log('[ℹ️ processOptionSelection] Already answered');
+    }
+  
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
+  
+    sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(`displayMode_${questionIndex}`, 'explanation');
+    sessionStorage.setItem('displayExplanation', 'true');
+  } 
+
+  // move to SMS!!
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const index = this.currentQuestionIndex;
