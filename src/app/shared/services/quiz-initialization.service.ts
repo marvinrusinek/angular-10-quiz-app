@@ -144,7 +144,258 @@ export class QuizInitializationService {
     } else {
       console.warn(`[⚠️ No question found at index ${questionIndex - 1}]`);
     }
-  }   
+  }
+
+  private initializeQuestions(): void {
+    this.quizService.getShuffledQuestions().subscribe({
+      next: (questions) => {
+        if (questions?.length > 0) {
+          this.questions = questions;
+          console.log('[🌀 Shuffled Questions]', this.questions);
+        } else {
+          console.error('[❌ initializeQuestions] No questions received.');
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching questions:', err);
+      }
+    });
+  }
+
+  private initializeCurrentQuestion(): void {
+    this.initializeQuestionStreams();
+    this.loadQuizQuestionsForCurrentQuiz();
+    this.createQuestionData();
+    this.getQuestion();
+  
+    this.correctAnswersTextSource.subscribe((text) => {
+      this.correctAnswersText = text;
+    });
+  
+    this.subscribeToCurrentQuestion();
+  }
+
+  initializeQuestionStreams(): void {
+    // Initialize questions stream
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+  
+    this.questions$.subscribe((questions) => {
+      if (questions && questions.length > 0) {
+        this.currentQuestionIndex = 0;
+  
+        // Reset and set initial state for each question
+        for (const [index, question] of questions.entries()) {
+          const defaultState: QuestionState = this.quizStateService.createDefaultQuestionState();
+          this.quizStateService.setQuestionState(this.quizId, index, defaultState);
+        }        
+  
+        // Set initial question and options
+        this.currentQuestion = questions[this.currentQuestionIndex];
+  
+        // Ensure options have the `correct` property explicitly set
+        this.options = this.currentQuestion.options.map(option => ({
+          ...option,
+          correct: option.correct ?? false, // Default `correct` to false if undefined
+        }));
+  
+        console.log('Questions loaded:', questions);
+        console.log('Current question:', this.currentQuestion);
+        console.log('Options with correct property:', this.options);
+  
+        // Fetch next question and options
+        this.quizService.getNextQuestion(this.currentQuestionIndex).then((nextQuestion) => {
+          if (nextQuestion) {
+            console.log('Next question:', nextQuestion);
+          } else {
+            console.warn('No next question available.');
+          }
+        }).catch((error) => {
+          console.error('Error fetching next question:', error);
+        });
+  
+        this.quizService.getNextOptions(this.currentQuestionIndex).then((nextOptions) => {
+          if (nextOptions) {
+            // Ensure next options have the `correct` property explicitly set
+            const updatedNextOptions = nextOptions.map(option => ({
+              ...option,
+              correct: option.correct ?? false, // Default `correct` to false if undefined
+            }));
+            console.log('Next options with correct property:', updatedNextOptions);
+          } else {
+            console.warn('No next options available.');
+          }
+        }).catch((error) => {
+          console.error('Error fetching next options:', error);
+        });
+      } else {
+        console.warn('No questions available for this quiz.');
+        this.currentQuestion = null;
+        this.options = [];
+      }
+    });
+  }  
+
+  // Function to load all questions for the current quiz
+  private loadQuizQuestionsForCurrentQuiz(): void {
+    this.isQuizDataLoaded = false;
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+      next: (questions) => {
+        this.questions = questions.map((question) => ({
+          ...question,
+          options: question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false,
+          })),
+        }));
+        this.isQuizDataLoaded = true;
+        console.log('Loaded questions:', this.questions);
+      },
+      error: (error) => {
+        console.error('Failed to load questions:', error);
+        this.isQuizDataLoaded = true;
+      }
+    });
+  }  
+
+  createQuestionData(): void {
+    // Internal fallback question to ensure consistent type
+    const fallbackQuestion: QuizQuestion = {
+      questionText: 'No question available',
+      type: QuestionType.SingleAnswer,
+      explanation: '',
+      options: []
+    };
+  
+    const createQuestionData = (
+      question: QuizQuestion | null,
+      options: Option[] | null
+    ): { question: QuizQuestion; options: Option[] } => {
+      const safeOptions = Array.isArray(options)
+        ? options.map(option => ({
+            ...option,
+            correct: option.correct ?? false,
+          }))
+        : [];
+  
+      return {
+        question: question ?? fallbackQuestion,
+        options: safeOptions,
+      };
+    };
+  
+    this.combinedQuestionData$ = combineLatest([
+      this.quizService.nextQuestion$.pipe(
+        map(value => {
+          if (value === undefined) {
+            console.warn('nextQuestion$ emitted undefined, defaulting to null');
+            return null;
+          }
+          return value;
+        }),
+        distinctUntilChanged()
+      ),
+      this.quizService.nextOptions$.pipe(
+        map(value => {
+          if (value === undefined) {
+            console.warn('nextOptions$ emitted undefined, defaulting to empty array');
+            return [];
+          }
+  
+          return Array.isArray(value)
+            ? value.map(option => ({
+                ...option,
+                correct: option.correct ?? false,
+              }))
+            : [];
+        }),
+        distinctUntilChanged()
+      )
+    ]).pipe(
+      switchMap(([nextQuestion, nextOptions]) => {
+        if (nextQuestion) {
+          return of(createQuestionData(nextQuestion, nextOptions));
+        } else {
+          return combineLatest([
+            this.quizService.previousQuestion$.pipe(
+              map(value => {
+                if (value === undefined) {
+                  console.warn('previousQuestion$ emitted undefined, defaulting to null');
+                  return null;
+                }
+                return value;
+              }),
+              distinctUntilChanged()
+            ),
+            this.quizService.previousOptions$.pipe(
+              map(value => {
+                if (value === undefined) {
+                  console.warn('previousOptions$ emitted undefined, defaulting to empty array');
+                  return [];
+                }
+  
+                return Array.isArray(value)
+                  ? value.map(option => ({
+                      ...option,
+                      correct: option.correct ?? false,
+                    }))
+                  : [];
+              }),
+              distinctUntilChanged()
+            )
+          ]).pipe(
+            map(([previousQuestion, previousOptions]) =>
+              createQuestionData(previousQuestion, previousOptions)
+            )
+          );
+        }
+      }),
+      catchError(error => {
+        console.error('Error in createQuestionData:', error);
+        return of(createQuestionData(null, [])); // fallback with dummy question
+      })
+    );
+  }    
+
+  private async getQuestion(): Promise<void | null> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params.quizId;
+      const currentQuestionIndex = this.currentQuestionIndex;
+  
+      if (!quizId || quizId.trim() === '') {
+        console.error('Quiz ID is required but not provided.');
+        return null;
+      }
+  
+      const result = await firstValueFrom(
+        of(
+          this.quizDataService.fetchQuestionAndOptionsFromAPI(
+            quizId,
+            currentQuestionIndex
+          )
+        )
+      );
+  
+      if (!result) {
+        console.error('No valid question found');
+        return null;
+      }
+  
+      const [question, options] = result ?? [null, null];
+      this.handleQuestion({
+        ...question,
+        options: options?.map((option) => ({
+          ...option,
+          correct: option.correct ?? false
+        })),
+      });
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+      return null;
+    }
+  }
+  
+  
+
 
   private async prepareQuizSession(): Promise<void> {
     try {
