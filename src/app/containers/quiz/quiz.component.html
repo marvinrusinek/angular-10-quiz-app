@@ -128,9 +128,9 @@
           type="success"
           [striped]="true"
           [animated]="true"
-          [value]="progress$ | async"
+          [value]="progressBarService.progress$ | async as progress"
         >
-          <strong>{{ (progress$ | async)?.toFixed(0) }}%</strong>
+          <strong>{{ progress.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
