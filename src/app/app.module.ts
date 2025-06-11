@@ -48,7 +48,7 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
 import { NextButtonStateService } from './shared/services/next-button-state.service';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
-// import { QuizInitializationService } from './shared/services/quiz-initialization.service';
+import { QuizInitializationService } from './shared/services/quiz-initialization.service';
 import { QuizNavigationService } from './shared/services/quiz-navigation.service';
 import { QuizQuestionLoaderService } from './shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
@@ -132,7 +132,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizGuard,
     QuizService,
     QuizDataService,
-    // QuizInitializationService,
+    QuizInitializationService,
     QuizNavigationService,
     QuizQuestionLoaderService,
     QuizQuestionManagerService,

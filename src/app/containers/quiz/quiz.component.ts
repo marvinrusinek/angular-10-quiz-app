@@ -24,7 +24,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
-//import { QuizInitializationService } from '../../shared/services/quiz-navigation.service';
+import { QuizInitializationService } from '../../shared/services/quiz-navigation.service';
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
@@ -57,7 +57,7 @@ export interface LoadedQuestionData {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, QuizDataService, UserPreferenceService]
+  providers: [QuizService, QuizDataService, QuizInitializationService, UserPreferenceService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false })
@@ -234,7 +234,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    // private quizInitializationService: QuizInitializationService,
+    private quizInitializationService: QuizInitializationService,
     private quizNavigationService: QuizNavigationService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private quizStateService: QuizStateService,
@@ -387,7 +387,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeDisplayVariables();
   
     this.setupQuiz();
-    this.quizInitializationService.initializeAnswerSync();
+
+    this.quizInitializationService.initializeAnswerSync(
+      (enabled) => (this.isNextButtonEnabled = enabled),
+      (selected) => {
+        this.isCurrentQuestionAnswered = selected;
+        this.isOptionSelected = selected;
+      },
+      (message) => {
+        if (this.selectionMessage !== message) {
+          this.selectionMessage = message;
+        }
+      },
+      this.destroy$
+    );
+    
+
+    // this.quizInitializationService.initializeAnswerSync();
     this.initializeProgressSync();
     this.initializeTooltip();
     this.resetStateHandlers();
