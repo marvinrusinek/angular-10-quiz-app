@@ -41,13 +41,6 @@ export class SelectionMessageService {
       : isLast
         ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   
-    console.log('[🔁 determineSelectionMessage]', {
-      questionIndex,
-      totalQuestions,
-      isAnswered,
-      result: msg
-    });
-  
     return msg;
   }
 
