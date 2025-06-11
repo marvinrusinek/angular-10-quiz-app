@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -60,7 +60,8 @@ export class QuizInitializationService {
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnDestroy(): void {
@@ -94,13 +95,28 @@ export class QuizInitializationService {
       console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
       return;
     }
-  
     this.alreadyInitialized = true;
   
-    this.prepareQuizSession();
-    this.initializeQuizDependencies();
-    this.initializeQuizBasedOnRouteParams(); // 👈 Handles question index + loading
-  }  
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const questionIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) || 1;
+  
+    const resolvedQuiz = this.activatedRoute.snapshot.data['quizData'];
+    if (!resolvedQuiz) {
+      console.error('[❌ Quiz Init] No quiz data found in resolver.');
+      this.router.navigate(['/select']);
+      return;
+    }
+  
+    this.quizService.setActiveQuiz(resolvedQuiz);
+    this.quizService.setCurrentQuestionIndex(questionIndex - 1);
+    this.explanationTextService.initializeExplanationTexts(
+      resolvedQuiz.questions.map(q => q.explanation)
+    );
+  
+    const currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex - 1));
+    this.quizService.setCurrentQuestion(currentQuestion);
+  }
+   
 
   private async prepareQuizSession(): Promise<void> {
     try {
