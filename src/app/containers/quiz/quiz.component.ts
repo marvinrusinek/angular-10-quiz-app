@@ -843,63 +843,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
+    if (!isUserAction || !this.resetComplete) {
+      console.warn('[🚫 Blocked or not a user action]');
+      return;
+    }
+  
     if (event.index === this.lastLoggedIndex) {
       console.warn('[🟡 Skipping duplicate event]', event);
       return;
     }
+  
     this.lastLoggedIndex = event.index;
   
-    if (!isUserAction) return;
-  
-    const { option, checked } = event;
     console.log('[🟢 onOptionSelected triggered]', {
       index: this.currentQuestionIndex,
-      option,
-      checked
+      option: event.option,
+      checked: event.checked
     });
   
-    if (!this.resetComplete) {
-      console.warn('[🚫 Blocked: Question not ready]');
-      return;
-    }
-  
-    // Handle single vs multiple answer
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
-    }
-  
-    // Mark as answered only once
     const alreadyAnswered = this.selectedOptionService.isAnsweredSubject.getValue();
-    if (!alreadyAnswered) {
-      this.selectedOptionService.setAnswered(true);
-      console.log('[✅ onOptionSelected] Marked as answered');
-    } else {
-      console.log('[ℹ️ onOptionSelected] Already answered');
-    }
   
+    this.answerTrackingService.processOptionSelection(
+      event.option,
+      event.checked,
+      this.currentQuestion,
+      this.currentQuestionIndex,
+      this.currentQuestion.type,
+      alreadyAnswered
+    );
+  
+    this.finalizeAnswerSelection(alreadyAnswered);
+  }
+
+  private finalizeAnswerSelection(alreadyAnswered: boolean): void {
     this.isAnswered = true;
   
-    // Persist state
-    sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(`displayMode_${this.currentQuestionIndex}`, 'explanation');
-    sessionStorage.setItem('displayExplanation', 'true');
-  
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-  
-    // Selection message + button state
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
         this.evaluateSelectionMessage();
+  
         this.nextButtonStateService.evaluateNextButtonState(
           this.isAnswered,
           this.quizStateService.isLoadingSubject.getValue(),
           this.quizStateService.isNavigatingSubject.getValue()
-        );        
-        this.cdRef.detectChanges(); // force UI sync
+        );
+  
+        this.cdRef.detectChanges();
   
         console.log('[🧪 post-setSelectionMessage]', {
           index: this.currentQuestionIndex,
@@ -907,9 +897,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       }, 50);
     } catch (err) {
-      console.error('[❌ setSelectionMessage failed]', err);
+      console.error('[❌ finalizeAnswerSelection failed]', err);
     }
-  }
+  }  
 
   // REMOVE!!
   private isAnyOptionSelected(): boolean {
