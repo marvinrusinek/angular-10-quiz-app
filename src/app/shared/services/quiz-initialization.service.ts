@@ -538,7 +538,7 @@ export class QuizInitializationService {
     }
   }
 
-  private initializeQuizBasedOnRouteParams(): void {
+  private initializeQuizBasedOnRouteParams(): void { 
     this.activatedRoute.paramMap
       .pipe(
         takeUntil(this.destroy$),
