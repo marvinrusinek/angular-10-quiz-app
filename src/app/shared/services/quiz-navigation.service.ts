@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
@@ -350,12 +350,32 @@ export class QuizNavigationService {
   
     // Update route
     const routeUrl = `/question/${this.quizId}/${clampedIndex + 1}`;
-    const navSuccess = await this.router.navigateByUrl(routeUrl);
-    if (!navSuccess) {
-      console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
-      this.isNavigating = false;
-      return false;
+    const currentUrl = this.router.url;
+
+    if (currentUrl === routeUrl) {
+      console.warn(`[navigateToQuestion] ⚠️ Route unchanged (${routeUrl}) — manually loading question`);
+      
+      // Manually load question since router won't navigate again
+      const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+      if (!fetched) {
+        console.error(`[navigateToQuestion] ❌ Failed to fetch question data manually for index ${clampedIndex}`);
+        this.isNavigating = false;
+        return false;
+      }
+      
+      this.quizService.setCurrentQuestionIndex(clampedIndex);
+      return true;
+    } else {
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      if (!navSuccess) {
+        console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+        this.isNavigating = false;
+        return false;
+      }
+
+      return true;
     }
+
   
     // Update badge
     const currentIndex = this.quizService.getCurrentQuestionIndex();
@@ -382,7 +402,7 @@ export class QuizNavigationService {
     return true;
   }
 
-  public async resetUIAndNavigate(questionIndex: number): Promise<void> {
+  public async resetUIAndNavigate(questionIndex: number): Promise<QuizQuestion | null> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
@@ -403,12 +423,24 @@ export class QuizNavigationService {
       this.currentQuestion = null;
   
       // Add navigation to load Q&A
-      await this.navigateToQuestion(questionIndex);
+      const success = await this.navigateToQuestion(questionIndex);
+      if (!success) {
+        console.error(`[resetUIAndNavigate] ❌ Navigation failed for index ${questionIndex}`);
+        return null;
+      }
   
+      // Return the loaded question
+      const fetchedQuestion = await firstValueFrom(this.quizService.getCurrentQuestion?.(questionIndex) ?? of(null));
+      if (!fetchedQuestion) {
+        console.warn('[resetUIAndNavigate] ⚠️ No current question found after navigation.');
+      }
+
+      return fetchedQuestion;
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
+      return null;
     }
-  }
+  }  
 
   private handleQuizCompletion(): void {
     const quizId = this.quizService.quizId;
