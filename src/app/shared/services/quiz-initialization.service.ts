@@ -566,7 +566,7 @@ export class QuizInitializationService {
     }
   }
 
-  public initializeQuizBasedOnRouteParams(): void { 
+  /* public initializeQuizBasedOnRouteParams(): void { 
     this.activatedRoute.paramMap
       .pipe(
         takeUntil(this.destroy$),
@@ -622,6 +622,73 @@ export class QuizInitializationService {
   
           this.currentQuiz = this.quizService.getActiveQuiz();
           await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
+        },
+        complete: () => {
+          console.log('[Route Init] 🟢 Initialization complete.');
+        }
+      });
+  } */
+  public initializeQuizBasedOnRouteParams(): void {
+    this.activatedRoute.paramMap
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((params: ParamMap) => {
+          const quizId = params.get('quizId');
+          const questionIndexParam = params.get('questionIndex');
+          const routeIndex = Number(questionIndexParam);
+          const internalIndex = isNaN(routeIndex) ? 0 : Math.max(routeIndex - 1, 0); // 0-based
+  
+          console.log(`[Route Init] 📍 quizId=${quizId}, routeIndex=${routeIndex}, internalIndex=${internalIndex}`);
+  
+          if (!quizId) {
+            console.error('[Route Init] ❌ No quizId found in URL.');
+            return EMPTY;
+          }
+  
+          this.quizId = quizId;
+  
+          return this.quizNavigationService.handleRouteParams(params).pipe(
+            switchMap(({ quizData }) => {
+              if (!quizData || !Array.isArray(quizData.questions)) {
+                console.error('[Route Init] ❌ Invalid quiz data or missing questions array.');
+                return EMPTY;
+              }
+  
+              const lastIndex = quizData.questions.length - 1;
+              const adjustedIndex = Math.min(Math.max(internalIndex, 0), lastIndex);
+  
+              this.currentQuestionIndex = adjustedIndex;
+              this.totalQuestions = quizData.questions.length;
+  
+              this.quizService.setActiveQuiz(quizData);
+              this.quizService.setCurrentQuestionIndex(adjustedIndex);
+              this.quizService.updateBadgeText(adjustedIndex + 1, quizData.questions.length);
+  
+              this.initializeQuizState();
+  
+              // ✅ Return question to trigger downstream rendering
+              return this.quizService.getQuestionByIndex(adjustedIndex);
+            }),
+            catchError((error) => {
+              console.error('[Route Init] ❌ Error during quiz initialization:', error);
+              return EMPTY;
+            })
+          );
+        })
+      )
+      .subscribe({
+        next: (question) => {
+          if (!question) {
+            console.error('[Route Init] ❌ No question returned.');
+            return;
+          }
+  
+          console.log('[✅ Route Init] Setting currentQuestion:', question);
+          this.quizService.setCurrentQuestion(question); // ✅ Ensure rendering triggers
+          this.currentQuiz = this.quizService.getActiveQuiz();
+  
+          // 🔥 Only reset UI or navigate if you *absolutely* need to at this point
+          // await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
