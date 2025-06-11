@@ -27,7 +27,6 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
-import { QuizQuestionLoaderService } from '../../shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { AnswerTrackingService } from '../../shared/services/answer-tracking.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
@@ -237,7 +236,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private quizDataService: QuizDataService,
     private quizInitializationService: QuizInitializationService,
     private quizNavigationService: QuizNavigationService,
-    private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private quizStateService: QuizStateService,
     private timerService: TimerService,
@@ -3673,6 +3671,46 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
+  // REMOVE!!
+  // Reset UI immediately before navigating
+  private resetUI(): void {
+    // Clear current question reference and options
+    this.question = null;
+    this.currentQuestion = null;
+    this.optionsToDisplay = [];
+  
+    // Reset question component state only if method exists
+    if (this.quizQuestionComponent) {
+      if (typeof this.quizQuestionComponent.resetFeedback === 'function') {
+        this.quizQuestionComponent.resetFeedback();
+      }
+      if (typeof this.quizQuestionComponent.resetState === 'function') {
+        this.quizQuestionComponent.resetState();
+      }
+    } else {
+      console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
+    }
+
+    // Reset visual selection state
+    this.showFeedbackForOption = {};
+  
+    // Background reset
+    this.resetBackgroundService.setShouldResetBackground(true);
+  
+    // Trigger global reset events
+    this.resetStateService.triggerResetFeedback();
+    this.resetStateService.triggerResetState();
+  
+    // Clear selected options tracking
+    this.selectedOptionService.clearOptions();
+  
+    if (!this.explanationTextService.isExplanationLocked()) {
+      this.explanationTextService.resetExplanationState();
+    } else {
+      console.log('[resetUI] 🛡️ Skipping explanation reset — lock is active.');
+    }
+  }
+
   private resetQuestionDisplayState(): void {
     this.questionToDisplay = '';
     this.explanationToDisplay = '';
@@ -3710,7 +3748,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
   
           // Reset UI and options
-          this.quizQuestionLoaderService.resetUI();
+          this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
   
