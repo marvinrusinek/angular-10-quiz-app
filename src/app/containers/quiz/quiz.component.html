@@ -21,7 +21,6 @@
         <ng-content></ng-content>
     
         <codelab-quiz-question
-          *ngIf="shouldRenderQuestionComponent"
           [questionPayload]="questionPayload"
           [question]="questionPayload?.question"
           [options]="questionPayload?.options"
