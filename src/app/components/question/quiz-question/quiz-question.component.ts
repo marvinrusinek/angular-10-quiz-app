@@ -19,6 +19,7 @@ import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
+import { AnswerTrackingService } from '../../../shared/services/answer-tracking.service';
 import { FeedbackService } from '../../../shared/services/feedback.service';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -263,6 +264,7 @@ export class QuizQuestionComponent
     protected quizNavigationService: QuizNavigationService,
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
+    protected answerTrackingService: AnswerTrackingService,
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected feedbackService: FeedbackService,
@@ -3059,11 +3061,15 @@ export class QuizQuestionComponent
   
       // ✅ Move syncNextButtonState AFTER all processing is done
       this.nextButtonStateService.syncNextButtonState();
+
+      // For Q1, give state one final sync boost after slight delay
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
         console.warn('[🛠 Q1 FIX] Forcing delayed Next button state sync');
         setTimeout(() => {
-          this.nextButtonStateService.syncNextButtonState();
-        }, 150);
+          this.nextButtonStateService.updateAndSyncNextButtonState(
+            this.answerTrackingService.isAnyOptionSelected()
+          );
+        }, 150); // adjust delay if needed
       }
   
       queueMicrotask(() => this.cdRef.detectChanges());
