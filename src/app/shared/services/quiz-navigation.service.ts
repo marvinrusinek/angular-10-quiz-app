@@ -163,7 +163,6 @@ export class QuizNavigationService {
       // Start exit animation
       this.animationState$.next('animationStarted');
   
-      console.log('Navigating to: ', `/question/${this.quizId}/${nextIndex}`);
       await this.router.navigate(['/question', this.quizId, nextIndex], {
         queryParamsHandling: 'preserve',
         skipLocationChange: false
@@ -193,6 +192,8 @@ export class QuizNavigationService {
       if (success) {
         // this.quizService.setCurrentQuestionIndex(nextIndex);
         this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
   
         // Reset answered state
         this.selectedOptionService.setAnswered(false);
