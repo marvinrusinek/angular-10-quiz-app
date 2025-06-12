@@ -246,12 +246,6 @@ export class QuizNavigationService {
       }
   
       this.quizQuestionLoaderService.resetUI();
-
-      // Extra guard for Q1 — check again just before navigation
-      if (!this.nextButtonStateService.isButtonCurrentlyEnabled()) {
-        console.warn('[🛑 Q1 BLOCK] Next button not yet fully enabled — aborting navigation.');
-        return;
-      }
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
