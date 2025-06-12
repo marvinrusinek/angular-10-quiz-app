@@ -119,8 +119,6 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<void> {
-    console.log('[⏭️ advanceToNextQuestion] Triggered');
-  
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
   
@@ -133,12 +131,6 @@ export class QuizNavigationService {
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
   
-    console.log('[🔍 Check] { isLoading, isNavigating, isEnabled }', {
-      isLoading,
-      isNavigating,
-      isEnabled,
-    });
-  
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
       return;
@@ -150,8 +142,6 @@ export class QuizNavigationService {
   
     try {
       this.quizId = this.quizId || this.quizService.quizId || this.activatedRoute.snapshot.paramMap.get('quizId') || '';
-      console.log('[🧭 Using quizId]', this.quizId);
-  
       if (!this.quizId) {
         console.error('[🚫] Missing quizId – cannot navigate');
         return;
@@ -167,8 +157,6 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService.resetUI();
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
-      console.log('[🛣️ Attempting navigation to]', routeUrl);
-  
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       if (navSuccess) {
         // ✅ KEY LINE: ensure app state is updated
@@ -180,8 +168,6 @@ export class QuizNavigationService {
   
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
-  
-        console.log(`[✅] Successfully navigated to Q${nextIndex}`);
       } else {
         console.warn(`[❌] Navigation failed to Q${nextIndex}`);
       }
@@ -195,8 +181,7 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }
-  
+  } 
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
