@@ -544,12 +544,6 @@ export class QuizNavigationService {
         console.warn(`[resetUIAndNavigate] ⚠️ Already on route ${routeUrl}`);
       }
   
-      // Clear state manually (if no service helpers yet)
-      this.selectedOptionService.resetSelections(); // if you have this
-      this.explanationTextService.clearExplanation(); // or replace w/ actual method
-      this.feedbackService?.clearFeedback?.(); // optional
-      this.nextButtonStateService?.reset?.(); // optional
-  
       // Final confirmation
       console.log(`[resetUIAndNavigate] ✅ Navigation and UI reset complete for Q${index + 1}`);
     } catch (err) {
