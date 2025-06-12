@@ -159,7 +159,6 @@ export class QuizNavigationService {
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       if (navSuccess) {
-        // ✅ KEY LINE: ensure app state is updated
         this.quizService.setCurrentQuestionIndex(nextIndex);
   
         this.notifyNavigationSuccess();
