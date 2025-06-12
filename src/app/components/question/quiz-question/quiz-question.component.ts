@@ -3059,21 +3059,20 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
 
-      // FINAL Q1 FIX – ensure everything is settled before enabling
-      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      if (index === 0) {
-        console.warn('[🛠 Q1 PATCH] Forcing everything to settle');
+      // Apply Q1-specific patch — after a short delay, force re-sync
+      const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+      if (isFirstQuestion) {
+        console.warn('[🛠 Q1 PATCH] Forcing delayed sync for Next button');
 
         setTimeout(() => {
-          // Sync button + answered state again
-          const isSelected = this.answerTrackingService.isAnyOptionSelected();
-          this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
-          this.quizStateService.setAnswered(true);
-          this.selectedOptionService.setAnswered(true);
-          this.cdRef.detectChanges();
+          const selected = this.answerTrackingService.isAnyOptionSelected();
+          this.selectedOptionService.setAnswered(selected);
+          this.quizStateService.setAnswered(selected);
+          this.nextButtonStateService.updateAndSyncNextButtonState(selected);
 
-          console.log('[✅ Q1 PATCH DONE] Next button force-enabled after delay');
-        }, 100);
+          console.log('[✅ Q1 PATCH COMPLETE] Next button re-synced');
+          this.cdRef.detectChanges();
+        }, 150);
       }
 
   
