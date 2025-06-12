@@ -308,6 +308,86 @@ export class QuizNavigationService {
     }
   }
 
+  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log(`[➡️ Triggered navigateToQuestion(${questionIndex})]`);
+  
+    if (this.isNavigating) {
+      console.warn('[⏳ Navigation blocked: already navigating]');
+      return false;
+    }
+  
+    this.isNavigating = true;
+  
+    const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
+  
+    if (
+      typeof clampedIndex !== 'number' ||
+      isNaN(clampedIndex) ||
+      clampedIndex < 0 ||
+      clampedIndex >= this.totalQuestions
+    ) {
+      console.warn(`[navigateToQuestion] ❌ Invalid index: ${clampedIndex}`);
+      this.isNavigating = false;
+      return false;
+    }
+  
+    // ✅ Defensive fallback for quizId
+    const quizId = this.quizService.quizId || this.quizId || this.activatedRoute.snapshot.paramMap.get('quizId') || '';
+    if (!quizId) {
+      console.error('[navigateToQuestion] ❌ quizId is missing');
+      this.isNavigating = false;
+      return false;
+    }
+  
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
+    const currentUrl = this.router.url;
+  
+    let routeChanged = currentUrl !== routeUrl;
+    let fetchSuccess = false;
+  
+    if (!routeChanged) {
+      console.warn(`[navigateToQuestion] ⚠️ Route unchanged (${routeUrl}) — manually loading question`);
+      fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+    } else {
+      fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+      if (fetchSuccess) {
+        const navSuccess = await this.router.navigateByUrl(routeUrl);
+        if (!navSuccess) {
+          console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+          this.isNavigating = false;
+          return false;
+        }
+      }
+    }
+  
+    if (!fetchSuccess || !this.question || !this.optionsToDisplay?.length) {
+      console.error(`[❌ Q${clampedIndex}] Failed to fetch or assign question data`, {
+        question: this.question,
+        optionsToDisplay: this.optionsToDisplay,
+      });
+      this.isNavigating = false;
+      return false;
+    }
+  
+    // ✅ Emit UI events only on success
+    this.emitRenderReset();
+    this.emitResetUI();
+  
+    // ✅ Update state
+    this.currentQuestionIndex = clampedIndex;
+    this.quizService.setCurrentQuestionIndex(clampedIndex);
+    this.quizId = quizId; // set fallback for future
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(clampedIndex));
+  
+    // ✅ Update badge
+    this.quizService.updateBadgeText(clampedIndex + 1, this.totalQuestions);
+  
+    this.isNavigating = false;
+    console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
+    return true;
+  }
+  
+
   /**
    * Optional helper to navigate programmatically to a question
    */
@@ -407,7 +487,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
   } */
-  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
     const routeUrl = `/question/${this.quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
@@ -432,7 +512,7 @@ export class QuizNavigationService {
     }
   
     return true;
-  }  
+  } */
 
   /* public async resetUIAndNavigate(questionIndex: number): Promise<QuizQuestion | null> {
     try {
