@@ -1090,7 +1090,7 @@ export class QuizInitializationService {
         })
       )
       .subscribe({
-        next: async (question) => {
+        next: async (question: QuizQuestion) => {
           if (!question) {
             console.error('[Route Init] ❌ No question returned.');
             return;
@@ -1107,7 +1107,7 @@ export class QuizInitializationService {
           console.log('[Route Init] 🟢 Initialization complete.');
         }
       });
-  }      
+  }
   
 
   private initializeQuizState(): void {
