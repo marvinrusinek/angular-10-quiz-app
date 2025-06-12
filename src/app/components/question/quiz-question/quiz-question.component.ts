@@ -2834,7 +2834,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2892,6 +2892,86 @@ export class QuizQuestionComponent
 
         // Update the current index after explanation confirmation
         this.quizService.setCurrentQuestionIndex(lockedIndex);
+      } else {
+        console.warn('[⛔ Skipping explanation emit — mismatch detected]', {
+          lockedIndex,
+          currentIndex,
+          lockedText,
+          currentText,
+          lockedTimestamp,
+          latest: this.latestOptionClickTimestamp,
+        });
+      }
+  
+      // Finalization
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(option, event.index);
+      queueMicrotask(() => this.cdRef.detectChanges());
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedTimestamp = Date.now();
+    this.latestOptionClickTimestamp = lockedTimestamp;
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const lockedText = this.currentQuestion?.questionText?.trim() || '';
+    const lockedSnapshot = structuredClone(this.currentQuestion);
+  
+    // ✅ Set current index immediately (fixes Q1 → Q2 delay)
+    this.quizService.setCurrentQuestionIndex(lockedIndex);
+    this.currentQuestionIndex = lockedIndex;
+  
+    // Lock explanation request
+    const requestId = ++this.explanationRequestId;
+  
+    try {
+      // Option handling
+      this.updateOptionSelection(event, option);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
+      this.applyFeedbackIfNeeded(option);
+      this.handleSelectionMessageUpdate();
+  
+      // ✅ Mark answered early to enable Next immediately
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setAnswered(true);
+      this.nextButtonStateService.syncNextButtonState();
+  
+      // Switch display mode to explanation
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      // Wait for async explanation (may resolve after question changes)
+      const explanationText = await this.updateExplanationText(lockedIndex);
+  
+      // Validate current state before emitting
+      if (requestId !== this.explanationRequestId) {
+        console.warn('[🛑 Explanation request is outdated]', { requestId, latest: this.explanationRequestId });
+        return;
+      }
+  
+      const currentQuestion = this.currentQuestion;
+      const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      const currentText = currentQuestion?.questionText?.trim() || '';
+  
+      const isSame =
+        currentIndex === lockedIndex &&
+        currentText === lockedText &&
+        currentQuestion?.questionText === lockedSnapshot?.questionText &&
+        this.latestOptionClickTimestamp === lockedTimestamp;
+  
+      if (isSame) {
+        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
       } else {
         console.warn('[⛔ Skipping explanation emit — mismatch detected]', {
           lockedIndex,
