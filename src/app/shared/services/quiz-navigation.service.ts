@@ -182,6 +182,9 @@ export class QuizNavigationService {
       } else {
         console.warn(`[❌] Navigation failed to Q${nextIndex}`);
       }
+
+      // Emit selection event to parent
+      this.answerSelected.emit(true);
   
       // Re-evaluate Next button state after navigation
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
