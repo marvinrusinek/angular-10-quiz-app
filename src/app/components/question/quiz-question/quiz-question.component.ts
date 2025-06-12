@@ -3058,19 +3058,39 @@ export class QuizQuestionComponent
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
+
+      // 🧩 FINAL Q1 FIX – ensure everything is settled before enabling
+      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      if (index === 0) {
+        console.warn('[🛠 Q1 PATCH] Forcing everything to settle');
+
+        setTimeout(() => {
+          // 🔄 Sync button + answered state again
+          const isSelected = this.answerTrackingService.isAnyOptionSelected();
+          this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
+          this.quizStateService.setAnswered(true);
+          this.selectedOptionService.setAnswered(true);
+          this.cdRef.detectChanges();
+
+          console.log('[✅ Q1 PATCH DONE] Next button force-enabled after delay');
+        }, 100); // You can increase to 150–200 if needed
+      }
+
   
       // ✅ Move syncNextButtonState AFTER all processing is done
       this.nextButtonStateService.syncNextButtonState();
 
       // For Q1, give state one final sync boost after slight delay
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        console.warn('[🛠 Q1 FIX] Forcing delayed Next button state sync');
+        console.warn('[🛠 Q1 FORCE FIX] Forcing Next button ENABLED manually');
         setTimeout(() => {
-          this.nextButtonStateService.updateAndSyncNextButtonState(
-            this.answerTrackingService.isAnyOptionSelected()
-          );
-        }, 150); // adjust delay if needed
+          this.nextButtonStateService.setButtonEnabled(true);
+          this.quizStateService.setAnswered(true);
+          this.selectedOptionService.setAnswered(true);
+          console.log('[✅ Q1 FIX APPLIED] Next button forcibly enabled.');
+        }, 150); // 150ms should be enough, increase if needed
       }
+      
   
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
