@@ -211,7 +211,7 @@ export class QuizInitializationService {
   
     combinedQuestionObservable
       .pipe(
-        filter((question): question is QuizQuestion => question !== null),
+        filter((question: QuizQuestion): question is QuizQuestion => question !== null),
         map((question) => ({
           ...question,
           options: question.options.map((option) => ({
