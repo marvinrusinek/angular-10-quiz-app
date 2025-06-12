@@ -164,7 +164,7 @@ export class QuizNavigationService {
       this.animationState$.next('animationStarted');
   
       await this.router.navigate(['/question/', this.quizId, nextIndex]);
-      this.quizService.setCurrentQuestionIndex(nextIndex);
+      // this.quizService.setCurrentQuestionIndex(nextIndex);
   
       // Prevent out-of-bounds access
       if (isNaN(nextIndex) || nextIndex < 0) {
@@ -186,7 +186,7 @@ export class QuizNavigationService {
       // Attempt navigation
       const success = await this.navigateToQuestion(nextIndex);
       if (success) {
-        this.quizService.setCurrentQuestionIndex(nextIndex);
+        // this.quizService.setCurrentQuestionIndex(nextIndex);
         this.notifyNavigationSuccess();
   
         // Reset answered state

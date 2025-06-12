@@ -1090,11 +1090,24 @@ export class QuizInitializationService {
         })
       )
       .subscribe({
+        next: async (question) => {
+          if (!question) {
+            console.error('[Route Init] ❌ No question returned.');
+            return;
+          }
+      
+          console.log('[Route Init] ✅ Question loaded:', question.questionText);
+          console.log('[Route Init] ✅ Current Index:', this.currentQuestionIndex);
+      
+          this.currentQuiz = this.quizService.getActiveQuiz();
+      
+          await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
+        },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
         }
       });
-  }
+  }      
   
 
   private initializeQuizState(): void {
