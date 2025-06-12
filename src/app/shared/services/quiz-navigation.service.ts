@@ -163,7 +163,12 @@ export class QuizNavigationService {
       // Start exit animation
       this.animationState$.next('animationStarted');
   
-      await this.router.navigate(['/question/', this.quizId, nextIndex]);
+      console.log('Navigating to: ', `/question/${this.quizId}/${nextIndex}`);
+      await this.router.navigate(['/question', this.quizId, nextIndex], {
+        queryParamsHandling: 'preserve',
+        skipLocationChange: false
+      });
+
       // this.quizService.setCurrentQuestionIndex(nextIndex);
   
       // Prevent out-of-bounds access
