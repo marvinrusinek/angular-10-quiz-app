@@ -429,31 +429,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   private initializeProgressSync(): void {
-    this.quizService.getTotalQuestionsCount().subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions;
-        const currentIndex = this.quizService.getCurrentQuestionIndex();
-        const validIndex = currentIndex >= 0 && currentIndex < totalQuestions ? currentIndex : 0;
-  
-        if (!this.hasInitializedBadge) {
-          this.quizService.updateBadgeText(validIndex + 1, totalQuestions);
-          this.hasInitializedBadge = true;
-        }
-      }
-    });
-  
-    this.progressBarService.progress$.subscribe(progressValue => {
-      this.progressPercentage.next(progressValue);
-    });
-    this.progressBarService.setProgress(0);
-  
-    this.quizService.currentQuestionIndex$.subscribe(index => {
-      this.currentQuestionIndex = index;
-      this.updateProgressPercentage();
-    });
-  }
-  
-  private initializeProgressSync(): void {
     // Initialize badge text once when quiz data is ready
     this.quizService.getTotalQuestionsCount(this.quizId).subscribe(totalQuestions => {
       if (totalQuestions > 0) {
