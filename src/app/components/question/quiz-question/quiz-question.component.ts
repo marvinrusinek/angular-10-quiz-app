@@ -3059,6 +3059,12 @@ export class QuizQuestionComponent
   
       // ✅ Move syncNextButtonState AFTER all processing is done
       this.nextButtonStateService.syncNextButtonState();
+      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
+        console.warn('[🛠 Q1 FIX] Forcing delayed Next button state sync');
+        setTimeout(() => {
+          this.nextButtonStateService.syncNextButtonState();
+        }, 150);
+      }
   
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
