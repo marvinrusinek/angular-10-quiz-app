@@ -163,6 +163,7 @@ export class QuizNavigationService {
       // Start exit animation
       this.animationState$.next('animationStarted');
   
+     // await this.router.navigate(['/question', this.quizId, nextIndex]);
       /* await this.router.navigate(['/question', this.quizId, nextIndex], {
         queryParamsHandling: 'preserve',
         skipLocationChange: false
@@ -188,8 +189,12 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService.resetUI();
   
       // Attempt navigation
-      const success = await this.navigateToQuestion(nextIndex);
-      if (success) {
+      // const success = await this.navigateToQuestion(nextIndex);
+      const routeUrl = `/question/${this.quizId}/${nextIndex}`;
+      console.log('[🛣️ Attempting navigation to]', routeUrl);
+
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      if (navSuccess) {
         // this.quizService.setCurrentQuestionIndex(nextIndex);
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();

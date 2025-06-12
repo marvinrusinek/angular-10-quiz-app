@@ -3069,6 +3069,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
+    console.log('[🟢 advanceToNextQuestion() called in QuizComponent]');
     await this.quizNavigationService.advanceToNextQuestion();
   }
   
