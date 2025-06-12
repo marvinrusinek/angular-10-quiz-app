@@ -193,7 +193,7 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }
+  } 
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
