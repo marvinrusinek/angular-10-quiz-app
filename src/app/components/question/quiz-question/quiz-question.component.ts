@@ -3077,7 +3077,7 @@ export class QuizQuestionComponent
 
   
       // Move syncNextButtonState AFTER all processing is done
-      this.nextButtonStateService.syncNextButtonState();
+      // this.nextButtonStateService.syncNextButtonState();
         
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
