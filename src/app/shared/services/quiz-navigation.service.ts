@@ -203,24 +203,14 @@ export class QuizNavigationService {
       console.warn('[⏳] Navigation already in progress, ignoring extra click.');
       return;
     }
+
+     // 🛑 MOVE checks *after* a microtask delay
+    await new Promise((resolve) => queueMicrotask(resolve));
   
     // ✅ Check current button enablement state
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-  
-    // ✅ TEMP FIX: Log and re-evaluate enablement if index is 0
-    if (currentIndex === 0 && !isEnabled) {
-      const reassess = this.answerTrackingService.isAnyOptionSelected();
-      console.log('[⚠️ Q1 Re-evaluation] forcing button state update:', reassess);
-      this.nextButtonStateService.updateAndSyncNextButtonState(reassess);
-  
-      // Retry after re-evaluation
-      if (!reassess) {
-        console.warn('[❌] Q1 blocked: still not enabled after reassessment');
-        return;
-      }
-    }
   
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
