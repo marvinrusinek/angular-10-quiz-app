@@ -204,13 +204,20 @@ export class QuizNavigationService {
       return;
     }
 
-    // Wait for microtasks to settle before evaluating state
-    await new Promise(resolve => queueMicrotask(resolve));
+    await new Promise(resolve => setTimeout(resolve, 50));
   
     // Check current button enablement state
-    let isLoading = this.quizStateService.isLoadingSubject.getValue();
-    let isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    let isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+
+    /* console.log('[🔍 Check advanceToNextQuestion]', {
+      isLoading,
+      isNavigating,
+      isEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled(),
+      answered: this.quizStateService.answeredSubject.getValue(),
+      selected: this.answerTrackingService.isAnyOptionSelected()
+    });
 
     // TEMP FIX: Reevaluate Q1 edge case
     if (currentIndex === 0 && !isEnabled) {
@@ -224,7 +231,7 @@ export class QuizNavigationService {
         console.warn('[❌] Q1 still not ready after reassessment');
         return;
       }
-    }
+    } */
   
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
