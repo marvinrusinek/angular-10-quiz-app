@@ -208,16 +208,22 @@ export class QuizNavigationService {
     await new Promise(resolve => queueMicrotask(resolve));
   
     // Check current button enablement state
-    const isLoading = this.quizStateService.isLoadingSubject.getValue();
-    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+    let isLoading = this.quizStateService.isLoadingSubject.getValue();
+    let isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     let isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
 
-    // TEMP FIX: Re-evaluate for Q1 delay case
+    // TEMP FIX: Reevaluate Q1 edge case
     if (currentIndex === 0 && !isEnabled) {
       const reassess = this.answerTrackingService.isAnyOptionSelected();
-      console.warn('[⚠️ Q1 Re-evaluation] forcing state update:', reassess);
+      console.warn('[🛠 Q1 PATCH] Forcing Next button state reassessment:', reassess);
       this.nextButtonStateService.updateAndSyncNextButtonState(reassess);
-      isEnabled = reassess;
+
+      // Recheck after reassessment
+      isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+      if (!isEnabled) {
+        console.warn('[❌] Q1 still not ready after reassessment');
+        return;
+      }
     }
   
     if (isLoading || isNavigating || !isEnabled) {
