@@ -1088,7 +1088,7 @@ export class QuizQuestionComponent
   // Function to subscribe to total questions count
   private subscribeToTotalQuestions(): void {
     this.quizService
-      .getTotalQuestionsCount()
+      .getTotalQuestionsCount(this.quizId)
       .pipe(takeUntil(this.destroy$))
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
