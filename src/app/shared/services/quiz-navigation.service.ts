@@ -452,13 +452,13 @@ export class QuizNavigationService {
       firstValueFrom(this.quizStateService.isNavigating$)
     ]);
   
-    // ✅ Only block if actively loading or navigating
+    // Only block if actively loading or navigating
     if (isLoading || isNavigating) {
       console.warn('[⏳] Cannot go back — loading or navigating in progress.');
       return;
     }
   
-    // ✅ Prevent navigating back from the first question
+    // Prevent navigating back from the first question
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     if (currentIndex === 0) {
       console.warn('[⛔] Already at the first question. Cannot go back.');
@@ -497,7 +497,7 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
       this.quizService.setIsNavigatingToPrevious(false);
   
-      // 🧠 Enable Next button if previous question was answered
+      // Enable Next button if previous question was answered
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
     }
