@@ -282,32 +282,12 @@ export class QuizNavigationService {
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
 
-      // 🛠️ FINAL Q1 NAVIGATION PATCH
-      if (currentIndex === 0) {
-        console.warn('[🛠️ Q1 NAVIGATION FIX] Using NgZone + microtask flush for Q1');
-
-        await new Promise(resolve => queueMicrotask(resolve)); // flush microtasks
-
-        this.ngZone.run(() => {
-          this.router.navigateByUrl(routeUrl).then((navSuccess) => {
-            if (navSuccess) {
-              this.quizService.setCurrentQuestionIndex(nextIndex);
-
-              this.notifyNavigationSuccess();
-              this.notifyNavigatingBackwards();
-              this.notifyResetExplanation();
-
-              this.selectedOptionService.setAnswered(false);
-              this.quizStateService.setAnswered(false);
-            } else {
-              console.warn(`[❌] Navigation failed to Q${nextIndex}`);
-            }
-          });
-        });
-        return;
+      // 🛠 Q1 NAVIGATION FIX: Flush pending changes before navigating
+      if (this.quizService.getCurrentQuestionIndex() === 0) {
+        console.warn('[🛠 Q1 FIX] Forcing flush before navigating from Q1');
+        await new Promise((resolve) => setTimeout(resolve, 0)); // allow microtasks to settle
       }
 
-      // 🚦 Normal path for Q2+
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
@@ -321,7 +301,6 @@ export class QuizNavigationService {
       } else {
         console.warn(`[❌] Navigation failed to Q${nextIndex}`);
       }
-
   
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
