@@ -204,8 +204,8 @@ export class QuizNavigationService {
       return;
     }
 
-     // 🛑 MOVE checks *after* a microtask delay
-    await new Promise((resolve) => queueMicrotask(resolve));
+    // 🔄 Wait for microtasks to settle before evaluating state
+    await new Promise(resolve => queueMicrotask(resolve));
   
     // ✅ Check current button enablement state
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
