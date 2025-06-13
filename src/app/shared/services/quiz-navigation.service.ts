@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -78,7 +78,8 @@ export class QuizNavigationService {
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute, 
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
 
@@ -204,7 +205,10 @@ export class QuizNavigationService {
       return;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // Q1 PATCH – slight delay to allow state to sync on first click
+    if (this.quizService.getCurrentQuestionIndex() === 0) {
+      await new Promise(resolve => setTimeout(resolve, 75));
+    }
   
     // Check current button enablement state
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
@@ -233,7 +237,7 @@ export class QuizNavigationService {
       }
     } */
 
-    const isFirstQuestion = currentIndex === 0;
+    /* const isFirstQuestion = currentIndex === 0;
     const hasSelected = this.answerTrackingService.isAnyOptionSelected();
     const isMarkedAnswered = this.quizStateService.answeredSubject.getValue();
 
@@ -241,6 +245,14 @@ export class QuizNavigationService {
       console.warn('[🚨 Q1 Override] Forcing navigation from Q1 despite button state');
       this.forceNavigateToNextQuestion(currentIndex, nextIndex);
       return;
+    } */
+
+    console.log('[🔍 Q1 NAV CHECK]', { isLoading, isNavigating, isEnabled });
+
+    // 🛠️ [Q1 PATCH] If on Q1 and all checks pass, force a microtask flush and try navigation
+    if (currentIndex === 0 && isEnabled && !isLoading && !isNavigating) {
+      console.warn('[🛠️ Q1 NAVIGATION FIX] Forcing first-question navigation');
+      await new Promise(resolve => setTimeout(resolve, 0)); // Force async flush
     }
   
     if (isLoading || isNavigating || !isEnabled) {
@@ -269,19 +281,47 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService.resetUI();
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
+
+      // 🛠️ FINAL Q1 NAVIGATION PATCH
+      if (currentIndex === 0) {
+        console.warn('[🛠️ Q1 NAVIGATION FIX] Using NgZone + microtask flush for Q1');
+
+        await new Promise(resolve => queueMicrotask(resolve)); // flush microtasks
+
+        this.ngZone.run(() => {
+          this.router.navigateByUrl(routeUrl).then((navSuccess) => {
+            if (navSuccess) {
+              this.quizService.setCurrentQuestionIndex(nextIndex);
+
+              this.notifyNavigationSuccess();
+              this.notifyNavigatingBackwards();
+              this.notifyResetExplanation();
+
+              this.selectedOptionService.setAnswered(false);
+              this.quizStateService.setAnswered(false);
+            } else {
+              console.warn(`[❌] Navigation failed to Q${nextIndex}`);
+            }
+          });
+        });
+        return;
+      }
+
+      // 🚦 Normal path for Q2+
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
-  
+
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
-  
+
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
       } else {
         console.warn(`[❌] Navigation failed to Q${nextIndex}`);
       }
+
   
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
