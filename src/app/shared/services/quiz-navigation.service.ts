@@ -447,61 +447,52 @@ export class QuizNavigationService {
     }
   } */
   public async advanceToPreviousQuestion(): Promise<void> {
-    const [isLoading, isNavigating] = await Promise.all([
-      firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$)
-    ]);
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const prevIndex = currentIndex - 1;
   
-    // Only block if actively loading or navigating
-    if (isLoading || isNavigating) {
-      console.warn('[⏳] Cannot go back — loading or navigating in progress.');
+    if (currentIndex === 0) {
+      console.warn('[⛔] Already at first question, cannot go back.');
       return;
     }
   
-    // Prevent navigating back from the first question
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    if (currentIndex === 0) {
-      console.warn('[⛔] Already at the first question. Cannot go back.');
+    console.log('[🔁] Attempting to go back from Q', currentIndex, '→ Q', prevIndex);
+  
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress. Skipping.');
       return;
     }
   
     this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(true);
     this.quizStateService.setNavigating(true);
-    this.quizStateService.setLoading(true);
+    this.quizService.setIsNavigatingToPrevious(true);
   
     try {
       this.animationState$.next('animationStarted');
   
-      this.answerTrackingService.resetOptionState();
-      this.isOptionSelected = false;
+      const routeUrl = `/question/${this.quizService.quizId}/${prevIndex}`;
+      const success = await this.router.navigateByUrl(routeUrl);
   
-      const prevIndex = currentIndex - 1;
-  
-      const success = await this.navigateToQuestion(prevIndex);
       if (success) {
+        console.log('[✅] Navigated to Q', prevIndex);
+        this.quizService.setCurrentQuestionIndex(prevIndex);
+        this.currentQuestionIndex = prevIndex;
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
-        this.currentQuestionIndex = prevIndex;
       } else {
-        console.warn(`[❌] Navigation failed to Q${prevIndex}`);
+        console.warn('[❌] router.navigateByUrl failed for Q', prevIndex);
       }
   
       this.quizQuestionLoaderService.resetUI();
     } catch (error) {
-      console.error('[advanceToPreviousQuestion] ❌ Error:', error);
+      console.error('[❌ advanceToPreviousQuestion error]', error);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
       this.quizService.setIsNavigatingToPrevious(false);
-  
-      // Enable Next button if previous question was answered
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
     }
   }
+  
   
 
   advanceToResults(): void {
