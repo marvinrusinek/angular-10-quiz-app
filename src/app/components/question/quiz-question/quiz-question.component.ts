@@ -3062,17 +3062,19 @@ export class QuizQuestionComponent
       // Final sync to fix Q1's double-click issue
       this.nextButtonStateService.syncNextButtonState();
 
-      // Extra patch for Q1 only
+      // Final Q1 Patch — Ensure Next button enables immediately on first click
       const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       if (index === 0) {
-        console.warn('[🛠 Q1 PATCH] Forcing final sync after short delay');
+        console.warn('[🛠 Q1 FINAL PATCH] Enforcing Next button state sync');
+
         setTimeout(() => {
-          const shouldEnable = this.answerTrackingService.isAnyOptionSelected();
-          this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnable);
-          this.quizStateService.setAnswered(true);
-          this.selectedOptionService.setAnswered(true);
+          const isSelected = this.answerTrackingService.isAnyOptionSelected();
+          this.nextButtonStateService.setButtonEnabled(isSelected);
+          this.quizStateService.setAnswered(isSelected);
+          this.selectedOptionService.setAnswered(isSelected);
           this.cdRef.detectChanges();
-        }, 50);
+          console.log('[✅ Q1 PATCH DONE] Forced Next button state sync applied.');
+        }, 100);
       }
 
       queueMicrotask(() => this.cdRef.detectChanges());
