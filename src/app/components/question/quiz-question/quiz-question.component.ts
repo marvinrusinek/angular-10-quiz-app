@@ -3082,15 +3082,21 @@ export class QuizQuestionComponent
       // [Q1 PATCH] FORCE correct state for first question only
       const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       if (index === 0) {
-        console.warn('[🛠 Q1 PATCH] Forcing button state sync after first option click');
+        console.warn('[🛠 Q1 FORCE ENABLE] Ensuring state is fully synced');
 
         const isSelected = this.answerTrackingService.isAnyOptionSelected();
+
+        // Set everything again
         this.selectedOptionService.setAnswered(true);
         this.quizStateService.setAnswered(true);
-
-        // Hard sync
+        this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
-        this.cdRef.detectChanges();
+
+        // Delay to let Angular update bindings
+        setTimeout(() => {
+          console.warn('[✅ Q1 FORCE DONE] Button forcibly re-enabled after delay');
+          this.cdRef.detectChanges();
+        }, 100);
       }
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
