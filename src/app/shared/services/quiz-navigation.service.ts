@@ -271,22 +271,33 @@ export class QuizNavigationService {
     } */
 
     if (isLoading || isNavigating || !isEnabled) {
-      const answered = this.quizStateService.answeredSubject.getValue();
-      const selected = this.answerTrackingService.isAnyOptionSelected?.() ?? '[⚠️ Missing method]';
-      const buttonState = this.nextButtonStateService.isButtonCurrentlyEnabled();
+      console.warn('[❌] Cannot navigate yet – state not ready.', { isLoading, isNavigating, isEnabled });
     
-      console.warn('[❌ BLOCKED] Navigation guard failed', {
-        currentIndex,
-        isLoading,
-        isNavigating,
-        isEnabled,
-        answered,
-        selected,
-        buttonState
-      });
+      // 🛠 Q1 PATCH: Retry once if it's the first question and state seems close to ready
+      const currentIndex = this.quizService.getCurrentQuestionIndex();
+      if (currentIndex === 0) {
+        await new Promise(resolve => setTimeout(resolve, 25));
+        const retryEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+        const retryLoading = this.quizStateService.isLoadingSubject.getValue();
+        const retryNavigating = this.quizStateService.isNavigatingSubject.getValue();
     
-      return;
-    }
+        const stillBlocked = retryLoading || retryNavigating || !retryEnabled;
+        console.warn('[🛠 Retried Q1 Navigation Check]', {
+          retryLoading,
+          retryNavigating,
+          retryEnabled,
+        });
+    
+        if (!stillBlocked) {
+          console.warn('[✅ Q1 Retry PASSED] Proceeding with navigation...');
+        } else {
+          console.warn('[⛔ Q1 Retry FAILED] Navigation still blocked.');
+          return;
+        }
+      } else {
+        return;
+      }
+    }    
   
     this.isNavigating = true;
     this.quizStateService.setLoading(true);
