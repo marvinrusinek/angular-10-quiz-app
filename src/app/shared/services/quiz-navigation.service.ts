@@ -249,10 +249,10 @@ export class QuizNavigationService {
 
     console.log('[🔍 Q1 NAV CHECK]', { isLoading, isNavigating, isEnabled });
 
-    // 🛠️ [Q1 PATCH] If on Q1 and all checks pass, force a microtask flush and try navigation
-    if (currentIndex === 0 && isEnabled && !isLoading && !isNavigating) {
-      console.warn('[🛠️ Q1 NAVIGATION FIX] Forcing first-question navigation');
-      await new Promise(resolve => setTimeout(resolve, 0)); // Force async flush
+    // 🛠️ Q1 PATCH: Force async state flush for first question
+    if (currentIndex === 0 && !isLoading && !isNavigating && isEnabled) {
+      console.warn('[🛠️ Q1 PATCH] Forcing microtask flush before returning');
+      await new Promise(resolve => setTimeout(resolve, 0)); // allow async state to flush
     }
   
     if (isLoading || isNavigating || !isEnabled) {
