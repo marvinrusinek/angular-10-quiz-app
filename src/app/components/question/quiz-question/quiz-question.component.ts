@@ -3022,19 +3022,23 @@ export class QuizQuestionComponent
   
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
-
+  
       // ✅ Force next button enablement sync IMMEDIATELY
       this.nextButtonStateService.setButtonEnabled(true);
       this.nextButtonStateService.syncNextButtonState();
-
-      // ✅ Q1-Specific force to test
+  
+      // ✅ Q1-Specific force to test (minimal targeted fix)
       if (lockedIndex === 0) {
         console.warn('[🛠 Q1 FORCE] Forcing state sync for Next button after selection');
         setTimeout(() => {
+          const selected = this.answerTrackingService.isAnyOptionSelected();
           this.nextButtonStateService.setButtonEnabled(true);
+          this.nextButtonStateService.updateAndSyncNextButtonState(selected);
           this.quizStateService.setAnswered(true);
           this.selectedOptionService.setAnswered(true);
-        }, 50);
+          this.cdRef.detectChanges();
+          console.log('[✅ Q1 PATCH DONE] Next button forcibly enabled');
+        }, 50); // Increase delay if needed
       }
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
@@ -3072,46 +3076,13 @@ export class QuizQuestionComponent
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
-
+  
       // Finalize Next button state sync AFTER async settles
-      /* queueMicrotask(() => {
+      queueMicrotask(() => {
         this.nextButtonStateService.syncNextButtonState();
         this.cdRef.detectChanges();
       });
-
-      // 🛠 SPECIAL PATCH FOR Q1 (index === 0)
-      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        console.warn('[🛠 Q1 PATCH] Delayed state re-sync for first question');
-
-        setTimeout(() => {
-          const reassess = this.answerTrackingService.isAnyOptionSelected();
-          this.nextButtonStateService.updateAndSyncNextButtonState(reassess);
-          this.quizStateService.setAnswered(true);
-          this.selectedOptionService.setAnswered(true);
-          this.cdRef.detectChanges();
-
-          console.log('[✅ Q1 PATCH DONE] Next button forcibly re-enabled.');
-        }, 150);
-      } */
-      // [Q1 PATCH] FORCE correct state for first question only
-      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      if (index === 0) {
-        console.warn('[🛠 Q1 FORCE ENABLE] Ensuring state is fully synced');
-
-        const isSelected = this.answerTrackingService.isAnyOptionSelected();
-
-        // Set everything again
-        this.selectedOptionService.setAnswered(true);
-        this.quizStateService.setAnswered(true);
-        this.nextButtonStateService.setButtonEnabled(true);
-        this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
-
-        // Delay to let Angular update bindings
-        setTimeout(() => {
-          console.warn('[✅ Q1 FORCE DONE] Button forcibly re-enabled after delay');
-          this.cdRef.detectChanges();
-        }, 100);
-      }
+  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
