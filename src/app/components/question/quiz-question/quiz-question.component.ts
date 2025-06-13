@@ -3041,22 +3041,8 @@ export class QuizQuestionComponent
       
   
       // ✅ Force next button enablement sync IMMEDIATELY
-      this.nextButtonStateService.setButtonEnabled(true);
-      this.nextButtonStateService.syncNextButtonState();
-  
-      // ✅ Q1-Specific force to test (minimal targeted fix)
-      if (lockedIndex === 0) {
-        console.warn('[🛠 Q1 FORCE] Forcing state sync for Next button after selection');
-        setTimeout(() => {
-          const selected = this.answerTrackingService.isAnyOptionSelected();
-          this.nextButtonStateService.setButtonEnabled(true);
-          this.nextButtonStateService.updateAndSyncNextButtonState(selected);
-          this.quizStateService.setAnswered(true);
-          this.selectedOptionService.setAnswered(true);
-          this.cdRef.detectChanges();
-          console.log('[✅ Q1 PATCH DONE] Next button forcibly enabled');
-        }, 50); // Increase delay if needed
-      }
+      //this.nextButtonStateService.setButtonEnabled(true);
+      //this.nextButtonStateService.syncNextButtonState();
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
