@@ -3077,7 +3077,7 @@ export class QuizQuestionComponent
           this.cdRef.detectChanges();
 
           console.log('[✅ Q1 PATCH DONE] Next button forcibly re-enabled.');
-        }, 150); // Increase to 200 if needed
+        }, 150);
       }
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
