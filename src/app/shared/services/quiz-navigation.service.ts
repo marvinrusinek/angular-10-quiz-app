@@ -198,16 +198,16 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
   
-    // ✅ Debounce extra clicks
+    // Debounce extra clicks
     if (this.isNavigating) {
       console.warn('[⏳] Navigation already in progress, ignoring extra click.');
       return;
     }
 
-    // 🔄 Wait for microtasks to settle before evaluating state
+    // Wait for microtasks to settle before evaluating state
     await new Promise(resolve => queueMicrotask(resolve));
   
-    // ✅ Check current button enablement state
+    // Check current button enablement state
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
