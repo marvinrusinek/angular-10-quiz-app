@@ -3086,7 +3086,7 @@ export class QuizQuestionComponent
           this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
           this.cdRef.detectChanges();
           console.log('[✅ Q1 PATCH DONE] Next button should now be enabled');
-        }, 50);
+        }, 200);
       }
 
   
