@@ -468,8 +468,17 @@ export class QuizNavigationService {
   
     try {
       this.animationState$.next('animationStarted');
+
+      const quizId =
+        this.quizId ||
+        this.quizService.quizId ||
+        this.activatedRoute.snapshot.paramMap.get('quizId');
+      if (!quizId) {
+        console.error('[❌] Cannot navigate — quizId is missing!');
+        return;
+      }
   
-      const routeUrl = `/question/${this.quizService.quizId}/${prevIndex}`;
+      const routeUrl = `/question/${quizId}/${prevIndex}`;
       const success = await this.router.navigateByUrl(routeUrl);
   
       if (success) {
