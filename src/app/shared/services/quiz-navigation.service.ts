@@ -254,6 +254,16 @@ export class QuizNavigationService {
       console.warn('[🛠️ Q1 PATCH] Forcing microtask flush before returning');
       await new Promise(resolve => setTimeout(resolve, 0)); // allow async state to flush
     }
+
+    const isAnswered = this.selectedOptionService.getAnsweredState();
+    const reassessEnabled = isAnswered && !isLoading && !isNavigating;
+
+    console.log('[🔍 Final Navigation Recheck]', { isAnswered, isLoading, isNavigating, reassessEnabled });
+
+    if (!reassessEnabled) {
+      console.warn('[❌] Still not eligible to navigate even after flush');
+      return;
+    }
   
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
