@@ -394,7 +394,7 @@ export class QuizNavigationService {
   }
   
   
-  async advanceToPreviousQuestion(): Promise<void> {
+  /* async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
       firstValueFrom(this.quizStateService.isLoading$),
       firstValueFrom(this.quizStateService.isNavigating$),
@@ -445,7 +445,64 @@ export class QuizNavigationService {
       this.quizService.setIsNavigatingToPrevious(false);
       this.nextButtonStateService.updateAndSyncNextButtonState(false);
     }
+  } */
+  public async advanceToPreviousQuestion(): Promise<void> {
+    const [isLoading, isNavigating] = await Promise.all([
+      firstValueFrom(this.quizStateService.isLoading$),
+      firstValueFrom(this.quizStateService.isNavigating$)
+    ]);
+  
+    // ✅ Only block if actively loading or navigating
+    if (isLoading || isNavigating) {
+      console.warn('[⏳] Cannot go back — loading or navigating in progress.');
+      return;
+    }
+  
+    // ✅ Prevent navigating back from the first question
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    if (currentIndex === 0) {
+      console.warn('[⛔] Already at the first question. Cannot go back.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizService.setIsNavigatingToPrevious(true);
+    this.quizStateService.setNavigating(true);
+    this.quizStateService.setLoading(true);
+  
+    try {
+      this.animationState$.next('animationStarted');
+  
+      this.answerTrackingService.resetOptionState();
+      this.isOptionSelected = false;
+  
+      const prevIndex = currentIndex - 1;
+  
+      const success = await this.navigateToQuestion(prevIndex);
+      if (success) {
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+        this.currentQuestionIndex = prevIndex;
+      } else {
+        console.warn(`[❌] Navigation failed to Q${prevIndex}`);
+      }
+  
+      this.quizQuestionLoaderService.resetUI();
+    } catch (error) {
+      console.error('[advanceToPreviousQuestion] ❌ Error:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+      this.quizService.setIsNavigatingToPrevious(false);
+  
+      // 🧠 Enable Next button if previous question was answered
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+    }
   }
+  
 
   advanceToResults(): void {
     if (this.navigatingToResults) {
