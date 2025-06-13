@@ -316,6 +316,12 @@ export class QuizNavigationService {
         await new Promise((resolve) => setTimeout(resolve, 0)); // allow microtasks to settle
       }
 
+      // 🛠 Q1 PATCH — Force DOM flush and delay to settle state
+      if (nextIndex === 1 && currentIndex === 0) {
+        console.warn('[🧪 Q1 NAV PATCH] Forcing view to stabilize before navigating');
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
