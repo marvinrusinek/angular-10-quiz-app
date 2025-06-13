@@ -3059,27 +3059,26 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
 
-      // Final sync to fix Q1's double-click issue
-      //this.nextButtonStateService.syncNextButtonState();
-      const isSelected = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
+      // Finalize Next button state sync AFTER async settles
+      queueMicrotask(() => {
+        this.nextButtonStateService.syncNextButtonState();
+        this.cdRef.detectChanges();
+      });
 
-      // Final Q1 Patch — Ensure Next button enables immediately on first click
-      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      if (index === 0) {
-        console.warn('[🛠 Q1 FINAL PATCH] Enforcing Next button state sync');
+      // 🛠 SPECIAL PATCH FOR Q1 (index === 0)
+      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
+        console.warn('[🛠 Q1 PATCH] Delayed state re-sync for first question');
 
         setTimeout(() => {
-          const isSelected = this.answerTrackingService.isAnyOptionSelected();
-          this.nextButtonStateService.setButtonEnabled(isSelected);
-          this.quizStateService.setAnswered(isSelected);
-          this.selectedOptionService.setAnswered(isSelected);
+          const reassess = this.answerTrackingService.isAnyOptionSelected();
+          this.nextButtonStateService.updateAndSyncNextButtonState(reassess);
+          this.quizStateService.setAnswered(true);
+          this.selectedOptionService.setAnswered(true);
           this.cdRef.detectChanges();
-          console.log('[✅ Q1 PATCH DONE] Forced Next button state sync applied.');
-        }, 100);
-      }
 
-      queueMicrotask(() => this.cdRef.detectChanges());
+          console.log('[✅ Q1 PATCH DONE] Next button forcibly re-enabled.');
+        }, 150); // Increase to 200 if needed
+      }
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
