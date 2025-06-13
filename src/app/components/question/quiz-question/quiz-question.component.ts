@@ -3060,7 +3060,7 @@ export class QuizQuestionComponent
       await this.finalizeAfterClick(option, event.index);
 
       // Finalize Next button state sync AFTER async settles
-      queueMicrotask(() => {
+      /* queueMicrotask(() => {
         this.nextButtonStateService.syncNextButtonState();
         this.cdRef.detectChanges();
       });
@@ -3078,6 +3078,19 @@ export class QuizQuestionComponent
 
           console.log('[✅ Q1 PATCH DONE] Next button forcibly re-enabled.');
         }, 150);
+      } */
+      // [Q1 PATCH] FORCE correct state for first question only
+      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      if (index === 0) {
+        console.warn('[🛠 Q1 PATCH] Forcing button state sync after first option click');
+
+        const isSelected = this.answerTrackingService.isAnyOptionSelected();
+        this.selectedOptionService.setAnswered(true);
+        this.quizStateService.setAnswered(true);
+
+        // Hard sync
+        this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
+        this.cdRef.detectChanges();
       }
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
