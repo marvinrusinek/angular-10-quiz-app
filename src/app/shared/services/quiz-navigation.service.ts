@@ -232,6 +232,16 @@ export class QuizNavigationService {
         return;
       }
     } */
+
+    const isFirstQuestion = currentIndex === 0;
+    const hasSelected = this.answerTrackingService.isAnyOptionSelected();
+    const isMarkedAnswered = this.quizStateService.answeredSubject.getValue();
+
+    if (isFirstQuestion && hasSelected && isMarkedAnswered) {
+      console.warn('[🚨 Q1 Override] Forcing navigation from Q1 despite button state');
+      this.forceNavigateToNextQuestion(currentIndex, nextIndex);
+      return;
+    }
   
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
@@ -283,6 +293,42 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   }
+
+  private async forceNavigateToNextQuestion(currentIndex: number, nextIndex: number): Promise<void> {
+    this.isNavigating = true;
+    this.quizStateService.setNavigating(true);
+    this.quizStateService.setLoading(true);
+  
+    try {
+      this.quizId = this.quizId || this.quizService.quizId || this.activatedRoute.snapshot.paramMap.get('quizId') || '';
+      if (!this.quizId) {
+        console.error('[🚫] Missing quizId – cannot navigate');
+        return;
+      }
+  
+      this.quizQuestionLoaderService.resetUI();
+  
+      const navSuccess = await this.router.navigateByUrl(`/question/${this.quizId}/${nextIndex}`);
+      if (navSuccess) {
+        this.quizService.setCurrentQuestionIndex(nextIndex);
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+  
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
+      } else {
+        console.warn(`[❌] Q1 forced navigation failed to Q${nextIndex}`);
+      }
+    } catch (error) {
+      console.error('[❌ forceNavigateToNextQuestion] Error:', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+    }
+  }
+  
   
   async advanceToPreviousQuestion(): Promise<void> {
     const [isLoading, isNavigating, isEnabled] = await Promise.all([
