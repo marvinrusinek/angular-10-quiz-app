@@ -3059,35 +3059,21 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
 
-      // Sync Next button state AFTER processing
+      // Final sync to fix Q1's double-click issue
       this.nextButtonStateService.syncNextButtonState();
 
-      /* REMOVE!!??
-        const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-
+      // Extra patch for Q1 only
+      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       if (index === 0) {
-        console.warn('[🛠 Q1 HARDFIX] Forcing navigation state fully enabled');
-
+        console.warn('[🛠 Q1 PATCH] Forcing final sync after short delay');
         setTimeout(() => {
-          const selected = this.answerTrackingService.isAnyOptionSelected();
-          const loading = this.quizStateService.isLoadingSubject.getValue();
-          const navigating = this.quizStateService.isNavigatingSubject.getValue();
-          const canProceed = selected && !loading && !navigating;
-
-          console.log('[🔍 Q1 HARDFIX check]', { selected, loading, navigating, canProceed });
-
+          const shouldEnable = this.answerTrackingService.isAnyOptionSelected();
+          this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnable);
           this.quizStateService.setAnswered(true);
           this.selectedOptionService.setAnswered(true);
-          this.nextButtonStateService.setButtonEnabled(canProceed);
-
-          if (canProceed) {
-            this.quizService.setCurrentQuestionIndex(0); // just to be safe
-          }
-
           this.cdRef.detectChanges();
-          console.log('[✅ Q1 HARDFIX complete]');
-        }, 150);
-      } */
+        }, 50);
+      }
 
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
