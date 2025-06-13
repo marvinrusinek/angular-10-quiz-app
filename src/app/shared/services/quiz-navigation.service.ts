@@ -392,60 +392,7 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   }
-  
-  
-  /* async advanceToPreviousQuestion(): Promise<void> {
-    const [isLoading, isNavigating, isEnabled] = await Promise.all([
-      firstValueFrom(this.quizStateService.isLoading$),
-      firstValueFrom(this.quizStateService.isNavigating$),
-      firstValueFrom(this.isButtonEnabled$)
-    ]);
 
-    // Prevent navigation if any blocking conditions are met
-    if (isLoading || isNavigating || !isEnabled) {
-      console.warn('Cannot advance - One of the conditions is blocking navigation.');
-      return;
-    }
-
-    if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return;
-    }
-
-    this.isNavigating = true;
-    this.quizService.setIsNavigatingToPrevious(true);
-
-    try {
-      // Start animation
-      this.animationState$.next('animationStarted');
-
-      this.answerTrackingService.resetOptionState();
-      this.isOptionSelected = false;
-      
-      const currentIndex = this.quizService.getCurrentQuestionIndex();
-      const prevIndex = currentIndex - 1;
-
-      const success = await this.navigateToQuestion(prevIndex);
-      if (success) {
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
-        this.currentQuestionIndex = prevIndex;
-      } else {
-        console.warn('[❌] Navigation failed to Q' + prevIndex);
-      }      
-
-      this.quizQuestionLoaderService.resetUI();
-    } catch (error) {
-      console.error('Error occurred while navigating to the previous question:', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-      this.quizService.setIsNavigatingToPrevious(false);
-      this.nextButtonStateService.updateAndSyncNextButtonState(false);
-    }
-  } */
   public async advanceToPreviousQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const prevIndex = currentIndex - 1;
