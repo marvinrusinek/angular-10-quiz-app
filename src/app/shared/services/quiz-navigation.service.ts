@@ -265,8 +265,26 @@ export class QuizNavigationService {
       return;
     }
   
-    if (isLoading || isNavigating || !isEnabled) {
+    /* if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
+      return;
+    } */
+
+    if (isLoading || isNavigating || !isEnabled) {
+      const answered = this.quizStateService.answeredSubject.getValue();
+      const selected = this.answerTrackingService.isAnyOptionSelected?.() ?? '[⚠️ Missing method]';
+      const buttonState = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    
+      console.warn('[❌ BLOCKED] Navigation guard failed', {
+        currentIndex,
+        isLoading,
+        isNavigating,
+        isEnabled,
+        answered,
+        selected,
+        buttonState
+      });
+    
       return;
     }
   
