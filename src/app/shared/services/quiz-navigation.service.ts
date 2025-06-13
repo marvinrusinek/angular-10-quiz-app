@@ -210,7 +210,15 @@ export class QuizNavigationService {
     // Check current button enablement state
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    let isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+
+    // TEMP FIX: Re-evaluate for Q1 delay case
+    if (currentIndex === 0 && !isEnabled) {
+      const reassess = this.answerTrackingService.isAnyOptionSelected();
+      console.warn('[⚠️ Q1 Re-evaluation] forcing state update:', reassess);
+      this.nextButtonStateService.updateAndSyncNextButtonState(reassess);
+      isEnabled = reassess;
+    }
   
     if (isLoading || isNavigating || !isEnabled) {
       console.warn('[❌] Cannot navigate yet – state not ready.');
