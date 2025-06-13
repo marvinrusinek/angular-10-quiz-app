@@ -3023,6 +3023,18 @@ export class QuizQuestionComponent
   
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
+
+      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
+        // 🛠 Ensure all state is truly flushed for Q1 before Next button is clicked
+        setTimeout(() => {
+          const reassess = this.answerTrackingService.isAnyOptionSelected();
+          this.selectedOptionService.setAnswered(true);
+          this.quizStateService.setAnswered(true);
+          this.nextButtonStateService.updateAndSyncNextButtonState(reassess);
+          console.warn('[🛠 Q1 PATCH ✅] Re-synced all state');
+        }, 75);
+      }
+      
   
       // ✅ Force next button enablement sync IMMEDIATELY
       this.nextButtonStateService.setButtonEnabled(true);
