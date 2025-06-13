@@ -3068,8 +3068,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
+  /* public async advanceToNextQuestion(): Promise<void> {
+    console.log('[🟢 advanceToNextQuestion() called in QuizComponent]');
+    await this.quizNavigationService.advanceToNextQuestion();
+  } */
   public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion() called in QuizComponent]');
+  
+    // Force microtask flush (let Angular bindings settle)
+    await new Promise((resolve) => queueMicrotask(resolve));
+  
+    // Recheck if Next button is enabled right before navigating
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+    const isAnswered = this.quizStateService.answeredSubject.getValue();
+    const isSelected = this.answerTrackingService.isAnyOptionSelected();
+  
+    console.log('[🧪 PRE-NAV CHECK]', {
+      isEnabled,
+      isLoading,
+      isNavigating,
+      isAnswered,
+      isSelected
+    });
+  
+    // Bail early if not in valid state
+    if (!isEnabled || isLoading || isNavigating) {
+      console.warn('[🚫 NAV ABORTED] Next button not truly ready.');
+      return;
+    }
+  
+    // Delegate after stabilization
     await this.quizNavigationService.advanceToNextQuestion();
   }
   
