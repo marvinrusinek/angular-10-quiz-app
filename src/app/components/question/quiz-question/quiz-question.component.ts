@@ -3059,41 +3059,36 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
 
-      // Apply Q1-specific patch — after a short delay, force re-sync
-      /* const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
-      if (isFirstQuestion) {
-        console.warn('[🛠 Q1 PATCH] Forcing delayed sync for Next button');
+      // Sync Next button state AFTER processing
+      this.nextButtonStateService.syncNextButtonState();
+
+      /* REMOVE!!??
+        const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+
+      if (index === 0) {
+        console.warn('[🛠 Q1 HARDFIX] Forcing navigation state fully enabled');
 
         setTimeout(() => {
           const selected = this.answerTrackingService.isAnyOptionSelected();
-          this.selectedOptionService.setAnswered(selected);
-          this.quizStateService.setAnswered(selected);
-          this.nextButtonStateService.updateAndSyncNextButtonState(selected);
+          const loading = this.quizStateService.isLoadingSubject.getValue();
+          const navigating = this.quizStateService.isNavigatingSubject.getValue();
+          const canProceed = selected && !loading && !navigating;
 
-          console.log('[✅ Q1 PATCH COMPLETE] Next button re-synced');
-          this.cdRef.detectChanges();
-        }, 150);
-      } */
-      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      if (index === 0) {
-        console.warn('[🛠 Q1 PATCH] Forcing Next button enablement');
+          console.log('[🔍 Q1 HARDFIX check]', { selected, loading, navigating, canProceed });
 
-        // Give Angular a chance to settle UI, then force-enable
-        setTimeout(() => {
-          const isSelected = this.answerTrackingService.isAnyOptionSelected();
           this.quizStateService.setAnswered(true);
           this.selectedOptionService.setAnswered(true);
-          this.nextButtonStateService.setButtonEnabled(true);
-          this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
-          this.cdRef.detectChanges();
-          console.log('[✅ Q1 PATCH DONE] Next button should now be enabled');
-        }, 200);
-      }
+          this.nextButtonStateService.setButtonEnabled(canProceed);
 
-  
-      // Move syncNextButtonState AFTER all processing is done
-      this.nextButtonStateService.syncNextButtonState();
-        
+          if (canProceed) {
+            this.quizService.setCurrentQuestionIndex(0); // just to be safe
+          }
+
+          this.cdRef.detectChanges();
+          console.log('[✅ Q1 HARDFIX complete]');
+        }, 150);
+      } */
+
       queueMicrotask(() => this.cdRef.detectChanges());
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
