@@ -3073,19 +3073,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     await this.quizNavigationService.advanceToNextQuestion();
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const index = this.quizService.getCurrentQuestionIndex();
   
-    // Only for Q1, force flush before delegating to service
-    if (currentIndex === 0) {
-      console.warn('[🛠️ Q1 CD PATCH] Forcing change detection in QuizComponent');
-      this.cdRef.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 30)); // short pause
+    // FORCE Q1 NAVIGATION SETTLE
+    if (index === 0) {
+      console.warn('[🛠️ Q1 PATCH] Waiting briefly before calling navigation service');
+      await new Promise(resolve => setTimeout(resolve, 25)); // let services settle state
     }
   
     console.log('[🟢 advanceToNextQuestion() called in QuizComponent]');
     await this.quizNavigationService.advanceToNextQuestion();
   }
-  
   
   public async advanceToPreviousQuestion(): Promise<void> {
     await this.quizNavigationService.advanceToPreviousQuestion();
