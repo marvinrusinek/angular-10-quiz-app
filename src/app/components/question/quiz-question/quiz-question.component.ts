@@ -3083,7 +3083,7 @@ export class QuizQuestionComponent
           const isSelected = this.answerTrackingService.isAnyOptionSelected();
           this.quizStateService.setAnswered(true);
           this.selectedOptionService.setAnswered(true);
-          this.nextButtonStateService.setButtonEnabled(true)
+          this.nextButtonStateService.setButtonEnabled(true);
           this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
           this.cdRef.detectChanges();
           console.log('[✅ Q1 PATCH DONE] Next button should now be enabled');
