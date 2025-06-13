@@ -3060,7 +3060,7 @@ export class QuizQuestionComponent
       await this.finalizeAfterClick(option, event.index);
 
       // Apply Q1-specific patch — after a short delay, force re-sync
-      const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+      /* const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
       if (isFirstQuestion) {
         console.warn('[🛠 Q1 PATCH] Forcing delayed sync for Next button');
 
@@ -3073,6 +3073,20 @@ export class QuizQuestionComponent
           console.log('[✅ Q1 PATCH COMPLETE] Next button re-synced');
           this.cdRef.detectChanges();
         }, 150);
+      } */
+      const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      if (index === 0) {
+        console.warn('[🛠 Q1 PATCH] Forcing Next button enablement');
+
+        // Give Angular a chance to settle UI, then force-enable
+        setTimeout(() => {
+          const isSelected = this.answerTrackingService.isAnyOptionSelected();
+          this.quizStateService.setAnswered(true);
+          this.selectedOptionService.setAnswered(true);
+          this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
+          this.cdRef.detectChanges();
+          console.log('[✅ Q1 PATCH DONE] Next button should now be enabled');
+        }, 50);
       }
 
   
