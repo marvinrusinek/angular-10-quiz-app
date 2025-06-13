@@ -3060,7 +3060,9 @@ export class QuizQuestionComponent
       await this.finalizeAfterClick(option, event.index);
 
       // Final sync to fix Q1's double-click issue
-      this.nextButtonStateService.syncNextButtonState();
+      //this.nextButtonStateService.syncNextButtonState();
+      const isSelected = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
 
       // Final Q1 Patch — Ensure Next button enables immediately on first click
       const index = this.fixedQuestionIndex ?? this.currentQuestionIndex;
@@ -4487,7 +4489,9 @@ export class QuizQuestionComponent
       // Enable the Next button immediately
       this.selectedOptionService.setAnswered(true, true); // always emit
       this.quizStateService.setAnswered(true); // update quiz-level answered state
-      this.nextButtonStateService.syncNextButtonState(); // let the observable handle enable logic
+      //this.nextButtonStateService.syncNextButtonState(); // let the observable handle enable logic
+      const isSelected = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
   
       // Immediate change detection
       this.cdRef.detectChanges();
