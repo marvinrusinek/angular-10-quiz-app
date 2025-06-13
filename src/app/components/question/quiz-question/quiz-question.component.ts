@@ -3022,6 +3022,20 @@ export class QuizQuestionComponent
   
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
+
+      // ✅ Force next button enablement sync IMMEDIATELY
+      this.nextButtonStateService.setButtonEnabled(true);
+      this.nextButtonStateService.syncNextButtonState();
+
+      // ✅ Q1-Specific force to test
+      if (lockedIndex === 0) {
+        console.warn('[🛠 Q1 FORCE] Forcing state sync for Next button after selection');
+        setTimeout(() => {
+          this.nextButtonStateService.setButtonEnabled(true);
+          this.quizStateService.setAnswered(true);
+          this.selectedOptionService.setAnswered(true);
+        }, 50);
+      }
   
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
