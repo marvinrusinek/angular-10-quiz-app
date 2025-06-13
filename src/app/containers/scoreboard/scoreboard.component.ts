@@ -62,18 +62,10 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe((totalQuestions: number | null) => {
         if (totalQuestions !== null) {
           this.totalQuestions = totalQuestions;
-  
-          const newBadgeText = `Question ${this.questionNumber} of ${this.totalQuestions}`;
-  
-          if (this.badgeText !== newBadgeText) {
-            console.log(`[handleRouteParameters] 🔵 Updating Badge Text to: ${newBadgeText}`);
-            this.badgeText = newBadgeText;
-          } else {
-            console.log(`[handleRouteParameters] 🔵 Badge already correct, skipping update.`);
-          }
+          this.quizService.updateBadgeText(this.questionNumber, this.totalQuestions);
         }
       });
-  }
+  }  
 
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
