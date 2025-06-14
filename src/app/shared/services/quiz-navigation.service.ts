@@ -253,10 +253,7 @@ export class QuizNavigationService {
     try {
       this.animationState$.next('animationStarted');
   
-      const quizId = this.quizService.quizId || this.activatedRoute.snapshot.paramMap.get('quizId') || '';
-      const routeUrl = `/question/${quizId}/${nextIndex}`;
-  
-      if (isNaN(nextIndex) || nextIndex < 0 || !quizId) {
+      if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
         console.error('[❌] Invalid navigation params.');
         return;
       }
@@ -269,6 +266,7 @@ export class QuizNavigationService {
         await new Promise(resolve => setTimeout(resolve, 30));
       }
   
+      const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
   
       if (navSuccess) {
