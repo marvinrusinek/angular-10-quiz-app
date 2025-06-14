@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
@@ -13,6 +13,11 @@ export class ProgressBarService {
   constructor(private quizService: QuizService) {}
 
   private destroy$ = new Subject<void>();
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   // Method to update the progress
   setProgress(progress: number): void {
