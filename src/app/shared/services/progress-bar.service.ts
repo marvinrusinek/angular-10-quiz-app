@@ -38,12 +38,13 @@ export class ProgressBarService implements OnDestroy {
       )
       .subscribe(([totalQuestions, index]) => {
         if (totalQuestions > 0) {
-          const raw = (index / totalQuestions) * 100;
+          const adjustedIndex = index === 0 ? 0 : index;
+          const raw = (adjustedIndex / totalQuestions) * 100;
           const percentage = parseFloat(raw.toFixed(0));
           this.setProgress(percentage);
         } else {
           this.setProgress(0);
         }
-      });
+      });      
   }  
 }

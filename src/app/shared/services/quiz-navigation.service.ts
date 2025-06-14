@@ -11,6 +11,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { AnswerTrackingService } from './answer-tracking.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
+import { ProgressBarService } from './progress-bar.service';
 import { QuizDataService } from './quizdata.service'; // remove??
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
@@ -71,6 +72,7 @@ export class QuizNavigationService {
     private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
+    private progressBarService: ProgressBarService,
     private quizDataService: QuizDataService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
@@ -149,7 +151,10 @@ export class QuizNavigationService {
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
-      if (!navSuccess) {
+      if (navSuccess) {
+        this.quizService.setCurrentQuestionIndex(nextIndex);
+        this.progressBarService.setProgressManually(nextIndex);
+      } else {
         console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
         return;
       }
