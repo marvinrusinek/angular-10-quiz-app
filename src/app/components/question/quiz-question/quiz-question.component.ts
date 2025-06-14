@@ -3011,49 +3011,29 @@ export class QuizQuestionComponent
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const lockedText = this.currentQuestion?.questionText?.trim() || '';
     const lockedSnapshot = structuredClone(this.currentQuestion);
-  
     const requestId = ++this.explanationRequestId;
   
     try {
-      // Option handling
+      // ✅ Handle option selection and UI feedback
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
       this.handleSelectionMessageUpdate();
   
-      this.selectedOptionService.setAnswered(true, true);
+      // ✅ Mark question as answered
+      this.selectedOptionService.setAnswered(true);
       this.quizStateService.setAnswered(true);
-
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-
-      console.log('[✅ Option selected, forcing Next button enable state]', {
-        shouldEnableNext
-      });
-
-      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        // 🛠 Q1 PATCH: Force immediate state sync
-        const selected = this.answerTrackingService.isAnyOptionSelected();
-        this.nextButtonStateService.setButtonEnabled(true);
-        this.nextButtonStateService.updateAndSyncNextButtonState(selected);
-        this.quizStateService.setAnswered(true);
-        this.selectedOptionService.setAnswered(true);
-        console.warn('[🛠 Q1 PATCH] Immediate state sync after option click');
-      }
-
-
-      
-  
-      // ✅ Force next button enablement sync IMMEDIATELY
-      //this.nextButtonStateService.setButtonEnabled(true);
-      //this.nextButtonStateService.syncNextButtonState();
-  
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      const explanationText = await this.updateExplanationText(lockedIndex);
+      // ✅ Enable "Next" button
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      console.log('[✅ Option selected, enabling Next]', { shouldEnableNext });
   
+      // ✅ Explanation logic
+      const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
-        console.warn('[🛑 Explanation request is outdated]', { requestId, latest: this.explanationRequestId });
+        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
         return;
       }
   
@@ -3071,7 +3051,7 @@ export class QuizQuestionComponent
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
         this.quizService.setCurrentQuestionIndex(lockedIndex);
       } else {
-        console.warn('[⛔ Skipping explanation emit — mismatch detected]', {
+        console.warn('[⛔ Explanation mismatch]', {
           lockedIndex,
           currentIndex,
           lockedText,
@@ -3081,14 +3061,11 @@ export class QuizQuestionComponent
         });
       }
   
+      // ✅ Finalize after click
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
-
-      // Enable Next button
-      const isReady = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(isReady);
   
-      // Finalize Next button state sync AFTER async settles
+      // ✅ Final microtask flush
       queueMicrotask(() => {
         this.nextButtonStateService.syncNextButtonState();
         this.cdRef.detectChanges();
@@ -3097,7 +3074,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
-  
 
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
