@@ -3028,29 +3028,23 @@ export class QuizQuestionComponent
       // Enable "Next" button
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-
+  
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
         console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
-      
+  
         this.selectedOptionService.setAnswered(true);
         this.quizStateService.setAnswered(true);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(true);
-      
+  
+        // 🔁 Trigger navigation without touching DOM
         queueMicrotask(() => {
           this.cdRef.detectChanges();
-      
-          const nextBtn = document.querySelector('.next-question-nav button') as HTMLButtonElement;
-          if (nextBtn) {
-            // Next button found, dispatching synthetic click
-            nextBtn.click(); // simulate real click after Angular stabilizes
-          } else {
-            console.warn('[❌ PATCH] Next button not found in DOM');
-          }
+          this.quizNavigationService.advanceToNextQuestion();
         });
       }
-
+  
       queueMicrotask(() => this.cdRef.detectChanges());
   
       // Explanation logic
@@ -3097,6 +3091,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
+  
 
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
