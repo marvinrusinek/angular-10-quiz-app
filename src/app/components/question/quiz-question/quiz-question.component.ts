@@ -40,7 +40,6 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
-
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
@@ -52,7 +51,6 @@ export class QuizQuestionComponent
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
-  // private vcRef!: ViewContainerRef;
 
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
