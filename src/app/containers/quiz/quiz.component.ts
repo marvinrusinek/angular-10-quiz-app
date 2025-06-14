@@ -360,7 +360,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         // Ensure the index is valid
-        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
         if (typeof restoredIndex !== 'number' || restoredIndex < 0 || restoredIndex >= totalQuestions) {
           console.warn('Invalid restored index. Keeping latest valid index:', restoredIndex);
         }
@@ -518,7 +518,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.loadQuizData(); // ensure loading before proceeding
       }
 
-      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount());
+      const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
 
       if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
         this.updateQuestionDisplay(currentIndex); // ensure question state is restored
