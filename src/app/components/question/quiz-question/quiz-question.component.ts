@@ -2657,11 +2657,11 @@ export class QuizQuestionComponent
           this.nextButtonStateService.setButtonEnabled(true);
           this.nextButtonStateService.updateAndSyncNextButtonState(true);
       
-          this.hasAutoAdvancedFromQ1 = true; // ✅ prevent future auto-advances
+          this.hasAutoAdvancedFromQ1 = true; // prevent future auto-advances
       
           queueMicrotask(() => {
             this.cdRef.detectChanges();
-            this.quizNavigationService.advanceToNextQuestion(); // ✅ safe, single-time call
+            this.quizNavigationService.advanceToNextQuestion(); // safe, single-time call
           });
         }
       }
