@@ -3028,7 +3028,6 @@ export class QuizQuestionComponent
       // Enable "Next" button
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-      console.log('[✅ Option selected, enabling Next]', { shouldEnableNext });
 
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
         console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
