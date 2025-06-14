@@ -198,6 +198,11 @@ export class QuizNavigationService {
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
+
+    if (currentIndex === 0) {
+      console.warn('[🛠 Q1 PATCH] Forcing async state flush before evaluating navigation from Q1...');
+      await new Promise(resolve => setTimeout(resolve, 0)); // allow Angular + state microtasks to complete
+    }
   
     if (this.isNavigating) {
       console.warn('[⏳] Navigation already in progress.');
