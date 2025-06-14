@@ -47,7 +47,7 @@ export class ProgressBarService implements OnDestroy {
         }
       });      
   } */
-  /* initializeProgressTracking(quizId: string): void {
+  initializeProgressTracking(quizId: string): void {
     this.setProgress(0); // always start at 0%
   
     combineLatest([
@@ -60,21 +60,23 @@ export class ProgressBarService implements OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(([totalQuestions, index]) => {
-        if (totalQuestions > 0) {
-          // Do not update progress if still on Q1
-          if (index === 0) {
-            this.setProgress(0);
-            return;
-          }
-  
-          const raw = (index / totalQuestions) * 100;
-          const percentage = parseFloat(raw.toFixed(0));
-          this.setProgress(percentage);
-        } else {
+        if (totalQuestions <= 0) {
           this.setProgress(0);
+          return;
         }
+  
+        // 🔐 Extra guard: suppress progress if on Q1
+        if (index === 0) {
+          console.warn('[📊 Progress Suppressed] Still on Q1, forcing 0%');
+          this.setProgress(0);
+          return;
+        }
+  
+        // ✅ Update progress normally
+        const percentage = parseFloat(((index / totalQuestions) * 100).toFixed(0));
+        this.setProgress(percentage);
       });
-  } */
+  }
 
   // Manually update progress percentage (0–100) based on current index
   setProgressManually(currentIndex: number): void {
