@@ -136,8 +136,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.renderReady = this.optionsToDisplay?.length > 0;
     //this.canDisplayOptions = this.optionsToDisplay?.length > 0;
 
-    this.verifyDOMStructure();
-
     // Attach event listeners after rendering flags are updated
     this.initializeEventListeners();
 
@@ -393,28 +391,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
     }
-  }
-
-  private verifyDOMStructure(): void {
-    console.log('[🔍 Verifying DOM Structure]');
-  
-    setTimeout(() => {
-      const radioGroup = document.querySelector('mat-radio-group');
-      console.log('[🔥 DOM Check - Radio Group Exists]', !!radioGroup);
-  
-      const radioButtons = document.querySelectorAll('mat-radio-button');
-      console.log('[🔥 DOM Check - Radio Buttons Count]', radioButtons.length);
-  
-      if (radioGroup) {
-        radioGroup.addEventListener('click', (event) => {
-          console.log('[🖱️ Native Click Detected]', event);
-        });
-  
-        radioGroup.addEventListener('change', (event) => {
-          console.log('[🔄 Native Change Detected]', event);
-        });
-      }
-    }, 100); // slight delay to ensure DOM stability
   }
 
   private initializeEventListeners(): void {
