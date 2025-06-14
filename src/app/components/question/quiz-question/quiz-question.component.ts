@@ -3029,6 +3029,14 @@ export class QuizQuestionComponent
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       console.log('[✅ Option selected, enabling Next]', { shouldEnableNext });
+
+      if (this.fixedQuestionIndex === 0 || this.currentQuestionIndex === 0) {
+        console.warn('[🛠 Q1 HARD SYNC] Forcing next state readiness immediately');
+        this.quizStateService.setAnswered(true);
+        this.selectedOptionService.setAnswered(true);
+        this.nextButtonStateService.setButtonEnabled(true);
+        this.nextButtonStateService.syncNextButtonState();
+      }      
   
       // ✅ Explanation logic
       const explanationText = await this.updateExplanationText(lockedIndex);
