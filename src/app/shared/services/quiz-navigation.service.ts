@@ -123,75 +123,29 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
-
-    if (!this.nextButtonStateService.isButtonCurrentlyEnabled() || !this.selectedOptionService.getAnsweredState()) {
-      console.warn('[🚫] Not ready – skipping navigation');
-      return;
-    }
   
-    // Block repeated clicks
-    if (this.isNavigating) {
-      console.warn('[⏳] Navigation in progress, skipping.');
-      return;
-    }
-  
-    // Q1 PATCH: Let Angular and state settle
-    if (isFirstQuestion) {
-      console.warn('[🛠 Q1 PATCH] Awaiting UI + state flush');
-      await new Promise(resolve => setTimeout(resolve, 30)); // allow async operations to flush
-    }
-  
-    // Evaluate preconditions
+    // Guard: navigation must be ready
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    const isAnswered = await firstValueFrom(this.selectedOptionService.isAnswered$);
-    const isEnabled = await firstValueFrom(this.nextButtonStateService.isButtonEnabled$);
   
-    let readyToNavigate = isEnabled && isAnswered && !isLoading && !isNavigating;
-  
-    // Retry once for Q1 if not ready
-    if (!readyToNavigate && isFirstQuestion) {
-      console.warn('[🔁 Q1 Retry – Waiting briefly]');
-      await new Promise(resolve => setTimeout(resolve, 50));
-  
-      const retryEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-      const retryAnswered = this.selectedOptionService.getAnsweredState();
-      const retryLoading = this.quizStateService.isLoadingSubject.getValue();
-      const retryNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
-      readyToNavigate = retryEnabled && retryAnswered && !retryLoading && !retryNavigating;
-  
-      if (!readyToNavigate) {
-        console.warn('[⛔ Q1 Retry failed – Not navigating]');
-        return;
-      } else {
-        console.warn('[✅ Q1 Retry passed – Proceeding]');
-      }
+    if (!isEnabled || !isAnswered || isLoading || isNavigating) {
+      console.warn('[🚫] Navigation not ready:', { isEnabled, isAnswered, isLoading, isNavigating });
     }
   
-    if (!readyToNavigate) {
-      console.warn('[🚫] Navigation blocked by state:', {
-        isEnabled,
-        isAnswered,
-        isLoading,
-        isNavigating
-      });
-      return;
-    }
-  
+    // Begin navigation
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
+    this.animationState$.next('animationStarted');
   
     try {
-      this.animationState$.next('animationStarted');
-  
       if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
         console.error('[❌] Invalid nextIndex or missing quizId.');
         return;
       }
   
-      // UI flush for Q1 before changing view
       if (isFirstQuestion) {
         console.warn('[🧹 Q1 UI flush]');
         await new Promise(resolve => setTimeout(resolve, 25));
@@ -202,60 +156,24 @@ export class QuizNavigationService {
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
   
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(nextIndex);
-  
-        // Reset answer state after nav
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-  
-        // Notify updates
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
-  
-        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-      } else {
+      if (!navSuccess) {
         console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
-      }
-    } catch (err) {
-      console.error('[❌ advanceToNextQuestion] Exception:', err);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-    }
-  }
-
-  private async forceNavigateToNextQuestion(currentIndex: number, nextIndex: number): Promise<void> {
-    this.isNavigating = true;
-    this.quizStateService.setNavigating(true);
-    this.quizStateService.setLoading(true);
-  
-    try {
-      this.quizId = this.quizId || this.quizService.quizId || this.activatedRoute.snapshot.paramMap.get('quizId') || '';
-      if (!this.quizId) {
-        console.error('[🚫] Missing quizId – cannot navigate');
         return;
       }
   
-      this.quizQuestionLoaderService.resetUI();
+      this.quizService.setCurrentQuestionIndex(nextIndex);
+      this.selectedOptionService.setAnswered(false);
+      this.quizStateService.setAnswered(false);
   
-      const navSuccess = await this.router.navigateByUrl(`/question/${this.quizId}/${nextIndex}`);
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(nextIndex);
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
+      this.notifyNavigationSuccess();
+      this.notifyNavigatingBackwards();
+      this.notifyResetExplanation();
   
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-      } else {
-        console.warn(`[❌] Q1 forced navigation failed to Q${nextIndex}`);
-      }
-    } catch (error) {
-      console.error('[❌ forceNavigateToNextQuestion] Error:', error);
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+  
+    } catch (err) {
+      console.error('[❌ advanceToNextQuestion] Exception:', err);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
