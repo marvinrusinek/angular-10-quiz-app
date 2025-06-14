@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from './quiz.service'; 
 
@@ -10,6 +11,8 @@ export class ProgressBarService {
   progress$ = this.progressPercentageSubject.asObservable();
 
   constructor(private quizService: QuizService) {}
+
+  private destroy$ = new Subject<void>();
 
   // Method to update the progress
   setProgress(progress: number): void {
@@ -22,14 +25,20 @@ export class ProgressBarService {
     combineLatest([
       this.quizService.getTotalQuestionsCount(quizId),
       this.quizService.currentQuestionIndex$
-    ]).subscribe(([totalQuestions, index]) => {
-      if (totalQuestions > 0) {
-        const raw = (index / totalQuestions) * 100;
-        const percentage = parseFloat(raw.toFixed(0)); // round properly
-        this.setProgress(percentage);
-      } else {
-        this.setProgress(0);
-      }
-    });
+    ])
+      .pipe(
+        debounceTime(50), // avoid mid-navigation emissions
+        distinctUntilChanged((prev, curr) => prev[1] === curr[1]),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([totalQuestions, index]) => {
+        if (totalQuestions > 0) {
+          const raw = (index / totalQuestions) * 100;
+          const percentage = parseFloat(raw.toFixed(0));
+          this.setProgress(percentage);
+        } else {
+          this.setProgress(0);
+        }
+      });
   }  
 }
