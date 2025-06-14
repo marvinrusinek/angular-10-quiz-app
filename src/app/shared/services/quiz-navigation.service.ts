@@ -157,16 +157,14 @@ export class QuizNavigationService {
       }
 
       // Wait for NavigationEnd before setting state
-      await firstValueFrom(
-        this.router.events.pipe(
-          filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-          take(1)
-        )
-      );
+      /* await firstValueFrom(this.router.events.pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        take(1)
+      )); */
 
       // Now safe to update index and progress
-      this.quizService.setCurrentQuestionIndex(nextIndex);
-      this.progressBarService.setProgressManually(nextIndex);
+      //this.quizService.setCurrentQuestionIndex(nextIndex);
+      //this.progressBarService.setProgressManually(nextIndex);
   
       this.quizService.setCurrentQuestionIndex(nextIndex);
       this.selectedOptionService.setAnswered(false);
