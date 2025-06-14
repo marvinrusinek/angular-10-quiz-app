@@ -271,13 +271,17 @@ export class QuizNavigationService {
   
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
+      
+        // Reset answered state before updating UI
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
-  
+      
+        // Notify state/UI updates after state reset
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
-  
+      
+        // Reassess Next button state after navigation
         const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
         this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       } else {
