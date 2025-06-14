@@ -198,57 +198,65 @@ export class QuizNavigationService {
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
+    const isFirstQuestion = currentIndex === 0;
 
-    if (currentIndex === 0) {
-      console.warn('[🛠 Q1 PATCH] Forcing async state flush before evaluating navigation from Q1...');
-      await new Promise(resolve => setTimeout(resolve, 0)); // allow Angular + state microtasks to complete
+    if (isFirstQuestion) {
+      // Forcefully patch Q1 state to prevent double click
+      this.nextButtonStateService.setButtonEnabled(true);
+      this.selectedOptionService.setAnswered(true, true);
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      console.warn('[🛠 Q1 PATCH] Forcing navigation readiness');
     }
   
+    // Block repeated clicks
     if (this.isNavigating) {
-      console.warn('[⏳] Navigation already in progress.');
+      console.warn('[⏳] Navigation in progress, skipping.');
       return;
     }
   
-    const isFirstQuestion = currentIndex === 0;
-  
-    // 🧠 Q1 PATCH: Give time for state to sync
+    // 💬 Q1 PATCH: Let Angular and state settle
     if (isFirstQuestion) {
-      console.warn('[🛠 Q1 PATCH] Waiting for state to stabilize');
-      await new Promise(resolve => setTimeout(resolve, 50));
+      console.warn('[🛠 Q1 PATCH] Awaiting UI + state flush');
+      await new Promise(resolve => setTimeout(resolve, 30)); // allow async operations to flush
     }
   
+    // Evaluate preconditions
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
     const isAnswered = this.selectedOptionService.getAnsweredState();
   
-    const readyToNavigate = isEnabled && isAnswered && !isLoading && !isNavigating;
+    let readyToNavigate = isEnabled && isAnswered && !isLoading && !isNavigating;
+  
+    // 🧠 Retry once for Q1 if not ready
+    if (!readyToNavigate && isFirstQuestion) {
+      console.warn('[🔁 Q1 Retry – Waiting briefly]');
+      await new Promise(resolve => setTimeout(resolve, 50));
+  
+      const retryEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+      const retryAnswered = this.selectedOptionService.getAnsweredState();
+      const retryLoading = this.quizStateService.isLoadingSubject.getValue();
+      const retryNavigating = this.quizStateService.isNavigatingSubject.getValue();
+  
+      readyToNavigate = retryEnabled && retryAnswered && !retryLoading && !retryNavigating;
+  
+      if (!readyToNavigate) {
+        console.warn('[⛔ Q1 Retry failed – Not navigating]');
+        return;
+      } else {
+        console.warn('[✅ Q1 Retry passed – Proceeding]');
+      }
+    }
   
     if (!readyToNavigate) {
-      console.warn('[🚫] Not ready to navigate yet.', {
-        isLoading,
-        isNavigating,
+      console.warn('[🚫] Navigation blocked by state:', {
         isEnabled,
-        isAnswered
+        isAnswered,
+        isLoading,
+        isNavigating
       });
-  
-      // Retry for Q1
-      if (isFirstQuestion) {
-        console.warn('[🔁 Retrying Q1 state flush]');
-        await new Promise(resolve => setTimeout(resolve, 25));
-  
-        const retryEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-        const retryAnswered = this.selectedOptionService.getAnsweredState();
-  
-        if (!retryEnabled || !retryAnswered) {
-          console.warn('[⛔ Q1 Retry failed]');
-          return;
-        }
-  
-        console.warn('[✅ Q1 Retry passed]');
-      } else {
-        return;
-      }
+      return;
     }
   
     this.isNavigating = true;
@@ -259,41 +267,40 @@ export class QuizNavigationService {
       this.animationState$.next('animationStarted');
   
       if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
-        console.error('[❌] Invalid navigation params.');
+        console.error('[❌] Invalid nextIndex or missing quizId.');
         return;
       }
   
-      this.quizQuestionLoaderService.resetUI();
-  
-      // Short UI flush for Q1
+      // UI flush for Q1 before changing view
       if (isFirstQuestion) {
         console.warn('[🧹 Q1 UI flush]');
-        await new Promise(resolve => setTimeout(resolve, 30));
+        await new Promise(resolve => setTimeout(resolve, 25));
       }
+  
+      this.quizQuestionLoaderService.resetUI();
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
   
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
-      
-        // Reset answered state before updating UI
+  
+        // Reset answer state after nav
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
-      
-        // Notify state/UI updates after state reset
+  
+        // Notify updates
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
-      
-        // Reassess Next button state after navigation
+  
         const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
         this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       } else {
-        console.warn(`[❌] Navigation failed to Q${nextIndex}`);
+        console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
       }
     } catch (err) {
-      console.error('[❌ advanceToNextQuestion error]', err);
+      console.error('[❌ advanceToNextQuestion] Exception:', err);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
