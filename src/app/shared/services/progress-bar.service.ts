@@ -5,7 +5,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { QuizService } from './quiz.service'; 
 
 @Injectable({ providedIn: 'root' })
-export class ProgressBarService {
+export class ProgressBarService implements OnDestroy {
   // Use BehaviorSubject to store progress value
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
