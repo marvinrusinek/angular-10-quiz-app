@@ -118,6 +118,7 @@ export class NextButtonStateService {
     this.ngZone.run(() => {
       this.isEnabled = enabled;
       this.isButtonEnabledSubject.next(enabled);
+      console.log(`[🟢 Button State] Enabled set to:`, enabled);
       this.nextButtonStyle = {
         opacity: enabled ? '1' : '0.5',
         'pointer-events': enabled ? 'auto' : 'none'
