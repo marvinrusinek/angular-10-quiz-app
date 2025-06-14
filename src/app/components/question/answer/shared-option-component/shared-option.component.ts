@@ -136,9 +136,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.renderReady = this.optionsToDisplay?.length > 0;
     //this.canDisplayOptions = this.optionsToDisplay?.length > 0;
 
-    // Attach event listeners after rendering flags are updated
-    this.initializeEventListeners();
-
     // Delay rendering until all setup is confirmed
     setTimeout(() => {
       this.initializeDisplay();
@@ -391,29 +388,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
     }
-  }
+  } 
 
-  private initializeEventListeners(): void {
-    setTimeout(() => {
-      const radioGroup = document.querySelector('mat-radio-group');
-      console.log('[🔥 Event Listener Check - Radio Group Exists]', !!radioGroup);
-  
-      const radioButtons = document.querySelectorAll('mat-radio-button');
-      console.log('[🔥 Event Listener Check - Radio Buttons Count]', radioButtons.length);
-  
-      if (radioGroup) {
-        radioGroup.addEventListener('click', (event) => {
-          console.log('[🖱️ Native Click Detected]', event);
-        });
-  
-        radioGroup.addEventListener('change', (event) => {
-          console.log('[🔄 Native Change Detected]', event);
-        });
-      }
-    }, 200);
-  }  
-
-    /**
+  /**
    * Push the newly‐clicked option into history, then synchronize every binding’s
    * visual state (selected, highlight, icon, feedback) in one synchronous pass.
    */
