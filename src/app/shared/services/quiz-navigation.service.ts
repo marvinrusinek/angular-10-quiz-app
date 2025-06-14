@@ -209,7 +209,6 @@ export class QuizNavigationService {
       const success = await this.router.navigateByUrl(routeUrl);
   
       if (success) {
-        console.log('[✅] Navigated to Q', prevIndex);
         this.quizService.setCurrentQuestionIndex(prevIndex);
         this.currentQuestionIndex = prevIndex;
         this.notifyNavigationSuccess();
@@ -228,8 +227,6 @@ export class QuizNavigationService {
       this.quizService.setIsNavigatingToPrevious(false);
     }
   }
-  
-  
 
   advanceToResults(): void {
     if (this.navigatingToResults) {
