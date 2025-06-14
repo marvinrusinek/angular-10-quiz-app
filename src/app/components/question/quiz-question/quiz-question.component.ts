@@ -3025,28 +3025,25 @@ export class QuizQuestionComponent
       this.quizStateService.setAnswered(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // Enable "Next" button
+      // ✅ Enable "Next" button
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       console.log('[✅ Option selected, enabling Next]', { shouldEnableNext });
 
-      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        console.warn('[🛠 Q1 SHORT-CIRCUIT PATCH] Forcing immediate readiness');
-      
-        // Emit and sync all relevant state
+      const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+      if (isFirstQuestion) {
+        console.warn('[🛠 Q1 PATCH] Forcing state flush to avoid double-click bug');
+
         this.selectedOptionService.setAnswered(true);
         this.quizStateService.setAnswered(true);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      
-        // Force enable button
         this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(true);
-      
-        // Fire change detection immediately
+
+        // Force view update
         queueMicrotask(() => this.cdRef.detectChanges());
-      
-        return; // STOP here so nothing else interferes
       }
+ 
   
       // ✅ Explanation logic
       const explanationText = await this.updateExplanationText(lockedIndex);
