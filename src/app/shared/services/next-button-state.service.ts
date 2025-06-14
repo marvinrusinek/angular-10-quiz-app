@@ -33,6 +33,10 @@ export class NextButtonStateService {
     private ngZone: NgZone
   ) {
     console.log(`[NextButtonStateService] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
+
+    this.isButtonEnabled$.subscribe(value => {
+      console.log('[🟢 isButtonEnabled$ EMIT]', value);
+    });
   }
 
   ngOnDestroy(): void {
@@ -100,6 +104,7 @@ export class NextButtonStateService {
 
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
+      console.log('[🔁 updateAndSyncNextButtonState]', isEnabled);
       this.isEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
       this.nextButtonStyle = {
@@ -112,6 +117,7 @@ export class NextButtonStateService {
   public setButtonEnabled(enabled: boolean): void {
     this.ngZone.run(() => {
       this.isEnabled = enabled;
+      console.log('[📝 setButtonEnabled]', value);
       this.isButtonEnabledSubject.next(enabled);
       this.nextButtonStyle = {
         opacity: enabled ? '1' : '0.5',
