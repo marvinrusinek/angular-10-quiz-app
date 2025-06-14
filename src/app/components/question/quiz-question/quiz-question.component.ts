@@ -3038,7 +3038,7 @@ export class QuizQuestionComponent
         this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(true);
   
-        // 🔁 Trigger navigation without touching DOM
+        // Trigger navigation without touching DOM
         queueMicrotask(() => {
           this.cdRef.detectChanges();
           this.quizNavigationService.advanceToNextQuestion();
@@ -3091,7 +3091,6 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
-  
 
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
