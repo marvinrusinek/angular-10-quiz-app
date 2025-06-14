@@ -24,7 +24,7 @@ export class ProgressBarService implements OnDestroy {
     this.progressPercentageSubject.next(progress); // emit the new progress value
   }
 
-  initializeProgressTracking(quizId: string): void {
+  /* initializeProgressTracking(quizId: string): void {
     this.setProgress(0); // always start at 0%
   
     combineLatest([
@@ -46,8 +46,8 @@ export class ProgressBarService implements OnDestroy {
           this.setProgress(0);
         }
       });      
-  }
-  /* initializeProgressTracking(quizId: string): void {
+  } */
+  initializeProgressTracking(quizId: string): void {
     this.setProgress(0); // always start at 0%
   
     combineLatest([
@@ -74,7 +74,7 @@ export class ProgressBarService implements OnDestroy {
           this.setProgress(0);
         }
       });
-  } */
+  }
 
   /* setProgressManually(index: number): void {
     const quiz = this.quizService.getActiveQuiz();
