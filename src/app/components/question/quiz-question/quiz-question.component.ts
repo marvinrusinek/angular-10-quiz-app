@@ -3032,9 +3032,9 @@ export class QuizQuestionComponent
 
       if (this.fixedQuestionIndex === 0 || this.currentQuestionIndex === 0) {
         console.warn('[🛠 Q1 HARD SYNC] Forcing next state readiness immediately');
+        this.nextButtonStateService.setButtonEnabled(true);
         this.quizStateService.setAnswered(true);
         this.selectedOptionService.setAnswered(true);
-        this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.syncNextButtonState();
       }      
   
