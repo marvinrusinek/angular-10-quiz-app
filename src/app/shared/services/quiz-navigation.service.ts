@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, take } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { Option } from '../models/Option.model';
@@ -11,7 +11,6 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { AnswerTrackingService } from './answer-tracking.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
-import { ProgressBarService } from './progress-bar.service';
 import { QuizDataService } from './quizdata.service'; // remove??
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
@@ -72,7 +71,6 @@ export class QuizNavigationService {
     private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
-    private progressBarService: ProgressBarService,
     private quizDataService: QuizDataService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
@@ -155,16 +153,6 @@ export class QuizNavigationService {
         console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
         return;
       }
-
-      // Wait for NavigationEnd before setting state
-      /* await firstValueFrom(this.router.events.pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        take(1)
-      )); */
-
-      // Now safe to update index and progress
-      //this.quizService.setCurrentQuestionIndex(nextIndex);
-      //this.progressBarService.setProgressManually(nextIndex);
   
       this.quizService.setCurrentQuestionIndex(nextIndex);
       this.selectedOptionService.setAnswered(false);
