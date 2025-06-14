@@ -60,22 +60,23 @@ export class ProgressBarService implements OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(([totalQuestions, index]) => {
+        console.log('[🔍 ProgressBar Tracking]', { index, totalQuestions });
+      
         if (totalQuestions <= 0) {
           this.setProgress(0);
           return;
         }
-  
-        // 🔐 Extra guard: suppress progress if on Q1
+      
         if (index === 0) {
           console.warn('[📊 Progress Suppressed] Still on Q1, forcing 0%');
           this.setProgress(0);
           return;
         }
-  
-        // ✅ Update progress normally
+      
         const percentage = parseFloat(((index / totalQuestions) * 100).toFixed(0));
+        console.log('[✅ Progress Updated]', percentage, '%');
         this.setProgress(percentage);
-      });
+      });      
   }
 
   // Manually update progress percentage (0–100) based on current index
