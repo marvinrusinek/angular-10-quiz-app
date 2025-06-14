@@ -1379,23 +1379,20 @@ export class QuizService implements OnDestroy {
     try {
       // Ensure valid question index before updating badge
       if (questionIndex < 1 || questionIndex > totalQuestions) {
-        console.error('Invalid question number for badge update: ${questionIndex}');
+        console.error(`Invalid question number for badge update: ${questionIndex}`);
         return;
       }
-
+  
       const newBadgeText = `Question ${questionIndex} of ${totalQuestions}`;
       const currentBadgeText = this.badgeTextSource.getValue();
-
+  
       // Avoid duplicate updates to prevent unnecessary UI changes
       if (currentBadgeText === newBadgeText) {
         console.log('Skipping duplicate badge update:', newBadgeText);
         return;
       }
-
-      // Update badge and ensure UI refresh
+  
       this.badgeTextSource.next(newBadgeText);
-
-      // Store correct question index in localStorage for consistency
       localStorage.setItem('savedQuestionIndex', JSON.stringify(questionIndex - 1));
     } catch (error) {
       console.error('Error in updateBadgeText:', error);
