@@ -3070,32 +3070,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
-  /* public async advanceToNextQuestion(): Promise<void> {
-    console.log('[🟢 advanceToNextQuestion() called in QuizComponent]');
-    await this.quizNavigationService.advanceToNextQuestion();
-  } */
   public async advanceToNextQuestion(): Promise<void> {
-    const index = this.quizService.getCurrentQuestionIndex();
-  
-    // If already clicked, skip
-    if (this.hasUserClickedNext) {
-      console.warn('[⏳] Already clicked. Navigation in progress...');
-      return;
-    }
-  
-    this.hasUserClickedNext = true; // lock it
-    console.log('[🟢 advanceToNextQuestion() called in QuizComponent]');
-  
-    // Q1 PATCH – Let state settle briefly
-    if (index === 0) {
-      console.warn('[🛠️ Q1 PATCH] Waiting briefly before calling navigation service');
-      await new Promise(resolve => setTimeout(resolve, 25));
-    }
-  
     await this.quizNavigationService.advanceToNextQuestion();
-  
-    // Reset the flag only **after** navigation succeeds
-    this.hasUserClickedNext = false;
   }  
   
   public async advanceToPreviousQuestion(): Promise<void> {
