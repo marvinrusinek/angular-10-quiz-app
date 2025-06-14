@@ -117,7 +117,6 @@ export class NextButtonStateService {
   public setButtonEnabled(enabled: boolean): void {
     this.ngZone.run(() => {
       this.isEnabled = enabled;
-      console.log('[📝 setButtonEnabled]', value);
       this.isButtonEnabledSubject.next(enabled);
       this.nextButtonStyle = {
         opacity: enabled ? '1' : '0.5',
