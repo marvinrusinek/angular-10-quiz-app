@@ -119,82 +119,6 @@ export class QuizNavigationService {
     );
   }
 
-  /* public async advanceToNextQuestion(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const nextIndex = currentIndex + 1;
-  
-    // Debounce: prevent multiple rapid clicks
-    if (this.isNavigating) {
-      console.warn('[⏳] Navigation already in progress, ignoring extra click.');
-      return;
-    }
-  
-    // Sync flags
-    const isLoading = this.quizStateService.isLoadingSubject.getValue();
-    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-  
-    if (isLoading || isNavigating || !isEnabled) {
-      console.warn('[❌] Cannot navigate yet – state not ready.');
-      return;
-    }
-  
-    this.isNavigating = true;
-    this.quizStateService.setLoading(true);
-    this.quizStateService.setNavigating(true);
-  
-    try {
-      // Ensure quizId is defined
-      this.quizId =
-        this.quizId ||
-        this.quizService.quizId ||
-        this.activatedRoute.snapshot.paramMap.get('quizId') ||
-        '';
-      if (!this.quizId) {
-        console.error('[🚫] Missing quizId – cannot navigate');
-        return;
-      }
-  
-      // Start exit animation
-      this.animationState$.next('animationStarted');
-  
-      // Prevent out-of-bounds access
-      if (isNaN(nextIndex) || nextIndex < 0) {
-        console.error(`[❌ Invalid index] nextIndex = ${nextIndex}`);
-        return;
-      }
-  
-      // Reset UI before navigating
-      this.quizQuestionLoaderService.resetUI();
-  
-      // Construct route and navigate
-      const routeUrl = `/question/${this.quizId}/${nextIndex}`;
-      const navSuccess = await this.router.navigateByUrl(routeUrl);
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(nextIndex);
-  
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
-  
-        // Reset answered state
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-      } else {
-        console.warn(`[❌] Navigation failed to Q${nextIndex}`);
-      }
-  
-      // Re-evaluate Next button state after navigation
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-    } catch (error) {
-      console.error('[advanceToNextQuestion] ❌ Unexpected error:', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-    }
-  } */
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -211,7 +135,7 @@ export class QuizNavigationService {
       return;
     }
   
-    // 💬 Q1 PATCH: Let Angular and state settle
+    // Q1 PATCH: Let Angular and state settle
     if (isFirstQuestion) {
       console.warn('[🛠 Q1 PATCH] Awaiting UI + state flush');
       await new Promise(resolve => setTimeout(resolve, 30)); // allow async operations to flush
@@ -225,7 +149,7 @@ export class QuizNavigationService {
   
     let readyToNavigate = isEnabled && isAnswered && !isLoading && !isNavigating;
   
-    // 🧠 Retry once for Q1 if not ready
+    // Retry once for Q1 if not ready
     if (!readyToNavigate && isFirstQuestion) {
       console.warn('[🔁 Q1 Retry – Waiting briefly]');
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -303,7 +227,6 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   }
-  
 
   private async forceNavigateToNextQuestion(currentIndex: number, nextIndex: number): Promise<void> {
     this.isNavigating = true;
