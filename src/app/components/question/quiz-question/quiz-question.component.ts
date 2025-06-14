@@ -3014,18 +3014,18 @@ export class QuizQuestionComponent
     const requestId = ++this.explanationRequestId;
   
     try {
-      // ✅ Handle option selection and UI feedback
+      // Handle option selection and UI feedback
       this.updateOptionSelection(event, option);
       this.handleOptionSelection(option, event.index, this.currentQuestion);
       this.applyFeedbackIfNeeded(option);
       this.handleSelectionMessageUpdate();
   
-      // ✅ Mark question as answered
+      // Mark question as answered
       this.selectedOptionService.setAnswered(true);
       this.quizStateService.setAnswered(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // ✅ Enable "Next" button
+      // Enable "Next" button
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       console.log('[✅ Option selected, enabling Next]', { shouldEnableNext });
@@ -3054,7 +3054,7 @@ export class QuizQuestionComponent
 
       queueMicrotask(() => this.cdRef.detectChanges());
   
-      // ✅ Explanation logic
+      // Explanation logic
       const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
         console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
@@ -3085,11 +3085,11 @@ export class QuizQuestionComponent
         });
       }
   
-      // ✅ Finalize after click
+      // Finalize after click
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
   
-      // ✅ Final microtask flush
+      // Final microtask flush
       queueMicrotask(() => {
         this.nextButtonStateService.syncNextButtonState();
         this.cdRef.detectChanges();
