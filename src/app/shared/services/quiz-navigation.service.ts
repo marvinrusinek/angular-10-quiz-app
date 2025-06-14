@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, filter, map, take } from 'rxjs/operators';
 
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { Option } from '../models/Option.model';
@@ -151,13 +151,22 @@ export class QuizNavigationService {
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(nextIndex);
-        this.progressBarService.setProgressManually(nextIndex);
-      } else {
+      if (!navSuccess) {
         console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
         return;
       }
+
+      // Wait for NavigationEnd before setting state
+      await firstValueFrom(
+        this.router.events.pipe(
+          filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+          take(1)
+        )
+      );
+
+      // Now safe to update index and progress
+      this.quizService.setCurrentQuestionIndex(nextIndex);
+      this.progressBarService.setProgressManually(nextIndex);
   
       this.quizService.setCurrentQuestionIndex(nextIndex);
       this.selectedOptionService.setAnswered(false);
