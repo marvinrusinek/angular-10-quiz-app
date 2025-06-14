@@ -47,4 +47,15 @@ export class ProgressBarService implements OnDestroy {
         }
       });      
   }  
+
+  setProgressManually(index: number): void {
+    const quiz = this.quizService.getActiveQuiz();
+    const totalQuestions = quiz?.questions?.length ?? 0;
+  
+    if (totalQuestions > 0 && index > 0) {
+      const raw = (index / totalQuestions) * 100;
+      const percentage = parseFloat(raw.toFixed(0));
+      this.setProgress(percentage);
+    }
+  }
 }
