@@ -3024,19 +3024,16 @@ export class QuizQuestionComponent
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
 
-      // Minimal Q1 patch – SINGLE force + delay (avoid redundant state changes)
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        console.warn('[🛠 Q1 PATCH] Forcing sync after short delay');
-
-        setTimeout(() => {
-          const selected = this.answerTrackingService.isAnyOptionSelected();
-          this.selectedOptionService.setAnswered(true);
-          this.quizStateService.setAnswered(true);
-          this.nextButtonStateService.updateAndSyncNextButtonState(selected);
-          this.cdRef.detectChanges();
-          console.log('[✅ Q1 PATCH DONE] Next button forcibly enabled for Q1');
-        }, 50);
+        // 🛠 Q1 PATCH: Force immediate state sync
+        const selected = this.answerTrackingService.isAnyOptionSelected();
+        this.nextButtonStateService.setButtonEnabled(true);
+        this.nextButtonStateService.updateAndSyncNextButtonState(selected);
+        this.quizStateService.setAnswered(true);
+        this.selectedOptionService.setAnswered(true);
+        console.warn('[🛠 Q1 PATCH] Immediate state sync after option click');
       }
+
 
       
   
