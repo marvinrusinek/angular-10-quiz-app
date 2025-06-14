@@ -95,13 +95,15 @@
               (window:keydown.Enter)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
-              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
+              [attr.disabled]="(nextButtonStateService.isButtonEnabled$ | async) ? null : ''"
+              [style.pointerEvents]="(nextButtonStateService.isButtonEnabled$ | async) ? 'auto' : 'none'"
               [ngStyle]="nextButtonStateService.nextButtonStyle"
               aria-label="Next Question"
             >
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
+          <!-- [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)" -->
           
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
