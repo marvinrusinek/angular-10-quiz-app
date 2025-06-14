@@ -3032,22 +3032,21 @@ export class QuizQuestionComponent
 
       const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
       if (isFirstQuestion) {
-        console.warn('[🛠 Q1 PATCH] Forcing state flush to avoid double-click bug');
-      
+        console.warn('[🛠 Q1 PATCH ⚡] Forcing instant state and button sync');
+
+        // Immediately set everything to "ready"
         this.selectedOptionService.setAnswered(true);
         this.quizStateService.setAnswered(true);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(true);
-      
-        // Force change detection AFTER a short pause
-        setTimeout(() => {
-          console.warn('[🔁 Triggering change detection flush]');
-          this.cdRef.detectChanges();
-        }, 0);
-      
-        return;
+
+        // Flush UI changes immediately
+        this.cdRef.detectChanges();
       }
+
+
+      queueMicrotask(() => this.cdRef.detectChanges());
   
       // ✅ Explanation logic
       const explanationText = await this.updateExplanationText(lockedIndex);
