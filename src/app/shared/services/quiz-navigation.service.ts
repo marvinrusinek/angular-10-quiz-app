@@ -293,6 +293,7 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   }
+  
 
   private async forceNavigateToNextQuestion(currentIndex: number, nextIndex: number): Promise<void> {
     this.isNavigating = true;
