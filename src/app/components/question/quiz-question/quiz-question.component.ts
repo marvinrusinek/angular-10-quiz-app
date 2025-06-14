@@ -3031,15 +3031,23 @@ export class QuizQuestionComponent
         shouldEnableNext
       });
 
-      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        // 🛠 Q1 PATCH: Force immediate state sync
+      const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+
+      if (isFirstQuestion) {
         const selected = this.answerTrackingService.isAnyOptionSelected();
+        this.selectedOptionService.setAnswered(true);
+        this.quizStateService.setAnswered(true);
+
+        // 🛠 Force Next button enablement
         this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(selected);
-        this.quizStateService.setAnswered(true);
-        this.selectedOptionService.setAnswered(true);
-        console.warn('[🛠 Q1 PATCH] Immediate state sync after option click');
+
+        // 🛠 Force CD to ensure UI refreshes
+        queueMicrotask(() => this.cdRef.detectChanges());
+
+        console.warn('[🛠 Q1 PATCH] Forced state + CD after option click on Q1', { selected });
       }
+
 
 
       
