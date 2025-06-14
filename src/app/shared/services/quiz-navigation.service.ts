@@ -254,6 +254,8 @@ export class QuizNavigationService {
       console.warn('[🛠️ Q1 PATCH] Forcing microtask flush before returning');
       await new Promise(resolve => setTimeout(resolve, 0)); // allow async state to flush
     }
+    await new Promise(resolve => setTimeout(resolve, 0)); // microtask flush
+
 
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const reassessEnabled = isAnswered && !isLoading && !isNavigating;
