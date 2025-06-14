@@ -220,8 +220,8 @@ export class QuizNavigationService {
     // Evaluate preconditions
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    const isAnswered = this.selectedOptionService.getAnsweredState();
+    const isAnswered = await firstValueFrom(this.selectedOptionService.isAnswered$);
+    const isEnabled = await firstValueFrom(this.nextButtonStateService.isButtonEnabled$);
   
     let readyToNavigate = isEnabled && isAnswered && !isLoading && !isNavigating;
   
