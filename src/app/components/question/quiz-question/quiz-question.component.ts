@@ -3030,7 +3030,6 @@ export class QuizQuestionComponent
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       console.log('[✅ Option selected, enabling Next]', { shouldEnableNext });
 
-      // const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
         console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
       
@@ -3043,10 +3042,9 @@ export class QuizQuestionComponent
         queueMicrotask(() => {
           this.cdRef.detectChanges();
       
-          // 🧪 OPTIONAL: try to manually trigger click for debugging
           const nextBtn = document.querySelector('.next-question-nav button') as HTMLButtonElement;
           if (nextBtn) {
-            console.log('[🧪 PATCH] Next button found, dispatching synthetic click');
+            // Next button found, dispatching synthetic click
             nextBtn.click(); // simulate real click after Angular stabilizes
           } else {
             console.warn('[❌ PATCH] Next button not found in DOM');
