@@ -122,7 +122,6 @@ export class QuizNavigationService {
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
-    const isFirstQuestion = currentIndex === 0;
   
     // Guard: navigation must be ready
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
@@ -146,16 +145,10 @@ export class QuizNavigationService {
         return;
       }
   
-      if (isFirstQuestion) {
-        console.warn('[🧹 Q1 UI flush]');
-        await new Promise(resolve => setTimeout(resolve, 25));
-      }
-  
       this.quizQuestionLoaderService.resetUI();
   
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
       const navSuccess = await this.router.navigateByUrl(routeUrl);
-  
       if (!navSuccess) {
         console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
         return;
@@ -171,7 +164,6 @@ export class QuizNavigationService {
   
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-  
     } catch (err) {
       console.error('[❌ advanceToNextQuestion] Exception:', err);
     } finally {
