@@ -3041,8 +3041,10 @@ export class QuizQuestionComponent
         this.nextButtonStateService.setButtonEnabled(true);
         this.nextButtonStateService.updateAndSyncNextButtonState(true);
 
-        // Flush UI changes immediately
-        this.cdRef.detectChanges();
+        queueMicrotask(() => {
+          this.cdRef.detectChanges(); // Force re-evaluation of template
+          console.log('[🧼 Q1 PATCH] Triggered manual change detection');
+        });
       }
 
 
