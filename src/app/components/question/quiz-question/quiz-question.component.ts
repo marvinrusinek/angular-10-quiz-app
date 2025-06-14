@@ -241,6 +241,7 @@ export class QuizQuestionComponent
   private latestOptionClickTimestamp = 0;
   private latestExplanationRequestId = 0;
   private explanationRequestId = 0;
+  private hasAutoAdvancedFromQ1 = false;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -2646,6 +2647,7 @@ export class QuizQuestionComponent
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
         console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
   
+        this.hasAutoAdvancedFromQ1 = true;
         this.selectedOptionService.setAnswered(true);
         this.quizStateService.setAnswered(true);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
