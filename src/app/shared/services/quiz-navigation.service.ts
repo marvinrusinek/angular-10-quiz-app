@@ -200,13 +200,9 @@ export class QuizNavigationService {
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
 
-    if (isFirstQuestion) {
-      // Forcefully patch Q1 state to prevent double click
-      this.nextButtonStateService.setButtonEnabled(true);
-      this.selectedOptionService.setAnswered(true, true);
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      console.warn('[🛠 Q1 PATCH] Forcing navigation readiness');
+    if (!this.nextButtonStateService.isButtonCurrentlyEnabled() || !this.selectedOptionService.getAnsweredState()) {
+      console.warn('[🚫] Not ready – skipping navigation');
+      return;
     }
   
     // Block repeated clicks
