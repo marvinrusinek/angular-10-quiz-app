@@ -3024,6 +3024,13 @@ export class QuizQuestionComponent
       this.selectedOptionService.setAnswered(true, true);
       this.quizStateService.setAnswered(true);
 
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+
+      console.log('[✅ Option selected, forcing Next button enable state]', {
+        shouldEnableNext
+      });
+
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
         // 🛠 Q1 PATCH: Force immediate state sync
         const selected = this.answerTrackingService.isAnyOptionSelected();
