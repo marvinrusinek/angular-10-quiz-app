@@ -317,16 +317,11 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
-    console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
-
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
-      console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
       this.resetUIForNewQuestion();
     });
 
     this.quizNavigationService.navigatingBack$.subscribe(() => {
-      console.log('[QQC] 🔙 navigatingBack$ received');
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.isNavigatingBackwards = true;
       }
