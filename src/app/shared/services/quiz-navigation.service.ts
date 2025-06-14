@@ -11,6 +11,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { AnswerTrackingService } from './answer-tracking.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
+import { ProgressBarService } from './progress-bar.service';
 import { QuizDataService } from './quizdata.service'; // remove??
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
@@ -71,6 +72,7 @@ export class QuizNavigationService {
     private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
+    private progressBarService: ProgressBarService,
     private quizDataService: QuizDataService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
@@ -119,7 +121,7 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
   
@@ -167,6 +169,86 @@ export class QuizNavigationService {
     } catch (err) {
       console.error('[❌ advanceToNextQuestion] Exception:', err);
     } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+    }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const nextIndex = currentIndex + 1;
+    const isFirstQuestion = currentIndex === 0;
+  
+    // Step 1: Guards – is button enabled, answered, not loading/navigating
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isAnswered = this.selectedOptionService.getAnsweredState();
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+  
+    if (!isEnabled || !isAnswered || isLoading || isNavigating) {
+      console.warn('[🚫 Navigation blocked]', {
+        isEnabled,
+        isAnswered,
+        isLoading,
+        isNavigating,
+      });
+      return;
+    }
+  
+    // Step 2: Patch for Q1 state settle
+    if (isFirstQuestion) {
+      console.warn('[🛠 Q1 PATCH] Waiting for state flush...');
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+  
+    // Step 3: Lock UI state
+    this.isNavigating = true;
+    this.quizStateService.setNavigating(true);
+    this.quizStateService.setLoading(true);
+    this.animationState$.next('animationStarted');
+  
+    try {
+      // Validate route and quiz ID
+      if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
+        console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
+        return;
+      }
+  
+      // Flush UI before route change
+      this.quizQuestionLoaderService.resetUI();
+      if (isFirstQuestion) {
+        console.warn('[🧹 UI Flush for Q1]');
+        await new Promise(resolve => setTimeout(resolve, 25));
+      }
+  
+      // Attempt navigation
+      const routeUrl = `/question/${this.quizId}/${nextIndex}`;
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+  
+      if (navSuccess) {
+        console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
+  
+        // Sync state
+        this.quizService.setCurrentQuestionIndex(nextIndex);
+        this.progressBarService.setProgressManually(nextIndex); // ✅ Update progress here
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
+  
+        // Trigger UI observers
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+  
+        // Evaluate Next button state on arrival
+        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      } else {
+        console.warn(`[❌ Navigation Failed] -> Q${nextIndex}`);
+      }
+    } catch (error) {
+      console.error('[❌ advanceToNextQuestion() error]', error);
+    } finally {
+      // Step 4: Unlock UI
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
