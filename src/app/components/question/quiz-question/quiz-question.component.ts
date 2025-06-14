@@ -241,6 +241,7 @@ export class QuizQuestionComponent
   private latestOptionClickTimestamp = 0;
   private latestExplanationRequestId = 0;
   private explanationRequestId = 0;
+  private hasAutoAdvancedFromQ1 = false;
 
   // Define audio list array
   audioList: AudioItem[] = [];
@@ -2638,20 +2639,26 @@ export class QuizQuestionComponent
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
-      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0) {
-        console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
-  
-        this.selectedOptionService.setAnswered(true);
-        this.quizStateService.setAnswered(true);
-        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-        this.nextButtonStateService.setButtonEnabled(true);
-        this.nextButtonStateService.updateAndSyncNextButtonState(true);
-  
-        // Trigger navigation without touching DOM
-        queueMicrotask(() => {
-          this.cdRef.detectChanges();
-          this.quizNavigationService.advanceToNextQuestion();
-        });
+      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0 && !this.hasAutoAdvancedFromQ1) {
+        const ready = this.nextButtonStateService.isButtonCurrentlyEnabled() &&
+                      this.selectedOptionService.getAnsweredState();
+      
+        if (ready) {
+          console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
+          
+          this.selectedOptionService.setAnswered(true);
+          this.quizStateService.setAnswered(true);
+          this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+          this.nextButtonStateService.setButtonEnabled(true);
+          this.nextButtonStateService.updateAndSyncNextButtonState(true);
+      
+          this.hasAutoAdvancedFromQ1 = true; // ✅ prevent future auto-advances
+      
+          queueMicrotask(() => {
+            this.cdRef.detectChanges();
+            this.quizNavigationService.advanceToNextQuestion(); // ✅ safe, single-time call
+          });
+        }
       }
   
       queueMicrotask(() => this.cdRef.detectChanges());
