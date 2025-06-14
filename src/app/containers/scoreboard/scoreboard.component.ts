@@ -63,7 +63,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         if (totalQuestions !== null) {
           this.totalQuestions = totalQuestions;
       
-          // ✅ Ensure questionNumber is valid before updating badge
+          // Ensure questionNumber is valid before updating badge
           const validQuestionNumber = this.questionNumber > 0 ? this.questionNumber : 1;
       
           if (validQuestionNumber <= totalQuestions) {
