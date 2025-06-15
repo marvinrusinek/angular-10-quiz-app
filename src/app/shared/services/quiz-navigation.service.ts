@@ -232,9 +232,7 @@ export class QuizNavigationService {
         this.quizService.setCurrentQuestionIndex(nextIndex);
         // this.progressBarService.setProgressManually(nextIndex); // ✅ Update progress here
 
-        if (currentIndex === 0) {
-          this.progressBarService.markQ1Complete(); // ✅ mark progress can start
-        }
+        this.progressBarService.markQ1Complete();
 
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);

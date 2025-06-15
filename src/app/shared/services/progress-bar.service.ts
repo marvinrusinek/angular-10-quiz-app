@@ -198,7 +198,7 @@ export class ProgressBarService implements OnDestroy {
         }
       });
   } */
-  initializeProgressTracking(quizId: string): void {
+  /* initializeProgressTracking(quizId: string): void {
     this.setProgress(0); // Always start at 0%
   
     combineLatest([
@@ -221,6 +221,35 @@ export class ProgressBarService implements OnDestroy {
         if (totalQuestions > 0) {
           const percentage = Math.round((index / totalQuestions) * 100);
           console.log(`[✅ Progress Updated] index=${index}, percent=${percentage}%`);
+          this.setProgress(percentage);
+        } else {
+          this.setProgress(0);
+        }
+      });
+  } */
+  initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // Always start at 0%
+  
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$,
+      this.quizStateService.isNavigatingSubject.asObservable()
+    ])
+      .pipe(
+        debounceTime(50),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([totalQuestions, index, isNavigating]) => {
+        const shouldSuppress = index === 0 && !this.hasNavigatedPastQ1;
+  
+        if (shouldSuppress) {
+          console.log('[⛔ Suppress Progress] Still on Q1 — forcing 0%');
+          this.setProgress(0);
+          return;
+        }
+  
+        if (totalQuestions > 0) {
+          const percentage = Math.round((index / totalQuestions) * 100);
           this.setProgress(percentage);
         } else {
           this.setProgress(0);
