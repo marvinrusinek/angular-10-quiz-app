@@ -227,7 +227,7 @@ export class ProgressBarService implements OnDestroy {
         }
       });
   } */
-  public initializeProgressTracking(quizId: string): void {
+  /* public initializeProgressTracking(quizId: string): void {
     this.setProgress(0);
   
     combineLatest([
@@ -258,10 +258,29 @@ export class ProgressBarService implements OnDestroy {
           this.setProgress(0);
         }
       });
+  } */
+  initializeProgressTracking(quizId: string): void {
+    this.setProgress(0);
+
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$
+    ])
+      .pipe(
+        debounceTime(50),
+        distinctUntilChanged(([, prevIdx], [, currIdx]) => prevIdx === currIdx),
+        filter(([_, index]) => index > 0), // 👈 Ignore Q1 (index 0)
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([totalQuestions, index]) => {
+        const percentage = Math.round((index / totalQuestions) * 100);
+        console.log(`[📊 Progress Tracking] index=${index}, total=${totalQuestions}, %=${percentage}`);
+        this.progressPercentageSubject.next(percentage);
+      });
   }
 
   // Manually update progress percentage (0–100) based on current index
-  setProgressManually(currentIndex: number): void {
+  /* setProgressManually(currentIndex: number): void {
     const quiz = this.quizService.getActiveQuiz();
     const totalQuestions = quiz?.questions?.length ?? 0;
 
@@ -273,6 +292,11 @@ export class ProgressBarService implements OnDestroy {
     const raw = (currentIndex / totalQuestions) * 100;
     const percentage = parseFloat(raw.toFixed(0));
     this.setProgress(percentage);
+  } */
+  setProgressManually(index: number, total: number): void {
+    const percentage = Math.round((index / total) * 100);
+    this.progressPercentageSubject.next(percentage);
+    console.log(`[📊 Manual Progress] Set to ${percentage}%`);
   }
 
   public markQ1Complete(): void {
