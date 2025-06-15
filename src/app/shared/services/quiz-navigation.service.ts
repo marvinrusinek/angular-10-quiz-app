@@ -127,7 +127,6 @@ export class QuizNavigationService {
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
   
-    // Centralized Q1 handling
     if (isFirstQuestion) {
       await this.handleFirstQuestionTransition();
     }
