@@ -2655,31 +2655,13 @@ export class QuizQuestionComponent
         return;
       }
   
-      const currentQuestion = this.currentQuestion;
-      const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      const currentText = currentQuestion?.questionText?.trim() || '';
-  
-      const isSame =
-        currentIndex === lockedIndex &&
-        currentText === lockedText &&
-        currentQuestion?.questionText === lockedSnapshot?.questionText &&
-        this.latestOptionClickTimestamp === lockedTimestamp;
-  
-      if (isSame) {
-        this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
-        if (!(lockedIndex === 0 && this.hasAutoAdvancedFromQ1)) {
-          this.quizService.setCurrentQuestionIndex(lockedIndex);
-        }
-      } else {
-        console.warn('[⛔ Explanation mismatch]', {
-          lockedIndex,
-          currentIndex,
-          lockedText,
-          currentText,
-          lockedTimestamp,
-          latest: this.latestOptionClickTimestamp,
-        });
-      }
+      this.emitExplanationIfValid(
+        explanationText,
+        lockedIndex,
+        lockedText,
+        lockedSnapshot,
+        lockedTimestamp
+      );
   
       // Finalize after click
       await this.processSelectedOption(option, event.index, event.checked);
@@ -2692,6 +2674,42 @@ export class QuizQuestionComponent
       });
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  }
+
+  private emitExplanationIfValid(
+    explanationText: string,
+    lockedIndex: number,
+    lockedText: string,
+    lockedSnapshot: QuizQuestion | null,
+    lockedTimestamp: number
+  ): void {
+    const currentQuestion = this.currentQuestion;
+    const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const currentText = currentQuestion?.questionText?.trim() || '';
+  
+    const isSame =
+      currentIndex === lockedIndex &&
+      currentText === lockedText &&
+      currentQuestion?.questionText === lockedSnapshot?.questionText &&
+      this.latestOptionClickTimestamp === lockedTimestamp;
+  
+    if (isSame) {
+      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+  
+      // Avoid double-setting index if already auto-advanced from Q1
+      if (!(lockedIndex === 0 && this.hasAutoAdvancedFromQ1)) {
+        this.quizService.setCurrentQuestionIndex(lockedIndex);
+      }
+    } else {
+      console.warn('[⛔ Explanation mismatch]', {
+        lockedIndex,
+        currentIndex,
+        lockedText,
+        currentText,
+        lockedTimestamp,
+        latest: this.latestOptionClickTimestamp,
+      });
     }
   }
 
