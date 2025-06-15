@@ -171,7 +171,9 @@ export class QuizNavigationService {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
         // Progress bar should only advance after Q1 is left
-        this.progressBarService.markQ1Complete(this.quizId);
+        if (currentIndex === 0) {
+          this.progressBarService.markQ1Complete(this.quizId);
+        }
   
         // Sync state
         this.quizService.setCurrentQuestionIndex(nextIndex);
