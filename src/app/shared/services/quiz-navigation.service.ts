@@ -176,8 +176,8 @@ export class QuizNavigationService {
         // Sync state
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
-        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
-        this.progressBarService.setProgressManually(currentIndex, totalQuestions);
+        // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
+        // this.progressBarService.setProgressManually(currentIndex, totalQuestions);
         // this.progressBarService.setProgressManually(nextIndex); // update progress here
   
         this.selectedOptionService.setAnswered(false);
