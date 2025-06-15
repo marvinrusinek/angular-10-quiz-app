@@ -122,59 +122,6 @@ export class QuizNavigationService {
     );
   }
 
-  /* public async advanceToNextQuestion(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const nextIndex = currentIndex + 1;
-  
-    // Guard: navigation must be ready
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    const isAnswered = this.selectedOptionService.getAnsweredState();
-    const isLoading = this.quizStateService.isLoadingSubject.getValue();
-    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
-    if (!isEnabled || !isAnswered || isLoading || isNavigating) {
-      console.warn('[🚫] Navigation not ready:', { isEnabled, isAnswered, isLoading, isNavigating });
-    }
-  
-    // Begin navigation
-    this.isNavigating = true;
-    this.quizStateService.setNavigating(true);
-    this.quizStateService.setLoading(true);
-    this.animationState$.next('animationStarted');
-  
-    try {
-      if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
-        console.error('[❌] Invalid nextIndex or missing quizId.');
-        return;
-      }
-  
-      this.quizQuestionLoaderService.resetUI();
-  
-      const routeUrl = `/question/${this.quizId}/${nextIndex}`;
-      const navSuccess = await this.router.navigateByUrl(routeUrl);
-      if (!navSuccess) {
-        console.warn(`[❌] Navigation to Q${nextIndex} failed.`);
-        return;
-      }
-  
-      this.quizService.setCurrentQuestionIndex(nextIndex);
-      this.selectedOptionService.setAnswered(false);
-      this.quizStateService.setAnswered(false);
-  
-      this.notifyNavigationSuccess();
-      this.notifyNavigatingBackwards();
-      this.notifyResetExplanation();
-  
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-    } catch (err) {
-      console.error('[❌ advanceToNextQuestion] Exception:', err);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-    }
-  } */
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -192,7 +139,6 @@ export class QuizNavigationService {
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
     if (!isEnabled || !isAnswered || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
         isEnabled,
@@ -238,7 +184,7 @@ export class QuizNavigationService {
   
         // Sync state
         this.quizService.setCurrentQuestionIndex(nextIndex);
-        // this.progressBarService.setProgressManually(nextIndex); // ✅ Update progress here
+        // this.progressBarService.setProgressManually(nextIndex); // update progress here
 
         this.progressBarService.markQ1Complete();
 
