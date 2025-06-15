@@ -288,30 +288,24 @@ export class ProgressBarService implements OnDestroy {
       this.quizService.getTotalQuestionsCount(quizId),
       this.quizService.currentQuestionIndex$
     ])
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(([totalQuestions, index]) => {
-        const isFirstQuestion = index === 0;
-        const hasLeftQ1 = this.hasMarkedQ1Complete;
-  
-        // Suppress any update while on Q1 unless explicitly marked
-        if (isFirstQuestion && !hasLeftQ1) {
-          console.log('[📊 Suppressed] Still on Q1 — progress stays at 0%');
-          this.setProgress(0);
-          return;
-        }
-  
-        // Normal updates for Q2+
-        if (totalQuestions > 0) {
-          const raw = (index / totalQuestions) * 100;
-          const percentage = Math.round(raw);
-          this.setProgress(percentage);
-          console.log(`[✅ Progress Updated] ${percentage}% (Q${index + 1})`);
-        } else {
-          this.setProgress(0);
-        }
-      });
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(([totalQuestions, index]) => {
+      console.log('[🧪 currentQuestionIndex$ Emitted]', { index, totalQuestions });
+    
+      const isFirstQuestion = index === 0;
+      const hasLeftQ1 = this.hasMarkedQ1Complete;
+    
+      if (isFirstQuestion && !hasLeftQ1) {
+        console.log('[📊 Suppressed] Still on Q1 — forcing 0%');
+        this.setProgress(0);
+        return;
+      }
+    
+      const raw = (index / totalQuestions) * 100;
+      const percentage = Math.round(raw);
+      this.setProgress(percentage);
+      console.log(`[✅ Progress Updated] ${percentage}%`);
+    });    
   }
 
   // Manually update progress percentage (0–100) based on current index
