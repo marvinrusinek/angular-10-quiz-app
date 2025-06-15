@@ -207,11 +207,8 @@ export class QuizNavigationService {
       this.hasFlushedQ1UI = true;
     }
   
-    console.warn('[🛠 Q1 PATCH] Waiting for state flush...');
-    await new Promise(resolve => setTimeout(resolve, 30));
-  
-    console.warn('[🧹 UI Flush for Q1]');
-    await new Promise(resolve => setTimeout(resolve, 25));
+    console.warn('[🛠 Q1 PATCH] Waiting for UI to settle...');
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
 
   public async advanceToPreviousQuestion(): Promise<void> {
