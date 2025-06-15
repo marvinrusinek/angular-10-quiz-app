@@ -2655,13 +2655,13 @@ export class QuizQuestionComponent
         return;
       }
   
-      this.emitExplanationIfValid(
-        explanationText,
-        lockedIndex,
-        lockedText,
-        lockedSnapshot,
-        lockedTimestamp
-      );
+      const lockedState: LockedState = {
+        index: lockedIndex,
+        text: lockedText,
+        snapshot: lockedSnapshot,
+        timestamp: lockedTimestamp
+      };
+      this.emitExplanationIfValid(explanationText, lockedState);
   
       // Finalize after click
       await this.processSelectedOption(option, event.index, event.checked);
