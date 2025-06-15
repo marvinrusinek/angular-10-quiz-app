@@ -22,7 +22,6 @@ import { SelectedOption } from '../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../shared/models/SharedOptionConfig.model';
 import { AnswerTrackingService } from '../../../shared/services/answer-tracking.service';
 import { FeedbackService } from '../../../shared/services/feedback.service';
-import { ProgressBarService } from '../../../shared/services/progress-bar.service';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizNavigationService } from '../../../shared/services/quiz-navigation.service';
@@ -270,7 +269,6 @@ export class QuizQuestionComponent
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected feedbackService: FeedbackService,
-    protected progressBarService: ProgressBarService,
     protected nextButtonStateService: NextButtonStateService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetStateService: ResetStateService,
@@ -2697,12 +2695,8 @@ export class QuizQuestionComponent
     if (isSame) {
       this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedState.index);
 
-      const isQ1AndAlreadyAdvanced =
-        lockedState.index === 0 &&
-        (this.hasAutoAdvancedFromQ1 || this.progressBarService.isQ1AlreadyMarkedComplete());
-
       // Avoid double-setting index if already auto-advanced from Q1
-      if (!isQ1AndAlreadyAdvanced) {
+      if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
         this.quizService.setCurrentQuestionIndex(lockedState.index);
       }
     } else {
