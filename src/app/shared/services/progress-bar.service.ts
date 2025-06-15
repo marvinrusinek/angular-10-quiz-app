@@ -13,6 +13,7 @@ export class ProgressBarService implements OnDestroy {
   progress$ = this.progressPercentageSubject.asObservable();
   private hasNavigatedPastQ1 = false;
   private hasManuallyMarkedQ1Complete = false;
+  private hasMarkedQ1Complete = false;
 
   constructor(
     private quizService: QuizService,
@@ -290,7 +291,7 @@ export class ProgressBarService implements OnDestroy {
         debounceTime(50), // prevent rapid emissions
         takeUntil(this.destroy$)
       )
-      .subscribe(([totalQuestions, index]) => {
+      /* .subscribe(([totalQuestions, index]) => {
         const isFirstQuestion = index === 0;
   
         // Guard: Don't increment progress on Q1 — always 0%
@@ -309,7 +310,21 @@ export class ProgressBarService implements OnDestroy {
         } else {
           this.setProgress(0);
         }
-      });
+      }); */
+      combineLatest([
+        this.quizService.getTotalQuestionsCount(quizId),
+        this.quizService.currentQuestionIndex$
+      ]).subscribe(([totalQuestions, index]) => {
+        if (index === 0 && !this.hasMarkedQ1Complete) {
+          console.log('[📊 Progress Suppressed] Still on Q1, forcing 0%');
+          this.setProgress(0);
+          return;
+        }
+      
+        const raw = (index / totalQuestions) * 100;
+        const percentage = parseFloat(raw.toFixed(0));
+        this.setProgress(percentage);
+      });      
   }
   
 
