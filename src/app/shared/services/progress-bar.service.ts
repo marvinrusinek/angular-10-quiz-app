@@ -12,6 +12,7 @@ export class ProgressBarService implements OnDestroy {
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
   private hasNavigatedPastQ1 = false;
+  private hasManuallyMarkedQ1Complete = false;
 
   constructor(
     private quizService: QuizService,
@@ -259,7 +260,7 @@ export class ProgressBarService implements OnDestroy {
         }
       });
   } */
-  initializeProgressTracking(quizId: string): void {
+  /* initializeProgressTracking(quizId: string): void {
     this.setProgress(0);
 
     combineLatest([
@@ -277,7 +278,40 @@ export class ProgressBarService implements OnDestroy {
         console.log(`[📊 Progress Tracking] index=${index}, total=${totalQuestions}, %=${percentage}`);
         this.progressPercentageSubject.next(percentage);
       });
+  } */
+  initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // Always start at 0%
+  
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$
+    ])
+      .pipe(
+        debounceTime(50), // prevent rapid emissions
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([totalQuestions, index]) => {
+        const isFirstQuestion = index === 0;
+  
+        // Guard: Don't increment progress on Q1 — always 0%
+        if (isFirstQuestion && !this.hasManuallyMarkedQ1Complete) {
+          console.log('[📊 Progress Suppressed] Q1 active, forcing 0%');
+          this.setProgress(0);
+          return;
+        }
+  
+        // Normal progress calculation
+        if (totalQuestions > 0) {
+          const raw = (index / totalQuestions) * 100;
+          const percentage = parseFloat(raw.toFixed(0));
+          this.setProgress(percentage);
+          console.log(`[✅ Progress Updated] ${percentage} %`);
+        } else {
+          this.setProgress(0);
+        }
+      });
   }
+  
 
   // Manually update progress percentage (0–100) based on current index
   /* setProgressManually(currentIndex: number): void {
@@ -300,6 +334,7 @@ export class ProgressBarService implements OnDestroy {
   }
 
   public markQ1Complete(): void {
-    this.hasNavigatedPastQ1 = true;
+    this.hasManuallyMarkedQ1Complete = true;
+    console.log('[🔓 Progress Unlocked] Q1 marked as complete');
   }
 }
