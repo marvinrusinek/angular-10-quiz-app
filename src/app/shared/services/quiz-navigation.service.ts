@@ -171,7 +171,7 @@ export class QuizNavigationService {
 
         // Progress bar should only advance after Q1 is left
         if (currentIndex === 0) {
-          this.progressBarService.markQ1Complete(this.quizId);
+          this.progressBarService.markQ1Complete();
         }
   
         // Sync state
