@@ -67,6 +67,7 @@ export class QuizNavigationService {
   renderReset$ = this.renderResetSubject.asObservable();
 
   private resetComplete = false;
+  private hasFlushedQ1UI = false;
   
   constructor(
     private answerTrackingService: AnswerTrackingService,
@@ -178,6 +179,13 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
+
+    // For Q1, delay to allow state/UI to settle
+    if (isFirstQuestion && !this.hasFlushedQ1UI) {
+      console.warn('[🕒 Q1 UI Flush] Waiting briefly to stabilize state');
+      await new Promise(resolve => setTimeout(resolve, 30));
+      this.hasFlushedQ1UI = true;
+    }
   
     // Guards – is button enabled, answered, not loading/navigating
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
