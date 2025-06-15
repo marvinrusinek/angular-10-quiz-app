@@ -2644,28 +2644,31 @@ export class QuizQuestionComponent
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
-      if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0 && !this.hasAutoAdvancedFromQ1) {
-        this.hasAutoAdvancedFromQ1 = true;
+      const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
 
+      if (isFirstQuestion && !this.hasAutoAdvancedFromQ1) {
         const ready = this.nextButtonStateService.isButtonCurrentlyEnabled() &&
                       this.selectedOptionService.getAnsweredState();
+
         if (ready) {
-          console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
-      
+          console.warn('[🛠 Q1 PATCH] Auto-advancing from Q1 to Q2');
+
           this.selectedOptionService.setAnswered(true);
           this.quizStateService.setAnswered(true);
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
           this.nextButtonStateService.setButtonEnabled(true);
           this.nextButtonStateService.updateAndSyncNextButtonState(true);
-      
+
           queueMicrotask(() => {
             this.cdRef.detectChanges();
-            this.quizNavigationService.advanceToNextQuestion(); // ❌ ← This is the problem now
+            this.hasAutoAdvancedFromQ1 = true;
+            this.quizNavigationService.advanceToNextQuestion();
           });
         } else {
-          console.warn('[⏳ Q1 PATCH] Ready check failed, skipping auto-advance');
+          console.warn('[⏳ Q1 PATCH] Not ready yet — will wait');
         }
-      }
+      } 
+
   
       queueMicrotask(() => this.cdRef.detectChanges());
   
