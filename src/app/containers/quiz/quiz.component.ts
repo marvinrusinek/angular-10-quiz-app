@@ -1309,7 +1309,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.initializeQuizBasedOnRouteParams();
   
     // Set index to the first question
-    const initialIndex = 0;  // Assuming index 1 is the first question
+    const initialIndex = 0;
     console.log(`[📍 Setting Initial Index to Q${initialIndex}]`);
     this.quizService.setCurrentQuestionIndex(initialIndex);
   
