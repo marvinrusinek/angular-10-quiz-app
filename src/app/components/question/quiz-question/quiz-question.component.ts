@@ -2709,7 +2709,7 @@ export class QuizQuestionComponent
         console.warn('[⛔ BLOCKED setCurrentQuestionIndex(0)] Suppressing re-fire');
       } */
 
-      const currentIndex = this.quizService.getCurrentQuestionIndex();
+      /* const currentIndex = this.quizService.getCurrentQuestionIndex();
       const isQ1 = lockedState.index === 0;
       const alreadyAtQ0 = currentIndex === 0;
 
@@ -2717,7 +2717,15 @@ export class QuizQuestionComponent
         console.warn('[⛔ BLOCKED setCurrentQuestionIndex(0)] Q1 already active, skipping setCurrentQuestionIndex');
       } else {
         this.quizService.setCurrentQuestionIndex(lockedState.index);
-      }
+      } */
+      if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
+        const alreadySet = this.quizService.getCurrentQuestionIndex() === 0;
+        if (!alreadySet) {
+          this.quizService.setCurrentQuestionIndex(lockedState.index);
+        } else {
+          console.warn('[⛔ BLOCKED redundant setCurrentQuestionIndex(0)]');
+        }
+      }      
     } else {
       console.warn('[⛔ Explanation mismatch]', {
         lockedIndex: lockedState.index,
