@@ -2645,9 +2645,10 @@ export class QuizQuestionComponent
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
       if ((this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0 && !this.hasAutoAdvancedFromQ1) {
+        this.hasAutoAdvancedFromQ1 = true;
+
         const ready = this.nextButtonStateService.isButtonCurrentlyEnabled() &&
                       this.selectedOptionService.getAnsweredState();
-      
         if (ready) {
           console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
       
@@ -2657,12 +2658,12 @@ export class QuizQuestionComponent
           this.nextButtonStateService.setButtonEnabled(true);
           this.nextButtonStateService.updateAndSyncNextButtonState(true);
       
-          this.hasAutoAdvancedFromQ1 = true;
-      
           queueMicrotask(() => {
             this.cdRef.detectChanges();
             this.quizNavigationService.advanceToNextQuestion(); // ❌ ← This is the problem now
           });
+        } else {
+          console.warn('[⏳ Q1 PATCH] Ready check failed, skipping auto-advance');
         }
       }
   
