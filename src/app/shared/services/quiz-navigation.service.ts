@@ -229,7 +229,7 @@ export class QuizNavigationService {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
   
         // Sync state
-       // this.quizService.setCurrentQuestionIndex(nextIndex);
+        this.quizService.setCurrentQuestionIndex(nextIndex);
         // this.progressBarService.setProgressManually(nextIndex); // ✅ Update progress here
 
         this.progressBarService.markQ1Complete();

@@ -239,19 +239,24 @@ export class ProgressBarService implements OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(([totalQuestions, index]) => {
+        console.log('[🧭 ProgressBar DEBUG]', {
+          totalQuestions,
+          index,
+          hasNavigatedPastQ1: this.hasNavigatedPastQ1
+        });
+      
         const suppress = index === 0 && !this.hasNavigatedPastQ1;
         if (suppress) {
-          console.log('[⛔ Q1 Suppress] Forcing 0%');
+          console.warn('[⛔ Suppress Progress] Still on Q1 — setting 0%');
           this.setProgress(0);
           return;
         }
       
-        if (totalQuestions > 0) {
-          const percentage = Math.round((index / totalQuestions) * 100);
-          this.setProgress(percentage);
-        }
+        const raw = (index / totalQuestions) * 100;
+        const percentage = parseFloat(raw.toFixed(0));
+        console.log('[✅ Progress Updated]', percentage, '%');
+        this.setProgress(percentage);
       });
-    
   }
   
 
