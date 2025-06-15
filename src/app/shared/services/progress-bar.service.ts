@@ -232,29 +232,26 @@ export class ProgressBarService implements OnDestroy {
   
     combineLatest([
       this.quizService.getTotalQuestionsCount(quizId),
-      this.quizService.currentQuestionIndex$,
-      this.quizStateService.isNavigatingSubject.asObservable()
+      this.quizService.currentQuestionIndex$
     ])
       .pipe(
         debounceTime(50),
         takeUntil(this.destroy$)
       )
-      .subscribe(([totalQuestions, index, isNavigating]) => {
-        const shouldSuppress = index === 0 && !this.hasNavigatedPastQ1;
-  
-        if (shouldSuppress) {
-          console.log('[⛔ Suppress Progress] Still on Q1 — forcing 0%');
+      .subscribe(([totalQuestions, index]) => {
+        const suppress = index === 0 && !this.hasNavigatedPastQ1;
+        if (suppress) {
+          console.log('[⛔ Q1 Suppress] Forcing 0%');
           this.setProgress(0);
           return;
         }
-  
+      
         if (totalQuestions > 0) {
           const percentage = Math.round((index / totalQuestions) * 100);
           this.setProgress(percentage);
-        } else {
-          this.setProgress(0);
         }
       });
+    
   }
   
 
