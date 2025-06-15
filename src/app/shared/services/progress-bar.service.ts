@@ -322,10 +322,23 @@ export class ProgressBarService implements OnDestroy {
     const percentage = parseFloat(raw.toFixed(0));
     this.setProgress(percentage);
   } */
-  setProgressManually(index: number, total: number): void {
+  /* setProgressManually(index: number, total: number): void {
     const percentage = Math.round((index / total) * 100);
     this.progressPercentageSubject.next(percentage);
     console.log(`[📊 Manual Progress] Set to ${percentage}%`);
+  } */
+  public setProgressManually(currentIndex: number, totalQuestions: number): void {
+    // Block Q1 progress update
+    if (currentIndex === 0) {
+      console.warn('[📊 Progress Blocked] Still on Q1, keeping 0%');
+      this.progressPercentageSubject.next(0);
+      return;
+    }
+  
+    const clampedIndex = Math.min(currentIndex, totalQuestions);
+    const percent = Math.floor((clampedIndex / totalQuestions) * 100);
+    this.progressPercentageSubject.next(percent);
+    console.log(`[✅ Progress Updated] ${percent}%`);
   }
 
   /* public markQ1Complete(): void {
