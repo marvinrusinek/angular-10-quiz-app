@@ -2956,7 +2956,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   updateProgressPercentage(): void {
-    this.quizService.getTotalQuestionsCount().subscribe({
+    this.quizService.getTotalQuestionsCount(this.quizId).subscribe({
       next: (total) => this.handleProgressUpdate(total),
       error: (error) => {
         console.error('Error fetching total questions:', error);
