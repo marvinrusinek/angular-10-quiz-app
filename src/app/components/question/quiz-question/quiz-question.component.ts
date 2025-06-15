@@ -11,6 +11,7 @@ import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
+import { LockedState } from '../../../shared/models/LockedState.model';
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuestionPayload } from '../../../shared/models/QuestionPayload.model';
@@ -2679,39 +2680,37 @@ export class QuizQuestionComponent
 
   private emitExplanationIfValid(
     explanationText: string,
-    lockedIndex: number,
-    lockedText: string,
-    lockedSnapshot: QuizQuestion | null,
-    lockedTimestamp: number
+    lockedState: LockedState
   ): void {
     const currentQuestion = this.currentQuestion;
     const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const currentText = currentQuestion?.questionText?.trim() || '';
   
     const isSame =
-      currentIndex === lockedIndex &&
-      currentText === lockedText &&
-      currentQuestion?.questionText === lockedSnapshot?.questionText &&
-      this.latestOptionClickTimestamp === lockedTimestamp;
+      currentIndex === lockedState.index &&
+      currentText === lockedState.text &&
+      currentQuestion?.questionText === lockedState.snapshot?.questionText &&
+      this.latestOptionClickTimestamp === lockedState.timestamp;
   
     if (isSame) {
-      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
+      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedState.index);
   
       // Avoid double-setting index if already auto-advanced from Q1
-      if (!(lockedIndex === 0 && this.hasAutoAdvancedFromQ1)) {
-        this.quizService.setCurrentQuestionIndex(lockedIndex);
+      if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
+        this.quizService.setCurrentQuestionIndex(lockedState.index);
       }
     } else {
       console.warn('[⛔ Explanation mismatch]', {
-        lockedIndex,
+        lockedIndex: lockedState.index,
         currentIndex,
-        lockedText,
+        lockedText: lockedState.text,
         currentText,
-        lockedTimestamp,
+        lockedTimestamp: lockedState.timestamp,
         latest: this.latestOptionClickTimestamp,
       });
     }
   }
+  
 
   private tryAutoAdvanceFromFirstQuestion(): void {
     const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
