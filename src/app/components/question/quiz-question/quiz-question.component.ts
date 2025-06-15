@@ -2644,31 +2644,7 @@ export class QuizQuestionComponent
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
-      const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
-
-      if (isFirstQuestion && !this.hasAutoAdvancedFromQ1) {
-        const ready = this.nextButtonStateService.isButtonCurrentlyEnabled() &&
-                      this.selectedOptionService.getAnsweredState();
-
-        if (ready) {
-          console.warn('[🛠 Q1 PATCH] Auto-advancing from Q1 to Q2');
-
-          this.selectedOptionService.setAnswered(true);
-          this.quizStateService.setAnswered(true);
-          this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-          this.nextButtonStateService.setButtonEnabled(true);
-          this.nextButtonStateService.updateAndSyncNextButtonState(true);
-
-          queueMicrotask(() => {
-            this.cdRef.detectChanges();
-            this.hasAutoAdvancedFromQ1 = true;
-            this.quizNavigationService.advanceToNextQuestion();
-          });
-        } else {
-          console.warn('[⏳ Q1 PATCH] Not ready yet — will wait');
-        }
-      } 
-
+      this.tryAutoAdvanceFromFirstQuestion();
   
       queueMicrotask(() => this.cdRef.detectChanges());
   
@@ -2718,6 +2694,40 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   }
+
+  private tryAutoAdvanceFromFirstQuestion(): void {
+    const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+  
+    if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
+  
+    console.warn('[🕒 Q1 PATCH] Deferring Q1 auto-advance check');
+  
+    setTimeout(() => {
+      const ready =
+        this.nextButtonStateService.isButtonCurrentlyEnabled() &&
+        this.selectedOptionService.getAnsweredState();
+  
+      if (ready) {
+        console.warn('[🚀 Q1 PATCH] Auto-advancing to Q2');
+  
+        this.selectedOptionService.setAnswered(true);
+        this.quizStateService.setAnswered(true);
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+        this.nextButtonStateService.setButtonEnabled(true);
+        this.nextButtonStateService.updateAndSyncNextButtonState(true);
+  
+        this.hasAutoAdvancedFromQ1 = true;
+  
+        queueMicrotask(() => {
+          this.cdRef.detectChanges();
+          this.quizNavigationService.advanceToNextQuestion();
+        });
+      } else {
+        console.warn('[⏳ Q1 PATCH] Not ready, skipping auto-advance');
+      }
+    }, 0);
+  }
+  
 
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
