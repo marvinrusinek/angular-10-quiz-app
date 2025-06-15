@@ -227,8 +227,8 @@ export class ProgressBarService implements OnDestroy {
         }
       });
   } */
-  initializeProgressTracking(quizId: string): void {
-    this.setProgress(0); // Always start at 0%
+  public initializeProgressTracking(quizId: string): void {
+    this.setProgress(0);
   
     combineLatest([
       this.quizService.getTotalQuestionsCount(quizId),
@@ -236,29 +236,29 @@ export class ProgressBarService implements OnDestroy {
     ])
       .pipe(
         debounceTime(50),
+        distinctUntilChanged((prev, curr) => prev[1] === curr[1]),
         takeUntil(this.destroy$)
       )
       .subscribe(([totalQuestions, index]) => {
-        console.log('[🧭 ProgressBar DEBUG]', {
-          totalQuestions,
-          index,
-          hasNavigatedPastQ1: this.hasNavigatedPastQ1
-        });
-      
-        const suppress = index === 0 && !this.hasNavigatedPastQ1;
-        if (suppress) {
-          console.warn('[⛔ Suppress Progress] Still on Q1 — setting 0%');
+        console.log('[📊 Progress Update Triggered]', { index, totalQuestions, hasNavigatedPastQ1: this.hasNavigatedPastQ1 });
+  
+        // ❌ Suppress progress update for Q1 unless auto-advance happened
+        if (index === 0 && !this.hasNavigatedPastQ1) {
+          console.warn('[🚫 Progress Suppressed for Q1]');
           this.setProgress(0);
           return;
         }
-      
-        const raw = (index / totalQuestions) * 100;
-        const percentage = parseFloat(raw.toFixed(0));
-        console.log('[✅ Progress Updated]', percentage, '%');
-        this.setProgress(percentage);
+  
+        if (totalQuestions > 0) {
+          const raw = (index / totalQuestions) * 100;
+          const percentage = parseFloat(raw.toFixed(0));
+          this.setProgress(percentage);
+          console.log('[✅ Progress Set]', percentage, '%');
+        } else {
+          this.setProgress(0);
+        }
       });
   }
-  
 
   // Manually update progress percentage (0–100) based on current index
   setProgressManually(currentIndex: number): void {
