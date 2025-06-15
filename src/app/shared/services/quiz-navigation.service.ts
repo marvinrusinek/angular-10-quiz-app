@@ -126,6 +126,9 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
+    
+    const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
+    this.progressBarService.updateProgress(currentIndex, totalQuestions);
   
     if (isFirstQuestion) {
       await this.handleFirstQuestionTransition();
