@@ -32,6 +32,11 @@ export class ProgressBarService implements OnDestroy {
     this.progressPercentageSubject.next(progress); // emit the new progress value
   }
 
+  updateProgress(currentIndex: number, totalQuestions: number): void {
+    const percent = currentIndex === 0 ? 0 : Math.floor((currentIndex / totalQuestions) * 100);
+    this.progressPercentageSubject.next(percent); // emit through BehaviorSubject
+  }
+
   /* initializeProgressTracking(quizId: string): void {
     this.setProgress(0); // always start at 0%
   
