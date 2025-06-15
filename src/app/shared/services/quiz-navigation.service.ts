@@ -126,12 +126,10 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
-
-    // For Q1, delay to allow state/UI to settle
-    if (isFirstQuestion && !this.hasFlushedQ1UI) {
-      console.warn('[🕒 Q1 UI Flush] Waiting briefly to stabilize state');
-      await new Promise(resolve => setTimeout(resolve, 30));
-      this.hasFlushedQ1UI = true;
+  
+    // Centralized Q1 handling
+    if (isFirstQuestion) {
+      await this.handleFirstQuestionTransition();
     }
   
     // Guards – is button enabled, answered, not loading/navigating
@@ -149,12 +147,6 @@ export class QuizNavigationService {
       return;
     }
   
-    // Patch for Q1 state settle
-    if (isFirstQuestion) {
-      console.warn('[🛠 Q1 PATCH] Waiting for state flush...');
-      await new Promise(resolve => setTimeout(resolve, 30));
-    }
-  
     // Lock UI state
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
@@ -170,10 +162,6 @@ export class QuizNavigationService {
   
       // Flush UI before route change
       this.quizQuestionLoaderService.resetUI();
-      if (isFirstQuestion) {
-        console.warn('[🧹 UI Flush for Q1]');
-        await new Promise(resolve => setTimeout(resolve, 25));
-      }
   
       // Attempt navigation
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
@@ -185,9 +173,8 @@ export class QuizNavigationService {
         // Sync state
         this.quizService.setCurrentQuestionIndex(nextIndex);
         // this.progressBarService.setProgressManually(nextIndex); // update progress here
-
         this.progressBarService.markQ1Complete();
-
+  
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
   
@@ -210,6 +197,21 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
+  }
+  
+  // Helper method to consolidate Q1 logic
+  private async handleFirstQuestionTransition(): Promise<void> {
+    if (!this.hasFlushedQ1UI) {
+      console.warn('[🕒 Q1 UI Flush] Waiting briefly to stabilize state');
+      await new Promise(resolve => setTimeout(resolve, 30));
+      this.hasFlushedQ1UI = true;
+    }
+  
+    console.warn('[🛠 Q1 PATCH] Waiting for state flush...');
+    await new Promise(resolve => setTimeout(resolve, 30));
+  
+    console.warn('[🧹 UI Flush for Q1]');
+    await new Promise(resolve => setTimeout(resolve, 25));
   }
 
   public async advanceToPreviousQuestion(): Promise<void> {
