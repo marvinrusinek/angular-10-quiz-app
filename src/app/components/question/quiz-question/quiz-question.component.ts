@@ -2650,18 +2650,18 @@ export class QuizQuestionComponent
       
         if (ready) {
           console.warn('[🛠 Q1 PATCH] Force-flushing state for Q1 transition');
-      
+          
           this.selectedOptionService.setAnswered(true);
           this.quizStateService.setAnswered(true);
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
           this.nextButtonStateService.setButtonEnabled(true);
           this.nextButtonStateService.updateAndSyncNextButtonState(true);
       
-          this.hasAutoAdvancedFromQ1 = true;
+          this.hasAutoAdvancedFromQ1 = true; // prevent future auto-advances
       
           queueMicrotask(() => {
             this.cdRef.detectChanges();
-            this.quizNavigationService.advanceToNextQuestion(); // ❌ ← This is the problem now
+            this.quizNavigationService.advanceToNextQuestion(); // safe, single-time call
           });
         }
       }
