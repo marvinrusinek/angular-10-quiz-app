@@ -230,7 +230,7 @@ export class QuizNavigationService {
   
         // Sync state
         this.quizService.setCurrentQuestionIndex(nextIndex);
-        this.progressBarService.setProgressManually(nextIndex); // ✅ Update progress here
+        // this.progressBarService.setProgressManually(nextIndex); // ✅ Update progress here
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
   

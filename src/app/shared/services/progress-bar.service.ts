@@ -48,7 +48,7 @@ export class ProgressBarService implements OnDestroy {
         }
       });      
   } */
-  initializeProgressTracking(quizId: string): void {
+  /* initializeProgressTracking(quizId: string): void {
     this.setProgress(0);
 
     // Track router navigation completions
@@ -80,6 +80,61 @@ export class ProgressBarService implements OnDestroy {
           }
         });
     });
+  } */
+  /* initializeProgressTracking(quizId: string): void {
+    this.setProgress(0);
+
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      debounceTime(50),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      combineLatest([
+        this.quizService.getTotalQuestionsCount(quizId),
+        this.quizService.currentQuestionIndex$
+      ])
+        .pipe(take(1))
+        .subscribe(([totalQuestions, index]) => {
+          if (index === 0) {
+            console.log('[📊 Progress] Q1 detected, setting 0%');
+            this.setProgress(0);
+          } else if (totalQuestions > 0) {
+            const percent = Math.round((index / totalQuestions) * 100);
+            console.log(`[📊 Progress] Q${index + 1}/${totalQuestions} → ${percent}%`);
+            this.setProgress(percent);
+          }
+        });
+    });
+  } */
+  initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // always start at 0%
+  
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$
+    ])
+      .pipe(
+        debounceTime(50),
+        distinctUntilChanged((prev, curr) => prev[1] === curr[1]), // only emit if index changed
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([totalQuestions, index]) => {
+        const isFirstQuestion = index === 0;
+  
+        if (totalQuestions > 0) {
+          if (isFirstQuestion) {
+            console.log('[📊 Progress Suppressed] Still on Q1 — forcing 0%');
+            this.setProgress(0);
+          } else {
+            const raw = (index / totalQuestions) * 100;
+            const percentage = parseFloat(raw.toFixed(0));
+            console.log('[✅ Progress Updated]', percentage, '%');
+            this.setProgress(percentage);
+          }
+        } else {
+          this.setProgress(0);
+        }
+      });
   }
 
   // Manually update progress percentage (0–100) based on current index
