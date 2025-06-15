@@ -1,17 +1,22 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, take, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, take, takeUntil, takeUntilDestroyed } from 'rxjs/operators';
 
 import { QuizService } from './quiz.service'; 
+import { QuizStateService } from './quizstate.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProgressBarService implements OnDestroy {
   // Use BehaviorSubject to store progress value
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
+  private hasNavigatedPastQ1 = false;
 
-  constructor(private quizService: QuizService, private router: Router) {}
+  constructor(
+    private quizService: QuizService,
+    private quizStateService: QuizStateService, 
+    private router: Router) {}
 
   private destroy$ = new Subject<void>();
   
@@ -106,36 +111,123 @@ export class ProgressBarService implements OnDestroy {
         });
     });
   } */
-  initializeProgressTracking(quizId: string): void {
-    this.setProgress(0); // always start at 0%
+  /* initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // Always start at 0%
+
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd),
+        map(() => this.quizService.getCurrentQuestionIndex()),
+        distinctUntilChanged()
+      )
+    ])
+    .pipe(takeUntilDestroyed())
+    .subscribe(([totalQuestions, index]) => {
+      console.log('[🔁 NAVIGATION END] Confirmed index:', index);
+
+      if (index === 0) {
+        console.log('[🚫 Progress] Still on Q1 → Forcing 0%');
+        this.setProgress(0);
+        return;
+      }
+
+      const percentage = Math.round((index / totalQuestions) * 100);
+      console.log(`[✅ Progress Updated] ${percentage}% at Q${index + 1}`);
+      this.setProgress(percentage);
+    });
+  } */
+  /* initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // Always start at 0%
+
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd),
+        map(() => this.quizService.getCurrentQuestionIndex()),
+        distinctUntilChanged()
+      )
+    ])
+    .pipe(takeUntilDestroyed())
+    .subscribe(([totalQuestions, index]) => {
+      const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+      
+      if (index === 0 && !isNavigating) {
+        console.log('[📊 Progress Suppressed] Still on Q1, keeping 0%');
+        this.setProgress(0);
+        return;
+      }
+    
+      if (totalQuestions > 0) {
+        const raw = (index / totalQuestions) * 100;
+        const percentage = parseFloat(raw.toFixed(0));
+        console.log('[✅ Progress Updated]', percentage, '%');
+        this.setProgress(percentage);
+      } else {
+        this.setProgress(0);
+      }
+    });
+  } */
+  /* initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // start at 0%
   
     combineLatest([
       this.quizService.getTotalQuestionsCount(quizId),
-      this.quizService.currentQuestionIndex$
+      this.quizService.currentQuestionIndex$,
+      this.quizStateService.isNavigatingSubject.asObservable()
     ])
       .pipe(
         debounceTime(50),
-        distinctUntilChanged((prev, curr) => prev[1] === curr[1]), // only emit if index changed
+        distinctUntilChanged((prev, curr) => prev[1] === curr[1]), // only react to index changes
         takeUntil(this.destroy$)
       )
-      .subscribe(([totalQuestions, index]) => {
-        const isFirstQuestion = index === 0;
+      .subscribe(([totalQuestions, index, isNavigating]) => {
+        if (index === 0 && !isNavigating) {
+          console.log('[📊 Suppress] Q1 option click – forcing 0%');
+          this.setProgress(0);
+          return;
+        }
   
         if (totalQuestions > 0) {
-          if (isFirstQuestion) {
-            console.log('[📊 Progress Suppressed] Still on Q1 — forcing 0%');
-            this.setProgress(0);
-          } else {
-            const raw = (index / totalQuestions) * 100;
-            const percentage = parseFloat(raw.toFixed(0));
-            console.log('[✅ Progress Updated]', percentage, '%');
-            this.setProgress(percentage);
-          }
+          const raw = (index / totalQuestions) * 100;
+          const percentage = parseFloat(raw.toFixed(0));
+          console.log('[✅ Progress Updated]', percentage, '%');
+          this.setProgress(percentage);
+        } else {
+          this.setProgress(0);
+        }
+      });
+  } */
+  initializeProgressTracking(quizId: string): void {
+    this.setProgress(0); // Always start at 0%
+  
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$,
+      this.quizStateService.isNavigatingSubject.asObservable()
+    ])
+      .pipe(
+        debounceTime(50),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([totalQuestions, index, isNavigating]) => {
+        if (index === 0 && !this.hasNavigatedPastQ1) {
+          // 🚫 Suppress progress update for Q1 option clicks
+          console.log('[⛔ Suppress Progress] Still on Q1 — forcing 0%');
+          this.setProgress(0);
+          return;
+        }
+  
+        if (totalQuestions > 0) {
+          const percentage = Math.round((index / totalQuestions) * 100);
+          console.log(`[✅ Progress Updated] index=${index}, percent=${percentage}%`);
+          this.setProgress(percentage);
         } else {
           this.setProgress(0);
         }
       });
   }
+  
 
   // Manually update progress percentage (0–100) based on current index
   setProgressManually(currentIndex: number): void {
@@ -150,5 +242,9 @@ export class ProgressBarService implements OnDestroy {
     const raw = (currentIndex / totalQuestions) * 100;
     const percentage = parseFloat(raw.toFixed(0));
     this.setProgress(percentage);
+  }
+
+  public markQ1Complete(): void {
+    this.hasNavigatedPastQ1 = true;
   }
 }
