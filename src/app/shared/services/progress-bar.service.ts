@@ -281,7 +281,8 @@ export class ProgressBarService implements OnDestroy {
       });
   } */
   initializeProgressTracking(quizId: string): void {
-    this.setProgress(0); // Always start at 0%
+    this.setProgress(0); // always start at 0%
+    this.hasMarkedQ1Complete = false;
   
     combineLatest([
       this.quizService.getTotalQuestionsCount(quizId),
@@ -293,17 +294,20 @@ export class ProgressBarService implements OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(([totalQuestions, index]) => {
-        if (index === 0 && !this.hasMarkedQ1Complete) {
-          console.log('[📊 Progress Suppressed] Still on Q1, forcing 0%');
+        const isFirstQuestion = index === 0;
+        const shouldSuppress = isFirstQuestion && !this.hasMarkedQ1Complete;
+  
+        if (shouldSuppress) {
+          console.log('[📊 PROGRESS] Suppressing progress on Q1');
           this.setProgress(0);
           return;
         }
   
         if (totalQuestions > 0) {
           const raw = (index / totalQuestions) * 100;
-          const percentage = parseFloat(raw.toFixed(0));
+          const percentage = Math.round(raw);
           this.setProgress(percentage);
-          console.log(`[✅ Progress Updated] ${percentage} %`);
+          console.log(`[✅ PROGRESS] Updated to ${percentage}%`);
         } else {
           this.setProgress(0);
         }
