@@ -2696,8 +2696,16 @@ export class QuizQuestionComponent
       this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedState.index);
 
       // Avoid double-setting index if already auto-advanced from Q1
-      if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
+      /* if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
         this.quizService.setCurrentQuestionIndex(lockedState.index);
+      } */
+      const alreadyAtQ0 = this.quizService.getCurrentQuestionIndex() === 0;
+      const isQ1 = lockedState.index === 0;
+
+      if (!(isQ1 && alreadyAtQ0)) {
+        this.quizService.setCurrentQuestionIndex(lockedState.index);
+      } else {
+        console.warn('[⛔ BLOCKED setCurrentQuestionIndex(0)] Suppressing re-fire');
       }
     } else {
       console.warn('[⛔ Explanation mismatch]', {
