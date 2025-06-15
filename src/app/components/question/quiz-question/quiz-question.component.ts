@@ -2699,13 +2699,24 @@ export class QuizQuestionComponent
       /* if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
         this.quizService.setCurrentQuestionIndex(lockedState.index);
       } */
-      const alreadyAtQ0 = this.quizService.getCurrentQuestionIndex() === 0;
+
+      /* const alreadyAtQ0 = this.quizService.getCurrentQuestionIndex() === 0;
       const isQ1 = lockedState.index === 0;
 
       if (!(isQ1 && alreadyAtQ0)) {
         this.quizService.setCurrentQuestionIndex(lockedState.index);
       } else {
         console.warn('[⛔ BLOCKED setCurrentQuestionIndex(0)] Suppressing re-fire');
+      } */
+
+      const currentIndex = this.quizService.getCurrentQuestionIndex();
+      const isQ1 = lockedState.index === 0;
+      const alreadyAtQ0 = currentIndex === 0;
+
+      if (isQ1 && alreadyAtQ0) {
+        console.warn('[⛔ BLOCKED setCurrentQuestionIndex(0)] Q1 already active, skipping setCurrentQuestionIndex');
+      } else {
+        this.quizService.setCurrentQuestionIndex(lockedState.index);
       }
     } else {
       console.warn('[⛔ Explanation mismatch]', {
