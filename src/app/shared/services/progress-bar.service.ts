@@ -288,20 +288,17 @@ export class ProgressBarService implements OnDestroy {
       this.quizService.currentQuestionIndex$
     ])
       .pipe(
-        debounceTime(50), // prevent rapid emissions
+        debounceTime(50),
+        distinctUntilChanged((prev, curr) => prev[1] === curr[1]),
         takeUntil(this.destroy$)
       )
-      /* .subscribe(([totalQuestions, index]) => {
-        const isFirstQuestion = index === 0;
-  
-        // Guard: Don't increment progress on Q1 — always 0%
-        if (isFirstQuestion && !this.hasManuallyMarkedQ1Complete) {
-          console.log('[📊 Progress Suppressed] Q1 active, forcing 0%');
+      .subscribe(([totalQuestions, index]) => {
+        if (index === 0 && !this.hasMarkedQ1Complete) {
+          console.log('[📊 Progress Suppressed] Still on Q1, forcing 0%');
           this.setProgress(0);
           return;
         }
   
-        // Normal progress calculation
         if (totalQuestions > 0) {
           const raw = (index / totalQuestions) * 100;
           const percentage = parseFloat(raw.toFixed(0));
@@ -310,21 +307,7 @@ export class ProgressBarService implements OnDestroy {
         } else {
           this.setProgress(0);
         }
-      }); */
-      combineLatest([
-        this.quizService.getTotalQuestionsCount(quizId),
-        this.quizService.currentQuestionIndex$
-      ]).subscribe(([totalQuestions, index]) => {
-        if (index === 0 && !this.hasMarkedQ1Complete) {
-          console.log('[📊 Progress Suppressed] Still on Q1, forcing 0%');
-          this.setProgress(0);
-          return;
-        }
-      
-        const raw = (index / totalQuestions) * 100;
-        const percentage = parseFloat(raw.toFixed(0));
-        this.setProgress(percentage);
-      });      
+      });
   }
   
 
