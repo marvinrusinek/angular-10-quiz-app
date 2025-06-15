@@ -360,7 +360,7 @@ export class ProgressBarService implements OnDestroy {
     console.log(`[✅ Progress Updated] ${progressPercent} %`);
     this.setProgress(progressPercent);
   } */
-  public markQ1Complete(quizId: string): void {
+  /* public markQ1Complete(quizId: string): void {
     this.hasManuallyMarkedQ1Complete = true;
 
     const currentIndex = this.quizService.getCurrentQuestionIndex();
@@ -375,7 +375,13 @@ export class ProgressBarService implements OnDestroy {
     const progressPercent = Math.floor((currentIndex / totalQuestions) * 100);
     console.log(`[✅ Progress Updated] ${progressPercent} %`);
     this.setProgress(progressPercent);
-  }
+  } */
+  markQ1Complete(): void {
+    const quizId = this.quizService.getCurrentQuizId?.();
+    const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
+    const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
   
-  
+    const percent = Math.floor((1 / total) * 100);
+    this.progressPercentageSubject.next(percent);
+  }  
 }
