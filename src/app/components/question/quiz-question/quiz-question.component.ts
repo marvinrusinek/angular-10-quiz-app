@@ -2687,7 +2687,7 @@ export class QuizQuestionComponent
   
       if (isSame) {
         this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedIndex);
-        this.quizService.setCurrentQuestionIndex(lockedIndex);
+        // this.quizService.setCurrentQuestionIndex(lockedIndex);
       } else {
         console.warn('[⛔ Explanation mismatch]', {
           lockedIndex,
