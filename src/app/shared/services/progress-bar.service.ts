@@ -328,8 +328,41 @@ export class ProgressBarService implements OnDestroy {
     console.log(`[📊 Manual Progress] Set to ${percentage}%`);
   }
 
-  public markQ1Complete(): void {
+  /* public markQ1Complete(): void {
     this.hasManuallyMarkedQ1Complete = true;
     console.log('[🔓 Progress Unlocked] Q1 marked as complete');
+  } */
+  /* public markQ1Complete(): void {
+    this.hasManuallyMarkedQ1Complete = true;  
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const totalQuestions = this.quizService.getTotalQuestions?.() ?? 1;
+  
+    if (currentIndex === 0) {
+      console.warn('[📊 Progress Suppressed] Still on Q1, forcing 0%');
+      this.setProgress(0); // This ensures it stays at 0
+      return;
+    }
+  
+    const progressPercent = Math.floor((currentIndex / totalQuestions) * 100);
+    console.log(`[✅ Progress Updated] ${progressPercent} %`);
+    this.setProgress(progressPercent);
+  } */
+  public markQ1Complete(quizId: string): void {
+    this.hasManuallyMarkedQ1Complete = true;
+
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const totalQuestions = (this.quizService.getTotalQuestionsCount(quizId) ?? 1) as number;
+  
+    if (currentIndex === 0) {
+      console.warn('[📊 Progress Suppressed] Still on Q1, forcing 0%');
+      this.setProgress(0);
+      return;
+    }
+  
+    const progressPercent = Math.floor((currentIndex / totalQuestions) * 100);
+    console.log(`[✅ Progress Updated] ${progressPercent} %`);
+    this.setProgress(progressPercent);
   }
+  
+  
 }
