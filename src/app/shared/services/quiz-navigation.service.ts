@@ -179,7 +179,7 @@ export class QuizNavigationService {
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
   
-    // Step 1: Guards – is button enabled, answered, not loading/navigating
+    // Guards – is button enabled, answered, not loading/navigating
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
@@ -195,13 +195,13 @@ export class QuizNavigationService {
       return;
     }
   
-    // Step 2: Patch for Q1 state settle
+    // Patch for Q1 state settle
     if (isFirstQuestion) {
       console.warn('[🛠 Q1 PATCH] Waiting for state flush...');
       await new Promise(resolve => setTimeout(resolve, 30));
     }
   
-    // Step 3: Lock UI state
+    // Lock UI state
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
@@ -251,7 +251,7 @@ export class QuizNavigationService {
     } catch (error) {
       console.error('[❌ advanceToNextQuestion() error]', error);
     } finally {
-      // Step 4: Unlock UI
+      // Unlock UI
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
