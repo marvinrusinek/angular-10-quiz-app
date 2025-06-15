@@ -144,7 +144,7 @@ export class QuizNavigationService {
         isEnabled,
         isAnswered,
         isLoading,
-        isNavigating,
+        isNavigating
       });
       return;
     }
