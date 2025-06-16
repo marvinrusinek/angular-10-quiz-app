@@ -2726,11 +2726,18 @@ export class QuizQuestionComponent
   
       // ✅ Enable "Next" button BEFORE trying auto-advance
       setTimeout(() => {
-        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-        console.warn('[🔄 Delayed check] isAnyOptionSelected:', shouldEnableNext);
-        this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-      }, 50); // allow state propagation
+        this.cdRef.detectChanges(); // 🔁 flush view state first
+      
+        requestAnimationFrame(() => {
+          const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+          console.warn('[✅ Q1 PATCH] isAnyOptionSelected (after flush):', shouldEnableNext);
+      
+          this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
+          this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      
+          this.tryAutoAdvanceFromFirstQuestion(); // only after button state is correct
+        });
+      }, 30); // give DOM/state time to settle
   
       // ✅ Debug state after setting
       const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
