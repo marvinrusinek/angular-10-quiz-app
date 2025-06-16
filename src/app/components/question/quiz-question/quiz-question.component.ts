@@ -2779,7 +2779,7 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', error);
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2859,8 +2859,105 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
-  }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
   
+    const lockedTimestamp = Date.now();
+    this.latestOptionClickTimestamp = lockedTimestamp;
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const lockedText = this.currentQuestion?.questionText?.trim() || '';
+    const lockedSnapshot = structuredClone(this.currentQuestion);
+    const requestId = ++this.explanationRequestId;
+  
+    try {
+      // Handle option selection and UI feedback
+      this.updateOptionSelection(event, option);
+      this.handleOptionSelection(option, event.index, this.currentQuestion);
+      this.applyFeedbackIfNeeded(option);
+      this.handleSelectionMessageUpdate();
+  
+      // ✅ Mark question as answered FIRST
+      this.selectedOptionService.setAnswered(true);
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+      // ✅ Force immediate view sync BEFORE checking selected state
+      this.cdRef.detectChanges();
+  
+      // ✅ Enable "Next" button IMMEDIATELY
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      console.warn('[✅ Q1 PATCH] isAnyOptionSelected (sync check):', shouldEnableNext);
+  
+      this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+  
+      // ✅ Debug state after setting
+      const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+      const isAnswered = this.quizStateService.answeredSubject.getValue();
+      console.warn('[✅ Q1 PATCH]', {
+        currentQuestionIndex,
+        isAnswered,
+        isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
+      });
+  
+      // ✅ Try auto-advance AFTER everything is locked in
+      this.tryAutoAdvanceFromFirstQuestion();
+  
+      // Explanation logic
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      if (requestId !== this.explanationRequestId) {
+        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
+        return;
+      }
+  
+      const lockedState: LockedState = {
+        index: lockedIndex,
+        text: lockedText,
+        snapshot: lockedSnapshot,
+        timestamp: lockedTimestamp
+      };
+      this.emitExplanationIfValid(explanationText, lockedState);
+  
+      // Finalize after click
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(option, event.index);
+  
+      // 🔄 Final microtask flush
+      queueMicrotask(() => {
+        this.nextButtonStateService.syncNextButtonState();
+        this.cdRef.detectChanges();
+      });
+  
+      // ✅ FINAL SAFETY PATCH — Re-confirm button + auto-advance after everything finishes
+      queueMicrotask(() => {
+        const finalReady = this.answerTrackingService.isAnyOptionSelected();
+        this.nextButtonStateService.setButtonEnabled(finalReady);
+        this.nextButtonStateService.updateAndSyncNextButtonState(finalReady);
+        this.cdRef.detectChanges();
+  
+        console.warn('[🔁 Final Q1 Patch State]', {
+          finalReady,
+          isAnswered: this.quizStateService.answeredSubject.getValue(),
+          isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
+        });
+  
+        this.tryAutoAdvanceFromFirstQuestion();
+      });
+  
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
+  }
 
   private emitExplanationIfValid(
     explanationText: string,
