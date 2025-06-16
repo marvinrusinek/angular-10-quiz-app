@@ -2610,256 +2610,6 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): Promise<void> {
-    const option = event.option;
-    if (!option) {
-      console.warn('[⚠️ onOptionClicked] option is null, skipping');
-      return;
-    }
-  
-    const lockedTimestamp = Date.now();
-    this.latestOptionClickTimestamp = lockedTimestamp;
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedText = this.currentQuestion?.questionText?.trim() || '';
-    const lockedSnapshot = structuredClone(this.currentQuestion);
-    const requestId = ++this.explanationRequestId;
-  
-    try {
-      // Handle option selection and UI feedback
-      this.updateOptionSelection(event, option);
-      this.handleOptionSelection(option, event.index, this.currentQuestion);
-      this.applyFeedbackIfNeeded(option);
-      this.handleSelectionMessageUpdate();
-  
-      this.tryAutoAdvanceFromFirstQuestion();
-  
-      queueMicrotask(() => this.cdRef.detectChanges());
-  
-      // Explanation logic
-      const explanationText = await this.updateExplanationText(lockedIndex);
-      if (requestId !== this.explanationRequestId) {
-        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
-        return;
-      }
-  
-      const lockedState: LockedState = {
-        index: lockedIndex,
-        text: lockedText,
-        snapshot: lockedSnapshot,
-        timestamp: lockedTimestamp
-      };
-      this.emitExplanationIfValid(explanationText, lockedState);
-
-     // Mark question as answered
-     this.selectedOptionService.setAnswered(true);
-     this.quizStateService.setAnswered(true);
-     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-
-     const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-     const state = this.quizStateService.getStoredState(String(currentQuestionIndex));
-     const isAnswered = this.quizStateService.answeredSubject.getValue();
-      console.warn('[✅ Q1 PATCH]', {
-        currentQuestionIndex,
-        isAnswered,
-        isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
-      });
-
-     //console.warn('[✅ Q1 PATCH] Marked as answered');
-
-      // Enable "Next" button
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      // 🔒 Lock in button state
-      setTimeout(() => {
-        this.nextButtonStateService.setButtonEnabled(true);
-        this.nextButtonStateService.updateAndSyncNextButtonState(true);
-        console.warn('[🔒 Q1 PATCH] Re-confirming Next button state after delay');
-      }, 30);
-  
-      // Finalize after click
-      await this.processSelectedOption(option, event.index, event.checked);
-      await this.finalizeAfterClick(option, event.index);
-  
-      // Final microtask flush
-      queueMicrotask(() => {
-        this.nextButtonStateService.syncNextButtonState();
-        this.cdRef.detectChanges();
-      });
-    } catch (error) {
-      console.error('[onOptionClicked] ❌ Error:', error);
-    }
-  } */
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): Promise<void> {
-    const option = event.option;
-    if (!option) {
-      console.warn('[⚠️ onOptionClicked] option is null, skipping');
-      return;
-    }
-  
-    const lockedTimestamp = Date.now();
-    this.latestOptionClickTimestamp = lockedTimestamp;
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedText = this.currentQuestion?.questionText?.trim() || '';
-    const lockedSnapshot = structuredClone(this.currentQuestion);
-    const requestId = ++this.explanationRequestId;
-  
-    try {
-      // Handle option selection and UI feedback
-      this.updateOptionSelection(event, option);
-      this.handleOptionSelection(option, event.index, this.currentQuestion);
-      this.applyFeedbackIfNeeded(option);
-      this.handleSelectionMessageUpdate();
-  
-      // ✅ Mark question as answered FIRST
-      this.selectedOptionService.setAnswered(true);
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-      // ✅ Enable "Next" button BEFORE trying auto-advance
-      setTimeout(() => {
-        this.cdRef.detectChanges(); // 🔁 flush view state first
-      
-        requestAnimationFrame(() => {
-          const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-          console.warn('[✅ Q1 PATCH] isAnyOptionSelected (after flush):', shouldEnableNext);
-      
-          this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-          this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-      
-          this.tryAutoAdvanceFromFirstQuestion(); // only after button state is correct
-        });
-      }, 30); // give DOM/state time to settle
-  
-      // ✅ Debug state after setting
-      const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      const isAnswered = this.quizStateService.answeredSubject.getValue();
-      console.warn('[✅ Q1 PATCH]', {
-        currentQuestionIndex,
-        isAnswered,
-        isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
-      });
-  
-      // ✅ Try auto-advance AFTER state is locked in
-      this.tryAutoAdvanceFromFirstQuestion();
-  
-      // Explanation logic
-      const explanationText = await this.updateExplanationText(lockedIndex);
-      if (requestId !== this.explanationRequestId) {
-        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
-        return;
-      }
-  
-      const lockedState: LockedState = {
-        index: lockedIndex,
-        text: lockedText,
-        snapshot: lockedSnapshot,
-        timestamp: lockedTimestamp
-      };
-      this.emitExplanationIfValid(explanationText, lockedState);
-  
-      // Finalize after click
-      await this.processSelectedOption(option, event.index, event.checked);
-      await this.finalizeAfterClick(option, event.index);
-  
-      // 🔄 Final microtask flush
-      queueMicrotask(() => {
-        this.nextButtonStateService.syncNextButtonState();
-        this.cdRef.detectChanges();
-      });
-    } catch (error) {
-      console.error('[onOptionClicked] ❌ Error:', error);
-    }
-  } */
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-  }): Promise<void> {
-    const option = event.option;
-    if (!option) {
-      console.warn('[⚠️ onOptionClicked] option is null, skipping');
-      return;
-    }
-  
-    const lockedTimestamp = Date.now();
-    this.latestOptionClickTimestamp = lockedTimestamp;
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedText = this.currentQuestion?.questionText?.trim() || '';
-    const lockedSnapshot = structuredClone(this.currentQuestion);
-    const requestId = ++this.explanationRequestId;
-  
-    try {
-      // Handle option selection and UI feedback
-      this.updateOptionSelection(event, option);
-      this.handleOptionSelection(option, event.index, this.currentQuestion);
-      this.applyFeedbackIfNeeded(option);
-      this.handleSelectionMessageUpdate();
-  
-      // ✅ Mark question as answered FIRST
-      this.selectedOptionService.setAnswered(true);
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-      // ✅ Force immediate view sync BEFORE checking selected state
-      this.cdRef.detectChanges();
-  
-      // ✅ Enable "Next" button IMMEDIATELY
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      console.warn('[✅ Q1 PATCH] isAnyOptionSelected (sync check):', shouldEnableNext);
-  
-      this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-  
-      // ✅ Debug state after setting
-      const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-      const isAnswered = this.quizStateService.answeredSubject.getValue();
-      console.warn('[✅ Q1 PATCH]', {
-        currentQuestionIndex,
-        isAnswered,
-        isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
-      });
-  
-      // ✅ Try auto-advance AFTER everything is locked in
-      this.tryAutoAdvanceFromFirstQuestion();
-  
-      // Explanation logic
-      const explanationText = await this.updateExplanationText(lockedIndex);
-      if (requestId !== this.explanationRequestId) {
-        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
-        return;
-      }
-  
-      const lockedState: LockedState = {
-        index: lockedIndex,
-        text: lockedText,
-        snapshot: lockedSnapshot,
-        timestamp: lockedTimestamp
-      };
-      this.emitExplanationIfValid(explanationText, lockedState);
-  
-      // Finalize after click
-      await this.processSelectedOption(option, event.index, event.checked);
-      await this.finalizeAfterClick(option, event.index);
-  
-      // 🔄 Final microtask flush
-      queueMicrotask(() => {
-        this.nextButtonStateService.syncNextButtonState();
-        this.cdRef.detectChanges();
-      });
-    } catch (error) {
-      console.error('[onOptionClicked] ❌ Error:', error);
-    }
-  } */
   public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -2886,22 +2636,22 @@ export class QuizQuestionComponent
       this.applyFeedbackIfNeeded(option);
       this.handleSelectionMessageUpdate();
   
-      // ✅ Mark question as answered FIRST
+      // Mark question as answered FIRST
       this.selectedOptionService.setAnswered(true);
       this.quizStateService.setAnswered(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-      // ✅ Force immediate view sync BEFORE checking selected state
+      // Force immediate view sync BEFORE checking selected state
       this.cdRef.detectChanges();
   
-      // ✅ Enable "Next" button IMMEDIATELY
+      // Enable next button immediately
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       console.warn('[✅ Q1 PATCH] isAnyOptionSelected (sync check):', shouldEnableNext);
   
       this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
-      // ✅ Debug state after setting
+      // Debug state after setting
       const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       const isAnswered = this.quizStateService.answeredSubject.getValue();
       console.warn('[✅ Q1 PATCH]', {
@@ -2910,7 +2660,7 @@ export class QuizQuestionComponent
         isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
       });
   
-      // ✅ Try auto-advance AFTER everything is locked in
+      // Try auto-advance after everything is locked in
       this.tryAutoAdvanceFromFirstQuestion();
   
       // Explanation logic
@@ -2932,13 +2682,13 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
   
-      // 🔄 Final microtask flush
+      // Final microtask flush
       queueMicrotask(() => {
         this.nextButtonStateService.syncNextButtonState();
         this.cdRef.detectChanges();
       });
   
-      // ✅ FINAL SAFETY PATCH — Re-confirm button + auto-advance after everything finishes
+      // Re-confirm button and auto-advance after everything finishes
       queueMicrotask(() => {
         const finalReady = this.answerTrackingService.isAnyOptionSelected();
         this.nextButtonStateService.setButtonEnabled(finalReady);
