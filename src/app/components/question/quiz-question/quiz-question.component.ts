@@ -2739,7 +2739,7 @@ export class QuizQuestionComponent
   }
   
 
-  private tryAutoAdvanceFromFirstQuestion(): void {
+  /* private tryAutoAdvanceFromFirstQuestion(): void {
     const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
   
     if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
@@ -2770,7 +2770,50 @@ export class QuizQuestionComponent
         console.warn('[⏳ Q1 PATCH] Not ready, skipping auto-advance');
       }
     }, 0);
+  } */
+  private tryAutoAdvanceFromFirstQuestion(): void {
+    const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+  
+    if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
+  
+    console.warn('[🕒 Q1 PATCH] Deferring Q1 auto-advance check');
+  
+    // Delay slightly to ensure state has settled before checking readiness
+    setTimeout(() => {
+      this.cdRef.detectChanges(); // Sync UI state
+  
+      const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+      const isAnswered = this.selectedOptionService.getAnsweredState();
+      const ready = isEnabled && isAnswered;
+  
+      console.warn('[🔍 Q1 Auto-Advance Check]', {
+        isEnabled,
+        isAnswered,
+        ready
+      });
+  
+      if (ready) {
+        console.warn('[🚀 Q1 PATCH] Auto-advancing to Q2');
+  
+        // Force state sync to avoid missed conditions
+        this.selectedOptionService.setAnswered(true);
+        this.quizStateService.setAnswered(true);
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+        this.nextButtonStateService.setButtonEnabled(true);
+        this.nextButtonStateService.updateAndSyncNextButtonState(true);
+  
+        this.hasAutoAdvancedFromQ1 = true;
+  
+        queueMicrotask(() => {
+          this.cdRef.detectChanges();
+          this.quizNavigationService.advanceToNextQuestion();
+        });
+      } else {
+        console.warn('[⏳ Q1 PATCH] Not ready, skipping auto-advance');
+      }
+    }, 30); // ⏱ Increased delay gives the UI a moment to settle
   }
+  
   
 
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
