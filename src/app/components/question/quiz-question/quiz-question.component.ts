@@ -2636,15 +2636,6 @@ export class QuizQuestionComponent
       this.applyFeedbackIfNeeded(option);
       this.handleSelectionMessageUpdate();
   
-      // Mark question as answered
-      this.selectedOptionService.setAnswered(true);
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-      // Enable "Next" button
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-  
       this.tryAutoAdvanceFromFirstQuestion();
   
       queueMicrotask(() => this.cdRef.detectChanges());
@@ -2663,6 +2654,16 @@ export class QuizQuestionComponent
         timestamp: lockedTimestamp
       };
       this.emitExplanationIfValid(explanationText, lockedState);
+
+     // Mark question as answered
+     this.selectedOptionService.setAnswered(true);
+     this.quizStateService.setAnswered(true);
+     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+     console.warn('[✅ Q1 PATCH] Marked as answered');
+
+      // Enable "Next" button
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
       // Finalize after click
       await this.processSelectedOption(option, event.index, event.checked);
@@ -2771,7 +2772,7 @@ export class QuizQuestionComponent
       }
     }, 0);
   } */
-  private tryAutoAdvanceFromFirstQuestion(): void {
+  /* private tryAutoAdvanceFromFirstQuestion(): void {
     const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
   
     if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
@@ -2785,6 +2786,7 @@ export class QuizQuestionComponent
       const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
       const isAnswered = this.selectedOptionService.getAnsweredState();
       const ready = isEnabled && isAnswered;
+      console.warn('[🧪 Next Enabled?]', isEnabled);
   
       console.warn('[🔍 Q1 Auto-Advance Check]', {
         isEnabled,
@@ -2812,10 +2814,33 @@ export class QuizQuestionComponent
         console.warn('[⏳ Q1 PATCH] Not ready, skipping auto-advance');
       }
     }, 30); // ⏱ Increased delay gives the UI a moment to settle
+  } */
+  private tryAutoAdvanceFromFirstQuestion(): void {
+    const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+    if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
+  
+    console.warn('[🕒 Q1 PATCH] Deferring Q1 auto-advance check');
+  
+    setTimeout(() => {
+      queueMicrotask(() => {
+        const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+        const isAnswered = this.selectedOptionService.getAnsweredState();
+  
+        console.warn('[🔍 Q1 Auto-Advance Check]', { isEnabled, isAnswered });
+  
+        if (!isEnabled || !isAnswered) {
+          console.warn('[⏳ Q1 PATCH] Not ready, skipping auto-advance');
+          return;
+        }
+  
+        console.warn('[🚀 Q1 PATCH] Auto-advancing to Q2');
+  
+        this.hasAutoAdvancedFromQ1 = true;
+        this.quizNavigationService.advanceToNextQuestion();
+      });
+    }, 40); // give enough time for UI and state to stabilize
   }
   
-  
-
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
   
