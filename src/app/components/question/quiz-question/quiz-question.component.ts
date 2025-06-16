@@ -2725,11 +2725,12 @@ export class QuizQuestionComponent
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
       // ✅ Enable "Next" button BEFORE trying auto-advance
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      console.warn('[🧪 Q1 PATCH] isAnyOptionSelected:', shouldEnableNext);
-
-      this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      setTimeout(() => {
+        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+        console.warn('[🔄 Delayed check] isAnyOptionSelected:', shouldEnableNext);
+        this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
+        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      }, 50); // allow state propagation
   
       // ✅ Debug state after setting
       const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
