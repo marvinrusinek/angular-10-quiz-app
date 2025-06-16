@@ -3023,7 +3023,7 @@ export class QuizQuestionComponent
       });
     }, 40); // give enough time for UI and state to stabilize
   } */
-  private tryAutoAdvanceFromFirstQuestion(): void {
+  /* private tryAutoAdvanceFromFirstQuestion(): void {
     const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
     if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
   
@@ -3037,8 +3037,49 @@ export class QuizQuestionComponent
       console.warn('[🧭 Q1 PATCH] Calling advanceToNextQuestion()');
       this.quizNavigationService.advanceToNextQuestion();
     }
-  }
+  } */
+  private tryAutoAdvanceFromFirstQuestion(): void {
+    const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
   
+    if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
+  
+    console.warn('[🕒 Q1 PATCH] Deferring Q1 auto-advance check');
+  
+    setTimeout(() => {
+      // Wait for Angular to stabilize first
+      this.cdRef.detectChanges();
+  
+      requestAnimationFrame(() => {
+        const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+        const isAnswered = this.quizStateService.answeredSubject.getValue(); // use subject directly
+        const ready = isEnabled && isAnswered;
+  
+        console.warn('[🔍 Q1 Auto-Advance Check]', { isEnabled, isAnswered });
+  
+        if (!ready) {
+          console.warn('[⏳ Q1 PATCH] Not ready, skipping auto-advance');
+          return;
+        }
+  
+        console.warn('[🚀 Q1 PATCH] Auto-advancing to Q2');
+  
+        this.selectedOptionService.setAnswered(true);
+        this.quizStateService.setAnswered(true);
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+        this.nextButtonStateService.setButtonEnabled(true);
+        this.nextButtonStateService.updateAndSyncNextButtonState(true);
+  
+        this.hasAutoAdvancedFromQ1 = true;
+  
+        // Delay slightly before navigation to ensure UI state propagates
+        setTimeout(() => {
+          this.cdRef.detectChanges();
+          console.warn('[🧭 Q1 PATCH] Calling advanceToNextQuestion()');
+          this.quizNavigationService.advanceToNextQuestion();
+        }, 40);
+      });
+    }, 50);
+  }
   
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
