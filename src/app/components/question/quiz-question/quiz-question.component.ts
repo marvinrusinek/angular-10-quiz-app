@@ -2659,6 +2659,17 @@ export class QuizQuestionComponent
      this.selectedOptionService.setAnswered(true);
      this.quizStateService.setAnswered(true);
      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+
+     const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+     const state = this.quizStateService.getStoredState(String(currentQuestionIndex));
+
+      console.warn('[✅ Q1 PATCH: State after setAnswered(true)]', {
+        currentQuestionIndex,
+        selectedOptionState: state,
+        isAnswered: state?.answered,
+        isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
+      });
+
      console.warn('[✅ Q1 PATCH] Marked as answered');
 
       // Enable "Next" button
