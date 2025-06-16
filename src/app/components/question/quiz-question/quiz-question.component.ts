@@ -2917,7 +2917,7 @@ export class QuizQuestionComponent
       }
     }, 30); // ⏱ Increased delay gives the UI a moment to settle
   } */
-  private tryAutoAdvanceFromFirstQuestion(): void {
+  /* private tryAutoAdvanceFromFirstQuestion(): void {
     const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
     if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
   
@@ -2941,7 +2941,22 @@ export class QuizQuestionComponent
         this.quizNavigationService.advanceToNextQuestion();
       });
     }, 40); // give enough time for UI and state to stabilize
+  } */
+  private tryAutoAdvanceFromFirstQuestion(): void {
+    const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
+    if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
+  
+    const isNextEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isAnswered = this.selectedOptionService.getAnsweredState();
+  
+    console.warn('[🧪 Auto-Advance Check]', { isNextEnabled, isAnswered });
+  
+    if (isNextEnabled && isAnswered) {
+      this.hasAutoAdvancedFromQ1 = true;
+      this.quizNavigationService.advanceToNextQuestion();
+    }
   }
+  
   
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
