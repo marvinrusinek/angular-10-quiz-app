@@ -3034,6 +3034,7 @@ export class QuizQuestionComponent
   
     if (isNextEnabled && isAnswered) {
       this.hasAutoAdvancedFromQ1 = true;
+      console.warn('[🧭 Q1 PATCH] Calling advanceToNextQuestion()');
       this.quizNavigationService.advanceToNextQuestion();
     }
   }
