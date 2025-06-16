@@ -2726,6 +2726,8 @@ export class QuizQuestionComponent
   
       // ✅ Enable "Next" button BEFORE trying auto-advance
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      console.warn('[🧪 Q1 PATCH] isAnyOptionSelected:', shouldEnableNext);
+
       this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   
