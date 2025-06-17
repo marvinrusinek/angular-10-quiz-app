@@ -2678,7 +2678,7 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
   
-      // 🔄 Final microtask flush and auto-advance check
+      // Final microtask flush and auto-advance check
       queueMicrotask(() => {
         const finalReady = this.answerTrackingService.isAnyOptionSelected();
         this.nextButtonStateService.setButtonEnabled(finalReady);
@@ -2694,7 +2694,6 @@ export class QuizQuestionComponent
         // Auto-advance only once, here
         this.tryAutoAdvanceFromFirstQuestion();
       });
-  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
