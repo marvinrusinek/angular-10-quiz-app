@@ -174,7 +174,7 @@ export class QuizNavigationService {
           // Delay to allow new route/question to stabilize
           setTimeout(() => {
             this.progressBarService.markQ1Complete(nextIndex);
-          });
+          }, 50);
         }
         // Set the current index FIRST so all future progress checks reflect it
         this.quizService.setCurrentQuestionIndex(nextIndex);
