@@ -168,9 +168,6 @@ export class QuizNavigationService {
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
-        // Set the current index FIRST so all future progress checks reflect it
-        this.quizService.setCurrentQuestionIndex(nextIndex);
-
         // After navigating away from Q1, update progress
         if (currentIndex === 0) {
           await this.handleFirstQuestionTransition();
@@ -179,6 +176,8 @@ export class QuizNavigationService {
             this.progressBarService.markQ1Complete(nextIndex);
           });
         }
+        // Set the current index FIRST so all future progress checks reflect it
+        this.quizService.setCurrentQuestionIndex(nextIndex);
 
         // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
         // this.progressBarService.setProgressManually(currentIndex, totalQuestions);
