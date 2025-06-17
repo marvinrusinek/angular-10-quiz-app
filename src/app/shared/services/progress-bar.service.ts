@@ -321,7 +321,7 @@ export class ProgressBarService implements OnDestroy {
     });    
   } */
   public initializeProgressTracking(quizId: string): void {
-    this.setProgress(0);
+    this.setProgress(0); // always start at 0
     this.hasMarkedQ1Complete = false;
   
     combineLatest([
@@ -332,24 +332,21 @@ export class ProgressBarService implements OnDestroy {
     .subscribe(([totalQuestions, index]) => {
       console.log('[🧪 currentQuestionIndex$ Emitted]', { index, totalQuestions });
   
-      const isFirstQuestion = index === 0;
-      const hasLeftQ1 = this.hasMarkedQ1Complete;
-  
-      if (isFirstQuestion && !hasLeftQ1) {
+      if (index === 0) {
+        // Still on Q1 — keep progress at 0%
         console.log('[📊 Suppressed] Still on Q1 — forcing 0%');
         this.setProgress(0);
         return;
       }
   
-      const clampedIndex = Math.min(index, totalQuestions - 1);
+      const clampedIndex = Math.min(index, totalQuestions);
       const raw = (clampedIndex / totalQuestions) * 100;
-      const percentage = Math.floor(raw);
+      const percentage = Math.round(raw);
   
       this.setProgress(percentage);
       console.log(`[✅ Progress Updated] ${percentage}%`);
     });
   }
-  
 
   // Manually update progress percentage (0–100) based on current index
   /* setProgressManually(currentIndex: number): void {
@@ -383,48 +380,4 @@ export class ProgressBarService implements OnDestroy {
     this.progressPercentageSubject.next(percent);
     console.log(`[✅ Progress Updated] ${percent}%`);
   }
-
-  /* public markQ1Complete(): void {
-    this.hasManuallyMarkedQ1Complete = true;
-    console.log('[🔓 Progress Unlocked] Q1 marked as complete');
-  } */
-  /* public markQ1Complete(): void {
-    this.hasManuallyMarkedQ1Complete = true;  
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const totalQuestions = this.quizService.getTotalQuestions?.() ?? 1;
-  
-    if (currentIndex === 0) {
-      console.warn('[📊 Progress Suppressed] Still on Q1, forcing 0%');
-      this.setProgress(0); // This ensures it stays at 0
-      return;
-    }
-  
-    const progressPercent = Math.floor((currentIndex / totalQuestions) * 100);
-    console.log(`[✅ Progress Updated] ${progressPercent} %`);
-    this.setProgress(progressPercent);
-  } */
-  /* public markQ1Complete(quizId: string): void {
-    this.hasManuallyMarkedQ1Complete = true;
-
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const totalQuestions = (this.quizService.getTotalQuestionsCount(quizId) ?? 1) as number;
-  
-    if (currentIndex === 0) {
-      console.warn('[📊 Progress Suppressed] Still on Q1, forcing 0%');
-      this.setProgress(0);
-      return;
-    }
-  
-    const progressPercent = Math.floor((currentIndex / totalQuestions) * 100);
-    console.log(`[✅ Progress Updated] ${progressPercent} %`);
-    this.setProgress(progressPercent);
-  } */
-  markQ1Complete(): void {
-    const quizId = this.quizService.getCurrentQuizId?.();
-    const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
-    const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
-  
-    const percent = Math.floor((1 / total) * 100);
-    this.progressPercentageSubject.next(percent);
-  }  
 }
