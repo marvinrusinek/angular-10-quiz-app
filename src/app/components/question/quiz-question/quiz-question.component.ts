@@ -2646,7 +2646,6 @@ export class QuizQuestionComponent
   
       // Enable next button immediately
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      // this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       console.warn('[✅ Q1 PATCH] Set button enabled:', shouldEnableNext);
       
@@ -2681,7 +2680,6 @@ export class QuizQuestionComponent
       // Final microtask flush and auto-advance check
       queueMicrotask(() => {
         const finalReady = this.answerTrackingService.isAnyOptionSelected();
-        // this.nextButtonStateService.setButtonEnabled(finalReady);
         this.nextButtonStateService.updateAndSyncNextButtonState(finalReady);
         this.cdRef.detectChanges();
 
