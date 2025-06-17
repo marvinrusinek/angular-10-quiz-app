@@ -424,20 +424,20 @@ export class ProgressBarService implements OnDestroy {
     console.log(`[✅ Progress Updated] ${progressPercent} %`);
     this.setProgress(progressPercent);
   } */
-  markQ1Complete(): void {
+  markQ1Complete(index: number): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
     const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
   
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    if (currentIndex === 0) {
-      console.warn('[🛑 Still on Q1, not marking progress]');
+    if (index === 0) {
+      console.log('[📊 Q1: Still on first question, progress remains 0%]');
+      this.progressPercentageSubject.next(0);
       return;
     }
   
-    const clampedIndex = Math.min(currentIndex, total);
+    const clampedIndex = Math.min(index, total);
     const percent = Math.floor((clampedIndex / total) * 100);
-    console.log(`[📊 Marking progress after Q1] Index: ${currentIndex}, Total: ${total}, Percent: ${percent}%`);
     this.progressPercentageSubject.next(percent);
+    console.log(`[✅ Progress after Q1] Index: ${index}, Total: ${total}, Percent: ${percent}%`);
   }
 }
