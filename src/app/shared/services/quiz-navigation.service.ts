@@ -168,7 +168,7 @@ export class QuizNavigationService {
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
-        // Wait for transition animations or UI prep
+        /* // Wait for transition animations or UI prep
         if (currentIndex === 0) {
           await this.handleFirstQuestionTransition();
         }
@@ -179,11 +179,16 @@ export class QuizNavigationService {
         // Only mark progress after Q1 is left and index is updated
         if (currentIndex === 0) {
           this.progressBarService.markQ1Complete(nextIndex);
-        }
+        } */
 
         // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
         // this.progressBarService.setProgressManually(currentIndex, totalQuestions);
         // this.progressBarService.setProgressManually(nextIndex); // update progress here
+
+        this.quizService.setCurrentQuestionIndex(nextIndex);
+
+        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
+        this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
