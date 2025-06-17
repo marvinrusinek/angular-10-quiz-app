@@ -197,7 +197,7 @@ export class QuizNavigationService {
             totalQuestions
           });
           
-          this.progressBarService.updateProgress(nextIndex, totalQuestions);
+          this.progressBarService.updateProgress(currentIndex, totalQuestions);
         } else {
           console.log('[📊 Progress skipped for Q1]');
           this.progressBarService.updateProgress(0, 1); // force reset to 0%
