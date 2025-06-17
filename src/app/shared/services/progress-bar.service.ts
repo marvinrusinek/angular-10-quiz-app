@@ -427,9 +427,9 @@ export class ProgressBarService implements OnDestroy {
   markQ1Complete(): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
-    const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
+    const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 6; // fallback if needed
   
     const percent = Math.floor((1 / total) * 100);
     this.progressPercentageSubject.next(percent);
-  }  
+  }
 }
