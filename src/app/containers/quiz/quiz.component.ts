@@ -2929,31 +2929,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.setAnswers(options);
   }
 
-  private trackProgress(): void {
-    this.quizService.currentQuestionIndex$.subscribe(index => this.currentQuestionIndex = index);
-    this.progressBarService.progress$.subscribe(progress => this.progressBarService.setProgress(progress));
-  }
-
-  updateProgressPercentage(): void {
-    this.quizService.getTotalQuestionsCount(this.quizId).subscribe({
-      next: (total) => this.handleProgressUpdate(total),
-      error: (error) => {
-        console.error('Error fetching total questions:', error);
-        this.progressBarService.setProgress(0); // ensure progress is reset on error
-      },
-    });
-  }
-  
-  private handleProgressUpdate(total: number): void {
-    this.totalQuestions = total;
-  
-    const progress = total > 0 
-      ? (this.currentQuestionIndex / total) * 100 
-      : 0;
-  
-    this.progressBarService.setProgress(progress);
-  }
-
   animationDoneHandler(): void {
     this.animationState$.next('none');
   }
@@ -3183,9 +3158,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Update the explanation text based on the current question state
     this.updateQuestionStateAndExplanation(this.currentQuestionIndex);
-
-    // Update the progress percentage based on the new current question index
-    this.updateProgressPercentage();
   }
 
   private updateDisplayState(mode: 'question' | 'explanation', answered: boolean): void {
