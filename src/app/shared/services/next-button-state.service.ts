@@ -104,16 +104,16 @@ export class NextButtonStateService {
 
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
-      const currentState = this.isButtonEnabledSubject.getValue();
-  
-      if (isEnabled === currentState) {
-        console.debug('[🔁 updateAndSyncNextButtonState] Skipping redundant update:', isEnabled);
+      // Skip redundant updates
+      if (this.isEnabled === isEnabled) {
+        console.log('[⏩ Skipping redundant update]', isEnabled);
         return;
       }
   
       console.log('[🔁 updateAndSyncNextButtonState]', isEnabled);
       this.isEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
+  
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
         'pointer-events': isEnabled ? 'auto' : 'none'
