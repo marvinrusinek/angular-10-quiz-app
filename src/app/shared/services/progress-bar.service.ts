@@ -330,25 +330,20 @@ export class ProgressBarService implements OnDestroy {
     ])
     .pipe(takeUntil(this.destroy$))
     .subscribe(([totalQuestions, index]) => {
-      console.log('[🧪 currentQuestionIndex$ Emitted]', { index, totalQuestions });
-  
       const isFirstQuestion = index === 0;
-      const hasLeftQ1 = this.hasMarkedQ1Complete;
   
-      if (isFirstQuestion && !hasLeftQ1) {
-        console.log('[📊 Suppressed] Still on Q1 — forcing 0%');
-        this.setProgress(0);
+      if (isFirstQuestion && !this.hasMarkedQ1Complete) {
+        console.log('[📊 Q1 Progress Suppressed] Forcing 0%');
+        this.setProgress(0); // keep at 0%
         return;
       }
   
-      const clampedIndex = Math.min(index, totalQuestions - 1);
-      const raw = (clampedIndex / totalQuestions) * 100;
-      const percentage = Math.floor(raw);
-  
-      this.setProgress(percentage);
-      console.log(`[✅ Progress Updated] ${percentage}%`);
+      const percent = Math.round((index / totalQuestions) * 100);
+      this.setProgress(percent);
+      console.log(`[✅ Progress Updated] ${percent}%`);
     });
   }
+  
   
 
   // Manually update progress percentage (0–100) based on current index
