@@ -4935,7 +4935,7 @@ export class QuizQuestionComponent
       console.error(`Invalid question data for index ${questionIndex}`);
       return {
         questionIndex,
-        explanation: 'No question data available',
+        explanation: 'No question data available'
       };
     }
 
