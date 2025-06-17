@@ -187,7 +187,11 @@ export class QuizNavigationService {
 
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
-        const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
+        const totalQuestions = await firstValueFrom(
+          this.quizService.getTotalQuestionsCount(this.quizId)
+        );
+      
+        // Only update progress AFTER setting new index
         this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         this.selectedOptionService.setAnswered(false);
