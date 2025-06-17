@@ -168,20 +168,17 @@ export class QuizNavigationService {
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
-        // Only mark Q1 complete AFTER navigating away
-        /* if (currentIndex === 0) {
-          await this.handleFirstQuestionTransition();
-          setTimeout(() => {
-            this.progressBarService.markQ1Complete();
-          }, 50); // short delay to ensure index is updated
-        } */
+        // Set the current index FIRST so all future progress checks reflect it
         this.quizService.setCurrentQuestionIndex(nextIndex);
-        // Only mark Q1 complete AFTER navigating away
+
+        // After navigating away from Q1, update progress
         if (currentIndex === 0) {
-          await this.handleFirstQuestionTransition();  // optional: any animation or UI work
-          this.progressBarService.markQ1Complete(nextIndex);
+          await this.handleFirstQuestionTransition();
+          // Delay to allow new route/question to stabilize
+          setTimeout(() => {
+            this.progressBarService.markQ1Complete(nextIndex);
+          });
         }
-        
 
         // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
         // this.progressBarService.setProgressManually(currentIndex, totalQuestions);
