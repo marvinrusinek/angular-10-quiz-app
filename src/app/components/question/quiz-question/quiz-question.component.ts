@@ -2645,11 +2645,22 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
   
       // Enable next button immediately
-      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+      /* const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       console.warn('[✅ Q1 PATCH] isAnyOptionSelected (sync check):', shouldEnableNext);
   
       this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext); */
+
+      // Delay slightly to allow selected state to settle before enabling Next
+      setTimeout(() => {
+        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+        console.warn('[✅ Q1 PATCH ⏱ settled]', shouldEnableNext);
+
+        this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
+        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+        this.cdRef.detectChanges();
+      }, 50);
+
   
       // Debug state after setting
       const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
