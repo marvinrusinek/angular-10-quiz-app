@@ -1955,7 +1955,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
   
     this.viewReady = true;
-    this.cdRef.detectChanges();
   }
 
   initializeFeedbackBindings(): void { 
