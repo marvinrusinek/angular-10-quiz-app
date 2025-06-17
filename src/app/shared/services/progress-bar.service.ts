@@ -75,6 +75,7 @@ export class ProgressBarService implements OnDestroy {
     this.progressPercentageSubject.next(percent);
     console.log(`[📊 Progress] Q${currentIndex + 1}/${totalQuestions} → ${percent}%`);
   }
+  
 
   /* initializeProgressTracking(quizId: string): void {
     this.setProgress(0); // always start at 0%
