@@ -1946,7 +1946,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
-        console.log('[🟢 optionsReady = true]');
       });
     }, 100);
   
