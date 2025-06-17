@@ -187,12 +187,16 @@ export class QuizNavigationService {
 
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
-        const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(this.quizId)
-        );
-      
-        // Only update progress AFTER setting new index
-        this.progressBarService.updateProgress(nextIndex, totalQuestions);
+        // Only update progress if leaving Q1
+        if (currentIndex > 0) {
+          const totalQuestions = await firstValueFrom(
+            this.quizService.getTotalQuestionsCount(this.quizId)
+          );
+          this.progressBarService.updateProgress(nextIndex, totalQuestions);
+        } else {
+          console.log('[📊 Progress skipped for Q1]');
+          this.progressBarService.updateProgress(0, 1); // force reset to 0%
+        }
   
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
