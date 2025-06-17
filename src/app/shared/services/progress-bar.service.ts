@@ -46,13 +46,29 @@ export class ProgressBarService implements OnDestroy {
     const percent = currentIndex === 0 ? 0 : Math.floor((currentIndex / totalQuestions) * 100);
     this.progressPercentageSubject.next(percent); // emit through BehaviorSubject
   } */
-  updateProgress(currentIndex: number, totalQuestions: number): void {
+  /* updateProgress(currentIndex: number, totalQuestions: number): void {
     const percent = currentIndex === 0
       ? 0
       : Math.floor((currentIndex / totalQuestions) * 100);
     
     this.progressPercentageSubject.next(percent);
+  } */
+  public updateProgress(currentIndex: number, totalQuestions: number): void {
+    // Clamp to totalQuestions so it never exceeds 100%
+    const clampedIndex = Math.min(currentIndex, totalQuestions);
+    const percent = Math.floor((clampedIndex / totalQuestions) * 100);
+
+    // Block Q1 progress update (Q1 is index 0)
+    if (currentIndex === 0) {
+      console.warn('[📊 Progress Blocked] Still on Q1, keeping 0%');
+      this.progressPercentageSubject.next(0);
+      return;
+    }
+
+    this.progressPercentageSubject.next(percent);
+    console.log(`[✅ Progress Updated] ${percent}%`);
   }
+
 
 
   /* initializeProgressTracking(quizId: string): void {
