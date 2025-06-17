@@ -132,6 +132,7 @@ export class QuizNavigationService {
   
     if (isFirstQuestion) {
       await this.handleFirstQuestionTransition();
+      this.progressBarService.markQ1Complete(); 
     }
   
     // Guards – is button enabled, answered, not loading/navigating
