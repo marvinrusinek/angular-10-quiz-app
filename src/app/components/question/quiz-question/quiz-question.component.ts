@@ -2645,23 +2645,11 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
   
       // Enable next button immediately
-      /* const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      console.warn('[✅ Q1 PATCH] isAnyOptionSelected (sync check):', shouldEnableNext);
-  
+      const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext); */
-
-      // Delay slightly to allow selected state to settle before enabling Next
-      setTimeout(() => {
-        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-        console.warn('[✅ Q1 PATCH ⏱ settled]', shouldEnableNext);
-
-        this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
-        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
-        this.cdRef.detectChanges();
-      }, 50);
-
-  
+      this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      console.warn('[✅ Q1 PATCH] Set button enabled:', shouldEnableNext);
+      
       // Debug state after setting
       const currentQuestionIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
       const isAnswered = this.quizStateService.answeredSubject.getValue();
@@ -2670,9 +2658,6 @@ export class QuizQuestionComponent
         isAnswered,
         isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
       });
-  
-      // Try auto-advance after everything is locked in
-      this.tryAutoAdvanceFromFirstQuestion();
   
       // Explanation logic
       const explanationText = await this.updateExplanationText(lockedIndex);
@@ -2693,25 +2678,20 @@ export class QuizQuestionComponent
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
   
-      // Final microtask flush
-      queueMicrotask(() => {
-        this.nextButtonStateService.syncNextButtonState();
-        this.cdRef.detectChanges();
-      });
-  
-      // Re-confirm button and auto-advance after everything finishes
+      // 🔄 Final microtask flush and auto-advance check
       queueMicrotask(() => {
         const finalReady = this.answerTrackingService.isAnyOptionSelected();
         this.nextButtonStateService.setButtonEnabled(finalReady);
         this.nextButtonStateService.updateAndSyncNextButtonState(finalReady);
         this.cdRef.detectChanges();
-  
+
         console.warn('[🔁 Final Q1 Patch State]', {
           finalReady,
           isAnswered: this.quizStateService.answeredSubject.getValue(),
           isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
         });
-  
+
+        // Auto-advance only once, here
         this.tryAutoAdvanceFromFirstQuestion();
       });
   
