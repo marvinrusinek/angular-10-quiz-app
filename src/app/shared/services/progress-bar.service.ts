@@ -29,8 +29,15 @@ export class ProgressBarService implements OnDestroy {
 
   // Method to update the progress
   setProgress(progress: number): void {
-    this.progressPercentageSubject.next(progress); // emit the new progress value
+    const index = this.quizService.getCurrentQuestionIndex?.() ?? 0;
+    if (index === 0 && progress > 0) {
+      console.warn('[🛡️ Blocked progress above 0% while on Q1]');
+      return;
+    }
+    this.progressPercentageSubject.next(progress);
   }
+  
+
 
   /* updateProgress(currentIndex: number, totalQuestions: number): void {
     const percent = currentIndex === 0 ? 0 : Math.floor((currentIndex / totalQuestions) * 100);
@@ -367,7 +374,7 @@ export class ProgressBarService implements OnDestroy {
     this.progressPercentageSubject.next(percentage);
     console.log(`[📊 Manual Progress] Set to ${percentage}%`);
   } */
-  public setProgressManually(currentIndex: number, totalQuestions: number): void {
+  /* public setProgressManually(currentIndex: number, totalQuestions: number): void {
     // Block Q1 progress update
     if (currentIndex === 0) {
       console.warn('[📊 Progress Blocked] Still on Q1, keeping 0%');
@@ -379,5 +386,5 @@ export class ProgressBarService implements OnDestroy {
     const percent = Math.floor((clampedIndex / totalQuestions) * 100);
     this.progressPercentageSubject.next(percent);
     console.log(`[✅ Progress Updated] ${percent}%`);
-  }
+  } */
 }
