@@ -168,23 +168,6 @@ export class QuizNavigationService {
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
-        /* // Wait for transition animations or UI prep
-        if (currentIndex === 0) {
-          await this.handleFirstQuestionTransition();
-        }
-
-        // Sync index AFTER navigation to avoid stale state issues
-        this.quizService.setCurrentQuestionIndex(nextIndex);
-
-        // Only mark progress after Q1 is left and index is updated
-        if (currentIndex === 0) {
-          this.progressBarService.markQ1Complete(nextIndex);
-        } */
-
-        // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
-        // this.progressBarService.setProgressManually(currentIndex, totalQuestions);
-        // this.progressBarService.setProgressManually(nextIndex); // update progress here
-
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
         // Only update progress if leaving Q1
