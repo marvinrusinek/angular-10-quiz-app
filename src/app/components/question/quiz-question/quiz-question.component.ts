@@ -2610,7 +2610,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2684,7 +2684,61 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    const option = event.option;
+    if (!option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      return;
+    }
+  
+    const lockedTimestamp = Date.now();
+    this.latestOptionClickTimestamp = lockedTimestamp;
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const lockedText = this.currentQuestion?.questionText?.trim() || '';
+    const lockedSnapshot = structuredClone(this.currentQuestion);
+    const requestId = ++this.explanationRequestId;
+  
+    try {
+      this.processOptionSelection(event, option);
+  
+      this.markQuestionAsAnswered();
+      this.cdRef.detectChanges();
+  
+      this.enableNextButton();
+  
+      const explanationText = await this.updateExplanationText(lockedIndex);
+      if (requestId !== this.explanationRequestId) {
+        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
+        return;
+      }
+  
+      this.emitExplanationIfValid(explanationText, {
+        index: lockedIndex,
+        text: lockedText,
+        snapshot: lockedSnapshot,
+        timestamp: lockedTimestamp
+      });
+  
+      await this.processSelectedOption(option, event.index, event.checked);
+      await this.finalizeAfterClick(option, event.index);
+  
+      queueMicrotask(() => this.tryAutoAdvanceFromFirstQuestion());
+  
+    } catch (error) {
+      console.error('[onOptionClicked] ❌ Error:', error);
+    }
   }
+
+  private enableNextButton(): void {
+    const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+    this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+  }  
 
   private emitExplanationIfValid(
     explanationText: string,
