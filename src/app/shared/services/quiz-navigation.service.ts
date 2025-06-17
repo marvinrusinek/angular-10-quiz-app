@@ -168,10 +168,15 @@ export class QuizNavigationService {
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
-        if (currentIndex === 0) {
+        // Only mark Q1 complete AFTER navigating away
+        /* if (currentIndex === 0) {
           await this.handleFirstQuestionTransition();
-          this.progressBarService.markQ1Complete();
-        }
+          setTimeout(() => {
+            this.progressBarService.markQ1Complete();
+          }, 50); // short delay to ensure index is updated
+        } */
+
+        this.quizService.setCurrentQuestionIndex(nextIndex);
 
         // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
         // this.progressBarService.setProgressManually(currentIndex, totalQuestions);
