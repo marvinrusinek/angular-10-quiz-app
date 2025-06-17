@@ -384,15 +384,17 @@ export class QuizNavigationService {
       const success = await this.router.navigateByUrl(routeUrl);
   
       if (success) {
+        // Update index BEFORE progress
         this.quizService.setCurrentQuestionIndex(prevIndex);
         this.currentQuestionIndex = prevIndex;
   
-        // Update progress after setting index
+        // Update progress AFTER index is set
         const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(quizId)
+          this.quizService.getTotalQuestionsCount(this.quizId)
         );
         this.progressBarService.updateProgress(prevIndex, totalQuestions);
   
+        // Continue with navigation-related observers
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
