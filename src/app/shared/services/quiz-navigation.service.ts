@@ -175,14 +175,9 @@ export class QuizNavigationService {
           const totalQuestions = await firstValueFrom(
             this.quizService.getTotalQuestionsCount(this.quizId)
           );
-          console.log('[🧪 DEBUG] Progress update:', {
-            currentIndex: nextIndex,
-            totalQuestions
-          });
           
           this.progressBarService.updateProgress(currentIndex, totalQuestions);
         } else {
-          console.log('[📊 Progress skipped for Q1]');
           this.progressBarService.updateProgress(0, 1); // force reset to 0%
         }
   
