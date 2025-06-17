@@ -176,6 +176,13 @@ export class QuizNavigationService {
           }, 50); // short delay to ensure index is updated
         } */
 
+        // Only mark Q1 complete AFTER navigating away
+        if (currentIndex === 0) {
+          await this.handleFirstQuestionTransition();  // optional: any animation or UI work
+          setTimeout(() => {
+            this.progressBarService.markQ1Complete();
+          }, 50); // short delay to ensure index is updated
+        }
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
         // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
