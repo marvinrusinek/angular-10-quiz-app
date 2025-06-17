@@ -192,6 +192,11 @@ export class QuizNavigationService {
           const totalQuestions = await firstValueFrom(
             this.quizService.getTotalQuestionsCount(this.quizId)
           );
+          console.log('[🧪 DEBUG] Progress update:', {
+            currentIndex: nextIndex,
+            totalQuestions
+          });
+          
           this.progressBarService.updateProgress(nextIndex, totalQuestions);
         } else {
           console.log('[📊 Progress skipped for Q1]');
