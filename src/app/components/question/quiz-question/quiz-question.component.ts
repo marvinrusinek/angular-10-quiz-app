@@ -2646,7 +2646,7 @@ export class QuizQuestionComponent
   
       // Enable next button immediately
       const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
+      // this.nextButtonStateService.setButtonEnabled(shouldEnableNext);
       this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       console.warn('[✅ Q1 PATCH] Set button enabled:', shouldEnableNext);
       
