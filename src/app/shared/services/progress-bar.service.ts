@@ -293,7 +293,7 @@ export class ProgressBarService implements OnDestroy {
         this.progressPercentageSubject.next(percentage);
       });
   } */
-  public initializeProgressTracking(quizId: string): void {
+  /* public initializeProgressTracking(quizId: string): void {
     this.setProgress(0);
     this.hasMarkedQ1Complete = false;
   
@@ -319,7 +319,37 @@ export class ProgressBarService implements OnDestroy {
       this.setProgress(percentage);
       console.log(`[✅ Progress Updated] ${percentage}%`);
     });    
+  } */
+  public initializeProgressTracking(quizId: string): void {
+    this.setProgress(0);
+    this.hasMarkedQ1Complete = false;
+  
+    combineLatest([
+      this.quizService.getTotalQuestionsCount(quizId),
+      this.quizService.currentQuestionIndex$
+    ])
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(([totalQuestions, index]) => {
+      console.log('[🧪 currentQuestionIndex$ Emitted]', { index, totalQuestions });
+  
+      const isFirstQuestion = index === 0;
+      const hasLeftQ1 = this.hasMarkedQ1Complete;
+  
+      if (isFirstQuestion && !hasLeftQ1) {
+        console.log('[📊 Suppressed] Still on Q1 — forcing 0%');
+        this.setProgress(0);
+        return;
+      }
+  
+      const clampedIndex = Math.min(index, totalQuestions - 1);
+      const raw = (clampedIndex / totalQuestions) * 100;
+      const percentage = Math.floor(raw);
+  
+      this.setProgress(percentage);
+      console.log(`[✅ Progress Updated] ${percentage}%`);
+    });
   }
+  
 
   // Manually update progress percentage (0–100) based on current index
   /* setProgressManually(currentIndex: number): void {
