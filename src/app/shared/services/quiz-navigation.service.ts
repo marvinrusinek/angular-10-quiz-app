@@ -178,7 +178,7 @@ export class QuizNavigationService {
 
         // Step 3: Only mark progress after Q1 is left and index is updated
         if (currentIndex === 0) {
-          this.progressBarService.markQ1Complete();
+          this.progressBarService.markQ1Complete(nextIndex);
         }
 
         // const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
