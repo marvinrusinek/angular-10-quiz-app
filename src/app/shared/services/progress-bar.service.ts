@@ -424,7 +424,7 @@ export class ProgressBarService implements OnDestroy {
     console.log(`[✅ Progress Updated] ${progressPercent} %`);
     this.setProgress(progressPercent);
   } */
-  /* markQ1Complete(index: number): void {
+  markQ1Complete(index: number): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
     const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
@@ -439,8 +439,8 @@ export class ProgressBarService implements OnDestroy {
     const percent = Math.floor((clampedIndex / total) * 100);
     this.progressPercentageSubject.next(percent);
     console.log(`[✅ Progress after Q1] Index: ${index}, Total: ${total}, Percent: ${percent}%`);
-  } */
-  markQ1Complete(): void {
+  }
+ /* markQ1Complete(): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
     const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
@@ -453,5 +453,5 @@ export class ProgressBarService implements OnDestroy {
     } else {
       console.warn('[📛 markQ1Complete called too late or from wrong question]');
     }
-  }  
+  }  */
 }

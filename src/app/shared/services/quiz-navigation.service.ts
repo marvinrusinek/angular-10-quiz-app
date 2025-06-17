@@ -169,13 +169,13 @@ export class QuizNavigationService {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
         // After navigating away from Q1, update progress
-        if (currentIndex === 0) {
+       /* if (currentIndex === 0) {
           await this.handleFirstQuestionTransition();
           // Delay to allow new route/question to stabilize
           setTimeout(() => {
             this.progressBarService.markQ1Complete(nextIndex);
           }, 50);
-        }
+        } */
         // Set the current index FIRST so all future progress checks reflect it
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
