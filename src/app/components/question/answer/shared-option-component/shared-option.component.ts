@@ -1906,9 +1906,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.processOptionBindings();
   }  
 
-  private processOptionBindings(): void {
-    console.log('[⚡ processOptionBindings STARTED]');
-  
+  private processOptionBindings(): void {  
     const options = this.optionsToDisplay ?? [];
   
     if (!options.length) {
@@ -1942,9 +1940,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       return optionBinding;
     });
-  
-    console.log('[✅ processOptionBindings] Option bindings processed:', this.optionBindings);
-  
+
     this.updateHighlighting();
   
     setTimeout(() => {
