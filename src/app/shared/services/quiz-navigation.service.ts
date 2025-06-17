@@ -306,7 +306,7 @@ export class QuizNavigationService {
       const routeUrl = `/question/${quizId}/${prevIndex}`;
       const success = await this.router.navigateByUrl(routeUrl);
   
-      if (success) {
+      /* if (success) {
         this.quizService.setCurrentQuestionIndex(prevIndex);
         this.currentQuestionIndex = prevIndex;
         this.notifyNavigationSuccess();
@@ -318,6 +318,25 @@ export class QuizNavigationService {
         this.progressBarService.updateProgress(prevIndex, totalQuestions);
       } else {
         console.warn('[❌] router.navigateByUrl failed for Q', prevIndex);
+      } */
+      if (success) {
+        this.quizService.setCurrentQuestionIndex(prevIndex);
+        this.currentQuestionIndex = prevIndex;
+      
+        // Trigger UI-related updates
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+      
+        // Update progress bar
+        const totalQuestions = await firstValueFrom(
+          this.quizService.getTotalQuestionsCount(quizId)
+        );
+        console.log('[🧪 Previous Navigation] Updating progress:', {
+          prevIndex,
+          totalQuestions,
+        });
+        this.progressBarService.updateProgress(prevIndex, totalQuestions);
       }
   
       this.quizQuestionLoaderService.resetUI();
