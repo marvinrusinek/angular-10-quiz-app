@@ -2705,9 +2705,8 @@ export class QuizQuestionComponent
     const requestId = ++this.explanationRequestId;
   
     try {
-      this.processOptionSelection(event, option);
-  
-      this.markQuestionAsAnswered();
+      this.performInitialSelectionFlow(event, option);
+      this.setAnsweredAndDisplayState();
       this.cdRef.detectChanges();
   
       this.enableNextButton();
@@ -2733,6 +2732,19 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
+  }
+
+  private performInitialSelectionFlow(event: any, option: SelectedOption): void {
+    this.updateOptionSelection(event, option);
+    this.handleOptionSelection(option, event.index, this.currentQuestion);
+    this.applyFeedbackIfNeeded(option);
+    this.handleSelectionMessageUpdate();
+  }
+  
+  private setAnsweredAndDisplayState(): void {
+    this.selectedOptionService.setAnswered(true);
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   }
 
   private enableNextButton(): void {
