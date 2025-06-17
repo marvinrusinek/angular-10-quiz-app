@@ -424,16 +424,17 @@ export class ProgressBarService implements OnDestroy {
     console.log(`[✅ Progress Updated] ${progressPercent} %`);
     this.setProgress(progressPercent);
   } */
-  markQ1Complete(): void {
+  markQ1Complete(currentIndex: number): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
     const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
   
-    const percent = Math.round((1 / total) * 100); // <-- only 1/total for Q2
-    console.log(`[📊 Q1 Complete → Emitting ${percent}%]`);
+    const clampedIndex = Math.min(currentIndex, total);
+    const percent = Math.floor((clampedIndex / total) * 100);
+  
+    console.log(`[📊 Q1 Complete → Progress: ${percent}%]`, { currentIndex, total });
     this.progressPercentageSubject.next(percent);
   }
-  
  /* markQ1Complete(): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
