@@ -102,29 +102,8 @@ export class NextButtonStateService {
     return shouldEnable;
   }
 
-  /* public updateAndSyncNextButtonState(isEnabled: boolean): void {
-    this.ngZone.run(() => {
-      // Skip redundant updates
-      if (this.isEnabled === isEnabled) {
-        console.log('[⏩ Skipping redundant update]', isEnabled);
-        return;
-      }
-  
-      console.log('[🔁 updateAndSyncNextButtonState]', isEnabled);
-      this.isEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
-  
-      this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none'
-      };
-    });
-  } */
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
-      console.log('[🔁 updateAndSyncNextButtonState]', isEnabled);
-      
-      // 🧪 FORCE ENABLE for debug (remove after test)
       this.isEnabled = true;
       this.isButtonEnabledSubject.next(true);
       this.nextButtonStyle = {
