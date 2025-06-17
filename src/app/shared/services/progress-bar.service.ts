@@ -431,11 +431,13 @@ export class ProgressBarService implements OnDestroy {
   
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     if (currentIndex === 0) {
-      console.warn('[🛑 Q1 not left yet, skipping progress update]');
+      console.warn('[🛑 Still on Q1, not marking progress]');
       return;
     }
   
-    const percent = Math.floor((1 / total) * 100);
+    const clampedIndex = Math.min(currentIndex, total);
+    const percent = Math.floor((clampedIndex / total) * 100);
+    console.log(`[📊 Marking progress after Q1] Index: ${currentIndex}, Total: ${total}, Percent: ${percent}%`);
     this.progressPercentageSubject.next(percent);
   }
 }
