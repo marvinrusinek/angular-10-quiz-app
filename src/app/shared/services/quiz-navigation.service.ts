@@ -168,15 +168,15 @@ export class QuizNavigationService {
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
-        // Step 1: Wait for transition animations or UI prep
+        // Wait for transition animations or UI prep
         if (currentIndex === 0) {
           await this.handleFirstQuestionTransition();
         }
 
-        // Step 2: Sync index AFTER navigation to avoid stale state issues
+        // Sync index AFTER navigation to avoid stale state issues
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
-        // Step 3: Only mark progress after Q1 is left and index is updated
+        // Only mark progress after Q1 is left and index is updated
         if (currentIndex === 0) {
           this.progressBarService.markQ1Complete(nextIndex);
         }
