@@ -130,11 +130,6 @@ export class QuizNavigationService {
     //const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
     //this.progressBarService.updateProgress(currentIndex, totalQuestions);
   
-    if (isFirstQuestion) {
-      await this.handleFirstQuestionTransition();
-      this.progressBarService.markQ1Complete(); 
-    }
-  
     // Guards – is button enabled, answered, not loading/navigating
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
     const isAnswered = this.selectedOptionService.getAnsweredState();
@@ -174,8 +169,9 @@ export class QuizNavigationService {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
 
         // Progress bar should only advance after Q1 is left
-        if (currentIndex === 0) {
-          this.progressBarService.markQ1Complete();
+        if (isFirstQuestion) {
+          await this.handleFirstQuestionTransition();
+          this.progressBarService.markQ1Complete(); 
         }
   
         // Sync state
