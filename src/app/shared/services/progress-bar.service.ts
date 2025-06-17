@@ -28,9 +28,19 @@ export class ProgressBarService implements OnDestroy {
   }
 
   // Method to update the progress
-  setProgress(progress: number): void {
+  /* setProgress(progress: number): void {
     this.progressPercentageSubject.next(progress); // emit the new progress value
+  } */
+  setProgress(progress: number): void {
+    const isQ1 = this.quizService.getCurrentQuestionIndex?.() === 0;
+    if (isQ1 && !this.hasMarkedQ1Complete) {
+      console.warn('[🛑 Progress Blocked inside setProgress()] Still on Q1');
+      return;
+    }
+  
+    this.progressPercentageSubject.next(progress);
   }
+  
 
   /* updateProgress(currentIndex: number, totalQuestions: number): void {
     const percent = currentIndex === 0 ? 0 : Math.floor((currentIndex / totalQuestions) * 100);
