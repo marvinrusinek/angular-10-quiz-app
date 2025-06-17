@@ -41,40 +41,6 @@ export class ProgressBarService implements OnDestroy {
     this.progressPercentageSubject.next(progress);
   }
   
-
-  /* updateProgress(currentIndex: number, totalQuestions: number): void {
-    const percent = currentIndex === 0 ? 0 : Math.floor((currentIndex / totalQuestions) * 100);
-    this.progressPercentageSubject.next(percent); // emit through BehaviorSubject
-  } */
-  /* updateProgress(currentIndex: number, totalQuestions: number): void {
-    const percent = currentIndex === 0
-      ? 0
-      : Math.floor((currentIndex / totalQuestions) * 100);
-    
-    this.progressPercentageSubject.next(percent);
-  } */
-  /* updateProgress(currentIndex: number, totalQuestions: number): void {
-    if (currentIndex === 0) {
-      console.log('[⏸️ Progress Update] Still on Q1 → 0%');
-      this.progressPercentageSubject.next(0);
-      return;
-    }
-  
-    const safeTotal = totalQuestions > 0 ? totalQuestions : 1;
-    const percent = Math.round((currentIndex / safeTotal) * 100);
-    console.log(`[📊 Progress Updated] Q${currentIndex + 1} of ${safeTotal} = ${percent}%`);
-    this.progressPercentageSubject.next(percent);
-  } */
-  /* updateProgress(currentIndex: number, totalQuestions: number): void {
-    if (totalQuestions <= 0) {
-      this.progressPercentageSubject.next(0);
-      return;
-    }
-  
-    const percent = currentIndex === 0 ? 0 : Math.round((currentIndex / totalQuestions) * 100);
-    this.progressPercentageSubject.next(percent);
-    console.log(`[📊 Progress] Q${currentIndex + 1}/${totalQuestions} → ${percent}%`);
-  } */
   updateProgress(currentIndex: number, totalQuestions: number): void {
     if (!totalQuestions || totalQuestions <= 0) {
       this.progressPercentageSubject.next(0);
