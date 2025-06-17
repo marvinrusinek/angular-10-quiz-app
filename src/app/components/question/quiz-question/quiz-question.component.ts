@@ -2679,18 +2679,7 @@ export class QuizQuestionComponent
   
       // Final microtask flush and auto-advance check
       queueMicrotask(() => {
-        const finalReady = this.answerTrackingService.isAnyOptionSelected();
-        this.nextButtonStateService.updateAndSyncNextButtonState(finalReady);
-        this.cdRef.detectChanges();
-
-        console.warn('[🔁 Final Q1 Patch State]', {
-          finalReady,
-          isAnswered: this.quizStateService.answeredSubject.getValue(),
-          isNextEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
-        });
-
-        // Auto-advance only once, here
-        this.tryAutoAdvanceFromFirstQuestion();
+        this.tryAutoAdvanceFromFirstQuestion(); // auto-advance only once
       });
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
