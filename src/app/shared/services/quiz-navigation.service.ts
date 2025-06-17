@@ -179,7 +179,7 @@ export class QuizNavigationService {
         // Only mark Q1 complete AFTER navigating away
         if (currentIndex === 0) {
           await this.handleFirstQuestionTransition();  // optional: any animation or UI work
-          this.progressBarService.markQ1Complete();
+          this.progressBarService.markQ1Complete(nextIndex);
         }
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
